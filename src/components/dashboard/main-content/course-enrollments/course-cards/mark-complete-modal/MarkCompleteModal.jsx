@@ -1,12 +1,12 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Modal, StatefulButton } from '@openedx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform';
 
 import MarkCompleteModalContext from './MarkCompleteModalContext';
 import ModalBody from './ModalBody';
 import { updateCourseCompleteStatusRequest } from './data/service';
+import { useEnterpriseCustomer } from '../../../../../app/data';
 
 export const MARK_SAVED_FOR_LATER_DEFAULT_LABEL = 'Save course for later';
 export const MARK_SAVED_FOR_LATER_PENDING_LABEL = 'Saving course for later...';
@@ -25,7 +25,7 @@ const MarkCompleteModal = ({
   onSuccess,
   onClose,
 }) => {
-  const { enterpriseConfig: { uuid } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [
     { confirmButtonState, confirmError, confirmSuccessful },
     setState,
@@ -41,7 +41,7 @@ const MarkCompleteModal = ({
     setState({ confirmButtonState: 'pending' });
     try {
       const response = await updateCourseCompleteStatusRequest({
-        enterprise_id: uuid,
+        enterprise_id: enterpriseCustomer.uuid,
         course_id: courseId,
         saved_for_later: true,
       });

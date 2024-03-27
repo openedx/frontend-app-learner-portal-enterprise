@@ -4,16 +4,18 @@ import classNames from 'classnames';
 import { Dropdown } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ProgramContext } from './ProgramContextProvider';
 import { getProgramDuration } from './data/utils';
-import { linkToCourse } from '../course/data/utils';
+import { getLinkToCourse } from '../course/data/utils';
+import { useEnterpriseCustomer } from '../app/data';
 
 const ProgramCTA = () => {
   const intl = useIntl();
   const { program } = useContext(ProgramContext);
   const { courses, subjects } = program;
-  const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { programUuid } = useParams();
 
   const { courseCount, availableCourseCount } = useMemo(() => (
@@ -165,12 +167,12 @@ const ProgramCTA = () => {
               course.enterpriseHasCourse ? (
                 <Dropdown.Item
                   key={course.title}
-                  as="a"
-                  href={linkToCourse(course, slug)}
+                  as={Link}
+                  to={getLinkToCourse(course, enterpriseCustomer.slug)}
                   className="wrap-word"
                   onClick={() => {
                     sendEnterpriseTrackEvent(
-                      uuid,
+                      enterpriseCustomer.uuid,
                       'edx.ui.enterprise.learner_portal.program.cta.course.clicked',
                       {
                         userId,

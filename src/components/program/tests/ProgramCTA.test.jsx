@@ -9,10 +9,10 @@ import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramCTA from '../ProgramCTA';
+import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
-const userId = 'batman';
 const courseKey = 'edX+DemoX';
-const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
 const programUuid = '00000000-0000-0000-0000-000000000000';
 
 jest.mock('react-router-dom', () => ({
@@ -26,6 +26,11 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
     sendEnterpriseTrackEvent: jest.fn(),
   });
 });
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
 
 const ProgramCTAtWithContext = ({
   initialAppState = {},
@@ -43,72 +48,73 @@ const ProgramCTAtWithContext = ({
   </IntlProvider>
 );
 
-describe('<ProgramCTA />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-      uuid: enterpriseUuid,
-    },
-    authenticatedUser: {
-      userId,
-    },
-  };
-  const initialProgramState = {
-    program: {
-      title: 'Test Program Title',
-      courses: [
-        {
-          key: 'edX+DemoX',
-          title: 'Test Course 1 Title',
-          shortDescription: 'Test course 1 description',
-          courseRuns: [
-            {
-              title: 'Test Course Run 1 Title',
-              start: '2013-02-05T05:00:00Z',
-              shortDescription: 'Test course 1 description',
-            },
-          ],
-          enterpriseHasCourse: true,
-        },
-        {
-          key: 'edX+DemoX',
-          title: 'Test Course 2 Title',
-          shortDescription: 'Test course 2 description',
-          courseRuns: [
-            {
-              title: 'Test Course Run 2 Title',
-              start: '2013-02-05T05:00:00Z',
-              shortDescription: 'Test course 2 description',
-            },
-          ],
-          enterpriseHasCourse: false,
-        },
-        {
-          key: 'edX+DemoX',
-          title: 'Test Course 3 Title',
-          shortDescription: 'Test course 3 description',
-          courseRuns: [
-            {
-              title: 'Test Course Run 3 Title',
-              start: '2013-02-05T05:00:00Z',
-              shortDescription: 'Test course 3 description',
-            },
-          ],
-          enterpriseHasCourse: true,
-        },
-      ],
-    },
-  };
-  const initialUserSubsidyState = {
-    subscriptionLicense: {
-      uuid: 'test-license-uuid',
-    },
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-  };
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
+const initialAppState = {
+  authenticatedUser: mockAuthenticatedUser,
+};
+const initialProgramState = {
+  program: {
+    title: 'Test Program Title',
+    courses: [
+      {
+        key: 'edX+DemoX',
+        title: 'Test Course 1 Title',
+        shortDescription: 'Test course 1 description',
+        courseRuns: [
+          {
+            title: 'Test Course Run 1 Title',
+            start: '2013-02-05T05:00:00Z',
+            shortDescription: 'Test course 1 description',
+          },
+        ],
+        enterpriseHasCourse: true,
+      },
+      {
+        key: 'edX+DemoX',
+        title: 'Test Course 2 Title',
+        shortDescription: 'Test course 2 description',
+        courseRuns: [
+          {
+            title: 'Test Course Run 2 Title',
+            start: '2013-02-05T05:00:00Z',
+            shortDescription: 'Test course 2 description',
+          },
+        ],
+        enterpriseHasCourse: false,
+      },
+      {
+        key: 'edX+DemoX',
+        title: 'Test Course 3 Title',
+        shortDescription: 'Test course 3 description',
+        courseRuns: [
+          {
+            title: 'Test Course Run 3 Title',
+            start: '2013-02-05T05:00:00Z',
+            shortDescription: 'Test course 3 description',
+          },
+        ],
+        enterpriseHasCourse: true,
+      },
+    ],
+  },
+};
+const initialUserSubsidyState = {
+  subscriptionLicense: {
+    uuid: 'test-license-uuid',
+  },
+  couponCodes: {
+    couponCodes: [],
+    couponCodesCount: 0,
+  },
+};
+
+describe('<ProgramCTA />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
   test('renders program CTA.', () => {
     render(
       <ProgramCTAtWithContext
@@ -123,9 +129,9 @@ describe('<ProgramCTA />', () => {
     userEvent.click(screen.getByText('View Course Details'));
     fireEvent.click(screen.getByText('Test Course 1 Title'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      enterpriseUuid,
+      mockEnterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.program.cta.course.clicked',
-      { courseKey, programUuid, userId },
+      { courseKey, programUuid, userId: mockAuthenticatedUser.userId },
     );
   });
 

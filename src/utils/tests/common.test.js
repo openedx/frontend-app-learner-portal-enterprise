@@ -6,6 +6,7 @@ import {
   hasTruthyValue,
   hasValidStartExpirationDates,
   fixedEncodeURIComponent,
+  defaultQueryClientRetryHandler,
 } from '../common';
 
 function assertTestCaseEquals(testCase, expectedValue) {
@@ -168,5 +169,39 @@ describe('hasValidStartExpirationDates', () => {
     };
     const result = hasValidStartExpirationDates(invalidExp);
     expect(result).toBeFalsy();
+  });
+});
+
+describe('defaultQueryClientRetryHandler', () => {
+  it.each([
+    {
+      retryCount: 0,
+      error: { customAttributes: { httpErrorStatus: 500 } },
+      expectedShouldRetry: true,
+    },
+    {
+      retryCount: 3,
+      error: { customAttributes: { httpErrorStatus: 500 } },
+      expectedShouldRetry: false,
+    },
+    // Axios 404
+    {
+      retryCount: 0,
+      error: { customAttributes: { httpErrorStatus: 404 } },
+      expectedShouldRetry: false,
+    },
+    // Regular 404
+    {
+      retryCount: 0,
+      error: { response: { status: 404 } },
+      expectedShouldRetry: false,
+    },
+  ])('returns expected output for each test case', ({
+    retryCount,
+    error,
+    expectedShouldRetry,
+  }) => {
+    const shouldRetry = defaultQueryClientRetryHandler(retryCount, error);
+    expect(shouldRetry).toBe(expectedShouldRetry);
   });
 });

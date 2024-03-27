@@ -1,9 +1,6 @@
 import React from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import {
-  screen, act,
-} from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import userEvent from '@testing-library/user-event';
@@ -12,6 +9,8 @@ import ProgramListingPage from '../ProgramListingPage';
 import { useLearnerProgramsListData } from '../data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
 import { CONTENT_TYPE_PROGRAM } from '../../search/constants';
+import { useCanOnlyViewHighlights, useEnterpriseCustomer, useEnterpriseProgramsList } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const dummyProgramData = {
   uuid: 'test-uuid',
@@ -61,84 +60,76 @@ jest.mock('../data/hooks', () => ({
   useLearnerProgramsListData: jest.fn(),
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useCanOnlyViewHighlights: jest.fn(),
+  useEnterpriseCustomer: jest.fn(),
+  useEnterpriseProgramsList: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
+const defaultUserSubsidyState = {
+  subscriptionLicense: {
+    uuid: 'test-license-uuid',
+  },
+  couponCodes: {
+    couponCodes: [],
+    couponCodesCount: 0,
+  },
+};
+
 const ProgramListingWithContext = ({
-  initialAppState = {},
-  initialUserSubsidyState = {},
-  canOnlyViewHighlightSets = false,
-  programsListData = [],
-  programsFetchError = null,
+  initialUserSubsidyState = defaultUserSubsidyState,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramListingPage
-          canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-          programsListData={programsListData}
-          programsFetchError={programsFetchError}
-        />
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <ProgramListingPage />
+    </UserSubsidyContext.Provider>
   </IntlProvider>
 );
 
 describe('<ProgramListing />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-      name: 'Test Enterprise',
-    },
-  };
-
-  const initialUserSubsidyState = {
-    subscriptionLicense: {
-      uuid: 'test-license-uuid',
-    },
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-  };
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useCanOnlyViewHighlights.mockReturnValue({ data: false });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseProgramsList.mockReturnValue({ data: [], error: null });
+  });
 
   it('renders all program cards', async () => {
     const dataForAnotherProgram = { ...dummyProgramData };
     dataForAnotherProgram.title = 'Test Program Title 2';
-    useLearnerProgramsListData.mockImplementation(() => ([[dummyProgramData, dataForAnotherProgram], null]));
+    useEnterpriseProgramsList.mockReturnValue({ data: [dummyProgramData, dataForAnotherProgram] });
 
-    await act(async () => {
-      renderWithRouter(
-        <ProgramListingWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-          programsListData={[dummyProgramData, dataForAnotherProgram]}
-        />,
-      );
+    renderWithRouter(
+      <ProgramListingWithContext />,
+    );
+    await waitFor(() => {
       expect(screen.getByText(dummyProgramData.title)).toBeInTheDocument();
       expect(screen.getByText('Test Program Title 2')).toBeInTheDocument();
     });
   });
 
   it('renders program error.', async () => {
-    useLearnerProgramsListData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
+    useEnterpriseProgramsList.mockReturnValue({
+      data: [],
+      error: { message: 'This is a test message.' },
+    });
     renderWithRouter(
-      <ProgramListingWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={initialUserSubsidyState}
-        programsFetchError={{ message: 'This is a test message.' }}
-      />,
+      <ProgramListingWithContext />,
     );
-    expect(screen.getByTestId('error-page')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('error-page')).toBeInTheDocument();
+    });
   });
 
   it('renders no programs message when data received is empty', async () => {
     useLearnerProgramsListData.mockImplementation(() => ([[], null]));
-
-    await act(async () => {
-      renderWithRouter(
-        <ProgramListingWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
+    renderWithRouter(
+      <ProgramListingWithContext />,
+    );
+    await waitFor(() => {
       expect(screen.getByText('You are not enrolled in any programs yet.')).toBeInTheDocument();
       expect(screen.getByText('Explore programs')).toBeInTheDocument();
     });
@@ -147,28 +138,22 @@ describe('<ProgramListing />', () => {
   it('redirects to correct url when clicked on explore programs', async () => {
     useLearnerProgramsListData.mockImplementation(() => ([[], null]));
 
-    await act(async () => {
-      renderWithRouter(
-        <ProgramListingWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
-      userEvent.click(screen.getByText('Explore programs'));
-      expect(window.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
-      expect(window.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
+    renderWithRouter(
+      <ProgramListingWithContext />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText('Explore programs')).toBeInTheDocument();
     });
+    userEvent.click(screen.getByText('Explore programs'));
+    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/search`);
+    expect(window.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
   });
 
   it('does not render button when canOnlyViewHighlightSets is true', () => {
     useLearnerProgramsListData.mockImplementation(() => ([[], null]));
-
+    useCanOnlyViewHighlights.mockReturnValue({ data: true });
     renderWithRouter(
-      <ProgramListingWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={initialUserSubsidyState}
-        canOnlyViewHighlightSets
-      />,
+      <ProgramListingWithContext />,
     );
     expect(screen.queryByText('Explore programs')).not.toBeInTheDocument();
   });

@@ -6,7 +6,7 @@ import capitalize from 'lodash.capitalize';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import { CONTENT_TYPES, IN_PROGRESS } from './constants';
-import { linkToCourse, shortenString } from '../course/data/utils';
+import { getLinkToCourse, shortenString } from '../course/data/utils';
 
 const PathwayNode = ({ node }) => {
   const { enterpriseSlug } = useParams();
@@ -15,7 +15,7 @@ const PathwayNode = ({ node }) => {
     // eslint-disable-next-line consistent-return
     () => {
       if (node.contentType === CONTENT_TYPES.COURSE) {
-        return linkToCourse(node, enterpriseSlug);
+        return getLinkToCourse(node, enterpriseSlug);
       }
       if (node.contentType === CONTENT_TYPES.PROGRAM) {
         return `/${enterpriseSlug}/program/${node.uuid}`;

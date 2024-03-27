@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
-import { getLearnerProgramProgressDetail, getLearnerProgramsList } from './service';
+import { getLearnerProgramProgressDetail, fetchLearnerProgramsList } from './service';
 
 export function useLearnerProgramProgressData(programUUID) {
   const [learnerProgramProgressData, setLearnerProgramProgressData] = useState();
@@ -34,7 +34,7 @@ export function useLearnerProgramsListData(enterpriseUuid) {
     const fetchData = async () => {
       if (enterpriseUuid) {
         try {
-          const response = await getLearnerProgramsList(enterpriseUuid);
+          const response = await fetchLearnerProgramsList(enterpriseUuid);
           setLearnerProgramsListData(response.data);
         } catch (error) {
           logError(error);

@@ -1,3 +1,4 @@
+import { getBrandColorsFromCSSVariables } from '../../../utils/common';
 import { CURRENT_JOB_PROFILE_FIELD_NAME } from './constants';
 
 export function extractCurrentJobID(profileData) {
@@ -31,17 +32,19 @@ export function prepareSpiderChartData(categories) {
 }
 
 export function getSpiderChartData(jobName, topCategories, averageScores, learnerScores) {
+  const primaryColor = getBrandColorsFromCSSVariables().primary;
   const data = [
     {
       type: 'scatterpolar',
       r: learnerScores,
       theta: topCategories,
       fill: 'toself',
-      color: '#00262B',
+      color: primaryColor,
       line: {
-        color: '#00262B',
+        color: primaryColor,
       },
       opacity: 0.7,
+      // TODO: i18n
       name: 'My Skills',
     },
     {

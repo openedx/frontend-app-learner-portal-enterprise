@@ -3,23 +3,22 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-
 import userEvent from '@testing-library/user-event';
-import {
-  renderWithRouter,
-} from '../../../utils/tests';
-import { CourseRecommendations } from '../main-content';
 
-const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
+import { renderWithRouter } from '../../../utils/tests';
+import { CourseRecommendations } from '../main-content';
+import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
 
 const defaultAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    uuid: 'BearsRUs',
-    slug: 'BearsRUs',
-    disableSearch: false,
-    adminUsers: [{ email: 'admin@foo.com' }],
-  },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
@@ -37,6 +36,10 @@ const CourseRecommendationsContext = ({
 );
 
 describe('<CourseRecommendations />', () => {
+  beforeEach(() => {
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   it('renders component correctly', () => {
     renderWithRouter(<CourseRecommendationsContext />);
     expect(screen.getByText('Get course recommendations for you.'));
@@ -46,6 +49,6 @@ describe('<CourseRecommendations />', () => {
     renderWithRouter(<CourseRecommendationsContext />);
     const courseRecommendationsButton = screen.getByText('Recommend courses for me');
     userEvent.click(courseRecommendationsButton);
-    expect(window.location.pathname).toEqual('/BearsRUs/skills-quiz');
+    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/skills-quiz`);
   });
 });

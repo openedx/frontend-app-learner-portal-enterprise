@@ -2,6 +2,7 @@ export const LICENSE_STATUS = {
   ACTIVATED: 'activated',
   ASSIGNED: 'assigned',
   REVOKED: 'revoked',
+  UNASSIGNED: 'unassigned',
 };
 
 export const LOADING_SCREEN_READER_TEXT = 'loading your edX benefits from your organization';
@@ -34,25 +35,4 @@ export const enterpriseUserSubsidyQueryKeys = {
     'transactions',
     transaction,
   ],
-};
-
-// Mock constants for testing
-export const emptyRedeemableLearnerCreditPolicies = {
-  redeemablePolicies: [],
-  learnerContentAssignments: {
-    assignments: [],
-    hasAssignments: false,
-    allocatedAssignments: [],
-    hasAllocatedAssignments: false,
-    canceledAssignments: [],
-    hasCanceledAssignments: false,
-    expiredAssignments: [],
-    hasExpiredAssignments: false,
-    acceptedAssignments: [],
-    hasAcceptedAssignments: false,
-    erroredAssignments: [],
-    hasErroredAssignments: false,
-    assignmentsForDisplay: [],
-    hasAssignmentsForDisplay: false,
-  },
 };

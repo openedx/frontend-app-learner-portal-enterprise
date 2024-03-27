@@ -3,8 +3,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 
 export const unenrollFromCourse = (options) => {
-  const config = getConfig();
-  const url = `${config.LMS_BASE_URL}/change_enrollment`;
+  const url = `${getConfig().LMS_BASE_URL}/change_enrollment`;
   const params = new FormData();
   params.append('enrollment_action', 'unenroll');
   Object.entries(snakeCaseObject(options)).forEach(([key, value]) => {

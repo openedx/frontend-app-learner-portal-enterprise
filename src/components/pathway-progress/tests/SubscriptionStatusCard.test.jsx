@@ -4,9 +4,10 @@ import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import SubscriptionStatusCard from '../SubscriptionStatusCard';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { SUBSIDY_TYPE } from '../../../constants';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

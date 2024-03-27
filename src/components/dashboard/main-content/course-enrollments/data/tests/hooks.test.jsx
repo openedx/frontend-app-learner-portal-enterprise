@@ -3,8 +3,9 @@ import * as logger from '@edx/frontend-platform/logging';
 import { AppContext } from '@edx/frontend-platform/react';
 import camelCase from 'lodash.camelcase';
 import dayjs from 'dayjs';
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 
+import { queryClient } from '../../../../../../utils/tests';
 import {
   useContentAssignments,
   useCourseEnrollments,
@@ -13,16 +14,28 @@ import {
 } from '../hooks';
 import * as service from '../service';
 import { COURSE_STATUSES } from '../constants';
-import { transformCourseEnrollment } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import { createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl } from '../../../../../course/data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../../../enterprise-user-subsidy/data/constants';
+import {
+  emptyRedeemableLearnerCreditPolicies,
+  transformCourseEnrollment,
+  transformLearnerContentAssignment,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+} from '../../../../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
   logInfo: jest.fn(),
+}));
+
+jest.mock('../../../../../app/data', () => ({
+  ...jest.requireActual('../../../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
 }));
 
 const mockCourseService = {
@@ -38,6 +51,21 @@ jest.mock('../../../../../course/data/service', () => ({
 
 const mockRawCourseEnrollment = createRawCourseEnrollment();
 const mockTransformedMockCourseEnrollment = transformCourseEnrollment(mockRawCourseEnrollment);
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
+
+const mockAppContextValue = {
+  authenticatedUser: mockAuthenticatedUser,
+};
+
+const wrapper = ({ children }) => (
+  <QueryClientProvider client={queryClient()}>
+    <AppContext.Provider value={mockAppContextValue}>
+      {children}
+    </AppContext.Provider>
+  </QueryClientProvider>
+);
 
 describe('useCourseEnrollments', () => {
   it('should fetch and set course enrollments', async () => {
@@ -309,21 +337,6 @@ describe('useCourseEnrollments', () => {
 });
 
 describe('useContentAssignments', () => {
-  const mockAppContextValue = {
-    enterpriseConfig: {
-      slug: 'test-enterprise',
-    },
-    authenticatedUser: {
-      userId: 3,
-    },
-  };
-  const wrapper = ({ children }) => (
-    <QueryClientProvider client={new QueryClient()}>
-      <AppContext.Provider value={mockAppContextValue}>
-        {children}
-      </AppContext.Provider>
-    </QueryClientProvider>
-  );
   const mockRedeemableLearnerCreditPolicies = emptyRedeemableLearnerCreditPolicies;
   const mockSubsidyExpirationDateStr = dayjs().add(1, 'd').toISOString();
   const mockAssignmentConfigurationId = 'test-assignment-configuration-id';
@@ -379,13 +392,33 @@ describe('useContentAssignments', () => {
     },
   };
 
+  function mockUseEnterpriseCourseEnrollments(policies) {
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: {
+        allEnrollmentsByStatus: {
+          assigned: {
+            ...policies.learnerContentAssignments,
+            assignmentsForDisplay: policies
+              .learnerContentAssignments
+              .assignmentsForDisplay.map((item) => transformLearnerContentAssignment(
+                item,
+                mockEnterpriseCustomer.slug,
+              )),
+          },
+        },
+      },
+    });
+  }
+
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('should do nothing if acknowledgeContentAssignments called with unsupported assignment state', async () => {
+    mockUseEnterpriseCourseEnrollments(mockPoliciesWithAssignments);
     const { result } = renderHook(
-      () => useContentAssignments(mockPoliciesWithAssignments),
+      () => useContentAssignments(),
       { wrapper },
     );
     expect(result.current.handleAcknowledgeAssignments).toBeInstanceOf(Function);
@@ -414,8 +447,9 @@ describe('useContentAssignments', () => {
         ],
       },
     };
+    mockUseEnterpriseCourseEnrollments(mockPoliciesWithCanceledAssignments);
     const { result, waitForNextUpdate } = renderHook(
-      () => useContentAssignments(mockPoliciesWithCanceledAssignments),
+      () => useContentAssignments(),
       { wrapper },
     );
     const expectedAssignments = [
@@ -449,7 +483,9 @@ describe('useContentAssignments', () => {
     );
 
     // Dismiss the canceled assignments alert and verify the `credits_available` query cache is invalidated.
-    result.current.handleAcknowledgeAssignments({ assignmentState: ASSIGNMENT_TYPES.CANCELED });
+    act(() => {
+      result.current.handleAcknowledgeAssignments({ assignmentState: ASSIGNMENT_TYPES.CANCELED });
+    });
     await waitForNextUpdate();
     expect(service.acknowledgeContentAssignments).toHaveBeenCalledTimes(1);
     expect(service.acknowledgeContentAssignments).toHaveBeenCalledWith({
@@ -480,8 +516,9 @@ describe('useContentAssignments', () => {
         ],
       },
     };
+    mockUseEnterpriseCourseEnrollments(mockPoliciesWithExpiredAssignments);
     const { result, waitForNextUpdate } = renderHook(
-      () => useContentAssignments(mockPoliciesWithExpiredAssignments),
+      () => useContentAssignments(),
       { wrapper },
     );
     const expectedAssignments = [
@@ -513,7 +550,9 @@ describe('useContentAssignments', () => {
     );
 
     // Dismiss the expired assignments alert and verify that the `credits_available` query cache is invalidated.
-    result.current.handleAcknowledgeAssignments({ assignmentState: ASSIGNMENT_TYPES.EXPIRED });
+    act(() => {
+      result.current.handleAcknowledgeAssignments({ assignmentState: ASSIGNMENT_TYPES.EXPIRED });
+    });
     await waitForNextUpdate();
     expect(service.acknowledgeContentAssignments).toHaveBeenCalledTimes(1);
     expect(service.acknowledgeContentAssignments).toHaveBeenCalledWith({
@@ -526,16 +565,10 @@ describe('useContentAssignments', () => {
 });
 
 describe('useCourseEnrollmentsBySection', () => {
-  it('returns enrollments, if any, by section and accounting for any accepted assignments', () => {
-    const mockAssignedContentKey = 'edX+DemoX';
-    const mockAssignments = [{
-      state: ASSIGNMENT_TYPES.ACCEPTED,
-      contentKey: mockAssignedContentKey,
-    }];
-    const mockAssignedEnrollment = {
+  it('returns enrollments by section', () => {
+    const mockInProgressEnrollment = {
       ...mockTransformedMockCourseEnrollment,
-      courseRunId: mockAssignedContentKey,
-      courseRunStatus: COURSE_STATUSES.assigned,
+      courseRunStatus: COURSE_STATUSES.inProgress,
     };
     const mockCompletedEnrollment = {
       ...mockTransformedMockCourseEnrollment,
@@ -546,25 +579,64 @@ describe('useCourseEnrollmentsBySection', () => {
       courseRunStatus: COURSE_STATUSES.upcoming,
     };
     const mockCourseEnrollmentsByStatus = {
-      inProgress: [mockAssignedEnrollment],
+      inProgress: [mockInProgressEnrollment],
       upcoming: [mockUpcomingEnrollment],
       completed: [mockCompletedEnrollment],
       savedForLater: [],
       requested: [],
-      assigned: [],
+      assigned: {
+        assignmentsForDisplay: [],
+      },
     };
-    const { result } = renderHook(() => useCourseEnrollmentsBySection({
-      assignments: mockAssignments,
-      courseEnrollmentsByStatus: mockCourseEnrollmentsByStatus,
-    }));
-    const mockTransformedAcceptedAssignment = {
-      ...mockAssignedEnrollment,
-      isCourseAssigned: true,
-    };
+    const { result } = renderHook(() => useCourseEnrollmentsBySection(mockCourseEnrollmentsByStatus));
     expect(result.current).toEqual({
       hasCourseEnrollments: true,
-      currentCourseEnrollments: [mockTransformedAcceptedAssignment, mockUpcomingEnrollment],
+      currentCourseEnrollments: [mockInProgressEnrollment, mockUpcomingEnrollment],
       completedCourseEnrollments: [mockCompletedEnrollment],
+      savedForLaterCourseEnrollments: [],
+    });
+  });
+
+  it('returns hasCourseEnrollments as true if there are assignments with no enrollments', () => {
+    const mockAssignedEnrollment = {
+      ...mockTransformedMockCourseEnrollment,
+      courseRunStatus: COURSE_STATUSES.assigned,
+    };
+    const mockCourseEnrollmentsByStatus = {
+      inProgress: [],
+      upcoming: [],
+      completed: [],
+      savedForLater: [],
+      requested: [],
+      assigned: {
+        assignmentsForDisplay: [mockAssignedEnrollment],
+      },
+    };
+    const { result } = renderHook(() => useCourseEnrollmentsBySection(mockCourseEnrollmentsByStatus));
+    expect(result.current).toEqual({
+      hasCourseEnrollments: true,
+      currentCourseEnrollments: [],
+      completedCourseEnrollments: [],
+      savedForLaterCourseEnrollments: [],
+    });
+  });
+
+  it('returns hasCourseEnrollments as false if there are no assignments or enrollments', () => {
+    const mockCourseEnrollmentsByStatus = {
+      inProgress: [],
+      upcoming: [],
+      completed: [],
+      savedForLater: [],
+      requested: [],
+      assigned: {
+        assignmentsForDisplay: [],
+      },
+    };
+    const { result } = renderHook(() => useCourseEnrollmentsBySection(mockCourseEnrollmentsByStatus));
+    expect(result.current).toEqual({
+      hasCourseEnrollments: false,
+      currentCourseEnrollments: [],
+      completedCourseEnrollments: [],
       savedForLaterCourseEnrollments: [],
     });
   });

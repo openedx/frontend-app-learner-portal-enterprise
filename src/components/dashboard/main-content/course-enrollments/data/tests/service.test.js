@@ -18,6 +18,7 @@ axios.post = jest.fn();
 describe('course enrollments service', () => {
   beforeEach(() => {
     mergeConfig({
+      LMS_BASE_URL: process.env.LMS_BASE_URL,
       ENTERPRISE_ACCESS_BASE_URL: process.env.ENTERPRISE_ACCESS_BASE_URL,
     });
   });
@@ -25,7 +26,7 @@ describe('course enrollments service', () => {
   it('fetches enterprise enrollments', () => {
     const url = 'http://localhost:18000/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?enterprise_id=test-enterprise-id&is_active=true';
     fetchEnterpriseCourseEnrollments('test-enterprise-id');
-    expect(axios.get).toBeCalledWith(url);
+    expect(axios.get).toHaveBeenCalledWith(url);
   });
 
   it('acknowledges specified content assignments', () => {

@@ -1,0 +1,15 @@
+@import "accessible-nprogress/dist/accessible-nprogress";
+
+#nprogress .bar {
+  background: $brand-500;
+  height: 3px;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px $brand-500, 0 0 5px $brand-500;
+}
+
+#nprogress .spinner-icon {
+  border-top-color: $brand-500;
+  border-left-color: $brand-500;
+}

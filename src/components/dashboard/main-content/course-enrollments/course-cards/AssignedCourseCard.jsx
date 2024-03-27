@@ -1,15 +1,14 @@
-import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@openedx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 
 import BaseCourseCard from './BaseCourseCard';
 import { COURSE_STATUSES } from '../data';
+import { useEnterpriseCustomer } from '../../../../app/data';
 
 const AssignedCourseCard = (props) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     // Note: we are using `courseRunId` instead of `contentKey` or `courseKey` because the `CourseSection`
     // and `BaseCourseCard` components expect `courseRunId` to be used as the content identifier. Consider
@@ -23,7 +22,7 @@ const AssignedCourseCard = (props) => {
   const renderButtons = () => (
     <Button
       as={Link}
-      to={`/${enterpriseConfig.slug}/course/${courseKey}`}
+      to={`/${enterpriseCustomer.slug}/course/${courseKey}`}
       className={classNames('btn-xs-block', { disabled: isCanceledAssignment || isExpiredAssignment })}
       // TODO: Not all assignment cards are rendered with a darker background (e.g., external courses
       // such as Executive Education) should use the inverse-brand variant while Open Courses (with white

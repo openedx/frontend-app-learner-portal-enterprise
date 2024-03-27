@@ -1,15 +1,15 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@openedx/paragon';
+import { useEnterpriseCustomer } from '../app/data';
 
 const NotFoundPage = ({ pageTitle, errorHeading, errorMessage }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   let PAGE_TITLE = pageTitle;
-  if (enterpriseConfig) {
-    PAGE_TITLE += ` - ${enterpriseConfig.name}`;
+  if (enterpriseCustomer) {
+    PAGE_TITLE += ` - ${enterpriseCustomer.name}`;
   }
 
   return (

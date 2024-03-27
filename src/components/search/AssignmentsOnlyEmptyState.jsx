@@ -1,6 +1,5 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { Link, generatePath } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import {
   Container, Alert, Row, Col, Card, MailtoLink, Button, Image, Stack,
@@ -8,13 +7,14 @@ import {
 
 import { getContactEmail } from '../../utils/common';
 import returnToDashboardIllustration from './data/illustrations/assignments-only-return-to-dashboard.svg';
+import { useEnterpriseCustomer } from '../app/data';
 
 const AssignmentsOnlyEmptyState = () => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [isAlertVisible, setIsAlertVisible] = useState(true);
   const intl = useIntl();
 
-  const adminContactEmail = getContactEmail(enterpriseConfig);
+  const adminContactEmail = getContactEmail(enterpriseCustomer);
 
   return (
     <Container size="lg" className="py-4">
@@ -84,7 +84,7 @@ const AssignmentsOnlyEmptyState = () => {
               </p>
               <Button
                 as={Link}
-                to={generatePath('/:enterpriseSlug', { enterpriseSlug: enterpriseConfig.slug })}
+                to={generatePath('/:enterpriseSlug', { enterpriseSlug: enterpriseCustomer.slug })}
               >
                 <FormattedMessage
                   id="enterprise.assignment.only.empty.state.card.button"

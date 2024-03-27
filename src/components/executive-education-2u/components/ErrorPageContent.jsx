@@ -1,8 +1,6 @@
-import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Button, Col, Row } from '@openedx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import { ArrowBack } from '@openedx/paragon/icons';
 
@@ -10,6 +8,7 @@ import { ErrorPage } from '../../error-page';
 import ExecutiveEducation2UErrorIllustration from
   '../../../assets/images/executive-education-2u/error-illustration.svg';
 import ContactAdminMailto from '../../contact-admin-mailto';
+import { useEnterpriseCustomer } from '../../app/data';
 
 export const showHelpfulLink = (failureCode) => {
   const failureCodeShowLink = {
@@ -29,7 +28,7 @@ const ErrorPageContent = ({
   failureMessage,
   httpReferrer,
 }) => {
-  const { enterpriseConfig: { uuid: enterpriseId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const shouldShowHelpfulLink = showHelpfulLink(failureReason);
 
@@ -64,7 +63,7 @@ const ErrorPageContent = ({
               onClick={async (e) => {
                 e.preventDefault();
                 await sendEnterpriseTrackEventWithDelay(
-                  enterpriseId,
+                  enterpriseCustomer.uuid,
                   'edx.ui.enterprise.learner_portal.executive_education.return_to_lms.clicked',
                 );
                 global.location.href = httpReferrer;

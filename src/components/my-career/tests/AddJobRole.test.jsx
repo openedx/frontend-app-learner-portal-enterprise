@@ -5,10 +5,10 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 
 import { renderWithRouter } from '../../../utils/tests';
 import AddJobRole from '../AddJobRole';
+import { SUBSIDY_TYPE } from '../../../constants';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),

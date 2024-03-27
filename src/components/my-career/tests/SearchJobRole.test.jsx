@@ -12,6 +12,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { fetchJobDetailsFromAlgolia, patchProfile } from '../data/service';
 import { renderWithRouter } from '../../../utils/tests';
 import SearchJobRole from '../SearchJobRole';
+import { useAlgoliaSearch } from '../../../utils/hooks';
 
 // mocks
 jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
@@ -19,7 +20,7 @@ jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   deleteRefinementAction: jest.fn(),
 }));
 
-jest.mock('../../utils/hooks', () => ({
+jest.mock('../../../utils/hooks', () => ({
   useAlgoliaSearch: jest.fn(),
 }));
 
@@ -58,6 +59,11 @@ describe('<SearchJobRole />', () => {
   const defaultSearchContext = {
     refinements: {},
   };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useAlgoliaSearch.mockReturnValue([jest.fn(), jest.fn()]);
+  });
 
   it('renders the SearchJobRole component', () => {
     const { container } = renderWithRouter(

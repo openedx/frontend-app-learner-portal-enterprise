@@ -7,7 +7,7 @@ import {
 import { Helmet } from 'react-helmet';
 import { Container } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
-import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { ErrorPage } from '@edx/frontend-platform/react';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
 import CourseService from './data/service';
@@ -23,7 +23,7 @@ import {
 import {
   getActiveCourseRun,
   getAvailableCourseRuns,
-  linkToCourse,
+  getLinkToCourse,
   pathContainsCourseTypeSlug,
   getCourseTypeConfig,
   getEntitlementPrice,
@@ -35,19 +35,20 @@ import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-import { useSearchCatalogs } from '../search/data/hooks';
+import { useSearchCatalogs } from '../search/data';
 import { useEnterpriseCuration } from '../search/content-highlights/data';
 import CoursePageRoutes from './routes/CoursePageRoutes';
+import { useEnterpriseCustomer } from '../app/data';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../config/constants';
 
 const CoursePage = () => {
   const { enterpriseSlug, courseKey } = useParams();
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     uuid: enterpriseUUID,
     adminUsers: enterpriseAdminUsers,
     contactEmail,
-  } = enterpriseConfig;
+  } = enterpriseCustomer;
   const {
     subscriptionPlan,
     subscriptionLicense,
@@ -122,15 +123,6 @@ const CoursePage = () => {
     courseRunKeys: validCourseRunKeys,
     activeCourseRunKey: courseService.activeCourseRun?.key,
     isQueryEnabled: isEMETRedemptionEnabled,
-    queryOptions: {
-      retry: (failureCount, err) => {
-        // Retry max 3 times or if the error is 404 (not found)
-        if (failureCount === 3 || err?.customAttributes?.httpErrorStatus === 404) {
-          return false;
-        }
-        return true;
-      },
-    },
   });
 
   const {
@@ -235,7 +227,7 @@ const CoursePage = () => {
         courseState.course.courseType,
       )
     ) {
-      const newUrl = linkToCourse(
+      const newUrl = getLinkToCourse(
         courseState.course,
         enterpriseSlug,
       );
@@ -273,7 +265,7 @@ const CoursePage = () => {
     return <NotFoundPage />;
   }
 
-  const PAGE_TITLE = `${courseState.course.title} - ${enterpriseConfig.name}`;
+  const PAGE_TITLE = `${courseState.course.title} - ${enterpriseCustomer.name}`;
 
   return (
     <>

@@ -1,5 +1,4 @@
 import dayjs from '../../../utils/dayjs';
-import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 
@@ -9,6 +8,7 @@ import XSeriesProgramDetailsSvgIcon from '../../../assets/icons/xseries-program-
 import progCertMicroMaster from '../images/program-certificate-micromasters.gif';
 import progCertProfessionalCert from '../images/program-certificate-professional-certificate.gif';
 import progCertXSeries from '../images/program-certificate-xseries.gif';
+import { SUBSIDY_TYPE } from '../../../constants';
 
 export function getProgramIcon(type) {
   switch (type) {

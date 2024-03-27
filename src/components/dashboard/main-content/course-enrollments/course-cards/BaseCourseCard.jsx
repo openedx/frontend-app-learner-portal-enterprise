@@ -1,11 +1,10 @@
-import React, { Component } from 'react';
+import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Badge, Col, Dropdown, Icon, IconButton, OverlayTrigger, Row, Skeleton, Tooltip,
 } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
-import camelCase from 'lodash.camelcase';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { Info, InfoOutline, MoreVert } from '@openedx/paragon/icons';
@@ -14,7 +13,7 @@ import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
 import { COURSE_PACING, COURSE_STATUSES, EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
-import { features } from '../../../../../config';
+import { useEnterpriseCustomer } from '../../../../app/data';
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.inProgress]: {
@@ -35,28 +34,72 @@ const BADGE_PROPS_BY_COURSE_STATUS = {
   },
 };
 
-class BaseCourseCard extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      modals: {
-        emailSettings: {
-          open: false,
-          options: {},
-        },
-        unenroll: {
-          open: false,
-          options: {},
-        },
-      },
-      hasEmailsEnabled: this.props.hasEmailsEnabled,
-    };
-  }
+const BaseCourseCard = ({
+  hasEmailsEnabled: defaultHasEmailsEnabled,
+  title,
+  dropdownMenuItems: customDropdownMenuItem,
+  canUnenroll,
+  mode,
+  pacing,
+  startDate,
+  enrollBy,
+  endDate,
+  courseRunId,
+  type,
+  microMastersTitle,
+  orgName,
+  courseRunStatus,
+  children,
+  buttons,
+  linkToCourse,
+  linkToCertificate,
+  miscText,
+  isCourseAssigned,
+  isCanceledAssignment,
+  isExpiredAssignment,
+  isLoading,
+  hasViewCertificateLink,
+}) => {
+  const { config, authenticatedUser } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const [hasEmailsEnabled, setHasEmailsEnabled] = useState(defaultHasEmailsEnabled);
+  const [emailSettingsModal, setEmailSettingsModal] = useState({
+    open: false,
+    options: {},
+  });
+  const [unenrollModal, setUnenrollModal] = useState({
+    open: false,
+    options: {},
+  });
 
-  getDropdownMenuItems = () => {
-    const {
-      hasEmailsEnabled, title, dropdownMenuItems, canUnenroll, mode,
-    } = this.props;
+  const handleUnenrollButtonClick = () => {
+    setUnenrollModal((prevState) => ({
+      ...prevState,
+      open: true,
+    }));
+    sendEnterpriseTrackEvent(
+      enterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.opened',
+      { course_run_id: courseRunId },
+    );
+  };
+
+  const handleEmailSettingsButtonClick = () => {
+    setEmailSettingsModal((prevState) => ({
+      ...prevState,
+      open: true,
+      options: {
+        hasEmailsEnabled,
+      },
+    }));
+    sendEnterpriseTrackEvent(
+      enterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.email_settings_modal.opened',
+      { course_run_id: courseRunId },
+    );
+  };
+
+  const getDropdownMenuItems = () => {
     const firstMenuItems = [];
     const lastMenuItems = [];
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
@@ -64,7 +107,7 @@ class BaseCourseCard extends Component {
       firstMenuItems.push({
         key: 'email-settings',
         type: 'button',
-        onClick: this.handleEmailSettingsButtonClick,
+        onClick: handleEmailSettingsButtonClick,
         children: (
           <div role="menuitem">
             Email settings
@@ -77,7 +120,7 @@ class BaseCourseCard extends Component {
       lastMenuItems.push({
         key: 'unenroll',
         type: 'button',
-        onClick: this.handleUnenrollButtonClick,
+        onClick: handleUnenrollButtonClick,
         children: (
           <div role="menuitem">
             Unenroll
@@ -86,15 +129,14 @@ class BaseCourseCard extends Component {
         ),
       });
     }
-    if (dropdownMenuItems) {
-      return [...firstMenuItems, ...dropdownMenuItems, ...lastMenuItems];
+    if (customDropdownMenuItem) {
+      return [...firstMenuItems, ...customDropdownMenuItem, ...lastMenuItems];
     }
     return [...firstMenuItems, ...lastMenuItems];
   };
 
-  getCourseMiscText = () => {
-    const { pacing } = this.props;
-    const isCourseEnded = this.isCourseEnded();
+  const getCourseMiscText = () => {
+    const isCourseEnded = dayjs(endDate).isAfter();
     let message = '';
     if (pacing) {
       message += 'This course ';
@@ -105,116 +147,57 @@ class BaseCourseCard extends Component {
     return message;
   };
 
-  setModalState = ({ key, open = false, options = {} }) => {
-    this.setState(state => ({
-      modals: {
-        ...state.modals,
-        [key]: {
-          open,
-          options,
-        },
-      },
+  const resetModals = () => {
+    setEmailSettingsModal((prevState) => ({
+      ...prevState,
+      open: false,
+    }));
+    setUnenrollModal((prevState) => ({
+      ...prevState,
+      open: false,
     }));
   };
 
-  isCourseEnded = () => {
-    const { endDate } = this.props;
-    return dayjs(endDate) < dayjs();
-  };
-
-  handleEmailSettingsButtonClick = () => {
-    const { courseRunId } = this.props;
-    const {
-      hasEmailsEnabled,
-    } = this.state;
-    const { enterpriseConfig } = this.context;
-    this.setModalState({
-      key: 'emailSettings',
-      open: true,
-      options: {
-        hasEmailsEnabled,
-      },
-    });
-    sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
-      'edx.ui.enterprise.learner_portal.email_settings_modal.opened',
-      { course_run_id: courseRunId },
-    );
-  };
-
-  handleEmailSettingsModalOnClose = (hasEmailsEnabled) => {
-    this.resetModals();
+  const handleEmailSettingsModalOnClose = (newValue) => {
+    resetModals();
     if (hasEmailsEnabled !== undefined) {
-      this.setState({
-        hasEmailsEnabled,
-      });
+      setHasEmailsEnabled(newValue);
     }
   };
 
-  resetModals = () => {
-    this.setModalState({ key: 'emailSettings' });
-    this.setModalState({ key: 'unenroll' });
-  };
-
-  handleUnenrollButtonClick = () => {
-    const { courseRunId } = this.props;
-    const { enterpriseConfig } = this.context;
-    this.setModalState({
-      key: 'unenroll',
-      open: true,
-    });
+  const handleUnenrollModalOnClose = () => {
+    resetModals();
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
-      'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.opened',
-      { course_run_id: courseRunId },
-    );
-  };
-
-  renderUnenrollModal = () => {
-    const {
-      canUnenroll, courseRunId, type,
-    } = this.props;
-    const { modals } = this.state;
-
-    if (!canUnenroll) {
-      return null;
-    }
-
-    return (
-      <UnenrollModal
-        courseRunId={courseRunId}
-        onClose={this.handleUnenrollModalOnClose}
-        onSuccess={this.handleUnenrollModalOnSuccess}
-        isOpen={modals.unenroll.open}
-        enrollmentType={camelCase(type)}
-      />
-    );
-  };
-
-  handleUnenrollModalOnClose = () => {
-    this.resetModals();
-    const { courseRunId } = this.props;
-    const { enterpriseConfig } = this.context;
-    sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.closed',
       { course_run_id: courseRunId },
     );
   };
 
-  handleUnenrollModalOnSuccess = () => {
-    this.resetModals();
-    const { courseRunId } = this.props;
-    const { enterpriseConfig } = this.context;
+  const handleUnenrollModalOnSuccess = () => {
+    resetModals();
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.unenrolled',
       { course_run_id: courseRunId },
     );
   };
 
-  renderSettingsDropdown = (menuItems) => {
-    const { title, mode } = this.props;
+  const renderUnenrollModal = () => {
+    if (!canUnenroll) {
+      return null;
+    }
+    return (
+      <UnenrollModal
+        courseRunId={courseRunId}
+        onClose={handleUnenrollModalOnClose}
+        onSuccess={handleUnenrollModalOnSuccess}
+        isOpen={unenrollModal.open}
+      />
+    );
+  };
+
+  const renderSettingsDropdown = (menuItems) => {
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
     const execEdClass = isExecutiveEducation2UCourse ? 'text-light-100' : '';
     if (menuItems && menuItems.length > 0) {
@@ -235,7 +218,6 @@ class BaseCourseCard extends Component {
                   key={menuItem.key}
                   as={menuItem.type}
                   onClick={menuItem.onClick}
-                  role="menuitem"
                 >
                   {menuItem.children}
                 </Dropdown.Item>
@@ -248,25 +230,21 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderEmailSettingsModal = () => {
-    const { hasEmailsEnabled, courseRunId } = this.props;
-    const { modals } = this.state;
+  const renderEmailSettingsModal = () => {
     if (hasEmailsEnabled !== null) {
       return (
         <EmailSettingsModal
-          {...modals.emailSettings.options}
+          {...emailSettingsModal.options}
           courseRunId={courseRunId}
-          onClose={this.handleEmailSettingsModalOnClose}
-          open={modals.emailSettings.open}
+          onClose={handleEmailSettingsModalOnClose}
+          open={emailSettingsModal.open}
         />
       );
     }
     return null;
   };
 
-  renderAdditionalInfoOutline = () => {
-    const { type } = this.props;
-
+  const renderAdditionalInfoOutline = () => {
     if (type === COURSE_STATUSES.requested) {
       return (
         <small className="mt-2">
@@ -278,8 +256,7 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderMicroMastersTitle = () => {
-    const { microMastersTitle } = this.props;
+  const renderMicroMastersTitle = () => {
     if (microMastersTitle) {
       return (
         <p className="font-weight-bold w-75 mb-2">
@@ -290,9 +267,7 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderOrganizationName = () => {
-    const { orgName, mode } = this.props;
-
+  const renderOrganizationName = () => {
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
     const courseTypeLabel = isExecutiveEducation2UCourse ? 'Executive Education' : 'Course';
     const tooltipText = isExecutiveEducation2UCourse
@@ -320,8 +295,7 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderStartDate = () => {
-    const { startDate } = this.props;
+  const renderStartDate = () => {
     const formattedStartDate = startDate ? dayjs(startDate).format('MMMM Do, YYYY') : null;
     const isCourseStarted = dayjs(startDate) <= dayjs();
 
@@ -331,10 +305,9 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderEndDate = () => {
-    const { endDate, type } = this.props;
+  const renderEndDate = () => {
     const formattedEndDate = endDate ? dayjs(endDate).format('MMMM Do, YYYY') : null;
-    const isCourseStarted = dayjs(this.props.startDate) <= dayjs();
+    const isCourseStarted = dayjs(startDate).isBefore(dayjs());
 
     if (formattedEndDate && isCourseStarted && type !== COURSE_STATUSES.completed) {
       return <span className="font-weight-light">Ends {formattedEndDate}</span>;
@@ -342,8 +315,7 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderEnrollByDate = () => {
-    const { enrollBy, courseRunStatus } = this.props;
+  const renderEnrollByDate = () => {
     const formattedEnrollByDate = enrollBy ? dayjs(enrollBy).format('MMMM Do, YYYY') : null;
 
     if (formattedEnrollByDate && courseRunStatus === COURSE_STATUSES.assigned) {
@@ -352,24 +324,24 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderCourseInfoOutline = () => {
-    const startDate = this.renderStartDate();
-    const endDate = this.renderEndDate();
-    const enrollByDate = this.renderEnrollByDate();
+  const renderCourseInfoOutline = () => {
+    const renderedStartDate = renderStartDate();
+    const renderedEndDate = renderEndDate();
+    const renderedEnrollByDate = renderEnrollByDate();
 
-    if (!startDate && !endDate && !enrollByDate) {
+    if (!renderedStartDate && !renderedEndDate && !renderedEnrollByDate) {
       return null;
     }
 
     const dateFields = [];
-    if (startDate) {
-      dateFields.push(startDate);
+    if (renderedStartDate) {
+      dateFields.push(renderedStartDate);
     }
-    if (endDate) {
-      dateFields.push(endDate);
+    if (renderedEndDate) {
+      dateFields.push(renderedEndDate);
     }
-    if (enrollByDate) {
-      dateFields.push(enrollByDate);
+    if (renderedEnrollByDate) {
+      dateFields.push(renderedEnrollByDate);
     }
 
     return (
@@ -387,8 +359,7 @@ class BaseCourseCard extends Component {
     );
   };
 
-  renderChildren = () => {
-    const { children } = this.props;
+  const renderChildren = () => {
     if (children) {
       return (
         <div className="row">
@@ -401,8 +372,7 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderButtons = () => {
-    const { buttons } = this.props;
+  const renderButtons = () => {
     if (buttons) {
       return (
         <div className="row">
@@ -415,34 +385,27 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderViewCertificateText = () => {
-    const { linkToCertificate } = this.props;
-    const { authenticatedUser: { username }, config } = this.context;
-
+  const renderViewCertificateText = () => {
     if (linkToCertificate) {
       return (
         <small className="mt-2 mb-0">
           View your certificate on
           {' '}
-          <a href={`${config.LMS_BASE_URL}/u/${username}`}>your profile →</a>
+          <a href={`${config.LMS_BASE_URL}/u/${authenticatedUser.username}`}>your profile →</a>
         </small>
       );
     }
     return null;
   };
 
-  renderMiscText = () => {
-    const { miscText } = this.props;
-    const courseMiscText = this.getCourseMiscText();
-
+  const renderMiscText = () => {
+    const courseMiscText = getCourseMiscText();
     if (miscText != null) {
       return miscText;
     }
-
     if (!courseMiscText) {
       return null;
     }
-
     return (
       <small className="mb-0 mt-2">
         {courseMiscText}
@@ -450,25 +413,19 @@ class BaseCourseCard extends Component {
     );
   };
 
-  renderBadge = () => {
-    const { isCourseAssigned, type } = this.props;
-
-    const badgeProps = (features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned)
+  const renderBadge = () => {
+    const badgeProps = (isCourseAssigned)
       ? BADGE_PROPS_BY_COURSE_STATUS.assigned
       : BADGE_PROPS_BY_COURSE_STATUS[type];
-
     if (badgeProps) {
       return <Badge className="mt-1" {...badgeProps} />;
     }
-
     return null;
   };
 
-  renderAssignmentAlert = () => {
-    const { isCanceledAssignment, mode } = this.props;
+  const renderAssignmentAlert = () => {
     const alertText = isCanceledAssignment ? 'Your learning administrator canceled this assignment' : 'Deadline to enroll in this course has passed';
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
-
     return (
       <div className={classNames('p-2 small d-flex align-items-center', { 'assignment-alert bg-light-300': isExecutiveEducation2UCourse })}>
         <Icon src={Info} size="sm" className="text-dark mr-2" />
@@ -477,69 +434,59 @@ class BaseCourseCard extends Component {
     );
   };
 
-  render() {
-    const {
-      title,
-      linkToCourse,
-      hasViewCertificateLink,
-      isLoading,
-      mode,
-    } = this.props;
-    const dropdownMenuItems = this.getDropdownMenuItems();
-    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
-    const { isCanceledAssignment, isExpiredAssignment } = this.props;
+  const dropdownMenuItems = getDropdownMenuItems();
+  const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
 
-    return (
-      <div className={classNames(
-        'dashboard-course-card py-3 border-bottom mb-2',
-        { 'exec-ed-course-card rounded-lg p-3 text-light-100': isExecutiveEducation2UCourse },
-        { 'mb-3': (isCanceledAssignment || isExpiredAssignment) },
-      )}
-      >
-        {isLoading ? (
+  return (
+    <div className={classNames(
+      'dashboard-course-card py-3 border-bottom mb-2',
+      { 'exec-ed-course-card rounded-lg p-3 text-light-100': isExecutiveEducation2UCourse },
+      { 'mb-3': (isCanceledAssignment || isExpiredAssignment) },
+    )}
+    >
+      {isLoading ? (
+        <>
+          <div className="sr-only">Loading...</div>
+          <Skeleton height={50} />
+        </>
+      )
+        : (
           <>
-            <div className="sr-only">Loading...</div>
-            <Skeleton height={50} />
-          </>
-        )
-          : (
-            <>
-              <div className="d-flex">
-                <div className="flex-grow-1 mr-4 mb-3">
-                  {this.renderMicroMastersTitle()}
-                  <div className="d-flex align-items-start justify-content-between mb-1">
-                    <h4 className="course-title mb-0 mr-2">
-                      <a className={`h3 ${isExecutiveEducation2UCourse && 'text-white'}`} href={linkToCourse}>{title}</a>
-                    </h4>
-                    {this.renderBadge()}
-                  </div>
-                  {this.renderOrganizationName()}
+            <div className="d-flex">
+              <div className="flex-grow-1 mr-4 mb-3">
+                {renderMicroMastersTitle()}
+                <div className="d-flex align-items-start justify-content-between mb-1">
+                  <h4 className="course-title mb-0 mr-2">
+                    <a className={`h3 ${isExecutiveEducation2UCourse && 'text-white'}`} href={linkToCourse}>{title}</a>
+                  </h4>
+                  {renderBadge()}
                 </div>
-                {this.renderSettingsDropdown(dropdownMenuItems)}
+                {renderOrganizationName()}
               </div>
-              {this.renderCourseInfoOutline()}
-              {this.renderButtons()}
-              {this.renderChildren()}
-              <Row className="course-misc-text">
-                <Col className={`${isExecutiveEducation2UCourse ? 'text-light-300' : 'text-gray'}`}>
-                  {this.renderMiscText()}
-                  {this.renderAdditionalInfoOutline()}
-                  {hasViewCertificateLink && this.renderViewCertificateText()}
-                </Col>
+              {renderSettingsDropdown(dropdownMenuItems)}
+            </div>
+            {renderCourseInfoOutline()}
+            {renderButtons()}
+            {renderChildren()}
+            <Row className="course-misc-text">
+              <Col className={`${isExecutiveEducation2UCourse ? 'text-light-300' : 'text-gray'}`}>
+                {renderMiscText()}
+                {renderAdditionalInfoOutline()}
+                {hasViewCertificateLink && renderViewCertificateText()}
+              </Col>
+            </Row>
+            { (isCanceledAssignment || isExpiredAssignment) && (
+              <Row className={classNames({ 'mt-4 assignment-alert-row': isExecutiveEducation2UCourse }, { 'mt-2 pl-2': !isExecutiveEducation2UCourse })}>
+                {renderAssignmentAlert()}
               </Row>
-              { (isCanceledAssignment || isExpiredAssignment) && (
-                <Row className={classNames({ 'mt-4 assignment-alert-row': isExecutiveEducation2UCourse }, { 'mt-2 pl-2': !isExecutiveEducation2UCourse })}>
-                  {this.renderAssignmentAlert()}
-                </Row>
-              )}
-              {this.renderEmailSettingsModal()}
-              {this.renderUnenrollModal()}
-            </>
-          )}
-      </div>
-    );
-  }
-}
+            )}
+            {renderEmailSettingsModal()}
+            {renderUnenrollModal()}
+          </>
+        )}
+    </div>
+  );
+};
 
 BaseCourseCard.propTypes = {
   type: PropTypes.oneOf(Object.values(COURSE_STATUSES)).isRequired,
@@ -572,8 +519,6 @@ BaseCourseCard.propTypes = {
   isCanceledAssignment: PropTypes.bool,
   isExpiredAssignment: PropTypes.bool,
 };
-
-BaseCourseCard.contextType = AppContext;
 
 BaseCourseCard.defaultProps = {
   children: null,

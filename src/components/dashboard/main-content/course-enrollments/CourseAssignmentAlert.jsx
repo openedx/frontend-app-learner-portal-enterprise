@@ -1,17 +1,17 @@
-import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
 import { Alert, Button, MailtoLink } from '@openedx/paragon';
 import { Info } from '@openedx/paragon/icons';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import { getContactEmail } from '../../../../utils/common';
 import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { useEnterpriseCustomer } from '../../../app/data';
 
 const CourseAssignmentAlert = ({
   showAlert,
   onClose,
   variant,
+  isAcknowledgingAssignments,
 }) => {
   const intl = useIntl();
   const heading = variant === ASSIGNMENT_TYPES.CANCELED ? (
@@ -42,8 +42,8 @@ const CourseAssignmentAlert = ({
     />
   );
 
-  const { enterpriseConfig } = useContext(AppContext);
-  const adminEmail = getContactEmail(enterpriseConfig);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const adminEmail = getContactEmail(enterpriseCustomer);
 
   return (
     <Alert
@@ -61,11 +61,17 @@ const CourseAssignmentAlert = ({
         </Button>,
       ]}
       onClose={onClose}
-      closeLabel={intl.formatMessage({
-        id: 'enterprise.dashboard.course.assignment.alert.dismiss.button',
-        defaultMessage: 'Dismiss',
-        description: 'Dismiss button label for the course assignment alert',
-      })}
+      closeLabel={isAcknowledgingAssignments
+        ? intl.formatMessage({
+          id: 'enterprise.dashboard.course.assignment.alert.dismiss.button',
+          defaultMessage: 'Dismissing...',
+          description: 'Dismiss button label for while the course assignments alert when assignments are actively being acknowledged',
+        })
+        : intl.formatMessage({
+          id: 'enterprise.dashboard.course.assignment.alert.dismiss.button',
+          defaultMessage: 'Dismiss',
+          description: 'Dismiss button label for the course assignment alert',
+        })}
     >
       <Alert.Heading>{heading}</Alert.Heading>
       <p>{text}</p>
@@ -77,12 +83,14 @@ CourseAssignmentAlert.propTypes = {
   onClose: PropTypes.func,
   variant: PropTypes.oneOf([ASSIGNMENT_TYPES.CANCELED, ASSIGNMENT_TYPES.EXPIRED]),
   showAlert: PropTypes.bool,
+  isAcknowledgingAssignments: PropTypes.bool,
 };
 
 CourseAssignmentAlert.defaultProps = {
   onClose: null,
   variant: null,
   showAlert: false,
+  isAcknowledgingAssignments: false,
 };
 
 export default CourseAssignmentAlert;

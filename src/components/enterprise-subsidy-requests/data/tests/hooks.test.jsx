@@ -1,13 +1,13 @@
 import { renderHook } from '@testing-library/react-hooks';
 import * as logger from '@edx/frontend-platform/logging';
 import { AppContext } from '@edx/frontend-platform/react';
-import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../constants';
 import {
   useCatalogsForSubsidyRequests,
   useSubsidyRequestConfiguration,
   useSubsidyRequests,
 } from '../hooks';
 import * as service from '../service';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../../constants';
 
 const mockEmail = 'edx@example.com';
 const mockEnterpriseUUID = 'enterprise-uuid';

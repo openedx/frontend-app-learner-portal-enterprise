@@ -1,5 +1,3 @@
-import React, { useContext } from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MailtoLink, Hyperlink } from '@openedx/paragon';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
@@ -7,25 +5,24 @@ import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import { SidebarBlock } from '../../layout';
 import { getContactEmail } from '../../../utils/common';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const SupportInformation = ({ className }) => {
   const config = getConfig();
-  const {
-    enterpriseConfig,
-    enterpriseConfig: {
-      careerEngagementNetworkMessage,
-      enableCareerEngagementNetworkOnLearnerPortal,
-    },
-  } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const intl = useIntl();
-  const email = getContactEmail(enterpriseConfig);
+  const email = getContactEmail(enterpriseCustomer);
+
+  const hasCareerEngagementNetworkMessaging = (
+    enterpriseCustomer.enableCareerEngagementNetworkOnLearnerPortal && enterpriseCustomer.careerEngagementNetworkMessage
+  );
 
   return (
     <>
-      {enableCareerEngagementNetworkOnLearnerPortal && (
+      {hasCareerEngagementNetworkMessaging && (
         <SidebarBlock>
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: careerEngagementNetworkMessage }} />
+          <div dangerouslySetInnerHTML={{ __html: enterpriseCustomer.careerEngagementNetworkMessage }} />
         </SidebarBlock>
       )}
       <SidebarBlock
@@ -48,8 +45,8 @@ const SupportInformation = ({ className }) => {
                 <Hyperlink
                   destination={config.LEARNER_SUPPORT_URL}
                   target="_blank"
-                  rel="noopener noreferrer"
-                >{chunks}
+                >
+                  {chunks}
                 </Hyperlink>
               ),
             }}
@@ -64,7 +61,9 @@ const SupportInformation = ({ className }) => {
             /* eslint-disable react/no-unstable-nested-components */
             values={{
               a: chunks => (
-                email ? <MailtoLink to={email}>{chunks}</MailtoLink> : chunks
+                email
+                  ? <MailtoLink to={email} className="d-inline">{chunks}</MailtoLink>
+                  : chunks
               ),
             }}
             /* eslint-disable react/no-unstable-nested-components */

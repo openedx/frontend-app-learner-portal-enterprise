@@ -4,47 +4,15 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import {
-  getContentHighlights,
   getEnterpriseCuration,
 } from './service';
+
 import {
   getHighlightedContentCardVariant,
   getFormattedContentType,
   getAuthoringOrganizations,
   getContentPageUrl,
 } from './utils';
-
-export const useContentHighlights = (enterpriseUUID) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [contentHighlights, setContentHighlights] = useState([]);
-  const [fetchError, setFetchError] = useState();
-
-  useEffect(() => {
-    const fetchContentHighlights = async () => {
-      try {
-        setIsLoading(true);
-        const response = await getContentHighlights(enterpriseUUID);
-        const results = camelCaseObject(response.data.results);
-        const highlightSetsWithContent = results.filter(highlightSet => highlightSet.highlightedContent.length > 0);
-        setContentHighlights(highlightSetsWithContent);
-      } catch (err) {
-        logError(err);
-        setFetchError(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    if (getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
-      fetchContentHighlights();
-    }
-  }, [enterpriseUUID]);
-
-  return {
-    isLoading,
-    contentHighlights,
-    fetchError,
-  };
-};
 
 export const useEnterpriseCuration = (enterpriseUUID) => {
   const [isLoading, setIsLoading] = useState(true);

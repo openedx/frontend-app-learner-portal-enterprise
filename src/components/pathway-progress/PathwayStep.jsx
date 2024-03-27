@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
 import { Collapsible, Icon } from '@openedx/paragon';
 import { ExpandLess, ExpandMore } from '@openedx/paragon/icons';
 import { useIntl } from '@edx/frontend-platform/i18n';
@@ -45,9 +46,7 @@ const PathwayStep = ({ index, nodes }) => {
       iconWhenClosed={<Icon src={ExpandMore} />}
       onToggle={() => setIsOpen((!isOpen))}
     >
-      {
-        nodes.map(node => <PathwayNode node={node} />)
-      }
+      {nodes.map(node => <PathwayNode key={uuidv4()} node={node} />)}
     </Collapsible>
   );
 };

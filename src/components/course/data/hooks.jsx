@@ -6,13 +6,12 @@ import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getConfig } from '@edx/frontend-platform/config';
+import { getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { useQuery } from '@tanstack/react-query';
 
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
-import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { CourseContext } from '../CourseContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
@@ -46,6 +45,8 @@ import { EVENTS, pushEvent } from '../../../utils/optimizely';
 import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 import { enterpriseUserSubsidyQueryKeys } from '../../enterprise-user-subsidy/data/constants';
+import { SUBSIDY_TYPE } from '../../../constants';
+import { useEnterpriseCustomer } from '../../app/data';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -288,7 +289,7 @@ useCoursePriceForUserSubsidy.propTypes = {
  *
  * @param {object} args Arguments.
  * @param {Array.<object>} args.catalogList list of catalogs
- * @param {object} args.enterpriseConfig config for enterprise
+ * @param {object} args.enterpriseCustomer config for enterprise
  * @param {string} args.courseRunKey id of the course run
  * @param {object} args.location location object from useLocation()
  * @param {string} args.sku course SKU
@@ -298,7 +299,7 @@ useCoursePriceForUserSubsidy.propTypes = {
  * @returns {string} url for enrollment
  */
 export const useCourseEnrollmentUrl = ({
-  enterpriseConfig,
+  enterpriseCustomer,
   courseRunKey,
   location,
   sku,
@@ -329,7 +330,7 @@ export const useCourseEnrollmentUrl = ({
       if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
         return createEnrollWithLicenseUrl({
           courseRunKey,
-          enterpriseId: enterpriseConfig.uuid,
+          enterpriseId: enterpriseCustomer.uuid,
           licenseUUID: userSubsidyApplicableToCourse.subsidyId,
           location,
         });
@@ -370,7 +371,7 @@ export const useCourseEnrollmentUrl = ({
       baseQueryParams,
       config.ECOMMERCE_BASE_URL,
       courseRunKey,
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       isExecutiveEducation2UCourse,
       pathname,
       location,
@@ -430,13 +431,13 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  * internal hyperlinks (e.g., using ``Link``).
  */
 export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     state: {
       activeCourseRun: { key: courseKey },
       algoliaSearchParams,
     },
   } = useContext(CourseContext);
-  const { enterpriseConfig } = useContext(AppContext);
   const handleClick = useCallback(
     (e) => {
       const { queryId, objectId } = algoliaSearchParams;
@@ -449,7 +450,7 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
         }, CLICK_DELAY_MS);
       }
       sendEnterpriseTrackEvent(
-        enterpriseConfig.uuid,
+        enterpriseCustomer.uuid,
         eventName,
         {
           products: [{ objectID: objectId }],
@@ -459,7 +460,7 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
         },
       );
     },
-    [algoliaSearchParams, href, enterpriseConfig, eventName, courseKey],
+    [algoliaSearchParams, href, enterpriseCustomer.uuid, eventName, courseKey],
   );
 
   return handleClick;

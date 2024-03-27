@@ -29,6 +29,7 @@ const SearchPathway = ({ filter }) => {
             description: 'Translated title for the enterprise search page pathway section.',
           })
         }
+        isPathwaySearchResults
       />
     </Index>
   );

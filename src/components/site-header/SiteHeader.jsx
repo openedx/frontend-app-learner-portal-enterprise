@@ -1,6 +1,4 @@
-import React, { useContext } from 'react';
 import { HashLink } from 'react-router-hash-link';
-import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MenuIcon } from '@openedx/paragon/icons';
 import { useIntl } from '@edx/frontend-platform/i18n';
@@ -13,7 +11,6 @@ import AvatarDropdown from './AvatarDropdown';
 
 const SiteHeader = () => {
   const config = getConfig();
-  const { enterpriseConfig } = useContext(AppContext);
   const intl = useIntl();
 
   const renderDesktopHeader = () => (
@@ -61,12 +58,12 @@ const SiteHeader = () => {
               aria-label="Main"
               className="nav flex-column pin-left pin-right border-top shadow py-2"
             >
-              <SiteHeaderNavMenu enterpriseConfig={enterpriseConfig} />
+              <SiteHeaderNavMenu />
             </MenuContent>
           </Menu>
         </div>
         <div className="w-100 d-flex justify-content-center">
-          <SiteHeaderLogos enterpriseConfig={enterpriseConfig} />
+          <SiteHeaderLogos />
         </div>
         <div className="w-100 d-flex justify-content-end">
           <AvatarDropdown showLabel={false} />

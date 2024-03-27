@@ -924,7 +924,7 @@ export const courseUsesEntitlementPricing = (course) => {
   return false;
 };
 
-export function linkToCourse(course, slug) {
+export function getLinkToCourse(course, slug) {
   if (!Object.keys(course).length) {
     return '#';
   }

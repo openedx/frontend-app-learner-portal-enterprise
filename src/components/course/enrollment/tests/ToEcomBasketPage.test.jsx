@@ -5,6 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import * as hooks from '../hooks';
 import ToEcomBasketPage from '../components/ToEcomBasketPage';
 import { CourseContext } from '../../CourseContextProvider';
+import { useTrackSearchConversionClickHandler } from '../../data';
 
 jest.mock('../common', () => ({
   __esModule: true,
@@ -17,6 +18,12 @@ jest.mock('../../EnrollModal', () => ({
 }));
 
 jest.mock('../hooks');
+jest.mock('../../data', () => ({
+  ...jest.requireActual('../../data'),
+  useOptimizelyEnrollmentClickHandler: jest.fn(),
+  useTrackSearchConversionClickHandler: jest.fn(),
+}));
+const mockTrackSearchConversionClickHandler = jest.fn();
 
 const ToEcomBasketPageWrapper = ({
   courseContextValue = {
@@ -30,13 +37,16 @@ const ToEcomBasketPageWrapper = ({
   ...rest
 }) => (
   <CourseContext.Provider value={courseContextValue}>
-    <ToEcomBasketPage
-      {...rest}
-    />,
+    <ToEcomBasketPage {...rest} />,
   </CourseContext.Provider>
 );
 
 describe('<ToEcomBasketPage />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useTrackSearchConversionClickHandler.mockReturnValue(mockTrackSearchConversionClickHandler);
+  });
+
   it('should render <EnrollButtonCta /> and <EnrollModal />', () => {
     hooks.useSubsidyDataForCourse.mockReturnValue(
       { userSubsidyApplicableToCourse: undefined, couponCodesCount: 0 },

@@ -1,25 +1,22 @@
 import {
-  useCallback, useEffect, useMemo, useReducer, useState,
+  useEffect, useMemo, useReducer, useState,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { useQuery } from '@tanstack/react-query';
 
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { fetchCouponCodeAssignments } from '../../coupons';
 import couponCodesReducer, { initialCouponCodesState } from '../../coupons/data/reducer';
 
 import { enterpriseUserSubsidyQueryKeys, LICENSE_STATUS } from '../constants';
 import {
-  activateLicense,
   fetchCustomerAgreementData,
   fetchRedeemableLearnerCreditPolicies,
   fetchSubscriptionLicensesForUser,
-  requestAutoAppliedLicense,
 } from '../service';
 import { features } from '../../../../config';
 import { fetchCouponsOverview } from '../../coupons/data/service';
-import { transformRedeemablePoliciesData, getAssignmentsByState } from '../utils';
+import { getAssignmentsByState, transformRedeemablePoliciesData } from '../utils';
 
 /**
  * Attempts to fetch any existing licenses associated with the authenticated user and the
@@ -58,30 +55,11 @@ const fetchExistingUserLicense = async (enterpriseId) => {
 };
 
 /**
- * Attempts to auto-apply a license for the authenticated user and the specified customer agreement.
- *
- * @param {string} customerAgreementId The UUID of the customer agreement.
- * @returns An object representing the auto-applied license or null if no license was auto-applied.
- */
-const requestAutoAppliedUserLicense = async (customerAgreementId) => {
-  try {
-    const response = await requestAutoAppliedLicense(customerAgreementId);
-    const license = camelCaseObject(response.data);
-    return license;
-  } catch (error) {
-    logError(error);
-    return null;
-  }
-};
-
-/**
  * Retrieves a license for the authenticated user, if applicable. First attempts to find any existing licenses
- * for the user. If a license is found, the app uses it; otherwise, if the enterprise has an SSO/LMS identity
- * provider configured and the customer agreement has a subscription plan suitable for auto-applied licenses,
- * attempt to auto-apply a license for the user.
+ * for the user. If a license is found, the app uses it.
  *
  * @param {object} args
- * @param {object} args.enterpriseConfig The enterprise customer config
+ * @param {object} args.enterpriseCustomer The enterprise customer config
  * @param {object} args.customerAgreementConfig The customer agreement config associated with the enterprise
  * @param {boolean} args.isLoadingCustomerAgreementConfig Whether the customer agreement is still resolving
  * @param {object} args.user The authenticated user
@@ -89,7 +67,7 @@ const requestAutoAppliedUserLicense = async (customerAgreementId) => {
  *          to activate the user license.
  */
 export function useSubscriptionLicense({
-  enterpriseConfig,
+  enterpriseCustomer,
   customerAgreementConfig,
   isLoadingCustomerAgreementConfig,
   user,
@@ -101,37 +79,13 @@ export function useSubscriptionLicense({
     enterpriseId,
     enterpriseIdentityProvider,
   } = useMemo(() => ({
-    enterpriseId: enterpriseConfig.uuid,
-    enterpriseIdentityProvider: enterpriseConfig.identityProvider,
-  }), [enterpriseConfig]);
+    enterpriseId: enterpriseCustomer.uuid,
+    enterpriseIdentityProvider: enterpriseCustomer.identityProvider,
+  }), [enterpriseCustomer]);
 
   useEffect(() => {
     async function retrieveUserLicense() {
-      let result = await fetchExistingUserLicense(enterpriseId);
-
-      if (!features.ENABLE_AUTO_APPLIED_LICENSES) {
-        return result;
-      }
-
-      const customerAgreementMetadata = [
-        customerAgreementConfig?.uuid,
-        customerAgreementConfig?.subscriptionForAutoAppliedLicenses,
-      ];
-      const hasCustomerAgreementData = customerAgreementMetadata.every(item => !!item);
-
-      // Only request an auto-applied license if ther user is a learner of the enterprise.
-      // This is mainly to prevent edx operators from accidently getting a license.
-      const isEnterpriseLearner = !!user.roles.find(userRole => {
-        const [role, enterprise] = userRole.split(':');
-        return role === 'enterprise_learner' && enterprise === enterpriseId;
-      });
-
-      // Per the product requirements, we only want to attempt requesting an auto-applied license
-      // when the enterprise customer has an SSO/LMS provider configured.
-      if (!result && enterpriseIdentityProvider && isEnterpriseLearner && hasCustomerAgreementData) {
-        result = await requestAutoAppliedUserLicense(customerAgreementConfig.uuid);
-      }
-
+      const result = await fetchExistingUserLicense(enterpriseId);
       return result;
     }
 
@@ -156,28 +110,7 @@ export function useSubscriptionLicense({
     }
   }, [customerAgreementConfig, enterpriseId, enterpriseIdentityProvider, isLoadingCustomerAgreementConfig, user]);
 
-  const activateUserLicense = useCallback(async (autoActivated = false) => {
-    try {
-      await activateLicense(license.activationKey);
-
-      sendEnterpriseTrackEvent(
-        enterpriseId,
-        'edx.ui.enterprise.learner_portal.license-activation.license-activated',
-        {
-          autoActivated,
-        },
-      );
-      setLicense((prevLicense) => ({
-        ...prevLicense,
-        status: LICENSE_STATUS.ACTIVATED,
-      }));
-    } catch (error) {
-      logError(error);
-      throw error;
-    }
-  }, [enterpriseId, license]);
-
-  return { license, isLoading, activateUserLicense };
+  return { license, isLoading };
 }
 
 /**
@@ -194,7 +127,6 @@ export function useCouponCodes(enterpriseId) {
       return camelCaseObject(response.data);
     },
   });
-
   useEffect(
     () => {
       if (features.ENROLL_WITH_CODES) {
@@ -250,11 +182,11 @@ const getRedeemablePoliciesData = async ({ queryKey }) => {
   const enterpriseId = queryKey[3];
   const userID = queryKey[4];
   const response = await fetchRedeemableLearnerCreditPolicies(enterpriseId, userID);
-  const redeemablePolicies = camelCaseObject(transformRedeemablePoliciesData(response.data));
+  const responseData = camelCaseObject(response.data);
+  const redeemablePolicies = transformRedeemablePoliciesData(responseData);
   const learnerContentAssignments = getAssignmentsByState(
     redeemablePolicies?.flatMap(item => item.learnerContentAssignments || []),
   );
-
   return {
     redeemablePolicies,
     learnerContentAssignments,

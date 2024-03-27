@@ -1,5 +1,4 @@
 import React from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
 import { useLocation } from 'react-router-dom';
 import {
   screen, render,
@@ -7,7 +6,8 @@ import {
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollmentFailedAlert';
-import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -16,16 +16,17 @@ useLocation.mockImplementation(() => ({
   search: '',
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockCourseRunKey = 'course-run-key';
 
-const defaultAppState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-  },
-};
-
 const defaultCourseEnrollmentsState = {
-  courseEnrollmentsByStatus: {
+  allEnrollmentsByStatus: {
     inProgress: [{
       courseRunId: mockCourseRunKey,
     }],
@@ -33,24 +34,23 @@ const defaultCourseEnrollmentsState = {
     completed: [],
     savedForLater: [],
     requested: [],
+    assigned: [],
   },
 };
 
-const CourseEnrollmentFailedAlertWrapper = ({
-  initialAppState = defaultAppState,
-  initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
-  ...rest
-}) => (
+const CourseEnrollmentFailedAlertWrapper = (props) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-        <CourseEnrollmentFailedAlert {...rest} />
-      </CourseEnrollmentsContext.Provider>
-    </AppContext.Provider>
+    <CourseEnrollmentFailedAlert {...props} />
   </IntlProvider>
 );
 
 describe('<CourseEnrollmentFailedAlert />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCourseEnrollments.mockReturnValue({ data: defaultCourseEnrollmentsState });
+  });
+
   describe('Upgraded from dashboard', () => {
     const basicProps = {
       enrollmentSource: ENROLLMENT_SOURCE.DASHBOARD,

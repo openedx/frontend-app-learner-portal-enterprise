@@ -25,9 +25,9 @@ const CouponCodesSummaryCard = ({
       return ({
         variant: COUPON_CODES_AVAILABLE_BADGE_VARIANT,
         label: intl.formatMessage({
-          id: 'enterprise.dashboard.sidebar.coupon.codes.available.badge.label',
-          defaultMessage: 'Available',
-          description: 'Coupon codes available badge label on the enterprise dashboard sidebar.',
+          id: 'enterprise.dashboard.sidebar.coupon.codes.active.badge.label',
+          defaultMessage: 'Active',
+          description: 'Coupon codes active badge label on the enterprise dashboard sidebar.',
         }),
       });
     }

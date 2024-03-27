@@ -14,7 +14,7 @@ import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 const defaultAppState = {
   enterpriseConfig: {
     name: 'test-enterprise',
-    slug: 'test',
+    slug: 'test-enterprise-slug',
   },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,

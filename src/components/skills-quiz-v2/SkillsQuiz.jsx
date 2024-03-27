@@ -11,29 +11,31 @@ import { useContext, useEffect } from 'react';
 import SkillsQuizHeader from './SkillsQuizHeader';
 import SkillQuizForm from './SkillsQuizForm';
 import headerImage from '../skills-quiz/images/headerImage.png';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
   const intl = useIntl();
-  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const navigate = useNavigate();
   const [isOpen, open, close] = useToggle(false);
 
   const handleExit = () => {
-    navigate(`/${enterpriseConfig.slug}/search`);
+    navigate(`/${enterpriseCustomer.slug}/search`);
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.done.clicked',
-      { userId, enterprise: enterpriseConfig.slug },
+      { userId, enterprise: enterpriseCustomer.slug },
     );
   };
 
   useEffect(() => {
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.started',
-      { userId, enterprise: enterpriseConfig.slug },
+      { userId, enterprise: enterpriseCustomer.slug },
     );
-  }, [enterpriseConfig.slug, enterpriseConfig.uuid, userId]);
+  }, [enterpriseCustomer.slug, enterpriseCustomer.uuid, userId]);
 
   const TITLE = intl.formatMessage({
     id: 'enterprise.skills.quiz.v2.skills.builder.title',

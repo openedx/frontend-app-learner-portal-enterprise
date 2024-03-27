@@ -6,10 +6,11 @@ import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { ToastsContext } from '../../Toasts/ToastsProvider';
-import { SubsidyRequestsContext, SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import SubsidyRequestButton from '../SubsidyRequestButton';
 import { CourseContext } from '../CourseContextProvider';
 import * as entepriseAccessService from '../../enterprise-subsidy-requests/data/service';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../constants';
 
 jest.mock('../../enterprise-subsidy-requests/data/service');
 

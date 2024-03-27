@@ -2,13 +2,13 @@ import { camelCaseObject } from '@edx/frontend-platform';
 import MockDate from 'mockdate';
 
 import { COURSE_STATUSES } from '../constants';
-import {
-  transformCourseEnrollment,
-  groupCourseEnrollmentsByStatus,
-  transformSubsidyRequest,
-  sortAssignmentsByAssignmentStatus,
-} from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
+import {
+  groupCourseEnrollmentsByStatus,
+  transformCourseEnrollment,
+  transformSubsidyRequest,
+} from '../../../../../app/data';
+import { sortAssignmentsByAssignmentStatus } from '../utils';
 
 describe('transformCourseEnrollment', () => {
   it('should transform a course enrollment', () => {

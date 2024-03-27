@@ -4,10 +4,11 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import UserSubsidy from '../UserSubsidy';
-
 import { LOADING_SCREEN_READER_TEXT } from '../data/constants';
 import { useCouponCodes, useSubscriptions, useRedeemableLearnerCreditPolicies } from '../data/hooks';
 import { useEnterpriseOffers } from '../enterprise-offers/data/hooks';
+import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../data/hooks', () => ({
   ...jest.requireActual('../data/hooks'),
@@ -21,26 +22,21 @@ jest.mock('../enterprise-offers/data/hooks', () => ({
   useEnterpriseOffers: jest.fn().mockReturnValue({}),
 }));
 
-const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
-const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
-const TEST_USER = {
-  username: 'test-username',
-  roles: [`enterprise_learner:${TEST_ENTERPRISE_UUID}`],
-};
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const UserSubsidyWithAppContext = ({
-  enterpriseConfig = {},
   contextValue = {},
-  authenticatedUser = TEST_USER,
+  authenticatedUser = mockAuthenticatedUser,
   children,
 }) => (
   <AppContext.Provider
     value={{
-      enterpriseConfig: {
-        slug: TEST_ENTERPRISE_SLUG,
-        uuid: TEST_ENTERPRISE_UUID,
-        ...enterpriseConfig,
-      },
       authenticatedUser,
       ...contextValue,
     }}
@@ -54,6 +50,7 @@ const UserSubsidyWithAppContext = ({
 describe('UserSubsidy', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   test.each([

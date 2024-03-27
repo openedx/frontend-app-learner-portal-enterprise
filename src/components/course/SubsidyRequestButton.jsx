@@ -5,12 +5,13 @@ import { StatefulButton } from '@openedx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { CourseContext } from './CourseContextProvider';
 import { useUserHasSubsidyRequestForCourse } from './data/hooks';
 import { findUserEnrollmentForCourseRun } from './data/utils';
 import { ToastsContext } from '../Toasts';
 import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
+import { SUBSIDY_TYPE } from '../../constants';
 
 const props = {
   labels: {

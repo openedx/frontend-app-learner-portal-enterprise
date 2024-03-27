@@ -1,12 +1,12 @@
 import { AppContext } from '@edx/frontend-platform/react';
-import { shallow } from 'enzyme';
 import { screen } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import userEvent from '@testing-library/user-event';
 import HighlightedContentCard from '../HighlightedContentCard';
-import { initialAppState, renderWithRouter } from '../../../../utils/tests';
+import { renderWithRouter } from '../../../../utils/tests';
 import { useHighlightedContentCardData } from '../data';
+import { useEnterpriseCustomer } from '../../../app/data';
 
 const mockHighlightSetTitle = 'Test Highlight Set';
 const mockHighlightedContentItemTitle = 'Demonstration Course';
@@ -27,16 +27,27 @@ const mockHighlightSet = {
 jest.mock('../data');
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
+  hasFeatureFlagEnabled: jest.fn().mockReturnValue(false),
+}));
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
 }));
 
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: 'test-enterprise-slug',
+  uuid: 'test-enterprise-uuid',
+};
+
+const defaultAppContextValue = {
+  authenticatedUser: { username: 'test-username' },
+};
+
 describe('HighlightedContentCard', () => {
-  it('renders', () => {
-    const wrapper = shallow(
-      <AppContext.Provider value={{ uuid: 'test-uuid' }}>
-        <HighlightedContentCard />
-      </AppContext.Provider>,
-    );
-    expect(wrapper.exists()).toBe(true);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
   it('renders with data', () => {
     useHighlightedContentCardData.mockReturnValue({
@@ -50,12 +61,12 @@ describe('HighlightedContentCard', () => {
     });
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState({})}>
+      <AppContext.Provider value={defaultAppContextValue}>
         <HighlightedContentCard highlightedContent={mockHighlightSet.highlightedContent} />
       </AppContext.Provider>,
     );
 
-    // rendor the useHighlightedContentCardData hook
+    // render the useHighlightedContentCardData hook
     const { result } = renderHook(() => useHighlightedContentCardData({
       enterpriseSlug: 'test-enterprise-slug',
       highlightedContent: mockHighlightSet.highlightedContent,
@@ -80,7 +91,7 @@ describe('HighlightedContentCard', () => {
     });
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState({})}>
+      <AppContext.Provider value={defaultAppContextValue}>
         <HighlightedContentCard highlightSetUUID="test-set" highlightedContent={{ ...mockHighlightSet.highlightedContent, href: undefined }} />
       </AppContext.Provider>,
     );
@@ -113,7 +124,7 @@ describe('HighlightedContentCard', () => {
     });
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState({})}>
+      <AppContext.Provider value={defaultAppContextValue}>
         <HighlightedContentCard highlightSetUUID="test-set" highlightedContent={mockHighlightSet.highlightedContent} />
       </AppContext.Provider>,
     );

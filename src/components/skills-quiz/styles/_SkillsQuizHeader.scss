@@ -3,21 +3,25 @@
 }
 
 .skills-quiz-modal{
+  // TODO: should not override .pgn class name
   .pgn__modal-close-button{
-    color: #ffffff !important;
+    color: $white !important;
  }
 }
 
 .vertical-line{
-  border-left: 7px solid #D23228;
+  border-left: 7px solid $brand-500;
   transform: rotate(13deg);
 }
 
+// TODO: these class names are not specific to skills quiz. if they're using
+// in any other features by chance, these styles will be applied to those
+// features as well. These classes should have more specificity.
 .heading{
-  color: #F0CC00;
+  color: $accent-b;
 }
 .subheading{
-  color: #FFFFFF;
+  color: $white;
   line-height: 36px;
   letter-spacing: 1px;
   font-size: 25px;

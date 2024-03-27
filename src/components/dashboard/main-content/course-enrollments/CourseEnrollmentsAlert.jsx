@@ -1,4 +1,3 @@
-import React from 'react';
 import { Alert } from '@openedx/paragon';
 import { WarningFilled, CheckCircle } from '@openedx/paragon/icons';
 import { useIntl } from '@edx/frontend-platform/i18n';
@@ -27,7 +26,7 @@ const CourseEnrollmentsAlert = ({
       closeLabel={intl.formatMessage({
         id: 'enterprise.dashboard.course.enrollment.alert.dismiss.button',
         defaultMessage: 'Dismiss',
-        description: 'Dismiss button label for the course enrollemnt alert',
+        description: 'Dismiss button label for the course enrollment alert',
       })}
     >
       {children}
