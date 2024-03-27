@@ -27,6 +27,7 @@ Factory.define('enterpriseCustomer')
   .attr('enable_learner_portal', true)
   .attr('enable_data_sharing_consent', true)
   .attr('admin_users', [{ email: faker.internet.email() }])
+  .attr('disable_search', false)
   .attr('branding_configuration', {
     logo: faker.image.urlPlaceholder(),
     primary_color: faker.internet.color(),

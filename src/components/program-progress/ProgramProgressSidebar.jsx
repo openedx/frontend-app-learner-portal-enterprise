@@ -1,19 +1,25 @@
-import React, { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Button } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { getConfig } from '@edx/frontend-platform/config';
-import { ProgramProgressContext } from './ProgramProgressContextProvider';
 
 import ProgramProgressCircle from './ProgramProgressCircle';
 import ProgramPathwayOpportunity from './ProgramPathwayOpportunity';
 import { getProgramCertImage } from './data/utils';
 import progSampleCertImage from './images/sample-cert.png';
+import { useLearnerProgramProgressData } from '../app/data';
 
 const ProgramProgressSideBar = () => {
   const {
-    programData, industryPathways, creditPathways, certificateData, urls: { programRecordUrl },
-  } = useContext(ProgramProgressContext);
+    data: {
+      programData,
+      industryPathways,
+      creditPathways,
+      certificateData,
+      urls: { programRecordUrl },
+    },
+  } = useLearnerProgramProgressData();
   const { LMS_BASE_URL } = getConfig();
   const courseCertificates = useMemo(
     () => {
@@ -100,7 +106,7 @@ const ProgramProgressSideBar = () => {
             />
           </p>
         </div>
-        { programRecordUrl && (
+        {programRecordUrl && (
           <div className="sidebar-button-wrapper">
             <a href={programRecordUrl} className="program-record-link">
               <Button

@@ -5,4 +5,5 @@ export * from './course';
 export * from './enterpriseCustomerUser';
 export * from './utils';
 export * from './academies';
+export * from './programs';
 export * from './content';

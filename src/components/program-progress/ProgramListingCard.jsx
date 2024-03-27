@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
@@ -57,11 +57,12 @@ const ProgramListingCard = ({ program }) => {
     >
       <Card.ImageCap
         src={getBannerImageURL() || cardFallbackImg}
+        srcAlt=""
         fallbackSrc={cardFallbackImg}
         logoSrc={authoringOrganization?.src}
         logoAlt={authoringOrganization?.alt}
-        data-testid="program-banner-image"
         className="banner-image"
+        data-testid="program-banner-image"
       />
 
       <Card.Header

@@ -3,15 +3,16 @@ import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import ProgramProgressHeader from '../ProgramProgressHeader';
-import { ProgramProgressContext } from '../ProgramProgressContextProvider';
 import { getProgramIcon } from '../data/utils';
+import { useLearnerProgramProgressData } from '../../app/data';
 
-const ProgramProgressHeaderWithContext = ({
-  initialProgramProgressContext = {},
-}) => (
-  <ProgramProgressContext.Provider value={initialProgramProgressContext}>
-    <ProgramProgressHeader />
-  </ProgramProgressContext.Provider>
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useLearnerProgramProgressData: jest.fn(),
+}));
+
+const ProgramProgressHeaderWithContext = () => (
+  <ProgramProgressHeader />
 );
 
 const testProgramData = {
@@ -23,15 +24,20 @@ const testProgramData = {
   }],
 };
 
+const mockProgram = {
+  programData: testProgramData,
+};
+
 describe('<ProgramProgressHeader />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useLearnerProgramProgressData.mockReturnValue({ data: mockProgram });
+  });
   it('renders program progress header with correct data', () => {
-    const initialProgramProgressContext = { programData: testProgramData };
     const programIcon = getProgramIcon(testProgramData.type);
 
     const { container } = render(
-      <ProgramProgressHeaderWithContext
-        initialProgramProgressContext={initialProgramProgressContext}
-      />,
+      <ProgramProgressHeaderWithContext />,
     );
     expect(screen.getByText(testProgramData.title)).toBeInTheDocument();
     expect(container.querySelector('img')).toHaveAttribute('src', programIcon);

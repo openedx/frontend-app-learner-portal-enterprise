@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
-import { ProgramProgressContext } from './ProgramProgressContextProvider';
+import { v4 as uuidv4 } from 'uuid';
 import { getProgramIcon } from './data/utils';
+import { useLearnerProgramProgressData } from '../app/data';
 
 const ProgramProgressHeader = () => {
-  const { programData } = useContext(ProgramProgressContext);
+  const { data: { programData } } = useLearnerProgramProgressData();
   const programIcon = getProgramIcon(programData.type);
 
   return (
@@ -24,8 +24,8 @@ const ProgramProgressHeader = () => {
           <div className="orgs">
             {programData.authoringOrganizations.map(org => (
               <img
+                key={uuidv4()}
                 id="org-image"
-                key={org.name}
                 src={org.certificateLogoImageUrl || org.logoImageUrl}
                 className="org-logo"
                 alt={`${org.name}'s logo`}

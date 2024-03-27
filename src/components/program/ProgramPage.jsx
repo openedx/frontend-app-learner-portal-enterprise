@@ -27,7 +27,6 @@ const ProgramPage = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const [programData, fetchError] = useAllProgramData({ enterpriseUuid: enterpriseCustomer.uuid, programUuid });
-
   const initialState = useMemo(
     () => {
       if (!programData) {
