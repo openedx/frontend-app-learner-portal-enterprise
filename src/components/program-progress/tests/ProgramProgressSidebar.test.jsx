@@ -3,6 +3,7 @@ import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { getConfig } from '@edx/frontend-platform/config';
 import ProgramProgressSidebar from '../ProgramProgressSidebar';
 import { ProgramProgressContext } from '../ProgramProgressContextProvider';
 import { getProgramCertImage } from '../data/utils';
@@ -26,7 +27,7 @@ const testProgramData = {
     certificateLogoImageUrl: 'https://logo.image.url',
   }],
 };
-
+const { LMS_BASE_URL } = getConfig();
 const testProgramcertificate = {
   type: 'program',
   title: 'edX Demo Course',
@@ -63,6 +64,9 @@ const testIndustryPathway = {
 };
 
 describe('<ProgramProgressSideBar />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   it('renders program certificate if it exists', () => {
     const initialProgramProgressContext = {
       programData: testProgramData,
@@ -104,7 +108,7 @@ describe('<ProgramProgressSideBar />', () => {
     const imageElement = container.querySelector('.image-link');
     expect(screen.getByTestId('certificate-item')).toContainElement(imageElement);
     expect(container.querySelector('.sample-cert')).toHaveAttribute('src', progSampleCertImage);
-    expect(container.querySelector('.certificate-link')).toHaveAttribute('href', testCourseCertificate.url);
+    expect(container.querySelector('.certificate-link')).toHaveAttribute('href', LMS_BASE_URL + testCourseCertificate.url);
   });
 
   it('renders program record section correctly', () => {
