@@ -3,6 +3,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform';
 import { logError } from '@edx/frontend-platform/logging';
 import { getAvailableCourseRuns } from '../../../course/data/utils';
+import { fetchEnterpriseCustomerContainsContent } from './content';
 
 export async function fetchEnterpriseContainsContentItemProgram(enterpriseUuid, programUuid) {
   const { ENTERPRISE_CATALOG_API_BASE_URL, USE_API_CACHE } = getConfig();
@@ -55,12 +56,17 @@ export async function fetchProgramDetails(enterpriseUuid, programUuid) {
     const courseKeys = courses.map(({ key }) => key);
 
     // Verify program belongs to customer
-    const programContent = await fetchEnterpriseContainsContentItemProgram(enterpriseUuid, programUuid);
-
+    const programContent = await fetchEnterpriseCustomerContainsContent(enterpriseUuid, [programUuid]);
+    console.log(programContent);
     // Build contains course object { courseKey: Boolean, ...}
     let courseContent;
     if (!programContent.containsContentItems) {
-      courseContent = await fetchEnterpriseContainsContentItemsCourseRuns(enterpriseUuid, courseKeys);
+      courseContent = Promise.all(
+        courseKeys.map(async (courseKey) => {
+          fetchEnterpriseCustomerContainsContent(enterpriseUuid, [courseKey]);
+        }),
+      );
+      console.log(courseContent);
       courseContent = Object.fromEntries(courseContent);
     } else {
       courseContent = Object.fromEntries(courseKeys.map(courseKey => [courseKey, true]));

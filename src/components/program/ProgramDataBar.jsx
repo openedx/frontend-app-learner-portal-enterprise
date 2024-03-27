@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Container } from '@openedx/paragon';
 import { ExpandCircleDown } from '@openedx/paragon/icons';
 import classNames from 'classnames';

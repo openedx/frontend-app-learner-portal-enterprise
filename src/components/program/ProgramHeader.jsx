@@ -1,4 +1,3 @@
-import React from 'react';
 import { Parallax } from 'react-parallax';
 import { breakpoints, Breadcrumb } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';

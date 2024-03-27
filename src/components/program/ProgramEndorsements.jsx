@@ -1,4 +1,3 @@
-import React from 'react';
 import { breakpoints, MediaQuery } from '@openedx/paragon';
 import { FormatQuote } from '@openedx/paragon/icons';
 import { useProgramDetails } from '../app/data';

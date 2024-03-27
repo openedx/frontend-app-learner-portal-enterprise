@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { defineMessages, useIntl, FormattedMessage } from '@edx/frontend-platform/i18n';
 import classNames from 'classnames';
 import { Dropdown } from '@openedx/paragon';

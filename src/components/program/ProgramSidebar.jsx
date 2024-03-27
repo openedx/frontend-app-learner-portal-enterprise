@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   AccessTime, LibraryBooks, Person, Speed,
 } from '@openedx/paragon/icons';

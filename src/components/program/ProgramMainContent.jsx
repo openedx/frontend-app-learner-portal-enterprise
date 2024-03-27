@@ -1,4 +1,3 @@
-import React from 'react';
 import ProgramInstructors from './ProgramInstructors';
 import ProgramCourses from './ProgramCourses';
 import { PreviewExpand } from '../preview-expand';
