@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
 import { breakpoints, MediaQuery } from '@openedx/paragon';
 import { FormatQuote } from '@openedx/paragon/icons';
-import { ProgramContext } from './ProgramContextProvider';
+import { useProgramDetails } from '../app/data';
 
 const ProgramEndorsements = () => {
-  const { program: { corporateEndorsements } } = useContext(ProgramContext);
+  const { data: program } = useProgramDetails();
+  const { corporateEndorsements } = program;
   const formatAuthorFullName = endorser => `${endorser.givenName} ${endorser.familyName}`;
   const title = endorser => (endorser.position ? endorser.position.title : '');
 

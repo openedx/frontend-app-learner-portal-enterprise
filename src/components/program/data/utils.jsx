@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP, PACING_TYPE_CONTENT, VERBOSE_PROGRAM_PACING_MAP,
 } from './constants';

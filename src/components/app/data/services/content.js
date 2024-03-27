@@ -12,25 +12,25 @@ import { validate as isValidUUID } from 'uuid';
   * `parent_content_key` is checked by the API.
   * */
 export async function fetchEnterpriseCustomerContainsContent(enterpriseId, contentIdentifers) {
-  const contentIdentifersMap = {
+  const contentIdentifiersMap = {
     course: [],
     program: [],
   };
   contentIdentifers.forEach((contentIdentifier) => {
     if (isValidUUID(contentIdentifier)) {
-      contentIdentifersMap.program.push(contentIdentifier);
+      contentIdentifiersMap.program.push(contentIdentifier);
     } else {
-      contentIdentifersMap.course.push(contentIdentifier);
+      contentIdentifiersMap.course.push(contentIdentifier);
     }
   });
   const queryParams = new URLSearchParams({
     get_catalogs_containing_specified_content_ids: true,
   });
-  if (contentIdentifersMap.course.length > 0) {
-    queryParams.append('course_run_ids', contentIdentifersMap.course.join(','));
+  if (contentIdentifiersMap.course.length > 0) {
+    queryParams.append('course_run_ids', contentIdentifiersMap.course.join(','));
   }
-  if (contentIdentifersMap.program.length > 0) {
-    queryParams.append('program_uuids', contentIdentifersMap.program.join(','));
+  if (contentIdentifiersMap.program.length > 0) {
+    queryParams.append('program_uuids', contentIdentifiersMap.program.join(','));
   }
 
   const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseId}/contains_content_items/?${queryParams.toString()}`;

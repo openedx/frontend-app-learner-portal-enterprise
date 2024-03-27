@@ -7,9 +7,8 @@ import ProgramService from './service';
 export function useAllProgramData({ enterpriseUuid, programUuid }) {
   const [programData, setProgramData] = useState();
   const [fetchError, setFetchError] = useState();
-
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchProgramData = async () => {
       if (programUuid) {
         const programService = new ProgramService({ enterpriseUuid, programUuid });
         try {
@@ -22,7 +21,7 @@ export function useAllProgramData({ enterpriseUuid, programUuid }) {
       }
       return undefined;
     };
-    fetchData();
+    fetchProgramData();
   }, [enterpriseUuid, programUuid]);
 
   return [camelCaseObject(programData), fetchError];

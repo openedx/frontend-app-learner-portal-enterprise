@@ -20,6 +20,7 @@ import {
   fetchInProgressPathways,
   fetchLearnerSkillLevels,
   fetchAcademies,
+  fetchProgramDetails,
   fetchEnterpriseCustomerContainsContent,
 } from '../services';
 
@@ -75,6 +76,12 @@ const enterprise = createQueryKeys('enterprise', {
       programs: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchLearnerProgramsList(queryKey[2]),
+        contextQueries: {
+          program: (programUuid) => ({
+            queryKey: [programUuid],
+            queryFn: async ({ queryKey }) => fetchProgramDetails(queryKey[2], queryKey[5]),
+          }),
+        },
       },
       pathways: {
         queryKey: null,
