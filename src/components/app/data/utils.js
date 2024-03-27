@@ -6,6 +6,7 @@ import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { getBrandColorsFromCSSVariables } from '../../../utils/common';
 import { COURSE_STATUSES } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
+import { COURSE_AVAILABILITY_MAP } from './constants';
 
 /**
  * Check if system maintenance alert is open, based on configuration.
@@ -427,4 +428,51 @@ export function getLateRedemptionBufferDays(redeemablePolicies) {
   ));
   const isEnrollableBufferDays = anyPolicyHasLateRedemptionEnabled ? LATE_ENROLLMENTS_BUFFER_DAYS : undefined;
   return isEnrollableBufferDays;
+}
+
+// See https://2u-internal.atlassian.net/wiki/spaces/WS/pages/8749811/Enroll+button+and+Course+Run+Selector+Logic
+// for more detailed documentation on course run selection and the enroll button.
+export function getActiveCourseRun(course) {
+  return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
+}
+
+export function isArchived(courseRun) {
+  if (courseRun.availability) {
+    return courseRun.availability === COURSE_AVAILABILITY_MAP.ARCHIVED;
+  }
+  return false;
+}
+
+/**
+ * Returns list of available that are marketable, enrollable, and not archived.
+ *
+ * @param {object} course
+ * @returns List of course runs.
+ */
+export function getAvailableCourseRuns({ course, isEnrollableBufferDays }) {
+  if (!course?.courseRuns) {
+    return [];
+  }
+  const availableCourseRunsFilter = (courseRun) => {
+    if (!courseRun.isMarketable || isArchived(courseRun)) {
+      return false;
+    }
+
+    if (isEnrollableBufferDays === undefined) {
+      return courseRun.isEnrollable;
+    }
+
+    const today = dayjs();
+    if (courseRun.enrollmentStart && today.isBefore(dayjs(courseRun.enrollmentStart))) {
+      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
+      return courseRun.isEnrollable;
+    }
+    if (!courseRun.enrollmentEnd) {
+      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
+      return courseRun.isEnrollable;
+    }
+    const bufferedEnrollDeadline = dayjs(courseRun.enrollmentEnd).add(isEnrollableBufferDays, 'day');
+    return today.isBefore(bufferedEnrollDeadline);
+  };
+  return course.courseRuns.filter(availableCourseRunsFilter);
 }

@@ -1,65 +1,22 @@
-import { useEffect, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
-import {
-  useLocation, useParams, useNavigate, Outlet,
-} from 'react-router-dom';
+import { useMemo } from 'react';
+import { Outlet } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { Container } from '@openedx/paragon';
-import { ErrorPage } from '@edx/frontend-platform/react';
 
-import { LoadingSpinner } from '../loading-spinner';
-import { CourseContext, CourseContextProvider } from './CourseContextProvider';
+import { CourseContext } from './CourseContextProvider';
 import {
-  useAllCourseData,
   useExtractAndRemoveSearchParamsFromURL,
-  useUserSubsidyApplicableToCourse,
-  useCoursePriceForUserSubsidy,
 } from './data/hooks';
-import {
-  getActiveCourseRun,
-  getAvailableCourseRuns,
-  getLinkToCourse,
-  pathContainsCourseTypeSlug,
-  getCourseTypeConfig,
-  getEntitlementPrice,
-  findHighestLevelEntitlementSku,
-  getAvailableCourseRunKeysFromCourseData,
-} from './data/utils';
-import { canUserRequestSubsidyForCourse } from './enrollment/utils';
 import NotFoundPage from '../NotFoundPage';
-import CoursePageRoutes from './routes/CoursePageRoutes';
 import {
-  useBrowseAndRequest,
-  useCanOnlyViewHighlights,
-  useCouponCodes,
   useCourseMetadata,
-  useEnterpriseCustomerContainsContent,
-  useCourseRedemptionEligibility,
-  useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
-  useEnterpriseOffers,
-  useLateRedemptionBufferDays,
-  useRedeemablePolicies,
-  useSubscriptions,
-  useUserEntitlements,
 } from '../app/data';
-import { useCatalogsForSubsidyRequests } from '../hooks';
-import { useSearchCatalogs } from '../search';
 
 const CoursePage = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
 
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
-
-  const {
-    userSubsidyApplicableToCourse,
-    missingUserSubsidyReason,
-  } = useUserSubsidyApplicableToCourse();
-  console.log('useUserSubsidyApplicableToCourse', {
-    userSubsidyApplicableToCourse,
-    missingUserSubsidyReason,
-  });
 
   const contextValue = useMemo(() => ({
     algoliaSearchParams,
@@ -116,14 +73,6 @@ const CoursePage = () => {
   //   hasSuccessfulRedemption,
   // } = subsidyAccessPolicyRedeemabilityData || {};
 
-  // const courseRunKey = useMemo(
-  //   () => {
-  //     const queryParams = new URLSearchParams(search);
-  //     return queryParams.get('course_run_key');
-  //   },
-  //   [search],
-  // );
-
   // extract search queryId and objectId that led to this course page view from
   // the URL query parameters and then remove it to keep the URLs clean.
 
@@ -157,36 +106,12 @@ const CoursePage = () => {
   //   isLoading: isLoadingCourseData,
   // } = useAllCourseData({ courseService, activeCatalogs });
 
-  // const [validateLicenseForCourseError, setValidateLicenseForCourseError] = useState();
-  // const onSubscriptionLicenseForCourseValidationError = useCallback(
-  //   (error) => setValidateLicenseForCourseError(error),
-  //   [],
-  // );
-
-  // const isLoadingAny = (
-  //   isLoadingCourseData || isLoadingAccessPolicyRedemptionStatus
-  // );
-  // const error = fetchCourseDataError || validateLicenseForCourseError;
-
   // const courseState = useMemo(
   //   () => {
-  //     // If we're still loading any data, or if we don't have any course data, we
-  //     // don't have enough data to render the page so return undefined to keep rendering
-  //     // a loading spinner.
-  //     // if (isLoadingAny || !courseData || !courseRecommendations) {
-  //     //   return undefined;
-  //     // }
-  //     const {
-  //       // courseDetails,
-  //       // userEnrollments,
-  //       // userEntitlements,
-  //       // catalog,
-  //     } = courseData;
   //     const { allRecommendations, samePartnerRecommendations } = courseRecommendations;
   //     const courseEntitlementProductSku = findHighestLevelEntitlementSku(courseDetails.entitlements);
   //     return {
   //       course: courseDetails,
-  //       activeCourseRun: getActiveCourseRun(courseDetails),
   //       availableCourseRuns: getAvailableCourseRuns({ course: courseDetails, isEnrollableBufferDays }),
   //       userEnrollments,
   //       userEntitlements,
@@ -208,52 +133,6 @@ const CoursePage = () => {
   //     algoliaSearchParams,
   //     isEnrollableBufferDays,
   //   ],
-  // );
-
-  // const courseListPrice = subsidyAccessPolicyRedeemabilityData?.listPrice
-  // || courseState?.activeCourseRun?.firstEnrollablePaidSeatPrice
-  // || getEntitlementPrice(courseState?.course?.entitlements);
-
-  // const [coursePrice, currency] = useCoursePriceForUserSubsidy({
-  //   userSubsidyApplicableToCourse,
-  //   listPrice: courseListPrice,
-  // });
-
-  // const subsidyRequestCatalogsApplicableToCourse = useMemo(() => {
-  //   const catalogsContainingCourse = new Set(courseState?.catalog?.catalogList);
-  //   const subsidyRequestCatalogIntersection = new Set(
-  //     catalogsForSubsidyRequests.filter(el => catalogsContainingCourse.has(el)),
-  //   );
-  //   return subsidyRequestCatalogIntersection;
-  // }, [courseState?.catalog?.catalogList, catalogsForSubsidyRequests]);
-
-  // const userCanRequestSubsidyForCourse = canUserRequestSubsidyForCourse({
-  //   subsidyRequestConfiguration,
-  //   subsidyRequestCatalogsApplicableToCourse,
-  //   userSubsidyApplicableToCourse,
-  // });
-
-  // return (
-  //   <>
-  //     <Helmet title={PAGE_TITLE} />
-  //     <CourseEnrollmentsContextProvider>
-  //       <CourseContextProvider
-  //         courseState={courseState}
-  //         missingUserSubsidyReason={missingUserSubsidyReason}
-  //         userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-  //         isPolicyRedemptionEnabled={isPolicyRedemptionEnabled}
-  //         redeemabilityPerContentKey={redeemabilityPerContentKey}
-  //         userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
-  //         subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
-  //         coursePrice={coursePrice}
-  //         currency={currency}
-  //         canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-  //         hasSuccessfulRedemption={hasSuccessfulRedemption}
-  //       >
-  //         <CoursePageRoutes />
-  //       </CourseContextProvider>
-  //     </CourseEnrollmentsContextProvider>
-  //   </>
   // );
 };
 

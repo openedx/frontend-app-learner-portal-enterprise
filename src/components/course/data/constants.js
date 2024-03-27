@@ -19,13 +19,6 @@ export const PROMISE_FULFILLED = 'fulfilled';
 
 export const CURRENCY_USD = 'USD';
 
-export const COURSE_AVAILABILITY_MAP = {
-  CURRENT: 'Current',
-  UPCOMING: 'Upcoming',
-  STARTING_SOON: 'Starting Soon',
-  ARCHIVED: 'Archived',
-};
-
 export const COURSE_RUN_AVAILABILITY = {
   UNPUBLISHED: 'unpublished',
   LEGAL_REVIEW: 'review_by_legal',

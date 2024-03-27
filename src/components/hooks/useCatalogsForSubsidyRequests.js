@@ -12,27 +12,28 @@ import { SUBSIDY_TYPE } from '../../constants';
  *
  * @returns {Object} - An object containing the catalogs that can be used for subsidy requests.
  */
-export default function useCatalogForSubsidyRequest() {
+export default function useCatalogsForSubsidyRequest() {
   const { data: browseAndRequestConfiguration } = useBrowseAndRequestConfiguration();
   const { data: { customerAgreement } } = useSubscriptions();
   const { data: { couponsOverview } } = useCouponCodes();
 
   const catalogsForSubsidyRequests = useMemo(
     () => {
+      const catalogs = [];
       if (!browseAndRequestConfiguration.subsidyRequestsEnabled) {
-        return [];
+        return catalogs;
       }
       if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE) {
         const catalogsFromSubscriptions = customerAgreement.availableSubscriptionCatalogs;
-        catalogsForSubsidyRequests.push(...catalogsFromSubscriptions);
+        catalogs.push(...catalogsFromSubscriptions);
       }
       if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
         const catalogsFromCoupons = couponsOverview
           .filter(coupon => !!coupon.available)
           .map(coupon => coupon.enterpriseCatalogUuid);
-        catalogsForSubsidyRequests.push(...new Set(catalogsFromCoupons));
+        catalogs.push(...new Set(catalogsFromCoupons));
       }
-      return catalogsForSubsidyRequests;
+      return catalogs;
     },
     [
       browseAndRequestConfiguration.subsidyRequestsEnabled,

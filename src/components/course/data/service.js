@@ -4,8 +4,8 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { EVENT_NAMES } from './constants';
-import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
 import { getErrorResponseStatusCode } from '../../../utils/common';
+import { getActiveCourseRun, getAvailableCourseRuns } from '../../app/data';
 
 export default class CourseService {
   constructor(options = {}) {

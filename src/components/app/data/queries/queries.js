@@ -1,6 +1,6 @@
-import { getAvailableCourseRuns } from '../../../course/data/utils';
 import queries from './queryKeyFactory';
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
+import { getAvailableCourseRuns } from '../utils';
 
 /**
  * Helper function to assist querying with useQuery package
@@ -94,12 +94,12 @@ export function queryEnterprisePathwaysList(enterpriseUuid) {
  * ._ctx.contentMetadata(courseKey)
  * @returns {Types.QueryOptions}
  */
-export function queryCourseMetadata(enterpriseUuid, courseKey) {
+export function queryCourseMetadata(enterpriseUuid, courseKey, courseRunKey, isEnrollableBufferDays) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.course(courseKey)
-    ._ctx.contentMetadata;
+    ._ctx.contentMetadata(courseRunKey, isEnrollableBufferDays);
 }
 
 /**
@@ -204,10 +204,11 @@ export function queryContentHighlightSets(enterpriseUuid) {
  * @returns {Types.QueryOptions}
  */
 export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBufferDays) {
-  const availableCourseRunKeys = getAvailableCourseRuns({
+  const availableCourseRuns = courseMetadata.availableCourseRuns || getAvailableCourseRuns({
     course: courseMetadata,
     isEnrollableBufferDays,
-  }).map(courseRun => courseRun.key);
+  });
+  const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)

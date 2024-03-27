@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { COURSE_AVAILABILITY_MAP, COURSE_PACING_MAP } from '../../../../data/constants';
+import { COURSE_PACING_MAP } from '../../../../data/constants';
+import { COURSE_AVAILABILITY_MAP } from '../../../../../app/data';
 
 export const MOCK_COURSE_RUN_KEY = 'course-v1:edX+DemoX+Demo_Course';
 

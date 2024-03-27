@@ -55,10 +55,15 @@ const enterprise = createQueryKeys('enterprise', {
       course: (courseKey) => ({
         queryKey: [courseKey],
         contextQueries: {
-          contentMetadata: {
-            queryKey: null,
-            queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], queryKey[4]),
-          },
+          contentMetadata: (courseRunKey, isEnrollableBufferDays) => ({
+            queryKey: [courseRunKey, isEnrollableBufferDays],
+            queryFn: async ({ queryKey }) => fetchCourseMetadata(
+              queryKey[2],
+              queryKey[4],
+              courseRunKey,
+              isEnrollableBufferDays,
+            ),
+          }),
           canRedeem: (availableCourseRunKeys) => ({
             queryKey: [availableCourseRunKeys],
             queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),

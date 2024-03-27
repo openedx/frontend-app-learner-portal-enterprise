@@ -17,3 +17,10 @@ export const emptyRedeemableLearnerCreditPolicies = {
     hasAssignmentsForDisplay: false,
   },
 };
+
+export const COURSE_AVAILABILITY_MAP = {
+  CURRENT: 'Current',
+  UPCOMING: 'Upcoming',
+  STARTING_SOON: 'Starting Soon',
+  ARCHIVED: 'Archived',
+};

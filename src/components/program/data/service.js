@@ -1,7 +1,7 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
-import { getAvailableCourseRuns } from '../../course/data/utils';
+import { getAvailableCourseRuns } from '../../app/data';
 
 export default class ProgramService {
   constructor(options = {}) {

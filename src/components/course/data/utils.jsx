@@ -7,7 +7,6 @@ import dayjs from '../../../utils/dayjs';
 
 import {
   COUPON_CODE_SUBSIDY_TYPE,
-  COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
   COURSE_PACING_MAP,
   DISABLED_ENROLL_REASON_TYPES,
@@ -27,6 +26,7 @@ import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { getAvailableCourseRuns } from '../../app/data';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -58,13 +58,6 @@ export function weeksRemainingUntilEnd(courseRun) {
 
 export function hasTimeToComplete(courseRun) {
   return courseRun.weeksToComplete <= weeksRemainingUntilEnd(courseRun);
-}
-
-export function isArchived(courseRun) {
-  if (courseRun.availability) {
-    return courseRun.availability === COURSE_AVAILABILITY_MAP.ARCHIVED;
-  }
-  return false;
 }
 
 export function isCourseSelfPaced(pacingType) {
@@ -125,46 +118,6 @@ export function getProgramIcon(type) {
 }
 
 export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);
-
-// See https://2u-internal.atlassian.net/wiki/spaces/WS/pages/8749811/Enroll+button+and+Course+Run+Selector+Logic
-// for more detailed documentation on course run selection and the enroll button.
-export function getActiveCourseRun(course) {
-  return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
-}
-
-/**
- * Returns list of available that are marketable, enrollable, and not archived.
- *
- * @param {object} course
- * @returns List of course runs.
- */
-export function getAvailableCourseRuns({ course, isEnrollableBufferDays }) {
-  if (!course?.courseRuns) {
-    return [];
-  }
-  const availableCourseRunsFilter = (courseRun) => {
-    if (!courseRun.isMarketable || isArchived(courseRun)) {
-      return false;
-    }
-
-    if (isEnrollableBufferDays === undefined) {
-      return courseRun.isEnrollable;
-    }
-
-    const today = dayjs();
-    if (courseRun.enrollmentStart && today.isBefore(dayjs(courseRun.enrollmentStart))) {
-      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
-      return courseRun.isEnrollable;
-    }
-    if (!courseRun.enrollmentEnd) {
-      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
-      return courseRun.isEnrollable;
-    }
-    const bufferedEnrollDeadline = dayjs(courseRun.enrollmentEnd).add(isEnrollableBufferDays, 'day');
-    return today.isBefore(bufferedEnrollDeadline);
-  };
-  return course.courseRuns.filter(availableCourseRunsFilter);
-}
 
 /**
  * Returns a filtered list of course run keys that are marketable, enrollable, and not archived.
@@ -960,18 +913,15 @@ export function getEntitlementPrice(entitlements) {
  * @param {number} args.firstEnrollablePaidSeatPrice Price of first enrollable paid seat.
  * @returns Price for the course run.
  */
-export const getCourseRunPrice = ({
-  courseDetails,
-  firstEnrollablePaidSeatPrice,
-}) => {
-  if (courseUsesEntitlementPricing(courseDetails)) {
-    return getEntitlementPrice(courseDetails.entitlements);
+export function getCourseRunPrice(course) {
+  if (courseUsesEntitlementPricing(course)) {
+    return getEntitlementPrice(course.entitlements);
   }
-  if (firstEnrollablePaidSeatPrice) {
-    return firstEnrollablePaidSeatPrice;
+  if (course.activeCourseRun?.firstEnrollablePaidSeatPrice) {
+    return course.activeCourseRun.firstEnrollablePaidSeatPrice;
   }
   return undefined;
-};
+}
 
 /**
  * Transforms a value into a float with 2 decimal places.

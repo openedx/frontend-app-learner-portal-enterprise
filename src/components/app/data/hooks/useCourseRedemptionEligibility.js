@@ -14,6 +14,7 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
   const isEnrollableBufferDays = useLateRedemptionEnrollableBufferDays();
+
   return useQuery({
     ...queryOptionsRest,
     ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, isEnrollableBufferDays),

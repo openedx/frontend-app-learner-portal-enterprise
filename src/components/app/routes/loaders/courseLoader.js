@@ -35,6 +35,9 @@ export default function makeCourseLoader(queryClient) {
     }
 
     const { courseKey, enterpriseSlug } = params;
+    // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
+    // need to replace it with `+` again to be a valid course run key.
+    const courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
     const enterpriseId = await extractEnterpriseId({
       queryClient,
@@ -42,9 +45,7 @@ export default function makeCourseLoader(queryClient) {
       enterpriseSlug,
     });
 
-    const courseMetadataAndSubsidies = Promise.all([
-      queryClient.ensureQueryData(queryCourseMetadata(enterpriseId, courseKey)),
-      queryClient.ensureQueryData(queryCourseReviews(enterpriseId, courseKey)),
+    const subsidiesQueries = Promise.all([
       queryClient.ensureQueryData(queryRedeemablePolicies({
         enterpriseUuid: enterpriseId,
         lmsUserId: authenticatedUser.userId,
@@ -60,15 +61,15 @@ export default function makeCourseLoader(queryClient) {
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
-      courseMetadataAndSubsidies.then((responses) => {
-        const courseMetadata = responses[0];
-        const redeemableLearnerCreditPolicies = responses[2];
-        const { subscriptionPlan, subscriptionLicense } = responses[3];
-        const { hasCurrentEnterpriseOffers } = responses[4];
-        const { couponCodeAssignments } = responses[5];
-        const licenseRequests = responses[6];
-        const couponCodeRequests = responses[7];
+      subsidiesQueries.then(async (responses) => {
+        const redeemableLearnerCreditPolicies = responses[0];
+        const { subscriptionPlan, subscriptionLicense } = responses[1];
+        const { hasCurrentEnterpriseOffers } = responses[2];
+        const { couponCodeAssignments } = responses[3];
+        const licenseRequests = responses[4];
+        const couponCodeRequests = responses[5];
 
+        const isEnrollableBufferDays = getLateRedemptionBufferDays(redeemableLearnerCreditPolicies.redeemablePolicies);
         const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
           subscriptionPlan,
           subscriptionLicense,
@@ -87,6 +88,16 @@ export default function makeCourseLoader(queryClient) {
         if (isAssignmentOnlyLearner && !isCourseAssigned) {
           throw redirect(generatePath('/:enterpriseSlug', { enterpriseSlug }));
         }
+        const courseData = await Promise.all([
+          queryClient.ensureQueryData(queryCourseMetadata(
+            enterpriseId,
+            courseKey,
+            courseRunKey,
+            isEnrollableBufferDays,
+          )),
+          queryClient.ensureQueryData(queryCourseReviews(enterpriseId, courseKey)),
+        ]);
+        const courseMetadata = courseData[0];
 
         // If the course does not exist or is not available in the enterprise catalog(s),
         // return with empty data.
@@ -94,7 +105,10 @@ export default function makeCourseLoader(queryClient) {
           return null;
         }
 
-        // TODO
+        // Check whether user should be redirected to appropriate course route
+        // based on the course type. I.e., if the configuration for the course type
+        // is available and the current route does not contain the course type slug,
+        // redirect to the appropriate course route.
         if (
           courseMetadata.courseType
           && getCourseTypeConfig(courseMetadata)
@@ -104,9 +118,10 @@ export default function makeCourseLoader(queryClient) {
           throw redirect(newUrl);
         }
 
+        // return queryClient.ensureQueryData(queryCourseReviews(enterpriseId, courseKey)),
+
         // Otherwise, the course metadata is available in the enterprise catalog(s), so
         // we can proceed to check if the user can redeem the course.
-        const isEnrollableBufferDays = getLateRedemptionBufferDays(redeemableLearnerCreditPolicies.redeemablePolicies);
         return queryClient.ensureQueryData(queryCanRedeem(enterpriseId, courseMetadata, isEnrollableBufferDays));
       }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),

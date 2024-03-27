@@ -7,12 +7,10 @@ import { FormattedDate, FormattedMessage, useIntl } from '@edx/frontend-platform
 
 import EnrollAction from '../../enrollment/EnrollAction';
 import CourseRunCardStatus from '../CourseRunCardStatus';
-import { COURSE_AVAILABILITY_MAP } from '../../data/constants';
 import {
   isUserEntitledForCourse,
   isCourseSelfPaced,
   hasTimeToComplete,
-  isArchived,
   findUserEnrollmentForCourseRun,
   hasCourseStarted,
   findHighestLevelSku,
@@ -27,7 +25,7 @@ import {
 } from '../../data/hooks';
 import { determineEnrollmentType } from '../../enrollment/utils';
 import { CourseContext } from '../../CourseContextProvider';
-import { useEnterpriseCustomer } from '../../../app/data';
+import { COURSE_AVAILABILITY_MAP, isArchived, useEnterpriseCustomer } from '../../../app/data';
 
 const DATE_FORMAT = 'MMM D';
 

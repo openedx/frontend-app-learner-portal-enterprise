@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import classNames from 'classnames';
 import {
   Breadcrumb,
@@ -8,10 +8,9 @@ import {
   Badge,
   Hyperlink,
 } from '@openedx/paragon';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
-import { CourseContext } from '../CourseContextProvider';
 import CourseSkills from '../CourseSkills';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollmentFailedAlert';
 import CourseRunCards from './CourseRunCards';
@@ -19,7 +18,6 @@ import CourseRunCards from './CourseRunCards';
 import {
   getDefaultProgram,
   formatProgramType,
-  isArchived,
 } from '../data/utils';
 import { useCoursePartners, useIsCourseAssigned } from '../data/hooks';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
@@ -30,6 +28,7 @@ import CoursePreview from './CoursePreview';
 import { features } from '../../../config';
 import CourseMaterialsButton from '../CourseMaterialsButton';
 import {
+  isArchived,
   useCourseMetadata,
   useCourseRedemptionEligibility,
   useEnterpriseCustomer,
@@ -40,11 +39,12 @@ import {
 
 const CourseHeader = () => {
   const location = useLocation();
-
+  const { courseKey } = useParams();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
   const { data: { learnerContentAssignments } } = useRedeemablePolicies();
   const { data: { isPolicyRedemptionEnabled } } = useCourseRedemptionEligibility();
+  const { data: { containsContentItems } } = useEnterpriseCustomerContainsContent([courseKey]);
   const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();
   const isCourseAssigned = useIsCourseAssigned(learnerContentAssignments, courseMetadata.key);
   const isCourseArchived = courseMetadata.courseRuns.every((courseRun) => isArchived(courseRun));
@@ -125,11 +125,11 @@ const CourseHeader = () => {
               />
             )}
             <CourseSkills />
-            {/* {isPolicyRedemptionEnabled && <CourseRunCards />} */}
-            {courseMetadata.containsContentItems && (
+            {isPolicyRedemptionEnabled && <CourseRunCards />}
+            {containsContentItems && (
               <>
-                {/* {!isPolicyRedemptionEnabled && <CourseRunCards />} */}
-                {/* <SubsidyRequestButton /> */}
+                {!isPolicyRedemptionEnabled && <CourseRunCards />}
+                <SubsidyRequestButton />
               </>
             )}
           </Col>

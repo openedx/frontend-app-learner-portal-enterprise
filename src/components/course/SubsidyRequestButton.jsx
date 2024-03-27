@@ -5,13 +5,12 @@ import { StatefulButton } from '@openedx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { CourseContext } from './CourseContextProvider';
-import { useUserHasSubsidyRequestForCourse } from './data/hooks';
+import { useBrowseAndRequestCatalogsApplicableToCourse, useUserHasSubsidyRequestForCourse, useUserSubsidyApplicableToCourse } from './data/hooks';
 import { findUserEnrollmentForCourseRun } from './data/utils';
 import { ToastsContext } from '../Toasts';
 import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
 import { SUBSIDY_TYPE } from '../../constants';
-import { useBrowseAndRequestConfiguration } from '../app/data';
+import { useBrowseAndRequestConfiguration, useCourseMetadata, useEnterpriseCourseEnrollments } from '../app/data';
 
 const props = {
   labels: {
@@ -30,17 +29,24 @@ const SubsidyRequestButton = () => {
   const [loadingRequest, setLoadingRequest] = useState(false);
 
   const { data: browseAndRequestConfiguration } = useBrowseAndRequestConfiguration();
-  // const {
-  //   subsidyRequestConfiguration,
-  //   refreshSubsidyRequests,
-  // } = useContext(SubsidyRequestsContext);
-  const { state, subsidyRequestCatalogsApplicableToCourse, userSubsidyApplicableToCourse } = useContext(CourseContext);
-
-  const { course, userEnrollments } = state;
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  const subsidyRequestCatalogsApplicableToCourse = useBrowseAndRequestCatalogsApplicableToCourse();
   const {
-    key: courseKey,
-    courseRunKeys,
-  } = course;
+    data: {
+      courseKey,
+      courseRunKeys,
+    },
+  } = useCourseMetadata({
+    select: (data) => ({
+      courseKey: data.key,
+      courseRunKeys: data.courseRunKeys,
+    }),
+  });
+  const {
+    data: {
+      enterpriseCourseEnrollments: userEnrollments,
+    },
+  } = useEnterpriseCourseEnrollments();
 
   /**
    * Check every course run to see if user is enrolled in any of them
@@ -83,7 +89,7 @@ const SubsidyRequestButton = () => {
   const hasSubsidyRequestsEnabled = browseAndRequestConfiguration?.subsidyRequestsEnabled;
   const showSubsidyRequestButton = hasSubsidyRequestsEnabled && (
     userHasSubsidyRequest || (
-      subsidyRequestCatalogsApplicableToCourse.size > 0 && !isUserEnrolled && !userSubsidyApplicableToCourse
+      subsidyRequestCatalogsApplicableToCourse.length > 0 && !isUserEnrolled && !userSubsidyApplicableToCourse
     )
   );
 
