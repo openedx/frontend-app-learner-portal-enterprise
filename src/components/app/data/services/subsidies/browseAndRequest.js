@@ -1,5 +1,6 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
+import { logError } from '@edx/frontend-platform/logging';
 
 import { getErrorResponseStatusCode } from '../../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../../../constants';
@@ -16,11 +17,10 @@ export async function fetchBrowseAndRequestConfiguration(enterpriseUUID) {
     const response = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);
   } catch (error) {
-    const errorResponseStatusCode = getErrorResponseStatusCode(error);
-    if (errorResponseStatusCode === 404) {
-      return null;
+    if (getErrorResponseStatusCode(error) !== 404) {
+      logError(error);
     }
-    throw error;
+    return null;
   }
 }
 

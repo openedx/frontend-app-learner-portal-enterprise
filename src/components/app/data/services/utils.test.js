@@ -28,8 +28,8 @@ describe('fetchPaginatedData', () => {
       num_pages: 0,
       results: [],
     });
-    const results = await fetchPaginatedData(EXAMPLE_ENDPOINT);
-    expect(results).toEqual({
+    const result = await fetchPaginatedData(EXAMPLE_ENDPOINT);
+    expect(result).toEqual({
       results: [],
       response: {
         count: 0,
@@ -67,8 +67,8 @@ describe('fetchPaginatedData', () => {
         feature_a: true,
       },
     });
-    const results = await fetchPaginatedData(urlFirstPage);
-    expect(results).toEqual({
+    const result = await fetchPaginatedData(urlFirstPage);
+    expect(result).toEqual({
       results: [mockResult, mockSecondResult],
       response: {
         count: 2,

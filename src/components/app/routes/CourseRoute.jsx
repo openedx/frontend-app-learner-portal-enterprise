@@ -1,14 +1,17 @@
+import { useParams } from 'react-router-dom';
 import { Container } from '@openedx/paragon';
 
 import {
   useCourseMetadata,
   useCourseRedemptionEligibility,
   useEnterpriseCourseEnrollments,
+  useEnterpriseCustomerContainsContent,
   useUserEntitlements,
 } from '../data';
 import NotFoundPage from '../../NotFoundPage';
 
 const CourseRoute = () => {
+  const { courseKey } = useParams();
   const { data: courseMetadata } = useCourseMetadata();
   const { data: courseRedemptionEligiblity } = useCourseRedemptionEligibility();
   const {
@@ -16,6 +19,7 @@ const CourseRoute = () => {
     isLoading: isLoadingEnterpriseCourseEnrollments,
     isFetching: isFetchingEnterpriseCourseEnrollments,
   } = useEnterpriseCourseEnrollments();
+  const { data: containsContent } = useEnterpriseCustomerContainsContent([courseKey]);
 
   const {
     data: userEntitlements,
@@ -33,6 +37,7 @@ const CourseRoute = () => {
       <pre>
         {JSON.stringify(
           {
+            containsContent,
             courseMetadata: {
               title: courseMetadata.title,
               enrollmentUrl: courseMetadata.enrollmentUrl,

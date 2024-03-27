@@ -1,4 +1,6 @@
 import { getConfig } from '@edx/frontend-platform';
+import { logError } from '@edx/frontend-platform/logging';
+
 import { fetchPaginatedData } from '../utils';
 
 // Coupon Codes
@@ -17,8 +19,13 @@ export async function fetchCouponCodeAssignments(enterpriseId, options = {}) {
     ...options,
   });
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/?${queryParams.toString()}`;
-  const { results } = await fetchPaginatedData(url);
-  return results;
+  try {
+    const { results } = await fetchPaginatedData(url);
+    return results;
+  } catch (error) {
+    logError(error);
+    return [];
+  }
 }
 
 /**
@@ -33,10 +40,14 @@ export async function fetchCouponsOverview(enterpriseId, options = {}) {
     page_size: 100,
     ...options,
   });
-  const config = getConfig();
-  const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/coupons/${enterpriseId}/overview/?${queryParams.toString()}`;
-  const { results } = await fetchPaginatedData(url);
-  return results;
+  const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/coupons/${enterpriseId}/overview/?${queryParams.toString()}`;
+  try {
+    const { results } = await fetchPaginatedData(url);
+    return results;
+  } catch (error) {
+    logError(error);
+    return [];
+  }
 }
 
 /**

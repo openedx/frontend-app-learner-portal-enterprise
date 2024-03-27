@@ -1,5 +1,7 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { logError } from '@edx/frontend-platform/logging';
+
 import { getErrorResponseStatusCode } from '../../../../utils/common';
 
 /**
@@ -17,11 +19,10 @@ export async function fetchCourseMetadata(enterpriseId, courseKey, options = {})
     const response = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);
   } catch (error) {
-    const errorResponseStatusCode = getErrorResponseStatusCode(error);
-    if (errorResponseStatusCode === 404) {
-      return null;
+    if (getErrorResponseStatusCode(error) !== 404) {
+      logError(error);
     }
-    throw error;
+    return null;
   }
 }
 
@@ -48,10 +49,9 @@ export async function fetchCanRedeem(enterpriseId, courseRunKeys) {
     const response = await getAuthenticatedHttpClient().get(urlWithParams);
     return camelCaseObject(response.data);
   } catch (error) {
-    const errorResponseStatusCode = getErrorResponseStatusCode(error);
-    if (errorResponseStatusCode === 404) {
-      return [];
+    if (getErrorResponseStatusCode(error) !== 404) {
+      logError(error);
     }
-    throw error;
+    return [];
   }
 }

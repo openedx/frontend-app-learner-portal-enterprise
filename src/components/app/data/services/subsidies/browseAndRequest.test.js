@@ -35,8 +35,8 @@ describe('fetchBrowseAndRequestConfiguration', () => {
     expect(result).toEqual(mockConfig);
   });
 
-  it('returns null when 404', async () => {
-    axiosMock.onGet(BNR_CONFIG_URL).reply(404);
+  it.each([404, 500])('returns null when error', async (httpStatusCode) => {
+    axiosMock.onGet(BNR_CONFIG_URL).reply(httpStatusCode);
     const result = await fetchBrowseAndRequestConfiguration(mockEnterpriseId);
     expect(result).toBeNull();
   });
