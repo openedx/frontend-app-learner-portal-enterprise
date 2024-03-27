@@ -1,6 +1,6 @@
 import { PageWrap } from '@edx/frontend-platform/react';
 import {
-  Route, createBrowserRouter, createRoutesFromElements,
+  Route, createBrowserRouter, createRoutesFromElements, Outlet,
 } from 'react-router-dom';
 
 import RouteErrorBoundary from './RouteErrorBoundary';
@@ -77,12 +77,7 @@ export default function createAppRouter(queryClient) {
           />
           <Route
             path="program/:programUUID"
-            lazy={() => {
-              const { ProgramPage } = import('../../program');
-              return {
-                Component: ProgramPage,
-              };
-            }}
+            element={<Outlet />}
             errorElement={(
               <RouteErrorBoundary
                 showSiteHeader={false}
@@ -90,6 +85,15 @@ export default function createAppRouter(queryClient) {
               />
             )}
           >
+            <Route
+              index
+              lazy={async () => {
+                const { ProgramPage } = await import('../../program');
+                return {
+                  Component: ProgramPage,
+                };
+              }}
+            />
             <Route
               path="progress"
               lazy={async () => {
@@ -99,12 +103,6 @@ export default function createAppRouter(queryClient) {
                   loader: makeProgramProgressLoader(queryClient),
                 };
               }}
-              errorElement={(
-                <RouteErrorBoundary
-                  showSiteHeader={false}
-                  showSiteFooter={false}
-                />
-              )}
             />
           </Route>
           <Route

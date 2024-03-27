@@ -12,13 +12,7 @@ export default function makeProgramProgressLoader(queryClient) {
 
     const { programUUID } = params;
 
-    const programsProgressData = [
-      queryClient.ensureQueryData(
-        queryProgramProgressDetails(programUUID),
-      ),
-    ];
-
-    await Promise.all(programsProgressData);
+    await queryClient.ensureQueryData(queryProgramProgressDetails(programUUID));
 
     return null;
   };

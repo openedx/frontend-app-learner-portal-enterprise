@@ -15,7 +15,7 @@ import {
 } from './data/utils';
 import { getLinkToCourse } from '../course/data/utils';
 import dayjs from '../../utils/dayjs';
-import { useHasAvailableSubsidy } from '../hooks';
+import { useHasAvailableSubsidyOrRequests } from '../hooks';
 import { useEnterpriseCustomer } from '../app/data';
 
 const ProgramProgressCourses = ({ courseData }) => {
@@ -23,7 +23,7 @@ const ProgramProgressCourses = ({ courseData }) => {
   const {
     hasActiveLicenseOrLicenseRequest,
     hasAssignedCodesOrCodeRequests,
-  } = useHasAvailableSubsidy();
+  } = useHasAvailableSubsidyOrRequests();
   const userHasLicenseOrCoupon = hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 
   let coursesCompleted = [];

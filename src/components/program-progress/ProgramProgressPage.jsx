@@ -15,6 +15,7 @@ import {
 } from './data/utils';
 import SubsidiesSummary from '../dashboard/sidebar/SubsidiesSummary';
 import { useProgramProgressDetails } from '../app/data';
+import NotFoundPage from '../NotFoundPage';
 
 const ProgramProgressPage = () => {
   const { data: program, isError, isLoading } = useProgramProgressDetails();
@@ -49,16 +50,9 @@ const ProgramProgressPage = () => {
     courseEndDate = getLastEndingCourseDate(subsidyEligibleCourseRuns);
   }
   if (isError) {
-    return <ErrorPage />;
+    return <NotFoundPage />;
   }
 
-  if (isLoading) {
-    return (
-      <Container size="lg" className="py-5">
-        <LoadingSpinner screenReaderText="loading program progress" />
-      </Container>
-    );
-  }
   const PROGRAM_TITLE = `${program.programData.title}`;
   return (
     <>

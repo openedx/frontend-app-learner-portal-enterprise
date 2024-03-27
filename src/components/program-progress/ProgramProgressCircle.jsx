@@ -35,8 +35,7 @@ const CircleSegment = ({
 };
 
 const ProgramProgressCircle = () => {
-  const { data: program } = useProgramProgressDetails();
-  const { programData, courseData } = program;
+  const { data: { programData, courseData } } = useProgramProgressDetails();
   const { inProgress, completed, notStarted } = courseData;
   const totalCourses = inProgress.length + completed.length + notStarted.length;
   const title = `${programData.type} Progress`;

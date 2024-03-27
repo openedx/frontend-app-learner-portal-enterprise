@@ -16,7 +16,7 @@ import {
   useRedeemablePolicies,
   useSubscriptions,
 } from '../../app/data';
-import { useHasAvailableSubsidy } from '../../hooks';
+import { useHasAvailableSubsidyOrRequests } from '../../hooks';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -125,7 +125,7 @@ describe('<ProgramProgressPage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useHasAvailableSubsidy.mockReturnValue(mockUseHasAvailableSubsidy(mockUseActiveSubsidyData));
+    useHasAvailableSubsidyOrRequests.mockReturnValue(mockUseHasAvailableSubsidy(mockUseActiveSubsidyData));
     useEnterpriseCourseEnrollments.mockReturnValue({ data: { allEnrollmentsByStatus: {} } });
     useSubscriptions.mockReturnValue({
       data: {

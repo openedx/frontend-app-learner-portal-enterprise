@@ -30,7 +30,7 @@ function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCr
  * hasAvailableSubsidyOrRequests: ({expirationDate}|boolean)
  * }}
  */
-export default function useHasAvailableSubsidy() {
+export default function useHasAvailableSubsidyOrRequests() {
   const { data: subscriptions } = useSubscriptions();
   const { data: { requests } } = useBrowseAndRequest();
   const { data: couponCodes } = useCouponCodes();

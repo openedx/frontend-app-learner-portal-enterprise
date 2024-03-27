@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
@@ -19,7 +19,7 @@ import {
   useSubscriptions,
 } from '../../app/data';
 import { COURSE_STATUSES } from '../../../constants';
-import { useHasAvailableSubsidy } from '../../hooks';
+import { useHasAvailableSubsidyOrRequests } from '../../hooks';
 
 const SubsidiesSummary = ({
   className,
@@ -41,7 +41,7 @@ const SubsidiesSummary = ({
     hasAssignedCodesOrCodeRequests,
     hasActiveLicenseOrLicenseRequest,
     learnerCreditSummaryCardData,
-  } = useHasAvailableSubsidy();
+  } = useHasAvailableSubsidyOrRequests();
 
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
 

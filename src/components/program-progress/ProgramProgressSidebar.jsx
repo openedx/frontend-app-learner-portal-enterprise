@@ -10,10 +10,15 @@ import progSampleCertImage from './images/sample-cert.png';
 import { useProgramProgressDetails } from '../app/data';
 
 const ProgramProgressSideBar = () => {
-  const { data: program } = useProgramProgressDetails();
   const {
-    programData, industryPathways, creditPathways, certificateData, urls: { programRecordUrl },
-  } = program;
+    data: {
+      programData,
+      industryPathways,
+      creditPathways,
+      certificateData,
+      urls: { programRecordUrl },
+    },
+  } = useProgramProgressDetails();
   const courseCertificates = useMemo(
     () => {
       if (certificateData) {
