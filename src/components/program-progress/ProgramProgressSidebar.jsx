@@ -2,6 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import { Button } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
+import { getConfig } from '@edx/frontend-platform/config';
 import { ProgramProgressContext } from './ProgramProgressContextProvider';
 
 import ProgramProgressCircle from './ProgramProgressCircle';
@@ -13,6 +14,7 @@ const ProgramProgressSideBar = () => {
   const {
     programData, industryPathways, creditPathways, certificateData, urls: { programRecordUrl },
   } = useContext(ProgramProgressContext);
+  const { LMS_BASE_URL } = getConfig();
   const courseCertificates = useMemo(
     () => {
       if (certificateData) {
@@ -69,10 +71,10 @@ const ProgramProgressSideBar = () => {
           <ul className="certificate-list">
             {courseCertificates.map((certificate) => (
               <li key={uuidv4()} data-testid="certificate-item" className="certificate">
-                <a className="image-link" href={certificate.url} aria-hidden="true" tabIndex="-1">
+                <a className="image-link" href={`${LMS_BASE_URL + certificate.url}`} aria-hidden="true" tabIndex="-1">
                   <img src={progSampleCertImage} className="sample-cert" alt="" />
                 </a>
-                <a className="certificate-link" href={certificate.url}> {certificate.title} </a>
+                <a className="certificate-link" href={`${LMS_BASE_URL + certificate.url}`}> {certificate.title} </a>
               </li>
             ))}
           </ul>
