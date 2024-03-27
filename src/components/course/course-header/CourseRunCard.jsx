@@ -1,30 +1,25 @@
-import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Card } from '@openedx/paragon';
 
-import { CourseContext } from '../CourseContextProvider';
 import { findUserEnrollmentForCourseRun } from '../data/utils';
 import { useCourseRunCardData } from './data';
 import CourseRunCardStatus from './CourseRunCardStatus';
+import { useCourseMetadata, useEnterpriseCourseEnrollments } from '../../app/data';
+import { useCanUserRequestSubsidyForCourse, useUserSubsidyApplicableToCourse } from '../data';
 
 /**
  * React component that displays information about the course run and provides a CTA to allow the learner
  * to enroll in the course run or navigate to courseware.
  */
 const CourseRunCard = ({ courseRun }) => {
-  const {
-    state: {
-      course,
-      userEnrollments,
-    },
-    missingUserSubsidyReason,
-    userSubsidyApplicableToCourse,
-    userCanRequestSubsidyForCourse,
-  } = useContext(CourseContext);
+  const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
+  const { data: courseMetadata } = useCourseMetadata();
+  const { userSubsidyApplicableToCourse, missingUserSubsidyReason } = useUserSubsidyApplicableToCourse();
+  const userCanRequestSubsidyForCourse = useCanUserRequestSubsidyForCourse();
 
   const userEnrollmentForCourseRun = findUserEnrollmentForCourseRun({
-    userEnrollments,
+    userEnrollments: enterpriseCourseEnrollments,
     key: courseRun.key,
   });
 
@@ -33,10 +28,10 @@ const CourseRunCard = ({ courseRun }) => {
     subHeading,
     action,
   } = useCourseRunCardData({
-    course,
+    course: courseMetadata,
     courseRun,
     userEnrollment: userEnrollmentForCourseRun,
-    courseRunUrl: userEnrollmentForCourseRun?.courseRunUrl,
+    courseRunUrl: userEnrollmentForCourseRun?.resumeCourseRunUrl || userEnrollmentForCourseRun?.linkToCourse,
     userCanRequestSubsidyForCourse,
     subsidyAccessPolicy: userSubsidyApplicableToCourse,
   });

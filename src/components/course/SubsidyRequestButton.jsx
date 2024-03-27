@@ -5,13 +5,12 @@ import { StatefulButton } from '@openedx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-import { CourseContext } from './CourseContextProvider';
-import { useUserHasSubsidyRequestForCourse } from './data/hooks';
+import { useBrowseAndRequestCatalogsApplicableToCourse, useUserHasSubsidyRequestForCourse, useUserSubsidyApplicableToCourse } from './data/hooks';
 import { findUserEnrollmentForCourseRun } from './data/utils';
 import { ToastsContext } from '../Toasts';
 import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
 import { SUBSIDY_TYPE } from '../../constants';
+import { useBrowseAndRequestConfiguration, useCourseMetadata, useEnterpriseCourseEnrollments } from '../app/data';
 
 const props = {
   labels: {
@@ -25,21 +24,29 @@ const props = {
 };
 
 const SubsidyRequestButton = () => {
+  const intl = useIntl();
   const { addToast } = useContext(ToastsContext);
   const [loadingRequest, setLoadingRequest] = useState(false);
 
+  const { data: browseAndRequestConfiguration } = useBrowseAndRequestConfiguration();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  const subsidyRequestCatalogsApplicableToCourse = useBrowseAndRequestCatalogsApplicableToCourse();
   const {
-    subsidyRequestConfiguration,
-    refreshSubsidyRequests,
-  } = useContext(SubsidyRequestsContext);
-  const intl = useIntl();
-  const { state, subsidyRequestCatalogsApplicableToCourse, userSubsidyApplicableToCourse } = useContext(CourseContext);
-
-  const { course, userEnrollments } = state;
+    data: {
+      courseKey,
+      courseRunKeys,
+    },
+  } = useCourseMetadata({
+    select: (data) => ({
+      courseKey: data.key,
+      courseRunKeys: data.courseRunKeys,
+    }),
+  });
   const {
-    key: courseKey,
-    courseRunKeys,
-  } = course;
+    data: {
+      enterpriseCourseEnrollments: userEnrollments,
+    },
+  } = useEnterpriseCourseEnrollments();
 
   /**
    * Check every course run to see if user is enrolled in any of them
@@ -60,15 +67,15 @@ const SubsidyRequestButton = () => {
   const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseKey);
 
   const requestSubsidy = useCallback(async (key) => {
-    switch (subsidyRequestConfiguration.subsidyType) {
+    switch (browseAndRequestConfiguration.subsidyType) {
       case SUBSIDY_TYPE.LICENSE:
-        return postLicenseRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, key);
+        return postLicenseRequest(browseAndRequestConfiguration.enterpriseCustomerUuid, key);
       case SUBSIDY_TYPE.COUPON:
-        return postCouponCodeRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, key);
+        return postCouponCodeRequest(browseAndRequestConfiguration.enterpriseCustomerUuid, key);
       default:
         throw new Error('Subsidy request configuration not set');
     }
-  }, [subsidyRequestConfiguration]);
+  }, [browseAndRequestConfiguration]);
 
   /**
    * Show subsidy request button if:
@@ -79,10 +86,10 @@ const SubsidyRequestButton = () => {
    *    - user not already enrolled in crouse
    *    - user has no subsidy for course
    */
-  const hasSubsidyRequestsEnabled = subsidyRequestConfiguration?.subsidyRequestsEnabled;
+  const hasSubsidyRequestsEnabled = browseAndRequestConfiguration?.subsidyRequestsEnabled;
   const showSubsidyRequestButton = hasSubsidyRequestsEnabled && (
     userHasSubsidyRequest || (
-      subsidyRequestCatalogsApplicableToCourse.size > 0 && !isUserEnrolled && !userSubsidyApplicableToCourse
+      subsidyRequestCatalogsApplicableToCourse.length > 0 && !isUserEnrolled && !userSubsidyApplicableToCourse
     )
   );
 
@@ -114,7 +121,8 @@ const SubsidyRequestButton = () => {
           description: 'Toast message for when a user submits a request to enroll in a course',
         }),
       );
-      refreshSubsidyRequests();
+      // TODO: invalidate query!
+      // refreshSubsidyRequests();
     } catch (error) {
       logError(error);
       setLoadingRequest(false);

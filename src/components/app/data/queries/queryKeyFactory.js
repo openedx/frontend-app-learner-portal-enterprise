@@ -21,6 +21,7 @@ import {
   fetchLearnerSkillLevels,
   fetchAcademies,
   fetchEnterpriseCustomerContainsContent,
+  fetchCourseReviews,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -51,19 +52,28 @@ const enterprise = createQueryKeys('enterprise', {
           },
         },
       },
-      course: {
-        queryKey: null,
+      course: (courseKey) => ({
+        queryKey: [courseKey],
         contextQueries: {
-          contentMetadata: (courseKey) => ({
-            queryKey: [courseKey],
-            queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], courseKey),
+          contentMetadata: (courseRunKey, isEnrollableBufferDays) => ({
+            queryKey: [courseRunKey, isEnrollableBufferDays],
+            queryFn: async ({ queryKey }) => fetchCourseMetadata(
+              queryKey[2],
+              queryKey[4],
+              courseRunKey,
+              isEnrollableBufferDays,
+            ),
           }),
           canRedeem: (availableCourseRunKeys) => ({
             queryKey: [availableCourseRunKeys],
             queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
           }),
+          reviews: ({
+            queryKey: null,
+            queryFn: async ({ queryKey }) => fetchCourseReviews(queryKey[4]),
+          }),
         },
-      },
+      }),
       containsContent: (contentIdentifiers) => ({
         queryKey: [contentIdentifiers],
         queryFn: async ({ queryKey }) => fetchEnterpriseCustomerContainsContent(queryKey[2], contentIdentifiers),
@@ -152,4 +162,5 @@ const user = createQueryKeys('user', {
 });
 
 const queries = mergeQueryKeys(enterprise, user);
+
 export default queries;

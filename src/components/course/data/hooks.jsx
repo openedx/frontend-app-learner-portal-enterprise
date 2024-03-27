@@ -1,7 +1,7 @@
 import {
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
@@ -11,7 +11,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { useQuery } from '@tanstack/react-query';
 
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { CourseContext } from '../CourseContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
@@ -42,11 +41,23 @@ import {
   SUBSIDY_DISCOUNT_TYPE_MAP,
 } from './constants';
 import { EVENTS, pushEvent } from '../../../utils/optimizely';
-import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
+import { canUserRequestSubsidyForCourse, getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 import { enterpriseUserSubsidyQueryKeys } from '../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_TYPE } from '../../../constants';
-import { useEnterpriseCustomer } from '../../app/data';
+import {
+  useBrowseAndRequest,
+  useBrowseAndRequestConfiguration,
+  useCouponCodes,
+  useCourseMetadata,
+  useCourseRedemptionEligibility,
+  useEnterpriseCustomer,
+  useEnterpriseCustomerContainsContent,
+  useEnterpriseOffers,
+  useRedeemablePolicies,
+  useSubscriptions,
+} from '../../app/data';
+import { useCatalogsForSubsidyRequests } from '../../hooks';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -219,15 +230,28 @@ export function useCoursePacingType(courseRun) {
 }
 
 /**
+ * @typedef {Object} CoursePrice
+ * @property {number} list The list price.
+ * @property {number} discounted The discounted price.
+ */
+
+/**
+ * @typedef {Object} useCoursePriceForUserSubsidyResult
+ * @property {CoursePrice} coursePrice The course price.
+ * @property {string} currency The currency code.
+ */
+
+/**
  * Determines course price based on userSubsidy and course info.
- * @param {object} args Arguments.
+ * @param {Object} args Arguments.
  * @param {Object} args.userSubsidyApplicableToCourse User subsidy
  * @param {Object} args.listPrice List price for course
  *
- * @returns {Object} { [{list: number, discounted: number}, currency: string] }
+ * @returns {useCoursePriceForUserSubsidyResult} The course price and currency.
  */
 export const useCoursePriceForUserSubsidy = ({
-  userSubsidyApplicableToCourse, listPrice,
+  userSubsidyApplicableToCourse,
+  listPrice,
 }) => {
   const currency = CURRENCY_USD;
   const coursePrice = useMemo(
@@ -270,7 +294,10 @@ export const useCoursePriceForUserSubsidy = ({
     [userSubsidyApplicableToCourse, listPrice],
   );
 
-  return [coursePrice, currency];
+  return useMemo(() => ({
+    coursePrice,
+    currency,
+  }), [coursePrice, currency]);
 };
 
 useCoursePriceForUserSubsidy.propTypes = {
@@ -432,11 +459,9 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  */
 export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: { activeCourseRun } } = useCourseMetadata();
   const {
-    state: {
-      activeCourseRun: { key: courseKey },
-      algoliaSearchParams,
-    },
+    algoliaSearchParams,
   } = useContext(CourseContext);
   const handleClick = useCallback(
     (e) => {
@@ -456,11 +481,11 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
           products: [{ objectID: objectId }],
           index: getConfig().ALGOLIA_INDEX_NAME,
           queryID: queryId,
-          courseKey,
+          courseKey: activeCourseRun.key,
         },
       );
     },
-    [algoliaSearchParams, href, enterpriseCustomer.uuid, eventName, courseKey],
+    [algoliaSearchParams, href, enterpriseCustomer.uuid, eventName, activeCourseRun.key],
   );
 
   return handleClick;
@@ -513,32 +538,31 @@ export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, userEn
  */
 export function useUserHasSubsidyRequestForCourse(courseKey) {
   const {
-    subsidyRequestConfiguration,
-    requestsBySubsidyType,
-  } = useContext(SubsidyRequestsContext);
+    data: {
+      configuration: browseAndRequestConfiguration,
+      requests: {
+        subscriptionLicenses: subscriptionLicenseRequests,
+        couponCodes: couponCodeRequests,
+      },
+    },
+  } = useBrowseAndRequest();
 
-  return useMemo(() => {
-    if (!subsidyRequestConfiguration?.subsidyRequestsEnabled) {
+  if (!browseAndRequestConfiguration?.subsidyRequestsEnabled) {
+    return false;
+  }
+  switch (browseAndRequestConfiguration.subsidyType) {
+    case SUBSIDY_TYPE.LICENSE: {
+      return subscriptionLicenseRequests.length > 0;
+    }
+    case SUBSIDY_TYPE.COUPON: {
+      const foundCouponRequest = couponCodeRequests.find(
+        request => (!courseKey || request.courseId === courseKey),
+      );
+      return !!foundCouponRequest;
+    }
+    default:
       return false;
-    }
-    switch (subsidyRequestConfiguration.subsidyType) {
-      case SUBSIDY_TYPE.LICENSE: {
-        return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
-      }
-      case SUBSIDY_TYPE.COUPON: {
-        const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
-          request => (!courseKey || request.courseId === courseKey),
-        );
-        return !!foundCouponRequest;
-      }
-      default:
-        return false;
-    }
-  }, [
-    courseKey,
-    subsidyRequestConfiguration,
-    requestsBySubsidyType,
-  ]);
+  }
 }
 
 /**
@@ -632,6 +656,12 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
   });
 };
 
+export function useCourseListPrice() {
+  return useCourseMetadata({
+    select: (data) => getCourseRunPrice(data),
+  });
+}
+
 /**
  * Given the state of a user's redeemable subsidy access policy and/or other subsidies, determine
  * which subsidy, if any, is applicable to the course.
@@ -642,153 +672,128 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
  *  missingUserSubsidyReason: null,
  * }
  *
- * @param {object} args
- * @param {object} args.courseData Metadata about the course.
- * @param {object} args.redeemableSubsidyAccessPolicy Metadata about the redeemability subsidy access policy, if any.
- * @param {boolean} args.isPolicyRedemptionEnabled Whether there is a redeemable subsidy access policy.
- * @param {object} args.subscriptionLicense Metadata pertaining to learner's subscription license, if any.
- * @param {object} args.courseService Instance of the CourseService.
- * @param {array} args.couponCodes List of assigned coupon codes, if any.
- * @param {array} args.couponsOverview Return from `useQuery` hook to fetch all coupons
- *  for enterprise, if any (includes expired).
- * @param {boolean} args.canEnrollWithEnterpriseOffers Whether enterprise offers are usable for the enterprise.
- * @param {array} args.enterpriseOffers List of enterprise offers, if any.
- * @param {function} args.onSubscriptionLicenseForCourseValidationError Callback to handle subscription
- *  license validation error.
- * @param {array} args.enterpriseAdminUsers List of enterprise admin users, if any.
- * @param {object} args.customerAgreementConfig Customer agreement config, if any.
- * @param {object} args.missingSubsidyAccessPolicyReason Reason why the subsidy access policy is not redeemable
- * @param {number} args.courseListPrice List price for course
- *
  * @returns A subsidy that may be redeemed for the course.
  */
-export const useUserSubsidyApplicableToCourse = ({
-  courseData,
-  redeemableSubsidyAccessPolicy,
-  missingSubsidyAccessPolicyReason,
-  isPolicyRedemptionEnabled,
-  subscriptionLicense,
-  courseService,
-  couponCodes,
-  couponsOverview,
-  canEnrollWithEnterpriseOffers,
-  enterpriseOffers,
-  onSubscriptionLicenseForCourseValidationError,
-  enterpriseAdminUsers: fallbackAdminUsers,
-  contactEmail,
-  courseListPrice,
-  customerAgreementConfig,
-}) => {
-  const [userSubsidyApplicableToCourse, setUserSubsidyApplicableToCourse] = useState();
-  const [missingUserSubsidyReason, setMissingUserSubsidyReason] = useState();
+export const useUserSubsidyApplicableToCourse = () => {
+  const { courseKey } = useParams();
+  const {
+    data: {
+      fallbackAdminUsers,
+      contactEmail,
+    },
+  } = useEnterpriseCustomer({
+    select: (data) => ({
+      fallbackAdminUsers: data.adminUsers.map(user => user.email),
+      contactEmail: data.contactEmail,
+    }),
+  });
+  const { data: courseListPrice } = useCourseListPrice();
+  const {
+    data: {
+      customerAgreement,
+      subscriptionLicense,
+    },
+  } = useSubscriptions();
+  const {
+    data: {
+      containsContentItems,
+      catalogList: catalogsWithCourse,
+    },
+  } = useEnterpriseCustomerContainsContent([courseKey]);
+  const { data: { currentEnterpriseOffers } } = useEnterpriseOffers();
+  const {
+    data: {
+      isPolicyRedemptionEnabled,
+      redeemableSubsidyAccessPolicy,
+      missingSubsidyAccessPolicyReason,
+    },
+  } = useCourseRedemptionEligibility();
+  const {
+    data: {
+      couponCodeAssignments,
+      couponsOverview,
+    },
+  } = useCouponCodes();
 
-  useEffect(() => {
-    if (!courseData) {
-      return;
-    }
-
-    const {
-      catalog: {
-        containsContentItems,
-        catalogList: catalogsWithCourse,
-      },
-      courseDetails,
-    } = courseData;
-
-    const getSubscriptionLicenseSubsidy = async () => {
-      if (!subscriptionLicense) {
-        return null;
-      }
-      try {
-        // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
-        const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
-        if (fetchLicenseSubsidyResponse) {
-          return camelCaseObject(fetchLicenseSubsidyResponse.data);
-        }
-      } catch (error) {
-        logError(error);
-        if (onSubscriptionLicenseForCourseValidationError) {
-          onSubscriptionLicenseForCourseValidationError(error);
-        }
-      }
-      return null;
-    };
-
-    const coursePrice = getCourseRunPrice({
-      courseDetails,
-      firstEnrollablePaidSeatPrice: courseService?.activeCourseRun?.firstEnrollablePaidSeatPrice,
+  // const licenseApplicableToCourse = await getSubscriptionLicenseSubsidy();
+  const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
+    // TODO: need to determine if activated license's catalog uuid is included in the `catalogList`
+    applicableSubscriptionLicense: null,
+    applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy },
+    applicableCouponCode: findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse),
+    applicableEnterpriseOffer: findEnterpriseOfferForCourse({
+      enterpriseOffers: currentEnterpriseOffers,
+      catalogsWithCourse,
+      coursePrice: courseListPrice,
+    }),
+  });
+  let missingUserSubsidyReason;
+  if (!userSubsidyApplicableToCourse) {
+    const enterpriseAdminUsers = (
+      missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
+    );
+    missingUserSubsidyReason = getMissingApplicableSubsidyReason({
+      enterpriseAdminUsers,
+      contactEmail,
+      catalogsWithCourse,
+      couponCodes: couponCodeAssignments,
+      couponsOverview,
+      customerAgreement,
+      subscriptionLicense,
+      containsContentItems,
+      missingSubsidyAccessPolicyReason,
+      enterpriseOffers: currentEnterpriseOffers,
     });
-
-    const getApplicableSubsidyForCourse = async () => {
-      const licenseApplicableToCourse = await getSubscriptionLicenseSubsidy();
-      const applicableSubsidy = getSubsidyToApplyForCourse({
-        applicableSubscriptionLicense: licenseApplicableToCourse,
-        applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy },
-        applicableCouponCode: findCouponCodeForCourse(couponCodes, catalogsWithCourse),
-        applicableEnterpriseOffer: findEnterpriseOfferForCourse({
-          enterpriseOffers: canEnrollWithEnterpriseOffers ? enterpriseOffers : [],
-          catalogsWithCourse,
-          coursePrice,
-        }),
-      });
-      let missingApplicableSubsidyReason;
-      if (!applicableSubsidy) {
-        const enterpriseAdminUsers = (
-          missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
-        );
-        missingApplicableSubsidyReason = getMissingApplicableSubsidyReason({
-          enterpriseAdminUsers,
-          contactEmail,
-          catalogsWithCourse,
-          couponCodes,
-          couponsOverview,
-          customerAgreementConfig,
-          subscriptionLicense,
-          containsContentItems,
-          missingSubsidyAccessPolicyReason,
-          enterpriseOffers,
-        });
-      }
-      return {
-        applicableSubsidy,
-        missingApplicableSubsidyReason,
-      };
-    };
-
-    const fetchApplicableSubsidy = async () => {
-      const result = await getApplicableSubsidyForCourse();
-      if (result.applicableSubsidy) {
-        setUserSubsidyApplicableToCourse(result.applicableSubsidy);
-        setMissingUserSubsidyReason(undefined);
-      } else if (result.missingApplicableSubsidyReason) {
-        setMissingUserSubsidyReason(result.missingApplicableSubsidyReason);
-        setUserSubsidyApplicableToCourse(undefined);
-      }
-    };
-    fetchApplicableSubsidy();
-  }, [
-    courseService,
-    courseData,
-    courseListPrice,
-    customerAgreementConfig,
-    onSubscriptionLicenseForCourseValidationError,
-    subscriptionLicense,
-    couponCodes,
-    canEnrollWithEnterpriseOffers,
-    enterpriseOffers,
-    redeemableSubsidyAccessPolicy,
-    isPolicyRedemptionEnabled,
-    missingSubsidyAccessPolicyReason,
-    fallbackAdminUsers,
-    contactEmail,
-    couponsOverview,
-  ]);
+  }
 
   return useMemo(() => ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
   }), [userSubsidyApplicableToCourse, missingUserSubsidyReason]);
 };
+
+/**
+ * Determines the course price based on the list price from the course metadata
+ * and the user's redeemable subsidy access policy, if any.
+ *
+ * @returns {useCoursePriceForUserSubsidyResult} The course price and currency.
+*/
+export function useCoursePrice() {
+  const { data: courseListPrice } = useCourseListPrice();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  return useCoursePriceForUserSubsidy({
+    userSubsidyApplicableToCourse,
+    listPrice: courseListPrice,
+  });
+}
+
+/**
+ * Determines the enterprise catalog(s) applicable to the course for browse and request.
+ * @returns {Set} A set of catalog UUIDs that contain the course.
+ */
+export function useBrowseAndRequestCatalogsApplicableToCourse() {
+  const { courseKey } = useParams();
+  const catalogsForSubsidyRequests = useCatalogsForSubsidyRequests();
+  const { data: { catalogList: catalogsContainingCourse } } = useEnterpriseCustomerContainsContent([courseKey]);
+  const catalogsApplicableToCourse = useMemo(() => {
+    const subsidyRequestCatalogIntersection = new Set(
+      catalogsForSubsidyRequests.filter(catalog => catalogsContainingCourse.includes(catalog)),
+    );
+    return Array.from(subsidyRequestCatalogIntersection);
+  }, [catalogsContainingCourse, catalogsForSubsidyRequests]);
+  return catalogsApplicableToCourse;
+}
+
+export function useCanUserRequestSubsidyForCourse() {
+  const { data: browseAndRequestConfiguration } = useBrowseAndRequestConfiguration();
+  const subsidyRequestCatalogsApplicableToCourse = useBrowseAndRequestCatalogsApplicableToCourse();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  return canUserRequestSubsidyForCourse({
+    subsidyRequestConfiguration: browseAndRequestConfiguration,
+    subsidyRequestCatalogsApplicableToCourse,
+    userSubsidyApplicableToCourse,
+  });
+}
 
 export const useMinimalCourseMetadata = () => {
   const {
@@ -881,12 +886,14 @@ export const useExternalEnrollmentFailureReason = () => {
  * @param {string} courseKey - The key of the course to check.
  * @returns {boolean} - Returns true if the course is assigned to the learner, false otherwise.
  */
-export const useIsCourseAssigned = (learnerContentAssignments, courseKey) => {
+export const useIsCourseAssigned = () => {
+  const { data: { learnerContentAssignments } } = useRedeemablePolicies();
+  const { data: courseMetadata } = useCourseMetadata();
   if (!learnerContentAssignments.hasAllocatedAssignments) {
     return false;
   }
   const isCourseAssigned = learnerContentAssignments.allocatedAssignments.some(
-    (assignment) => assignment.contentKey === courseKey,
+    (assignment) => assignment.contentKey === courseMetadata.key,
   );
   return isCourseAssigned;
 };

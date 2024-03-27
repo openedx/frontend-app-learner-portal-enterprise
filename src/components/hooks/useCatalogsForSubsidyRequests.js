@@ -1,41 +1,47 @@
+import { useMemo } from 'react';
+
 import {
   useBrowseAndRequestConfiguration,
   useCouponCodes,
   useSubscriptions,
 } from '../app/data';
-
 import { SUBSIDY_TYPE } from '../../constants';
 
-export default function useCatalogForSubsidyRequest() {
+/**
+ * A custom hook that returns the catalogs that can be used for subsidy requests.
+ *
+ * @returns {Object} - An object containing the catalogs that can be used for subsidy requests.
+ */
+export default function useCatalogsForSubsidyRequest() {
   const { data: browseAndRequestConfiguration } = useBrowseAndRequestConfiguration();
-  const { data: { subscriptionLicenses } } = useSubscriptions();
+  const { data: { customerAgreement } } = useSubscriptions();
   const { data: { couponsOverview } } = useCouponCodes();
 
-  const catalogsForSubsidyRequests = [];
+  const catalogsForSubsidyRequests = useMemo(
+    () => {
+      const catalogs = [];
+      if (!browseAndRequestConfiguration.subsidyRequestsEnabled) {
+        return catalogs;
+      }
+      if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE) {
+        const catalogsFromSubscriptions = customerAgreement.availableSubscriptionCatalogs;
+        catalogs.push(...catalogsFromSubscriptions);
+      }
+      if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
+        const catalogsFromCoupons = couponsOverview
+          .filter(coupon => !!coupon.available)
+          .map(coupon => coupon.enterpriseCatalogUuid);
+        catalogs.push(...new Set(catalogsFromCoupons));
+      }
+      return catalogs;
+    },
+    [
+      browseAndRequestConfiguration.subsidyRequestsEnabled,
+      browseAndRequestConfiguration.subsidyType,
+      couponsOverview,
+      customerAgreement.availableSubscriptionCatalogs,
+    ],
+  );
 
-  if (!browseAndRequestConfiguration.subsidyRequestsEnabled) {
-    return { catalogsForSubsidyRequests };
-  }
-
-  if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE) {
-    const catalogsFromSubscriptions = subscriptionLicenses
-      .filter(
-        subscriptionLicense => subscriptionLicense.subscriptionPlan.daysUntilExpirationIncludingRenewals > 0,
-      )
-      .map(subscriptionLicense => subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid);
-
-    catalogsForSubsidyRequests.push(...new Set(catalogsFromSubscriptions));
-  }
-
-  if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
-    const catalogsFromCoupons = couponsOverview
-      .filter(coupon => !!coupon.available)
-      .map(coupon => coupon.enterpriseCatalogUuid);
-
-    catalogsForSubsidyRequests.push(...new Set(catalogsFromCoupons));
-  }
-
-  return {
-    catalogsForSubsidyRequests,
-  };
+  return catalogsForSubsidyRequests;
 }

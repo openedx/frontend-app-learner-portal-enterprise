@@ -3,6 +3,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
+import { fetchPaginatedData } from './utils';
 
 // Skills
 
@@ -54,6 +55,6 @@ export const fetchNotices = async () => {
  */
 export async function fetchUserEntitlements() {
   const url = `${getConfig().LMS_BASE_URL}/api/entitlements/v1/entitlements/`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }

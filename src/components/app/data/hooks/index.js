@@ -5,6 +5,7 @@ export {
   useCanOnlyViewHighlights,
 } from './useContentHighlightsConfiguration';
 export { default as useCourseMetadata } from './useCourseMetadata';
+export { default as useCourseReviews } from './useCourseReviews';
 export { default as useEnterpriseCustomerContainsContent } from './useEnterpriseCustomerContainsContent';
 export { default as useCourseRedemptionEligibility } from './useCourseRedemptionEligibility';
 export { default as useEnterpriseCustomerUserSubsidies } from './useEnterpriseCustomerUserSubsidies';
@@ -27,3 +28,4 @@ export { default as useIsAssignmentsOnlyLearner } from './useIsAssignmentsOnlyLe
 export { default as useNProgressLoader } from './useNProgressLoader';
 export { default as useNotices } from './useNotices';
 export { default as useLearnerSkillLevels } from './useLearnerSkillLevels';
+export { default as useLateRedemptionBufferDays } from './useLateRedemptionBufferDays';

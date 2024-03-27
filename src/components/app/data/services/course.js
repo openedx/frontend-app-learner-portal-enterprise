@@ -3,13 +3,17 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
+import { getActiveCourseRun, getAvailableCourseRuns } from '../utils';
 
 /**
  * TODO
- * @param {*} param0
+ * @param {string} enterpriseId
+ * @param {string} courseKey
+ * @param {string} [courseRunKey]
+ * @param {object} [options]
  * @returns
  */
-export async function fetchCourseMetadata(enterpriseId, courseKey, options = {}) {
+export async function fetchCourseMetadata(enterpriseId, courseKey, courseRunKey, isEnrollableBufferDays, options = {}) {
   const contentMetadataUrl = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseId}/content-metadata/${courseKey}/`;
   const queryParams = new URLSearchParams({
     ...options,
@@ -17,7 +21,27 @@ export async function fetchCourseMetadata(enterpriseId, courseKey, options = {})
   const url = `${contentMetadataUrl}?${queryParams.toString()}`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
-    return camelCaseObject(response.data);
+    const transformedData = camelCaseObject(response.data);
+
+    // Determine the `activeCourseRun` (advertised course run) for the course. This must
+    // happen *before* filtering the course runs for the specified course run key. The
+    // returned `activeCourseRun` is used for display regardless of the course run key (e.g.,
+    // for some of the course sidebar items).
+    transformedData.activeCourseRun = getActiveCourseRun(transformedData);
+
+    const courseRunKeys = transformedData.courseRuns.map(({ key }) => key);
+    if (courseRunKey && courseRunKeys.includes(courseRunKey)) {
+      transformedData.canonicalCourseRunKey = courseRunKey;
+      transformedData.courseRunKeys = [courseRunKey];
+      transformedData.courseRuns = transformedData.courseRuns.filter(
+        courseRun => courseRun.key === courseRunKey,
+      );
+    }
+    transformedData.availableCourseRuns = getAvailableCourseRuns({
+      course: transformedData,
+      isEnrollableBufferDays,
+    });
+    return transformedData;
   } catch (error) {
     if (getErrorResponseStatusCode(error) !== 404) {
       logError(error);
@@ -53,5 +77,16 @@ export async function fetchCanRedeem(enterpriseId, courseRunKeys) {
       logError(error);
     }
     return [];
+  }
+}
+
+export async function fetchCourseReviews(courseKey) {
+  const url = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/course_review/${courseKey}/`;
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    return camelCaseObject(response.data);
+  } catch (error) {
+    logError(error);
+    return null;
   }
 }

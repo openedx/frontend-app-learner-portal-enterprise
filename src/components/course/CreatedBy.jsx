@@ -1,17 +1,15 @@
-import React, { useContext } from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
+import { getConfig } from '@edx/frontend-platform';
 import { Hyperlink } from '@openedx/paragon';
 
-import { CourseContext } from './CourseContextProvider';
 import { useCoursePartners } from './data/hooks';
+import { useCourseMetadata } from '../app/data';
 
 const CreatedBy = () => {
-  const { config } = useContext(AppContext);
-  const { state } = useContext(CourseContext);
-  const { course, activeCourseRun } = state;
-  const [partners] = useCoursePartners(course);
+  const config = getConfig();
+  const { data: courseMetadata } = useCourseMetadata();
+  const [partners] = useCoursePartners(courseMetadata);
 
-  if (!partners.length && !activeCourseRun?.staff.length) {
+  if (!partners.length && !courseMetadata.activeCourseRun?.staff.length) {
     return null;
   }
 
@@ -42,9 +40,9 @@ const CreatedBy = () => {
           ))}
         </div>
       )}
-      {activeCourseRun?.staff.length > 0 && (
+      {courseMetadata.activeCourseRun?.staff.length > 0 && (
         <div className="row no-gutters mt-3">
-          {activeCourseRun.staff.map(staff => (
+          {courseMetadata.activeCourseRun.staff.map(staff => (
             <div className="d-flex col-lg-6 mb-3" key={formatStaffFullName(staff)}>
               <img
                 src={staff.profileImageUrl}

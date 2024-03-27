@@ -1,35 +1,24 @@
-import React, { useContext } from 'react';
 import { Skeleton } from '@openedx/paragon';
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
-import { CourseContext } from './CourseContextProvider';
 import { numberWithPrecision } from './data/utils';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from './data/constants';
-import { canUserRequestSubsidyForCourse } from './enrollment/utils';
-import { useIsCourseAssigned } from './data/hooks';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import {
+  useCanUserRequestSubsidyForCourse,
+  useCoursePrice,
+  useIsCourseAssigned,
+  useUserSubsidyApplicableToCourse,
+} from './data';
 import { useEnterpriseCustomer } from '../app/data';
 
 const CourseSidebarPrice = () => {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const {
-    userSubsidyApplicableToCourse,
-    coursePrice,
-    currency,
-    subsidyRequestCatalogsApplicableToCourse,
-    state: {
-      course,
-    },
-  } = useContext(CourseContext);
-  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(
-    redeemableLearnerCreditPolicies.learnerContentAssignments,
-    course?.key,
-  );
   const intl = useIntl();
-  const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { coursePrice, currency } = useCoursePrice();
+  const isCourseAssigned = useIsCourseAssigned();
+  const canRequestSubsidy = useCanUserRequestSubsidyForCourse();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
 
   if (!coursePrice) {
     return <Skeleton containerTestId="course-price-skeleton" height={24} />;
@@ -70,11 +59,6 @@ const CourseSidebarPrice = () => {
   }
 
   const hasDiscountedPrice = coursePrice.discounted < coursePrice.list;
-  const canRequestSubsidy = canUserRequestSubsidyForCourse({
-    subsidyRequestConfiguration,
-    subsidyRequestCatalogsApplicableToCourse,
-    userSubsidyApplicableToCourse,
-  });
 
   // Case 2: No subsidies found but learner can request a subsidy
   if (!hasDiscountedPrice && canRequestSubsidy) {

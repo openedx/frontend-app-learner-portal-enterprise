@@ -1,6 +1,6 @@
-import { getAvailableCourseRuns } from '../../../course/data/utils';
 import queries from './queryKeyFactory';
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
+import { getAvailableCourseRuns } from '../utils';
 
 /**
  * Helper function to assist querying with useQuery package
@@ -94,12 +94,40 @@ export function queryEnterprisePathwaysList(enterpriseUuid) {
  * ._ctx.contentMetadata(courseKey)
  * @returns {Types.QueryOptions}
  */
-export function queryCourseMetadata(enterpriseUuid, courseKey) {
+export function queryCourseMetadata(enterpriseUuid, courseKey, courseRunKey, isEnrollableBufferDays) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course
-    ._ctx.contentMetadata(courseKey);
+    ._ctx.course(courseKey)
+    ._ctx.contentMetadata(courseRunKey, isEnrollableBufferDays);
+}
+
+/**
+ * Helper function to assist querying the content key catalog inclusion.
+ * @param {string} enterpriseUuid
+ * @param {string} courseKey
+ * @returns {Types.QueryOptions}
+ */
+export function queryEnterpriseCustomerCatalogsContainsContent(enterpriseUuid, courseKey) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course(courseKey)
+    ._ctx.enterpriseCustomerCatalogsContainsContent;
+}
+
+/**
+ * Helper function to assist with generating the query.
+ * @param {string} enterpriseUuid
+ * @param {string} courseKey
+ * @returns {Types.QueryOptions}
+ */
+export function queryCourseReviews(enterpriseUuid, courseKey) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course(courseKey)
+    ._ctx.reviews;
 }
 
 /**
@@ -175,12 +203,16 @@ export function queryContentHighlightSets(enterpriseUuid) {
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
  */
-export function queryCanRedeem(enterpriseUuid, courseMetadata) {
-  const availableCourseRunKeys = getAvailableCourseRuns(courseMetadata).map(courseRun => courseRun.key);
+export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBufferDays) {
+  const availableCourseRuns = courseMetadata.availableCourseRuns || getAvailableCourseRuns({
+    course: courseMetadata,
+    isEnrollableBufferDays,
+  });
+  const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course
+    ._ctx.course(courseMetadata.key)
     ._ctx.canRedeem(availableCourseRunKeys);
 }
 
