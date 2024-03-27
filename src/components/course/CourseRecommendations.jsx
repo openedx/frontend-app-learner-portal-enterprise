@@ -5,6 +5,7 @@ import { CourseContext } from './CourseContextProvider';
 import CourseRecommendationCard from './CourseRecommendationCard';
 
 const CourseRecommendations = () => {
+  return <h3>Recommend!</h3>;
   return null;
 
   // TODO:

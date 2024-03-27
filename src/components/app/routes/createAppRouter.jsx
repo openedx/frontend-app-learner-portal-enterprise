@@ -118,11 +118,11 @@ export default function createAppRouter(queryClient) {
               }}
             />
             <Route
-              path="enroll"
+              path="enroll/:courseRunKey"
               element={<h3>Enroll!</h3>}
             />
             <Route
-              path="enroll/complete"
+              path="enroll/:courseRunKey/complete"
               element={<h3>Enroll Complete!</h3>}
             />
           </Route>
