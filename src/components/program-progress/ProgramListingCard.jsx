@@ -57,7 +57,7 @@ const ProgramListingCard = ({ program }) => {
     >
       <Card.ImageCap
         src={getBannerImageURL() || cardFallbackImg}
-        srcAlt="Program banner image"
+        srcAlt=""
         fallbackSrc={cardFallbackImg}
         logoSrc={authoringOrganization?.src}
         logoAlt={authoringOrganization?.alt}

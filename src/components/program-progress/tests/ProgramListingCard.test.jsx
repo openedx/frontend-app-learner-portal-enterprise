@@ -137,7 +137,7 @@ describe('<ProgramListingCard />', () => {
   }])('tests window size', ({ width, size }) => {
     global.innerWidth = width;
     renderWithRouter(<ProgramListingCardWithContext programData={dummyProgramData} />);
-    const imageCapSrc = screen.getByAltText('Program banner image').src;
+    const imageCapSrc = screen.getByAltText('').src;
     expect(imageCapSrc).toContain(size);
   });
 });

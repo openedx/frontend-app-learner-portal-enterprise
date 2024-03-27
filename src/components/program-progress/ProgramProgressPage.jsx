@@ -2,9 +2,7 @@ import { Helmet } from 'react-helmet';
 import {
   breakpoints, Container, Row, MediaQuery,
 } from '@openedx/paragon';
-import { ErrorPage } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { LoadingSpinner } from '../loading-spinner';
 import ProgramProgressHeader from './ProgramProgressHeader';
 import ProgramProgressSideBar from './ProgramProgressSidebar';
 import ProgramProgressCourses from './ProgramProgressCourses';
@@ -18,7 +16,7 @@ import { useProgramProgressDetails } from '../app/data';
 import NotFoundPage from '../NotFoundPage';
 
 const ProgramProgressPage = () => {
-  const { data: program, isError, isLoading } = useProgramProgressDetails();
+  const { data: program, isError } = useProgramProgressDetails();
 
   const courseData = program?.courseData;
   /* eslint-disable no-unsafe-optional-chaining */

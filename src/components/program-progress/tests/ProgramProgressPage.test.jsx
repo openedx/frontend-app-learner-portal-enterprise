@@ -33,7 +33,7 @@ jest.mock('../../app/data', () => ({
 
 jest.mock('../../hooks', () => ({
   ...jest.requireActual('../../hooks'),
-  useHasAvailableSubsidy: jest.fn(),
+  useHasAvailableSubsidyOrRequests: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -47,12 +47,12 @@ const mockAppContext = {
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-const mockUseActiveSubsidyData = {
+const mockUseActiveSubsidyOrRequestsData = {
   mockHasAssignedCodesOrCodeRequests: false,
   mockHasActiveLicenseOrLicenseRequest: false,
   mockLearnerCreditSummaryCardData: {},
 };
-const mockUseHasAvailableSubsidy = ({
+const useMockHasAvailableSubsidyOrRequests = ({
   mockHasAssignedCodesOrCodeRequests,
   mockHasActiveLicenseOrLicenseRequest,
   mockLearnerCreditSummaryCardData,
@@ -125,7 +125,9 @@ describe('<ProgramProgressPage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useHasAvailableSubsidyOrRequests.mockReturnValue(mockUseHasAvailableSubsidy(mockUseActiveSubsidyData));
+    useHasAvailableSubsidyOrRequests.mockReturnValue(
+      useMockHasAvailableSubsidyOrRequests(mockUseActiveSubsidyOrRequestsData),
+    );
     useEnterpriseCourseEnrollments.mockReturnValue({ data: { allEnrollmentsByStatus: {} } });
     useSubscriptions.mockReturnValue({
       data: {
@@ -164,12 +166,7 @@ describe('<ProgramProgressPage />', () => {
   it('renders error page', () => {
     useProgramProgressDetails.mockReturnValue({ data: {}, isError: true, isLoading: false });
     renderWithRouter(<ProgramProgressPageWrapper />);
-    expect(screen.getByTestId('error-page')).toBeTruthy();
-  });
-  it('renders loading page', () => {
-    useProgramProgressDetails.mockReturnValue({ data: {}, isError: false, isLoading: true });
-    renderWithRouter(<ProgramProgressPageWrapper />);
-    expect(screen.getByText('loading program progress')).toBeTruthy();
+    expect(screen.getByTestId('not-found-page')).toBeTruthy();
   });
   it('renders page', () => {
     useProgramProgressDetails.mockReturnValue({ data: mockData, isError: false, isLoading: false });

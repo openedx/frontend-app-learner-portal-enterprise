@@ -75,6 +75,8 @@ const ProgramProgressSideBar = () => {
           <ul className="certificate-list">
             {courseCertificates.map((certificate) => (
               <li key={uuidv4()} data-testid="certificate-item" className="certificate">
+                {/* TODO: This url for certificates doesn't exist, figure out what is supposed to render here */}
+                {/* URL: :enterpriseSlug/certificates/:certificateUUID */}
                 <a className="image-link" href={certificate.url} aria-hidden="true" tabIndex="-1">
                   <img src={progSampleCertImage} className="sample-cert" alt="" />
                 </a>
@@ -101,7 +103,7 @@ const ProgramProgressSideBar = () => {
             />
           </p>
         </div>
-        { programRecordUrl && (
+        {programRecordUrl && (
           <div className="sidebar-button-wrapper">
             <a href={programRecordUrl} className="program-record-link">
               <Button

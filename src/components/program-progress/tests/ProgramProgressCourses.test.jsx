@@ -18,7 +18,7 @@ jest.mock('../../app/data', () => ({
 
 jest.mock('../../hooks', () => ({
   ...jest.requireActual('../../hooks'),
-  useHasAvailableSubsidy: jest.fn(),
+  useHasAvailableSubsidyOrRequests: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();

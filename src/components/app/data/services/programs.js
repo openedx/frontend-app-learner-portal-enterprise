@@ -8,7 +8,6 @@ export async function fetchLearnerProgramProgressDetail(programUUID) {
   const url = `${config.LMS_BASE_URL}/api/dashboard/v0/programs/${programUUID}/progress_details/`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
-    console.log(response);
     return camelCaseObject(response.data);
   } catch (error) {
     logError(error);
