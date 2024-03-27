@@ -1,5 +1,10 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { generatePath, useNavigate, useLocation } from 'react-router-dom';
+import {
+  generatePath,
+  useNavigate,
+  useLocation,
+  useParams,
+} from 'react-router-dom';
 import {
   Alert, Button, Col, Container, Hyperlink, Row,
 } from '@openedx/paragon';
@@ -21,10 +26,10 @@ import { features } from '../../../config';
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
   const navigate = useNavigate();
+  const { courseRunKey } = useParams();
   const { pathname } = useLocation();
   const {
     state: {
-      activeCourseRun,
       courseEntitlementProductSku,
       course,
     },
@@ -156,7 +161,7 @@ const ExternalCourseEnrollment = () => {
               <RegistrationSummaryCard priceDetails={courseMetadata.priceDetails} />
               <UserEnrollmentForm
                 productSKU={courseEntitlementProductSku}
-                activeCourseRun={activeCourseRun}
+                courseRunKey={courseRunKey}
                 userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
               />
             </Col>

@@ -10,8 +10,8 @@ import NotFoundPage from '../../NotFoundPage';
 const CoursePageRoutes = () => (
   <Routes>
     <Route path="/" element={<PageWrap><CourseAbout /></PageWrap>} />
-    <Route path="enroll" element={<PageWrap><ExternalCourseEnrollment /></PageWrap>} />
-    <Route path="enroll/complete" element={<PageWrap><ExternalCourseEnrollmentConfirmation /></PageWrap>} />
+    <Route path="enroll/:courseRunKey" element={<PageWrap><ExternalCourseEnrollment /></PageWrap>} />
+    <Route path="enroll/:courseRunKey/complete" element={<PageWrap><ExternalCourseEnrollmentConfirmation /></PageWrap>} />
     <Route path="*" element={<PageWrap><NotFoundPage /></PageWrap>} />
   </Routes>
 );

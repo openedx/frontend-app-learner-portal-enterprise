@@ -25,7 +25,7 @@ const UserEnrollmentForm = ({
   className,
   productSKU,
   onCheckoutSuccess,
-  activeCourseRun,
+  courseRunKey,
   userSubsidyApplicableToCourse,
 }) => {
   const config = getConfig();
@@ -65,7 +65,7 @@ const UserEnrollmentForm = ({
   };
 
   const { redeem } = useStatefulEnroll({
-    contentKey: activeCourseRun.key,
+    contentKey: courseRunKey,
     subsidyAccessPolicy: userSubsidyApplicableToCourse,
     onSuccess: handleFormSubmissionSuccess,
     onError: (error) => {
@@ -477,9 +477,7 @@ UserEnrollmentForm.propTypes = {
   className: PropTypes.string,
   productSKU: PropTypes.string.isRequired,
   onCheckoutSuccess: PropTypes.func,
-  activeCourseRun: PropTypes.shape({
-    key: PropTypes.string.isRequired,
-  }).isRequired,
+  courseRunKey: PropTypes.string.isRequired,
   userSubsidyApplicableToCourse: PropTypes.shape({
     subsidyType: PropTypes.string,
   }),
