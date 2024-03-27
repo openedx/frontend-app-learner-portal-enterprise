@@ -26,6 +26,17 @@ import {
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 
+/**
+ * A query key object that can be used to performs
+ * API calls using React Query.
+ *
+ * See the following links for more information:
+ *
+ * {@link https://github.com/lukemorales/query-key-factory},
+ *
+ * {@link https://tanstack.com/query/v4/docs/framework/react/community/lukemorales-query-key-factory}
+ * @type {QueryKeyFactoryResult<"enterprise", QueryFactorySchema>}
+ */
 const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({
     queryKey: [enterpriseUuid],
@@ -152,17 +163,21 @@ const user = createQueryKeys('user', {
   }),
 });
 
-const program = createQueryKeys('program', {
-  progress: {
-    queryKey: null,
+const content = createQueryKeys('content', {
+  program: (programUUID) => ({
+    queryKey: [programUUID],
     contextQueries: {
-      detail: (programUUID) => ({
-        queryKey: [programUUID],
-        queryFn: async ({ queryKey }) => fetchLearnerProgramProgressDetail(queryKey[3]),
-      }),
+      detail: {
+        queryKey: null,
+        queryFn: () => {},
+      },
+      progress: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => fetchLearnerProgramProgressDetail(queryKey[2]),
+      },
     },
-  },
+  }),
 });
 
-const queries = mergeQueryKeys(enterprise, user, program);
+const queries = mergeQueryKeys(enterprise, user, content);
 export default queries;
