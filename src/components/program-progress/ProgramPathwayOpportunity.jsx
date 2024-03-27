@@ -44,6 +44,6 @@ ProgramPathwayOpportunity.propTypes = {
     destinationUrl: PropTypes.string,
     uuid: PropTypes.string,
   })).isRequired,
-  title: PropTypes.string.isRequired,
+  title: PropTypes.element.isRequired,
   pathwayClass: PropTypes.string.isRequired,
 };

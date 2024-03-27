@@ -8,7 +8,7 @@ import ProgramProgressCircle from './ProgramProgressCircle';
 import ProgramPathwayOpportunity from './ProgramPathwayOpportunity';
 import { getProgramCertImage } from './data/utils';
 import progSampleCertImage from './images/sample-cert.png';
-import { useProgramProgressDetails } from '../app/data';
+import { useLearnerProgramProgressData } from '../app/data';
 
 const ProgramProgressSideBar = () => {
   const {
@@ -19,7 +19,7 @@ const ProgramProgressSideBar = () => {
       certificateData,
       urls: { programRecordUrl },
     },
-  } = useProgramProgressDetails();
+  } = useLearnerProgramProgressData();
   const { LMS_BASE_URL } = getConfig();
   const courseCertificates = useMemo(
     () => {

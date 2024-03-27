@@ -27,4 +27,5 @@ export { default as useIsAssignmentsOnlyLearner } from './useIsAssignmentsOnlyLe
 export { default as useNProgressLoader } from './useNProgressLoader';
 export { default as useNotices } from './useNotices';
 export { default as useLearnerSkillLevels } from './useLearnerSkillLevels';
-export { default as useProgramProgressDetails } from './useProgramProgressDetails';
+export { default as useLearnerProgramProgressData } from './useLearnerProgramProgressData';
+export { default as useHasAvailableSubsidiesOrRequests } from './useHasAvailableSubsidiesOrRequests';

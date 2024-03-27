@@ -7,18 +7,13 @@ import { AppContext } from '@edx/frontend-platform/react';
 import dayjs from '../../../utils/dayjs';
 import ProgramProgressCourses from '../ProgramProgressCourses';
 import { NotCurrentlyAvailable } from '../data/constants';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
-import { useHasAvailableSubsidyOrRequests } from '../../hooks';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
-}));
-
-jest.mock('../../hooks', () => ({
-  ...jest.requireActual('../../hooks'),
-  useHasAvailableSubsidyOrRequests: jest.fn(),
+  useHasAvailableSubsidiesOrRequests: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -37,12 +32,12 @@ const ProgramProgressCoursesWithContext = ({
   </IntlProvider>
 );
 
-const mockUseActiveSubsidyData = {
+const mockUseActiveSubsidiesOrRequestsData = {
   mockHasAssignedCodesOrCodeRequests: false,
   mockHasActiveLicenseOrLicenseRequest: false,
   mockLearnerCreditSummaryCardData: {},
 };
-const mockUseHasAvailableSubsidy = ({
+const mockUseHasAvailableSubsidiesOrRequests = ({
   mockHasAssignedCodesOrCodeRequests,
   mockHasActiveLicenseOrLicenseRequest,
   mockLearnerCreditSummaryCardData,
@@ -60,7 +55,9 @@ describe('<ProgramProgressCourses />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useHasAvailableSubsidyOrRequests.mockReturnValue(mockUseHasAvailableSubsidy(mockUseActiveSubsidyData));
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(
+      mockUseHasAvailableSubsidiesOrRequests(mockUseActiveSubsidiesOrRequestsData),
+    );
   });
 
   it('displays the completed course with enrolled course run', () => {
@@ -244,7 +241,7 @@ describe('<ProgramProgressCourses />', () => {
       ],
     };
 
-    useHasAvailableSubsidyOrRequests.mockReturnValue(mockUseHasAvailableSubsidy({
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(mockUseHasAvailableSubsidiesOrRequests({
       mockHasActiveLicenseOrLicenseRequest: true,
     }));
     render((

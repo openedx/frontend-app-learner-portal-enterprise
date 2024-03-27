@@ -15,11 +15,11 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseOffers,
+  useHasAvailableSubsidiesOrRequests,
   useIsAssignmentsOnlyLearner,
   useSubscriptions,
 } from '../../app/data';
 import { COURSE_STATUSES } from '../../../constants';
-import { useHasAvailableSubsidyOrRequests } from '../../hooks';
 
 const SubsidiesSummary = ({
   className,
@@ -41,7 +41,7 @@ const SubsidiesSummary = ({
     hasAssignedCodesOrCodeRequests,
     hasActiveLicenseOrLicenseRequest,
     learnerCreditSummaryCardData,
-  } = useHasAvailableSubsidyOrRequests();
+  } = useHasAvailableSubsidiesOrRequests();
 
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
 

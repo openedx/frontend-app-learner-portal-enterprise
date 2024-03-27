@@ -11,6 +11,13 @@ export async function fetchLearnerProgramProgressDetail(programUUID) {
     return camelCaseObject(response.data);
   } catch (error) {
     logError(error);
-    return {};
+    return {
+      certificateData: [],
+      courseData: null,
+      creditPathways: [],
+      industryPathways: [],
+      programData: null,
+      urls: null,
+    };
   }
 }

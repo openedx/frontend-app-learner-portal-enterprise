@@ -345,7 +345,7 @@ export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSI
  * @param programUUID
  * @returns {Types.QueryOptions}
  */
-export function queryProgramProgressDetails(programUUID) {
+export function queryLearnerProgramProgressData(programUUID) {
   return queries
     .content
     .program(programUUID)

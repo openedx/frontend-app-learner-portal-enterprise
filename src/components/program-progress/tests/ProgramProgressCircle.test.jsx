@@ -7,11 +7,11 @@ import ProgramProgressCircle from '../ProgramProgressCircle';
 import {
   X_AXIS, Y_AXIS, CIRCLE_RADIUS, STROKE_WIDTH, CIRCLE_LABEL,
 } from '../data/constants';
-import { useProgramProgressDetails } from '../../app/data';
+import { useLearnerProgramProgressData } from '../../app/data';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  useProgramProgressDetails: jest.fn(),
+  useLearnerProgramProgressData: jest.fn(),
 }));
 
 const ProgramProgressCircleWithContext = () => (
@@ -38,7 +38,7 @@ const mockProgram = {
 describe('<ProgramProgressCircle />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useProgramProgressDetails.mockReturnValue({ data: mockProgram });
+    useLearnerProgramProgressData.mockReturnValue({ data: mockProgram });
   });
   it('renders program progress circle with correct data', () => {
     const { container } = render(

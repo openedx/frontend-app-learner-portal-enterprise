@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
-import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
-import {
-  useBrowseAndRequest, useCouponCodes, useEnterpriseOffers, useRedeemablePolicies, useSubscriptions,
-} from '../app/data';
-import { getOfferExpiringFirst, getPolicyExpiringFirst } from '../dashboard/sidebar/utils';
+import { getOfferExpiringFirst, getPolicyExpiringFirst } from '../../../dashboard/sidebar/utils';
+import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
+import useBrowseAndRequest from './useBrowseAndRequest';
+import useCouponCodes from './useCouponCodes';
+import useEnterpriseOffers from './useEnterpriseOffers';
+import useRedeemablePolicies from './useRedeemablePolicies';
+import useSubscriptions from './useSubscriptions';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
@@ -30,17 +32,17 @@ function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCr
  * hasAvailableSubsidyOrRequests: ({expirationDate}|boolean)
  * }}
  */
-export default function useHasAvailableSubsidyOrRequests() {
+export default function useHasAvailableSubsidiesOrRequests() {
   const { data: subscriptions } = useSubscriptions();
   const { data: { requests } } = useBrowseAndRequest();
   const { data: couponCodes } = useCouponCodes();
   const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const { data: enterpriseOffersData } = useEnterpriseOffers();
 
-  const learnerCreditSummaryCardData = useMemo(() => (getLearnerCreditSummaryCardData({
+  const learnerCreditSummaryCardData = useMemo(() => getLearnerCreditSummaryCardData({
     enterpriseOffers: enterpriseOffersData.enterpriseOffers,
     redeemableLearnerCreditPolicies,
-  })), [enterpriseOffersData.enterpriseOffers, redeemableLearnerCreditPolicies]);
+  }), [enterpriseOffersData.enterpriseOffers, redeemableLearnerCreditPolicies]);
 
   const hasActiveLicenseOrLicenseRequest = (
     subscriptions.subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
@@ -51,7 +53,7 @@ export default function useHasAvailableSubsidyOrRequests() {
     couponCodes.couponCodeAssignments.length > 0
       || requests.couponCodes.length > 0
   );
-  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies.length > 0;
+  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies.redeemablePolicies.length > 0;
 
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData

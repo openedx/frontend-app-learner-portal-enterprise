@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
 import {
   X_AXIS, Y_AXIS, CIRCLE_RADIUS, CIRCLE_DEGREES, STROKE_WIDTH, CIRCLE_LABEL,
 } from './data/constants';
-import { useProgramProgressDetails } from '../app/data';
+import { useLearnerProgramProgressData } from '../app/data';
 
 const CircleSegment = ({
   total, index, classList,
@@ -35,7 +36,7 @@ const CircleSegment = ({
 };
 
 const ProgramProgressCircle = () => {
-  const { data: { programData, courseData } } = useProgramProgressDetails();
+  const { data: { programData, courseData } } = useLearnerProgramProgressData();
   const { inProgress, completed, notStarted } = courseData;
   const totalCourses = inProgress.length + completed.length + notStarted.length;
   const title = `${programData.type} Progress`;
@@ -47,6 +48,7 @@ const ProgramProgressCircle = () => {
           <circle className="bg" r={CIRCLE_RADIUS} cx={X_AXIS} cy={Y_AXIS} strokeWidth={STROKE_WIDTH} fill="none" />
           {Array(totalCourses).fill().map((_, index) => (
             <CircleSegment
+              key={uuidv4()}
               total={totalCourses}
               index={index}
               classList={index >= completed.length ? 'incomplete' : 'complete'}

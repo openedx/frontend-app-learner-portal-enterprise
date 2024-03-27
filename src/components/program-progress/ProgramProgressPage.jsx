@@ -12,29 +12,36 @@ import {
   getLastEndingCourseDate,
 } from './data/utils';
 import SubsidiesSummary from '../dashboard/sidebar/SubsidiesSummary';
-import { useProgramProgressDetails } from '../app/data';
+import { useLearnerProgramProgressData } from '../app/data';
 import NotFoundPage from '../NotFoundPage';
 
 const ProgramProgressPage = () => {
-  const { data: program, isError } = useProgramProgressDetails();
+  const { data: programProgressData } = useLearnerProgramProgressData();
+  const hasProgramProgressData = programProgressData.courseData
+    && programProgressData.programData
+    && programProgressData.urls;
 
-  const courseData = program?.courseData;
+  if (!hasProgramProgressData) {
+    return <NotFoundPage />;
+  }
+
+  const { courseData } = programProgressData;
   /* eslint-disable no-unsafe-optional-chaining */
-  const totalCoursesInProgram = courseData?.notStarted?.length
-    + courseData?.completed?.length
-    + courseData?.inProgress?.length;
+  const totalCoursesInProgram = courseData.notStarted?.length
+    + courseData.completed?.length
+    + courseData.inProgress?.length;
   /* eslint-enable no-unsafe-optional-chaining */
-  const allCoursesCompleted = !courseData?.notStarted?.length
-    && !courseData?.inProgress?.length
-    && courseData?.completed?.length;
+  const allCoursesCompleted = !courseData.notStarted?.length
+    && !courseData.inProgress?.length
+    && courseData.completed?.length;
 
-  const coursesNotStarted = courseData?.notStarted;
+  const coursesNotStarted = courseData.notStarted;
   const totalCoursesNotStarted = coursesNotStarted?.length;
   let enrolledCourses = [];
-  if (courseData?.completed?.length) {
+  if (courseData.completed?.length) {
     enrolledCourses = courseData.completed;
   }
-  if (courseData?.inProgress?.length) {
+  if (courseData.inProgress?.length) {
     enrolledCourses = [...enrolledCourses, ...courseData.inProgress];
   }
   const coursesEnrolledInAuditMode = getCoursesEnrolledInAuditMode(enrolledCourses);
@@ -47,11 +54,8 @@ const ProgramProgressPage = () => {
 
     courseEndDate = getLastEndingCourseDate(subsidyEligibleCourseRuns);
   }
-  if (isError) {
-    return <NotFoundPage />;
-  }
 
-  const PROGRAM_TITLE = `${program.programData.title}`;
+  const PROGRAM_TITLE = `${programProgressData.programData.title}`;
   return (
     <>
       <Helmet title={PROGRAM_TITLE} />

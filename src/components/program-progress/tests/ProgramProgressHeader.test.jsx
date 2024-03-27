@@ -4,11 +4,11 @@ import '@testing-library/jest-dom/extend-expect';
 
 import ProgramProgressHeader from '../ProgramProgressHeader';
 import { getProgramIcon } from '../data/utils';
-import { useProgramProgressDetails } from '../../app/data';
+import { useLearnerProgramProgressData } from '../../app/data';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  useProgramProgressDetails: jest.fn(),
+  useLearnerProgramProgressData: jest.fn(),
 }));
 
 const ProgramProgressHeaderWithContext = () => (
@@ -31,7 +31,7 @@ const mockProgram = {
 describe('<ProgramProgressHeader />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useProgramProgressDetails.mockReturnValue({ data: mockProgram });
+    useLearnerProgramProgressData.mockReturnValue({ data: mockProgram });
   });
   it('renders program progress header with correct data', () => {
     const programIcon = getProgramIcon(testProgramData.type);

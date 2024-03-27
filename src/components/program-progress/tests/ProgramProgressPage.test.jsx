@@ -12,15 +12,15 @@ import {
   useEnterpriseCustomer,
   useEnterpriseOffers,
   useIsAssignmentsOnlyLearner,
-  useProgramProgressDetails,
+  useLearnerProgramProgressData,
   useRedeemablePolicies,
   useSubscriptions,
+  useHasAvailableSubsidiesOrRequests,
 } from '../../app/data';
-import { useHasAvailableSubsidyOrRequests } from '../../hooks';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  useProgramProgressDetails: jest.fn(),
+  useLearnerProgramProgressData: jest.fn(),
   useEnterpriseCustomer: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
   useSubscriptions: jest.fn(),
@@ -29,11 +29,7 @@ jest.mock('../../app/data', () => ({
   useRedeemablePolicies: jest.fn(),
   useBrowseAndRequest: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
-}));
-
-jest.mock('../../hooks', () => ({
-  ...jest.requireActual('../../hooks'),
-  useHasAvailableSubsidyOrRequests: jest.fn(),
+  useHasAvailableSubsidiesOrRequests: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -119,13 +115,16 @@ const mockProgramData = {
 const mockData = {
   programData: mockProgramData,
   courseData: mockCourseData,
+  urls: {
+    programListingUrl: '/dashboard/programs/',
+  },
 };
 
 describe('<ProgramProgressPage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useHasAvailableSubsidyOrRequests.mockReturnValue(
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(
       useMockHasAvailableSubsidyOrRequests(mockUseActiveSubsidyOrRequestsData),
     );
     useEnterpriseCourseEnrollments.mockReturnValue({ data: { allEnrollmentsByStatus: {} } });
@@ -164,12 +163,18 @@ describe('<ProgramProgressPage />', () => {
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
   });
   it('renders error page', () => {
-    useProgramProgressDetails.mockReturnValue({ data: {}, isError: true, isLoading: false });
+    useLearnerProgramProgressData.mockReturnValue({
+      data: {
+        programData: null,
+        courseData: null,
+        urls: null,
+      },
+    });
     renderWithRouter(<ProgramProgressPageWrapper />);
     expect(screen.getByTestId('not-found-page')).toBeTruthy();
   });
   it('renders page', () => {
-    useProgramProgressDetails.mockReturnValue({ data: mockData, isError: false, isLoading: false });
+    useLearnerProgramProgressData.mockReturnValue({ data: mockData });
     renderWithRouter(<ProgramProgressPageWrapper />);
     expect(screen.getByText('Test Program Title')).toBeTruthy();
   });

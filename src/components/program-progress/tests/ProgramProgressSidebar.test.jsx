@@ -7,11 +7,11 @@ import { getConfig } from '@edx/frontend-platform/config';
 import ProgramProgressSidebar from '../ProgramProgressSidebar';
 import { getProgramCertImage } from '../data/utils';
 import progSampleCertImage from '../images/sample-cert.png';
-import { useProgramProgressDetails } from '../../app/data';
+import { useLearnerProgramProgressData } from '../../app/data';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  useProgramProgressDetails: jest.fn(),
+  useLearnerProgramProgressData: jest.fn(),
 }));
 
 const ProgramProgressSideBarWithContext = () => (
@@ -75,7 +75,7 @@ const mockProgram = {
 describe('<ProgramProgressSideBar />', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    useProgramProgressDetails.mockReturnValue({ data: mockProgram });
+    useLearnerProgramProgressData.mockReturnValue({ data: mockProgram });
   });
   it('renders program certificate if it exists', () => {
     const programCertImage = getProgramCertImage(testProgramData.type);
@@ -98,7 +98,7 @@ describe('<ProgramProgressSideBar />', () => {
       industryPathways: [],
       urls: testUrls,
     };
-    useProgramProgressDetails.mockReturnValue({ data: mockMultipleCertificateData });
+    useLearnerProgramProgressData.mockReturnValue({ data: mockMultipleCertificateData });
     const { container } = render(
       <ProgramProgressSideBarWithContext />,
     );
@@ -119,7 +119,7 @@ describe('<ProgramProgressSideBar />', () => {
       industryPathways: [],
       urls: testUrlsWithProgramRecord,
     };
-    useProgramProgressDetails.mockReturnValue({ data: mockProgramRecordUrl });
+    useLearnerProgramProgressData.mockReturnValue({ data: mockProgramRecordUrl });
     const { container } = render(
       <ProgramProgressSideBarWithContext />,
     );
@@ -136,7 +136,7 @@ describe('<ProgramProgressSideBar />', () => {
       industryPathways: [],
       urls: testUrls,
     };
-    useProgramProgressDetails.mockReturnValue({ data: mockCreditPathways });
+    useLearnerProgramProgressData.mockReturnValue({ data: mockCreditPathways });
     const { container } = render(
       <ProgramProgressSideBarWithContext />,
     );
@@ -156,7 +156,7 @@ describe('<ProgramProgressSideBar />', () => {
       industryPathways: [testIndustryPathway],
       urls: testUrls,
     };
-    useProgramProgressDetails.mockReturnValue({ data: mockIndustryPathway });
+    useLearnerProgramProgressData.mockReturnValue({ data: mockIndustryPathway });
     const { container } = render(
       <ProgramProgressSideBarWithContext />,
     );

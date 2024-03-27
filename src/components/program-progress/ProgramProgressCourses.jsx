@@ -15,15 +15,14 @@ import {
 } from './data/utils';
 import { getLinkToCourse } from '../course/data/utils';
 import dayjs from '../../utils/dayjs';
-import { useHasAvailableSubsidyOrRequests } from '../hooks';
-import { useEnterpriseCustomer } from '../app/data';
+import { useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests } from '../app/data';
 
 const ProgramProgressCourses = ({ courseData }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     hasActiveLicenseOrLicenseRequest,
     hasAssignedCodesOrCodeRequests,
-  } = useHasAvailableSubsidyOrRequests();
+  } = useHasAvailableSubsidiesOrRequests();
   const userHasLicenseOrCoupon = hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 
   let coursesCompleted = [];
@@ -255,7 +254,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                   {course.isEnrollable
                     ? (
                       <>
-                        <p className="text-gray-500 text-capitalize mt-1">
+                        <div className="text-gray-500 text-capitalize mt-1">
                           {course.courseRunDate?.length > 1
                             ? (
                               <Form.Group className="pr-0" as={Col} controlId="formGridState-2">
@@ -286,7 +285,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                                 />
                               </span>
                             )}
-                        </p>
+                        </div>
                         <a
                           className="btn btn-outline-primary btn-xs-block mt-2 float-right"
                           href={courseAboutPageURL(course)}
@@ -300,13 +299,13 @@ const ProgramProgressCourses = ({ courseData }) => {
                       </>
                     )
                     : (
-                      <p className="mt-2 float-right">
+                      <div className="mt-2 float-right">
                         <FormattedMessage
                           id="enterprise.dashboard.programs.about.page.not.currently.available"
                           defaultMessage="Not Currently Available"
                           description="Text indicating that the course is not currently available. This is used for unenrollable remaining courses on the programs about page."
                         />
-                      </p>
+                      </div>
                     )}
                 </div>
               )
