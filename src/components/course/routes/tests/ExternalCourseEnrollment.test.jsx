@@ -11,10 +11,18 @@ import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../..
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 
+const testCourseKey = 'bin+bar';
+const testCourseRunKey = 'course-v1:bin+bar+baz';
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+  useParams: () => ({
+    enterpriseSlug: 'test-enterprise-uuid',
+    courseKey: testCourseKey,
+    courseRunKey: testCourseRunKey,
+  }),
 }));
 
 jest.mock('../../data/hooks', () => ({
@@ -112,6 +120,7 @@ describe('ExternalCourseEnrollment', () => {
     expect(UserEnrollmentForm.mock.calls[0][0]).toEqual(
       expect.objectContaining({
         productSKU: 'test-sku',
+        courseRunKey: testCourseRunKey,
       }),
     );
   });

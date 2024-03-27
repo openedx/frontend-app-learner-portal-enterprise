@@ -58,9 +58,7 @@ const initialAppContextValue = {
   authenticatedUser: { userId: 1, email: mockEmail },
 };
 
-const mockActiveCourseRun = {
-  key: 'course-v1:edX+DemoX+Demo_Course',
-};
+const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
 const mockUserSubsidyApplicableToCourse = {
   subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
 };
@@ -72,7 +70,7 @@ const UserEnrollmentFormWrapper = ({
   enterpriseId = mockEnterpriseId,
   productSKU = mockProductSKU,
   onCheckoutSuccess = mockOnCheckoutSuccess,
-  activeCourseRun = mockActiveCourseRun,
+  courseRunKey = mockCourseRunKey,
   userSubsidyApplicableToCourse = mockUserSubsidyApplicableToCourse,
   courseContextValue = {
     state: {
@@ -90,7 +88,7 @@ const UserEnrollmentFormWrapper = ({
             enterpriseId={enterpriseId}
             productSKU={productSKU}
             onCheckoutSuccess={onCheckoutSuccess}
-            activeCourseRun={activeCourseRun}
+            courseRunKey={courseRunKey}
             userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
           />
         </CourseContext.Provider>
@@ -229,6 +227,12 @@ describe('UserEnrollmentForm', () => {
           geagTermsAcceptedAt: mockTermsAcceptedAt,
           geagDataShareConsent: true,
         }),
+      }),
+    );
+    // Ensure the contentKey from the URL is passed along to the redeem endpoint via useStatefulEnroll.
+    expect(useStatefulEnroll.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        contentKey: mockCourseRunKey,
       }),
     );
 

@@ -89,10 +89,10 @@ const CoursePage = () => {
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
   const anyPolicyHasLateRedemptionEnabled = !!redeemableLearnerCreditPolicies?.redeemablePolicies?.some((policy) => (
-    // is_late_redemption_enabled=True on the serialized policy represents the fact that late redemption has been
+    // is_late_redemption_allowed=True on the serialized policy represents the fact that late redemption has been
     // temporarily enabled by an operator for the policy. It will toggle itself back to False after a finite period
     // of time.
-    policy.isLateRedemptionEnabled
+    policy.isLateRedemptionAllowed
   ));
   const isEnrollableBufferDays = anyPolicyHasLateRedemptionEnabled ? LATE_ENROLLMENTS_BUFFER_DAYS : undefined;
 

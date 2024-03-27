@@ -23,12 +23,12 @@ describe('CoursePageRoutes', () => {
   });
 
   it('renders ExternalCourseEnrollment route', () => {
-    render(<MemoryRouter initialEntries={['/enroll']}><CoursePageRoutes /></MemoryRouter>);
+    render(<MemoryRouter initialEntries={['/enroll/course-v1:bin+bar+baz']}><CoursePageRoutes /></MemoryRouter>);
     expect(screen.getByTestId('external-course-enrollment')).toBeInTheDocument();
   });
 
   it('renders ExternalCourseEnrollmentConfirmation route', () => {
-    render(<MemoryRouter initialEntries={['/enroll/complete']}><CoursePageRoutes /></MemoryRouter>);
+    render(<MemoryRouter initialEntries={['/enroll/course-v1:bin+bar+baz/complete']}><CoursePageRoutes /></MemoryRouter>);
     expect(screen.getByTestId('external-course-enrollment-confirmation')).toBeInTheDocument();
   });
 });
