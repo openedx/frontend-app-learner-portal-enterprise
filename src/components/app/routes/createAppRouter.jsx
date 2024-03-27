@@ -76,12 +76,11 @@ export default function createAppRouter(queryClient) {
             )}
           />
           <Route
-            path="program/:programUUID/progress"
-            lazy={async () => {
-              const { ProgramProgressPage, makeProgramProgressLoader } = await import('../../program-progress');
+            path="program/:programUUID"
+            lazy={() => {
+              const { ProgramPage } = import('../../program');
               return {
-                Component: ProgramProgressPage,
-                loader: makeProgramProgressLoader(queryClient),
+                Component: ProgramPage,
               };
             }}
             errorElement={(
@@ -90,7 +89,24 @@ export default function createAppRouter(queryClient) {
                 showSiteFooter={false}
               />
             )}
-          />
+          >
+            <Route
+              path="progress"
+              lazy={async () => {
+                const { ProgramProgressPage, makeProgramProgressLoader } = await import('../../program-progress');
+                return {
+                  Component: ProgramProgressPage,
+                  loader: makeProgramProgressLoader(queryClient),
+                };
+              }}
+              errorElement={(
+                <RouteErrorBoundary
+                  showSiteHeader={false}
+                  showSiteFooter={false}
+                />
+              )}
+            />
+          </Route>
           <Route
             path="skills-quiz"
             lazy={async () => {

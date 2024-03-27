@@ -1,11 +1,11 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { queryProgramDetails } from '../queries';
+import { queryProgramProgressDetails } from '../queries';
 
 export default function useProgramProgressDetails(queryOptions = {}) {
-  const params = useParams();
+  const { programUUID } = useParams();
   return useQuery({
-    ...queryProgramDetails(params.programUUID),
+    ...queryProgramProgressDetails(programUUID),
     ...queryOptions,
   });
 }

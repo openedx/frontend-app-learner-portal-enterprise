@@ -1,4 +1,4 @@
-import { queryProgramDetails } from '../../app/data';
+import { queryProgramProgressDetails } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
 
 export default function makeProgramProgressLoader(queryClient) {
@@ -10,9 +10,11 @@ export default function makeProgramProgressLoader(queryClient) {
       return null;
     }
 
+    const { programUUID } = params;
+
     const programsProgressData = [
       queryClient.ensureQueryData(
-        queryProgramDetails(params.programUUID),
+        queryProgramProgressDetails(programUUID),
       ),
     ];
 

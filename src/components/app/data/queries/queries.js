@@ -318,8 +318,9 @@ export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSI
  * @param programUUID
  * @returns {Types.QueryOptions}
  */
-export function queryProgramDetails(programUUID) {
+export function queryProgramProgressDetails(programUUID) {
   return queries
     .program
-    .detail(programUUID);
+    .progress
+    ._ctx.detail(programUUID);
 }

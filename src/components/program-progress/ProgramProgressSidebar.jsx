@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Button } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';

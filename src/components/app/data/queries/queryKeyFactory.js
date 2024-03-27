@@ -21,7 +21,6 @@ import {
   fetchLearnerSkillLevels,
   fetchAcademies,
   fetchLearnerProgramProgressDetail,
-  fetchAcademies,
   fetchEnterpriseCustomerContainsContent,
 } from '../services';
 
@@ -154,10 +153,15 @@ const user = createQueryKeys('user', {
 });
 
 const program = createQueryKeys('program', {
-  detail: (programUUID) => ({
-    queryKey: [programUUID],
-    queryFn: async ({ queryKey }) => fetchLearnerProgramProgressDetail(queryKey[2]),
-  }),
+  progress: {
+    queryKey: null,
+    contextQueries: {
+      detail: (programUUID) => ({
+        queryKey: [programUUID],
+        queryFn: async ({ queryKey }) => fetchLearnerProgramProgressDetail(queryKey[3]),
+      }),
+    },
+  },
 });
 
 const queries = mergeQueryKeys(enterprise, user, program);

@@ -16,7 +16,7 @@ import {
   useRedeemablePolicies,
   useSubscriptions,
 } from '../../app/data';
-import { useHasActiveSubsidy } from '../../hooks';
+import { useHasAvailableSubsidy } from '../../hooks';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -33,7 +33,7 @@ jest.mock('../../app/data', () => ({
 
 jest.mock('../../hooks', () => ({
   ...jest.requireActual('../../hooks'),
-  useHasActiveSubsidy: jest.fn(),
+  useHasAvailableSubsidy: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -52,7 +52,7 @@ const mockUseActiveSubsidyData = {
   mockHasActiveLicenseOrLicenseRequest: false,
   mockLearnerCreditSummaryCardData: {},
 };
-const mockUseHasActiveSubsidy = ({
+const mockUseHasAvailableSubsidy = ({
   mockHasAssignedCodesOrCodeRequests,
   mockHasActiveLicenseOrLicenseRequest,
   mockLearnerCreditSummaryCardData,
@@ -125,7 +125,7 @@ describe('<ProgramProgressPage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useHasActiveSubsidy.mockReturnValue(mockUseHasActiveSubsidy(mockUseActiveSubsidyData));
+    useHasAvailableSubsidy.mockReturnValue(mockUseHasAvailableSubsidy(mockUseActiveSubsidyData));
     useEnterpriseCourseEnrollments.mockReturnValue({ data: { allEnrollmentsByStatus: {} } });
     useSubscriptions.mockReturnValue({
       data: {

@@ -19,7 +19,7 @@ import {
   useSubscriptions,
 } from '../../app/data';
 import { COURSE_STATUSES } from '../../../constants';
-import { useHasActiveSubsidy } from '../../hooks';
+import { useHasAvailableSubsidy } from '../../hooks';
 
 const SubsidiesSummary = ({
   className,
@@ -41,7 +41,7 @@ const SubsidiesSummary = ({
     hasAssignedCodesOrCodeRequests,
     hasActiveLicenseOrLicenseRequest,
     learnerCreditSummaryCardData,
-  } = useHasActiveSubsidy();
+  } = useHasAvailableSubsidy();
 
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
 

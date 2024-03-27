@@ -1,4 +1,3 @@
-import React from 'react';
 import { getProgramIcon } from './data/utils';
 import { useProgramProgressDetails } from '../app/data';
 
