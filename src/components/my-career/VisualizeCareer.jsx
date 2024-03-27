@@ -8,7 +8,7 @@ import { ErrorPage } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
-import { useEnterpriseCustomer, useLearnerSkillLevels } from '../app/data';
+import { retrieveErrorMessage, useEnterpriseCustomer, useLearnerSkillLevels } from '../app/data';
 import CategoryCard from './CategoryCard';
 import SearchJobRole from './SearchJobRole';
 import SpiderChart from './SpiderChart';
@@ -46,13 +46,15 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
   };
 
   if (learnerSkillLevelsFetchError) {
-    return <ErrorPage status={learnerSkillLevelsFetchError.status} />;
+    return (
+      <ErrorPage message={retrieveErrorMessage(learnerSkillLevelsFetchError)} />
+    );
   }
 
   if (isLoadingLearnerSkills) {
     return (
       <div className="py-5">
-        <LoadingSpinner data-testid="loading-spinner" screenReaderText="Visualize Career Tab" />
+        <LoadingSpinner data-testid="loading-spinner" screenReaderText="loading your skills" />
       </div>
     );
   }

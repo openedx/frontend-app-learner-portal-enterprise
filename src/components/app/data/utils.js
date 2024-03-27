@@ -399,3 +399,13 @@ export const getTransformedAllocatedAssignments = (assignments, enterpriseSlug) 
   );
   return updatedAssignments;
 };
+
+export function retrieveErrorMessage(error) {
+  if (!error) {
+    return null;
+  }
+  if (error.customAttributes) {
+    return error.customAttributes.httpErrorResponseData;
+  }
+  return error.message;
+}

@@ -14,6 +14,7 @@ import { getErrorResponseStatusCode } from '../../../../utils/common';
 export async function fetchLearnerSkillLevels(jobId) {
   const url = `${getConfig().LMS_BASE_URL}/api/user/v1/skill_level/${jobId}/`;
   const response = await getAuthenticatedHttpClient().get(url);
+  // Note: this API is *not* called within a route loader; it does not need a try/catch.
   return camelCaseObject(response.data);
 }
 

@@ -94,7 +94,7 @@ describe('courseLoader', () => {
     expect(await screen.findByText('hello world')).toBeInTheDocument();
 
     // Assert that the expected number of queries were made.
-    const expectedQueryCount = hasCourseMetadata ? 4 : 3;
+    const expectedQueryCount = hasCourseMetadata ? 5 : 4;
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(expectedQueryCount);
 
     // Course metadata query

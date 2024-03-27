@@ -5,6 +5,7 @@ export {
   useCanOnlyViewHighlights,
 } from './useContentHighlightsConfiguration';
 export { default as useCourseMetadata } from './useCourseMetadata';
+export { default as useEnterpriseCustomerContainsContent } from './useEnterpriseCustomerContainsContent';
 export { default as useCourseRedemptionEligibility } from './useCourseRedemptionEligibility';
 export { default as useEnterpriseCustomerUserSubsidies } from './useEnterpriseCustomerUserSubsidies';
 export { default as useSubscriptions } from './useSubscriptions';

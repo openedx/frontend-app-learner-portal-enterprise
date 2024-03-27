@@ -21,6 +21,7 @@ import {
   fetchLearnerSkillLevels,
   fetchAcademies,
   fetchProgramDetails,
+  fetchEnterpriseCustomerContainsContent,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -64,6 +65,10 @@ const enterprise = createQueryKeys('enterprise', {
           }),
         },
       },
+      containsContent: (contentIdentifiers) => ({
+        queryKey: [contentIdentifiers],
+        queryFn: async ({ queryKey }) => fetchEnterpriseCustomerContainsContent(queryKey[2], contentIdentifiers),
+      }),
       enrollments: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchEnterpriseCourseEnrollments(queryKey[2]),

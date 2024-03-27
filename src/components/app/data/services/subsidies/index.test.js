@@ -43,6 +43,12 @@ describe('fetchEnterpriseOffers', () => {
     const result = await fetchEnterpriseOffers(mockEnterpriseId);
     expect(result).toEqual(enterpriseOffers.results);
   });
+
+  it('returns empty array on error', async () => {
+    axiosMock.onGet(ENTERPRISE_OFFERS_URL).reply(500);
+    const result = await fetchEnterpriseOffers(mockEnterpriseId);
+    expect(result).toEqual([]);
+  });
 });
 
 describe('fetchRedeemablePolicies', () => {
@@ -98,5 +104,35 @@ describe('fetchRedeemablePolicies', () => {
       },
     };
     expect(result).toEqual(expectedRedeemablePolicies);
+  });
+
+  it('returns empty array on error', async () => {
+    const userID = 3;
+    const queryParams = new URLSearchParams({
+      enterprise_customer_uuid: mockEnterpriseId,
+      lms_user_id: userID,
+    });
+    const POLICY_REDEMPTION_URL = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/credits_available/?${queryParams.toString()}`;
+    axiosMock.onGet(POLICY_REDEMPTION_URL).reply(500);
+    const result = await fetchRedeemablePolicies(mockEnterpriseId, userID);
+    expect(result).toEqual({
+      redeemablePolicies: [],
+      learnerContentAssignments: {
+        assignments: [],
+        hasAssignments: false,
+        allocatedAssignments: [],
+        hasAllocatedAssignments: false,
+        acceptedAssignments: [],
+        hasAcceptedAssignments: false,
+        canceledAssignments: [],
+        hasCanceledAssignments: false,
+        expiredAssignments: [],
+        hasExpiredAssignments: false,
+        erroredAssignments: [],
+        hasErroredAssignments: false,
+        assignmentsForDisplay: [],
+        hasAssignmentsForDisplay: false,
+      },
+    });
   });
 });

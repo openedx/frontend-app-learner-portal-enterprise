@@ -3,7 +3,7 @@ import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 
-import { fetchNotices, fetchUserEntitlements } from './user';
+import { fetchLearnerSkillLevels, fetchNotices, fetchUserEntitlements } from './user';
 
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
@@ -80,5 +80,21 @@ describe('fetchUserEntitlements', () => {
     axiosMock.onGet(ENTITLEMENTS_ENDPOINT).reply(200, mockEntitlements);
     const entitlements = await fetchUserEntitlements();
     expect(entitlements).toEqual(mockEntitlements);
+  });
+});
+
+describe('fetchLearnerSkillLevels', () => {
+  const SKILL_LEVEL_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/api/user/v1/skill_level/123/`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('returns skill levels', async () => {
+    const mockSkillLevels = { results: [] };
+    axiosMock.onGet(SKILL_LEVEL_ENDPOINT).reply(200, mockSkillLevels);
+    const skillLevels = await fetchLearnerSkillLevels(123);
+    expect(skillLevels).toEqual(mockSkillLevels);
   });
 });

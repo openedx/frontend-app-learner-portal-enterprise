@@ -2,7 +2,7 @@ import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-import { fetchEnterpriseCuration } from './contentHighlights';
+import { fetchContentHighlights, fetchEnterpriseCuration } from './contentHighlights';
 
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
@@ -29,6 +29,7 @@ describe('fetchEnterpriseCuration', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    axiosMock.reset();
   });
 
   it.each([
@@ -45,13 +46,43 @@ describe('fetchEnterpriseCuration', () => {
     if (enterpriseCuration) {
       expect(result).toEqual(enterpriseCuration);
     } else {
-      expect(result).toEqual(null);
+      expect(result).toBeNull();
     }
   });
 
-  it('catches 404 error and returns null', async () => {
-    axiosMock.onGet(HIGHLIGHTS_CONFIG_URL).reply(404);
+  it('catches 500 error and returns null', async () => {
+    axiosMock.onGet(HIGHLIGHTS_CONFIG_URL).reply(500);
     const result = await fetchEnterpriseCuration(mockEnterpriseId);
     expect(result).toBeNull();
+  });
+});
+
+describe('fetchContentHighlights', () => {
+  const queryParams = new URLSearchParams({
+    enterprise_customer: mockEnterpriseId,
+  });
+  const HIGHLIGHT_SETS_URL = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/highlight-sets/?${queryParams.toString()}`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('returns content highlights', async () => {
+    const mockResponse = {
+      results: [
+        { uuid: 'test-highlight-set-uuid-1' },
+        { uuid: 'test-highlight-set-uuid-2' },
+      ],
+    };
+    axiosMock.onGet(HIGHLIGHT_SETS_URL).reply(200, mockResponse);
+    const result = await fetchContentHighlights(mockEnterpriseId);
+    expect(result).toEqual(mockResponse.results);
+  });
+
+  it('catches error and returns empty list', async () => {
+    axiosMock.onGet(HIGHLIGHT_SETS_URL).reply(500);
+    const result = await fetchContentHighlights(mockEnterpriseId);
+    expect(result).toEqual([]);
   });
 });
