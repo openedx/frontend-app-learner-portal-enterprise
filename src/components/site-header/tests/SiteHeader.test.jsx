@@ -99,7 +99,7 @@ describe('<SiteHeader />', () => {
   });
   test('does not render link with logo to dashboard when search is disabled', () => {
     const mockEnterpriseCustomerWithDisabledSearch = enterpriseCustomerFactory({
-      disableSearch: true,
+      disable_search: true,
     });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledSearch });
     useEnterpriseLearner.mockReturnValue({

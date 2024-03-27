@@ -1,9 +1,10 @@
 import { queryLearnerProgramProgressData } from '../../app/data';
-import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
+import { ensureAuthenticatedUser } from '../../app/routes/data';
 
 export default function makeProgramProgressLoader(queryClient) {
   return async function programProgressLoader({ params = {}, request }) {
     const requestUrl = new URL(request.url);
+
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
     // User is not authenticated, so we can't do anything in this loader.
     if (!authenticatedUser) {
