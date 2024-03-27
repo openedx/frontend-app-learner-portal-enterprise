@@ -108,7 +108,7 @@ describe('<ProgramProgressSideBar />', () => {
     const imageElement = container.querySelector('.image-link');
     expect(screen.getByTestId('certificate-item')).toContainElement(imageElement);
     expect(container.querySelector('.sample-cert')).toHaveAttribute('src', progSampleCertImage);
-    expect(container.querySelector('.certificate-link')).toHaveAttribute('href', LMS_BASE_URL + testCourseCertificate.url);
+    expect(container.querySelector('.certificate-link')).toHaveAttribute('href', `${LMS_BASE_URL}${testCourseCertificate.url}`);
   });
 
   it('renders program record section correctly', () => {

@@ -69,14 +69,17 @@ const ProgramProgressSideBar = () => {
             />
           </h2>
           <ul className="certificate-list">
-            {courseCertificates.map((certificate) => (
-              <li key={uuidv4()} data-testid="certificate-item" className="certificate">
-                <a className="image-link" href={`${LMS_BASE_URL + certificate.url}`} aria-hidden="true" tabIndex="-1">
-                  <img src={progSampleCertImage} className="sample-cert" alt="" />
-                </a>
-                <a className="certificate-link" href={`${LMS_BASE_URL + certificate.url}`}> {certificate.title} </a>
-              </li>
-            ))}
+            {courseCertificates.map((certificate) => {
+              const certificatesUrl = `${LMS_BASE_URL}${certificate.url}`;
+              return (
+                <li key={uuidv4()} data-testid="certificate-item" className="certificate">
+                  <a className="image-link" href={certificatesUrl} aria-hidden="true" tabIndex="-1">
+                    <img src={progSampleCertImage} className="sample-cert" alt="" />
+                  </a>
+                  <a className="certificate-link" href={certificatesUrl}> {certificate.title} </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
