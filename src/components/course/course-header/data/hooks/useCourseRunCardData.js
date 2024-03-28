@@ -36,6 +36,7 @@ const useCourseRunCardData = ({
   const isUserEnrolled = !!userEnrollment;
   const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
     currentRouteUrl: pathname,
+    selectedCourseRunKey: courseRun.key,
   });
 
   // Get and return course run card data for display

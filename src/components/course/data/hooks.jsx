@@ -352,6 +352,7 @@ export const useCourseEnrollmentUrl = ({
       if (isExecutiveEducation2UCourse) {
         const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
           currentRouteUrl: pathname,
+          selectedCourseRunKey: courseRunKey,
         });
         return externalCourseEnrollmentUrl;
       }
