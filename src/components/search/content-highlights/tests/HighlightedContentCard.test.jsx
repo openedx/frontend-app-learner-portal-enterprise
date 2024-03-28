@@ -1,5 +1,5 @@
 import { AppContext } from '@edx/frontend-platform/react';
-import { shallow } from 'enzyme';
+import { shallow } from '@edx/react-unit-test-utils';
 import { screen } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -36,7 +36,7 @@ describe('HighlightedContentCard', () => {
         <HighlightedContentCard />
       </AppContext.Provider>,
     );
-    expect(wrapper.exists()).toBe(true);
+    expect(wrapper).toBeTruthy();
   });
   it('renders with data', () => {
     useHighlightedContentCardData.mockReturnValue({

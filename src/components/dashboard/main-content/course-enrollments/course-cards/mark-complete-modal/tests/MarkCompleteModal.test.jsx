@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -30,47 +30,49 @@ describe('<MarkCompleteModal />', () => {
           course_run_status: 'completed',
         },
       }));
-    const wrapper = mount((
+    render((
       <AppContext.Provider value={{ enterpriseConfig }}>
         <MarkCompleteModal
           {...initialProps}
         />
       </AppContext.Provider>
     ));
-    wrapper.find('.confirm-mark-complete-btn').hostNodes().simulate('click');
+    const buttonElement = screen.getAllByRole('button');
+    fireEvent.click(buttonElement[buttonElement.length - 1]);
     expect(service.updateCourseCompleteStatusRequest).toBeCalledWith({
       course_id: initialProps.courseId,
       enterprise_id: enterpriseConfig.uuid,
       saved_for_later: true,
     });
-    expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual(MARK_SAVED_FOR_LATER_PENDING_LABEL);
+    expect(buttonElement[buttonElement.length - 1].textContent).toEqual(MARK_SAVED_FOR_LATER_PENDING_LABEL);
   });
 
   it('handles confirm click with error', async () => {
     // eslint-disable-next-line no-import-assign
     service.markCourseAsCompleteRequest = jest.fn()
       .mockImplementation(() => Promise.reject(new Error('test error')));
-    const wrapper = mount((
+    render((
       <AppContext.Provider value={{ enterpriseConfig }}>
         <MarkCompleteModal
           {...initialProps}
         />
       </AppContext.Provider>
     ));
+    const buttonElement = screen.getAllByRole('button');
     await act(async () => {
-      wrapper.find('.confirm-mark-complete-btn').hostNodes().simulate('click');
+      fireEvent.click(buttonElement[buttonElement.length - 1]);
     });
     expect(service.updateCourseCompleteStatusRequest).toBeCalledWith({
       course_id: initialProps.courseId,
       enterprise_id: enterpriseConfig.uuid,
       saved_for_later: true,
     });
-    expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual(MARK_SAVED_FOR_LATER_DEFAULT_LABEL);
+    expect(buttonElement[buttonElement.length - 1].textContent).toEqual(MARK_SAVED_FOR_LATER_DEFAULT_LABEL);
   });
 
   it('handles close modal', () => {
     const mockOnClose = jest.fn();
-    const wrapper = mount((
+    render((
       <AppContext.Provider value={{ enterpriseConfig }}>
         <MarkCompleteModal
           {...initialProps}
@@ -78,8 +80,9 @@ describe('<MarkCompleteModal />', () => {
         />
       </AppContext.Provider>
     ));
+    const buttonElement = screen.getAllByRole('button');
     act(() => {
-      wrapper.find('.modal-footer button.btn-link').hostNodes().simulate('click');
+      fireEvent.click(buttonElement[1]);
     });
     expect(mockOnClose).toBeCalledTimes(1);
   });

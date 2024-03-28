@@ -1,12 +1,9 @@
 import React, { useContext } from 'react';
-import { mount } from 'enzyme';
-import { ErrorPage, AppContext } from '@edx/frontend-platform/react';
+import { render, screen } from '@testing-library/react';
+import { AppContext } from '@edx/frontend-platform/react';
 import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import EnterprisePage from './EnterprisePage';
-import { LoadingSpinner } from '../loading-spinner';
-import NotFoundPage from '../NotFoundPage';
-import LicenseNotFound from '../license-activation/LicenseNotFound';
 import * as hooks from './data/hooks';
 import { queryCacheOnErrorHandler } from '../../utils/common';
 
@@ -50,43 +47,23 @@ describe('<EnterprisePage />', () => {
     it('while fetching enterprise config', () => {
       // mock hook as if async call to fetch enterprise config is still resolving
       jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [undefined, undefined]);
-      const wrapper = mount(
+      const wrapper = render(
         <EnterprisePageWrapper>
           <div className="did-i-render" />
         </EnterprisePageWrapper>,
       );
-      expect(wrapper.find(LoadingSpinner)).toBeTruthy();
+      expect(wrapper.container.querySelector('.loading-spinner')).toBeTruthy();
     });
     it('while hydrating user metadata', () => {
       // mock hook as if async call to fetch enterprise config is fully resolved
       jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [{}, undefined]);
-      const wrapper = mount(
+      const wrapper = render(
         <EnterprisePageWrapper appContextValue={{ authenticatedUser: {} }}>
           <div className="did-i-render" />
         </EnterprisePageWrapper>,
       );
-      expect(wrapper.find(LoadingSpinner)).toBeTruthy();
+      expect(wrapper.container.querySelector('.loading-spinner')).toBeTruthy();
     });
-  });
-  it('renders error state when unable to fetch enterprise config', () => {
-    // mock hook as if async call to fetch enterprise config is fully resolved
-    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, new Error('test error')]);
-    const wrapper = mount(
-      <EnterprisePageWrapper>
-        <div className="did-i-render" />
-      </EnterprisePageWrapper>,
-    );
-    expect(wrapper.find(ErrorPage)).toBeTruthy();
-  });
-  it('renders not found page when no enterprise config is found', () => {
-    // mock hook as if async call to fetch enterprise config is fully resolved
-    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
-    const wrapper = mount(
-      <EnterprisePageWrapper>
-        <div className="did-i-render" />
-      </EnterprisePageWrapper>,
-    );
-    expect(wrapper.find(NotFoundPage)).toBeTruthy();
   });
   it('populates AppContext with expected values', () => {
     const mockEnterpriseConfig = {
@@ -100,15 +77,15 @@ describe('<EnterprisePage />', () => {
 
     const ChildComponent = () => {
       const contextValue = useContext(AppContext);
-      return <div className="did-i-render" data-contextvalue={contextValue} />;
+      return <div className="did-i-render" data-contextvalue={JSON.stringify(contextValue)} />;
     };
-    const wrapper = mount(
+    const wrapper = render(
       <EnterprisePageWrapper>
         <ChildComponent />
       </EnterprisePageWrapper>,
     );
 
-    const actualContextValue = wrapper.find('.did-i-render').prop('data-contextvalue');
+    const actualContextValue = JSON.parse(wrapper.container.querySelector('.did-i-render').getAttribute('data-contextvalue'));
     expect(actualContextValue).toEqual(
       expect.objectContaining({
         authenticatedUser: mockUser,
@@ -128,25 +105,59 @@ describe('<EnterprisePage />', () => {
       }),
     );
   });
-  it('renders error page when there is a fetch error', () => {
-    const errorMessage = 'Test fetch error';
-    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, new Error(errorMessage)]);
-    const wrapper = mount(
+  it('renders error state when unable to fetch enterprise config', () => {
+    // mock hook as if async call to fetch enterprise config is fully resolved
+    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, new Error('test error')]);
+    render(
       <EnterprisePageWrapper>
         <div className="did-i-render" />
       </EnterprisePageWrapper>,
     );
-    expect(wrapper.find(ErrorPage).prop('message')).toEqual(errorMessage);
+    expect(screen.getByTestId('error-page')).toBeTruthy();
+  });
+  it('renders not found page when no enterprise config is found', () => {
+    // mock hook as if async call to fetch enterprise config is fully resolved
+    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
+    render(
+      <EnterprisePageWrapper>
+        <div className="did-i-render" />
+      </EnterprisePageWrapper>,
+    );
+    expect(screen.getByTestId('not-found-page')).toBeTruthy();
+  });
+  it('renders error page when there is a fetch error', () => {
+    const errorMessage = 'Test fetch error';
+    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, new Error(errorMessage)]);
+    const wrapper = render(
+      <EnterprisePageWrapper>
+        <div className="did-i-render" />
+      </EnterprisePageWrapper>,
+    );
+    expect(wrapper.getByTestId('error-page')).toBeTruthy();
   });
 
   it('renders not found page when enterprise config is defined and null', () => {
     jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
-    const wrapper = mount(
+    render(
       <EnterprisePageWrapper>
         <div className="did-i-render" />
       </EnterprisePageWrapper>,
     );
-    expect(wrapper.find(NotFoundPage)).toBeTruthy();
+    expect(screen.getByTestId('not-found-page')).toBeTruthy();
+  });
+
+  it('renders LicenseNotFound page when license activatio n pattern is matched', () => {
+    // Mocking window.location.href to simulate a URL containing the license activation pattern
+    delete window.location;
+    window.location = { href: 'https://example.com/licenses/12345678-1234-5678-1234-567812345678/activate' };
+
+    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
+    render(
+      <EnterprisePageWrapper>
+        <div className="did-i-render" />
+      </EnterprisePageWrapper>,
+    );
+    expect(screen.getByTestId('license-not-found-page')).toBeTruthy();
   });
 
   it('renders LicenseNotFound page when license activation pattern is matched', () => {
@@ -155,11 +166,11 @@ describe('<EnterprisePage />', () => {
     window.location = { href: 'https://example.com/licenses/12345678-1234-5678-1234-567812345678/activate' };
 
     jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
-    const wrapper = mount(
+    render(
       <EnterprisePageWrapper>
         <div className="did-i-render" />
       </EnterprisePageWrapper>,
     );
-    expect(wrapper.find(LicenseNotFound)).toBeTruthy();
+    expect(screen.getByTestId('license-not-found-page')).toBeTruthy();
   });
 });

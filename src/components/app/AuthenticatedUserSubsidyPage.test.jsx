@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow } from '@edx/react-unit-test-utils';
 import '@testing-library/jest-dom/extend-expect';
 
 import AuthenticatedUserSubsidyPage from './AuthenticatedUserSubsidyPage';
@@ -16,15 +16,15 @@ describe('<AuthenticatedUserSubsidyPage />', () => {
     );
   });
   it('renders <AuthenticatedPage>', () => {
-    expect(wrapper.find(AuthenticatedPage)).toBeTruthy();
+    expect(wrapper.instance.findByType(AuthenticatedPage)).toBeTruthy();
   });
   it('renders <UserSubsidy>', () => {
-    expect(wrapper.find(UserSubsidy)).toBeTruthy();
+    expect(wrapper.instance.findByType(UserSubsidy)).toBeTruthy();
   });
   it('renders <AutoActivateLicense>', () => {
-    expect(wrapper.find(AutoActivateLicense)).toBeTruthy();
+    expect(wrapper.instance.findByType(AutoActivateLicense)).toBeTruthy();
   });
   it('renders children', () => {
-    expect(wrapper.find('div.did-i-render')).toBeTruthy();
+    expect(wrapper.instance.findByType('div.did-i-render')).toBeTruthy();
   });
 });
