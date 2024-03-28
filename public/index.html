@@ -1,30 +1,35 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <base href="/" />
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="<%=htmlWebpackPlugin.options.FAVICON_URL%>" type="image/x-icon" />
 
-    <% _.forEach(htmlWebpackPlugin.options.preconnect, function(preconnectURL) { %>
-      <!-- Include preconnect resource hint -->
-      <link rel="preconnect" href="<%= preconnectURL %>" />
-      <!-- Include preconnect resource hint with crossorigin, should the resource use CORS  -->
-      <link rel="preconnect" href="<%= preconnectURL %>" crossorigin />
-      <!-- Fallback to dns-prefetch resource hint if preconnect is not supported by browser -->
-      <link rel="dns-prefetch" href="<%= preconnectURL %>" />
+<head>
+  <base href="/" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="<%=htmlWebpackPlugin.options.FAVICON_URL%>" type="image/x-icon" />
+
+  <% _.forEach(htmlWebpackPlugin.options.preconnect, function(preconnectURL) { %>
+    <!-- Include preconnect resource hint -->
+    <link rel="preconnect" href="<%= preconnectURL %>" />
+    <!-- Include preconnect resource hint with crossorigin, should the resource use CORS  -->
+    <link rel="preconnect" href="<%= preconnectURL %>" crossorigin />
+    <!-- Fallback to dns-prefetch resource hint if preconnect is not supported by browser -->
+    <link rel="dns-prefetch" href="<%= preconnectURL %>" />
     <% }); %>
 
-    <% if (htmlWebpackPlugin.options.NODE_ENV==='production' && htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID &&
-            htmlWebpackPlugin.options.DEPLOYMENT_ENV==='production') { %>
-      <script src="https://www.edx.org/optimizelyjs/<%= htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID %>.js"></script>
-    <% } %>
+      <% if (htmlWebpackPlugin.options.NODE_ENV==='production' && htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID &&
+        htmlWebpackPlugin.options.DEPLOYMENT_ENV==='production' ) { %>
+        <script src="https://www.edx.org/optimizelyjs/<%= htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID %>.js"
+          async="async"></script>
+        <% } %>
 
-    <% if (htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID) { %>
-      <script src="https://cdn.optimizely.com/js/<%= htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID %>.js"></script>
-    <% } %>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+          <% if (htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID) { %>
+            <script src="https://cdn.optimizely.com/js/<%= htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID %>.js"
+              async="async"></script>
+            <% } %>
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
 </html>
