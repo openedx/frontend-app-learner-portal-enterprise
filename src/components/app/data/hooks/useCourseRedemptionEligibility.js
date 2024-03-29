@@ -19,9 +19,6 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
     ...queryOptionsRest,
     ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, isEnrollableBufferDays),
     select: (data) => {
-      if (select) {
-        return select(data);
-      }
       const redeemabilityForActiveCourseRun = data.find(r => r.contentKey === courseMetadata.activeCourseRun?.key);
       const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
       const preferredSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
@@ -36,7 +33,7 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
       const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || otherSubsidyAccessPolicy;
       const isPolicyRedemptionEnabled = hasSuccessfulRedemption || !!redeemableSubsidyAccessPolicy;
 
-      return {
+      const transformedData = {
         isPolicyRedemptionEnabled,
         redeemabilityPerContentKey: data,
         redeemableSubsidyAccessPolicy,
@@ -44,6 +41,13 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
         hasSuccessfulRedemption,
         listPrice,
       };
+      if (select) {
+        return select({
+          original: data,
+          transformed: transformedData,
+        });
+      }
+      return transformedData;
     },
   });
 }

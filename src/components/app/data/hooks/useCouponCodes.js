@@ -14,9 +14,6 @@ export default function useCouponCodes(queryOptions = {}) {
     ...queryCouponCodes(enterpriseCustomer.uuid),
     ...queryOptionsRest,
     select: (data) => {
-      if (select) {
-        return select(data);
-      }
       const transformedResults = data.couponCodeAssignments.map((couponCode) => ({
         ...couponCode,
         available: hasValidStartExpirationDates({
@@ -25,6 +22,12 @@ export default function useCouponCodes(queryOptions = {}) {
         }),
       }));
       const transformedData = { ...data, couponCodeAssignments: transformedResults };
+      if (select) {
+        return select({
+          original: data,
+          transformed: transformedData,
+        });
+      }
       return transformedData;
     },
   });

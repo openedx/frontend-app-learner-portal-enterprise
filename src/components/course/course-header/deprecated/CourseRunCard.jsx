@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import { useLocation } from 'react-router-dom';
@@ -18,14 +18,20 @@ import {
   getCourseStartDate,
 } from '../../data/utils';
 import { formatStringAsNumber } from '../../../../utils/common';
-import { useSubsidyDataForCourse } from '../../enrollment/hooks';
 import {
+  useCanUserRequestSubsidyForCourse,
   useCourseEnrollmentUrl,
   useUserHasSubsidyRequestForCourse,
+  useUserSubsidyApplicableToCourse,
 } from '../../data/hooks';
 import { determineEnrollmentType } from '../../enrollment/utils';
-import { CourseContext } from '../../CourseContextProvider';
-import { COURSE_AVAILABILITY_MAP, isArchived, useEnterpriseCustomer } from '../../../app/data';
+import {
+  COURSE_AVAILABILITY_MAP,
+  isArchived,
+  useCourseMetadata,
+  useEnterpriseCustomer,
+  useSubscriptions,
+} from '../../../app/data';
 
 const DATE_FORMAT = 'MMM D';
 
@@ -56,14 +62,10 @@ const CourseRunCard = ({
 
   const location = useLocation();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const {
-    state: {
-      course,
-    },
-    userCanRequestSubsidyForCourse,
-  } = useContext(CourseContext);
+  const { data: courseMetadata } = useCourseMetadata();
+  const userCanRequestSubsidyForCourse = useCanUserRequestSubsidyForCourse();
 
-  const courseStartDate = getCourseStartDate({ contentMetadata: course, courseRun });
+  const courseStartDate = getCourseStartDate({ contentMetadata: courseMetadata, courseRun });
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(courseStartDate),
@@ -84,10 +86,9 @@ const CourseRunCard = ({
     [userEnrollments, key],
   );
 
-  const {
-    subscriptionLicense,
-    userSubsidyApplicableToCourse,
-  } = useSubsidyDataForCourse();
+  const { data: { subscriptionLicense } } = useSubscriptions();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+
   const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
 
   const sku = useMemo(

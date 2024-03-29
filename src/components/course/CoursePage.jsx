@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
@@ -13,15 +13,20 @@ import {
 const CoursePage = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
-
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
+  const [externalCourseFormSubmissionError, setExternalCourseFormSubmissionError] = useState(null);
 
   const contextValue = useMemo(() => ({
     algoliaSearchParams,
-  }), [algoliaSearchParams]);
+    externalCourseFormSubmissionError,
+    setExternalCourseFormSubmissionError,
+  }), [
+    algoliaSearchParams,
+    externalCourseFormSubmissionError,
+  ]);
 
   // If there isn't an active course run we don't show the course at all
-  if (!courseMetadata?.activeCourseRun) {
+  if (!courseMetadata.activeCourseRun) {
     return <NotFoundPage />;
   }
 

@@ -23,7 +23,7 @@ export default function useContentHighlightsConfiguration(queryOptions = {}) {
 export function useCanOnlyViewHighlights() {
   return useContentHighlightsConfiguration({
     select: (data) => {
-      if (!data || !data.isHighlightFeatureActive) {
+      if (!data?.isHighlightFeatureActive) {
         return false;
       }
       return data.canOnlyViewHighlightSets;

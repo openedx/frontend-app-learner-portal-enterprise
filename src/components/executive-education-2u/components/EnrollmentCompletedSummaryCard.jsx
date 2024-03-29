@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   Card, Col, Hyperlink, Row,
@@ -11,7 +11,7 @@ const EnrollmentCompletedSummaryCard = ({
   isCourseAssigned,
   externalDashboardUrl,
   dashboardUrl,
-  getStudnetTCUrl,
+  getStudentTCUrl,
 }) => (
   <Card className="bg-light-500">
     <Row className="my-3">
@@ -53,12 +53,9 @@ const EnrollmentCompletedSummaryCard = ({
                       values={{
                         // eslint-disable-next-line react/no-unstable-nested-components
                         a: (chunks) => (
-                          <Hyperlink
-                            destination={dashboardUrl}
-                            target="_blank"
-                          >
+                          <Link to={dashboardUrl}>
                             {chunks}
-                          </Hyperlink>
+                          </Link>
                         ),
                       }}
                     />
@@ -109,7 +106,7 @@ const EnrollmentCompletedSummaryCard = ({
                   // eslint-disable-next-line react/no-unstable-nested-components
                   a: (chunks) => (
                     <Hyperlink
-                      destination={getStudnetTCUrl}
+                      destination={getStudentTCUrl}
                       target="_blank"
                     >
                       {chunks}
@@ -129,7 +126,7 @@ EnrollmentCompletedSummaryCard.propTypes = {
   isCourseAssigned: PropTypes.bool.isRequired,
   externalDashboardUrl: PropTypes.string.isRequired,
   dashboardUrl: PropTypes.string.isRequired,
-  getStudnetTCUrl: PropTypes.string.isRequired,
+  getStudentTCUrl: PropTypes.string.isRequired,
 };
 
 export default EnrollmentCompletedSummaryCard;

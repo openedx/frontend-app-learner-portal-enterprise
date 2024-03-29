@@ -12,35 +12,47 @@ import { CourseContext } from '../CourseContextProvider';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import RegistrationSummaryCard from '../../executive-education-2u/components/RegistrationSummaryCard';
 import UserEnrollmentForm from '../../executive-education-2u/UserEnrollmentForm';
-import { useExternalEnrollmentFailureReason, useIsCourseAssigned, useMinimalCourseMetadata } from '../data/hooks';
+import {
+  useExternalEnrollmentFailureReason,
+  useIsCourseAssigned,
+  useMinimalCourseMetadata,
+  useUserSubsidyApplicableToCourse,
+} from '../data/hooks';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { features } from '../../../config';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useCourseMetadata, useCourseRedemptionEligibility, useEnterpriseCustomer } from '../../app/data';
 
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { externalCourseFormSubmissionError } = useContext(CourseContext);
   const {
-    state: {
+    data: {
+      courseMetadata,
       activeCourseRun,
       courseEntitlementProductSku,
-      course,
     },
-    userSubsidyApplicableToCourse,
-    hasSuccessfulRedemption,
-    externalCourseFormSubmissionError,
-  } = useContext(CourseContext);
+  } = useCourseMetadata({
+    select: ({ transformed }) => ({
+      courseMetadata: transformed,
+      activeCourseRun: transformed.activeCourseRun,
+      courseEntitlementProductSku: transformed.courseEntitlementProductSku,
+    }),
+  });
+  const { data: { hasSuccessfulRedemption } } = useCourseRedemptionEligibility();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
   const completeEnrollmentUrl = generatePath(
       `${pathname}/complete`,
-      { enterpriseSlug: enterpriseCustomer.slug, courseType: course.courseType, courseKey: course.key },
+      {
+        enterpriseSlug: enterpriseCustomer.slug,
+        courseType: courseMetadata.courseType,
+        courseKey: courseMetadata.key,
+      },
   );
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies.learnerContentAssignments, course?.key);
-
-  const courseMetadata = useMinimalCourseMetadata();
+  const isCourseAssigned = useIsCourseAssigned();
+  const minimalCourseMetadata = useMinimalCourseMetadata();
 
   const externalDashboardQueryParams = new URLSearchParams();
   if (enterpriseCustomer.authOrgId) {
@@ -150,8 +162,8 @@ const ExternalCourseEnrollment = () => {
                     )}
                 </p>
               )}
-              <CourseSummaryCard courseMetadata={courseMetadata} />
-              <RegistrationSummaryCard priceDetails={courseMetadata.priceDetails} />
+              <CourseSummaryCard courseMetadata={minimalCourseMetadata} />
+              <RegistrationSummaryCard priceDetails={minimalCourseMetadata.priceDetails} />
               <UserEnrollmentForm
                 productSKU={courseEntitlementProductSku}
                 activeCourseRun={activeCourseRun}

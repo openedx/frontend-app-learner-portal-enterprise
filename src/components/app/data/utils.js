@@ -6,7 +6,7 @@ import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { getBrandColorsFromCSSVariables } from '../../../utils/common';
 import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
-import { COURSE_AVAILABILITY_MAP } from './constants';
+import { COURSE_AVAILABILITY_MAP, COURSE_MODES_MAP } from './constants';
 import { features } from '../../../config';
 
 /**
@@ -531,4 +531,43 @@ export function getSearchCatalogs({
 
   // Convert Set back to array
   return Array.from(catalogUUIDs);
+}
+
+const getBestCourseMode = (courseModes) => {
+  const {
+    VERIFIED,
+    PROFESSIONAL,
+    NO_ID_PROFESSIONAL,
+    AUDIT,
+    HONOR,
+    PAID_EXECUTIVE_EDUCATION,
+  } = COURSE_MODES_MAP;
+
+  // Returns the 'highest' course mode available.
+  // Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit', 'honor', 'paid-executive-education']
+  const courseModesByRank = [VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, PAID_EXECUTIVE_EDUCATION, AUDIT, HONOR];
+  const bestCourseMode = courseModesByRank.find((courseMode) => courseModes.includes(courseMode));
+  return bestCourseMode || null;
+};
+
+/**
+ * Returns the first seat found from the preferred course mode.
+ */
+export function findHighestLevelSkuByEntityModeType(seatsOrEntitlements, getModeType) {
+  const courseModes = seatsOrEntitlements.map(getModeType);
+  const courseMode = getBestCourseMode(courseModes);
+  if (courseMode) {
+    return seatsOrEntitlements.find(entity => getModeType(entity) === courseMode)?.sku;
+  }
+  return null;
+}
+
+/**
+ * Returns the first entitlement found from the preferred course mode
+ */
+export function findHighestLevelEntitlementSku(entitlements) {
+  if (!entitlements || entitlements.length <= 0) {
+    return null;
+  }
+  return findHighestLevelSkuByEntityModeType(entitlements, entitlement => entitlement.mode);
 }

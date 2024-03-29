@@ -34,7 +34,6 @@ import {
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useIsAssignmentsOnlyLearner,
-  useRedeemablePolicies,
 } from '../../app/data';
 
 const CourseHeader = () => {
@@ -42,11 +41,10 @@ const CourseHeader = () => {
   const { courseKey } = useParams();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
-  const { data: { learnerContentAssignments } } = useRedeemablePolicies();
   const { data: { isPolicyRedemptionEnabled } } = useCourseRedemptionEligibility();
   const { data: { containsContentItems } } = useEnterpriseCustomerContainsContent([courseKey]);
   const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();
-  const isCourseAssigned = useIsCourseAssigned(learnerContentAssignments, courseMetadata.key);
+  const isCourseAssigned = useIsCourseAssigned();
   const isCourseArchived = courseMetadata.courseRuns.every((courseRun) => isArchived(courseRun));
   const [partners] = useCoursePartners(courseMetadata);
   const defaultProgram = useMemo(

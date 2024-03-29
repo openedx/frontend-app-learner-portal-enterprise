@@ -682,9 +682,9 @@ export const useUserSubsidyApplicableToCourse = () => {
       contactEmail,
     },
   } = useEnterpriseCustomer({
-    select: (data) => ({
-      fallbackAdminUsers: data.adminUsers.map(user => user.email),
-      contactEmail: data.contactEmail,
+    select: ({ transformed }) => ({
+      fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
+      contactEmail: transformed.contactEmail,
     }),
   });
   const { data: courseListPrice } = useCourseListPrice();
@@ -796,51 +796,44 @@ export function useCanUserRequestSubsidyForCourse() {
 }
 
 export const useMinimalCourseMetadata = () => {
-  const {
-    state: {
-      activeCourseRun,
-      course,
+  const { coursePrice, currency } = useCoursePrice();
+  return useCourseMetadata({
+    select: ({ transformed }) => {
+      const { activeCourseRun } = transformed;
+      const organizationDetails = getCourseOrganizationDetails(transformed);
+      const getDuration = () => {
+        if (!activeCourseRun) {
+          return '-';
+        }
+        let duration = `${activeCourseRun.weeksToComplete} Week`;
+        if (activeCourseRun.weeksToComplete > 1) {
+          duration += 's';
+        }
+        return duration;
+      };
+      const minimalCourseMetadata = {
+        organization: {
+          logoImgUrl: organizationDetails.organizationLogo,
+          name: organizationDetails.organizationName,
+          marketingUrl: organizationDetails.organizationMarketingUrl,
+        },
+        title: transformed.title,
+        startDate: getCourseStartDate({ contentMetadata: transformed, courseRun: activeCourseRun }),
+        duration: getDuration(),
+        priceDetails: {
+          price: coursePrice.list,
+          currency,
+        },
+      };
+      return minimalCourseMetadata;
     },
-    coursePrice,
-    currency,
-  } = useContext(CourseContext);
-  const organizationDetails = getCourseOrganizationDetails(course);
-
-  const getDuration = () => {
-    if (!activeCourseRun) {
-      return '-';
-    }
-    let duration = `${activeCourseRun.weeksToComplete} Week`;
-    if (activeCourseRun.weeksToComplete > 1) {
-      duration += 's';
-    }
-    return duration;
-  };
-
-  const courseMetadata = {
-    organization: {
-      logoImgUrl: organizationDetails.organizationLogo,
-      name: organizationDetails.organizationName,
-      marketingUrl: organizationDetails.organizationMarketingUrl,
-    },
-    title: course.title,
-    startDate: getCourseStartDate({ contentMetadata: course, courseRun: activeCourseRun }),
-    duration: getDuration(),
-    priceDetails: {
-      price: coursePrice.list,
-      currency,
-    },
-  };
-  return courseMetadata;
+  });
 };
 
 export const useExternalEnrollmentFailureReason = () => {
   const intl = useIntl();
-  const {
-    userSubsidyApplicableToCourse,
-    missingUserSubsidyReason,
-    hasSuccessfulRedemption,
-  } = useContext(CourseContext);
+  const { userSubsidyApplicableToCourse, missingUserSubsidyReason } = useUserSubsidyApplicableToCourse();
+  const { data: { hasSuccessfulRedemption } } = useCourseRedemptionEligibility();
   return useMemo(() => {
     if (userSubsidyApplicableToCourse || hasSuccessfulRedemption) {
       return {};

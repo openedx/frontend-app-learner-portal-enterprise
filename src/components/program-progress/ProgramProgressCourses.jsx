@@ -1,4 +1,3 @@
-import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   Form, Col, Row,
@@ -6,35 +5,23 @@ import {
 import { CheckCircle } from '@openedx/paragon/icons';
 
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import {
   courseUpgradeAvailable,
   getCertificatePriceString,
   getEnrolledCourseRunDetails,
   getNotStartedCourseDetails,
-  hasLicenseOrCoupon,
 } from './data/utils';
 import { getLinkToCourse } from '../course/data/utils';
 import dayjs from '../../utils/dayjs';
-import { useEnterpriseCustomer } from '../app/data';
+import { useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests } from '../app/data';
 
 const ProgramProgressCourses = ({ courseData }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodesCount },
-  } = useContext(UserSubsidyContext);
-
-  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
-
-  const userHasLicenseOrCoupon = hasLicenseOrCoupon({
-    requestsBySubsidyType,
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodesCount,
-  });
+    hasActiveLicenseOrLicenseRequest,
+    hasAssignedCodesOrCodeRequests,
+  } = useHasAvailableSubsidiesOrRequests();
+  const userHasLicenseOrCoupon = hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 
   let coursesCompleted = [];
   let coursesInProgress = [];

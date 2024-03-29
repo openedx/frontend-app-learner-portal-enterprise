@@ -11,7 +11,10 @@ export default function useEnterpriseCustomer(queryOptions = {}) {
     ...queryOptionsRest,
     select: (enterpriseLearner) => {
       if (select) {
-        return select(enterpriseLearner.enterpriseCustomer);
+        return select({
+          original: enterpriseLearner,
+          transformed: enterpriseLearner.enterpriseCustomer,
+        });
       }
       return enterpriseLearner.enterpriseCustomer;
     },

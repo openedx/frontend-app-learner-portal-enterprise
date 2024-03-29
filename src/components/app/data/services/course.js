@@ -3,7 +3,10 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
-import { getActiveCourseRun } from '../utils';
+import {
+  findHighestLevelEntitlementSku,
+  getActiveCourseRun,
+} from '../utils';
 
 /**
  * TODO
@@ -26,6 +29,7 @@ export async function fetchCourseMetadata(courseKey, courseRunKey) {
     // returned `activeCourseRun` is used for display regardless of the course run key (e.g.,
     // for some of the course sidebar items).
     transformedData.activeCourseRun = getActiveCourseRun(transformedData);
+    transformedData.courseEntitlementProductSku = findHighestLevelEntitlementSku(transformedData.entitlements);
 
     const courseRunKeys = transformedData.courseRuns.map(({ key }) => key);
     if (courseRunKey && courseRunKeys.includes(courseRunKey)) {

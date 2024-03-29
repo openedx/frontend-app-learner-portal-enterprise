@@ -20,7 +20,7 @@ import { useStatefulEnroll } from '../stateful-enroll/data';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
 import { enterpriseUserSubsidyQueryKeys } from '../enterprise-user-subsidy/data/constants';
-import { useEnterpriseCustomer } from '../app/data';
+import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../app/data';
 
 const UserEnrollmentForm = ({
   className,
@@ -36,10 +36,8 @@ const UserEnrollmentForm = ({
     authenticatedUser: { userId, email: userEmail },
   } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
   const {
-    state: {
-      userEnrollments,
-    },
     externalCourseFormSubmissionError,
     setExternalCourseFormSubmissionError,
   } = useContext(CourseContext);
@@ -74,7 +72,7 @@ const UserEnrollmentForm = ({
       setEnrollButtonState('error');
       logError(error);
     },
-    userEnrollments,
+    userEnrollments: enterpriseCourseEnrollments,
   });
 
   const handleFormValidation = (values) => {

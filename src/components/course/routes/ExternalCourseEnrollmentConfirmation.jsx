@@ -1,5 +1,5 @@
-import { React, useContext } from 'react';
-import { Button, Container, Hyperlink } from '@openedx/paragon';
+import { Link } from 'react-router-dom';
+import { Button, Container } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
@@ -7,17 +7,10 @@ import { useExternalEnrollmentFailureReason, useIsCourseAssigned, useMinimalCour
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import EnrollmentCompletedSummaryCard from '../../executive-education-2u/components/EnrollmentCompletedSummaryCard';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
-import { CourseContext } from '../CourseContextProvider';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { useEnterpriseCustomer } from '../../app/data';
 
 const ExternalCourseEnrollmentConfirmation = () => {
-  const courseMetadata = useMinimalCourseMetadata();
-  const {
-    state: {
-      course,
-    },
-  } = useContext(CourseContext);
+  const minimalCourseMetadata = useMinimalCourseMetadata();
   const {
     failureReason,
     failureMessage,
@@ -25,8 +18,7 @@ const ExternalCourseEnrollmentConfirmation = () => {
 
   const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies.learnerContentAssignments, course?.key);
+  const isCourseAssigned = useIsCourseAssigned();
   const externalDashboardQueryParams = new URLSearchParams({
     org_id: enterpriseCustomer.authOrgId,
   });
@@ -34,7 +26,7 @@ const ExternalCourseEnrollmentConfirmation = () => {
   const externalDashboardUrl = `${config.GETSMARTER_LEARNER_DASHBOARD_URL}${externalDashboardQueryString ?? ''}`;
   const enterpriseSlug = `/${enterpriseCustomer.slug}`;
   const dashboardUrl = `${config.BASE_URL}${enterpriseSlug}`;
-  const getStudnetTCUrl = config.GETSMARTER_STUDENT_TC_URL;
+  const getStudentTCUrl = config.GETSMARTER_STUDENT_TC_URL;
   return (
     <div className="fill-vertical-space page-light-bg">
       {failureReason ? (
@@ -53,7 +45,7 @@ const ExternalCourseEnrollmentConfirmation = () => {
             />
           </h2>
           <Button
-            as={Hyperlink}
+            as={Link}
             className="mb-3 ml-auto"
             destination={dashboardUrl}
           >
@@ -64,14 +56,14 @@ const ExternalCourseEnrollmentConfirmation = () => {
             />
           </Button>
           <CourseSummaryCard
-            courseMetadata={courseMetadata}
+            courseMetadata={minimalCourseMetadata}
             enrollmentCompleted
           />
           <EnrollmentCompletedSummaryCard
             isCourseAssigned={isCourseAssigned}
             externalDashboardUrl={externalDashboardUrl}
             dashboardUrl={dashboardUrl}
-            getStudnetTCUrl={getStudnetTCUrl}
+            getStudentTCUrl={getStudentTCUrl}
           />
         </Container>
       )}
