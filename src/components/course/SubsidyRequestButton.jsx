@@ -31,17 +31,7 @@ const SubsidyRequestButton = () => {
   const { data: browseAndRequestConfiguration } = useBrowseAndRequestConfiguration();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
   const subsidyRequestCatalogsApplicableToCourse = useBrowseAndRequestCatalogsApplicableToCourse();
-  const {
-    data: {
-      courseKey,
-      courseRunKeys,
-    },
-  } = useCourseMetadata({
-    select: (data) => ({
-      courseKey: data.key,
-      courseRunKeys: data.courseRunKeys,
-    }),
-  });
+  const { data: courseMetadata } = useCourseMetadata();
   const {
     data: {
       enterpriseCourseEnrollments: userEnrollments,
@@ -53,18 +43,18 @@ const SubsidyRequestButton = () => {
    */
   const isUserEnrolled = useMemo(
     () => {
-      if (courseRunKeys) {
-        const enrollments = courseRunKeys.filter(
+      if (courseMetadata.courseRunKeys) {
+        const enrollments = courseMetadata.courseRunKeys.filter(
           (key) => findUserEnrollmentForCourseRun({ userEnrollments, key }),
         );
         return enrollments.length > 0;
       }
       return false;
     },
-    [courseRunKeys, userEnrollments],
+    [courseMetadata.courseRunKeys, userEnrollments],
   );
 
-  const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseKey);
+  const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseMetadata.key);
 
   const requestSubsidy = useCallback(async (key) => {
     switch (browseAndRequestConfiguration.subsidyType) {
@@ -112,7 +102,7 @@ const SubsidyRequestButton = () => {
   const handleRequestButtonClick = async () => {
     setLoadingRequest(true);
     try {
-      await requestSubsidy(courseKey);
+      await requestSubsidy(courseMetadata.key);
       setLoadingRequest(false);
       addToast(
         intl.formatMessage({

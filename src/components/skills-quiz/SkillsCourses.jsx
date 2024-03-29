@@ -26,8 +26,7 @@ import {
 } from './constants';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 import CourseCard from './CourseCard';
-import { useEnterpriseCustomer } from '../app/data';
-import { useDefaultSearchFilters } from '../search';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 
 const SkillsCourses = ({ index }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();

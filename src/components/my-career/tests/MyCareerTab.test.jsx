@@ -7,8 +7,12 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import * as hooks from '../data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
 import MyCareerTab from '../MyCareerTab';
-import { useEnterpriseCustomer, useIsAssignmentsOnlyLearner, useLearnerSkillLevels } from '../../app/data';
-import { useDefaultSearchFilters } from '../../search';
+import {
+  useEnterpriseCustomer,
+  useIsAssignmentsOnlyLearner,
+  useLearnerSkillLevels,
+  useDefaultSearchFilters,
+} from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
@@ -28,10 +32,6 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useLearnerSkillLevels: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
-}));
-
-jest.mock('../../search', () => ({
-  ...jest.requireActual('../../search'),
   useDefaultSearchFilters: jest.fn(),
 }));
 

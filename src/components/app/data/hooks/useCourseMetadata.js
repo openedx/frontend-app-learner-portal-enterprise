@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import { queryCourseMetadata } from '../queries';
-import useEnterpriseCustomer from './useEnterpriseCustomer';
+import { getAvailableCourseRuns } from '../utils';
 import useLateRedemptionBufferDays from './useLateRedemptionBufferDays';
 
 /**
@@ -10,15 +10,32 @@ import useLateRedemptionBufferDays from './useLateRedemptionBufferDays';
  * @returns {Types.UseQueryResult}} The query results for the course metadata.
  */
 export default function useCourseMetadata(queryOptions = {}) {
+  const { select, ...queryOptionsRest } = queryOptions;
   const { courseKey } = useParams();
   const [searchParams] = useSearchParams();
   // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
   // need to replace it with `+` again to be a valid course run key.
   const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const isEnrollableBufferDays = useLateRedemptionBufferDays();
   return useQuery({
-    ...queryCourseMetadata(enterpriseCustomer.uuid, courseKey, courseRunKey, isEnrollableBufferDays),
-    ...queryOptions,
+    ...queryCourseMetadata(courseKey, courseRunKey),
+    ...queryOptionsRest,
+    select: (data) => {
+      if (!data) {
+        return data;
+      }
+      const availableCourseRuns = getAvailableCourseRuns({ course: data, isEnrollableBufferDays });
+      const transformedData = {
+        ...data,
+        availableCourseRuns,
+      };
+      if (select) {
+        return select({
+          original: data,
+          transformed: transformedData,
+        });
+      }
+      return transformedData;
+    },
   });
 }

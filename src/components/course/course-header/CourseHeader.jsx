@@ -140,21 +140,19 @@ const CourseHeader = () => {
             />
           </Col>
           <Col xs={12}>
-            <>
-              <CourseReview />
-              {defaultProgram && (
-                <p className="font-weight-bold mt-3 mb-0">
-                  <FormattedMessage
-                    id="enterprise.course.about.page.course.part.of.program"
-                    defaultMessage="This course is part of a {programType}."
-                    description="Message for when a course is part of a program"
-                    values={{
-                      programType: formatProgramType(defaultProgram?.type),
-                    }}
-                  />
-                </p>
-              )}
-            </>
+            <CourseReview />
+            {defaultProgram && (
+              <p className="font-weight-bold mt-3 mb-0">
+                <FormattedMessage
+                  id="enterprise.course.about.page.course.part.of.program"
+                  defaultMessage="This course is part of a {programType}."
+                  description="Message for when a course is part of a program"
+                  values={{
+                    programType: formatProgramType(defaultProgram.type),
+                  }}
+                />
+              </p>
+            )}
             {isCourseArchived && (
               <>
                 <p className="d-block font-weight-bold mt-3 mb-0">
@@ -166,6 +164,15 @@ const CourseHeader = () => {
                 </p>
                 <CourseMaterialsButton className="mt-3" />
               </>
+            )}
+            {!containsContentItems && !isCourseArchived && (
+              <p className="font-weight-bold mt-3 mb-0">
+                <FormattedMessage
+                  id="enterprise.course.about.page.course.not.in.catalog"
+                  defaultMessage="This course is not part of your organization's curated course catalog."
+                  description="Message for when a course is not part of the organization's curated course catalog"
+                />
+              </p>
             )}
           </Col>
         </Row>

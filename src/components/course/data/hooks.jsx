@@ -56,8 +56,8 @@ import {
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
+  useCatalogsForSubsidyRequests,
 } from '../../app/data';
-import { useCatalogsForSubsidyRequests } from '../../hooks';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -658,7 +658,7 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
 
 export function useCourseListPrice() {
   return useCourseMetadata({
-    select: (data) => getCourseRunPrice(data),
+    select: ({ transformed }) => getCourseRunPrice(transformed),
   });
 }
 

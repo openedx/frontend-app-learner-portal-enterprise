@@ -88,18 +88,15 @@ export function queryEnterprisePathwaysList(enterpriseUuid) {
 /**
  * Helper function to assist querying with useQuery package
  * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.course
- * ._ctx.contentMetadata(courseKey)
+ * .content
+ * .course(courseKey, courseRunKey)
  * @returns {Types.QueryOptions}
  */
-export function queryCourseMetadata(enterpriseUuid, courseKey, courseRunKey, isEnrollableBufferDays) {
+export function queryCourseMetadata(courseKey, courseRunKey) {
   return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course(courseKey)
-    ._ctx.contentMetadata(courseRunKey, isEnrollableBufferDays);
+    .content
+    .course(courseKey)
+    ._ctx.metadata(courseRunKey);
 }
 
 /**
@@ -118,16 +115,30 @@ export function queryEnterpriseCustomerCatalogsContainsContent(enterpriseUuid, c
 
 /**
  * Helper function to assist with generating the query.
- * @param {string} enterpriseUuid
  * @param {string} courseKey
  * @returns {Types.QueryOptions}
  */
-export function queryCourseReviews(enterpriseUuid, courseKey) {
+export function queryCourseReviews(courseKey) {
+  return queries
+    .content
+    .course(courseKey)
+    ._ctx.reviews;
+}
+
+/**
+ * Helper function to assist querying with useQuery package.
+ *
+ * @param {*} enterpriseUuid
+ * @param {*} courseKey
+ * @param {*} searchCatalogs
+ * @returns {Types.QueryOptions}
+ */
+export function queryCourseRecommendations(enterpriseUuid, courseKey, searchCatalogs) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.course(courseKey)
-    ._ctx.reviews;
+    ._ctx.recommendations(searchCatalogs);
 }
 
 /**
@@ -204,7 +215,7 @@ export function queryContentHighlightSets(enterpriseUuid) {
  * @returns {Types.QueryOptions}
  */
 export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBufferDays) {
-  const availableCourseRuns = courseMetadata.availableCourseRuns || getAvailableCourseRuns({
+  const availableCourseRuns = getAvailableCourseRuns({
     course: courseMetadata,
     isEnrollableBufferDays,
   });

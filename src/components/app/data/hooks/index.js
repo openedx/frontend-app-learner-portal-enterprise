@@ -6,9 +6,14 @@ export {
 } from './useContentHighlightsConfiguration';
 export { default as useCourseMetadata } from './useCourseMetadata';
 export { default as useCourseReviews } from './useCourseReviews';
+export { default as useCourseRecommendations } from './useCourseRecommendations';
+export { default as useCatalogsForSubsidyRequests } from './useCatalogsForSubsidyRequests';
+export { default as useEnterpriseFeatures } from './useEnterpriseFeatures';
+export { default as useDefaultSearchFilters } from './useDefaultSearchFilters';
 export { default as useEnterpriseCustomerContainsContent } from './useEnterpriseCustomerContainsContent';
 export { default as useCourseRedemptionEligibility } from './useCourseRedemptionEligibility';
 export { default as useEnterpriseCustomerUserSubsidies } from './useEnterpriseCustomerUserSubsidies';
+export { default as useSearchCatalogs } from './useSearchCatalogs';
 export { default as useSubscriptions } from './useSubscriptions';
 export { default as useCouponCodes } from './useCouponCodes';
 export { default as useEnterpriseOffers } from './useEnterpriseOffers';

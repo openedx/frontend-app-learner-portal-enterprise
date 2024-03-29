@@ -3,7 +3,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
-import { getActiveCourseRun, getAvailableCourseRuns } from '../utils';
+import { getActiveCourseRun } from '../utils';
 
 /**
  * TODO
@@ -13,11 +13,9 @@ import { getActiveCourseRun, getAvailableCourseRuns } from '../utils';
  * @param {object} [options]
  * @returns
  */
-export async function fetchCourseMetadata(enterpriseId, courseKey, courseRunKey, isEnrollableBufferDays, options = {}) {
-  const contentMetadataUrl = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseId}/content-metadata/${courseKey}/`;
-  const queryParams = new URLSearchParams({
-    ...options,
-  });
+export async function fetchCourseMetadata(courseKey, courseRunKey) {
+  const contentMetadataUrl = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/courses/${courseKey}/`;
+  const queryParams = new URLSearchParams();
   const url = `${contentMetadataUrl}?${queryParams.toString()}`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
@@ -37,10 +35,6 @@ export async function fetchCourseMetadata(enterpriseId, courseKey, courseRunKey,
         courseRun => courseRun.key === courseRunKey,
       );
     }
-    transformedData.availableCourseRuns = getAvailableCourseRuns({
-      course: transformedData,
-      isEnrollableBufferDays,
-    });
     return transformedData;
   } catch (error) {
     if (getErrorResponseStatusCode(error) !== 404) {
@@ -88,5 +82,49 @@ export async function fetchCourseReviews(courseKey) {
   } catch (error) {
     logError(error);
     return null;
+  }
+}
+
+export async function fetchCourseRecommendations(enterpriseUuid, courseKey, searchCatalogs) {
+  const courseRecommendationsUrl = `${getConfig().DISCOVERY_API_BASE_URL}/taxonomy/api/v1/course_recommendations/${courseKey}/`;
+  try {
+    const courseRecommendationsRepsonse = await getAuthenticatedHttpClient().get(courseRecommendationsUrl);
+    const courseRecommendations = camelCaseObject(courseRecommendationsRepsonse.data);
+    const {
+      allRecommendations,
+      samePartnerRecommendations,
+    } = courseRecommendations;
+
+    // handle no recommendations case
+    if (allRecommendations.length < 1 && samePartnerRecommendations.length < 1) {
+      return courseRecommendations;
+    }
+
+    const allRecommendationsKeys = allRecommendations.map((rec) => rec.key);
+    const samePartnerRecommendationsKeys = samePartnerRecommendations.map((rec) => rec.key);
+
+    const options = {
+      content_keys: allRecommendationsKeys.concat(samePartnerRecommendationsKeys),
+      catalog_uuids: searchCatalogs,
+    };
+    const filteredContentItemsUrl = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseUuid}/filter_content_items/`;
+    const filteredContentResponse = await getAuthenticatedHttpClient().post(filteredContentItemsUrl, options);
+    const { filteredContentKeys } = camelCaseObject(filteredContentResponse.data);
+
+    const filteredCourseRecommendations = {
+      allRecommendations: allRecommendations.filter(
+        (rec) => !samePartnerRecommendationsKeys.includes(rec.key) && filteredContentKeys.includes(rec.key),
+      ),
+      samePartnerRecommendations: samePartnerRecommendations.filter(
+        (rec) => filteredContentKeys.includes(rec.key),
+      ),
+    };
+    return filteredCourseRecommendations;
+  } catch (error) {
+    logError(error);
+    return {
+      allRecommendations: [],
+      samePartnerRecommendations: [],
+    };
   }
 }

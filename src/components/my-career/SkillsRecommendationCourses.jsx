@@ -9,8 +9,7 @@ import { CardGrid } from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import SearchCourseCard from '../search/SearchCourseCard';
 
-import { useEnterpriseCustomer } from '../app/data';
-import { useDefaultSearchFilters } from '../search';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 
 const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();

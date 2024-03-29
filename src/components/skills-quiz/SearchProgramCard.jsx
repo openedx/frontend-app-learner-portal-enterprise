@@ -22,8 +22,7 @@ import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_PROGRAM, NO_PROGRAMS_ALERT_
 import getCommonSkills from './data/utils';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { ProgramType } from '../search/SearchProgramCard';
-import { useEnterpriseCustomer } from '../app/data';
-import { useDefaultSearchFilters } from '../search';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 
 const linkToProgram = (program, slug, programUuid) => {
   if (!Object.keys(program).length) {

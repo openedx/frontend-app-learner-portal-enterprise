@@ -16,6 +16,10 @@ import {
   queryCouponCodes,
   queryCourseReviews,
   queryEnterpriseCustomerContainsContent,
+  queryCourseRecommendations,
+  getSearchCatalogs,
+  getCatalogsForSubsidyRequests,
+  queryBrowseAndRequestConfiguration,
 } from '../../data';
 import { ensureAuthenticatedUser } from '../data';
 import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from '../../../course/data';
@@ -45,7 +49,7 @@ export default function makeCourseLoader(queryClient) {
       enterpriseSlug,
     });
 
-    const subsidiesQueries = Promise.all([
+    const subsidyQueries = Promise.all([
       queryClient.ensureQueryData(queryRedeemablePolicies({
         enterpriseUuid: enterpriseId,
         lmsUserId: authenticatedUser.userId,
@@ -55,21 +59,33 @@ export default function makeCourseLoader(queryClient) {
       queryClient.ensureQueryData(queryCouponCodes(enterpriseId)),
       queryClient.ensureQueryData(queryLicenseRequests(enterpriseId, authenticatedUser.email)),
       queryClient.ensureQueryData(queryCouponCodeRequests(enterpriseId, authenticatedUser.email)),
+      queryClient.ensureQueryData(queryBrowseAndRequestConfiguration(enterpriseId)),
     ]);
 
     await Promise.all([
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
-      subsidiesQueries.then(async (responses) => {
-        const redeemableLearnerCreditPolicies = responses[0];
-        const { subscriptionPlan, subscriptionLicense } = responses[1];
-        const { hasCurrentEnterpriseOffers } = responses[2];
-        const { couponCodeAssignments } = responses[3];
-        const licenseRequests = responses[4];
-        const couponCodeRequests = responses[5];
-
+      queryClient.ensureQueryData(queryCourseMetadata(courseKey, courseRunKey)).then(async (courseMetadata) => {
+        const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
+          enterpriseUuid: enterpriseId,
+          lmsUserId: authenticatedUser.userId,
+        }));
         const isEnrollableBufferDays = getLateRedemptionBufferDays(redeemableLearnerCreditPolicies.redeemablePolicies);
+        return queryClient.ensureQueryData(queryCanRedeem(enterpriseId, courseMetadata, isEnrollableBufferDays));
+      }),
+      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
+      queryClient.ensureQueryData(queryUserEntitlements()),
+      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseId, [courseKey])),
+      queryClient.ensureQueryData(queryCourseReviews(courseKey)),
+      subsidyQueries.then((subsidyResponses) => {
+        const redeemableLearnerCreditPolicies = subsidyResponses[0];
+        const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[1];
+        const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[2];
+        const { couponCodeAssignments, couponsOverview } = subsidyResponses[3];
+        const licenseRequests = subsidyResponses[4];
+        const couponCodeRequests = subsidyResponses[5];
+        const browseAndRequestConfiguration = subsidyResponses[6];
         const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
           subscriptionPlan,
           subscriptionLicense,
@@ -88,46 +104,46 @@ export default function makeCourseLoader(queryClient) {
         if (isAssignmentOnlyLearner && !isCourseAssigned) {
           throw redirect(generatePath('/:enterpriseSlug', { enterpriseSlug }));
         }
-        const courseData = await Promise.all([
-          queryClient.ensureQueryData(queryCourseMetadata(
-            enterpriseId,
-            courseKey,
-            courseRunKey,
-            isEnrollableBufferDays,
-          )),
-          queryClient.ensureQueryData(queryCourseReviews(enterpriseId, courseKey)),
-        ]);
-        const courseMetadata = courseData[0];
 
-        // If the course does not exist or is not available in the enterprise catalog(s),
-        // return with empty data.
-        if (!courseMetadata) {
-          return null;
-        }
-
-        // Check whether user should be redirected to appropriate course route
-        // based on the course type. I.e., if the configuration for the course type
-        // is available and the current route does not contain the course type slug,
-        // redirect to the appropriate course route.
-        if (
-          courseMetadata.courseType
-          && getCourseTypeConfig(courseMetadata)
-          && !pathContainsCourseTypeSlug(requestUrl.pathname, courseMetadata.courseType)
-        ) {
-          const newUrl = getLinkToCourse(courseMetadata, enterpriseSlug);
-          throw redirect(newUrl);
-        }
-
-        // return queryClient.ensureQueryData(queryCourseReviews(enterpriseId, courseKey)),
-
-        // Otherwise, the course metadata is available in the enterprise catalog(s), so
-        // we can proceed to check if the user can redeem the course.
-        return queryClient.ensureQueryData(queryCanRedeem(enterpriseId, courseMetadata, isEnrollableBufferDays));
+        // Determine which catalogs are available for the user/enterprise to filter course recommendations.
+        const searchCatalogs = getSearchCatalogs({
+          redeemablePolicies: redeemableLearnerCreditPolicies.redeemablePolicies,
+          catalogsForSubsidyRequests: getCatalogsForSubsidyRequests({
+            browseAndRequestConfiguration,
+            couponsOverview,
+            customerAgreement,
+          }),
+          couponCodeAssignments,
+          currentEnterpriseOffers,
+          subscriptionLicense,
+        });
+        return queryClient.ensureQueryData(queryCourseRecommendations(
+          enterpriseId,
+          courseKey,
+          searchCatalogs,
+        ));
       }),
-      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
-      queryClient.ensureQueryData(queryUserEntitlements()),
-      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseId, [courseKey])),
     ]);
+
+    // If the course metadata (pre-fetched above) does not exist or is not available in
+    // the enterprise's catalog(s), return with empty data.
+    const courseMetadata = queryClient.getQueryData(queryCourseMetadata(courseKey, courseRunKey));
+    if (!courseMetadata) {
+      return null;
+    }
+
+    // Check whether user should be redirected to appropriate course route
+    // based on the course type. I.e., if the configuration for the course type
+    // is available and the current route does not contain the course type slug,
+    // redirect to the appropriate course route.
+    if (
+      courseMetadata.courseType
+      && getCourseTypeConfig(courseMetadata)
+      && !pathContainsCourseTypeSlug(requestUrl.pathname, courseMetadata.courseType)
+    ) {
+      const newUrl = getLinkToCourse(courseMetadata, enterpriseSlug);
+      throw redirect(newUrl);
+    }
 
     return null;
   };

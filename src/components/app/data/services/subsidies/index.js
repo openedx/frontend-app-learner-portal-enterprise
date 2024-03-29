@@ -4,6 +4,7 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { getAssignmentsByState, transformRedeemablePoliciesData } from '../../utils';
+import { transformEnterpriseOffer } from '../../../../enterprise-user-subsidy/enterprise-offers/data/utils';
 import { fetchPaginatedData } from '../utils';
 
 //  Enterprise Offers
@@ -25,10 +26,28 @@ export async function fetchEnterpriseOffers(enterpriseId, options = {}) {
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/${enterpriseId}/enterprise-learner-offers/?${queryParams.toString()}`;
   try {
     const { results } = await fetchPaginatedData(url);
-    return results;
+    const transformedEnterpriseOffers = results.map(offer => transformEnterpriseOffer(offer));
+    const currentEnterpriseOffers = transformedEnterpriseOffers.filter(offer => offer.isCurrent);
+
+    return {
+      enterpriseOffers: transformedEnterpriseOffers,
+      currentEnterpriseOffers,
+      // Note: canEnrollWithEnterpriseOffers should be true even if there are no current offers.
+      canEnrollWithEnterpriseOffers: results.length > 0,
+      hasCurrentEnterpriseOffers: currentEnterpriseOffers.length > 0,
+      hasLowEnterpriseOffersBalance: currentEnterpriseOffers.some(offer => offer.isLowOnBalance),
+      hasNoEnterpriseOffersBalance: currentEnterpriseOffers.every(offer => offer.isOutOfBalance),
+    };
   } catch (error) {
     logError(error);
-    return [];
+    return {
+      enterpriseOffers: [],
+      currentEnterpriseOffers: [],
+      canEnrollWithEnterpriseOffers: false,
+      hasCurrentEnterpriseOffers: false,
+      hasLowEnterpriseOffersBalance: false,
+      hasNoEnterpriseOffersBalance: false,
+    };
   }
 }
 

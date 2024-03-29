@@ -11,8 +11,7 @@ import { useAllCourseData } from '../data/hooks';
 import { LEARNER_CREDIT_SUBSIDY_TYPE as mockLearnerCreditSubsidyType } from '../data/constants';
 import { mockCourseService } from './constants';
 import { SUBSIDY_TYPE } from '../../../constants';
-import { useEnterpriseCustomer } from '../../app/data';
-import { useSearchCatalogs } from '../../search/data';
+import { useEnterpriseCustomer, useSearchCatalogs } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const mockGetActiveCourseRun = jest.fn();
@@ -181,10 +180,6 @@ jest.mock('../routes/CoursePageRoutes', () => jest.fn(() => <div data-testid="co
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
-}));
-
-jest.mock('../../search/data', () => ({
-  ...jest.requireActual('../../search/data'),
   useSearchCatalogs: jest.fn(() => []),
 }));
 

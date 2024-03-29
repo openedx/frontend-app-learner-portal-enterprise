@@ -4,9 +4,10 @@ import { logError } from '@edx/frontend-platform/logging';
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { getBrandColorsFromCSSVariables } from '../../../utils/common';
-import { COURSE_STATUSES } from '../../../constants';
+import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import { COURSE_AVAILABILITY_MAP } from './constants';
+import { features } from '../../../config';
 
 /**
  * Check if system maintenance alert is open, based on configuration.
@@ -475,4 +476,59 @@ export function getAvailableCourseRuns({ course, isEnrollableBufferDays }) {
     return today.isBefore(bufferedEnrollDeadline);
   };
   return course.courseRuns.filter(availableCourseRunsFilter);
+}
+
+export function getCatalogsForSubsidyRequests({
+  browseAndRequestConfiguration,
+  customerAgreement,
+  couponsOverview,
+}) {
+  const catalogs = [];
+  if (!browseAndRequestConfiguration.subsidyRequestsEnabled) {
+    return catalogs;
+  }
+  if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE) {
+    const catalogsFromSubscriptions = customerAgreement.availableSubscriptionCatalogs;
+    catalogs.push(...catalogsFromSubscriptions);
+  }
+  if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
+    const catalogsFromCoupons = couponsOverview
+      .filter(coupon => !!coupon.available)
+      .map(coupon => coupon.enterpriseCatalogUuid);
+    catalogs.push(...new Set(catalogsFromCoupons));
+  }
+  return catalogs;
+}
+
+export function getSearchCatalogs({
+  redeemablePolicies,
+  subscriptionLicense,
+  couponCodeAssignments,
+  currentEnterpriseOffers,
+  catalogsForSubsidyRequests,
+}) {
+  // Track catalog uuids to include in search with a Set to avoid duplicates.
+  const catalogUUIDs = new Set();
+
+  // Scope to catalogs from redeemable subsidy access policies, coupons,
+  // enterprise offers, or subscription plan associated with learner's license.
+  redeemablePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
+
+  if (subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
+    catalogUUIDs.add(subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid);
+  }
+  if (features.ENROLL_WITH_CODES) {
+    const availableCouponCodes = couponCodeAssignments.filter(couponCode => couponCode.available);
+    availableCouponCodes.forEach((couponCode) => catalogUUIDs.add(couponCode.catalog));
+  }
+
+  if (features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS) {
+    currentEnterpriseOffers.forEach((offer) => catalogUUIDs.add(offer.enterpriseCatalogUuid));
+  }
+
+  // Scope to catalogs associated with assignable subsidies if browse and request is turned on
+  catalogsForSubsidyRequests.forEach((catalog) => catalogUUIDs.add(catalog));
+
+  // Convert Set back to array
+  return Array.from(catalogUUIDs);
 }

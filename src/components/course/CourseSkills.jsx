@@ -15,7 +15,7 @@ export const MAX_VISIBLE_SKILLS = 5;
 const CourseSkills = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: skills } = useCourseMetadata({
-    select: data => data.skills,
+    select: ({ transformed }) => transformed.skills,
   });
 
   if (skills.length === 0) {

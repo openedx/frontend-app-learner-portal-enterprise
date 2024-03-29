@@ -22,6 +22,7 @@ import {
   fetchAcademies,
   fetchEnterpriseCustomerContainsContent,
   fetchCourseReviews,
+  fetchCourseRecommendations,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -55,22 +56,13 @@ const enterprise = createQueryKeys('enterprise', {
       course: (courseKey) => ({
         queryKey: [courseKey],
         contextQueries: {
-          contentMetadata: (courseRunKey, isEnrollableBufferDays) => ({
-            queryKey: [courseRunKey, isEnrollableBufferDays],
-            queryFn: async ({ queryKey }) => fetchCourseMetadata(
-              queryKey[2],
-              queryKey[4],
-              courseRunKey,
-              isEnrollableBufferDays,
-            ),
-          }),
           canRedeem: (availableCourseRunKeys) => ({
             queryKey: [availableCourseRunKeys],
             queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
           }),
-          reviews: ({
-            queryKey: null,
-            queryFn: async ({ queryKey }) => fetchCourseReviews(queryKey[4]),
+          recommendations: (searchCatalogs) => ({
+            queryKey: [searchCatalogs],
+            queryFn: async ({ queryKey }) => fetchCourseRecommendations(queryKey[2], queryKey[4], searchCatalogs),
           }),
         },
       }),
@@ -161,6 +153,21 @@ const user = createQueryKeys('user', {
   }),
 });
 
-const queries = mergeQueryKeys(enterprise, user);
+const content = createQueryKeys('content', {
+  course: (courseKey) => ({
+    queryKey: [courseKey],
+    contextQueries: {
+      metadata: (courseRunKey) => ({
+        queryKey: [courseRunKey],
+        queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], queryKey[4]),
+      }),
+      reviews: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => fetchCourseReviews(queryKey[2]),
+      },
+    },
+  }),
+});
 
+const queries = mergeQueryKeys(enterprise, user, content);
 export default queries;
