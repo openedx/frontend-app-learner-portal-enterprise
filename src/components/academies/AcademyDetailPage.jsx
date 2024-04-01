@@ -53,48 +53,56 @@ const AcademyDetailPage = () => {
   }
 
   return (
-    <Container size="lg" className="pt-3 pb-4">
-      {isAcademyAPILoading
-        ? <Skeleton height={30} count={0.25} className="mb-4" data-testid="academy-breadcrumbs-loading" />
-        : (
-          <div className="small">
-            <Breadcrumb
-              data-testid="academy-breadcrumb"
-              links={[
-                { label: 'Find a Course', to: `/${enterpriseConfig.slug}/search` },
-              ]}
-              linkAs={Link}
-              activeLabel={academy?.title}
-            />
-          </div>
-        )}
-      <div>
+    <>
+      <Container size="lg" className="pt-3">
         {isAcademyAPILoading
-          ? <Skeleton height={80} className="mb-4" data-testid="academy-title-loading" />
-          : <h2 data-testid="academy-title" className="mb-3 mt-3">{academy?.title}</h2>}
-        {
-          isAcademyAPILoading
-            ? <Skeleton height={30} count={3} data-testid="academy-description-loading" />
-            : <p data-testid="academy-description">{academy?.longDescription}</p>
-        }
-
-        {isAcademyAPILoading
-          ? (
-            <div className="d-flex justify-content-center align-items-center">
-              <Spinner animation="border" className="mie-3" screenReaderText="loading" />
-            </div>
-          )
+          ? <Skeleton height={30} count={0.25} className="mb-4" data-testid="academy-breadcrumbs-loading" />
           : (
-            <AcademyContentCard
-              courseIndex={courseIndex}
-              academyUUID={academyUUID}
-              academyTitle={academy?.title}
-              academyURL={academyURL}
-              tags={academy?.tags}
-            />
+            <div className="small">
+              <Breadcrumb
+                data-testid="academy-breadcrumb"
+                links={[
+                  { label: 'Find a Course', to: `/${enterpriseConfig.slug}/search` },
+                ]}
+                linkAs={Link}
+                activeLabel={academy?.title}
+              />
+            </div>
           )}
-      </div>
-    </Container>
+      </Container>
+      <Container size="lg">
+        <div>
+          {isAcademyAPILoading
+            ? <Skeleton height={80} className="mb-4" data-testid="academy-title-loading" />
+            : <h2 data-testid="academy-title" className="mb-3">{academy?.title}</h2>}
+          {
+            isAcademyAPILoading
+              ? <Skeleton height={30} count={3} data-testid="academy-description-loading" />
+              : <p data-testid="academy-description">{academy?.longDescription}</p>
+          }
+        </div>
+      </Container>
+      {/* { This is the PathwaysSection component} */}
+      <Container size="lg" className="pb-4">
+        <div>
+          {isAcademyAPILoading
+            ? (
+              <div className="d-flex justify-content-center align-items-center">
+                <Spinner animation="border" className="mie-3" screenReaderText="loading" />
+              </div>
+            )
+            : (
+              <AcademyContentCard
+                courseIndex={courseIndex}
+                academyUUID={academyUUID}
+                academyTitle={academy?.title}
+                academyURL={academyURL}
+                tags={academy?.tags}
+              />
+            )}
+        </div>
+      </Container>
+    </>
   );
 };
 
