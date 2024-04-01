@@ -12,6 +12,7 @@ import NotFoundPage from '../NotFoundPage';
 import './styles/Academy.scss';
 import AcademyContentCard from './AcademyContentCard';
 import { useAcademyDetails, useEnterpriseCustomer } from '../app/data';
+import PathwaysSection from './PathwaysSection';
 
 const AcademyDetailPage = () => {
   const config = getConfig();
@@ -51,6 +52,7 @@ const AcademyDetailPage = () => {
   }
 
   return (
+<<<<<<< HEAD
 <<<<<<< HEAD
     <>
       <Container size="lg" className="pt-3">
@@ -117,6 +119,27 @@ const AcademyDetailPage = () => {
       <div>
         <h2 data-testid="academy-title" className="mb-3 mt-3">{academy?.title}</h2>
         <p data-testid="academy-description">{academy?.longDescription}</p>
+=======
+    <>
+      <Container size="lg" className="pt-3">
+        <div className="small">
+          <Breadcrumb
+            data-testid="academy-breadcrumb"
+            links={[
+              { label: 'Find a Course', to: `/${enterpriseCustomer.slug}/search` },
+            ]}
+            linkAs={Link}
+            activeLabel={academy.title}
+          />
+        </div>
+        <div>
+          <h2 data-testid="academy-title" className="mb-3 mt-3">{academy?.title}</h2>
+          <p data-testid="academy-description">{academy?.longDescription}</p>
+        </div>
+      </Container>
+      <PathwaysSection />
+      <Container size="lg" className="pb-4">
+>>>>>>> c60499d5 (fix: add test cases)
         <AcademyContentCard
           courseIndex={courseIndex}
           academyUUID={academyUUID}
@@ -124,9 +147,14 @@ const AcademyDetailPage = () => {
           academyURL={academyURL}
           tags={academy?.tags}
         />
+<<<<<<< HEAD
       </div>
     </Container>
 >>>>>>> 96bbd103 (feat!: migrate existing API calls to React Query and Route Loaders (#961))
+=======
+      </Container>
+    </>
+>>>>>>> c60499d5 (fix: add test cases)
   );
 };
 
