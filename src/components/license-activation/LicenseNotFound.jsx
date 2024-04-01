@@ -10,37 +10,32 @@ const LicenseNotFound = ({ pageTitle }) => {
   const { email } = authenticatedUser;
 
   return (
-    <Container size="lg" className="mt-3" data-testid="license-not-found-page">
+    <Container size="lg" className="py-5" data-testid="license-not-found-page">
       <Helmet title={pageTitle} />
-      <div className="text-center py-5">
+      <div className="text-center mt-6">
         <img
           src={NotFoundIcon}
           alt={pageTitle}
         />
-        <h1 className="font-weight-bold mt-3">
-          <span className="text-danger-500">We&apos;re sorry. </span>
-          <span>We can&apos;t find a license assigned to this account.</span>
+        <h1 className="display-1 mt-4 mb-4">
+          <span className="text-brand-500">Oops! </span>
+          <span className="text-primary-700">We can&apos;t find a license assigned to this account.</span>
         </h1>
-        <p>This may be because you have not yet{' '}
-          <Hyperlink destination="https://authn.edx.org/register">
-            registered for an account on edX.org
-          </Hyperlink> or you are
-          not signed in with an account that has been assigned a subscription license.
-          The email address associated with this edX account is{' '}
-          <span className="text-danger-500">{email}</span>
-        </p>
-        <h4>
-          You can try the following to resolve and access your subscription license:
+        <span> You are currently logged in as {' '}<span className="text-brand-500">{email}</span></span>
+        <h4 className="mt-4 text-gray-700">
+          You can try one of the following to resolve and access your subscription license:
         </h4>
-        <p>
-          • <Hyperlink destination="https://courses.edx.org/logout">Sign out</Hyperlink> and sign in to the
-          account connected to your subscription license.
-        </p>
-        <p>
-          • If you have an existing edX account that uses a different email address, you can{' '}
-          <Hyperlink destination="https://account.edx.org"> change the registered email on the account
-          </Hyperlink> to match the one on the invite that is connected to the subscription license.
-        </p>
+        <div>
+          <span className="d-block">
+            • <Hyperlink isInline variant="muted" destination="https://courses.edx.org/logout">Log out,</Hyperlink> then sign back in with the email address connected to your subscription license.
+          </span>
+          <span className="d-block">
+            • Create an account using the email address associated with your subscription license.
+          </span>
+          <span className="d-block">
+            • <Hyperlink isInline variant="muted" destination="https://account.edx.org">Update the email address</Hyperlink> on your existing account to the email address associated with your subscription license.
+          </span>
+        </div>
       </div>
     </Container>
   );
