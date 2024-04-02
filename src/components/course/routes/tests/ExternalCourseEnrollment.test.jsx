@@ -67,6 +67,13 @@ const baseCourseContextValue = {
   },
   userSubsidyApplicableToCourse: { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },
   missingUserSubsidyReason: undefined,
+  redeemabilityPerContentKey: [
+    {
+      contentKey: testCourseRunKey,
+      hasSuccessfulRedemption: false,
+    },
+  ],
+  hasSuccessfulRedemption: false,
 };
 
 const baseAppContextValue = {
@@ -152,6 +159,12 @@ describe('ExternalCourseEnrollment', () => {
     const courseContextValue = {
       ...baseCourseContextValue,
       userSubsidyApplicableToCourse: undefined,
+      redeemabilityPerContentKey: [
+        {
+          contentKey: testCourseRunKey,
+          hasSuccessfulRedemption: true,
+        },
+      ],
       hasSuccessfulRedemption: true,
       missingUserSubsidyReason: { reason: DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY },
     };
@@ -170,6 +183,12 @@ describe('ExternalCourseEnrollment', () => {
   it('handles a courserun that has already been enrolled', () => {
     const courseContextValue = {
       ...baseCourseContextValue,
+      redeemabilityPerContentKey: [
+        {
+          contentKey: testCourseRunKey,
+          hasSuccessfulRedemption: true,
+        },
+      ],
       hasSuccessfulRedemption: true,
     };
     renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);

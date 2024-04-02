@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import {
-  generatePath,
   useNavigate,
   useLocation,
   useParams,
@@ -34,17 +33,14 @@ const ExternalCourseEnrollment = () => {
       course,
     },
     userSubsidyApplicableToCourse,
-    hasSuccessfulRedemption,
+    redeemabilityPerContentKey,
     externalCourseFormSubmissionError,
   } = useContext(CourseContext);
   const {
     enterpriseConfig: { authOrgId, slug },
   } = useContext(AppContext);
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const completeEnrollmentUrl = generatePath(
-      `${pathname}/complete`,
-      { enterpriseSlug: slug, courseType: course.courseType, courseKey: course.key },
-  );
+  const completeEnrollmentUrl = `${pathname}/complete`;
   const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
 
   const courseMetadata = useMinimalCourseMetadata();
@@ -73,14 +69,17 @@ const ExternalCourseEnrollment = () => {
     }
   }, [externalCourseFormSubmissionError, containerRef]);
 
+  // Once a redemption has successfully completed and the can-redeem query has been invalidated or
+  // a user attempts to navigate directly to :slug/:courseType/course/:courseKey/enroll/:courseRunKey,
+  // redirect to the enrollment complete page.
   useEffect(() => {
-    // Once a redemption has successfully completed and the can-redeem query has been invalidated or
-    // a user attempts to navigate directly to :slug/:courseType/course/:courseKey/enroll,
-    //  it will run this conditional and perform the redirect
-    if (hasSuccessfulRedemption) {
+    const runHasSuccessfulRedemption = !!redeemabilityPerContentKey.find(
+      r => r.contentKey === courseRunKey,
+    )?.hasSuccessfulRedemption;
+    if (runHasSuccessfulRedemption) {
       navigate(completeEnrollmentUrl);
     }
-  }, [completeEnrollmentUrl, course.key, hasSuccessfulRedemption, navigate, pathname, slug]);
+  }, [completeEnrollmentUrl, course.key, courseRunKey, redeemabilityPerContentKey, navigate, pathname, slug]);
 
   return (
     <div className="fill-vertical-space page-light-bg">
