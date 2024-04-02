@@ -102,7 +102,7 @@ const SubscriptionSummaryCard = ({
             <div className="d-flex align-items-start justify-content-between">
               <h3>
                 <FormattedMessage
-                  id="enterprise.dashboard.sidebar.subscription.summary.card.title"
+                  id="enterprise.dashboard.sidebar.subscription.summary.card.title.text1"
                   defaultMessage="Subscription Status"
                   description="Subscription status title on the enterprise dashboard sidebar."
                 />
@@ -157,7 +157,7 @@ const SubscriptionSummaryCard = ({
         <div className="d-flex align-items-start justify-content-between">
           <div>
             <FormattedMessage
-              id="enterprise.dashboard.sidebar.subscription.summary.card.title"
+              id="enterprise.dashboard.sidebar.subscription.summary.card.title.text2"
               defaultMessage="Subscription Status"
               description="Subscription status summary card title on the enterprise dashboard sidebar."
             />
@@ -180,7 +180,7 @@ const SubscriptionSummaryCard = ({
           <>
             {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
               ? intl.formatMessage({
-                id: 'enterprise.dashboard.sidebar.subscription.active.date.prefix',
+                id: 'enterprise.dashboard.sidebar.subscription.active.date.prefix.text',
                 defaultMessage: 'Available until',
                 description: 'Subscription active date prefix on the enterprise dashboard sidebar.',
               }) : intl.formatMessage({
