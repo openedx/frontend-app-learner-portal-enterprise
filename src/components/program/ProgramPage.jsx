@@ -20,10 +20,6 @@ const ProgramPage = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: program } = useProgramDetails();
 
-  if (!program) {
-    return <NotFoundPage />;
-  }
-
   // if there is not even single course that does not belongs to the enterprise customer's catalog
   if (!program.catalogContainsProgram) {
     return (

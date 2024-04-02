@@ -3,86 +3,80 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramSidebar from '../ProgramSidebar';
 import {
   PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP, PACING_TYPE_CONTENT, VERBOSE_PROGRAM_PACING_MAP,
 } from '../data/constants';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useEnterpriseCustomer, useProgramDetails } from '../../app/data';
 
-jest.mock('react-router-dom', () => ({
-  useLocation: jest.fn(),
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useProgramDetails: jest.fn(),
 }));
 
-const ProgramSidebarWithContext = ({
-  initialAppState = {},
+const mockAuthenticatedUser = authenticatedUserFactory();
+
+const initialAppState = {
+  authenticatedUser: mockAuthenticatedUser,
+};
+
+const ProgramSidebarWrapper = ({
   initialProgramState = {},
-  initialUserSubsidyState = {},
 }) => (
   <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <ProgramContextProvider initialState={initialProgramState}>
-        <ProgramSidebar />
-      </ProgramContextProvider>
-    </UserSubsidyContext.Provider>
+    <ProgramContextProvider initialState={initialProgramState}>
+      <ProgramSidebar />
+    </ProgramContextProvider>
   </AppContext.Provider>
 );
 
-describe('<ProgramSidebar />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
+const initialProgramState = {
+  title: 'Test Program Title',
+  courses: [
+    {
+      activeCourseRun: {
+        pacingType: PROGRAM_PACING_MAP.SELF_PACED,
+        weeksToComplete: 1,
+      },
     },
-  };
-  const initialProgramState = {
-    program: {
-      title: 'Test Program Title',
-      courses: [
-        {
-          activeCourseRun: {
-            pacingType: PROGRAM_PACING_MAP.SELF_PACED,
-            weeksToComplete: 1,
-          },
-        },
-        {
-          activeCourseRun: {
-            pacingType: PROGRAM_PACING_MAP.SELF_PACED,
-            weeksToComplete: 1,
-          },
-        },
-      ],
-      type: PROGRAM_TYPE_MAP.MICROMASTERS,
-      weeksToComplete: 3,
-      minHoursEffortPerWeek: 1,
-      maxHoursEffortPerWeek: 4,
+    {
+      activeCourseRun: {
+        pacingType: PROGRAM_PACING_MAP.SELF_PACED,
+        weeksToComplete: 1,
+      },
     },
-  };
-  const initialUserSubsidyState = {
-    subscriptionLicense: {
-      uuid: 'test-license-uuid',
-    },
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-  };
+  ],
+  type: PROGRAM_TYPE_MAP.MICROMASTERS,
+  weeksToComplete: 3,
+  minHoursEffortPerWeek: 1,
+  maxHoursEffortPerWeek: 4,
+};
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
+describe('<ProgramSidebar />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useProgramDetails.mockReturnValue({ data: initialProgramState });
+  });
   test('renders program sidebar', () => {
     render(
-      <ProgramSidebarWithContext
-        initialAppState={initialAppState}
+      <ProgramSidebarWrapper
         initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
 
-    const courseCount = initialProgramState.program.courses.length;
+    const courseCount = initialProgramState.courses.length;
     // renders Expert Instruction content
     expect(screen.getByText('Expert instruction:')).toBeInTheDocument();
     expect(screen.getByText(`${courseCount} graduate-level courses`)).toBeInTheDocument();
 
     // renders pacing type and pacing type content
-    const { activeCourseRun: { pacingType } } = initialProgramState.program.courses[0];
+    const { activeCourseRun: { pacingType } } = initialProgramState.courses[0];
     expect(screen.getByText(`${VERBOSE_PROGRAM_PACING_MAP[pacingType]}:`)).toBeInTheDocument();
     expect(screen.getByText(PACING_TYPE_CONTENT.SELF_PACED)).toBeInTheDocument();
 
@@ -92,27 +86,22 @@ describe('<ProgramSidebar />', () => {
     expect(screen.getByText(programDuration)).toBeInTheDocument();
 
     // renders effort per week
-    const MIN_EFFORT = initialProgramState.program.minHoursEffortPerWeek;
-    const MAX_EFFORT = initialProgramState.program.maxHoursEffortPerWeek;
+    const MIN_EFFORT = initialProgramState.minHoursEffortPerWeek;
+    const MAX_EFFORT = initialProgramState.maxHoursEffortPerWeek;
     expect(screen.getByText('Effort:')).toBeInTheDocument();
     expect(screen.getByText(`${MIN_EFFORT} - ${MAX_EFFORT} hours per week`)).toBeInTheDocument();
   });
 
   test('does not render pacing type and content when active course run or pacing type is not available', () => {
     const programWithoutPacingType = {
-      program: {
-        title: 'Test Program Title',
-        courses: [{
-          title: 'test course',
-        }],
-      },
+      title: 'Test Program Title',
+      courses: [{
+        title: 'test course',
+      }],
     };
+    useProgramDetails.mockReturnValue({ data: programWithoutPacingType });
     render(
-      <ProgramSidebarWithContext
-        initialAppState={initialAppState}
-        initialProgramState={programWithoutPacingType}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramSidebarWrapper />,
     );
 
     // pacing type
@@ -127,19 +116,14 @@ describe('<ProgramSidebar />', () => {
 
   test('does not render program duration when not available', () => {
     const programWithoutDuration = {
-      program: {
-        courses: [],
-        weeksToComplete: null,
-        weeksToCompleteMin: null,
-        weeksToCompleteMax: null,
-      },
+      courses: [],
+      weeksToComplete: null,
+      weeksToCompleteMin: null,
+      weeksToCompleteMax: null,
     };
+    useProgramDetails.mockReturnValue({ data: programWithoutDuration });
     render(
-      <ProgramSidebarWithContext
-        initialAppState={initialAppState}
-        initialProgramState={programWithoutDuration}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramSidebarWrapper />,
     );
     // label
     expect(screen.queryByText('Length:')).not.toBeInTheDocument();
@@ -154,15 +138,12 @@ describe('<ProgramSidebar />', () => {
 
   test('does not render effort per week when both min and max effort or one of them is not available', () => {
     let programWithoutEffortPerWeek = {
-      program: {
-        courses: [],
-      },
+      courses: [],
     };
+    useProgramDetails.mockReturnValue({ data: programWithoutEffortPerWeek });
     render(
-      <ProgramSidebarWithContext
-        initialAppState={initialAppState}
+      <ProgramSidebarWrapper
         initialProgramState={programWithoutEffortPerWeek}
-        initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
     // label
@@ -178,10 +159,8 @@ describe('<ProgramSidebar />', () => {
       minHoursEffortPerWeek: 1,
     };
     render(
-      <ProgramSidebarWithContext
-        initialAppState={initialAppState}
+      <ProgramSidebarWrapper
         initialProgramState={programWithoutEffortPerWeek}
-        initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
     // label

@@ -3,73 +3,61 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramHeader from '../ProgramHeader';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useEnterpriseCustomer, useProgramDetails } from '../../app/data';
 
 jest.mock('react-router-dom', () => ({
-  useLocation: jest.fn(),
   useParams: jest.fn().mockReturnValue({ enterpriseSlug: 'test-enterprise-slug' }),
 }));
 
-const ProgramHeaderWithContext = ({
-  initialAppState = {},
-  initialProgramState = {},
-  initialUserSubsidyState = {},
-}) => (
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useProgramDetails: jest.fn(),
+}));
+
+const mockAuthenticatedUser = authenticatedUserFactory();
+
+const initialAppState = {
+  authenticatedUser: mockAuthenticatedUser,
+};
+
+const ProgramHeaderWithContext = () => (
   <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <ProgramContextProvider initialState={initialProgramState}>
-        <ProgramHeader />
-      </ProgramContextProvider>
-    </UserSubsidyContext.Provider>
+    <ProgramHeader />
   </AppContext.Provider>
 );
 
+const initialProgramState = {
+  marketingHook: 'Test program marketing hook',
+  subjects: [{ slug: 'my-slug', name: 'Subject' }],
+  authoringOrganizations: [{ key: 'program-key' }],
+  title: 'test-title',
+};
+const programStateWithMultipleOrganizations = {
+  marketingHook: 'Test program marketing hook',
+  subjects: [{ slug: 'my-slug', name: 'Subject' }],
+  authoringOrganizations: [{ key: 'program-key' }, { key: 'program-key-2' }],
+  title: 'test-title',
+};
+const programStateWithoutSubjects = {
+  marketingHook: 'Test program marketing hook',
+};
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 describe('<ProgramHeader />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-    },
-  };
-  const initialProgramState = {
-    program: {
-      marketingHook: 'Test program marketing hook',
-      subjects: [{ slug: 'my-slug', name: 'Subject' }],
-      authoringOrganizations: [{ key: 'program-key' }],
-      title: 'test-title',
-    },
-  };
-  const programStateWithMultipleOrganizations = {
-    program: {
-      marketingHook: 'Test program marketing hook',
-      subjects: [{ slug: 'my-slug', name: 'Subject' }],
-      authoringOrganizations: [{ key: 'program-key' }, { key: 'program-key-2' }],
-      title: 'test-title',
-    },
-  };
-  const programStateWithoutSubjects = {
-    program: {
-      marketingHook: 'Test program marketing hook',
-    },
-  };
-  const initialUserSubsidyState = {
-    subscriptionLicense: {
-      uuid: 'test-license-uuid',
-    },
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-  };
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useProgramDetails.mockReturnValue({ data: initialProgramState });
+  });
 
   test('does not render program header with marketing hook if subject is not available.', () => {
+    useProgramDetails.mockReturnValue({ data: programStateWithoutSubjects });
     render(
-      <ProgramHeaderWithContext
-        initialAppState={initialAppState}
-        initialProgramState={programStateWithoutSubjects}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramHeaderWithContext />,
     );
     const marketingHook = screen.queryByText('Test program marketing hook');
     expect(marketingHook).not.toBeInTheDocument();
@@ -77,11 +65,7 @@ describe('<ProgramHeader />', () => {
 
   test('renders program header with marketing hook.', () => {
     render(
-      <ProgramHeaderWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramHeaderWithContext />,
     );
     expect(screen.getByText('Test program marketing hook')).toBeInTheDocument();
   });
@@ -89,11 +73,7 @@ describe('<ProgramHeader />', () => {
   test('renders breadcrumbs', () => {
     const organizationKeyWithTitle = "program-key's test-title";
     render(
-      <ProgramHeaderWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramHeaderWithContext />,
     );
     expect(screen.getByText('Subject Courses')).toBeInTheDocument();
     expect(screen.getByText('Catalog')).toBeInTheDocument();
@@ -102,12 +82,9 @@ describe('<ProgramHeader />', () => {
 
   test('renders breadcrumbs with multiple organizations', () => {
     const organizationKeyWithTitle = "program-key and program-key-2's test-title";
+    useProgramDetails.mockReturnValue({ data: programStateWithMultipleOrganizations });
     render(
-      <ProgramHeaderWithContext
-        initialAppState={initialAppState}
-        initialProgramState={programStateWithMultipleOrganizations}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramHeaderWithContext />,
     );
     expect(screen.getByText('Subject Courses')).toBeInTheDocument();
     expect(screen.getByText('Catalog')).toBeInTheDocument();

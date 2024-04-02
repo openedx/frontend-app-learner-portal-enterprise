@@ -32,7 +32,7 @@ export async function fetchProgramDetails(enterpriseUuid, programUuid) {
     const programResponse = await getAuthenticatedHttpClient({ useCache: USE_API_CACHE }).get(url);
     const programDetails = camelCaseObject(programResponse.data);
     if (!programDetails) {
-      return {};
+      return null;
     }
     const programDetailsCopy = structuredClone(programDetails);
     const { courses } = programDetailsCopy;
@@ -75,6 +75,6 @@ export async function fetchProgramDetails(enterpriseUuid, programUuid) {
     };
   } catch (error) {
     logError(error);
-    return {};
+    return null;
   }
 }

@@ -1,14 +1,11 @@
-import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { screen, render, waitFor } from '@testing-library/react';
+import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import ProgramPage from '../ProgramPage';
-import { useAllProgramData } from '../data/hooks';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from '../data/constants';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useEnterpriseCustomer, useProgramDetails } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const programData = {
@@ -24,116 +21,61 @@ const programData = {
   type: 'MicroMasters',
 };
 
-jest.mock('react-router-dom', () => ({
-  useParams: jest.fn(() => ({ programUuid: programData.uuid })),
-}));
-
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedHttpClient: jest.fn(),
-}));
-
-jest.mock('@edx/frontend-platform/react', () => ({
-  ...jest.requireActual('@edx/frontend-platform/react'),
-  ErrorPage: () => <div data-testid="error-page" />,
-}));
-
-jest.mock('../data/hooks', () => ({
-  useAllProgramData: jest.fn(),
-}));
-
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useProgramDetails: jest.fn(),
 }));
 
-const ProgramWithContext = ({
-  initialAppState = {},
-  initialUserSubsidyState = {},
-}) => (
-  <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramPage />
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </IntlProvider>
-);
-
-const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 
 const initialAppState = {
   authenticatedUser: mockAuthenticatedUser,
 };
 
-const initialUserSubsidyState = {
-  subscriptionLicense: {
-    uuid: 'test-license-uuid',
-  },
-  couponCodes: {
-    couponCodes: [],
-    couponCodesCount: 0,
-  },
-};
+const ProgramPageWrapper = () => (
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <ProgramPage />
+    </AppContext.Provider>
+  </IntlProvider>
+);
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('<Program />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useProgramDetails.mockReturnValue({ data: programData });
   });
 
-  test('renders program.', async () => {
-    useAllProgramData.mockImplementation(() => ([{ programDetails: programData }, null]));
+  test('renders program.', () => {
     render(
-      <ProgramWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramPageWrapper />,
     );
-    await waitFor(() => {
-      expect(screen.getByText('About this program')).toBeInTheDocument();
-      expect(screen.getByText('Test program marketing hook')).toBeInTheDocument();
+    expect(screen.getByText('About this program')).toBeInTheDocument();
+    expect(screen.getByText('Test program marketing hook')).toBeInTheDocument();
+  });
+
+  test('renders program error.', () => {
+    useProgramDetails.mockReturnValue({ data: {} });
+    render(
+      <ProgramPageWrapper />,
+    );
+    expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
+  });
+
+  test('renders program not found error.', () => {
+    useProgramDetails.mockReturnValue({
+      data: {
+        catalogContainsProgram: false,
+      },
     });
-  });
-
-  test('renders program error.', async () => {
-    useAllProgramData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
     render(
-      <ProgramWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramPageWrapper />,
     );
-    expect(screen.getByTestId('error-page')).toBeInTheDocument();
-  });
-
-  test('renders program not found error.', async () => {
-    programData.catalogContainsProgram = false;
-    useAllProgramData.mockImplementation(() => ([{ programDetails: programData }, null]));
-
-    render(
-      <ProgramWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
-    await waitFor(() => {
-      expect(screen.getByText(PROGRAM_NOT_FOUND_TITLE)).toBeInTheDocument();
-      expect(screen.getByText(PROGRAM_NOT_FOUND_MESSAGE)).toBeInTheDocument();
-    });
-  });
-
-  test('handle invalid data.', async () => {
-    useAllProgramData.mockImplementation(() => ([null, null]));
-    render(
-      <ProgramWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
-    await waitFor(() => {
-      expect(screen.getByText('loading program')).toBeInTheDocument();
-    });
+    expect(screen.getByText(PROGRAM_NOT_FOUND_TITLE)).toBeInTheDocument();
+    expect(screen.getByText(PROGRAM_NOT_FOUND_MESSAGE)).toBeInTheDocument();
   });
 });
