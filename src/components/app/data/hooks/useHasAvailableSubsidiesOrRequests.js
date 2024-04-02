@@ -40,9 +40,9 @@ export default function useHasAvailableSubsidiesOrRequests() {
   const { data: enterpriseOffersData } = useEnterpriseOffers();
 
   const learnerCreditSummaryCardData = useMemo(() => getLearnerCreditSummaryCardData({
-    enterpriseOffers: enterpriseOffersData.enterpriseOffers,
+    enterpriseOffers: enterpriseOffersData.currentEnterpriseOffers,
     redeemableLearnerCreditPolicies,
-  }), [enterpriseOffersData.enterpriseOffers, redeemableLearnerCreditPolicies]);
+  }), [enterpriseOffersData.currentEnterpriseOffers, redeemableLearnerCreditPolicies]);
 
   const hasActiveLicenseOrLicenseRequest = (
     subscriptions.subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED

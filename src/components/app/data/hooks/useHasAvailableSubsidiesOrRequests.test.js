@@ -79,7 +79,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
   });
   it.each([
     {
-      mockEnterpriseOffers: { enterpriseOffers: [] },
+      mockEnterpriseOffers: { currentEnterpriseOffers: [] },
       mockRedeemableLearnerCreditPolicies: {
         redeemablePolicies: [],
         learnerContentAssignments: null,
@@ -100,7 +100,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockCouponCodes: {
         couponCodeAssignments: [],
       },
-      mockUseHasAvailableSubsidiesOrRequestsReturn: {
+      expectedResult: {
         hasActiveLicenseOrLicenseRequest: true,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: false,
@@ -109,7 +109,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       },
     },
     {
-      mockEnterpriseOffers: { enterpriseOffers: [] },
+      mockEnterpriseOffers: { currentEnterpriseOffers: [] },
       mockRedeemableLearnerCreditPolicies: {
         redeemablePolicies: [],
         learnerContentAssignments: null,
@@ -130,7 +130,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockCouponCodes: {
         couponCodeAssignments: [],
       },
-      mockUseHasAvailableSubsidiesOrRequestsReturn: {
+      expectedResult: {
         hasActiveLicenseOrLicenseRequest: true,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: false,
@@ -139,7 +139,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       },
     },
     {
-      mockEnterpriseOffers: { enterpriseOffers: [] },
+      mockEnterpriseOffers: { currentEnterpriseOffers: [] },
       mockRedeemableLearnerCreditPolicies: {
         redeemablePolicies: [],
         learnerContentAssignments: null,
@@ -158,7 +158,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockCouponCodes: {
         couponCodeAssignments: [uuidv4()],
       },
-      mockUseHasAvailableSubsidiesOrRequestsReturn: {
+      expectedResult: {
         hasActiveLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: true,
         hasAvailableLearnerCreditPolicies: false,
@@ -167,7 +167,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       },
     },
     {
-      mockEnterpriseOffers: { enterpriseOffers: [] },
+      mockEnterpriseOffers: { currentEnterpriseOffers: [] },
       mockRedeemableLearnerCreditPolicies: {
         redeemablePolicies: [],
         learnerContentAssignments: null,
@@ -186,7 +186,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockCouponCodes: {
         couponCodeAssignments: [],
       },
-      mockUseHasAvailableSubsidiesOrRequestsReturn: {
+      expectedResult: {
         hasActiveLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: true,
         hasAvailableLearnerCreditPolicies: false,
@@ -196,7 +196,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     },
     {
       mockEnterpriseOffers: {
-        enterpriseOffers: [{
+        currentEnterpriseOffers: [{
           isCurrent: true,
           endDatetime: mockEndDateTimeOneDayOff,
           startDatetime: dayjs().subtract(1, 'day').toISOString(),
@@ -225,7 +225,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockCouponCodes: {
         couponCodeAssignments: [],
       },
-      mockUseHasAvailableSubsidiesOrRequestsReturn: {
+      expectedResult: {
         hasActiveLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: false,
@@ -239,7 +239,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     },
     {
       mockEnterpriseOffers: {
-        enterpriseOffers: [{
+        currentEnterpriseOffers: [{
           isCurrent: true,
           endDatetime: mockEndDateTimeOneDayOff,
           startDatetime: dayjs().subtract(1, 'day').toISOString(),
@@ -275,7 +275,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockCouponCodes: {
         couponCodeAssignments: [],
       },
-      mockUseHasAvailableSubsidiesOrRequestsReturn: {
+      expectedResult: {
         hasActiveLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: true,
@@ -293,7 +293,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     mockSubscriptions,
     mockBrowseAndRequests,
     mockCouponCodes,
-    mockUseHasAvailableSubsidiesOrRequestsReturn,
+    expectedResult,
   }) => {
     useSubscriptions.mockReturnValue({ data: mockSubscriptions });
     useBrowseAndRequest.mockReturnValue({ data: mockBrowseAndRequests });
@@ -303,6 +303,6 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
 
     const { result } = renderHook(() => useHasAvailableSubsidiesOrRequests(), { wrapper });
 
-    expect(result.current).toEqual(mockUseHasAvailableSubsidiesOrRequestsReturn);
+    expect(result.current).toEqual(expectedResult);
   });
 });
