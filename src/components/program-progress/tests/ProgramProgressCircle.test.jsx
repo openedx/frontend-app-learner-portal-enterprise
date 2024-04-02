@@ -4,18 +4,19 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import ProgramProgressCircle from '../ProgramProgressCircle';
-import { ProgramProgressContext } from '../ProgramProgressContextProvider';
 import {
   X_AXIS, Y_AXIS, CIRCLE_RADIUS, STROKE_WIDTH, CIRCLE_LABEL,
 } from '../data/constants';
+import { useLearnerProgramProgressData } from '../../app/data';
 
-const ProgramProgressCircleWithContext = ({
-  initialProgramProgressContext = {},
-}) => (
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useLearnerProgramProgressData: jest.fn(),
+}));
+
+const ProgramProgressCircleWithContext = () => (
   <IntlProvider locale="en">
-    <ProgramProgressContext.Provider value={initialProgramProgressContext}>
-      <ProgramProgressCircle />
-    </ProgramProgressContext.Provider>
+    <ProgramProgressCircle />
   </IntlProvider>
 );
 
@@ -29,16 +30,19 @@ const testCourseData = {
   notStarted: [],
 };
 
+const mockProgram = {
+  programData: testProgramData,
+  courseData: testCourseData,
+};
+
 describe('<ProgramProgressCircle />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useLearnerProgramProgressData.mockReturnValue({ data: mockProgram });
+  });
   it('renders program progress circle with correct data', () => {
-    const initialProgramProgressContext = {
-      programData: testProgramData,
-      courseData: testCourseData,
-    };
     const { container } = render(
-      <ProgramProgressCircleWithContext
-        initialProgramProgressContext={initialProgramProgressContext}
-      />,
+      <ProgramProgressCircleWithContext />,
     );
     expect(screen.getByText(`${testProgramData.type} Progress`)).toBeInTheDocument();
     expect(container.querySelector('[data-testid="svg-circle"]')).toBeInTheDocument();

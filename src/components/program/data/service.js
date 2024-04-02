@@ -27,7 +27,7 @@ export default class ProgramService {
     const programData = camelCaseObject(programDataRaw);
     const programDetails = programData[0];
     programDetails.courses.forEach((course, index) => {
-      const availableCourseRuns = getAvailableCourseRuns(course);
+      const availableCourseRuns = getAvailableCourseRuns({ course });
       programDetails.courses[index].activeCourseRun = availableCourseRuns ? availableCourseRuns[0] : undefined;
       programDetails.courses[index].enterpriseHasCourse = programCoursesInfo[programDetails.courses[index].key];
     });

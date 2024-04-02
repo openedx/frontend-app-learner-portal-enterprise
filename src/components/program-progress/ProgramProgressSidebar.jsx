@@ -1,18 +1,26 @@
-import React, { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Button } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { ProgramProgressContext } from './ProgramProgressContextProvider';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import ProgramProgressCircle from './ProgramProgressCircle';
 import ProgramPathwayOpportunity from './ProgramPathwayOpportunity';
 import { getProgramCertImage } from './data/utils';
 import progSampleCertImage from './images/sample-cert.png';
+import { useLearnerProgramProgressData } from '../app/data';
 
 const ProgramProgressSideBar = () => {
   const {
-    programData, industryPathways, creditPathways, certificateData, urls: { programRecordUrl },
-  } = useContext(ProgramProgressContext);
+    data: {
+      programData,
+      industryPathways,
+      creditPathways,
+      certificateData,
+      urls: { programRecordUrl },
+    },
+  } = useLearnerProgramProgressData();
+  const { LMS_BASE_URL } = getConfig();
   const courseCertificates = useMemo(
     () => {
       if (certificateData) {
@@ -67,14 +75,17 @@ const ProgramProgressSideBar = () => {
             />
           </h2>
           <ul className="certificate-list">
-            {courseCertificates.map((certificate) => (
-              <li key={uuidv4()} data-testid="certificate-item" className="certificate">
-                <a className="image-link" href={certificate.url} aria-hidden="true" tabIndex="-1">
-                  <img src={progSampleCertImage} className="sample-cert" alt="" />
-                </a>
-                <a className="certificate-link" href={certificate.url}> {certificate.title} </a>
-              </li>
-            ))}
+            {courseCertificates.map((certificate) => {
+              const certificatesUrl = `${LMS_BASE_URL}${certificate.url}`;
+              return (
+                <li key={uuidv4()} data-testid="certificate-item" className="certificate">
+                  <a className="image-link" href={certificatesUrl} aria-hidden="true" tabIndex="-1">
+                    <img src={progSampleCertImage} className="sample-cert" alt="" />
+                  </a>
+                  <a className="certificate-link" href={certificatesUrl}> {certificate.title} </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
@@ -95,7 +106,7 @@ const ProgramProgressSideBar = () => {
             />
           </p>
         </div>
-        { programRecordUrl && (
+        {programRecordUrl && (
           <div className="sidebar-button-wrapper">
             <a href={programRecordUrl} className="program-record-link">
               <Button

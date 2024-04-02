@@ -79,7 +79,7 @@ describe('DashboardMainContent', () => {
   });
 
   it('Displays disableSearch flag message', () => {
-    const mockEnterpriseCustomerWithDisabledSearch = enterpriseCustomerFactory({ disableSearch: true });
+    const mockEnterpriseCustomerWithDisabledSearch = enterpriseCustomerFactory({ disable_search: true });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledSearch });
     renderWithRouter(
       <DashboardMainContentWrapper />,

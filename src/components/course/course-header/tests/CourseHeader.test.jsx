@@ -33,7 +33,7 @@ jest.mock('../../../app/data', () => ({
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseCustomerWithDisabledSearch = enterpriseCustomerFactory({
-  disableSearch: true,
+  disable_search: true,
 });
 
 const defaultSubsidyRequestsState = {

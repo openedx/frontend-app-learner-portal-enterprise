@@ -5,7 +5,6 @@ import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import '@testing-library/jest-dom/extend-expect';
 
 import userEvent from '@testing-library/user-event';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import ProgramListingCard from '../ProgramListingCard';
 import { useEnterpriseCustomer } from '../../app/data';
@@ -15,11 +14,9 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const ProgramListingCardWithContext = ({ initialUserSubsidyState, programData }) => (
+const ProgramListingCardWithContext = ({ programData }) => (
   <IntlProvider locale="en">
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <ProgramListingCard program={programData} />
-    </UserSubsidyContext.Provider>
+    <ProgramListingCard program={programData} />
   </IntlProvider>
 );
 
@@ -60,17 +57,6 @@ const dummyProgramData = {
     completed: 2,
     notStarted: 3,
   },
-
-};
-
-const userSubsidyState = {
-  subscriptionLicense: {
-    uuid: 'test-license-uuid',
-  },
-  couponCodes: {
-    couponCodes: [],
-    couponCodesCount: 0,
-  },
 };
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -81,10 +67,7 @@ describe('<ProgramListingCard />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
   it('renders all data for program', () => {
-    renderWithRouter(<ProgramListingCardWithContext
-      initialUserSubsidyState={userSubsidyState}
-      programData={dummyProgramData}
-    />);
+    renderWithRouter(<ProgramListingCardWithContext programData={dummyProgramData} />);
     expect(screen.getByText(dummyProgramData.title)).toBeInTheDocument();
     expect(screen.getByText(dummyProgramData.type)).toBeInTheDocument();
     expect(screen.getByText(dummyProgramData.authoringOrganizations[0].key)).toBeInTheDocument();
@@ -104,10 +87,7 @@ describe('<ProgramListingCard />', () => {
       key: 'test-key2',
       logoImageUrl: '/media/organization/logos/shield.png',
     });
-    renderWithRouter(<ProgramListingCardWithContext
-      initialUserSubsidyState={userSubsidyState}
-      programData={dummyDataWithMultipleOrgs}
-    />);
+    renderWithRouter(<ProgramListingCardWithContext programData={dummyDataWithMultipleOrgs} />);
     const aggregatedOrganizations = dummyDataWithMultipleOrgs.authoringOrganizations.map(org => org.key).join(', ');
     expect(screen.getByText(aggregatedOrganizations)).toBeInTheDocument();
   });
@@ -118,20 +98,46 @@ describe('<ProgramListingCard />', () => {
       key: 'test-key2',
       logoImageUrl: '/media/organization/logos/shield.png',
     });
-    const { queryByAltText } = renderWithRouter(<ProgramListingCardWithContext
-      initialUserSubsidyState={userSubsidyState}
-      programData={dummyDataWithMultipleOrg}
-    />);
+    const { queryByAltText } = renderWithRouter(
+      <ProgramListingCardWithContext programData={dummyDataWithMultipleOrg} />,
+    );
     const logoImageNode = queryByAltText(dummyProgramData.authoringOrganizations[0].key);
     expect(logoImageNode).toBeNull();
   });
 
   it('redirects to correct page when clicked', () => {
-    const { container } = renderWithRouter(<ProgramListingCardWithContext
-      initialUserSubsidyState={userSubsidyState}
-      programData={dummyProgramData}
-    />);
+    const { container } = renderWithRouter(<ProgramListingCardWithContext programData={dummyProgramData} />);
     userEvent.click(container.firstElementChild);
     expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/program/test-uuid/progress`);
+  });
+
+  it.each([{
+    width: 1450,
+    size: 'large',
+  },
+  {
+    width: 1300,
+    size: 'large',
+  },
+  {
+    width: 1000,
+    size: 'large',
+  },
+  {
+    width: 800,
+    size: 'medium',
+  },
+  {
+    width: 600,
+    size: 'small',
+  },
+  {
+    width: 500,
+    size: 'xSmall',
+  }])('tests window size', ({ width, size }) => {
+    global.innerWidth = width;
+    renderWithRouter(<ProgramListingCardWithContext programData={dummyProgramData} />);
+    const imageCapSrc = screen.getByAltText('').src;
+    expect(imageCapSrc).toContain(size);
   });
 });

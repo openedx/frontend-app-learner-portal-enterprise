@@ -4,6 +4,7 @@ import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries.user.entitlements
  * @returns {Types.QueryOptions}
  */
@@ -14,6 +15,7 @@ export function queryUserEntitlements() {
 /**
  * Helper function to assist querying with useQuery package
  *
+ * queries.user.notices
  * @returns {Types.QueryOptions}
  */
 export function queryNotices() {
@@ -22,6 +24,8 @@ export function queryNotices() {
 
 /**
  * Helper function to assist querying with useQuery package
+ *
+ * queries.user.skillLevels(jobId)
  * @param {*} jobId
  * @returns {Types.QueryOptions}
  */
@@ -31,9 +35,8 @@ export function queryLearnerSkillLevels(jobId) {
 
 /**
  * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseLearner(username, enterpriseSlug)
+ *
+ * queries.enterprise.enterpriseLearner(username, enterpriseSlug)
  * @returns {Types.QueryOptions}
  */
 export function queryEnterpriseLearner(username, enterpriseSlug) {
@@ -42,6 +45,7 @@ export function queryEnterpriseLearner(username, enterpriseSlug) {
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -57,6 +61,7 @@ export function queryEnterpriseCourseEnrollments(enterpriseUuid) {
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -72,6 +77,7 @@ export function queryEnterpriseProgramsList(enterpriseUuid) {
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -103,6 +109,7 @@ export function queryEnterprisePathwaysList(enterpriseUuid) {
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -120,19 +127,25 @@ export function queryCourseMetadata(enterpriseUuid, courseKey) {
 
 /**
  * Helper function to assist querying the content key catalog inclusion.
+ *
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.containsContent(contentIdentifiers)
  * @param {string} enterpriseUuid
- * @param {string} contentIdentifers
+ * @param {string} contentIdentifiers
  * @returns {Types.QueryOptions}
  */
-export function queryEnterpriseCustomerContainsContent(enterpriseUuid, contentIdentifers) {
+export function queryEnterpriseCustomerContainsContent(enterpriseUuid, contentIdentifiers) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.containsContent(contentIdentifers);
+    ._ctx.containsContent(contentIdentifiers);
 }
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -150,6 +163,7 @@ export function queryAcademiesList(enterpriseUuid) {
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -167,6 +181,7 @@ export function queryContentHighlightsConfiguration(enterpriseUuid) {
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -184,6 +199,7 @@ export function queryContentHighlightSets(enterpriseUuid) {
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -255,6 +271,7 @@ export function queryEnterpriseLearnerOffers(enterpriseUuid) {
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -273,6 +290,12 @@ export function queryCouponCodes(enterpriseUuid) {
 /**
  * Helper function to assist querying with useQuery package.
  *
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.subsidies
+ * ._ctx.browseAndRequest
+ * ._ctx.configuration
  * @param {string} enterpriseUuid - The UUID of the enterprise.
  * @returns {Types.QueryOptions}
  */
@@ -326,4 +349,21 @@ export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSI
     ._ctx.browseAndRequest
     ._ctx.requests(userEmail, state)
     ._ctx.couponCodeRequests;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ *
+ * queries
+ * .content
+ * .program(programUUID)
+ * ._ctx.progress
+ * @param programUUID
+ * @returns {Types.QueryOptions}
+ */
+export function queryLearnerProgramProgressData(programUUID) {
+  return queries
+    .content
+    .program(programUUID)
+    ._ctx.progress;
 }

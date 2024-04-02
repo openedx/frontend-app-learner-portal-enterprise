@@ -1,6 +1,6 @@
 import { PageWrap } from '@edx/frontend-platform/react';
 import {
-  Route, createBrowserRouter, createRoutesFromElements,
+  Route, createBrowserRouter, createRoutesFromElements, Outlet,
 } from 'react-router-dom';
 
 import RouteErrorBoundary from './RouteErrorBoundary';
@@ -76,7 +76,17 @@ export default function createAppRouter(queryClient) {
             )}
           />
           <Route
-            path="program/:programUuid"
+            path="program/:programUUID"
+            element={<Outlet />}
+            errorElement={(
+              <RouteErrorBoundary
+                showSiteHeader={false}
+                showSiteFooter={false}
+              />
+            )}
+          >
+            <Route
+              index
             lazy={async () => {
               const { ProgramPage, makeProgramLoader } = await import('../../program');
               return {
@@ -84,13 +94,18 @@ export default function createAppRouter(queryClient) {
                 loader: makeProgramLoader(queryClient),
               };
             }}
-            errorElement={(
-              <RouteErrorBoundary
-                showSiteHeader={false}
-                showSiteFooter={false}
-              />
-            )}
-          />
+            />
+            <Route
+              path="progress"
+              lazy={async () => {
+                const { ProgramProgressPage, makeProgramProgressLoader } = await import('../../program-progress');
+                return {
+                  Component: ProgramProgressPage,
+                  loader: makeProgramProgressLoader(queryClient),
+                };
+              }}
+            />
+          </Route>
           <Route
             path="skills-quiz"
             lazy={async () => {
