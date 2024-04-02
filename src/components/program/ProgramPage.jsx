@@ -2,10 +2,8 @@ import { Helmet } from 'react-helmet';
 import {
   breakpoints, Container, Row, MediaQuery,
 } from '@openedx/paragon';
-import { ErrorPage } from '@edx/frontend-platform/react';
 
 import { MainContent, Sidebar } from '../layout';
-import { LoadingSpinner } from '../loading-spinner';
 import ProgramHeader from './ProgramHeader';
 import ProgramMainContent from './ProgramMainContent';
 import ProgramSidebar from './ProgramSidebar';
@@ -20,18 +18,10 @@ import { useEnterpriseCustomer, useProgramDetails } from '../app/data';
 
 const ProgramPage = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: program, isError: fetchError, isLoading } = useProgramDetails();
+  const { data: program } = useProgramDetails();
 
-  if (fetchError) {
-    return <ErrorPage message={fetchError.message} />;
-  }
-
-  if (isLoading) {
-    return (
-      <Container size="lg" className="py-5">
-        <LoadingSpinner screenReaderText="loading program" />
-      </Container>
-    );
+  if (!program) {
+    return <NotFoundPage />;
   }
 
   // if there is not even single course that does not belongs to the enterprise customer's catalog

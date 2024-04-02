@@ -3,8 +3,7 @@ import { FormatQuote } from '@openedx/paragon/icons';
 import { useProgramDetails } from '../app/data';
 
 const ProgramEndorsements = () => {
-  const { data: program } = useProgramDetails();
-  const { corporateEndorsements } = program;
+  const { data: { corporateEndorsements } } = useProgramDetails();
   const formatAuthorFullName = endorser => `${endorser.givenName} ${endorser.familyName}`;
   const title = endorser => (endorser.position ? endorser.position.title : '');
 

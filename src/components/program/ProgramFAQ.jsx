@@ -3,8 +3,7 @@ import { ExpandLess, ExpandMore } from '@openedx/paragon/icons';
 import { useProgramDetails } from '../app/data';
 
 const ProgramFAQ = () => {
-  const { data: program } = useProgramDetails();
-  const { faq } = program;
+  const { data: { faq } } = useProgramDetails();
   if (!faq || faq.length === 0) {
     return null;
   }

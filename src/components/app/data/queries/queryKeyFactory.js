@@ -88,12 +88,6 @@ const enterprise = createQueryKeys('enterprise', {
       programs: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchLearnerProgramsList(queryKey[2]),
-        contextQueries: {
-          program: (programUuid) => ({
-            queryKey: [programUuid],
-            queryFn: async ({ queryKey }) => fetchProgramDetails(queryKey[2], queryKey[5]),
-          }),
-        },
       },
       pathways: {
         queryKey: null,
@@ -174,10 +168,10 @@ const content = createQueryKeys('content', {
   program: (programUUID) => ({
     queryKey: [programUUID],
     contextQueries: {
-      detail: {
-        queryKey: null,
-        queryFn: () => {},
-      },
+      detail: (enterpriseUuid) => ({
+        queryKey: [enterpriseUuid],
+        queryFn: async ({ queryKey }) => fetchProgramDetails(queryKey[4], queryKey[2]),
+      }),
       progress: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchLearnerProgramProgressDetail(queryKey[2]),

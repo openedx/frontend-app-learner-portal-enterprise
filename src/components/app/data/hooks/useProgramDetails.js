@@ -10,9 +10,9 @@ import { queryEnterpriseProgram } from '../queries';
  */
 export default function useProgramDetails(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { programUuid } = useParams();
+  const { programUUID } = useParams();
   return useQuery({
-    ...queryEnterpriseProgram(enterpriseCustomer.uuid, programUuid),
+    ...queryEnterpriseProgram(enterpriseCustomer.uuid, programUUID),
     ...queryOptions,
   });
 }

@@ -8,10 +8,11 @@ import { useProgramDetails } from '../app/data';
 const ProgramHeader = () => {
   const config = getConfig();
   const { enterpriseSlug } = useParams();
-  const { data: program } = useProgramDetails();
   const {
-    title, authoringOrganizations, subjects, marketingHook,
-  } = program;
+    data: {
+      title, authoringOrganizations, subjects, marketingHook,
+    },
+  } = useProgramDetails();
   let isMobileWindow = true;
   // Use the first subject as the primary subject
   const primarySubject = subjects?.length > 0 ? subjects[0] : '';

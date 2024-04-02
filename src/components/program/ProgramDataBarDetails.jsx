@@ -6,10 +6,11 @@ import { appendProgramToProgramType } from './data/utils';
 import { useProgramDetails } from '../app/data';
 
 const ProgramDataBarDetails = ({ handleStick, handleRelease }) => {
-  const { data: program } = useProgramDetails();
   const {
-    title, authoringOrganizations: owners, type,
-  } = program;
+    data: {
+      title, authoringOrganizations: owners, type,
+    },
+  } = useProgramDetails();
   const wrapper = useRef(null);
   const [sticky, setSticky] = useState(false);
   const [componentTop, setComponentTop] = useState(0);

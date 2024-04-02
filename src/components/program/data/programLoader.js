@@ -10,7 +10,7 @@ export default function makeProgramLoader(queryClient) {
       return null;
     }
 
-    const { enterpriseSlug, programUuid } = params;
+    const { enterpriseSlug, programUUID } = params;
 
     const enterpriseId = await extractEnterpriseId({
       queryClient,
@@ -18,13 +18,7 @@ export default function makeProgramLoader(queryClient) {
       enterpriseSlug,
     });
 
-    const programData = [
-      queryClient.ensureQueryData(
-        queryEnterpriseProgram(enterpriseId, programUuid),
-      ),
-    ];
-
-    await Promise.all(programData);
+    await queryClient.ensureQueryData(queryEnterpriseProgram(enterpriseId, programUUID));
 
     return null;
   };

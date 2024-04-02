@@ -11,12 +11,12 @@ import { validate as isValidUUID } from 'uuid';
   * parameters. Course keys are compatible with the `course_run_ids` parameter, as the
   * `parent_content_key` is checked by the API.
   * */
-export async function fetchEnterpriseCustomerContainsContent(enterpriseId, contentIdentifers) {
+export async function fetchEnterpriseCustomerContainsContent(enterpriseId, contentIdentifiers) {
   const contentIdentifiersMap = {
     course: [],
     program: [],
   };
-  contentIdentifers.forEach((contentIdentifier) => {
+  contentIdentifiers.forEach((contentIdentifier) => {
     if (isValidUUID(contentIdentifier)) {
       contentIdentifiersMap.program.push(contentIdentifier);
     } else {
