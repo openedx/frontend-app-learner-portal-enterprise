@@ -1,5 +1,5 @@
 import {
-  breakpoints, Container, MediaQuery, Row,
+  breakpoints, Col, Container, MediaQuery, Row,
 } from '@openedx/paragon';
 
 import { MainContent, Sidebar } from '../../layout';
@@ -39,8 +39,14 @@ const CourseAbout = () => {
               </Sidebar>
             )}
           </MediaQuery>
-          {shouldShowCourseRecommendations && <CourseRecommendations />}
         </Row>
+        {shouldShowCourseRecommendations && (
+          <Row>
+            <Col>
+              <CourseRecommendations />
+            </Col>
+          </Row>
+        )}
       </Container>
     </>
   );

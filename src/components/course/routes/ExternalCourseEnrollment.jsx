@@ -1,12 +1,11 @@
-import React, { useContext, useEffect, useRef } from 'react';
-import { generatePath, useNavigate, useLocation } from 'react-router-dom';
+import { useContext, useEffect, useRef } from 'react';
 import {
   Alert, Button, Col, Container, Hyperlink, Row,
 } from '@openedx/paragon';
 import { CheckCircle } from '@openedx/paragon/icons';
-
 import { getConfig } from '@edx/frontend-platform/config';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
+
 import { isDuplicateExternalCourseOrder } from '../../executive-education-2u/data';
 import { CourseContext } from '../CourseContextProvider';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
@@ -16,20 +15,18 @@ import {
   useExternalEnrollmentFailureReason,
   useIsCourseAssigned,
   useMinimalCourseMetadata,
-  useUserSubsidyApplicableToCourse,
 } from '../data/hooks';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
 import { features } from '../../../config';
-import { useCourseMetadata, useCourseRedemptionEligibility, useEnterpriseCustomer } from '../../app/data';
+import { useCourseMetadata, useEnterpriseCustomer } from '../../app/data';
+
+export { default as makeExternalCourseEnrollmentLoader } from './externalCourseEnrollmentLoader';
 
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
   const { externalCourseFormSubmissionError } = useContext(CourseContext);
   const {
     data: {
-      courseMetadata,
       activeCourseRun,
       courseEntitlementProductSku,
     },
@@ -40,19 +37,9 @@ const ExternalCourseEnrollment = () => {
       courseEntitlementProductSku: transformed.courseEntitlementProductSku,
     }),
   });
-  const { data: { hasSuccessfulRedemption } } = useCourseRedemptionEligibility();
-  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const completeEnrollmentUrl = generatePath(
-      `${pathname}/complete`,
-      {
-        enterpriseSlug: enterpriseCustomer.slug,
-        courseType: courseMetadata.courseType,
-        courseKey: courseMetadata.key,
-      },
-  );
   const isCourseAssigned = useIsCourseAssigned();
-  const minimalCourseMetadata = useMinimalCourseMetadata();
+  const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
 
   const externalDashboardQueryParams = new URLSearchParams();
   if (enterpriseCustomer.authOrgId) {
@@ -77,15 +64,6 @@ const ExternalCourseEnrollment = () => {
       containerRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [externalCourseFormSubmissionError, containerRef]);
-
-  useEffect(() => {
-    // Once a redemption has successfully completed and the can-redeem query has been invalidated or
-    // a user attempts to navigate directly to /:enterpriseSlug/:courseType/course/:courseKey/enroll,
-    // it will run this conditional and perform the redirect
-    if (hasSuccessfulRedemption) {
-      navigate(completeEnrollmentUrl);
-    }
-  }, [completeEnrollmentUrl, hasSuccessfulRedemption, navigate]);
 
   return (
     <div className="fill-vertical-space page-light-bg">
@@ -167,7 +145,6 @@ const ExternalCourseEnrollment = () => {
               <UserEnrollmentForm
                 productSKU={courseEntitlementProductSku}
                 activeCourseRun={activeCourseRun}
-                userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
               />
             </Col>
           </Row>

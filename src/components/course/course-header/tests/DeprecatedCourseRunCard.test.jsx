@@ -10,14 +10,11 @@ import {
   initialAppState,
   mockCourseState,
 } from '../../../../utils/tests';
-import {
-  COURSE_MODES_MAP,
-  COURSE_PACING_MAP,
-} from '../../data/constants';
+import { COURSE_PACING_MAP } from '../../data/constants';
 import CourseRunCardDeprecated from '../deprecated/CourseRunCard';
 import * as subsidyRequestsHooks from '../../data/hooks';
 import { enrollButtonTypes } from '../../enrollment/constants';
-import { COURSE_AVAILABILITY_MAP, useEnterpriseCustomer } from '../../../app/data';
+import { COURSE_AVAILABILITY_MAP, COURSE_MODES_MAP, useEnterpriseCustomer } from '../../../app/data';
 import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 const COURSE_UUID = 'foo';

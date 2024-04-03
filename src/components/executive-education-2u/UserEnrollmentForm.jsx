@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   Alert, Card, CheckboxControl, Col, Form, Hyperlink, MailtoLink, Row, StatefulButton,
@@ -19,16 +20,21 @@ import { checkoutExecutiveEducation2U, isDuplicateExternalCourseOrder, toISOStri
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
-import { enterpriseUserSubsidyQueryKeys } from '../enterprise-user-subsidy/data/constants';
-import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../app/data';
+import {
+  queries,
+  queryEnterpriseCourseEnrollments,
+  queryRedeemablePolicies,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+} from '../app/data';
+import { useUserSubsidyApplicableToCourse } from '../course/data';
 
 const UserEnrollmentForm = ({
   className,
   productSKU,
-  onCheckoutSuccess,
   activeCourseRun,
-  userSubsidyApplicableToCourse,
 }) => {
+  const navigate = useNavigate();
   const config = getConfig();
   const queryClient = useQueryClient();
   const intl = useIntl();
@@ -37,6 +43,8 @@ const UserEnrollmentForm = ({
   } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  const { courseKey } = useParams();
   const {
     externalCourseFormSubmissionError,
     setExternalCourseFormSubmissionError,
@@ -50,17 +58,28 @@ const UserEnrollmentForm = ({
     if (!isNil(newTransaction) && newTransaction.state !== 'committed') {
       return;
     }
+
+    const canRedeemQueryKey = queries
+      .enterprise.enterpriseCustomer(enterpriseCustomer.uuid)
+      ._ctx.course(courseKey)
+      ._ctx.canRedeem._def;
+
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: canRedeemQueryKey }),
+      queryClient.invalidateQueries({
+        queryKey: queryRedeemablePolicies({
+          enterpriseUuid: enterpriseCustomer.uuid,
+          lmsUserId: userId,
+        }),
+      }),
+      queryClient.invalidateQueries({ queryKey: queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid) }),
+      sendEnterpriseTrackEventWithDelay(
+        enterpriseCustomer.uuid,
+        'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
+      ),
+    ]);
     setEnrollButtonState('complete');
-    await sendEnterpriseTrackEventWithDelay(
-      enterpriseCustomer.uuid,
-      'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
-    );
-    await queryClient.invalidateQueries({
-      queryKey: enterpriseUserSubsidyQueryKeys.policy(),
-    });
-    if (onCheckoutSuccess) {
-      onCheckoutSuccess(newTransaction);
-    }
+    navigate('complete');
   };
 
   const { redeem } = useStatefulEnroll({
@@ -474,7 +493,6 @@ const UserEnrollmentForm = ({
 UserEnrollmentForm.propTypes = {
   className: PropTypes.string,
   productSKU: PropTypes.string.isRequired,
-  onCheckoutSuccess: PropTypes.func,
   activeCourseRun: PropTypes.shape({
     key: PropTypes.string.isRequired,
   }).isRequired,
@@ -486,7 +504,6 @@ UserEnrollmentForm.propTypes = {
 UserEnrollmentForm.defaultProps = {
   className: undefined,
   userSubsidyApplicableToCourse: undefined,
-  onCheckoutSuccess: undefined,
 };
 
 export default UserEnrollmentForm;

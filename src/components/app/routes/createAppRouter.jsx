@@ -1,15 +1,13 @@
 import { PageWrap } from '@edx/frontend-platform/react';
 import {
+  Outlet,
   Route,
   createBrowserRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
 
 import RouteErrorBoundary from './RouteErrorBoundary';
-import {
-  makeCourseLoader,
-  makeRootLoader,
-} from './loaders';
+import { makeRootLoader } from './loaders';
 import Root from '../Root';
 import Layout from '../Layout';
 import NotFoundPage from '../../NotFoundPage';
@@ -95,7 +93,7 @@ export default function createAppRouter(queryClient) {
           <Route
             path=":courseType?/course/:courseKey/*"
             lazy={async () => {
-              const { CoursePage } = await import('../../course');
+              const { CoursePage, makeCourseLoader } = await import('../../course');
               return {
                 Component: CoursePage,
                 loader: makeCourseLoader(queryClient),
@@ -119,12 +117,31 @@ export default function createAppRouter(queryClient) {
             />
             <Route
               path="enroll/:courseRunKey"
-              element={<h3>Enroll!</h3>}
-            />
-            <Route
-              path="enroll/:courseRunKey/complete"
-              element={<h3>Enroll Complete!</h3>}
-            />
+              element={<Outlet />}
+            >
+              <Route
+                index
+                lazy={async () => {
+                  const {
+                    default: ExternalCourseEnrollment,
+                    makeExternalCourseEnrollmentLoader,
+                  } = await import('../../course/routes/ExternalCourseEnrollment');
+                  return {
+                    Component: ExternalCourseEnrollment,
+                    loader: makeExternalCourseEnrollmentLoader(queryClient),
+                  };
+                }}
+              />
+              <Route
+                path="complete"
+                lazy={async () => {
+                  const { default: ExternalCourseEnrollmentConfirmation } = await import('../../course/routes/ExternalCourseEnrollmentConfirmation');
+                  return {
+                    Component: ExternalCourseEnrollmentConfirmation,
+                  };
+                }}
+              />
+            </Route>
           </Route>
           <Route
             path="licenses/:activationKey/activate"

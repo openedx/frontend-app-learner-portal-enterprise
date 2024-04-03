@@ -27,7 +27,7 @@ const CourseRecommendations = () => {
 
   return (
     <div className="mt-1">
-      {allRecommendations.length > 0 && (
+      {allRecommendationsCards.length > 0 && (
         <div className="mb-3">
           <h3 className="mb-3">
             <FormattedMessage

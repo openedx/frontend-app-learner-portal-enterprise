@@ -23,6 +23,7 @@ import {
   fetchEnterpriseCustomerContainsContent,
   fetchCourseReviews,
   fetchCourseRecommendations,
+  checkTransactionStatus,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -121,6 +122,10 @@ const enterprise = createQueryKeys('enterprise', {
               redeemablePolicies: (lmsUserId) => ({
                 queryKey: [lmsUserId],
                 queryFn: async ({ queryKey }) => fetchRedeemablePolicies(queryKey[2], lmsUserId),
+              }),
+              policyTransaction: (transaction) => ({
+                queryKey: [transaction],
+                queryFn: async () => checkTransactionStatus(transaction),
               }),
             },
           },

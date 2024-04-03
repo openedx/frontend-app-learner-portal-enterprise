@@ -20,9 +20,13 @@ import {
   getSearchCatalogs,
   getCatalogsForSubsidyRequests,
   queryBrowseAndRequestConfiguration,
-} from '../../data';
-import { ensureAuthenticatedUser } from '../data';
-import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from '../../../course/data';
+} from '../../app/data';
+import { ensureAuthenticatedUser } from '../../app/routes/data';
+import {
+  getCourseTypeConfig,
+  getLinkToCourse,
+  pathContainsCourseTypeSlug,
+} from './utils';
 
 /**
  * Course loader for the course related page routes.

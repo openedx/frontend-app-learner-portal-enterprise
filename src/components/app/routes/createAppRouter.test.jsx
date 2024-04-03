@@ -6,10 +6,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import createAppRouter from './createAppRouter';
 import { queryClient } from '../../../utils/tests';
-import {
-  makeRootLoader,
-  makeCourseLoader,
-} from './loaders';
+import { makeRootLoader } from './loaders';
 import Root from '../Root';
 import Layout from '../Layout';
 import { makeDashboardLoader } from '../../dashboard';

@@ -264,6 +264,21 @@ export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
 }
 
 /**
+ * Helper function to assist querying with useQuery package.
+ * @param {string} enterpriseUuid
+ * @param {Object} transaction
+ * @returns {Types.QueryOptions}
+ */
+export function queryPolicyTransaction(enterpriseUuid, transaction) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.policy
+    ._ctx.policyTransaction(transaction);
+}
+
+/**
  * Helper function to assist querying with useQuery package
  * queries
  * .enterprise

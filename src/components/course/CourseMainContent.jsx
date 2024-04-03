@@ -178,7 +178,7 @@ const CourseMainContent = () => {
         </PreviewExpand>
       )}
       <CreatedBy />
-      {courseMetadata.activeCourseRun.type.includes('verified') && (
+      {courseMetadata.activeCourseRun?.type?.includes('verified') && (
         <VerifiedCertPitch />
       )}
       {courseMetadata.learnerTestimonials && (

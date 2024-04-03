@@ -26,6 +26,7 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
       return {
         primaryPartner: course.owners?.length > 0 ? course.owners[0] : undefined,
         showPartnerLogo: course.owners?.length === 1,
+        courseOwnersTransformed: course.owners?.map(owner => owner.name).join(', '),
       };
     },
     [course],
@@ -55,18 +56,16 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}
       />
-
       <Card.Header
         title={(
           <Truncate lines={3}>{course.title}</Truncate>
         )}
-        subtitle={course.owners?.length > 0 && (
+        subtitle={partnerDetails.courseOwnersTransformed && (
           <Truncate className="partner" lines={1}>
-            {course.owners.map(partner => partner.name).join(', ')}
+            {partnerDetails.courseOwnersTransformed}
           </Truncate>
         )}
       />
-
       {/* Intentionally empty section so the footer is correctly spaced at the bottom of the card */}
       <Card.Section />
       <Card.Footer textElement={<span className="text-muted">Course</span>} />

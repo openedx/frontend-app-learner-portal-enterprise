@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import useCourseMetadata from './useCourseMetadata';
@@ -10,6 +11,7 @@ import useLateRedemptionEnrollableBufferDays from './useLateRedemptionBufferDays
  * @returns {Types.UseQueryResult}} The query results for the course redemption eligibility.
  */
 export default function useCourseRedemptionEligibility(queryOptions = {}) {
+  const { courseRunKey } = useParams();
   const { select, ...queryOptionsRest } = queryOptions;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
@@ -26,7 +28,10 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
         r => r.redeemableSubsidyAccessPolicy,
       )?.redeemableSubsidyAccessPolicy;
       const listPrice = redeemabilityForActiveCourseRun?.listPrice?.usd;
-      const hasSuccessfulRedemption = data.some(r => r.hasSuccessfulRedemption);
+
+      const hasSuccessfulRedemption = courseRunKey
+        ? !!data.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption
+        : data.some(r => r.hasSuccessfulRedemption);
 
       // If there is a redeemable subsidy access policy for the active course run, use that. Otherwise, use any other
       // redeemable subsidy access policy for any of the content keys.

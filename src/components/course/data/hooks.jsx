@@ -4,18 +4,14 @@ import {
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { logError } from '@edx/frontend-platform/logging';
-import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform';
-import { AppContext } from '@edx/frontend-platform/react';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { useQuery } from '@tanstack/react-query';
 
 import { CourseContext } from '../CourseContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
-import CourseService from './service';
+
 import {
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
@@ -43,7 +39,6 @@ import {
 import { EVENTS, pushEvent } from '../../../utils/optimizely';
 import { canUserRequestSubsidyForCourse, getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
-import { enterpriseUserSubsidyQueryKeys } from '../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_TYPE } from '../../../constants';
 import {
   useBrowseAndRequest,
@@ -61,60 +56,6 @@ import {
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
-
-export function useAllCourseData({
-  courseService,
-  activeCatalogs,
-}) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [courseData, setCourseData] = useState();
-  const [courseRecommendations, setCourseRecommendations] = useState();
-  const [courseReviews, setCourseReviews] = useState();
-  const [fetchError, setFetchError] = useState();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!courseService.courseKey || !courseService.enterpriseUuid) {
-        return;
-      }
-      setIsLoading(true);
-
-      try {
-        const data = await courseService.fetchAllCourseData();
-        setCourseData(camelCaseObject(data));
-      } catch (error) {
-        logError(error);
-        setFetchError(error);
-      }
-
-      try {
-        const response = await courseService.fetchCourseReviews();
-        setCourseReviews(camelCaseObject(response.data));
-      } catch (error) {
-        logError(error);
-        setCourseReviews(undefined);
-      }
-
-      try {
-        const data = await courseService.fetchAllCourseRecommendations(activeCatalogs);
-        setCourseRecommendations(camelCaseObject(data));
-      } catch (error) {
-        logError(error);
-        setCourseRecommendations([]);
-      }
-
-      setIsLoading(false);
-    };
-    fetchData();
-  }, [courseService, activeCatalogs]);
-  return {
-    courseData,
-    courseRecommendations,
-    courseReviews,
-    fetchError,
-    isLoading,
-  };
-}
 
 /**
  * Determines the course partners associated with the course. Checks whether
@@ -565,97 +506,6 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
   }
 }
 
-/**
- * Calls the can-redeem API endpoint in the enterprise-access service to determine if the user is eligible to redeem
- * the course runs for the course being viewed.
- *
- * @param {object} args
- * @param {string} args.enterpriseUuid The UUID of the enterprise customer
- * @param {string} args.activeCourseRunKey The advertised course run key, e.g. 'course-v1:edX+DemoX+Demo_Course'
- * @param {string} args.queryKey Query key for the call to `useQuery`, used to pass in the course run keys.
- *
- * @returns {object} {
- *  isPolicyRedemptionEnabled,
- *  redeemabilityPerContentKey,
- *  redeemableSubsidyAccessPolicy,
- *  missingSubsidyAccessPolicyReason,
- *  hasSuccessfulRedemption,
- *  listPrice,
- * }
- */
-const checkRedemptionEligibility = async ({ queryKey }) => {
-  const enterpriseUuid = queryKey[2];
-  const { courseRunKeys, activeCourseRunKey } = queryKey[4];
-
-  const courseService = new CourseService({ enterpriseUuid });
-  const response = await courseService.fetchCanRedeem({ courseRunKeys });
-  const transformedResponse = camelCaseObject(response.data);
-  const redeemabilityForActiveCourseRun = transformedResponse.find(r => r.contentKey === activeCourseRunKey);
-  const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
-  const preferredSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
-  const otherSubsidyAccessPolicy = transformedResponse.find(
-    r => r.redeemableSubsidyAccessPolicy,
-  )?.redeemableSubsidyAccessPolicy;
-  const listPrice = redeemabilityForActiveCourseRun?.listPrice?.usd;
-
-  const hasSuccessfulRedemption = transformedResponse.some(r => r.hasSuccessfulRedemption);
-
-  // If there is a redeemable subsidy access policy for the active course run, use that. Otherwise, use any other
-  // redeemable subsidy access policy for any of the content keys.
-  const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || otherSubsidyAccessPolicy;
-  const isPolicyRedemptionEnabled = hasSuccessfulRedemption || !!redeemableSubsidyAccessPolicy;
-
-  return {
-    isPolicyRedemptionEnabled,
-    redeemabilityPerContentKey: transformedResponse,
-    redeemableSubsidyAccessPolicy,
-    missingSubsidyAccessPolicyReason,
-    hasSuccessfulRedemption,
-    listPrice,
-  };
-};
-
-/**
- * Makes an API request to enterprise-access's `can-redeem` endpoint to return
- * a redeemable subsidy, if any, for each course run key provided.
- *
- * @param {object} args
- * @param {array} args.courseRunKeys List of course run keys.
- * @param {string} args.activeCourseRunKey The course run key of the advertised course run for the top-level course.
- * @param {string} args.enterpriseUuid Enterprise customer UUID.
- * @param {string} args.isQueryEnabled Whether the API request to ``can-redeem`` should be made
- * @param {string} args.queryOptions Optional query options to pass to `useQuery`
- *
- * @returns {object} The output from `useQuery`, plus the following:
- * - `isPolicyRedemptionEnabled`: Whether there is a redeemable subsidy access policy.
- * - `redeemableSubsidyAccessPolicy`: The redeemable subsidy access policy, if any.
- * - `redeemabilityPerContentKey`: An array of objects containing the redeemability status for each course run key.
- * - `missingSubsidyAccessPolicyReason`: The reason why the subsidy access policy is not redeemable, if any.
- * - `hasSuccessfulRedemption`: Whether a successful redemption for the active course run
- *    already exists for the requesting user.
- * - `listPrice`: The list price (as a float) to display for the course.
- */
-export const useCheckSubsidyAccessPolicyRedeemability = ({
-  courseRunKeys = [],
-  activeCourseRunKey,
-  enterpriseUuid,
-  isQueryEnabled,
-  queryOptions,
-}) => {
-  const { authenticatedUser: { userId: lmsUserId } } = useContext(AppContext);
-  const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
-  return useQuery({
-    ...queryOptions,
-    queryKey: enterpriseUserSubsidyQueryKeys.coursePolicyRedeemability(
-      {
-        enterpriseId: enterpriseUuid, lmsUserId, courseRunKeys, activeCourseRunKey,
-      },
-    ),
-    enabled: isEnabled,
-    queryFn: checkRedemptionEligibility,
-  });
-};
-
 export function useCourseListPrice() {
   return useCourseMetadata({
     select: ({ transformed }) => getCourseRunPrice(transformed),
@@ -795,7 +645,7 @@ export function useCanUserRequestSubsidyForCourse() {
   });
 }
 
-export const useMinimalCourseMetadata = () => {
+export function useMinimalCourseMetadata() {
   const { coursePrice, currency } = useCoursePrice();
   return useCourseMetadata({
     select: ({ transformed }) => {
@@ -828,7 +678,7 @@ export const useMinimalCourseMetadata = () => {
       return minimalCourseMetadata;
     },
   });
-};
+}
 
 export const useExternalEnrollmentFailureReason = () => {
   const intl = useIntl();

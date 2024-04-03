@@ -100,6 +100,18 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
   }
 }
 
+// Policy Transaction
+
+/**
+ * TODO
+ * @param {*} enterpriseUUID
+ */
+export async function checkTransactionStatus(transaction) {
+  const { transactionStatusApiUrl } = transaction;
+  const response = await getAuthenticatedHttpClient().get(transactionStatusApiUrl);
+  return camelCaseObject(response.data);
+}
+
 export * from './browseAndRequest';
 export * from './subscriptions';
 export * from './couponCodes';

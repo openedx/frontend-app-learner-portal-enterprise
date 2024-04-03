@@ -11,7 +11,7 @@ import { DATE_FORMAT, ZERO_PRICE } from '../../course/data/constants';
 import { useMinimalCourseMetadata } from '../../course/data/hooks';
 
 const CourseSummaryCard = ({ enrollmentCompleted }) => {
-  const minimalCourseMetadata = useMinimalCourseMetadata();
+  const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
 
   let coursePrice = null;
   const precisePrice = minimalCourseMetadata.priceDetails?.price ? `$${numberWithPrecision(
