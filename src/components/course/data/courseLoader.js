@@ -71,6 +71,9 @@ export default function makeCourseLoader(queryClient) {
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
       queryClient.ensureQueryData(queryCourseMetadata(courseKey, courseRunKey)).then(async (courseMetadata) => {
+        if (!courseMetadata) {
+          return null;
+        }
         const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
           enterpriseUuid: enterpriseId,
           lmsUserId: authenticatedUser.userId,

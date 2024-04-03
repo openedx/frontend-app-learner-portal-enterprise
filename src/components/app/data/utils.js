@@ -65,6 +65,7 @@ export function determineLearnerHasContentAssignmentsOnly({
 }) {
   const hasActiveLicense = !!(subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED);
   const hasActiveLicenseOrLicenseRequest = hasActiveLicense || licenseRequests.length > 0;
+
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
   const autoAppliedPolicyTypes = [
     POLICY_TYPES.PER_LEARNER_CREDIT,

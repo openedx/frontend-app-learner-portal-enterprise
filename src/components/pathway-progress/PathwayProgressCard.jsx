@@ -15,7 +15,7 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
   };
   return (
     <Card
-      className="progress-listing-card"
+      className="progress-listing-card d-inline-flex"
       isClickable
       onClick={redirectToProgressDetailPage}
     >

@@ -36,7 +36,7 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
 
   return (
     <Card
-      className="course-card-recommendation"
+      className="course-card-recommendation d-inline-flex"
       as={Link}
       to={linkToCourse}
       isClickable

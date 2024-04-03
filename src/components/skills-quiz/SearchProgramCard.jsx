@@ -166,6 +166,7 @@ const SearchProgramCard = ({ index }) => {
           return (
             <Card
               key={uuidv4()}
+              className="d-inline-flex"
               isClickable
               isLoading={isLoading}
               as={Link}

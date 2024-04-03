@@ -91,6 +91,7 @@ const SearchCourseCard = ({
   return (
     <Card
       data-testid="search-course-card"
+      className="d-inline-flex"
       isLoading={isLoading}
       isClickable
       as={Link}

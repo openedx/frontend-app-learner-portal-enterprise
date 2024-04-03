@@ -508,8 +508,9 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
 }
 
 export function useCourseListPrice() {
+  const { data: { listPrice } } = useCourseRedemptionEligibility();
   return useCourseMetadata({
-    select: ({ transformed }) => getCourseRunPrice(transformed),
+    select: ({ transformed }) => listPrice ?? getCourseRunPrice(transformed),
   });
 }
 
