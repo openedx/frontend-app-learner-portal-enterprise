@@ -29,7 +29,6 @@ import {
   COURSE_MODES_MAP,
   findHighestLevelEntitlementSku,
   findHighestLevelSkuByEntityModeType,
-  getAvailableCourseRuns,
 } from '../../app/data';
 
 export function hasCourseStarted(start) {
@@ -122,22 +121,6 @@ export function getProgramIcon(type) {
 }
 
 export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);
-
-/**
- * Returns a filtered list of course run keys that are marketable, enrollable, and not archived.
- *
- * @param {object} courseData - Course data object deriving from the useAllCourseData hook response.
- * @returns List of course run keys.
- */
-export function getAvailableCourseRunKeysFromCourseData({ courseData, isEnrollableBufferDays }) {
-  if (!courseData?.courseDetails.courseRuns) {
-    return [];
-  }
-  return getAvailableCourseRuns({
-    course: courseData?.courseDetails,
-    isEnrollableBufferDays,
-  }).map(courseRun => courseRun.key);
-}
 
 export function findCouponCodeForCourse(couponCodes, catalogList = []) {
   return couponCodes.find((couponCode) => catalogList?.includes(couponCode.catalog) && hasValidStartExpirationDates({

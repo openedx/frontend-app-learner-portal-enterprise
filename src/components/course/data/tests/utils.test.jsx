@@ -14,7 +14,6 @@ import {
   courseUsesEntitlementPricing,
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
-  getAvailableCourseRunKeysFromCourseData,
   getSubsidyToApplyForCourse,
   getLinkToCourse,
   pathContainsCourseTypeSlug,
@@ -442,56 +441,6 @@ describe('getLinkToCourse', () => {
 
   it('returns url with course queryId, objectId', () => {
     expect(getLinkToCourse(mockQueryObjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
-  });
-});
-
-describe('getAvailableCourseRunKeysFromCourseData', () => {
-  const sampleCourseDataData = {
-    courseData: {
-      courseDetails: {
-        courseRuns: [
-          {
-            key: 'course-v1:edX+DemoX+Demo_Course',
-            title: 'Demo Course',
-            isMarketable: true,
-            isEnrollable: true,
-            availability: 'Current',
-          },
-          {
-            key: 'course-v1:edX+DemoX+Demo_Course',
-            title: 'Demo Course',
-            isMarketable: false,
-            isEnrollable: true,
-            availability: 'Upcoming',
-          },
-          {
-            key: 'course-v1:edX+DemoX+Demo_Course',
-            title: 'Demo Course',
-            isMarketable: true,
-            isEnrollable: false,
-            availability: 'Current',
-          },
-          {
-            key: 'course-v1:edX+DemoX+Demo_Course',
-            title: 'Demo Course',
-            isMarketable: false,
-            isEnrollable: false,
-            availability: 'Archived',
-          },
-        ],
-      },
-    },
-  };
-  it('returns array with available course run keys', () => {
-    const output = getAvailableCourseRunKeysFromCourseData({ courseData: sampleCourseDataData.courseData });
-    expect(output.length).toEqual(1);
-    expect(output).toEqual(['course-v1:edX+DemoX+Demo_Course']);
-  });
-  it('returns empty array if course runs are not available', () => {
-    sampleCourseDataData.courseData.courseDetails = [];
-    const output = getAvailableCourseRunKeysFromCourseData({ courseData: sampleCourseDataData.courseData });
-    expect(output.length).toEqual(0);
-    expect(output).toEqual([]);
   });
 });
 

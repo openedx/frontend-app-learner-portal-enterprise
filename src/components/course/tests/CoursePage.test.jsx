@@ -7,7 +7,6 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import CoursePage from '../CoursePage';
-import { useAllCourseData } from '../data/hooks';
 import { LEARNER_CREDIT_SUBSIDY_TYPE as mockLearnerCreditSubsidyType } from '../data/constants';
 import { mockCourseService } from './constants';
 import { SUBSIDY_TYPE } from '../../../constants';
@@ -20,7 +19,6 @@ const mockNavigate = jest.fn();
 jest.mock('../data/utils', () => ({
   ...jest.requireActual('../data/utils'),
   getActiveCourseRun: () => mockGetActiveCourseRun(),
-  getAvailableCourseRunKeysFromCourseData: () => ['test-course-key'],
 }));
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -226,7 +224,6 @@ describe('CoursePage', () => {
   });
   it('renders the component with 404 <NotFoundPage />', async () => {
     render(<CoursePageWrapper />);
-    expect(useAllCourseData).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });
 
