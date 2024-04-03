@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import useCourseMetadata from './useCourseMetadata';
 import { queryCanRedeem } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
-import useLateRedemptionEnrollableBufferDays from './useLateRedemptionBufferDays';
+import useLateRedemptionBufferDays from './useLateRedemptionBufferDays';
 
 /**
  * Retrieves the course redemption eligibility for the given enterprise customer and course key.
@@ -15,7 +15,7 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
   const { select, ...queryOptionsRest } = queryOptions;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
-  const isEnrollableBufferDays = useLateRedemptionEnrollableBufferDays();
+  const isEnrollableBufferDays = useLateRedemptionBufferDays();
 
   return useQuery({
     ...queryOptionsRest,
