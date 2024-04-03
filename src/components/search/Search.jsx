@@ -68,7 +68,7 @@ const Search = () => {
   const navigate = useNavigate();
 
   const { refinements } = useContext(SearchContext);
-  const { filters } = useDefaultSearchFilters();
+  const filters = useDefaultSearchFilters();
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
 
   // Flag to toggle highlights visibility

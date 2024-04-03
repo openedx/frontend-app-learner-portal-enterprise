@@ -7,6 +7,10 @@ import { getAssignmentsByState, transformRedeemablePoliciesData } from '../../ut
 import { transformEnterpriseOffer } from '../../../../enterprise-user-subsidy/enterprise-offers/data/utils';
 import { fetchPaginatedData } from '../utils';
 
+export * from './browseAndRequest';
+export * from './subscriptions';
+export * from './couponCodes';
+
 //  Enterprise Offers
 
 /**
@@ -103,15 +107,13 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
 // Policy Transaction
 
 /**
- * TODO
- * @param {*} enterpriseUUID
+ * Makes an API request to retrieve the most recent payload for the
+ * specified transaction. The transaction may be in various states such
+ * as pending, committed, etc.
+ * @param {Object} transaction
  */
 export async function checkTransactionStatus(transaction) {
   const { transactionStatusApiUrl } = transaction;
   const response = await getAuthenticatedHttpClient().get(transactionStatusApiUrl);
   return camelCaseObject(response.data);
 }
-
-export * from './browseAndRequest';
-export * from './subscriptions';
-export * from './couponCodes';

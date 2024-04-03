@@ -8,7 +8,7 @@ import { getContentTypeFromTitle } from '../../utils/search';
 import { useDefaultSearchFilters } from '../../app/data';
 
 const PopularResultsIndex = ({ title, numberResultsToDisplay }) => {
-  const { filters } = useDefaultSearchFilters();
+  const filters = useDefaultSearchFilters();
   const config = getConfig();
   const contentType = getContentTypeFromTitle(title);
   const defaultFilter = `content_type:${contentType} AND ${filters}`;

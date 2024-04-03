@@ -34,7 +34,7 @@ const linkToProgram = (program, slug, programUuid) => {
 const SearchProgramCard = ({ index }) => {
   const { authenticatedUser: { userId } } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { filters } = useDefaultSearchFilters();
+  const filters = useDefaultSearchFilters();
 
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);

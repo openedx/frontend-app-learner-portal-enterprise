@@ -110,7 +110,7 @@ const enterprise = createQueryKeys('enterprise', {
                 contextQueries: {
                   licenseRequests: {
                     queryKey: null,
-                    queryFn: async ({ queryKey }) => fetchLicenseRequests(queryKey[2], queryKey[5], queryKey[7]),
+                    queryFn: async ({ queryKey }) => fetchLicenseRequests(queryKey[2], queryKey[6], queryKey[7]),
                   },
                   couponCodeRequests: {
                     queryKey: null,

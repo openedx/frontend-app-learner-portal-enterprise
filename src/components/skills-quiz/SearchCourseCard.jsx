@@ -16,7 +16,7 @@ import CourseCard from './CourseCard';
 import { useDefaultSearchFilters } from '../app/data';
 
 const SearchCourseCard = ({ index }) => {
-  const { filters } = useDefaultSearchFilters();
+  const filters = useDefaultSearchFilters();
 
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);

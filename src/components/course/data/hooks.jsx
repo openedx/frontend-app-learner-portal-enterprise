@@ -53,6 +53,7 @@ import {
   useSubscriptions,
   useCatalogsForSubsidyRequests,
 } from '../../app/data';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -542,6 +543,7 @@ export const useUserSubsidyApplicableToCourse = () => {
     data: {
       customerAgreement,
       subscriptionLicense,
+      subscriptionPlan,
     },
   } = useSubscriptions();
   const {
@@ -565,10 +567,14 @@ export const useUserSubsidyApplicableToCourse = () => {
     },
   } = useCouponCodes();
 
+  const isSubscriptionLicenseApplicable = (
+    subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
+    && catalogsWithCourse.includes(subscriptionPlan?.enterpriseCatalogUuid)
+  );
+
   // const licenseApplicableToCourse = await getSubscriptionLicenseSubsidy();
   const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
-    // TODO: need to determine if activated license's catalog uuid is included in the `catalogList`
-    applicableSubscriptionLicense: null,
+    applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
     applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy },
     applicableCouponCode: findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse),
     applicableEnterpriseOffer: findEnterpriseOfferForCourse({

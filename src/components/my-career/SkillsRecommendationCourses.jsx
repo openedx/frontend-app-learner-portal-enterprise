@@ -14,7 +14,7 @@ import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
-  const { filters } = useDefaultSearchFilters();
+  const filters = useDefaultSearchFilters();
 
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState([]);

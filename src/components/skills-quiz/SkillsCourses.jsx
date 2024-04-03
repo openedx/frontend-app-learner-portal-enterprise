@@ -36,7 +36,7 @@ const SkillsCourses = ({ index }) => {
   const [hitCount, setHitCount] = useState(undefined);
   const { refinements: { skill_names: skills } } = useContext(SearchContext);
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
-  const { filters } = useDefaultSearchFilters();
+  const filters = useDefaultSearchFilters();
 
   const skillsFacetFilter = useMemo(
     () => {
