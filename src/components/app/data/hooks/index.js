@@ -34,4 +34,5 @@ export { default as useNProgressLoader } from './useNProgressLoader';
 export { default as useNotices } from './useNotices';
 export { default as useLearnerSkillLevels } from './useLearnerSkillLevels';
 export { default as useLateRedemptionBufferDays } from './useLateRedemptionBufferDays';
+export { default as useLearnerProgramProgressData } from './useLearnerProgramProgressData';
 export { default as useHasAvailableSubsidiesOrRequests } from './useHasAvailableSubsidiesOrRequests';

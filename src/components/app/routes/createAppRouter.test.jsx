@@ -10,6 +10,8 @@ import { makeRootLoader } from './loaders';
 import Root from '../Root';
 import Layout from '../Layout';
 import { makeDashboardLoader } from '../../dashboard';
+import { makeSearchLoader } from '../../search';
+import { makeProgramProgressLoader } from '../../program-progress';
 import { makeEnterpriseInviteLoader } from './EnterpriseInviteRoute';
 
 jest.mock('./loaders', () => ({
@@ -43,6 +45,11 @@ jest.mock('../../search', () => ({
   ...jest.requireActual('../../search'),
   SearchPage: jest.fn(() => <div data-testid="search" />),
   makeSearchLoader: jest.fn(),
+}));
+jest.mock('../../program-progress', () => ({
+  ...jest.requireActual('../../program-progress'),
+  ProgramProgressPage: jest.fn(() => <div data-testid="program-progress" />),
+  makeProgramProgressLoader: jest.fn(),
 }));
 jest.mock('./EnterpriseInviteRoute', () => ({
   __esModule: true,
@@ -96,9 +103,20 @@ describe('createAppRouter', () => {
       }],
     },
     {
+      currentRoutePath: '/test-enterprise/program/test-program-progress-uuid/progress',
+      expectedRouteTestId: 'program-progress',
+      expectedRouteLoaders: [{
+        loader: makeProgramProgressLoader,
+        usesQueryClient: true,
+      }],
+    },
+    {
       currentRoutePath: '/test-enterprise/search',
       expectedRouteTestId: 'search',
-      expectedRouteLoaders: [],
+      expectedRouteLoaders: [{
+        loader: makeSearchLoader,
+        usesQueryClient: true,
+      }],
     },
     {
       currentRoutePath: '/test-enterprise/course/edX+DemoX',

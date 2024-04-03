@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
@@ -45,6 +44,6 @@ ProgramPathwayOpportunity.propTypes = {
     destinationUrl: PropTypes.string,
     uuid: PropTypes.string,
   })).isRequired,
-  title: PropTypes.string.isRequired,
+  title: PropTypes.element.isRequired,
   pathwayClass: PropTypes.string.isRequired,
 };

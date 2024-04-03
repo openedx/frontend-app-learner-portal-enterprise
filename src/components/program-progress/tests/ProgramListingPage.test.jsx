@@ -3,7 +3,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import userEvent from '@testing-library/user-event';
 import ProgramListingPage from '../ProgramListingPage';
 import { renderWithRouter } from '../../../utils/tests';
 import { useCanOnlyViewHighlights, useEnterpriseCustomer, useEnterpriseProgramsList } from '../../app/data';
@@ -53,10 +53,6 @@ jest.mock('@edx/frontend-platform/react', () => ({
   ErrorPage: () => <div data-testid="error-page" />,
 }));
 
-jest.mock('../data/hooks', () => ({
-  useLearnerProgramsListData: jest.fn(),
-}));
-
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useCanOnlyViewHighlights: jest.fn(),
@@ -66,23 +62,9 @@ jest.mock('../../app/data', () => ({
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-const defaultUserSubsidyState = {
-  subscriptionLicense: {
-    uuid: 'test-license-uuid',
-  },
-  couponCodes: {
-    couponCodes: [],
-    couponCodesCount: 0,
-  },
-};
-
-const ProgramListingWithContext = ({
-  initialUserSubsidyState = defaultUserSubsidyState,
-}) => (
+const ProgramListingWithContext = () => (
   <IntlProvider locale="en">
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <ProgramListingPage />
-    </UserSubsidyContext.Provider>
+    <ProgramListingPage />
   </IntlProvider>
 );
 
@@ -106,5 +88,48 @@ describe('<ProgramListing />', () => {
       expect(screen.getByText(dummyProgramData.title)).toBeInTheDocument();
       expect(screen.getByText('Test Program Title 2')).toBeInTheDocument();
     });
+  });
+
+  it('renders program error.', async () => {
+    useEnterpriseProgramsList.mockReturnValue({
+      data: [],
+      error: { message: 'This is a test message.' },
+    });
+    renderWithRouter(
+      <ProgramListingWithContext />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId('error-page')).toBeInTheDocument();
+    });
+  });
+
+  it('renders no programs message when data received is empty', async () => {
+    renderWithRouter(
+      <ProgramListingWithContext />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText('You are not enrolled in any programs yet.')).toBeInTheDocument();
+      expect(screen.getByText('Explore programs')).toBeInTheDocument();
+    });
+  });
+
+  it('redirects to correct url when clicked on explore programs', async () => {
+    renderWithRouter(
+      <ProgramListingWithContext />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText('Explore programs')).toBeInTheDocument();
+    });
+    userEvent.click(screen.getByText('Explore programs'));
+    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/search`);
+    expect(window.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
+  });
+
+  it('does not render button when canOnlyViewHighlightSets is true', () => {
+    useCanOnlyViewHighlights.mockReturnValue({ data: true });
+    renderWithRouter(
+      <ProgramListingWithContext />,
+    );
+    expect(screen.queryByText('Explore programs')).not.toBeInTheDocument();
   });
 });

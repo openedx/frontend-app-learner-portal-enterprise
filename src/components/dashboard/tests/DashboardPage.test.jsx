@@ -31,6 +31,7 @@ import {
   useIsAssignmentsOnlyLearner,
   useRedeemablePolicies,
   useSubscriptions,
+  useHasAvailableSubsidiesOrRequests,
 } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
@@ -96,6 +97,7 @@ jest.mock('../../app/data', () => ({
   useCanOnlyViewHighlights: jest.fn(),
   useBrowseAndRequest: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
+  useHasAvailableSubsidiesOrRequests: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -140,6 +142,27 @@ const defaultRedeemablePoliciesState = {
     hasAssignmentsForDisplay: true,
   },
 };
+
+const mockUseActiveSubsidyOrRequestsData = {
+  mockHasAvailableLearnerCreditPolicies: false,
+  mockHasAssignedCodesOrCodeRequests: false,
+  mockHasActiveLicenseOrLicenseRequest: false,
+  mockLearnerCreditSummaryCardData: null,
+};
+const useMockHasAvailableSubsidyOrRequests = ({
+  mockHasAvailableLearnerCreditPolicies,
+  mockHasAssignedCodesOrCodeRequests,
+  mockHasActiveLicenseOrLicenseRequest,
+  mockLearnerCreditSummaryCardData,
+}) => ({
+  hasAvailableLearnerCreditPolicies: mockHasAvailableLearnerCreditPolicies,
+  hasAssignedCodesOrCodeRequests: mockHasAssignedCodesOrCodeRequests,
+  learnerCreditSummaryCardData: mockLearnerCreditSummaryCardData,
+  hasActiveLicenseOrLicenseRequest: mockHasActiveLicenseOrLicenseRequest,
+  hasAvailableSubsidyOrRequests: mockHasAssignedCodesOrCodeRequests
+    || mockHasActiveLicenseOrLicenseRequest
+    || mockLearnerCreditSummaryCardData,
+});
 
 const mockWindowConfig = {
   type: 'screen',
@@ -222,6 +245,9 @@ describe('<Dashboard />', () => {
       },
     });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(
+      useMockHasAvailableSubsidyOrRequests(mockUseActiveSubsidyOrRequestsData),
+    );
   });
 
   it('renders user first name if available', () => {
@@ -315,6 +341,9 @@ describe('<Dashboard />', () => {
         shouldShowActivationSuccessMessage: false,
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(
+      useMockHasAvailableSubsidyOrRequests({ mockHasActiveLicenseOrLicenseRequest: true }),
+    );
     renderWithRouter(
       <DashboardWithContext />,
     );
@@ -331,7 +360,7 @@ describe('<Dashboard />', () => {
 
   it('does not render "Find a course" when search is disabled for the customer', () => {
     const mockEnterpriseCustomerWithoutSearch = enterpriseCustomerFactory({
-      disableSearch: true,
+      disable_search: true,
     });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithoutSearch });
     renderWithRouter(

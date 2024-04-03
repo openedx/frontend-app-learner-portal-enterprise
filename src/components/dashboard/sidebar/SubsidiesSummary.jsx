@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
@@ -8,35 +8,18 @@ import classNames from 'classnames';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import LearnerCreditSummaryCard from './LearnerCreditSummaryCard';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import SidebarCard from './SidebarCard';
-import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
 import {
   useBrowseAndRequest,
   useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseOffers,
+  useHasAvailableSubsidiesOrRequests,
   useIsAssignmentsOnlyLearner,
-  useRedeemablePolicies,
   useSubscriptions,
 } from '../../app/data';
 import { COURSE_STATUSES } from '../../../constants';
-
-function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
-  const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
-  const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
-
-  if (!learnerCreditPolicyExpiringFirst && !enterpriseOfferExpiringFirst) {
-    return undefined;
-  }
-
-  return {
-    expirationDate: (
-      learnerCreditPolicyExpiringFirst?.subsidyExpirationDate || enterpriseOfferExpiringFirst?.endDatetime
-    ),
-  };
-}
 
 const SubsidiesSummary = ({
   className,
@@ -51,15 +34,16 @@ const SubsidiesSummary = ({
   const { data: subscriptions } = useSubscriptions();
   const { data: couponCodes } = useCouponCodes();
   const { data: enterpriseOffersData } = useEnterpriseOffers();
-  const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const { data: { requests } } = useBrowseAndRequest();
+  const {
+    hasAvailableSubsidyOrRequests,
+    hasAvailableLearnerCreditPolicies,
+    hasAssignedCodesOrCodeRequests,
+    hasActiveLicenseOrLicenseRequest,
+    learnerCreditSummaryCardData,
+  } = useHasAvailableSubsidiesOrRequests();
 
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
-
-  const learnerCreditSummaryCardData = getLearnerCreditSummaryCardData({
-    enterpriseOffers: enterpriseOffersData.enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  });
 
   // if there are course enrollments, the cta button below will be the only one on the page
   const ctaButtonVariant = useMemo(() => {
@@ -73,21 +57,6 @@ const SubsidiesSummary = ({
       .flat().length > 0;
     return hasCourseEnrollments ? 'primary' : 'outline-primary';
   }, [allEnrollmentsByStatus]);
-
-  const hasActiveLicenseOrLicenseRequest = (
-    subscriptions.subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
-    || requests.subscriptionLicenses.length > 0
-  );
-
-  const hasAssignedCodesOrCodeRequests = (
-    couponCodes.couponCodeAssignments.length > 0
-    || requests.couponCodes.length > 0
-  );
-  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies.redeemablePolicies.length > 0;
-
-  const hasAvailableSubsidyOrRequests = (
-    hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData
-  );
 
   if (!hasAvailableSubsidyOrRequests) {
     return null;

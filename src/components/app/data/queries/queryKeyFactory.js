@@ -20,6 +20,7 @@ import {
   fetchInProgressPathways,
   fetchLearnerSkillLevels,
   fetchAcademies,
+  fetchLearnerProgramProgressDetail,
   fetchEnterpriseCustomerContainsContent,
   fetchCourseReviews,
   fetchCourseRecommendations,
@@ -28,6 +29,17 @@ import {
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 
+/**
+ * A query key object that can be used to performs
+ * API calls using React Query.
+ *
+ * See the following links for more information:
+ *
+ * {@link https://github.com/lukemorales/query-key-factory},
+ *
+ * {@link https://tanstack.com/query/v4/docs/framework/react/community/lukemorales-query-key-factory}
+ * @type {QueryKeyFactoryResult<"enterprise", QueryFactorySchema>}
+ */
 const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({
     queryKey: [enterpriseUuid],
@@ -169,6 +181,19 @@ const content = createQueryKeys('content', {
       reviews: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchCourseReviews(queryKey[2]),
+      },
+    },
+  }),
+  program: (programUUID) => ({
+    queryKey: [programUUID],
+    contextQueries: {
+      detail: {
+        queryKey: null,
+        queryFn: () => {},
+      },
+      progress: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => fetchLearnerProgramProgressDetail(queryKey[2]),
       },
     },
   }),

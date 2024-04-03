@@ -24,13 +24,13 @@ function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCr
 /**
  *
  * @returns {{
-* hasAvailableLearnerCreditPolicies: boolean,
-* hasAssignedCodesOrCodeRequests: boolean,
-* hasActiveLicenseOrLicenseRequest: boolean,
-* learnerCreditSummaryCardData: {expirationDate},
-* hasAvailableSubsidyOrRequests: ({expirationDate}|boolean)
-* }}
-*/
+ * hasAvailableLearnerCreditPolicies: boolean,
+ * hasAssignedCodesOrCodeRequests: boolean,
+ * hasActiveLicenseOrLicenseRequest: boolean,
+ * learnerCreditSummaryCardData: {expirationDate},
+ * hasAvailableSubsidyOrRequests: ({expirationDate}|boolean)
+ * }}
+ */
 export default function useHasAvailableSubsidiesOrRequests() {
   const { data: subscriptions } = useSubscriptions();
   const { data: { requests } } = useBrowseAndRequest();
@@ -39,9 +39,10 @@ export default function useHasAvailableSubsidiesOrRequests() {
   const { data: enterpriseOffersData } = useEnterpriseOffers();
 
   const learnerCreditSummaryCardData = useMemo(() => getLearnerCreditSummaryCardData({
-    enterpriseOffers: enterpriseOffersData.enterpriseOffers,
+    enterpriseOffers: enterpriseOffersData.currentEnterpriseOffers,
     redeemableLearnerCreditPolicies,
-  }), [enterpriseOffersData.enterpriseOffers, redeemableLearnerCreditPolicies]);
+  }), [enterpriseOffersData.currentEnterpriseOffers, redeemableLearnerCreditPolicies]);
+
   const hasActiveLicenseOrLicenseRequest = (
     subscriptions.subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
       || requests.subscriptionLicenses.length > 0
@@ -51,9 +52,11 @@ export default function useHasAvailableSubsidiesOrRequests() {
       || requests.couponCodes.length > 0
   );
   const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies.redeemablePolicies.length > 0;
+
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData
   );
+
   return {
     hasAvailableSubsidyOrRequests,
     hasAvailableLearnerCreditPolicies,

@@ -30,6 +30,7 @@ import {
   useIsAssignmentsOnlyLearner,
   useRedeemablePolicies,
   useSubscriptions,
+  useHasAvailableSubsidiesOrRequests,
 } from '../../../app/data';
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
@@ -51,6 +52,7 @@ jest.mock('../../../app/data', () => ({
   useRedeemablePolicies: jest.fn(),
   useBrowseAndRequest: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
+  useHasAvailableSubsidiesOrRequests: jest.fn(),
 }));
 
 const mockEnterpriseOffer = {
@@ -60,6 +62,27 @@ const mockEnterpriseOffer = {
 };
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
+const mockUseActiveSubsidyOrRequestsData = {
+  mockHasAvailableLearnerCreditPolicies: false,
+  mockHasAssignedCodesOrCodeRequests: false,
+  mockHasActiveLicenseOrLicenseRequest: false,
+  mockLearnerCreditSummaryCardData: null,
+};
+const useMockHasAvailableSubsidyOrRequests = ({
+  mockHasAvailableLearnerCreditPolicies,
+  mockHasAssignedCodesOrCodeRequests,
+  mockHasActiveLicenseOrLicenseRequest,
+  mockLearnerCreditSummaryCardData,
+}) => ({
+  hasAvailableLearnerCreditPolicies: mockHasAvailableLearnerCreditPolicies,
+  hasAssignedCodesOrCodeRequests: mockHasAssignedCodesOrCodeRequests,
+  learnerCreditSummaryCardData: mockLearnerCreditSummaryCardData,
+  hasActiveLicenseOrLicenseRequest: mockHasActiveLicenseOrLicenseRequest,
+  hasAvailableSubsidyOrRequests: mockHasAssignedCodesOrCodeRequests
+    || mockHasActiveLicenseOrLicenseRequest
+    || mockLearnerCreditSummaryCardData,
+});
 
 const DashboardSidebarWithContext = () => (
   <IntlProvider locale="en">
@@ -105,6 +128,9 @@ describe('<DashboardSidebar />', () => {
       },
     });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(
+      useMockHasAvailableSubsidyOrRequests(mockUseActiveSubsidyOrRequestsData),
+    );
   });
 
   test('Coupon codes summary card is displayed when coupon codes are available', () => {
@@ -113,6 +139,9 @@ describe('<DashboardSidebar />', () => {
         couponCodeAssignments: [{ id: 3 }],
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockHasAssignedCodesOrCodeRequests: true,
+    }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText(COUPON_CODES_SUMMARY_NOTICE));
   });
@@ -125,6 +154,9 @@ describe('<DashboardSidebar />', () => {
         },
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockHasAssignedCodesOrCodeRequests: true,
+    }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText(COUPON_CODES_SUMMARY_NOTICE));
   });
@@ -142,6 +174,9 @@ describe('<DashboardSidebar />', () => {
         },
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockHasActiveLicenseOrLicenseRequest: true,
+    }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText(SUBSCRIPTION_SUMMARY_CARD_TITLE));
   });
@@ -154,6 +189,9 @@ describe('<DashboardSidebar />', () => {
         },
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockHasActiveLicenseOrLicenseRequest: true,
+    }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText(SUBSCRIPTION_SUMMARY_CARD_TITLE));
     expect(screen.getByText(LICENSE_REQUESTED_NOTICE));
@@ -169,6 +207,9 @@ describe('<DashboardSidebar />', () => {
         canEnrollWithEnterpriseOffers: true,
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
+    }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
   });
@@ -188,6 +229,10 @@ describe('<DashboardSidebar />', () => {
         canEnrollWithEnterpriseOffers: true,
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockHasActiveLicenseOrLicenseRequest: true,
+      mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
+    }));
     renderWithRouter(<DashboardSidebarWithContext />);
 
     expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
@@ -206,6 +251,10 @@ describe('<DashboardSidebar />', () => {
         canEnrollWithEnterpriseOffers: true,
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockHasAssignedCodesOrCodeRequests: true,
+      mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
+    }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).not.toBeInTheDocument();
@@ -223,6 +272,10 @@ describe('<DashboardSidebar />', () => {
         learnerContentAssignments: [],
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockHasAvailableLearnerCreditPolicies: true,
+      mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
+    }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.queryByText(LEARNER_CREDIT_SUMMARY_CARD_TITLE)).toBeInTheDocument();
   });
@@ -249,6 +302,10 @@ describe('<DashboardSidebar />', () => {
         canEnrollWithEnterpriseOffers: true,
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockHasAvailableLearnerCreditPolicies: true,
+      mockLearnerCreditSummaryCardData: { expirationDate: policyExpirationDate },
+    }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText('2030', { exact: false })).toBeInTheDocument();
     expect(screen.queryByText('2027', { exact: false })).toBeFalsy();
@@ -278,16 +335,27 @@ describe('<DashboardSidebar />', () => {
         },
       },
     });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockHasAvailableLearnerCreditPolicies: true,
+      mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
+    }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText(LEARNER_CREDIT_ASSIGNMENT_ONLY_SUMMARY)).toBeInTheDocument();
   });
 
   test('Find a course button is not rendered when user has no coupon codes or license subsidy', () => {
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(
+      useMockHasAvailableSubsidyOrRequests(mockUseActiveSubsidyOrRequestsData),
+    );
     renderWithRouter(<DashboardSidebarWithContext />);
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
     expect(catalogAccessButton).toBeFalsy();
   });
   test('Find a course button is not rendered when user has subsidy but customer has search disabled', () => {
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      mockHasActiveLicenseOrLicenseRequest: true,
+    }));
+    useEnterpriseCustomer.mockReturnValue({ data: enterpriseCustomerFactory({ disable_search: true }) });
     renderWithRouter(<DashboardSidebarWithContext />);
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
     expect(catalogAccessButton).toBeFalsy();

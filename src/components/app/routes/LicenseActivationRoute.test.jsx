@@ -24,9 +24,9 @@ describe('LicenseActivationRoute', () => {
 
   it('should render expected UI', () => {
     render(<LicenseActivationRouteWrapper />);
-    expect(screen.getByText('We\'re sorry.')).toBeInTheDocument();
-    expect(screen.getByText('We can\'t find a subscription license assigned to this account.')).toBeInTheDocument();
+    expect(screen.getByText('Oops!')).toBeInTheDocument();
+    expect(screen.getByText('We can\'t find a license assigned to this account.')).toBeInTheDocument();
     expect(screen.getByText(mockAuthenticatedUser.email, { exact: false })).toBeInTheDocument();
-    expect(screen.getByText('You can try the following to resolve and access your subscription license:')).toBeInTheDocument();
+    expect(screen.getByText('You can try one of the following to resolve and access your subscription license:')).toBeInTheDocument();
   });
 });

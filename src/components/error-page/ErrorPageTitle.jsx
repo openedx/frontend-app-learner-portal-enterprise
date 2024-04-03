@@ -1,11 +1,16 @@
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 /**
  * Individual title component of ErrorPage component parent.
  * Includes default styling for error pages.
  */
-const ErrorPageTitle = ({ children, spannedTitle }) => (
-  <h2 className="text-danger mb-4">
+const ErrorPageTitle = ({
+  children,
+  className,
+  spannedTitle,
+}) => (
+  <h2 className={classNames('text-danger mb-4', className)}>
     {children}
     {spannedTitle && (
       <>
@@ -20,11 +25,13 @@ const ErrorPageTitle = ({ children, spannedTitle }) => (
 
 ErrorPageTitle.propTypes = {
   children: PropTypes.node,
+  className: PropTypes.string,
   spannedTitle: PropTypes.node,
 };
 
 ErrorPageTitle.defaultProps = {
   children: 'Error occurred while processing your request',
+  className: undefined,
   spannedTitle: null,
 };
 
