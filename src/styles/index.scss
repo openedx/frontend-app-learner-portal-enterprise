@@ -1,9 +1,12 @@
-@import "@edx/brand/paragon/fonts";
-@import "@edx/brand/paragon/variables";
-@import "@openedx/paragon/scss/core/core";
+@import "~@edx/brand/paragon/fonts";
+@import "~@edx/brand/paragon/variables";
+@import "~@openedx/paragon/scss/core/core";
 // frontend-enterprise-* imports must come before the paragon overrides for correct styling
 @import "~@edx/frontend-enterprise-catalog-search";
-@import "@edx/brand/paragon/overrides";
+@import "~@edx/brand/paragon/overrides";
+
+// Shared footer component
+@import "~@edx/frontend-component-footer/dist/footer";
 
 // NProgress customizations
 @import "./nprogress";

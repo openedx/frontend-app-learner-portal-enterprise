@@ -15,6 +15,7 @@ import ErrorPageContent from './ErrorPageContent';
  */
 const ErrorPage = ({
   title,
+  titleClassName,
   spannedTitle,
   subtitle,
   showSiteHeader,
@@ -39,7 +40,12 @@ const ErrorPage = ({
             />
           )}
           {title && (
-            <ErrorPageTitle spannedTitle={spannedTitle}>{title}</ErrorPageTitle>
+            <ErrorPageTitle
+              className={titleClassName}
+              spannedTitle={spannedTitle}
+            >
+              {title}
+            </ErrorPageTitle>
           )}
           {subtitle && (
             <ErrorPageSubtitle>{subtitle}</ErrorPageSubtitle>
@@ -61,6 +67,7 @@ ErrorPage.propTypes = {
   children: PropTypes.node.isRequired,
   title: PropTypes.node,
   spannedTitle: PropTypes.node,
+  titleClassName: PropTypes.string,
   subtitle: PropTypes.node,
   showSiteFooter: PropTypes.bool,
   errorPageContentClassName: PropTypes.string,
@@ -72,6 +79,7 @@ ErrorPage.propTypes = {
 ErrorPage.defaultProps = {
   title: 'Error occurred while processing your request',
   spannedTitle: null,
+  titleClassName: undefined,
   subtitle: null,
   showSiteHeader: true,
   showSiteFooter: true,
