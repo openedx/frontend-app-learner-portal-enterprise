@@ -6,66 +6,53 @@ import {
 import '@testing-library/jest-dom/extend-expect';
 
 import userEvent from '@testing-library/user-event';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramFAQ from '../ProgramFAQ';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useEnterpriseCustomer, useProgramDetails } from '../../app/data';
 
-jest.mock('react-router-dom', () => ({
-  useLocation: jest.fn(),
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useProgramDetails: jest.fn(),
 }));
 
-const ProgramFAQWithContext = ({
-  initialAppState = {},
-  initialProgramState = {},
-  initialUserSubsidyState = {},
-}) => (
+const mockAuthenticatedUser = authenticatedUserFactory();
+
+const initialAppState = {
+  authenticatedUser: mockAuthenticatedUser,
+};
+
+const ProgramFAQWithContext = () => (
   <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <ProgramContextProvider initialState={initialProgramState}>
-        <ProgramFAQ />
-      </ProgramContextProvider>
-    </UserSubsidyContext.Provider>
+    <ProgramFAQ />
   </AppContext.Provider>
 );
 
-describe('<ProgramFAQ />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
+const initialProgramState = {
+  title: 'Test Program Title',
+  faq: [
+    {
+      question: 'question a',
+      answer: 'answer a',
     },
-  };
-  const initialProgramState = {
-    program: {
-      title: 'Test Program Title',
-      faq: [
-        {
-          question: 'question a',
-          answer: 'answer a',
-        },
-        {
-          question: 'question b',
-          answer: 'answer b',
-        },
-      ],
+    {
+      question: 'question b',
+      answer: 'answer b',
     },
-  };
-  const initialUserSubsidyState = {
-    subscriptionLicense: {
-      uuid: 'test-license-uuid',
-    },
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-  };
+  ],
+};
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
+describe('<ProgramFAQ />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useProgramDetails.mockReturnValue({ data: initialProgramState });
+  });
   test('renders program FAQs', () => {
     render(
-      <ProgramFAQWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramFAQWithContext />,
     );
 
     const questionA = screen.getByText('question a');
@@ -80,16 +67,12 @@ describe('<ProgramFAQ />', () => {
 
   test('renders nothing when there are no FAQs in data', async () => {
     const programStateWithoutFaqs = {
-      program: {
-        title: 'Test Program Title',
-      },
+      title: 'Test Program Title',
     };
+    useProgramDetails.mockReturnValue({ data: programStateWithoutFaqs });
+
     const { container } = render(
-      <ProgramFAQWithContext
-        initialAppState={initialAppState}
-        initialProgramState={programStateWithoutFaqs}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramFAQWithContext />,
     );
 
     await waitFor(() => {
