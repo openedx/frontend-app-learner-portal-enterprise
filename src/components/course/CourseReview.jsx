@@ -34,7 +34,7 @@ function useCourseReviewInfoContent() {
     if (showInfoContent === REVIEW_SECTION_CONTENT.CONFIDENT_LEARNERS) {
       return (
         intl.formatMessage({
-          id: 'enterprise.course.about.course.reviews.confident.learners',
+          id: 'enterprise.course.about.course.reviews.confident.learners.percentage',
           defaultMessage: 'We asked learners who participated in this course how confident they felt that the course will help them reach their goal. <b>{confidentLearnersPercentage}%</b> of learners said they were <b>“extremely confident”</b> or <b>“very confident”</b> that the learning they did in the course will help them reach their goals.',
           description: 'The percentage of confident learners',
         }, {
@@ -46,7 +46,7 @@ function useCourseReviewInfoContent() {
     if (showInfoContent === REVIEW_SECTION_CONTENT.MOST_COMMON_GOAL_LEARNERS) {
       return (
         intl.formatMessage({
-          id: 'enterprise.course.about.course.reviews.most.common.goal.learners',
+          id: 'enterprise.course.about.course.reviews.most.common.goal.learners.percentage',
           defaultMessage: 'We asked learners who enrolled in this course to choose the reason for taking it. Options were: “learn valuable skills”, “job advancement”, “learn for fun”, and “change careers”. <b>{mostCommonGoalLearnersPercentage}%</b> of learners who enrolled in this course took it to <b>learn valuable skills</b>.',
           description: 'The percentage of learners who took the course to learn new skills',
         }, {
@@ -58,7 +58,7 @@ function useCourseReviewInfoContent() {
     if (showInfoContent === REVIEW_SECTION_CONTENT.DEMAND_AND_GROWTH) {
       return (
         intl.formatMessage({
-          id: 'enterprise.course.about.course.reviews.demand.and.growth',
+          id: 'enterprise.course.about.course.reviews.learners.demand.and.growth',
           defaultMessage: '<b>{totalCourseEnrollments}</b> learners took this course in the past year.',
           description: 'The number of learners who took the course in the last 12 months',
         }, {
@@ -114,7 +114,7 @@ const CourseReview = () => {
           </h1>
           <div>
             <FormattedMessage
-              id="enterprise.course.about.course.reviews.demand.and.growth"
+              id="enterprise.course.about.course.learners.reviews.demand.and.growth.in.last.year"
               defaultMessage="learners took this course in the last 12 months"
               description="The number of learners who took the course in the last 12 months"
             />
@@ -154,7 +154,7 @@ const CourseReview = () => {
           </h1>
           <div>
             <FormattedMessage
-              id="enterprise.course.about.course.reviews.confident.learners"
+              id="enterprise.course.about.course.confident.learners.reviews.percentage."
               defaultMessage="are confident this course will help them <b>reach their goals</b>"
               description="The percentage of learners who are confident this course will help them reach their goals"
               values={{
@@ -174,7 +174,7 @@ const CourseReview = () => {
           </h1>
           <div>
             <FormattedMessage
-              id="enterprise.course.about.course.reviews.most.common.goal.learners"
+              id="enterprise.course.about.course.most.common.goal.learners.reviews.percentage"
               defaultMessage="of the learners took this course to <b>learn new skills</b>"
               description="The percentage of learners who took this course to learn new skills"
               values={{

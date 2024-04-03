@@ -88,7 +88,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
 
     const requirementsTitleWithMultipleSteps = intl.formatMessage(
       {
-        id: 'enterprise.dashboard.pathways.progress.page.pathway.requirements.step.title',
+        id: 'enterprise.dashboard.pathways.progress.page.pathway.requirements.step.title.with.options',
         defaultMessage: 'Requirement {index}: Choose any {count} of the following',
         description: 'Title indicating multiple requirements steps for a pathway on the pathway progress page.',
       },

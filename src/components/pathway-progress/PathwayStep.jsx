@@ -13,7 +13,7 @@ const PathwayStep = ({ index, nodes }) => {
 
   const requirementsTitleWithSingleNode = intl.formatMessage(
     {
-      id: 'enterprise.dashboard.pathways.progress.page.pathway.requirements.step.title',
+      id: 'enterprise.dashboard.pathways.progress.page.pathway.requirements.step.title.single.content',
       defaultMessage: 'Requirement {index}',
       description: 'Title indicating a single requirement step for a pathway on the pathway progress page.',
     },
@@ -24,7 +24,7 @@ const PathwayStep = ({ index, nodes }) => {
 
   const requirementsTitleWithMultipleNodes = intl.formatMessage(
     {
-      id: 'enterprise.dashboard.pathways.progress.page.pathway.requirements.step.title',
+      id: 'enterprise.dashboard.pathways.progress.page.pathway.requirements.step.title.with.multiple.options',
       defaultMessage: 'Requirement {index}: Choose any {count} of the following',
       description: 'Title indicating multiple requirements steps for a pathway on the pathway progress page.',
     },
