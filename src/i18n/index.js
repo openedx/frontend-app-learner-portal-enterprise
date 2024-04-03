@@ -4,12 +4,4 @@
 // the file and use the Micro-frontend i18n pattern in new repositories.
 //
 
-import messagesFromFrontendComponentFooter from './messages/frontend-component-footer';
-import messagesFromParagon from './messages/paragon';
-import messagesFromFrontendAppLearnerPortalEnterprise from './messages/frontend-app-learner-portal-enterprise';
-
-export default [
-  messagesFromFrontendComponentFooter,
-  messagesFromParagon,
-  messagesFromFrontendAppLearnerPortalEnterprise,
-];
+export default [];
