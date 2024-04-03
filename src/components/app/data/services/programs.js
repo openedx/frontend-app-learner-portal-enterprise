@@ -24,6 +24,24 @@ export async function fetchLearnerProgramProgressDetail(programUUID) {
     };
   }
 }
+const retrieveCustomerContainsContent = async (enterpriseUuid, programUuid, courseKeys) => {
+  // Verify program belongs to customer
+  const programContent = await fetchEnterpriseCustomerContainsContent(enterpriseUuid, [programUuid]);
+  // Build contains course object { courseKey: Boolean, ...}
+  let courseContent;
+  if (!programContent.containsContentItems) {
+    courseContent = await Promise.all(
+      courseKeys.map(async (courseKey) => {
+        const { containsContentItems } = await fetchEnterpriseCustomerContainsContent(enterpriseUuid, [courseKey]);
+        return [courseKey, containsContentItems];
+      }),
+    );
+    courseContent = Object.fromEntries(courseContent);
+    return courseContent;
+  }
+  courseContent = Object.fromEntries(courseKeys.map(courseKey => [courseKey, true]));
+  return courseContent;
+};
 
 export async function fetchProgramDetails(enterpriseUuid, programUuid) {
   const { DISCOVERY_API_BASE_URL, USE_API_CACHE } = getConfig();
@@ -38,22 +56,9 @@ export async function fetchProgramDetails(enterpriseUuid, programUuid) {
     const { courses } = programDetailsCopy;
     // Retrieve course keys
     const courseKeys = courses.map(({ key }) => key);
-
-    // Verify program belongs to customer
-    const programContent = await fetchEnterpriseCustomerContainsContent(enterpriseUuid, [programUuid]);
-    // Build contains course object { courseKey: Boolean, ...}
-    let courseContent;
-    if (!programContent.containsContentItems) {
-      courseContent = await Promise.all(
-        courseKeys.map(async (courseKey) => {
-          const { containsContentItems } = await fetchEnterpriseCustomerContainsContent(enterpriseUuid, [courseKey]);
-          return [courseKey, containsContentItems];
-        }),
-      );
-      courseContent = Object.fromEntries(courseContent);
-    } else {
-      courseContent = Object.fromEntries(courseKeys.map(courseKey => [courseKey, true]));
-    }
+    // Verify program or courses belongs to customer
+    const courseContent = await retrieveCustomerContainsContent(enterpriseUuid, programUuid, courseKeys);
+    // // Verify program belongs to customer
     let catalogContainsProgram = false;
     // Assign computed metadata to the program details object
     courses.forEach((course, index) => {

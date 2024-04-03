@@ -3,7 +3,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramSidebar from '../ProgramSidebar';
 import {
   PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP, PACING_TYPE_CONTENT, VERBOSE_PROGRAM_PACING_MAP,
@@ -23,13 +22,9 @@ const initialAppState = {
   authenticatedUser: mockAuthenticatedUser,
 };
 
-const ProgramSidebarWrapper = ({
-  initialProgramState = {},
-}) => (
+const ProgramSidebarWrapper = () => (
   <AppContext.Provider value={initialAppState}>
-    <ProgramContextProvider initialState={initialProgramState}>
-      <ProgramSidebar />
-    </ProgramContextProvider>
+    <ProgramSidebar />
   </AppContext.Provider>
 );
 
@@ -65,9 +60,7 @@ describe('<ProgramSidebar />', () => {
   });
   test('renders program sidebar', () => {
     render(
-      <ProgramSidebarWrapper
-        initialProgramState={initialProgramState}
-      />,
+      <ProgramSidebarWrapper />,
     );
 
     const courseCount = initialProgramState.courses.length;
@@ -142,9 +135,7 @@ describe('<ProgramSidebar />', () => {
     };
     useProgramDetails.mockReturnValue({ data: programWithoutEffortPerWeek });
     render(
-      <ProgramSidebarWrapper
-        initialProgramState={programWithoutEffortPerWeek}
-      />,
+      <ProgramSidebarWrapper />,
     );
     // label
     expect(screen.queryByText('Effort:')).not.toBeInTheDocument();
@@ -159,9 +150,7 @@ describe('<ProgramSidebar />', () => {
       minHoursEffortPerWeek: 1,
     };
     render(
-      <ProgramSidebarWrapper
-        initialProgramState={programWithoutEffortPerWeek}
-      />,
+      <ProgramSidebarWrapper />,
     );
     // label
     expect(screen.queryByText('Effort:')).not.toBeInTheDocument();

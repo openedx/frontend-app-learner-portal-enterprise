@@ -1,4 +1,4 @@
-import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
+import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { extractEnterpriseId, queryEnterpriseProgram } from '../../app/data';
 
 export default function makeProgramLoader(queryClient) {

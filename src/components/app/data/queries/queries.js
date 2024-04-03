@@ -357,7 +357,7 @@ export function queryLearnerProgramProgressData(programUUID) {
  * queries
  * .content
  * .program(programUUID)
- * ._ctx.details(enterpriseUuid)
+ * ._ctx.detail(enterpriseUuid)
  * @param programUUID
  * @returns {Types.QueryOptions}
  */
