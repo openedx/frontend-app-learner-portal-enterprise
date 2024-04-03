@@ -76,6 +76,21 @@ export default function createAppRouter(queryClient) {
             )}
           />
           <Route
+            path="academies/:academyUUID"
+            lazy={async () => {
+              const { AcademyDetailPage } = await import('../../academies');
+              return {
+                Component: AcademyDetailPage,
+              };
+            }}
+            errorElement={(
+              <RouteErrorBoundary
+                showSiteHeader={false}
+                showSiteFooter={false}
+              />
+            )}
+          />
+          <Route
             path="program/:programUUID"
             element={<Outlet />}
             errorElement={(
