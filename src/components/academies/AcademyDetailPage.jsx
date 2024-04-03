@@ -9,17 +9,17 @@ import {
 import { useIntl } from '@edx/frontend-platform/i18n';
 import algoliasearch from 'algoliasearch/lite';
 import { getConfig } from '@edx/frontend-platform/config';
-import { useAcademyMetadata } from './data/hooks';
 import NotFoundPage from '../NotFoundPage';
 import './styles/Academy.scss';
 import AcademyContentCard from './AcademyContentCard';
 import { useEnterpriseCustomer } from '../app/data';
+import useAcademyDetails from '../app/data/hooks/useAcademyDetails';
 
 const AcademyDetailPage = () => {
   const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { academyUUID } = useParams();
-  const [academy, isAcademyAPILoading, academyAPIError] = useAcademyMetadata(academyUUID);
+  const { data: academy, isError: academyAPIError, isLoading: isAcademyAPILoading } = useAcademyDetails();
   const academyURL = `/${enterpriseCustomer.slug}/academy/${academyUUID}`;
   const intl = useIntl();
 

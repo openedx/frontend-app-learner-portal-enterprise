@@ -44,10 +44,6 @@ const enterprise = createQueryKeys('enterprise', {
       academies: {
         queryKey: null,
         contextQueries: {
-          detail: (academyUUID) => ({
-            queryKey: [academyUUID],
-            queryFn: () => {},
-          }),
           list: {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchAcademies(queryKey[2]),

@@ -367,3 +367,21 @@ export function queryLearnerProgramProgressData(programUUID) {
     .program(programUUID)
     ._ctx.progress;
 }
+
+/**
+ * Helper function to assist querying with useQuery package
+ *
+ * queries
+ * .content
+ * .program(programUUID)
+ * ._ctx.detail(enterpriseUuid)
+ * @param enterpriseUuid
+ * @param programUUID
+ * @returns {Types.QueryOptions}
+ */
+export function queryEnterpriseProgram(enterpriseUuid, programUUID) {
+  return queries
+    .content
+    .program(programUUID)
+    ._ctx.detail(enterpriseUuid);
+}
