@@ -25,7 +25,7 @@ const LicenseRequestedAlert = () => {
   const hasPendingLicenseRequest = browseAndRequest.requests.subscriptionLicenses.length > 0;
 
   const { data: { customerAgreement } } = useSubscriptions();
-  const subscriptionCatalogUUIDs = customerAgreement?.availableSubscriptionCatalogs ?? [];
+  const subscriptionCatalogUUIDs = customerAgreement.availableSubscriptionCatalogs;
   const hasApplicableSubscription = subscriptionCatalogUUIDs.find(uuid => catalogList.includes(uuid));
 
   // Do not show the alert if there is no applicable subscription or no pending license request

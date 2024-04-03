@@ -572,7 +572,6 @@ export const useUserSubsidyApplicableToCourse = () => {
     && catalogsWithCourse.includes(subscriptionPlan?.enterpriseCatalogUuid)
   );
 
-  // const licenseApplicableToCourse = await getSubscriptionLicenseSubsidy();
   const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
     applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
     applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy },
@@ -588,6 +587,7 @@ export const useUserSubsidyApplicableToCourse = () => {
     const enterpriseAdminUsers = (
       missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
     );
+    console.log('enterpriseAdminUsers', enterpriseAdminUsers, missingSubsidyAccessPolicyReason);
     missingUserSubsidyReason = getMissingApplicableSubsidyReason({
       enterpriseAdminUsers,
       contactEmail,

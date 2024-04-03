@@ -405,28 +405,8 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
   subscriptionLicense,
   hasEnterpriseAdminUsers,
 }) => {
-  const subscriptionsApplicableToCourse = customerAgreement?.subscriptions?.filter(
-    subscription => catalogsWithCourse.includes(subscription?.enterpriseCatalogUuid),
-  ) || [];
-
-  const hasSubscriptionsApplicableToCourse = subscriptionsApplicableToCourse.length > 0;
-  if (!hasSubscriptionsApplicableToCourse) {
-    return undefined;
-  }
-
-  const hasExpiredSubscriptions = subscriptionsApplicableToCourse.every(
-    subscription => subscription.daysUntilExpirationIncludingRenewals < 0,
-  );
-  const hasExhaustedSubscriptions = subscriptionsApplicableToCourse.every(
-    subscription => subscription?.licenses?.unassigned === 0,
-  );
-  const applicableSubscriptionNonExpiredNonExhausted = subscriptionsApplicableToCourse.find(
-    subscription => subscription.daysUntilExpirationIncludingRenewals >= 0 && subscription?.licenses?.unassigned > 0,
-  );
-
-  if (hasExpiredSubscriptions) {
-    // If customer's subscription plan(s) containing the course being viewed have expired,
-    // change `reasonType` to use the `SUBSCRIPTION_EXPIRED` message.
+  const hasExpiredSubscriptionLicense = customerAgreement?.netDaysUntilExpiration <= 0;
+  if (hasExpiredSubscriptionLicense) {
     return parseReasonTypeBasedOnEnterpriseAdmins({
       hasEnterpriseAdminUsers,
       reasonTypes: {
@@ -436,27 +416,20 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
     });
   }
 
-  if (hasExhaustedSubscriptions) {
-    // If customer's subscription plan(s) containing the course being viewed no longer have
-    // any remaining seats, change `reasonType` to use the `SUBSCRIPTION_SEATS_EXHAUSTED` message.
-    return parseReasonTypeBasedOnEnterpriseAdmins({
-      hasEnterpriseAdminUsers,
-      reasonTypes: {
-        hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
-        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS,
-      },
-    });
+  const hasSubscriptionApplicableToCourse = !!customerAgreement?.availableSubscriptionCatalogs.some(
+    subscriptionCatalogUuid => catalogsWithCourse.includes(subscriptionCatalogUuid),
+  );
+  if (!hasSubscriptionApplicableToCourse) {
+    return undefined;
   }
 
-  if (subscriptionLicense?.status === LICENSE_STATUS.REVOKED) {
-    // If learner's subscription license is revoked, change `reasonType` to use
-    // the `SUBSCRIPTION_DEACTIVATED` message.
-    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED;
-  }
-
-  if (applicableSubscriptionNonExpiredNonExhausted) {
+  const isSubscriptionLicenseApplicable = subscriptionLicense
+    ? catalogsWithCourse.includes(subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid)
+    : false;
+  if (!subscriptionLicense || !isSubscriptionLicenseApplicable) {
     // If customer has a subscription plan(s) containing the course being viewed that is not expired
-    // nor exhausted, change `reasonType` to use the `SUBSCRIPTION_LICENSE_NOT_ASSIGNED` message.
+    // nor exhausted but learner has no subscription license, change `reasonType` to use the
+    // `SUBSCRIPTION_LICENSE_NOT_ASSIGNED` message.
     return parseReasonTypeBasedOnEnterpriseAdmins({
       hasEnterpriseAdminUsers,
       reasonTypes: {
@@ -464,6 +437,12 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
         hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
       },
     });
+  }
+
+  if (subscriptionLicense.status === LICENSE_STATUS.REVOKED) {
+    // If learner's subscription license is revoked, change `reasonType` to use
+    // the `SUBSCRIPTION_DEACTIVATED` message.
+    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED;
   }
 
   // There is no applicable subscriptions-related reason for disabled enrollment.
@@ -604,7 +583,7 @@ export const getMissingApplicableSubsidyReason = ({
   // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
   let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
   let userMessage;
-  const hasEnterpriseAdminUsers = enterpriseAdminUsers?.length > 0;
+  const hasEnterpriseAdminUsers = !!enterpriseAdminUsers?.length > 0;
 
   // If there are admin users, change `reasonType` to use the
   // `DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY` message.
@@ -673,7 +652,8 @@ export const getSubsidyToApplyForCourse = ({
 }) => {
   if (applicableSubscriptionLicense) {
     return {
-      ...applicableSubscriptionLicense,
+      discountType: 'percentage',
+      discountValue: 100,
       subsidyType: LICENSE_SUBSIDY_TYPE,
     };
   }

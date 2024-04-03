@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Hyperlink } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
@@ -35,23 +36,40 @@ const CourseAssociatedPrograms = () => {
               </div>
             </div>
             <div className="col">
-              <Link
-                to={features.ENABLE_PROGRAMS
-                  ? `/${enterpriseCustomer.slug}/program/${program.uuid}`
-                  : program.marketingUrl}
-                onClick={() => {
-                  sendEnterpriseTrackEvent(
-                    enterpriseCustomer.uuid,
-                    'edx.ui.enterprise.learner_portal.course.sidebar.program.clicked',
-                    {
-                      program_title: program.title,
-                      program_type: program.type,
-                    },
-                  );
-                }}
-              >
-                {program.title}
-              </Link>
+              {features.ENABLE_PROGRAMS ? (
+                <Link
+                  to={`/${enterpriseCustomer.slug}/program/${program.uuid}`}
+                  onClick={() => {
+                    sendEnterpriseTrackEvent(
+                      enterpriseCustomer.uuid,
+                      'edx.ui.enterprise.learner_portal.course.sidebar.program.clicked',
+                      {
+                        program_title: program.title,
+                        program_type: program.type,
+                      },
+                    );
+                  }}
+                >
+                  {program.title}
+                </Link>
+              ) : (
+                <Hyperlink
+                  destination={program.marketingUrl}
+                  target="_blank"
+                  onClick={() => {
+                    sendEnterpriseTrackEvent(
+                      enterpriseCustomer.uuid,
+                      'edx.ui.enterprise.learner_portal.course.sidebar.program.clicked',
+                      {
+                        program_title: program.title,
+                        program_type: program.type,
+                      },
+                    );
+                  }}
+                >
+                  {program.title}
+                </Hyperlink>
+              )}
             </div>
           </li>
         ))}
