@@ -104,9 +104,10 @@ export default function createAppRouter(queryClient) {
             <Route
               index
               lazy={async () => {
-                const { ProgramPage } = await import('../../program');
+                const { ProgramPage, makeProgramLoader } = await import('../../program');
                 return {
                   Component: ProgramPage,
+                  loader: makeProgramLoader(queryClient),
                 };
               }}
             />

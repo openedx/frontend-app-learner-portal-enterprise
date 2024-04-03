@@ -2,25 +2,32 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { renderWithRouterProvider } from '../../../../utils/tests';
-import makeProgramProgressLoader from '../programProgressLoader';
-import { ensureAuthenticatedUser } from '../../../app/routes/data';
-import { queryLearnerProgramProgressData } from '../../../app/data';
+import { renderWithRouterProvider } from '../../../utils/tests';
+import { ensureAuthenticatedUser } from '../../app/routes/data';
+import { extractEnterpriseId, queryEnterpriseProgram } from '../../app/data';
+import makeProgramLoader from './programLoader';
 
-jest.mock('../../../app/routes/data', () => ({
-  ...jest.requireActual('../../../app/routes/data'),
+jest.mock('../../app/routes/data', () => ({
+  ...jest.requireActual('../../app/routes/data'),
   ensureAuthenticatedUser: jest.fn(),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  extractEnterpriseId: jest.fn(),
 }));
 
 const mockEnterpriseId = 'test-enterprise-uuid';
 const mockProgramUUID = 'test-program-uuid';
-const mockProgramProgressURL = `/${mockEnterpriseId}/program/${mockProgramUUID}/progress`;
+const mockProgramsURL = `/${mockEnterpriseId}/program/${mockProgramUUID}`;
+
+extractEnterpriseId.mockResolvedValue(mockEnterpriseId);
 
 const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue({}),
 };
 
-describe('programProgressLoader', () => {
+describe('progressLoader', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     ensureAuthenticatedUser.mockResolvedValue({ userId: 3 });
@@ -30,12 +37,12 @@ describe('programProgressLoader', () => {
     ensureAuthenticatedUser.mockResolvedValue(null);
     renderWithRouterProvider(
       {
-        path: '/:enterpriseSlug/program/:programUUID/progress',
+        path: '/:enterpriseSlug/program/:programUUID',
         element: <div>hello world</div>,
-        loader: makeProgramProgressLoader(mockQueryClient),
+        loader: makeProgramLoader(mockQueryClient),
       },
       {
-        initialEntries: [mockProgramProgressURL],
+        initialEntries: [mockProgramsURL],
       },
     );
 
@@ -44,15 +51,15 @@ describe('programProgressLoader', () => {
     expect(mockQueryClient.ensureQueryData).not.toHaveBeenCalled();
   });
 
-  it('ensures the requisite program progress data is resolved', async () => {
+  it('ensures the requisite program data is resolved', async () => {
     renderWithRouterProvider(
       {
-        path: '/:enterpriseSlug/program/:programUUID/progress',
+        path: '/:enterpriseSlug/program/:programUUID',
         element: <div>hello world</div>,
-        loader: makeProgramProgressLoader(mockQueryClient),
+        loader: makeProgramLoader(mockQueryClient),
       },
       {
-        initialEntries: [mockProgramProgressURL],
+        initialEntries: [mockProgramsURL],
       },
     );
 
@@ -61,7 +68,7 @@ describe('programProgressLoader', () => {
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: queryLearnerProgramProgressData(mockProgramUUID).queryKey,
+        queryKey: queryEnterpriseProgram(mockEnterpriseId, mockProgramUUID).queryKey,
         queryFn: expect.any(Function),
       }),
     );

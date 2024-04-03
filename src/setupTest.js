@@ -29,6 +29,9 @@ process.env.ENTERPRISE_ACCESS_BASE_URL = 'http://enterprise-access.url';
 // testing utility to mock window width, etc.
 global.window.matchMedia = matchMediaMock.create();
 
+// structuredClone
+global.structuredClone = val => JSON.parse(JSON.stringify(val));
+
 jest.mock('@edx/frontend-platform/logging');
 jest.mock('@edx/frontend-platform/analytics');
 
