@@ -1,5 +1,4 @@
 import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
 import React from 'react';
 import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
@@ -11,7 +10,7 @@ import {
 import { renderWithRouter } from '../../../utils/tests';
 
 import AcademyDetailPage from '../AcademyDetailPage';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useAcademyDetails, useEnterpriseCustomer } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 // config
@@ -25,7 +24,7 @@ const ACADEMY_UUID = 'b48ff396-03b4-467f-a4cc-da4327156984';
 const ACADEMY_MOCK_DATA = {
   uuid: ACADEMY_UUID,
   title: 'My Awesome Academy',
-  long_description: 'I am an awesome academy.',
+  longDescription: 'I am an awesome academy.',
   image: 'example.com/academies/images/awesome-academy.png',
   tags: [
     {
@@ -43,15 +42,15 @@ const ACADEMY_MOCK_DATA = {
 const ALOGLIA_MOCK_DATA = {
   hits: [
     {
-      aggregation_key: 'course:MAX+CS50x',
-      learning_type: LEARNING_TYPE_COURSE,
-      card_image_url: 'ocm-course-card-url',
+      aggregationKey: 'course:MAX+CS50x',
+      learningType: LEARNING_TYPE_COURSE,
+      cardImageUrl: 'ocm-course-card-url',
       title: 'ocm course title',
     },
     {
-      aggregation_key: 'course:MAX+DSA50x',
-      learning_type: LEARNING_TYPE_EXECUTIVE_EDUCATION,
-      card_image_url: 'exec-ed-card-url',
+      aggregationKey: 'course:MAX+DSA50x',
+      learningType: LEARNING_TYPE_EXECUTIVE_EDUCATION,
+      cardImageUrl: 'exec-ed-card-url',
       title: 'exec-ed course title',
     },
   ],
@@ -59,7 +58,6 @@ const ALOGLIA_MOCK_DATA = {
 };
 
 // endpoints
-const ACADEMY_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies/${ACADEMY_UUID}/`;
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -70,16 +68,14 @@ jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(() => APP_CONFIG),
 }));
 jest.mock('@edx/frontend-platform/auth');
-const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
-axiosMock.onGet(ACADEMY_API_ENDPOINT).reply(200, ACADEMY_MOCK_DATA);
 
 // Mock the 'algoliasearch' module
 jest.mock('algoliasearch/lite', () => {
   // Mock the 'initIndex' function
   const mockInitIndex = jest.fn(() => {
     // Mock the 'search' function of the index
-    const mockSearch = jest.fn(async () => ({
+    const mockSearch = jest.fn(() => ({
       hits: [
         {
           aggregation_key: 'course:MAX+CS50x',
@@ -107,9 +103,10 @@ jest.mock('algoliasearch/lite', () => {
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useAcademyDetails: jest.fn(),
 }));
 
-const AcademyDetailPageWithContext = () => (
+const AcademyDetailPageWrapper = () => (
   <IntlProvider locale="en">
     <AcademyDetailPage />
   </IntlProvider>
@@ -121,13 +118,14 @@ describe('<AcademyDetailPage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useAcademyDetails.mockReturnValue({ data: ACADEMY_MOCK_DATA });
   });
   it('renders academy detail page', async () => {
-    renderWithRouter(<AcademyDetailPageWithContext />);
+    renderWithRouter(<AcademyDetailPageWrapper />);
 
     const headingElement = await screen.findByRole('heading', { level: 2 });
     expect(headingElement.textContent).toBe(ACADEMY_MOCK_DATA.title);
-    expect(screen.getByTestId('academy-description')).toHaveTextContent(ACADEMY_MOCK_DATA.long_description);
+    expect(screen.getByTestId('academy-description')).toHaveTextContent(ACADEMY_MOCK_DATA.longDescription);
     const academyTags = screen.getAllByTestId('academy-tag').map((tag) => tag.textContent);
     expect(academyTags).toEqual(['wowwww', 'boooo']);
     expect(screen.getByTestId('academy-exec-ed-courses-title')).toHaveTextContent('Executive Education');
@@ -141,5 +139,10 @@ describe('<AcademyDetailPage />', () => {
     expect(screen.getAllByTestId('academy-course-card').length).toEqual(2);
     expect(screen.getByText(ALOGLIA_MOCK_DATA.hits[0].title)).toBeInTheDocument();
     expect(screen.getByText(ALOGLIA_MOCK_DATA.hits[1].title)).toBeInTheDocument();
+  });
+  it('renders a not found page', () => {
+    useAcademyDetails.mockReturnValue({ data: null });
+    renderWithRouter(<AcademyDetailPageWrapper />);
+    expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });
 });
