@@ -5,11 +5,6 @@ import matchMediaMock from 'match-media-mock';
 import ResizeObserverPolyfill from 'resize-observer-polyfill';
 import 'jest-canvas-mock';
 
-import { configure } from 'enzyme';
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
-
-configure({ adapter: new Adapter() });
-
 process.env.LMS_BASE_URL = 'http://localhost:18000';
 process.env.ECOMMERCE_BASE_URL = 'http://ecommerce.url';
 process.env.MARKETING_SITE_BASE_URL = 'http://marketing.url';

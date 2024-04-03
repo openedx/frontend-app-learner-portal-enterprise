@@ -1,12 +1,9 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { mount } from 'enzyme';
 import ReactDOM from 'react-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
-import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
-import { StatefulButton } from '@openedx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { fetchJobDetailsFromAlgolia, patchProfile } from '../data/service';
@@ -73,7 +70,7 @@ describe('<SearchJobRole />', () => {
   });
 
   it('Save button component state is initially set to default and disabled', () => {
-    const wrapper = mount((
+    const wrapper = render((
       <IntlProvider locale="en">
         <AppContext.Provider value={{ authenticatedUser: { username: 'edx' } }}>
           <SearchContext.Provider value={defaultSearchContext}>
@@ -83,9 +80,11 @@ describe('<SearchJobRole />', () => {
       </IntlProvider>
     ));
 
-    const defaultState = 'default';
-    expect(wrapper.find(StatefulButton).prop('state')).toEqual(defaultState);
-    expect(wrapper.find(StatefulButton).prop('disabledStates')).toContain(defaultState);
+    const buttonElement = screen.getAllByRole('button');
+
+    expect(buttonElement[1].getAttribute('aria-disabled')).toEqual('true');
+    expect(buttonElement[1].disabled).toEqual(false);
+    expect(screen.getByText('Save')).toBeTruthy();
     wrapper.unmount();
   });
 
@@ -94,7 +93,7 @@ describe('<SearchJobRole />', () => {
       refinements: { current_job: 'Software Engineer' },
     };
 
-    const wrapper = mount((
+    const wrapper = render((
       <IntlProvider locale="en">
         <AppContext.Provider value={{ authenticatedUser: { username: 'edx' } }}>
           <SearchContext.Provider value={defaultSearchContextWithJob}>
@@ -104,9 +103,11 @@ describe('<SearchJobRole />', () => {
       </IntlProvider>
     ));
 
-    const defaultState = 'default';
-    expect(wrapper.find(StatefulButton).prop('state')).toEqual(defaultState);
-    expect(wrapper.find(StatefulButton).prop('disabledStates')).not.toContain(defaultState);
+    const buttonElement = screen.getAllByRole('button');
+
+    expect(buttonElement[1].getAttribute('aria-disabled')).not.toEqual('true');
+    expect(buttonElement[1].disabled).toEqual(false);
+    expect(screen.getByText('Save')).toBeTruthy();
     wrapper.unmount();
   });
 
@@ -115,7 +116,7 @@ describe('<SearchJobRole />', () => {
       refinements: { current_job: 'Software Engineer' },
       dispatch: () => jest.fn(),
     };
-    const wrapper = mount((
+    const wrapper = render((
       <IntlProvider locale="en">
         <AppContext.Provider value={{ authenticatedUser: { username: 'edx' } }}>
           <SearchContext.Provider value={defaultSearchContextWithJob}>
@@ -124,9 +125,10 @@ describe('<SearchJobRole />', () => {
         </AppContext.Provider>
       </IntlProvider>
     ));
-    wrapper.find(FacetListRefinement).simulate('change', { target: { value: 'Software Engineer' } });
-    wrapper.find(StatefulButton).simulate('click');
-    wrapper.update();
+
+    fireEvent.change(screen.getByTestId('dropdown').children[0], { target: { value: 'Software Engineer' } });
+    fireEvent.click(screen.getAllByRole('button')[1]);
+
     await expect(fetchJobDetailsFromAlgolia).toHaveBeenCalled();
     await expect(patchProfile).toHaveBeenCalled();
     wrapper.unmount();
@@ -137,7 +139,7 @@ describe('<SearchJobRole />', () => {
       refinements: { current_job: 'Software Engineer' },
       dispatch: () => jest.fn(),
     };
-    const wrapper = mount((
+    const wrapper = render((
       <IntlProvider locale="en">
         <AppContext.Provider value={{ authenticatedUser: { username: 'edx' } }}>
           <SearchContext.Provider value={defaultSearchContextWithJob}>
@@ -146,8 +148,9 @@ describe('<SearchJobRole />', () => {
         </AppContext.Provider>
       </IntlProvider>
     ));
-    wrapper.find('.cancel-btn').hostNodes().simulate('click');
-    wrapper.update();
+    const buttonElement = screen.getAllByRole('button');
+    fireEvent.click(buttonElement[buttonElement.length - 1]);
+
     await expect(deleteRefinementAction).toHaveBeenCalled();
     wrapper.unmount();
   });
