@@ -165,7 +165,6 @@ describe('fetchProgramDetails', () => {
     axiosMock.resetHistory();
   });
 
-  global.structuredClone = val => JSON.parse(JSON.stringify(val));
   it('fetches program data with program uuid belongs to enterprise', async () => {
     fetchEnterpriseCustomerContainsContent.mockReturnValue({ containsContentItems: true, catalogList: [] });
     axiosMock.onGet(PROGRAM_API_ENDPOINT).reply(200, PROGRAM_DATA);

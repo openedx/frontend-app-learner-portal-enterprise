@@ -1,12 +1,13 @@
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import ProgramPage from '../ProgramPage';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from '../data/constants';
 import { useEnterpriseCustomer, useProgramDetails } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { renderWithRouterProvider } from '../../../utils/tests';
 
 const programData = {
   title: 'Test Program Title',
@@ -51,7 +52,7 @@ describe('<Program />', () => {
   });
 
   test('renders program.', () => {
-    render(
+    renderWithRouterProvider(
       <ProgramPageWrapper />,
     );
     expect(screen.getByText('About this program')).toBeInTheDocument();
@@ -60,7 +61,7 @@ describe('<Program />', () => {
 
   test('renders program error.', () => {
     useProgramDetails.mockReturnValue({ data: {} });
-    render(
+    renderWithRouterProvider(
       <ProgramPageWrapper />,
     );
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
@@ -72,7 +73,7 @@ describe('<Program />', () => {
         catalogContainsProgram: false,
       },
     });
-    render(
+    renderWithRouterProvider(
       <ProgramPageWrapper />,
     );
     expect(screen.getByText(PROGRAM_NOT_FOUND_TITLE)).toBeInTheDocument();

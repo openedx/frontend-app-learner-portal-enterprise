@@ -2,7 +2,7 @@ import { useContext } from 'react';
 
 import dayjs from 'dayjs';
 import {
-  Alert, Collapsible, Hyperlink, Icon,
+  Alert, Collapsible, Icon,
 } from '@openedx/paragon';
 import {
   CalendarMonth, ExpandLess, ExpandMore, LibraryBooks,
@@ -10,7 +10,7 @@ import {
 } from '@openedx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import { PROGRAM_PACING_MAP } from './data/constants';
 import { useEnterpriseCustomer, useProgramDetails } from '../app/data';
@@ -69,9 +69,9 @@ const ProgramCourses = () => {
                   />
                 )}
                 {course.enterpriseHasCourse ? (
-                  <Hyperlink
+                  <Link
                     isInline
-                    destination={`/${enterpriseCustomer.slug}/course/${course.key}`}
+                    to={`/${enterpriseCustomer.slug}/course/${course.key}`}
                     target="_blank"
                     showLaunchIcon={false}
                     onClick={() => {
@@ -85,9 +85,10 @@ const ProgramCourses = () => {
                         },
                       );
                     }}
+                    data-testid="view-the-course"
                   >
                     View the course
-                  </Hyperlink>
+                  </Link>
                 ) : (
                   <Alert variant="warning" icon={WarningFilled}>
                     This course is not included in your organization&apos;s catalog.

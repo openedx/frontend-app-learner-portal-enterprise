@@ -9,10 +9,12 @@ import userEvent from '@testing-library/user-event';
 import ProgramCourses, { DATE_FORMAT } from '../ProgramCourses';
 import { useEnterpriseCustomer, useProgramDetails } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { renderWithRouterProvider } from '../../../utils/tests';
 
 const programUuid = '00000000-0000-0000-0000-000000000000';
 const courseKey = 'edX+DemoX';
 jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn(),
   useParams: jest.fn().mockReturnValue({ programUuid }),
 }));
@@ -76,7 +78,7 @@ describe('<ProgramCourses />', () => {
   });
 
   test('sends correct event data upon click on view the course link', () => {
-    render(
+    renderWithRouterProvider(
       <ProgramCoursesWrapper />,
     );
 
@@ -90,7 +92,7 @@ describe('<ProgramCourses />', () => {
   });
 
   test('renders view the course link if course in catalog', () => {
-    render(
+    renderWithRouterProvider(
       <ProgramCoursesWrapper />,
     );
 
