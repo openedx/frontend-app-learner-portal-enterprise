@@ -55,6 +55,11 @@ export const fetchNotices = async () => {
  */
 export async function fetchUserEntitlements() {
   const url = `${getConfig().LMS_BASE_URL}/api/entitlements/v1/entitlements/`;
-  const { results } = await fetchPaginatedData(url);
-  return results;
+  try {
+    const { results } = await fetchPaginatedData(url);
+    return results;
+  } catch (error) {
+    logError(error);
+    return [];
+  }
 }

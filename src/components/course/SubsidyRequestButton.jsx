@@ -12,7 +12,7 @@ import { ToastsContext } from '../Toasts';
 import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
 import { SUBSIDY_TYPE } from '../../constants';
 import {
-  queries,
+  queryRequestsContextQueryKey,
   useBrowseAndRequestConfiguration,
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
@@ -119,10 +119,7 @@ const SubsidyRequestButton = () => {
           description: 'Toast message for when a user submits a request to enroll in a course',
         }),
       );
-      const requestsQueryKey = queries
-        .enterprise.enterpriseCustomer(enterpriseCustomer.uuid)
-        ._ctx.subsidies._ctx.browseAndRequest._ctx.requests._def;
-
+      const requestsQueryKey = queryRequestsContextQueryKey(enterpriseCustomer.uuid);
       queryClient.invalidateQueries({ queryKey: requestsQueryKey });
     } catch (error) {
       logError(error);

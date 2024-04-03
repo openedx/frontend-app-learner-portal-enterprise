@@ -21,7 +21,7 @@ import { useStatefulEnroll } from '../stateful-enroll/data';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
 import {
-  queries,
+  queryCanRedeemContextQueryKey,
   queryEnterpriseCourseEnrollments,
   queryRedeemablePolicies,
   useEnterpriseCourseEnrollments,
@@ -59,11 +59,7 @@ const UserEnrollmentForm = ({
       return;
     }
 
-    const canRedeemQueryKey = queries
-      .enterprise.enterpriseCustomer(enterpriseCustomer.uuid)
-      ._ctx.course(courseKey)
-      ._ctx.canRedeem._def;
-
+    const canRedeemQueryKey = queryCanRedeemContextQueryKey(enterpriseCustomer.uuid, courseKey);
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: canRedeemQueryKey }),
       queryClient.invalidateQueries({

@@ -205,6 +205,14 @@ export function queryContentHighlightSets(enterpriseUuid) {
     ._ctx.highlightSets;
 }
 
+export function queryCanRedeemContextQueryKey(enterpriseUuid, courseKey) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course(courseKey)
+    ._ctx.canRedeem._def;
+}
+
 /**
  * Helper function to assist querying with useQuery package
  *
@@ -333,6 +341,14 @@ export function queryBrowseAndRequestConfiguration(enterpriseUuid) {
     ._ctx.subsidies
     ._ctx.browseAndRequest
     ._ctx.configuration;
+}
+
+export function queryRequestsContextQueryKey(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.browseAndRequest._ctx.requests._def;
 }
 
 /**
