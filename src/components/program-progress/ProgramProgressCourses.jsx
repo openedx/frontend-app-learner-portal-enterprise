@@ -327,7 +327,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                   : (
                     <p className="mt-2 float-right">
                       <FormattedMessage
-                        id="enterprise.dashboard.programs.about.page.not.currently.available"
+                        id="enterprise.dashboard.programs.about.page.course.not.currently.available.text"
                         defaultMessage="Not Currently Available"
                         description="Text indicating that the course is not currently available. This is used for unenrollable remaining courses on the programs about page."
                       />

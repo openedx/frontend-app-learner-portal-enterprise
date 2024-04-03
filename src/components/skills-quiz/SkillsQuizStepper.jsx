@@ -362,7 +362,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
               onClick={() => flipToRecommendedCourses()}
             >
               <FormattedMessage
-                id="enterprise.skills.quiz.v1.continue.button.label"
+                id="enterprise.skills.quiz.v1.continue.button.label1"
                 defaultMessage="Continue"
                 description="Button text for continue button that takes the user towards the recommended courses page, on the skills quiz v1."
               />
@@ -378,7 +378,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
             <Stepper.ActionRow.Spacer />
             <Button data-testid="skills-continue-button" onClick={() => setCurrentStep(STEP3)}>
               <FormattedMessage
-                id="enterprise.skills.quiz.v1.continue.button.label"
+                id="enterprise.skills.quiz.v1.continue.button.label2"
                 defaultMessage="Continue"
                 description="Button text for continue button that takes the user to the courses page, on the skills quiz v1."
               />
