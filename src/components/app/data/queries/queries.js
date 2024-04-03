@@ -107,20 +107,6 @@ export function queryCourseMetadata(courseKey, courseRunKey) {
 }
 
 /**
- * Helper function to assist querying the content key catalog inclusion.
- * @param {string} enterpriseUuid
- * @param {string} courseKey
- * @returns {Types.QueryOptions}
- */
-export function queryEnterpriseCustomerCatalogsContainsContent(enterpriseUuid, courseKey) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course(courseKey)
-    ._ctx.enterpriseCustomerCatalogsContainsContent;
-}
-
-/**
  * Helper function to assist with generating the query.
  * @param {string} courseKey
  * @returns {Types.QueryOptions}
