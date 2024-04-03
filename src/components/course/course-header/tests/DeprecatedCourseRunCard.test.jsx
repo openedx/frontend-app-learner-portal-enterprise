@@ -123,7 +123,7 @@ describe('<DeprecatedCourseRunCard />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
-  test.only('Course archived card', () => {
+  test('Course archived card', () => {
     renderCard({ courseRun: generateCourseRun({ availability: COURSE_AVAILABILITY_MAP.ARCHIVED }) });
     expect(screen.getByText('Course archived')).toBeInTheDocument();
     expect(screen.getByText('Future dates to be announced')).toBeInTheDocument();
