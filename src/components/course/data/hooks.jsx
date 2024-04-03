@@ -587,7 +587,6 @@ export const useUserSubsidyApplicableToCourse = () => {
     const enterpriseAdminUsers = (
       missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
     );
-    console.log('enterpriseAdminUsers', enterpriseAdminUsers, missingSubsidyAccessPolicyReason);
     missingUserSubsidyReason = getMissingApplicableSubsidyReason({
       enterpriseAdminUsers,
       contactEmail,
