@@ -77,16 +77,27 @@ describe('courseLoader', () => {
   });
 
   it.each([
-    // {
-    //   hasCourseMetadata: true,
-    //   isAssignmentOnlyLearner: false,
-    //   hasAllocatedAssignmentForCourse: false,
-    // },
-    // {
-    //   hasCourseMetadata: true,
-    //   isAssignmentOnlyLearner: false,
-    //   hasAllocatedAssignmentForCourse: true,
-    // },
+    {
+      hasCourseMetadata: true,
+      isAssignmentOnlyLearner: false,
+      assignments: {
+        allocatedAssignments: [],
+      },
+    },
+    {
+      hasCourseMetadata: true,
+      isAssignmentOnlyLearner: false,
+      assignments: {
+        allocatedAssignments: [{ contentKey: mockCourseKey }],
+      },
+    },
+    {
+      hasCourseMetadata: true,
+      isAssignmentOnlyLearner: true,
+      assignments: {
+        allocatedAssignments: [{ contentKey: mockCourseKey }],
+      },
+    },
     {
       hasCourseMetadata: true,
       isAssignmentOnlyLearner: true,
@@ -94,16 +105,11 @@ describe('courseLoader', () => {
         allocatedAssignments: [{ contentKey: 'edX+DemoY' }],
       },
     },
-    // {
-    //   hasCourseMetadata: true,
-    //   isAssignmentOnlyLearner: true,
-    //   hasAllocatedAssignmentForCourse: true,
-    // },
-    // {
-    //   hasCourseMetadata: false,
-    //   isAssignmentOnlyLearner: false,
-    //   hasAllocatedAssignmentForCourse: false,
-    // },
+    {
+      hasCourseMetadata: false,
+      isAssignmentOnlyLearner: false,
+      hasAllocatedAssignmentForCourse: false,
+    },
   ])('ensures the requisite course-related metadata data is resolved (%s)', async ({
     hasCourseMetadata,
     isAssignmentOnlyLearner,
@@ -127,7 +133,12 @@ describe('courseLoader', () => {
       expect.objectContaining({
         queryKey: courseMetadataQuery.queryKey,
       }),
-    ).mockResolvedValue(hasCourseMetadata ? mockCourseMetadata : undefined);
+    ).mockResolvedValue(hasCourseMetadata ? mockCourseMetadata : null);
+    when(mockQueryClient.getQueryData).calledWith(
+      expect.objectContaining({
+        queryKey: courseMetadataQuery.queryKey,
+      }),
+    ).mockReturnValue(hasCourseMetadata ? mockCourseMetadata : null);
 
     // When `ensureQueryData` is called with the redeemable policies query,
     // ensure its mock return value is valid.
@@ -413,11 +424,20 @@ describe('courseLoader', () => {
       mockCourseMetadata.key,
       isAssignmentOnlyLearner ? [] : [mockSubscriptionCatalog],
     );
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
-      expect.objectContaining({
-        queryKey: courseRecommendationsQuery.queryKey,
-        queryFn: expect.any(Function),
-      }),
-    );
+    if (isAssignmentOnlyLearner && !hasAssignmentForCourse) {
+      expect(mockQueryClient.ensureQueryData).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: courseRecommendationsQuery.queryKey,
+          queryFn: expect.any(Function),
+        }),
+      );
+    } else {
+      expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: courseRecommendationsQuery.queryKey,
+          queryFn: expect.any(Function),
+        }),
+      );
+    }
   });
 });
