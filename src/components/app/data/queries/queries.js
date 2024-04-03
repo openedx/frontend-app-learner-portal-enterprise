@@ -77,7 +77,6 @@ export function queryEnterpriseProgramsList(enterpriseUuid) {
 
 /**
  * Helper function to assist querying with useQuery package
- *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -394,4 +393,24 @@ export function queryLearnerProgramProgressData(programUUID) {
     .content
     .program(programUUID)
     ._ctx.progress;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ *
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.programs
+ * ._ctx.detail(programUUID);
+ * @param enterpriseUuid
+ * @param programUUID
+ * @returns {Types.QueryOptions}
+ */
+export function queryEnterpriseProgram(enterpriseUuid, programUUID) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.programs
+    ._ctx.detail(programUUID);
 }
