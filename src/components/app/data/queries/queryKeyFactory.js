@@ -21,7 +21,7 @@ import {
   fetchLearnerSkillLevels,
   fetchAcademies,
   fetchLearnerProgramProgressDetail,
-  fetchEnterpriseCustomerContainsContent,
+  fetchEnterpriseCustomerContainsContent, fetchAcademiesDetail,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -44,6 +44,10 @@ const enterprise = createQueryKeys('enterprise', {
       academies: {
         queryKey: null,
         contextQueries: {
+          detail: (academyUUID) => ({
+            queryKey: [academyUUID],
+            queryFn: () => {},
+          }),
           list: {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchAcademies(queryKey[2]),
@@ -164,6 +168,15 @@ const user = createQueryKeys('user', {
 });
 
 const content = createQueryKeys('content', {
+  academy: {
+    queryKey: null,
+    contextQueries: {
+      detail: (academyUUID) => ({
+        queryKey: [academyUUID],
+        queryFn: () => fetchAcademiesDetail(academyUUID),
+      }),
+    },
+  },
   program: (programUUID) => ({
     queryKey: [programUUID],
     contextQueries: {
