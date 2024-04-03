@@ -51,9 +51,12 @@ pull_translations:
 	rm -rf src/i18n/messages
 	mkdir src/i18n/messages
 	cd src/i18n/messages \
-      && atlas pull translations/frontend-app-learner-portal-enterprise/src/i18n/messages:frontend-app-learner-portal-enterprise
+	  && atlas pull $(ATLAS_OPTIONS) \
+		translations/frontend-component-footer/src/i18n/messages:frontend-component-footer \
+		translations/paragon/src/i18n/messages:paragon \
+		translations/frontend-app-learner-portal-enterprise/src/i18n/messages:frontend-app-learner-portal-enterprise
 
-	$(intl_imports) frontend-app-learner-portal-enterprise
+	$(intl_imports) frontend-component-footer paragon frontend-app-learner-portal-enterprise
 
 # This target is used by Travis.
 validate-no-uncommitted-package-lock-changes:
