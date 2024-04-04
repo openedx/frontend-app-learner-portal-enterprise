@@ -4,8 +4,7 @@ import { Container, Stack } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 
 import ContentHighlightSet from './ContentHighlightSet';
-import { useEnterpriseCustomer } from '../../app/data';
-import { useContentHighlightSets } from '../../hooks';
+import { useContentHighlightSets, useEnterpriseCustomer } from '../../app/data';
 
 const ContentHighlights = ({ className }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();

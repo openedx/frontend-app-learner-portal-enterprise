@@ -50,7 +50,6 @@ export async function ensureEnterpriseAppData({
   const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
   const enterpriseAppDataQueries = [
     // Enterprise Customer User Subsidies
-    // eslint-disable-next-line arrow-body-style
     queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
       // Auto-activate the user's subscription license, if applicable.
       const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({

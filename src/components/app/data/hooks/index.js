@@ -4,6 +4,7 @@ export {
   default as useContentHighlightsConfiguration,
   useCanOnlyViewHighlights,
 } from './useContentHighlightsConfiguration';
+export { default as useContentHighlightSets } from './useContentHighlightSets';
 export { default as useCourseMetadata } from './useCourseMetadata';
 export { default as useCourseReviews } from './useCourseReviews';
 export { default as useCourseRecommendations } from './useCourseRecommendations';
@@ -37,4 +38,5 @@ export { default as useLateRedemptionBufferDays } from './useLateRedemptionBuffe
 export { default as useProgramDetails } from './useProgramDetails';
 export { default as useLearnerProgramProgressData } from './useLearnerProgramProgressData';
 export { default as useHasAvailableSubsidiesOrRequests } from './useHasAvailableSubsidiesOrRequests';
+export { default as useAcademies } from './useAcademies';
 export { default as useAcademyDetails } from './useAcademyDetails';

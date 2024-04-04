@@ -44,12 +44,3 @@ process.on('unhandledRejection', (reason, p) => {
 global.ResizeObserver = ResizeObserverPolyfill;
 
 jestFetchMock.enableMocks();
-
-// MOCK DATA
-export const mockAuthenticatedUser = {
-  userId: 3,
-  username: 'edx',
-  email: 'edx@example.com',
-  roles: [],
-  administrator: false,
-};

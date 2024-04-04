@@ -41,10 +41,14 @@ export async function fetchLicenseRequests(
     user__email: userEmail,
     state,
   });
-  const config = getConfig();
-  const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/license-requests/?${queryParams.toString()}`;
-  const { results } = await fetchPaginatedData(url);
-  return results;
+  const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/license-requests/?${queryParams.toString()}`;
+  try {
+    const { results } = await fetchPaginatedData(url);
+    return results;
+  } catch (error) {
+    logError(error);
+    return [];
+  }
 }
 
 /**
@@ -66,6 +70,11 @@ export async function fetchCouponCodeRequests(
   });
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
-  const { results } = await fetchPaginatedData(url);
-  return results;
+  try {
+    const { results } = await fetchPaginatedData(url);
+    return results;
+  } catch (error) {
+    logError(error);
+    return [];
+  }
 }

@@ -5,8 +5,8 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import SearchAcademyCard from '../academies/SearchAcademyCard';
 import { ACADEMY_TITLE, CARDGRID_COLUMN_SIZES } from './constants';
-import { useAcademies } from '../hooks';
 import SearchError from './SearchError';
+import { useAcademies } from '../app/data';
 
 const SearchAcademy = () => {
   const { data: academies, isError: fetchError } = useAcademies();

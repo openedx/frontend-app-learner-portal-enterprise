@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { getConfig } from '@edx/frontend-platform';
 
-import { queryContentHighlightSets, useEnterpriseCustomer } from '../app/data';
+import useEnterpriseCustomer from './useEnterpriseCustomer';
+import { queryContentHighlightSets } from '../queries';
 
 export default function useContentHighlightSets(queryOptions = {}) {
   const { select, ...queryOptionsRest } = queryOptions;
