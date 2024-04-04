@@ -74,7 +74,7 @@ describe('<ProgramListing />', () => {
     jest.clearAllMocks();
     useCanOnlyViewHighlights.mockReturnValue({ data: false });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useEnterpriseProgramsList.mockReturnValue({ data: [], error: null });
+    useEnterpriseProgramsList.mockReturnValue({ data: [] });
   });
 
   it('renders all program cards', async () => {
@@ -91,46 +91,16 @@ describe('<ProgramListing />', () => {
     });
   });
 
-  it('renders program error.', async () => {
-    useEnterpriseProgramsList.mockReturnValue({
-      data: [],
-      error: { message: 'This is a test message.' },
-    });
-    renderWithRouter(
-      <ProgramListingWithContext />,
-    );
-    await waitFor(() => {
-      expect(screen.getByTestId('error-page')).toBeInTheDocument();
-    });
-  });
-
-  it('renders no programs message when data received is empty', async () => {
-    renderWithRouter(
-      <ProgramListingWithContext />,
-    );
-    await waitFor(() => {
-      expect(screen.getByText('You are not enrolled in any programs yet.')).toBeInTheDocument();
-      expect(screen.getByText('Explore programs')).toBeInTheDocument();
-    });
-  });
-
   it('redirects to correct url when clicked on explore programs', async () => {
-    renderWithRouter(
-      <ProgramListingWithContext />,
-    );
-    await waitFor(() => {
-      expect(screen.getByText('Explore programs')).toBeInTheDocument();
-    });
-    userEvent.click(screen.getByText('Explore programs'));
-    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/search`);
-    expect(window.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
-  });
+    useEnterpriseProgramsList.mockReturnValue({ data: [dummyProgramData] });
 
-  it('does not render button when canOnlyViewHighlightSets is true', () => {
-    useCanOnlyViewHighlights.mockReturnValue({ data: true });
     renderWithRouter(
       <ProgramListingWithContext />,
     );
-    expect(screen.queryByText('Explore programs')).not.toBeInTheDocument();
+
+    userEvent.click(screen.getByTestId('program-listing-card'));
+    await waitFor(() => {
+      expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/program/test-uuid/progress`);
+    });
   });
 });

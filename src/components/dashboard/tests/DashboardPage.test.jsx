@@ -314,7 +314,7 @@ describe('<Dashboard />', () => {
   });
 
   it('renders programs tab', async () => {
-    useEnterpriseProgramsList.mockReturnValue({ data: camelCaseObject(dummyProgramData) });
+    useEnterpriseProgramsList.mockReturnValue({ data: [camelCaseObject(dummyProgramData)] });
     renderWithRouter(
       <DashboardWithContext />,
     );

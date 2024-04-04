@@ -54,6 +54,7 @@ const ProgramListingCard = ({ program }) => {
       isClickable
       as={Link}
       to={`/${enterpriseCustomer.slug}/program/${program.uuid}/progress`}
+      data-testid="program-listing-card"
     >
       <Card.ImageCap
         src={getBannerImageURL() || cardFallbackImg}
