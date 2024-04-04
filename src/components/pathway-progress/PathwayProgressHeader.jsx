@@ -9,8 +9,8 @@ const PathwayProgressHeader = () => {
   const { data: { learnerPathwayProgress } } = useLearnerPathwayProgressData();
   const { enterpriseSlug } = useParams();
   const links = [
-    { label: 'Dashboard', url: `/${enterpriseSlug}` },
-    { label: 'Pathways', url: `/${enterpriseSlug}` }, // Redirect to dashboard page, user can then select pathways tab.
+    { label: 'Dashboard', to: `/${enterpriseSlug}` },
+    { label: 'Pathways', to: `/${enterpriseSlug}` }, // Redirect to dashboard page, user can then select pathways tab.
   ];
   return (
     <header className="pathway-header">
