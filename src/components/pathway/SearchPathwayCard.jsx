@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
@@ -55,7 +55,6 @@ const SearchPathwayCard = ({
 }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
-  const navigate = useNavigate();
 
   const pathway = useMemo(() => {
     if (!hit) {
