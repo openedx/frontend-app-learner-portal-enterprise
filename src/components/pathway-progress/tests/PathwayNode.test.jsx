@@ -7,10 +7,10 @@ import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import PathwayNode from '../PathwayNode';
 import LearnerPathwayProgressData from '../data/__mocks__/PathwayProgressListData.json';
+import { authenticatedUserFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -21,20 +21,9 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const appState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-  },
+  authenticatedUser: authenticatedUserFactory(),
 };
 
-const userSubsidyState = {
-  subscriptionLicense: {
-    uuid: 'test-license-uuid',
-  },
-  couponCodes: {
-    couponCodes: [],
-    couponCodesCount: 0,
-  },
-};
 const pathwaySteps = camelCaseObject(
   LearnerPathwayProgressData[0].learner_pathway_progress.steps,
 );
@@ -42,9 +31,7 @@ const pathwaySteps = camelCaseObject(
 const PathwayNodeWithContext = ({ pathwayNodedData }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appState}>
-      <UserSubsidyContext.Provider value={userSubsidyState}>
-        <PathwayNode node={pathwayNodedData} />
-      </UserSubsidyContext.Provider>
+      <PathwayNode node={pathwayNodedData} />
     </AppContext.Provider>
   </IntlProvider>
 );
