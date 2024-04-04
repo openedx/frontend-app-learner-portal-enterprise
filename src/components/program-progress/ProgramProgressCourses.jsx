@@ -1,40 +1,27 @@
-import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   Form, Col, Row,
 } from '@openedx/paragon';
 import { CheckCircle } from '@openedx/paragon/icons';
-import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
-import { FormattedDate, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import {
   courseUpgradeAvailable,
   getCertificatePriceString,
   getEnrolledCourseRunDetails,
   getNotStartedCourseDetails,
-  hasLicenseOrCoupon,
 } from './data/utils';
-import { linkToCourse } from '../course/data/utils';
+import { getLinkToCourse } from '../course/data/utils';
 import dayjs from '../../utils/dayjs';
+import { useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests } from '../app/data';
 
 const ProgramProgressCourses = ({ courseData }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodesCount },
-  } = useContext(UserSubsidyContext);
-
-  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
-
-  const userHasLicenseOrCoupon = hasLicenseOrCoupon({
-    requestsBySubsidyType,
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodesCount,
-  });
+    hasActiveLicenseOrLicenseRequest,
+    hasAssignedCodesOrCodeRequests,
+  } = useHasAvailableSubsidiesOrRequests();
+  const userHasLicenseOrCoupon = hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 
   let coursesCompleted = [];
   let coursesInProgress = [];
@@ -42,7 +29,7 @@ const ProgramProgressCourses = ({ courseData }) => {
 
   const intl = useIntl();
 
-  const courseAboutPageURL = (course) => linkToCourse(course, enterpriseConfig.slug);
+  const courseAboutPageURL = (course) => getLinkToCourse(course, enterpriseCustomer.slug);
   const courseSponsoredByEnterprise = intl.formatMessage(
     {
       id: 'enterprise.dashboard.programs.about.page.course.sponsored',
@@ -50,7 +37,7 @@ const ProgramProgressCourses = ({ courseData }) => {
       description: 'Label for course sponsored by enterprise on programs about page',
     },
     {
-      enterpriseName: enterpriseConfig.name,
+      enterpriseName: enterpriseCustomer.name,
     },
   );
 
@@ -71,11 +58,11 @@ const ProgramProgressCourses = ({ courseData }) => {
       return (
         <>
           {certificatePrice
-          && (
-            <del>
-              <span className="text-success-500 pr-1.5 pl-1.5"> {certificatePrice}</span>
-            </del>
-          )}
+                && (
+                  <del>
+                    <span className="text-success-500 pr-1.5 pl-1.5"> {certificatePrice}</span>
+                  </del>
+                )}
           {courseSponsoredByEnterprise}
         </>
       );
@@ -145,8 +132,7 @@ const ProgramProgressCourses = ({ courseData }) => {
 
   return (
     <div className="col-10 p-0">
-      {coursesInProgress?.length > 0
-      && (
+      {coursesInProgress?.length > 0 && (
         <div className="mb-5">
           <h4 className="white-space-pre">
             <FormattedMessage
@@ -169,12 +155,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                       description="Placeholder for in-progress course pacing type and start date on programs about page."
                       values={{
                         pacingType: course?.pacingType.replace('_', '-'),
-                        startDate: (
-                          <FormattedDate
-                            value={dayjs(course.start)}
-                            format="MMMM Do, YYYY"
-                          />
-                        ),
+                        startDate: dayjs(course.start).format('MMMM Do, YYYY'),
                       }}
                     />
                   </p>
@@ -199,15 +180,14 @@ const ProgramProgressCourses = ({ courseData }) => {
                   {course.certificateUrl
                     ? renderCertificatePurchased()
                     : courseUpgradeAvailable(course)
-                    && renderCertificatePriceMessage(course)}
+                          && renderCertificatePriceMessage(course)}
                 </div>
               )
             ))}
           </div>
         </div>
       )}
-      {courseData?.notStarted?.length > 0
-      && (
+      {courseData?.notStarted?.length > 0 && (
         <div className="mb-5 courses">
           <h4 className="white-space-pre">
             <FormattedMessage
@@ -232,12 +212,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                           description="Placeholder for remaining course pacing type and start date on programs about page."
                           values={{
                             pacingType: course?.pacingType.replace('_', '-'),
-                            startDate: (
-                              <FormattedDate
-                                value={dayjs(course.start)}
-                                format="MMMM Do, YYYY"
-                              />
-                            ),
+                            startDate: dayjs(course.start).format('MMMM Do, YYYY'),
                           }}
                         />
                       </p>
@@ -255,7 +230,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                   )
                   : (
                     <p
-                      className=" mt-2 float-right"
+                      className="mt-2 float-right"
                     >
                       <FormattedMessage
                         id="enterprise.dashboard.programs.about.page.not.currently.available"
@@ -267,7 +242,6 @@ const ProgramProgressCourses = ({ courseData }) => {
               </div>
             )
           ))}
-
           {courseWithMultipleCourseRun.map((course) => (
             (
               <div className="mt-4.5 pl-3 pb-5 pr-3" key={course.key}>
@@ -275,7 +249,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                 {course.isEnrollable
                   ? (
                     <>
-                      <p className="text-gray-500 text-capitalize mt-1">
+                      <div className="text-gray-500 text-capitalize mt-1">
                         {course.courseRunDate?.length > 1
                           ? (
                             <Form.Group className="pr-0" as={Col} controlId="formGridState-2">
@@ -288,7 +262,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                               </Form.Label>
                               <Form.Control as="select">
                                 {course.courseRunDate.map(cRunDate => (
-                                  <option>{cRunDate}</option>
+                                  <option key={cRunDate}>{cRunDate}</option>
                                 ))}
                               </Form.Control>
                             </Form.Group>
@@ -301,17 +275,12 @@ const ProgramProgressCourses = ({ courseData }) => {
                                 description="Placeholder for the pacing type and start date of a course with a single course run date on programs about page."
                                 values={{
                                   pacingType: course?.pacingType.replace('_', '-'),
-                                  startDate: (
-                                    <FormattedDate
-                                      value={dayjs(course.start)}
-                                      format="MMMM Do, YYYY"
-                                    />
-                                  ),
+                                  startDate: dayjs(course.start).format('MMMM Do, YYYY'),
                                 }}
                               />
                             </span>
                           )}
-                      </p>
+                      </div>
                       <a
                         className="btn btn-outline-primary btn-xs-block mt-2 float-right"
                         href={courseAboutPageURL(course)}
@@ -325,21 +294,20 @@ const ProgramProgressCourses = ({ courseData }) => {
                     </>
                   )
                   : (
-                    <p className="mt-2 float-right">
+                    <div className="mt-2 float-right">
                       <FormattedMessage
                         id="enterprise.dashboard.programs.about.page.course.not.currently.available.text"
                         defaultMessage="Not Currently Available"
                         description="Text indicating that the course is not currently available. This is used for unenrollable remaining courses on the programs about page."
                       />
-                    </p>
+                    </div>
                   )}
               </div>
             )
           ))}
         </div>
       )}
-      {coursesCompleted?.length > 0
-      && (
+      {coursesCompleted?.length > 0 && (
         <div className="mb-6 courses">
           <h4 className="white-space-pre">
             <FormattedMessage
@@ -351,46 +319,37 @@ const ProgramProgressCourses = ({ courseData }) => {
           </h4>
           <hr />
           {coursesCompleted.map((course) => (
-            (
-              <div className="mt-4.5 pl-3 pb-5 pr-3" key={course.key}>
-                <h4 className="text-dark-500">{course.title}</h4>
-                <p className="text-gray-500 text-capitalize mt-1">
-                  <FormattedMessage
-                    id="enterprise.dashboard.programs.about.page.completed.course.pacing.type.and.start.date"
-                    defaultMessage="({pacingType}) Started {startDate}"
-                    description="Placeholder for completed course pacing type and start date on programs about page."
-                    values={{
-                      pacingType: course?.pacingType.replace('_', '-'),
-                      startDate: (
-                        <FormattedDate
-                          value={dayjs(course.start)}
-                          format="MMMM Do, YYYY"
-                        />
-                      ),
-                    }}
-                  />
-                </p>
-                <a
-                  className="btn btn-outline-primary btn-xs-block mb-6 float-right"
-                  href={courseAboutPageURL(course)}
-                >
-                  <FormattedMessage
-                    id="enterprise.dashboard.programs.about.page.view.completed.course"
-                    defaultMessage="View Course"
-                    description="Lable for view completed course button on programs about page"
-                  />
-                </a>
-
-                {course.certificateUrl ? renderCertificatePurchased()
-                  : courseUpgradeAvailable(course)
-                  && renderCertificatePriceMessage(course)}
-              </div>
-            )
+            <div className="mt-4.5 pl-3 pb-5 pr-3" key={course.key}>
+              <h4 className="text-dark-500">{course.title}</h4>
+              <p className="text-gray-500 text-capitalize mt-1">
+                <FormattedMessage
+                  id="enterprise.dashboard.programs.about.page.completed.course.pacing.type.and.start.date"
+                  defaultMessage="({pacingType}) Started {startDate}"
+                  description="Placeholder for completed course pacing type and start date on programs about page."
+                  values={{
+                    pacingType: course?.pacingType.replace('_', '-'),
+                    startDate: dayjs(course.start).format('MMMM Do, YYYY'),
+                  }}
+                />
+              </p>
+              <a
+                className="btn btn-outline-primary btn-xs-block mb-6 float-right"
+                href={courseAboutPageURL(course)}
+              >
+                <FormattedMessage
+                  id="enterprise.dashboard.programs.about.page.view.completed.course"
+                  defaultMessage="View Course"
+                  description="Lable for view completed course button on programs about page"
+                />
+              </a>
+              {course.certificateUrl
+                ? renderCertificatePurchased()
+                : courseUpgradeAvailable(course) && renderCertificatePriceMessage(course)}
+            </div>
           ))}
         </div>
       )}
     </div>
-
   );
 };
 ProgramProgressCourses.propTypes = {

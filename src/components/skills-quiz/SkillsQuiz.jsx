@@ -1,8 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
-
-import { AppContext } from '@edx/frontend-platform/react';
 
 import { Container, Row } from '@openedx/paragon';
 
@@ -13,10 +11,11 @@ import SkillsQuizStepper from './SkillsQuizStepper';
 import { SkillsContextProvider } from './SkillsContextProvider';
 import SkillsQuizV2 from '../skills-quiz-v2/SkillsQuiz';
 import { isExperimentVariant } from '../../utils/optimizely';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SkillsQuiz = () => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const PAGE_TITLE = `Skills Quiz - ${enterpriseConfig.name}`;
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const PAGE_TITLE = `Skills Quiz - ${enterpriseCustomer.name}`;
   const config = getConfig();
   const isExperimentVariationB = isExperimentVariant(
     config.EXPERIMENT_2_ID,

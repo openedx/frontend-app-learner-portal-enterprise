@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { Bubble, Collapsible } from '@openedx/paragon';
 
-import { AppContext } from '@edx/frontend-platform/react';
 import {
   InProgressCourseCard,
   UpcomingCourseCard,
@@ -16,6 +15,7 @@ import {
 import { UpgradeableCourseEnrollmentContextProvider } from './UpgradeableCourseEnrollmentContextProvider';
 import { COURSE_STATUSES, COURSE_MODES } from '../../../../constants';
 import { COURSE_SECTION_TITLES } from '../../data/constants';
+import { useEnterpriseCustomer } from '../../../app/data';
 
 const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.upcoming]: UpcomingCourseCard,
@@ -26,44 +26,41 @@ const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.assigned]: AssignedCourseCard,
 };
 
-class CourseSection extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isOpen: true,
-    };
-  }
+const CourseSection = ({
+  courseRuns,
+  title,
+  subtitle,
+}) => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const [isOpen, setIsOpen] = useState(true);
 
-  getCoursesCount = (isOpen, title, coursesCount) => {
-    if (!isOpen) {
-      if (title === COURSE_SECTION_TITLES.assigned || title === COURSE_SECTION_TITLES.firstTimeUserAndAssigned) {
-        return <sup><Bubble variant="error">{coursesCount}</Bubble></sup>;
-      }
-      return `(${coursesCount})`;
+  const getCoursesCount = (coursesCount) => {
+    if (isOpen) {
+      return null;
     }
-    return null;
+    if ([COURSE_SECTION_TITLES.assigned, COURSE_SECTION_TITLES.firstTimeUserAndAssigned].includes(title)) {
+      return <Bubble variant="error" className="ml-2">{coursesCount}</Bubble>;
+    }
+    return `(${coursesCount})`;
   };
 
-  getFormattedSectionTitle = () => {
-    const { isOpen } = this.state;
-    const { courseRuns, title } = this.props;
+  const getFormattedSectionTitle = () => {
     const sectionTitle = isOpen ? title : `${title} `;
-    const coursesCount = this.getCoursesCount(isOpen, title, courseRuns.length);
+    const coursesCount = getCoursesCount(courseRuns.length);
     return (
-      <h3>
+      <h3 className="d-flex align-items-center">
         {sectionTitle}
         {coursesCount}
       </h3>
     );
   };
 
-  getFormattedOptionalSubtitle = () => {
-    const { subtitle } = this.props;
+  const getFormattedOptionalSubtitle = () => {
     if (!subtitle) { return null; }
     return <p className="mt-3 mb-0">{subtitle}</p>;
   };
 
-  getCourseRunProps = ({
+  const getCourseRunProps = ({
     linkToCertificate,
     notifications,
     courseRunStatus,
@@ -91,70 +88,61 @@ class CourseSection extends React.Component {
     };
   };
 
-  handleCollapsibleToggle = (isOpen) => {
-    const { title } = this.props;
-    this.setState({
-      isOpen,
-    });
-    const {
-      enterpriseConfig,
-    } = this.context;
+  const handleCollapsibleToggle = (newValue) => {
+    setIsOpen(newValue);
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.section.toggled',
       {
-        is_open: isOpen,
+        is_open: newValue,
         section_title: title,
       },
     );
   };
 
-  renderCourseCards = () => this.props.courseRuns.map(courseRun => {
+  const renderCourseCards = () => courseRuns.map(courseRun => {
     const Component = CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
-    const isAuditEnrollment = courseRun.mode === COURSE_MODES.AUDIT;
-
-    if (isAuditEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
-      // if the enrollment is in audit mode and is in progress, it can be upgraded
-      // and we want to wrap it in <UpgradeableCourseEnrollmentContextProvider />
+    const isAuditOrHonorEnrollment = [COURSE_MODES.AUDIT, COURSE_MODES.HONOR].includes(courseRun.mode);
+    if (isAuditOrHonorEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
+      // if the enrollment is in audit mode and is in progress, it might be able to get
+      // upgraded, so we want to wrap it in <UpgradeableCourseEnrollmentContextProvider />
+      // in order to check if it can be upgraded.
       return (
         <UpgradeableCourseEnrollmentContextProvider
           courseEnrollment={courseRun}
           key={courseRun.courseRunId}
         >
-          <Component {...this.getCourseRunProps(courseRun)} />
+          <Component {...getCourseRunProps(courseRun)} />
         </UpgradeableCourseEnrollmentContextProvider>
       );
     }
-
     return (
       <Component
-        {...this.getCourseRunProps(courseRun)}
+        {...getCourseRunProps(courseRun)}
         key={courseRun.courseRunId}
       />
     );
   });
 
-  render() {
-    const { courseRuns } = this.props;
-    if (!courseRuns || courseRuns.length === 0) {
-      return null;
-    }
-    return (
-      <div className="course-section mb-4">
-        <Collapsible
-          styling="card"
-          title={this.getFormattedSectionTitle()}
-          onOpen={() => this.handleCollapsibleToggle(true)}
-          onClose={() => this.handleCollapsibleToggle(false)}
-          defaultOpen
-        >
-          {this.getFormattedOptionalSubtitle()}
-          {this.renderCourseCards()}
-        </Collapsible>
-      </div>
-    );
+  if (!courseRuns || courseRuns.length === 0) {
+    return null;
   }
-}
+
+  return (
+    <div className="course-section mb-4">
+      <Collapsible
+        styling="card"
+        title={getFormattedSectionTitle()}
+        onOpen={() => handleCollapsibleToggle(true)}
+        onClose={() => handleCollapsibleToggle(false)}
+        defaultOpen
+      >
+        {getFormattedOptionalSubtitle()}
+        {renderCourseCards()}
+      </Collapsible>
+    </div>
+  );
+};
 
 CourseSection.propTypes = {
   courseRuns: PropTypes.arrayOf(PropTypes.shape({
@@ -180,7 +168,5 @@ CourseSection.propTypes = {
 CourseSection.defaultProps = {
   subtitle: null,
 };
-
-CourseSection.contextType = AppContext;
 
 export default CourseSection;

@@ -1,8 +1,7 @@
-import { useMemo, useContext } from 'react';
+import { useMemo } from 'react';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
-import { CourseContext } from '../CourseContextProvider';
 import { hasCourseStarted, findUserEnrollmentForCourseRun } from '../data/utils';
+import { useCourseMetadata, useEnterpriseCourseEnrollments } from '../../app/data';
 
 /**
  * Enrollment data needed for enroll logic
@@ -22,9 +21,9 @@ import { hasCourseStarted, findUserEnrollmentForCourseRun } from '../data/utils'
  * @returns {EnrollmentData} enrolldata data for use in enrollment logic
  */
 export function useEnrollData() {
-  const { state: courseData } = useContext(CourseContext);
-  const { activeCourseRun, userEnrollments } = courseData;
+  const { data: { activeCourseRun } } = useCourseMetadata();
   const { key, start, isEnrollable } = activeCourseRun;
+  const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(start),
@@ -32,44 +31,13 @@ export function useEnrollData() {
   );
 
   const userEnrollment = useMemo(
-    () => findUserEnrollmentForCourseRun({ userEnrollments, key }),
-    [userEnrollments, key],
+    () => findUserEnrollmentForCourseRun({ userEnrollments: enterpriseCourseEnrollments, key }),
+    [enterpriseCourseEnrollments, key],
   );
   return {
     isEnrollable,
     isUserEnrolled: !!userEnrollment,
     isCourseStarted,
     userEnrollment,
-  };
-}
-
-/**
- * Extract subsidy information from CourseContext and UserSubsidyContext.
- * Before calling this, ensure the following data is in CourseContext and UserSubsidyContext:
- *   CourseContext `state` should have `userSubsidyApplicableToCourse` and `catalog`
- *   UserSubsidyContext `value` should have `subscriptionLicense` and `couponCodes`
- *
- * @returns {object} with fields:
- * {
- *    subscriptionLicense,
- *    userSubsidyApplicableToCourse,
- *    couponCodes,
- *    couponCodesCount,
- *    hasCouponCodeForCourse,
- * }
- */
-export function useSubsidyDataForCourse() {
-  const {
-    userSubsidyApplicableToCourse,
-  } = useContext(CourseContext);
-  const {
-    subscriptionLicense,
-    couponCodes: { couponCodesCount },
-  } = useContext(UserSubsidyContext);
-
-  return {
-    userSubsidyApplicableToCourse,
-    couponCodesCount,
-    subscriptionLicense,
   };
 }

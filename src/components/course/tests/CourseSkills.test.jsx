@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '../../../utils/tests';
@@ -13,6 +13,8 @@ import { generateRandomSkills, generateRandomString } from './testUtils';
 
 import { SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR } from '../data/constants';
 import { shortenString } from '../data/utils';
+import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const baseCourseState = {
   activeCourseRun: {},
@@ -27,45 +29,52 @@ const baseSubsidyRequestContextValue = {
 };
 
 const CourseSkillsWithContext = ({
-  initialAppState,
   courseState,
   initialSubsidyRequestContextValue,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
-        <CourseContextProvider courseState={courseState}>
-          <CourseSkills />
-        </CourseContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </AppContext.Provider>
+    <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
+      <CourseContextProvider courseState={courseState}>
+        <CourseSkills />
+      </CourseContextProvider>
+    </SubsidyRequestsContext.Provider>
   </IntlProvider>
 );
 
 CourseSkillsWithContext.propTypes = {
-  initialAppState: PropTypes.shape(),
   courseState: PropTypes.shape(),
   initialSubsidyRequestContextValue: PropTypes.shape(),
 };
 
 CourseSkillsWithContext.defaultProps = {
-  initialAppState: {},
   courseState: {},
   initialSubsidyRequestContextValue: baseSubsidyRequestContextValue,
 };
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(() => mockEnterpriseCustomer),
+}));
+
+const initialAppState = {
+  enterpriseConfig: {
+    slug: 'test-enterprise-slug',
+  },
+};
+const courseState = {
+  ...baseCourseState,
+  course: {
+    skills: generateRandomSkills(MAX_VISIBLE_SKILLS),
+  },
+};
+
 describe('<CourseSkills />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-    },
-  };
-  const courseState = {
-    ...baseCourseState,
-    course: {
-      skills: generateRandomSkills(MAX_VISIBLE_SKILLS),
-    },
-  };
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
 
   test('renders course skills less than or equal to limit', () => {
     renderWithRouter(
@@ -116,12 +125,9 @@ describe('<CourseSkills />', () => {
       />,
     );
     /* eslint-disable no-await-in-loop */
-
     for (const skill of courseState.course.skills) { // eslint-disable-line no-restricted-syntax
-      await act(async () => {
-        fireEvent.mouseOver(screen.getByText(skill.name));
-      });
-      expect(await screen.queryByText(skill.description)).toBeVisible();
+      userEvent.hover(screen.getByText(skill.name));
+      expect(await screen.findByText(skill.description)).toBeVisible();
     }
     /* eslint-disable no-await-in-loop */
   });
@@ -149,9 +155,7 @@ describe('<CourseSkills />', () => {
     );
     const { skills } = newCourseState.course;
     const maxVisibleDesc = shortenString(skills[0].description, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR);
-    await act(async () => {
-      fireEvent.mouseOver(screen.getByText(skills[0].name));
-    });
+    userEvent.hover(screen.getByText(skills[0].name));
     expect(await screen.findByText(maxVisibleDesc)).toBeVisible();
   });
 });

@@ -7,7 +7,7 @@ import { MODAL_BUTTON_TEXT, MODAL_TITLE } from './data/constants';
 import ModalBody from './ModalBody';
 
 const IntegrationWarningModal = ({
-  isOpen,
+  isEnabled,
 }) => {
   const config = getConfig();
   const cookies = new Cookies();
@@ -15,44 +15,44 @@ const IntegrationWarningModal = ({
     const isDismissed = cookies.get(config.INTEGRATION_WARNING_DISMISSED_COOKIE_NAME);
     return !!isDismissed;
   };
+  const [dismissed, setState] = useState(isEnabled && !isWarningDismissed());
+
   const handleModalOnClose = () => {
     cookies.set(config.INTEGRATION_WARNING_DISMISSED_COOKIE_NAME, true, { path: '/' });
   };
 
-  const [dismissed, setState] = useState(isOpen && !isWarningDismissed());
   const handleButtonClick = () => {
     handleModalOnClose();
     setState(false);
   };
+
   return (
-    <div>
-      <Modal
-        body={<ModalBody />}
-        open={dismissed}
-        onClose={handleModalOnClose}
-        title={MODAL_TITLE}
-        closeText={MODAL_BUTTON_TEXT}
-        renderHeaderCloseButton={false}
-        renderDefaultCloseButton={false}
-        buttons={[
-          <Button
-            variant="primary"
-            onClick={handleButtonClick}
-          >
-            {MODAL_BUTTON_TEXT}
-          </Button>,
-        ]}
-      />
-    </div>
+    <Modal
+      body={<ModalBody />}
+      open={dismissed}
+      onClose={handleModalOnClose}
+      title={MODAL_TITLE}
+      closeText={MODAL_BUTTON_TEXT}
+      renderHeaderCloseButton={false}
+      renderDefaultCloseButton={false}
+      buttons={[
+        <Button
+          variant="primary"
+          onClick={handleButtonClick}
+        >
+          {MODAL_BUTTON_TEXT}
+        </Button>,
+      ]}
+    />
   );
 };
 
 IntegrationWarningModal.propTypes = {
-  isOpen: PropTypes.bool,
+  isEnabled: PropTypes.bool,
 };
 
 IntegrationWarningModal.defaultProps = {
-  isOpen: true,
+  isEnabled: false,
 };
 
 export default IntegrationWarningModal;

@@ -1,14 +1,14 @@
 .data-bar {
   margin-bottom: 40px;
   overflow: hidden;
-  background-color: #00262b;
+  background-color: $primary-500;
 
   .data-bar-content {
     min-height: 100px;
     margin: 0 auto;
 
     .partner-image-wrapper {
-      background: #fff;
+      background: $white;
       display: flex;
       align-items: center;
       padding: 0 15px;
@@ -28,7 +28,7 @@
           width: 300px;
           top: 0;
           bottom: 0;
-          background: #fff;
+          background: $white;
         }
 
         &::before {
@@ -72,7 +72,7 @@
     }
 
     .program {
-      color: #fff;
+      color: $white;
       flex-grow: 1;
       padding: 15px 30px;
 
@@ -98,8 +98,8 @@
       padding: 0 30px 30px;
 
       .btn-of-interest {
-        background: #fff;
-        color: #00262b;;
+        background: $white;
+        color: $primary-500;
         padding: 10px 50px;
         font-weight: 700;
         text: {
@@ -152,12 +152,12 @@
   }
 
   &.stuck {
-    background: #fff;
+    background: $white;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 9999;
+    z-index: 1024;
 
     & + .program-body {
       margin-top: 270px;
@@ -183,7 +183,7 @@
     .program {
       display: flex;
       flex-wrap: wrap;
-      background: #fff;
+      background: $white;
       color: $primary;
 
       &::before,
@@ -227,7 +227,7 @@
 
   .alerts-wrapper {
     background-color: red;
-    color: #000;
+    color: $black;
     text-align: center;
     margin-bottom: 0;
     font: {

@@ -1,8 +1,7 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useNavigate } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
+import { Link } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { Card, Truncate } from '@openedx/paragon';
@@ -11,15 +10,16 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 import { isShortCourse } from './utils';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SearchCourseCard = ({
   key, hit, isLoading, parentRoute, ...rest
 }) => {
-  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
-  const navigate = useNavigate();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const eventName = useMemo(
     () => {
+      // [tech debt] `key` is not intended to be used as a prop (see warning in tests).
       if (key?.startsWith('career-tab')) {
         return 'edx.ui.enterprise.learner_portal.career_tab.course_recommendation.clicked';
       }
@@ -48,9 +48,9 @@ const SearchCourseCard = ({
         queryParams.set('queryId', course.queryId);
         queryParams.set('objectId', course.objectId);
       }
-      return `/${slug}/course/${course.key}?${queryParams.toString()}`;
+      return `/${enterpriseCustomer.slug}/course/${course.key}?${queryParams.toString()}`;
     },
-    [course, slug],
+    [course, enterpriseCustomer.slug],
   );
 
   const partnerDetails = useMemo(
@@ -76,7 +76,7 @@ const SearchCourseCard = ({
       return;
     }
     sendEnterpriseTrackEvent(
-      uuid,
+      enterpriseCustomer.uuid,
       eventName,
       {
         objectID: course.objectId,
@@ -86,17 +86,18 @@ const SearchCourseCard = ({
         courseKey: course.key,
       },
     );
-    navigate(linkToCourse, { state: parentRoute });
   };
 
   return (
     <Card
       data-testid="search-course-card"
+      className="d-inline-flex"
       isLoading={isLoading}
       isClickable
-      onClick={(e) => {
-        handleCardClick(e);
-      }}
+      as={Link}
+      to={linkToCourse}
+      state={{ parentRoute }}
+      onClick={handleCardClick}
       {...rest}
     >
       <Card.ImageCap
@@ -107,11 +108,9 @@ const SearchCourseCard = ({
         logoAlt={primaryPartnerLogo?.alt}
       />
       <Card.Header
-        title={(
-          <Truncate maxLine={3}>{course.title}</Truncate>
-        )}
+        title={(course.title && <Truncate lines={3}>{course.title}</Truncate>)}
         subtitle={course.partners?.length > 0 && (
-          <Truncate maxLine={2}>
+          <Truncate lines={2}>
             {course.partners.map(partner => partner.name).join(', ')}
           </Truncate>
         )}

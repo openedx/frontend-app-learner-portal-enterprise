@@ -1,24 +1,20 @@
-import React, { useContext } from 'react';
 import { Card, Truncate } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useNavigate } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
+import { Link } from 'react-router-dom';
 import { getProgressFromSteps } from './data/utils';
 import { ProgressCategoryBubbles } from '../progress-category-bubbles';
+import { useEnterpriseCustomer } from '../app/data';
 
 const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
   const progress = getProgressFromSteps(learnerPathwayProgress.steps);
-  const navigate = useNavigate();
-  const { enterpriseConfig: { slug } } = useContext(AppContext);
-  const redirectToProgressDetailPage = () => {
-    navigate(`/${slug}/pathway/${learnerPathwayProgress.uuid}/progress`);
-  };
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   return (
     <Card
-      className="progress-listing-card"
+      className="progress-listing-card d-inline-flex"
       isClickable
-      onClick={redirectToProgressDetailPage}
+      as={Link}
+      to={`/${enterpriseCustomer.slug}/pathway/${learnerPathwayProgress.uuid}/progress`}
     >
       <Card.ImageCap
         src={learnerPathwayProgress.cardImage || cardFallbackImg}
@@ -29,7 +25,7 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
       />
       <Card.Header
         title={(
-          <Truncate maxLine={2}>{learnerPathwayProgress.title}</Truncate>
+          <Truncate lines={2}>{learnerPathwayProgress.title}</Truncate>
         )}
       />
       <Card.Section />

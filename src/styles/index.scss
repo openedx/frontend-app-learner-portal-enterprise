@@ -1,0 +1,54 @@
+@import "~@edx/brand/paragon/fonts";
+@import "~@edx/brand/paragon/variables";
+@import "~@openedx/paragon/scss/core/core";
+// frontend-enterprise-* imports must come before the paragon overrides for correct styling
+@import "~@edx/frontend-enterprise-catalog-search";
+@import "~@edx/brand/paragon/overrides";
+
+// Shared footer component
+@import "~@edx/frontend-component-footer/dist/footer";
+
+// NProgress customizations
+@import "./nprogress";
+
+// Component styles
+@import "../components/layout/styles/Layout";
+@import "../components/enterprise-banner/styles/EnterpriseBanner";
+@import "../components/course/styles/CourseHeader";
+@import "../components/course/styles/CourseReview";
+@import "../components/course/styles/CourseSidebar";
+@import "../components/course/styles/ProgramSidebar";
+@import "../components/course/styles/CourseSkills";
+@import "../components/course/styles/CourseRecommendations";
+@import "../components/dashboard/main-content/course-enrollments/course-cards/styles/CourseCard";
+@import "../components/dashboard/main-content/course-enrollments/styles/CourseSection";
+@import "../components/dashboard/sidebar/styles/SidebarCard";
+@import "../components/dashboard/styles/SubscriptionExpirationModal";
+@import "../components/dashboard/styles/CourseRecommendations";
+@import "../components/skills-quiz/styles";
+@import "../components/site-header/styles/Header";
+@import "../components/preview-expand/styles/PreviewExpand";
+@import "../components/pathway/styles";
+@import "../components/program/styles";
+@import "../components/progress-category-bubbles/styles";
+@import "../components/program-progress/styles";
+@import "../components/pathway-progress/styles";
+@import "../components/enterprise-user-subsidy/enterprise-offers/styles";
+@import "../components/my-career/styles/MyCareer";
+@import "../components/executive-education-2u/styles/ExecutiveEducation2UPage";
+@import "../components/executive-education-2u/styles/ExecutiveEducation2UErrorPage";
+@import "../components/skills-quiz-v2/styles";
+@import "../components/academies/styles/Academy";
+
+:root {
+  --pgn-color-dark: #{$gray-700};
+  --pgn-color-white:  #{$white};
+  --pgn-color-primary: #{$primary};
+  --pgn-color-info-100:  #{$info-100};
+  --pgn-color-info-500:  #{$info-500};
+}
+
+.pgn__card-logo-cap {
+  object-fit: scale-down !important; 
+  object-position: center center !important;
+}

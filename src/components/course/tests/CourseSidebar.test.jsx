@@ -1,4 +1,3 @@
-import { AppContext } from '@edx/frontend-platform/react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
@@ -11,6 +10,8 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseSidebar from '../CourseSidebar';
 import CourseSidebarListItem from '../CourseSidebarListItem';
 import { CourseContext } from '../CourseContextProvider';
+import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -64,14 +65,15 @@ jest.mock('../CourseSidebarPrice', () => jest.fn(() => (
   <div data-testid="course-sidebar-price" />
 )));
 
-const baseAppContextValue = {
-  enterpriseConfig: {
-    slug: 'test-slug',
-    uuid: 'test-enterprise-uuid',
-    enablePathways: true,
-    enablePrograms: true,
-  },
-};
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory({
+  enable_pathways: true,
+  enable_programs: true,
+});
 
 const mockCourse = {
   uuid: 'test-course-uuid',
@@ -94,19 +96,21 @@ const baseCourseContextValue = {
 };
 
 const CourseSidebarWrapper = ({
-  appContextValue = baseAppContextValue,
   courseContextValue = baseCourseContextValue,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={appContextValue}>
-      <CourseContext.Provider value={courseContextValue}>
-        <CourseSidebar />
-      </CourseContext.Provider>
-    </AppContext.Provider>
+    <CourseContext.Provider value={courseContextValue}>
+      <CourseSidebar />
+    </CourseContext.Provider>
   </IntlProvider>
 );
 
 describe('CourseSidebarWrapper', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   it('renders', () => {
     renderWithRouter(<CourseSidebarWrapper />);
 
@@ -154,14 +158,14 @@ describe('CourseSidebarWrapper', () => {
     expect(partner).toBeInTheDocument();
     userEvent.click(partner);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      'test-enterprise-uuid',
+      mockEnterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.course.sidebar.partner.clicked',
       {
         partner_name: 'Test Partner',
       },
     );
     expect(partner.href).toContain(
-      `/${baseAppContextValue.enterpriseConfig.slug}/search?partners.name=${encodeURIComponent('Test Partner')}`,
+      `/${mockEnterpriseCustomer.slug}/search?partners.name=${encodeURIComponent('Test Partner')}`,
     );
 
     // subject
@@ -177,14 +181,14 @@ describe('CourseSidebarWrapper', () => {
     expect(subject).toBeInTheDocument();
     userEvent.click(subject);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      'test-enterprise-uuid',
+      mockEnterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.course.sidebar.subject.clicked',
       {
         subject: 'Test Subject',
       },
     );
     expect(subject.href).toContain(
-      `/${baseAppContextValue.enterpriseConfig.slug}/search?subjects=${encodeURIComponent('Test Subject')}`,
+      `/${mockEnterpriseCustomer.slug}/search?subjects=${encodeURIComponent('Test Subject')}`,
     );
 
     // level type

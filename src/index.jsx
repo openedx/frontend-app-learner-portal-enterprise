@@ -13,10 +13,13 @@ import messages from './i18n';
 
 import { App } from './components/app';
 
-import './index.scss';
+import './styles/index.scss';
 
 subscribe(APP_READY, () => {
-  ReactDOM.render(<App />, document.getElementById('root'));
+  ReactDOM.render(
+    <App />,
+    document.getElementById('root'),
+  );
 });
 
 subscribe(APP_INIT_ERROR, (error) => {

@@ -1,11 +1,9 @@
-import { useContext } from 'react';
 import { Collapsible, Icon } from '@openedx/paragon';
 import { ExpandLess, ExpandMore } from '@openedx/paragon/icons';
-import { ProgramContext } from './ProgramContextProvider';
+import { useProgramDetails } from '../app/data';
 
 const ProgramFAQ = () => {
-  const { program: { faq } } = useContext(ProgramContext);
-
+  const { data: { faq } } = useProgramDetails();
   if (!faq || faq.length === 0) {
     return null;
   }

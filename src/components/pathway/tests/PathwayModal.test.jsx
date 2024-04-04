@@ -11,6 +11,12 @@ import { useLearnerPathwayData } from '../data/hooks';
 import { TEST_ENTERPRISE_SLUG, TEST_PATHWAY_DATA } from './constants';
 
 import { renderWithRouter } from '../../../utils/tests';
+import { useEnterpriseCustomer } from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
 
 jest.mock('../data/hooks', () => ({
   useLearnerPathwayData: jest.fn(),
@@ -21,12 +27,14 @@ jest.mock('react-loading-skeleton', () => ({
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
+const initialAppState = {
+  authenticatedUser: { userId: 'test-user-id' },
+};
+
 const PathwayModalWithAppContext = (props) => (
   <IntlProvider locale="en">
     <AppContext.Provider
-      value={{
-        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
-      }}
+      value={initialAppState}
     >
       <PathwayModal {...props} />
     </AppContext.Provider>
@@ -44,7 +52,17 @@ const nodePageLink = (node) => {
   return node.content_type === 'course' ? `/${slug}/course/${node.key}` : `/${slug}/program/${node.uuid}`;
 };
 
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: TEST_ENTERPRISE_SLUG,
+  uuid: 'test-enterprise-uuid',
+};
+
 describe('<PathwayModal />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
   test('renders the correct data', () => {
     useLearnerPathwayData.mockImplementation(() => ([camelCaseObject(TEST_PATHWAY_DATA), false, null]));
 

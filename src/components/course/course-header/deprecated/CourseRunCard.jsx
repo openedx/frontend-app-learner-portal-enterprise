@@ -1,19 +1,16 @@
-import React, { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import { useLocation } from 'react-router-dom';
 import { Card } from '@openedx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedDate, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import EnrollAction from '../../enrollment/EnrollAction';
 import CourseRunCardStatus from '../CourseRunCardStatus';
-import { COURSE_AVAILABILITY_MAP } from '../../data/constants';
 import {
   isUserEntitledForCourse,
   isCourseSelfPaced,
   hasTimeToComplete,
-  isArchived,
   findUserEnrollmentForCourseRun,
   hasCourseStarted,
   findHighestLevelSku,
@@ -21,13 +18,20 @@ import {
   getCourseStartDate,
 } from '../../data/utils';
 import { formatStringAsNumber } from '../../../../utils/common';
-import { useSubsidyDataForCourse } from '../../enrollment/hooks';
 import {
+  useCanUserRequestSubsidyForCourse,
   useCourseEnrollmentUrl,
   useUserHasSubsidyRequestForCourse,
+  useUserSubsidyApplicableToCourse,
 } from '../../data/hooks';
 import { determineEnrollmentType } from '../../enrollment/utils';
-import { CourseContext } from '../../CourseContextProvider';
+import {
+  COURSE_AVAILABILITY_MAP,
+  isArchived,
+  useCourseMetadata,
+  useEnterpriseCustomer,
+  useSubscriptions,
+} from '../../../app/data';
 
 const DATE_FORMAT = 'MMM D';
 
@@ -57,15 +61,11 @@ const CourseRunCard = ({
   });
 
   const location = useLocation();
-  const { enterpriseConfig } = useContext(AppContext);
-  const {
-    state: {
-      course,
-    },
-    userCanRequestSubsidyForCourse,
-  } = useContext(CourseContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: courseMetadata } = useCourseMetadata();
+  const userCanRequestSubsidyForCourse = useCanUserRequestSubsidyForCourse();
 
-  const courseStartDate = getCourseStartDate({ contentMetadata: course, courseRun });
+  const courseStartDate = getCourseStartDate({ contentMetadata: courseMetadata, courseRun });
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(courseStartDate),
@@ -86,10 +86,9 @@ const CourseRunCard = ({
     [userEnrollments, key],
   );
 
-  const {
-    subscriptionLicense,
-    userSubsidyApplicableToCourse,
-  } = useSubsidyDataForCourse();
+  const { data: { subscriptionLicense } } = useSubscriptions();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+
   const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
 
   const sku = useMemo(
@@ -100,7 +99,7 @@ const CourseRunCard = ({
   const isExecutiveEducation2UCourse = pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u');
 
   const enrollmentUrl = useCourseEnrollmentUrl({
-    enterpriseConfig,
+    enterpriseCustomer,
     key,
     courseRunKey: key,
     location,

@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
@@ -12,6 +12,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
+import { useEnterpriseCustomer } from '../app/data';
 
 export const ProgramType = ({ type }) => {
   let programTypeToDisplay = type;
@@ -38,8 +39,8 @@ export const ProgramType = ({ type }) => {
 };
 
 const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
-  const navigate = useNavigate();
-  const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const intl = useIntl();
   const program = useMemo(() => {
     if (!hit) {
@@ -55,9 +56,9 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       if (!programUuid) {
         return '#';
       }
-      return `/${slug}/program/${programUuid}`;
+      return `/${enterpriseCustomer.slug}/program/${programUuid}`;
     },
-    [programUuid, slug],
+    [programUuid, enterpriseCustomer.slug],
   );
 
   const partnerDetails = useMemo(
@@ -89,21 +90,23 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
 
   const handleCardClick = () => {
     sendEnterpriseTrackEvent(
-      uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.search.program.card.clicked',
       {
         userId,
         programUuid,
       },
     );
-    navigate(linkToProgram);
   };
 
   return (
     <Card
+      className="d-inline-flex"
       isLoading={isLoading}
-      isClickable
+      as={Link}
+      to={linkToProgram}
       onClick={handleCardClick}
+      isClickable
       variant="dark"
       data-testid="search-program-card"
       {...rest}
@@ -116,12 +119,12 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
         logoAlt={primaryPartnerLogo?.alt}
       />
       <Card.Header
-        title={(
-          <Truncate maxLine={3}>{program.title}</Truncate>
+        title={program.title && (
+          <Truncate lines={3}>{program.title}</Truncate>
         )}
         subtitle={
           program.authoringOrganizations?.length > 0 && (
-            <Truncate maxLine={2}>
+            <Truncate lines={2}>
               {program.authoringOrganizations.map(org => org.key).join(', ')}
             </Truncate>
           )

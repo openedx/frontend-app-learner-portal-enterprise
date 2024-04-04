@@ -1,6 +1,4 @@
 import dayjs from '../../../utils/dayjs';
-import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 
 import MicroMastersProgramDetailsSvgIcon from '../../../assets/icons/micromasters-program-details.svg';
@@ -185,20 +183,4 @@ export function getCoursesEnrolledInAuditMode(courses) {
     ))
   ));
   return courseRuns;
-}
-
-export function hasLicenseOrCoupon({
-  subscriptionPlan,
-  requestsBySubsidyType,
-  subscriptionLicense,
-  couponCodesCount,
-}) {
-  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
-  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
-
-  const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
-    && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
-  const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
-
-  return hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 }

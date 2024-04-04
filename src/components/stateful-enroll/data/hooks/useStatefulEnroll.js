@@ -4,9 +4,9 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { useOptimizelyEnrollmentClickHandler, useTrackSearchConversionClickHandler } from '../../../course/data/hooks';
 import { EVENT_NAMES } from '../../../course/data/constants';
+import { queryPolicyTransaction, useEnterpriseCustomer } from '../../../app/data';
 
-import { retrieveTransactionStatus, submitRedemptionRequest } from '../service';
-import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
+import { submitRedemptionRequest } from '../service';
 
 const shouldPollTransactionState = (response) => {
   const transactionState = response?.state;
@@ -20,12 +20,6 @@ const getRefetchInterval = (response) => {
   return false;
 };
 
-const checkTransactionStatus = async ({ queryKey }) => {
-  const transaction = queryKey[3];
-  const { transactionStatusApiUrl } = transaction;
-  return retrieveTransactionStatus({ transactionStatusApiUrl });
-};
-
 const useStatefulEnroll = ({
   contentKey,
   subsidyAccessPolicy,
@@ -34,6 +28,7 @@ const useStatefulEnroll = ({
   onBeginRedeem,
   userEnrollments,
 }) => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [transaction, setTransaction] = useState();
   const optimizelyHandler = useOptimizelyEnrollmentClickHandler(
     contentKey,
@@ -71,10 +66,11 @@ const useStatefulEnroll = ({
   };
 
   useQuery({
-    queryKey: enterpriseUserSubsidyQueryKeys.pollPendingPolicyTransaction(transaction),
+    ...queryPolicyTransaction(enterpriseCustomer.uuid, transaction),
     enabled: shouldPollTransactionState(transaction),
-    queryFn: checkTransactionStatus,
     refetchInterval: getRefetchInterval,
+    // [tech debt] The `onSuccess` and `onError` callbacks should be considered
+    // deprecated. See https://tkdodo.eu/blog/breaking-react-querys-api-on-purpose.
     onSuccess: handleSuccess,
     onError: handleError,
   });

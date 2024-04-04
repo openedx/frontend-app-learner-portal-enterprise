@@ -2,7 +2,6 @@ import { logError } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
 import { renderHook } from '@testing-library/react-hooks';
 import {
-  getContentHighlights,
   getEnterpriseCuration,
 } from '../service';
 import {
@@ -11,10 +10,12 @@ import {
   getAuthoringOrganizations,
   getContentPageUrl,
 } from '../utils';
-import { useContentHighlights, useHighlightedContentCardData, useEnterpriseCuration } from '../hooks';
+import { useHighlightedContentCardData, useEnterpriseCuration } from '../hooks';
 
+jest.mock('../../../../app/data', () => ({
+  fetchContentHighlights: jest.fn(() => Promise.resolve({ data: { results: [] } })),
+}));
 jest.mock('../service.js', () => ({
-  getContentHighlights: jest.fn(() => Promise.resolve({ data: { results: [] } })),
   getEnterpriseCuration: jest.fn(() => Promise.resolve({ data: { results: [] } })),
 }));
 jest.mock('../utils', () => ({
@@ -30,29 +31,6 @@ jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(() => ({ FEATURE_CONTENT_HIGHLIGHTS: true })),
 }));
 
-describe('useContentHighlights', () => {
-  it('should fetch content highlights and set state', async () => {
-    const enterpriseUUID = 'test-uuid';
-    const { result, waitForNextUpdate } = renderHook(() => useContentHighlights(enterpriseUUID));
-    await waitForNextUpdate();
-    expect(getContentHighlights).toHaveBeenCalledWith(enterpriseUUID);
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.contentHighlights).toEqual([]);
-    expect(result.current.fetchError).toBeUndefined();
-  });
-  it('should handle errors when fetching content highlights', async () => {
-    const enterpriseUUID = 'test-uuid';
-    const error = new Error('test error');
-    getContentHighlights.mockImplementationOnce(() => Promise.reject(error));
-    const { result, waitForNextUpdate } = renderHook(() => useContentHighlights(enterpriseUUID));
-    await waitForNextUpdate();
-    expect(getContentHighlights).toHaveBeenCalledWith(enterpriseUUID);
-    expect(logError).toHaveBeenCalledWith(error);
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.contentHighlights).toEqual([]);
-    expect(result.current.fetchError).toEqual(error);
-  });
-});
 describe('useHighlightedContentCardData', () => {
   it('should return an empty object if highlightedContent is not provided', () => {
     const { result } = renderHook(() => useHighlightedContentCardData({ enterpriseSlug: 'test-slug' }));

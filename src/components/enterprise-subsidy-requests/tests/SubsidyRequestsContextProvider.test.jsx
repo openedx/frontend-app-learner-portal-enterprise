@@ -1,23 +1,30 @@
 import React from 'react';
 
 import { screen, render } from '@testing-library/react';
-import { AppContext } from '@edx/frontend-platform/react';
 import SubsidyRequestsContextProvider from '../SubsidyRequestsContextProvider';
-import * as hooks from '../data/hooks';
-import { LOADING_SCREEN_READER_TEXT } from '../constants';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { LOADING_SCREEN_READER_TEXT } from '../../../constants';
+import { useEnterpriseCustomer } from '../../app/data';
+import {
+  useCatalogsForSubsidyRequests,
+  useSubsidyRequestConfiguration,
+  useSubsidyRequests,
+} from '../data';
 
 jest.mock('../../../config');
-jest.mock('../data/hooks');
+jest.mock('../data', () => ({
+  ...jest.requireActual('../data'),
+  useSubsidyRequestConfiguration: jest.fn(),
+  useSubsidyRequests: jest.fn(),
+  useCatalogsForSubsidyRequests: jest.fn(),
+}));
 
-const enterpriseConfig = {
-  uuid: 'example-enterprise-uuid',
-};
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
 
 const SubsidyRequestsContextProviderWrapper = ({
-  initialAppState = {
-    enterpriseConfig,
-  },
   initialUserSubsidyState = {
     couponCodes: {
       couponCodes: [],
@@ -29,27 +36,27 @@ const SubsidyRequestsContextProviderWrapper = ({
     },
   },
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContextProvider>
-        <div>children</div>
-      </SubsidyRequestsContextProvider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+    <SubsidyRequestsContextProvider>
+      <div>children</div>
+    </SubsidyRequestsContextProvider>
+  </UserSubsidyContext.Provider>
 );
 
 describe('<SubsidyRequestsContextProvider />', () => {
   beforeEach(() => {
-    hooks.useSubsidyRequestConfiguration.mockReturnValue({
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: { uuid: 'test-enterprise-uuid' } });
+    useSubsidyRequestConfiguration.mockReturnValue({
       subsidyRequestConfiguration: {},
       isLoading: false,
     });
-    hooks.useSubsidyRequests.mockReturnValue({
+    useSubsidyRequests.mockReturnValue({
       couponCodeRequests: [],
       licenseRequests: [],
       isLoading: false,
     });
-    hooks.useCatalogsForSubsidyRequests.mockReturnValue({
+    useCatalogsForSubsidyRequests.mockReturnValue({
       catalogs: [],
       isLoading: false,
     });
@@ -58,17 +65,17 @@ describe('<SubsidyRequestsContextProvider />', () => {
   it('should fetch subsidy requests information if feature is enabled', () => {
     render(<SubsidyRequestsContextProviderWrapper />);
 
-    expect(hooks.useSubsidyRequestConfiguration).toHaveBeenCalled();
-    expect(hooks.useSubsidyRequests).toHaveBeenCalled();
-    expect(hooks.useCatalogsForSubsidyRequests).toHaveBeenCalled();
+    expect(useSubsidyRequestConfiguration).toHaveBeenCalled();
+    expect(useSubsidyRequests).toHaveBeenCalled();
+    expect(useCatalogsForSubsidyRequests).toHaveBeenCalled();
   });
 
   it('should render loading spinner if loading subsidy requests information', () => {
-    hooks.useSubsidyRequestConfiguration.mockReturnValue({
+    useSubsidyRequestConfiguration.mockReturnValue({
       subsidyRequestConfiguration: {},
       isLoading: true,
     });
-    hooks.useSubsidyRequests.mockReturnValue({
+    useSubsidyRequests.mockReturnValue({
       couponCodeRequests: [],
       licenseRequests: [],
       isLoading: false,

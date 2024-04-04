@@ -1,6 +1,5 @@
-import React, { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import PropTypes from 'prop-types';
@@ -9,28 +8,18 @@ import classNames from 'classnames';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import LearnerCreditSummaryCard from './LearnerCreditSummaryCard';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import SidebarCard from './SidebarCard';
-import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
-import { determineLearnerHasContentAssignmentsOnly } from '../../enterprise-user-subsidy/data/utils';
-
-function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
-  const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
-  const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
-
-  if (!learnerCreditPolicyExpiringFirst && !enterpriseOfferExpiringFirst) {
-    return undefined;
-  }
-
-  return {
-    expirationDate: (
-      learnerCreditPolicyExpiringFirst?.subsidyExpirationDate || enterpriseOfferExpiringFirst?.endDatetime
-    ),
-  };
-}
+import {
+  useBrowseAndRequest,
+  useCouponCodes,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+  useEnterpriseOffers,
+  useHasAvailableSubsidiesOrRequests,
+  useIsAssignmentsOnlyLearner,
+  useSubscriptions,
+} from '../../app/data';
+import { COURSE_STATUSES } from '../../../constants';
 
 const SubsidiesSummary = ({
   className,
@@ -39,68 +28,45 @@ const SubsidiesSummary = ({
   courseEndDate,
   programProgressPage,
 }) => {
-  const {
-    enterpriseConfig,
-  } = useContext(AppContext);
-  const {
-    courseEnrollmentsByStatus,
-  } = useContext(CourseEnrollmentsContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: { allEnrollmentsByStatus } } = useEnterpriseCourseEnrollments();
 
+  const { data: subscriptions } = useSubscriptions();
+  const { data: couponCodes } = useCouponCodes();
+  const { data: enterpriseOffersData } = useEnterpriseOffers();
+  const { data: { requests } } = useBrowseAndRequest();
   const {
-    subscriptionPlan,
-    subscriptionLicense: userSubscriptionLicense,
-    couponCodes: { couponCodesCount },
-    enterpriseOffers,
-    canEnrollWithEnterpriseOffers,
-    hasCurrentEnterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
+    hasAvailableSubsidyOrRequests,
+    hasAvailableLearnerCreditPolicies,
+    hasAssignedCodesOrCodeRequests,
+    hasActiveLicenseOrLicenseRequest,
+    learnerCreditSummaryCardData,
+  } = useHasAvailableSubsidiesOrRequests();
 
-  const learnerCreditSummaryCardData = getLearnerCreditSummaryCardData({
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  });
-
-  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
+  const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
 
   // if there are course enrollments, the cta button below will be the only one on the page
-  const ctaButtonVariant = useMemo(
-    () => (Object.values(courseEnrollmentsByStatus).flat().length > 0 ? 'primary' : 'outline-primary'),
-    [courseEnrollmentsByStatus],
-  );
-
-  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
-  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
-
-  const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
-    && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
-
-  const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
-  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies.length > 0;
-
-  const hasAvailableSubsidyOrRequests = (
-    hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData
-  );
-
-  const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
-    subscriptionPlan,
-    subscriptionLicense: userSubscriptionLicense,
-    licenseRequests,
-    couponCodesCount,
-    couponCodeRequests,
-    redeemableLearnerCreditPolicies,
-    hasCurrentEnterpriseOffers,
-  });
+  const ctaButtonVariant = useMemo(() => {
+    const hasCourseEnrollments = Object.entries(allEnrollmentsByStatus)
+      .map(([enrollmentStatus, enrollmentsForStatus]) => {
+        if (enrollmentStatus === COURSE_STATUSES.assigned) {
+          return enrollmentsForStatus.assignmentsForDisplay;
+        }
+        return enrollmentsForStatus;
+      })
+      .flat().length > 0;
+    return hasCourseEnrollments ? 'primary' : 'outline-primary';
+  }, [allEnrollmentsByStatus]);
 
   if (!hasAvailableSubsidyOrRequests) {
     return null;
   }
 
   const searchCoursesCta = (
-    !programProgressPage && !enterpriseConfig.disableSearch && showSearchCoursesCta && (
+    !programProgressPage && !enterpriseCustomer.disableSearch && showSearchCoursesCta && (
       <Button
         as={Link}
-        to={`/${enterpriseConfig.slug}/search`}
+        to={`/${enterpriseCustomer.slug}/search`}
         variant={ctaButtonVariant}
         block
       >
@@ -114,7 +80,7 @@ const SubsidiesSummary = ({
   );
 
   return (
-  // TODO: Design debt, don't have cards in a card
+    // TODO: Design debt, don't have cards in a card
     <SidebarCard
       cardSectionClassNames="border-0 shadow-none p-0"
       cardClassNames={classNames('mb-5', { 'col-8 border-0 shadow-none': programProgressPage })}
@@ -122,8 +88,8 @@ const SubsidiesSummary = ({
       <div className={className} data-testid="subsidies-summary">
         {hasActiveLicenseOrLicenseRequest && (
           <SubscriptionSummaryCard
-            subscriptionPlan={subscriptionPlan}
-            licenseRequest={licenseRequests[0]}
+            subscriptionPlan={subscriptions.subscriptionPlan}
+            licenseRequest={requests.subscriptionLicenses[0]}
             courseEndDate={courseEndDate}
             programProgressPage={programProgressPage}
             className="border-0 shadow-none"
@@ -131,14 +97,14 @@ const SubsidiesSummary = ({
         )}
         {hasAssignedCodesOrCodeRequests && (
           <CouponCodesSummaryCard
-            couponCodesCount={couponCodesCount}
-            couponCodeRequestsCount={couponCodeRequests.length}
+            couponCodesCount={couponCodes.couponCodeAssignments.length}
+            couponCodeRequestsCount={requests.couponCodes.length}
             totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
             programProgressPage={programProgressPage}
             className="border-0 shadow-none"
           />
         )}
-        {(canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies)
+        {(enterpriseOffersData.canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies)
           && learnerCreditSummaryCardData?.expirationDate && (
           <LearnerCreditSummaryCard
             className="border-0 shadow-none"
@@ -148,7 +114,10 @@ const SubsidiesSummary = ({
         )}
       </div>
       {(searchCoursesCta && !isAssignmentOnlyLearner) && (
-        <SidebarCard cardClassNames="border-0 shadow-none">
+        <SidebarCard
+          cardClassNames="border-0 shadow-none"
+          cardSectionClassNames="pt-0"
+        >
           {searchCoursesCta}
         </SidebarCard>
       )}

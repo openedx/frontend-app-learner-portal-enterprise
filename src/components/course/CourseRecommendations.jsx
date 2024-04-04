@@ -1,16 +1,33 @@
-import React, { useContext } from 'react';
+import { useMemo } from 'react';
 import { CardGrid } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { CourseContext } from './CourseContextProvider';
 import CourseRecommendationCard from './CourseRecommendationCard';
+import { useCourseMetadata, useCourseRecommendations } from '../app/data';
 
 const CourseRecommendations = () => {
-  const { state } = useContext(CourseContext);
-  const { course, courseRecommendations } = state;
-  const { allRecommendations, samePartnerRecommendations } = courseRecommendations;
+  const { data: courseMetadata } = useCourseMetadata();
+  const {
+    data: {
+      allRecommendations,
+      samePartnerRecommendations,
+    },
+  } = useCourseRecommendations();
+
+  const allRecommendationsCards = useMemo(() => allRecommendations.map(recommendation => (
+    <CourseRecommendationCard key={recommendation.key} course={recommendation} />
+  )), [allRecommendations]);
+
+  const samePartnerRecommendationsCards = useMemo(() => samePartnerRecommendations.map(recommendation => (
+    <CourseRecommendationCard
+      key={recommendation.key}
+      course={recommendation}
+      isPartnerRecommendation
+    />
+  )), [samePartnerRecommendations]);
+
   return (
     <div className="mt-1">
-      {allRecommendations?.length > 0 && (
+      {allRecommendationsCards.length > 0 && (
         <div className="mb-3">
           <h3 className="mb-3">
             <FormattedMessage
@@ -19,32 +36,20 @@ const CourseRecommendations = () => {
               description="Title for the section that lists the courses that are recommended."
             />
           </h3>
-          <CardGrid>
-            {allRecommendations.map(recommendation => (
-              <CourseRecommendationCard key={recommendation.key} course={recommendation} />
-            ))}
-          </CardGrid>
+          <CardGrid>{allRecommendationsCards}</CardGrid>
         </div>
       )}
-      {samePartnerRecommendations?.length > 0 && (
+      {samePartnerRecommendations.length > 0 && (
         <div className="mb-3">
           <h3 className="mb-3">
             <FormattedMessage
               id="enterprise.course.about.course.sidebar.recommendations.same.partner"
-              defaultMessage="More from { firtstCourseOwner }:"
+              defaultMessage="More from { firstCourseOwner }:"
               description="Title for the section that lists the courses that are recommended from the same partner."
-              values={{ firtstCourseOwner: course.owners[0].name }}
+              values={{ firstCourseOwner: courseMetadata.owners[0].name }}
             />
           </h3>
-          <CardGrid>
-            {samePartnerRecommendations.map(recommendation => (
-              <CourseRecommendationCard
-                key={recommendation.key}
-                course={recommendation}
-                isPartnerRecommendation
-              />
-            ))}
-          </CardGrid>
+          <CardGrid>{samePartnerRecommendationsCards}</CardGrid>
         </div>
       )}
     </div>

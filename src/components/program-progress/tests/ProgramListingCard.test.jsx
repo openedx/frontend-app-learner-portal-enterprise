@@ -1,38 +1,25 @@
 import React from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import {
-  screen, render,
-} from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import '@testing-library/jest-dom/extend-expect';
 
 import userEvent from '@testing-library/user-event';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import ProgramListingCard from '../ProgramListingCard';
+import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
-const mockedNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate,
-  useLocation: jest.fn(),
+jest.mock('../../app/data', () => ({
+  useEnterpriseCustomer: jest.fn(),
 }));
 
-const ProgramListingCardWithContext = ({ initialAppState, initialUserSubsidyState, programData }) => (
+const ProgramListingCardWithContext = ({ programData }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramListingCard program={programData} />
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
+    <ProgramListingCard program={programData} />
   </IntlProvider>
 );
 
-const appState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-  },
-};
 const dummyProgramData = {
   uuid: 'test-uuid',
   title: 'Test Program Title',
@@ -70,30 +57,21 @@ const dummyProgramData = {
     completed: 2,
     notStarted: 3,
   },
-
 };
 
-const userSubsidyState = {
-  subscriptionLicense: {
-    uuid: 'test-license-uuid',
-  },
-  couponCodes: {
-    couponCodes: [],
-    couponCodesCount: 0,
-  },
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('<ProgramListingCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
   it('renders all data for program', () => {
-    const { getByAltText } = render(<ProgramListingCardWithContext
-      initialAppState={appState}
-      initialUserSubsidyState={userSubsidyState}
-      programData={dummyProgramData}
-    />);
+    renderWithRouter(<ProgramListingCardWithContext programData={dummyProgramData} />);
     expect(screen.getByText(dummyProgramData.title)).toBeInTheDocument();
     expect(screen.getByText(dummyProgramData.type)).toBeInTheDocument();
     expect(screen.getByText(dummyProgramData.authoringOrganizations[0].key)).toBeInTheDocument();
-    const logoImageNode = getByAltText(dummyProgramData.authoringOrganizations[0].key);
+    const logoImageNode = screen.getByAltText(dummyProgramData.authoringOrganizations[0].key);
     expect(logoImageNode).toHaveAttribute('src', dummyProgramData.authoringOrganizations[0].logoImageUrl);
     expect(screen.getByText(dummyProgramData.progress.inProgress)).toBeInTheDocument();
     expect(screen.getByText('In progress')).toBeInTheDocument();
@@ -109,11 +87,7 @@ describe('<ProgramListingCard />', () => {
       key: 'test-key2',
       logoImageUrl: '/media/organization/logos/shield.png',
     });
-    render(<ProgramListingCardWithContext
-      initialAppState={appState}
-      initialUserSubsidyState={userSubsidyState}
-      programData={dummyDataWithMultipleOrgs}
-    />);
+    renderWithRouter(<ProgramListingCardWithContext programData={dummyDataWithMultipleOrgs} />);
     const aggregatedOrganizations = dummyDataWithMultipleOrgs.authoringOrganizations.map(org => org.key).join(', ');
     expect(screen.getByText(aggregatedOrganizations)).toBeInTheDocument();
   });
@@ -124,22 +98,46 @@ describe('<ProgramListingCard />', () => {
       key: 'test-key2',
       logoImageUrl: '/media/organization/logos/shield.png',
     });
-    const { queryByAltText } = render(<ProgramListingCardWithContext
-      initialAppState={appState}
-      initialUserSubsidyState={userSubsidyState}
-      programData={dummyDataWithMultipleOrg}
-    />);
+    const { queryByAltText } = renderWithRouter(
+      <ProgramListingCardWithContext programData={dummyDataWithMultipleOrg} />,
+    );
     const logoImageNode = queryByAltText(dummyProgramData.authoringOrganizations[0].key);
     expect(logoImageNode).toBeNull();
   });
 
   it('redirects to correct page when clicked', () => {
-    const { container } = render(<ProgramListingCardWithContext
-      initialAppState={appState}
-      initialUserSubsidyState={userSubsidyState}
-      programData={dummyProgramData}
-    />);
+    const { container } = renderWithRouter(<ProgramListingCardWithContext programData={dummyProgramData} />);
     userEvent.click(container.firstElementChild);
-    expect(mockedNavigate).toHaveBeenCalledWith('/test-enterprise-slug/program/test-uuid/progress');
+    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/program/test-uuid/progress`);
+  });
+
+  it.each([{
+    width: 1450,
+    size: 'large',
+  },
+  {
+    width: 1300,
+    size: 'large',
+  },
+  {
+    width: 1000,
+    size: 'large',
+  },
+  {
+    width: 800,
+    size: 'medium',
+  },
+  {
+    width: 600,
+    size: 'small',
+  },
+  {
+    width: 500,
+    size: 'xSmall',
+  }])('tests window size', ({ width, size }) => {
+    global.innerWidth = width;
+    renderWithRouter(<ProgramListingCardWithContext programData={dummyProgramData} />);
+    const imageCapSrc = screen.getByAltText('').src;
+    expect(imageCapSrc).toContain(size);
   });
 });
