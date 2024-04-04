@@ -23,6 +23,7 @@ import {
   fetchProgramDetails,
   fetchLearnerProgramProgressDetail,
   fetchEnterpriseCustomerContainsContent,
+  fetchAcademiesDetail,
   fetchCourseReviews,
   fetchCourseRecommendations,
   checkTransactionStatus,
@@ -178,6 +179,15 @@ const user = createQueryKeys('user', {
 });
 
 const content = createQueryKeys('content', {
+  academy: {
+    queryKey: null,
+    contextQueries: {
+      detail: (academyUUID) => ({
+        queryKey: [academyUUID],
+        queryFn: () => fetchAcademiesDetail(academyUUID),
+      }),
+    },
+  },
   course: (courseKey) => ({
     queryKey: [courseKey],
     contextQueries: {

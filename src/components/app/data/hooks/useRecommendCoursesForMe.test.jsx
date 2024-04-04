@@ -5,6 +5,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import useRecommendCoursesForMe from './useRecommendCoursesForMe';
 import useContentHighlightsConfiguration from './useContentHighlightsConfiguration';
 import useIsAssignmentsOnlyLearner from './useIsAssignmentsOnlyLearner';
+import { authenticatedUserFactory } from '../services/data/__factories__';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -19,10 +20,7 @@ jest.mock('./useContentHighlightsConfiguration', () => jest.fn().mockReturnValue
 jest.mock('./useIsAssignmentsOnlyLearner', () => jest.fn().mockReturnValue(false));
 
 const appContextValue = {
-  authenticatedUser: {
-    userId: 3,
-    email: 'edx@example.com',
-  },
+  authenticatedUser: authenticatedUserFactory(),
 };
 
 const wrapper = ({ children }) => (

@@ -173,6 +173,22 @@ export function queryAcademiesList(enterpriseUuid) {
  * Helper function to assist querying with useQuery package
  *
  * queries
+ * .content
+ * .academy
+ * ._ctx.detail(academyUUID)
+ * @returns {Types.QueryOptions}
+ */
+export function queryAcademiesDetail(academyUUID) {
+  return queries
+    .content
+    .academy
+    ._ctx.detail(academyUUID);
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ *
+ * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.contentHighlights

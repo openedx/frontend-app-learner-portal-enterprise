@@ -37,3 +37,4 @@ export { default as useLateRedemptionBufferDays } from './useLateRedemptionBuffe
 export { default as useProgramDetails } from './useProgramDetails';
 export { default as useLearnerProgramProgressData } from './useLearnerProgramProgressData';
 export { default as useHasAvailableSubsidiesOrRequests } from './useHasAvailableSubsidiesOrRequests';
+export { default as useAcademyDetails } from './useAcademyDetails';
