@@ -300,7 +300,7 @@ export function queryPolicyTransaction(enterpriseUuid, transaction) {
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.subsidies
     ._ctx.policy
-    ._ctx.policyTransaction(transaction);
+    ._ctx.transaction(transaction);
 }
 
 /**

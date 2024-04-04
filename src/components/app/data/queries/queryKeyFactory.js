@@ -144,7 +144,7 @@ const enterprise = createQueryKeys('enterprise', {
                 queryKey: [lmsUserId],
                 queryFn: async ({ queryKey }) => fetchRedeemablePolicies(queryKey[2], lmsUserId),
               }),
-              policyTransaction: (transaction) => ({
+              transaction: (transaction) => ({
                 queryKey: [transaction],
                 queryFn: async () => checkTransactionStatus(transaction),
               }),
