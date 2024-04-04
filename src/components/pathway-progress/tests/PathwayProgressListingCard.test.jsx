@@ -53,7 +53,6 @@ describe('<PathwayProgressCard />', () => {
 
   it('redirects to correct page when clicked', () => {
     renderWithRouter(<PathwayProgressListingCardWrapper pathwayData={pathwayData} />);
-    // expect(screen.getByText('pikachu')).toBeTruthy();
     userEvent.click(screen.getByTestId('pathway-progress-listing-card'));
     expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/pathway/0a017cbe-0f1c-4e5f-9095-2101823fac93/progress`);
   });
