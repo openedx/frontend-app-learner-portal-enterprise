@@ -1,5 +1,5 @@
 import {
-  Outlet, ScrollRestoration, useParams,
+  Outlet, ScrollRestoration, useParams, Link,
 } from 'react-router-dom';
 import { Suspense, useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -23,16 +23,18 @@ const Root = () => {
   // not rendering the SiteFooter here since it looks like it requires additional setup
   // not available in the logged out state (errors with InjectIntl errors)
   if (!authenticatedUser) {
-    let loginUrl = getLoginRedirectUrl(global.location.href);
-    if (enterpriseSlug) {
-      loginUrl = `${getConfig().BASE_URL}/${enterpriseSlug}`;
-    }
     return (
       <ErrorPage title="You are now logged out." showSiteFooter={false}>
         Please log back in {' '}
-        <Hyperlink destination={loginUrl}>
-          here.
-        </Hyperlink>
+        {enterpriseSlug ? (
+          <Link to={`${getConfig().BASE_URL}/${enterpriseSlug}`}>
+            here
+          </Link>
+        ) : (
+          <Hyperlink destination={getLoginRedirectUrl(global.location.href)}>
+            here.
+          </Hyperlink>
+        )}
       </ErrorPage>
     );
   }
