@@ -83,7 +83,7 @@ const SearchPathwayCard = ({
     [pathway, pathwayUuid, enterpriseCustomer.slug],
   );
 
-  const handleCardClick = () => {
+  const handleCardClick = (e) => {
     if (!linkToPathway) {
       return;
     }
@@ -99,6 +99,7 @@ const SearchPathwayCard = ({
       },
     );
     if (isAcademyPathway) {
+      e.preventDefault();
       openLearnerPathwayModal();
     }
   };
@@ -109,10 +110,7 @@ const SearchPathwayCard = ({
         <PathwayModal
           learnerPathwayUuid={pathwayUuid}
           isOpen={isLearnerPathwayModalOpen}
-          onClose={() => {
-            navigate(`/${enterpriseCustomer.slug}/search`);
-            onClose();
-          }}
+          onClose={onClose}
         />
       )}
       <Card
