@@ -1,13 +1,12 @@
-import React, { useContext } from 'react';
 import { Breadcrumb } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
-import { useParams } from 'react-router-dom';
-import { PathwayProgressContext } from './PathwayProgressContextProvider';
+import { Link, useParams } from 'react-router-dom';
 import SubscriptionStatusCard from './SubscriptionStatusCard';
+import { useLearnerPathwayProgressData } from '../app/data';
 
 const PathwayProgressHeader = () => {
-  const { learnerPathwayProgress } = useContext(PathwayProgressContext);
+  const { data: { learnerPathwayProgress } } = useLearnerPathwayProgressData();
   const { enterpriseSlug } = useParams();
   const links = [
     { label: 'Dashboard', url: `/${enterpriseSlug}` },
@@ -19,6 +18,7 @@ const PathwayProgressHeader = () => {
         <div className="header-breadcrumbs ml-2">
           <Breadcrumb
             links={links}
+            linkAs={Link}
             activeLabel={learnerPathwayProgress.title}
           />
         </div>

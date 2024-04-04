@@ -36,5 +36,6 @@ export { default as useLearnerSkillLevels } from './useLearnerSkillLevels';
 export { default as useLateRedemptionBufferDays } from './useLateRedemptionBufferDays';
 export { default as useProgramDetails } from './useProgramDetails';
 export { default as useLearnerProgramProgressData } from './useLearnerProgramProgressData';
+export { default as useLearnerPathwayProgressData } from './useLearnerPathwayProgressData';
 export { default as useHasAvailableSubsidiesOrRequests } from './useHasAvailableSubsidiesOrRequests';
 export { default as useAcademyDetails } from './useAcademyDetails';
