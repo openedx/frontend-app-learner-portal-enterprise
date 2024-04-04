@@ -27,6 +27,7 @@ import {
   fetchCourseReviews,
   fetchCourseRecommendations,
   checkTransactionStatus,
+  fetchPathwayProgressDetails,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -198,6 +199,15 @@ const content = createQueryKeys('content', {
       reviews: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchCourseReviews(queryKey[2]),
+      },
+    },
+  }),
+  pathway: (pathwayUUID) => ({
+    queryKey: [pathwayUUID],
+    contextQueries: {
+      progress: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => fetchPathwayProgressDetails(queryKey[2]),
       },
     },
   }),

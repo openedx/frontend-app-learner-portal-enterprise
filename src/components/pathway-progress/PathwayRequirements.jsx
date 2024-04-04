@@ -1,11 +1,10 @@
-import React, { useContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { PathwayProgressContext } from './PathwayProgressContextProvider';
 import PathwayStep from './PathwayStep';
+import { useLearnerPathwayProgressData } from '../app/data';
 
 const PathwayRequirements = () => {
-  const { learnerPathwayProgress } = useContext(PathwayProgressContext);
+  const { data: { learnerPathwayProgress } } = useLearnerPathwayProgressData();
   const getStepNodes = (step) => [...step.courses, ...step.programs];
 
   return (

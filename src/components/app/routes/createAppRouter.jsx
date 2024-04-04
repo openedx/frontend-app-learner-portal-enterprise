@@ -89,6 +89,22 @@ export default function createAppRouter(queryClient) {
             )}
           />
           <Route
+            path="pathway/:pathwayUUID/progress"
+            lazy={async () => {
+              const { PathwayProgressPage, makePathwayProgressLoader } = await import('../../pathway-progress');
+              return {
+                Component: PathwayProgressPage,
+                loader: makePathwayProgressLoader(queryClient),
+              };
+            }}
+            errorElement={(
+              <RouteErrorBoundary
+                showSiteHeader={false}
+                showSiteFooter={false}
+              />
+            )}
+          />
+          <Route
             path="program/:programUUID"
             element={<Outlet />}
             errorElement={(

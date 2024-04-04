@@ -3,7 +3,7 @@ import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 import { getAvailableCourseRuns } from '../utils';
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries.user.entitlements
  * @returns {Types.QueryOptions}
@@ -13,7 +13,7 @@ export function queryUserEntitlements() {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries.user.notices
  * @returns {Types.QueryOptions}
@@ -23,7 +23,7 @@ export function queryNotices() {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries.user.skillLevels(jobId)
  * @param {*} jobId
@@ -34,7 +34,7 @@ export function queryLearnerSkillLevels(jobId) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries.enterprise.enterpriseLearner(username, enterpriseSlug)
  * @returns {Types.QueryOptions}
@@ -44,7 +44,7 @@ export function queryEnterpriseLearner(username, enterpriseSlug) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .enterprise
@@ -60,7 +60,7 @@ export function queryEnterpriseCourseEnrollments(enterpriseUuid) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .enterprise
@@ -76,7 +76,7 @@ export function queryEnterpriseProgramsList(enterpriseUuid) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -91,7 +91,7 @@ export function queryEnterprisePathwaysList(enterpriseUuid) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .content
@@ -118,7 +118,7 @@ export function queryCourseReviews(courseKey) {
 }
 
 /**
- * Helper function to assist querying with useQuery package.
+ * Helper function to assist querying with React Query package.
  *
  * @param {*} enterpriseUuid
  * @param {*} courseKey
@@ -152,7 +152,7 @@ export function queryEnterpriseCustomerContainsContent(enterpriseUuid, contentId
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .enterprise
@@ -170,7 +170,7 @@ export function queryAcademiesList(enterpriseUuid) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .content
@@ -186,7 +186,7 @@ export function queryAcademiesDetail(academyUUID) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .enterprise
@@ -204,7 +204,7 @@ export function queryContentHighlightsConfiguration(enterpriseUuid) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .enterprise
@@ -230,7 +230,7 @@ export function queryCanRedeemContextQueryKey(enterpriseUuid, courseKey) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .enterprise
@@ -253,7 +253,7 @@ export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBuffe
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -270,7 +270,7 @@ export function querySubscriptions(enterpriseUuid) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -289,7 +289,7 @@ export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
 }
 
 /**
- * Helper function to assist querying with useQuery package.
+ * Helper function to assist querying with React Query package.
  * @param {string} enterpriseUuid
  * @param {Object} transaction
  * @returns {Types.QueryOptions}
@@ -304,7 +304,7 @@ export function queryPolicyTransaction(enterpriseUuid, transaction) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -321,7 +321,7 @@ export function queryEnterpriseLearnerOffers(enterpriseUuid) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .enterprise
@@ -339,7 +339,7 @@ export function queryCouponCodes(enterpriseUuid) {
 }
 
 /**
- * Helper function to assist querying with useQuery package.
+ * Helper function to assist querying with React Query package.
  *
  * queries
  * .enterprise
@@ -368,7 +368,7 @@ export function queryRequestsContextQueryKey(enterpriseUuid) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
@@ -389,7 +389,7 @@ export function queryLicenseRequests(enterpriseUuid, userEmail, state = SUBSIDY_
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .enterprise
@@ -411,7 +411,7 @@ export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSI
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .content
@@ -428,7 +428,7 @@ export function queryLearnerProgramProgressData(programUUID) {
 }
 
 /**
- * Helper function to assist querying with useQuery package
+ * Helper function to assist querying with React Query package
  *
  * queries
  * .enterprise
@@ -445,4 +445,21 @@ export function queryEnterpriseProgram(enterpriseUuid, programUUID) {
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.programs
     ._ctx.detail(programUUID);
+}
+
+/**
+ * Helper function to assist querying with React Query package
+ *
+ * queries
+ * .content
+ * .pathway(pathwayUUID)
+ * ._ctx.progress
+ * @param programUUID
+ * @returns {Types.QueryOptions}
+ */
+export function queryLearnerPathwayProgressData(pathwayUUID) {
+  return queries
+    .content
+    .pathway(pathwayUUID)
+    ._ctx.progress;
 }
