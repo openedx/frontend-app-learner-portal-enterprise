@@ -22,7 +22,7 @@ import {
   fetchAcademies,
   fetchProgramDetails,
   fetchLearnerProgramProgressDetail,
-  fetchEnterpriseCustomerContainsContent, 
+  fetchEnterpriseCustomerContainsContent,
   fetchAcademiesDetail,
   fetchCourseReviews,
   fetchCourseRecommendations,
