@@ -846,14 +846,11 @@ export function getEntitlementPrice(entitlements) {
  * @param {number} args.firstEnrollablePaidSeatPrice Price of first enrollable paid seat.
  * @returns Price for the course run.
  */
-export function getCourseRunPrice(course) {
-  if (courseUsesEntitlementPricing(course)) {
-    return getEntitlementPrice(course.entitlements);
-  }
+export function getCoursePrice(course) {
   if (course.activeCourseRun?.firstEnrollablePaidSeatPrice) {
     return course.activeCourseRun.firstEnrollablePaidSeatPrice;
   }
-  return undefined;
+  return getEntitlementPrice(course.entitlements);
 }
 
 /**

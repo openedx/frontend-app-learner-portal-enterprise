@@ -18,7 +18,7 @@ import {
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getCourseOrganizationDetails,
-  getCourseRunPrice,
+  getCoursePrice,
   getCourseStartDate,
   getCourseTypeConfig,
   getMissingApplicableSubsidyReason,
@@ -510,7 +510,7 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
 export function useCourseListPrice() {
   const { data: { listPrice } } = useCourseRedemptionEligibility();
   return useCourseMetadata({
-    select: ({ transformed }) => listPrice ?? getCourseRunPrice(transformed),
+    select: ({ transformed }) => listPrice || getCoursePrice(transformed),
   });
 }
 
