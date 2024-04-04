@@ -22,7 +22,11 @@ import {
   fetchAcademies,
   fetchProgramDetails,
   fetchLearnerProgramProgressDetail,
-  fetchEnterpriseCustomerContainsContent, fetchAcademiesDetail,
+  fetchEnterpriseCustomerContainsContent, 
+  fetchAcademiesDetail,
+  fetchCourseReviews,
+  fetchCourseRecommendations,
+  checkTransactionStatus,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -64,19 +68,19 @@ const enterprise = createQueryKeys('enterprise', {
           },
         },
       },
-      course: {
-        queryKey: null,
+      course: (courseKey) => ({
+        queryKey: [courseKey],
         contextQueries: {
-          contentMetadata: (courseKey) => ({
-            queryKey: [courseKey],
-            queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], courseKey),
-          }),
           canRedeem: (availableCourseRunKeys) => ({
             queryKey: [availableCourseRunKeys],
             queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
           }),
+          recommendations: (searchCatalogs) => ({
+            queryKey: [searchCatalogs],
+            queryFn: async ({ queryKey }) => fetchCourseRecommendations(queryKey[2], queryKey[4], searchCatalogs),
+          }),
         },
-      },
+      }),
       containsContent: (contentIdentifiers) => ({
         queryKey: [contentIdentifiers],
         queryFn: async ({ queryKey }) => fetchEnterpriseCustomerContainsContent(queryKey[2], contentIdentifiers),
@@ -114,7 +118,7 @@ const enterprise = createQueryKeys('enterprise', {
                 contextQueries: {
                   licenseRequests: {
                     queryKey: null,
-                    queryFn: async ({ queryKey }) => fetchLicenseRequests(queryKey[2], queryKey[5], queryKey[7]),
+                    queryFn: async ({ queryKey }) => fetchLicenseRequests(queryKey[2], queryKey[6], queryKey[7]),
                   },
                   couponCodeRequests: {
                     queryKey: null,
@@ -138,6 +142,10 @@ const enterprise = createQueryKeys('enterprise', {
               redeemablePolicies: (lmsUserId) => ({
                 queryKey: [lmsUserId],
                 queryFn: async ({ queryKey }) => fetchRedeemablePolicies(queryKey[2], lmsUserId),
+              }),
+              policyTransaction: (transaction) => ({
+                queryKey: [transaction],
+                queryFn: async () => checkTransactionStatus(transaction),
               }),
             },
           },
@@ -180,6 +188,19 @@ const content = createQueryKeys('content', {
       }),
     },
   },
+  course: (courseKey) => ({
+    queryKey: [courseKey],
+    contextQueries: {
+      metadata: (courseRunKey) => ({
+        queryKey: [courseRunKey],
+        queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], queryKey[4]),
+      }),
+      reviews: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => fetchCourseReviews(queryKey[2]),
+      },
+    },
+  }),
   program: (programUUID) => ({
     queryKey: [programUUID],
     contextQueries: {

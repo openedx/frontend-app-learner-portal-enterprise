@@ -1,13 +1,12 @@
-import React, { useContext } from 'react';
+import { getConfig } from '@edx/frontend-platform';
 import { breakpoints, Hyperlink, MediaQuery } from '@openedx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
 
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { PreviewExpand } from '../preview-expand';
-import { CourseContext } from './CourseContextProvider';
 import CourseSidebar from './CourseSidebar';
 import CreatedBy from './CreatedBy';
 import VerifiedCertPitch from './VerifiedCertPitch';
+import { useCourseMetadata } from '../app/data';
 
 function formatSponsorTextList(sponsors) {
   const names = sponsors.map(sponsor => sponsor.name);
@@ -30,9 +29,8 @@ function formatSponsorTextList(sponsors) {
 }
 
 const CourseMainContent = () => {
-  const { config } = useContext(AppContext);
-  const { state } = useContext(CourseContext);
-  const { course, activeCourseRun } = state;
+  const config = getConfig();
+  const { data: courseMetadata } = useCourseMetadata();
   const intl = useIntl();
   return (
     <>
@@ -43,7 +41,7 @@ const CourseMainContent = () => {
           </div>
         )}
       </MediaQuery>
-      {course.fullDescription && (
+      {courseMetadata.fullDescription && (
         <PreviewExpand
           className="mb-5"
           cta={{
@@ -70,10 +68,10 @@ const CourseMainContent = () => {
           )}
         >
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: course.fullDescription }} />
+          <div dangerouslySetInnerHTML={{ __html: courseMetadata.fullDescription }} />
         </PreviewExpand>
       )}
-      {course.sponsors && course.sponsors.length > 0 && (
+      {courseMetadata.sponsors?.length > 0 && (
         <div className="mb-5">
           <h3>
             <FormattedMessage
@@ -83,7 +81,7 @@ const CourseMainContent = () => {
             />
           </h3>
           <div className="row no-gutters mt-3">
-            {course.sponsors.map((sponsor) => (
+            {courseMetadata.sponsors.map((sponsor) => (
               <div className="col-lg-6 mb-3" key={sponsor.name}>
                 <div className="mb-2">
                   <a
@@ -111,13 +109,13 @@ const CourseMainContent = () => {
               defaultMessage="The production of this course would not have been possible without the generous contributions of {sponsersList}."
               description="Description for the section that lists the contributions sponsors of the course."
               values={{
-                sponsersList: formatSponsorTextList(course.sponsors),
+                sponsersList: formatSponsorTextList(courseMetadata.sponsors),
               }}
             />
           </p>
         </div>
       )}
-      {course.outcome && (
+      {courseMetadata.outcome && (
         <PreviewExpand
           className="mb-5"
           cta={{
@@ -144,10 +142,10 @@ const CourseMainContent = () => {
           )}
         >
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: course.outcome }} />
+          <div dangerouslySetInnerHTML={{ __html: courseMetadata.outcome }} />
         </PreviewExpand>
       )}
-      {course.syllabusRaw && (
+      {courseMetadata.syllabusRaw && (
         <PreviewExpand
           className="mb-5"
           cta={{
@@ -176,14 +174,14 @@ const CourseMainContent = () => {
           )}
         >
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: course.syllabusRaw }} />
+          <div dangerouslySetInnerHTML={{ __html: courseMetadata.syllabusRaw }} />
         </PreviewExpand>
       )}
       <CreatedBy />
-      {activeCourseRun.type === 'verified' && (
+      {courseMetadata.activeCourseRun.type?.includes('verified') && (
         <VerifiedCertPitch />
       )}
-      {course.learnerTestimonials && (
+      {courseMetadata.learnerTestimonials && (
         <div className="mb-5">
           <h3>
             <FormattedMessage
@@ -193,10 +191,10 @@ const CourseMainContent = () => {
             />
           </h3>
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: course.learnerTestimonials }} />
+          <div dangerouslySetInnerHTML={{ __html: courseMetadata.learnerTestimonials }} />
         </div>
       )}
-      {course.faq && (
+      {courseMetadata.faq && (
         <div className="mb-5">
           <h3>
             <FormattedMessage
@@ -206,16 +204,16 @@ const CourseMainContent = () => {
             />
           </h3>
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: course.faq }} />
+          <div dangerouslySetInnerHTML={{ __html: courseMetadata.faq }} />
         </div>
       )}
-      {course.additionalInformation && (
+      {courseMetadata.additionalInformation && (
         <div className="mb-5">
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: course.additionalInformation }} />
+          <div dangerouslySetInnerHTML={{ __html: courseMetadata.additionalInformation }} />
         </div>
       )}
-      {activeCourseRun.hasOfacRestrictions && (
+      {courseMetadata.activeCourseRun.hasOfacRestrictions && (
         <div className="mb-5">
           <h3>
             <FormattedMessage

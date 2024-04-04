@@ -2,12 +2,12 @@ import { Stack, Button } from '@openedx/paragon';
 
 import { useContext } from 'react';
 import StatefulEnroll from '../../../../stateful-enroll';
-import { COURSE_MODES_MAP } from '../../../data/constants';
 import ToExecutiveEducation2UEnrollment from '../../../enrollment/components/ToExecutiveEducation2UEnrollment';
 import { NavigateToCourseware } from '../../course-run-actions';
 import RedemptionStatusText from '../../RedemptionStatusText';
 import useRedemptionStatus from './useRedemptionStatus';
 import { ToastsContext } from '../../../../Toasts';
+import { COURSE_MODES_MAP } from '../../../../app/data';
 
 /**
  * Checks whether the user's existing enrollment should be upgraded based on its mode and whether

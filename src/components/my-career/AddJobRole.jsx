@@ -9,6 +9,7 @@ import { MainContent, Sidebar } from '../layout';
 import { DashboardSidebar } from '../dashboard/sidebar';
 import SearchJobRole from './SearchJobRole';
 import SkillsQuizImage from '../../assets/images/skills-quiz/skills-quiz.png';
+import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/CourseEnrollmentFailedAlert';
 
 const addIcon = () => (
   <Icon
@@ -36,10 +37,10 @@ const AddJobRole = ({ submitClickHandler }) => {
 
   return (
     <Row className="py-5">
-      {/* <CourseEnrollmentFailedAlert
+      <CourseEnrollmentFailedAlert
         className="mt-0 mb-3"
         enrollmentSource={ENROLLMENT_SOURCE.DASHBOARD}
-      /> */}
+      />
       <MainContent>
         <div className="job-role">
           <h2>

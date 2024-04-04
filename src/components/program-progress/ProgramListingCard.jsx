@@ -50,7 +50,7 @@ const ProgramListingCard = ({ program }) => {
 
   return (
     <Card
-      className="progress-listing-card"
+      className="progress-listing-card d-inline-flex"
       isClickable
       as={Link}
       to={`/${enterpriseCustomer.slug}/program/${program.uuid}/progress`}

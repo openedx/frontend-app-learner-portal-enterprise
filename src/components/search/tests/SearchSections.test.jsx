@@ -12,9 +12,8 @@ import SearchProgram from '../SearchProgram';
 import SearchPathway from '../SearchPathway';
 import Search, { sendPushEvent } from '../Search';
 import { EVENTS, pushEvent } from '../../../utils/optimizely';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useEnterpriseCustomer, useEnterpriseFeatures } from '../../app/data';
 import { useAlgoliaSearch } from '../../../utils/hooks';
-import { useEnterpriseFeatures } from '../../hooks';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -27,10 +26,6 @@ jest.mock('../../app/data', () => ({
   useContentHighlightsConfiguration: jest.fn(() => ({ data: {} })),
   useCanOnlyViewHighlights: jest.fn(() => ({ data: {} })),
   useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
-}));
-
-jest.mock('../../hooks', () => ({
-  ...jest.requireActual('../../hooks'),
   useEnterpriseFeatures: jest.fn(),
 }));
 

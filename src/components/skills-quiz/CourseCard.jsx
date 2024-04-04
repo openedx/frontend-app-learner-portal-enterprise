@@ -49,6 +49,7 @@ const CourseCard = ({
   return (
     <Card
       isClickable
+      className="d-inline-flex"
       as={Link}
       to={getLinkToCourse(course, enterpriseCustomer.slug)}
       isLoading={isLoading}

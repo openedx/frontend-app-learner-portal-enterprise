@@ -1,33 +1,37 @@
-import React, { useContext } from 'react';
+import { useParams } from 'react-router-dom';
 import { CardGrid } from '@openedx/paragon';
 
-import { CourseContext } from '../CourseContextProvider';
 import CourseRunCard from './CourseRunCard';
 import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../data/constants';
+import { useUserSubsidyApplicableToCourse } from '../data';
+import {
+  useCourseMetadata,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomerContainsContent,
+  useUserEntitlements,
+} from '../../app/data';
 
 /**
  * Displays a grid of `CourseRunCard` components, where each `CourseRunCard` represents
  * an available/enrollable course run.
  */
 const CourseRunCards = () => {
+  const { courseKey } = useParams();
   const {
-    state: {
-      availableCourseRuns,
-      userEntitlements,
-      userEnrollments,
-      course: { key, entitlements: courseEntitlements },
-      catalog: { catalogList },
-    },
-    missingUserSubsidyReason,
     userSubsidyApplicableToCourse,
-  } = useContext(CourseContext);
+    missingUserSubsidyReason,
+  } = useUserSubsidyApplicableToCourse();
+  const { data: courseMetadata } = useCourseMetadata();
+  const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
+  const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
+  const { data: userEntitlements } = useUserEntitlements();
   return (
     <CardGrid
       columnSizes={{ xs: 12, md: 6, lg: 5 }}
       hasEqualColumnHeights={false}
     >
-      {availableCourseRuns.map((courseRun) => {
+      {courseMetadata.availableCourseRuns.map((courseRun) => {
         const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
 
         // Render the newer `CourseRunCard` component when the user's subsidy, if any, is
@@ -44,12 +48,12 @@ const CourseRunCards = () => {
         return (
           <DeprecatedCourseRunCard
             key={courseRun.uuid}
-            courseKey={key}
-            userEnrollments={userEnrollments}
+            courseKey={courseKey}
+            userEnrollments={enterpriseCourseEnrollments}
             courseRun={courseRun}
             catalogList={catalogList}
             userEntitlements={userEntitlements}
-            courseEntitlements={courseEntitlements}
+            courseEntitlements={courseMetadata.entitlements}
             missingUserSubsidyReason={missingUserSubsidyReason}
           />
         );

@@ -7,12 +7,10 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import CoursePage from '../CoursePage';
-import { useAllCourseData } from '../data/hooks';
 import { LEARNER_CREDIT_SUBSIDY_TYPE as mockLearnerCreditSubsidyType } from '../data/constants';
 import { mockCourseService } from './constants';
 import { SUBSIDY_TYPE } from '../../../constants';
-import { useEnterpriseCustomer } from '../../app/data';
-import { useSearchCatalogs } from '../../search/data';
+import { useEnterpriseCustomer, useSearchCatalogs } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const mockGetActiveCourseRun = jest.fn();
@@ -21,7 +19,6 @@ const mockNavigate = jest.fn();
 jest.mock('../data/utils', () => ({
   ...jest.requireActual('../data/utils'),
   getActiveCourseRun: () => mockGetActiveCourseRun(),
-  getAvailableCourseRunKeysFromCourseData: () => ['test-course-key'],
 }));
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -181,10 +178,6 @@ jest.mock('../routes/CoursePageRoutes', () => jest.fn(() => <div data-testid="co
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
-}));
-
-jest.mock('../../search/data', () => ({
-  ...jest.requireActual('../../search/data'),
   useSearchCatalogs: jest.fn(() => []),
 }));
 
@@ -231,7 +224,6 @@ describe('CoursePage', () => {
   });
   it('renders the component with 404 <NotFoundPage />', async () => {
     render(<CoursePageWrapper />);
-    expect(useAllCourseData).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });
 

@@ -4,27 +4,23 @@ import useSearchCatalogs from './useSearchCatalogs';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../../config';
 import {
+  useCatalogsForSubsidyRequests,
   useCouponCodes,
   useEnterpriseCustomer,
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
-} from '../../../app/data';
-import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
-import { useCatalogsForSubsidyRequests } from '../../../hooks';
+} from '..';
+import { enterpriseCustomerFactory } from '../services/data/__factories__';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useCatalogsForSubsidyRequests: jest.fn(),
   useSubscriptions: jest.fn(),
   useRedeemablePolicies: jest.fn(),
   useCouponCodes: jest.fn(),
   useEnterpriseOffers: jest.fn(),
-}));
-
-jest.mock('../../../hooks', () => ({
-  ...jest.requireActual('../../../hooks'),
-  useCatalogsForSubsidyRequests: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
