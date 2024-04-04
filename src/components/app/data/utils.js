@@ -488,7 +488,7 @@ export function getCatalogsForSubsidyRequests({
   if (!browseAndRequestConfiguration.subsidyRequestsEnabled) {
     return catalogs;
   }
-  if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE) {
+  if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE && customerAgreement) {
     const catalogsFromSubscriptions = customerAgreement.availableSubscriptionCatalogs;
     catalogs.push(...catalogsFromSubscriptions);
   }
