@@ -5,102 +5,69 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { mergeConfig } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 
-import {
-  renderWithRouter,
-} from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import { SkillsContextProvider } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import SkillsQuizPage from '../SkillsQuizPage';
-
-const mockLocation = {
-  pathname: '/welcome',
-  hash: '',
-  search: '',
-  state: { activationSuccess: true },
-};
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => (mockLocation),
-}));
+import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const defaultAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-  },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-  authenticatedUser: {
-    username: 'myspace-tom',
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
 const SkillsQuizPageWithContext = ({
   initialAppState = defaultAppState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
   enableSkillsQuiz = true,
 }) => {
   mergeConfig({
     ENABLE_SKILLS_QUIZ: enableSkillsQuiz,
   });
   return (
-    <IntlProvider locale="en">
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+    <SearchData>
+      <SkillsContextProvider>
+        <IntlProvider locale="en">
+          <AppContext.Provider value={initialAppState}>
             <SkillsQuizPage />
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>
-    </IntlProvider>
+          </AppContext.Provider>
+        </IntlProvider>
+      </SkillsContextProvider>
+    </SearchData>
   );
 };
 
 describe('SkillsQuizPage', () => {
-  afterAll(() => {
-    jest.restoreAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
   it('should render SkillsQuiz', async () => {
     renderWithRouter(
-      <SearchData>
-        <SkillsContextProvider>
-          <SkillsQuizPageWithContext enableSkillsQuiz />
-        </SkillsContextProvider>
-      </SearchData>,
+      <SkillsQuizPageWithContext enableSkillsQuiz />,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).toBeInTheDocument();
   });
   it('should render null', async () => {
     renderWithRouter(
-      <SearchData>
-        <SkillsContextProvider>
-          <SkillsQuizPageWithContext enableSkillsQuiz={false} />
-        </SkillsContextProvider>
-      </SearchData>,
+      <SkillsQuizPageWithContext enableSkillsQuiz={false} />,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.queryByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).not.toBeInTheDocument();

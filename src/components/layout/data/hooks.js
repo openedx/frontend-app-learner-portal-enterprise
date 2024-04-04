@@ -1,29 +1,25 @@
 import { useMemo } from 'react';
 import Color from 'color';
 
-import { isDefinedAndNotNull, isDefined } from '../../../utils/common';
+import { isDefinedAndNotNull, isDefined, getBrandColorsFromCSSVariables } from '../../../utils/common';
 
 const COLOR_LIGHTEN_DARKEN_MODIFIER = 0.2;
 
-export const useStylesForCustomBrandColors = (enterpriseConfig) => {
-  const brandColors = useMemo(
+export const useStylesForCustomBrandColors = (enterpriseCustomer) => {
+  const enterpriseBrandColors = useMemo(
     () => {
-      if (!isDefinedAndNotNull(enterpriseConfig)) {
+      if (!isDefinedAndNotNull(enterpriseCustomer)) {
         return undefined;
       }
 
-      // TODO: Co-locate this and its sister variable in a single location ./enterprise-page/data/hooks
-      const colors = {
-        white: getComputedStyle(document.documentElement).getPropertyValue('--pgn-color-white'),
-        dark: getComputedStyle(document.documentElement).getPropertyValue('--pgn-color-dark'),
-      };
+      const brandColors = getBrandColorsFromCSSVariables();
 
-      const { branding } = enterpriseConfig;
-      const primaryColor = Color(branding.colors.primary);
-      const secondaryColor = Color(branding.colors.secondary);
-      const tertiaryColor = Color(branding.colors.tertiary);
-      const whiteColor = Color(colors.white);
-      const darkColor = Color(colors.dark);
+      const { brandingConfiguration } = enterpriseCustomer;
+      const primaryColor = Color(brandingConfiguration.primaryColor);
+      const secondaryColor = Color(brandingConfiguration.secondaryColor);
+      const tertiaryColor = Color(brandingConfiguration.tertiaryColor);
+      const whiteColor = Color(brandColors.white);
+      const darkColor = Color(brandColors.dark);
       const getA11yTextColor = color => (color.isDark() ? whiteColor : darkColor);
 
       return {
@@ -49,10 +45,10 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
         },
       };
     },
-    [enterpriseConfig],
+    [enterpriseCustomer],
   );
 
-  if (!isDefined(brandColors)) {
+  if (!isDefined(enterpriseBrandColors)) {
     return null;
   }
 
@@ -61,28 +57,28 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
     key: colorName,
     styles: (`
       .btn-brand-${colorName} {
-        background-color: ${brandColors[colorName].regular.hex()} !important;
-        border-color: ${brandColors[colorName].regular.hex()} !important;
-        color: ${brandColors[colorName].textColor.hex()} !important;
+        background-color: ${enterpriseBrandColors[colorName].regular.hex()} !important;
+        border-color: ${enterpriseBrandColors[colorName].regular.hex()} !important;
+        color: ${enterpriseBrandColors[colorName].textColor.hex()} !important;
       }
       .btn-brand-${colorName}:hover {
-        background-color: ${brandColors[colorName].dark.hex()} !important;
-        border-color: ${brandColors[colorName].dark.hex()} !important;
+        background-color: ${enterpriseBrandColors[colorName].dark.hex()} !important;
+        border-color: ${enterpriseBrandColors[colorName].dark.hex()} !important;
       }
       .btn-brand-${colorName}:focus:before {
-        border-color: ${brandColors[colorName].regular.hex()} !important;
+        border-color: ${enterpriseBrandColors[colorName].regular.hex()} !important;
       }
       .bg-brand-${colorName} {
-        background-color: ${brandColors[colorName].regular.hex()} !important;
+        background-color: ${enterpriseBrandColors[colorName].regular.hex()} !important;
       }
       .border-brand-${colorName} {
-        border-color: ${brandColors[colorName].regular.hex()} !important;
+        border-color: ${enterpriseBrandColors[colorName].regular.hex()} !important;
       }
       .color-brand-${colorName} {
-        color: ${brandColors[colorName].regular.hex()} !important;
+        color: ${enterpriseBrandColors[colorName].regular.hex()} !important;
       }
       .text-brand-${colorName} {
-        color: ${brandColors[colorName].textColor.hex()} !important;
+        color: ${enterpriseBrandColors[colorName].textColor.hex()} !important;
       }
     `),
   }));
@@ -91,28 +87,28 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
     key: 'general',
     styles: (`
       .btn-primary {
-        background-color: ${brandColors.primary.regular.hex()} !important;
-        border-color: ${brandColors.primary.regular.hex()} !important;
-        color: ${brandColors.primary.textColor.hex()} !important;
+        background-color: ${enterpriseBrandColors.primary.regular.hex()} !important;
+        border-color: ${enterpriseBrandColors.primary.regular.hex()} !important;
+        color: ${enterpriseBrandColors.primary.textColor.hex()} !important;
       }
       .btn-primary:hover {
-        background-color: ${brandColors.primary.dark.hex()} !important;
-        border-color: ${brandColors.primary.dark.hex()} !important;
+        background-color: ${enterpriseBrandColors.primary.dark.hex()} !important;
+        border-color: ${enterpriseBrandColors.primary.dark.hex()} !important;
       }
       .btn-primary:focus:before {
-        border-color: ${brandColors.primary.regular.hex()} !important;
+        border-color: ${enterpriseBrandColors.primary.regular.hex()} !important;
       }
       .btn-brand {
-        background-color: ${brandColors.primary.regular.hex()} !important;
-        border-color: ${brandColors.primary.regular.hex()} !important;
-        color: ${brandColors.primary.textColor.hex()} !important;
+        background-color: ${enterpriseBrandColors.primary.regular.hex()} !important;
+        border-color: ${enterpriseBrandColors.primary.regular.hex()} !important;
+        color: ${enterpriseBrandColors.primary.textColor.hex()} !important;
       }
       .btn-brand:hover {
-        background-color: ${brandColors.primary.dark.hex()} !important;
-        border-color: ${brandColors.primary.dark.hex()} !important;
+        background-color: ${enterpriseBrandColors.primary.dark.hex()} !important;
+        border-color: ${enterpriseBrandColors.primary.dark.hex()} !important;
       }
       .btn-brand:focus:before {
-        border-color: ${brandColors.primary.regular.hex()} !important;
+        border-color: ${enterpriseBrandColors.primary.regular.hex()} !important;
       }
     `),
   });

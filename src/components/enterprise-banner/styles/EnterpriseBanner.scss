@@ -1,14 +1,6 @@
 .enterprise-banner {
-  .banner-content{
-    justify-content: space-between;
+  &.border-brand-tertiary {
+    border-bottom-width: 7px;
+    border-bottom-style: solid;
   }
-  .skills-quiz-btn{
-    margin: 1%;
-    height: max-content;
-  }
-}
-
-.border-brand-tertiary {
-  border-bottom-width: 7px;
-  border-bottom-style: solid;
 }

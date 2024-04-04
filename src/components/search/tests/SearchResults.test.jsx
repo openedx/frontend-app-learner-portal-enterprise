@@ -1,14 +1,13 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { QueryClientProvider } from '@tanstack/react-query';
 import SearchResults from '../SearchResults';
 import SearchCourseCard from '../SearchCourseCard';
 import SearchProgramCard from '../SearchProgramCard';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-
 import {
   NUM_RESULTS_PROGRAM,
   NUM_RESULTS_COURSE,
@@ -18,14 +17,30 @@ import {
   CONTENT_TYPE_PROGRAM,
   PATHWAY_TITLE, CONTENT_TYPE_PATHWAY, NUM_RESULTS_PATHWAY,
 } from '../constants';
-import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
+import { TEST_IMAGE_URL } from './constants';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 import {
+  queryClient,
   renderWithRouter,
 } from '../../../utils/tests';
 import SearchPathwayCard from '../../pathway/SearchPathwayCard';
 import { getNoResultsMessage, getSearchErrorMessage } from '../../utils/search';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useSubscriptions: jest.fn(() => ({ data: { subscriptionLicense: null } })),
+  useRedeemablePolicies: jest.fn(() => ({ data: { redeemablePolicies: [] } })),
+  useCouponCodes: jest.fn(() => ({ data: { couponCodeAssignments: [] } })),
+  useEnterpriseOffers: jest.fn(() => ({ data: { currentEnterpriseOffers: [] } })),
+  useBrowseAndRequestConfiguration: jest.fn(() => ({ data: {} })),
+  useContentHighlightsConfiguration: jest.fn(() => ({ data: {} })),
+  useCanOnlyViewHighlights: jest.fn(() => ({ data: {} })),
+  useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
+  useDefaultSearchFilters: jest.fn().mockReturnValue([]),
+}));
 
 jest.mock('../../../config', () => ({
   features: { PROGRAM_TYPE_FACET: true },
@@ -48,46 +63,23 @@ const searchContext = {
   dispatch: () => null,
 };
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
+
 const initialAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    slug: TEST_ENTERPRISE_SLUG,
-  },
-  config: {
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-  },
-  authenticatedUser: {
-    username: 'myspace-tom',
-  },
-};
-
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
-const initialUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const initialSubsidyRequestsState = {
-  subsidyRequestConfiguration: null,
-  catalogsForSubsidyRequests: [],
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const SearchResultsWithContext = (props) => (
-  <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <SearchContext.Provider value={searchContext}>
-            <SearchResults {...props} />
-          </SearchContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </IntlProvider>
+  <QueryClientProvider client={queryClient()}>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={initialAppState}>
+        <SearchContext.Provider value={searchContext}>
+          <SearchResults {...props} />
+        </SearchContext.Provider>
+      </AppContext.Provider>
+    </IntlProvider>
+  </QueryClientProvider>
 );
 
 const TEST_COURSE_KEY = 'test-course-key';
@@ -197,6 +189,10 @@ const propsForNoResults = {
 };
 
 describe('<SearchResults />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
   test('renders correct results for courses', () => {
     renderWithRouter(
       <SearchResultsWithContext {...propsForCourseResults} />,
@@ -302,13 +298,15 @@ describe('<SearchResults />', () => {
     expect(screen.getByText(new RegExp(searchErrorMessage.messageContent, 'i'))).toBeTruthy();
   });
 
-  test('renders an alert in case of no results for courses', () => {
+  test('renders an alert in case of no results for courses', async () => {
     const noResultsMessage = getNoResultsMessage(COURSE_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForNoResults} />,
     );
-    expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
+      expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
+    });
   });
 
   test('renders an alert in case of no results for programs', () => {
@@ -328,7 +326,11 @@ describe('<SearchResults />', () => {
 
   test('does not render an alert in case of no results for pathways', () => {
     const propsForNoResultsPathway = {
-      ...propsForNoResults, hitComponent: SearchPathwayCard, title: PATHWAY_TITLE, contentType: CONTENT_TYPE_PATHWAY,
+      ...propsForNoResults,
+      hitComponent: SearchPathwayCard,
+      title: PATHWAY_TITLE,
+      contentType: CONTENT_TYPE_PATHWAY,
+      isPathwaySearchResults: true,
     };
     const noResultsMessage = getNoResultsMessage(PATHWAY_TITLE);
     renderWithRouter(

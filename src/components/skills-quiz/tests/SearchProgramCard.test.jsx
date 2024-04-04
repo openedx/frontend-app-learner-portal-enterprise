@@ -6,27 +6,26 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import SearchProgramCard from '../SearchProgramCard';
 
+import SearchProgramCard from '../SearchProgramCard';
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { NO_PROGRAMS_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-
-const userId = 'batman';
+import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
-
-const mockedNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate,
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useDefaultSearchFilters: jest.fn(),
 }));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
 const PROGRAM_TITLE = 'Intro to BatVerse';
@@ -64,14 +63,7 @@ const testIndex = {
 };
 
 const defaultAppState = {
-  enterpriseConfig: {
-    slug: TEST_ENTERPRISE_SLUG,
-    uuid: '5d3v5ee2-761b-49b4-8f47-f6f51589d815',
-  },
-  authenticatedUser: {
-    username: 'b.wayne',
-    userId,
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const defaultSearchContext = {
@@ -99,43 +91,30 @@ const defaultSkillsState = {
   },
 };
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
-
 const SearchProgramCardWithContext = ({
   initialAppState = defaultAppState,
   initialSkillsState = defaultSkillsState,
-  initialUserSubsidyState = defaultUserSubsidyState,
   initialSearchContext = defaultSearchContext,
   index,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-          <SearchContext.Provider value={initialSearchContext}>
-            <SkillsContext.Provider value={initialSkillsState}>
-              <SearchProgramCard index={index} />
-            </SkillsContext.Provider>
-          </SearchContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+      <SearchContext.Provider value={initialSearchContext}>
+        <SkillsContext.Provider value={initialSkillsState}>
+          <SearchProgramCard index={index} />
+        </SkillsContext.Provider>
+      </SearchContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );
 
 describe('<SearchProgramCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+  });
+
   test('renders the correct data', async () => {
     const { container } = renderWithRouter(
       <SearchProgramCardWithContext
@@ -161,7 +140,7 @@ describe('<SearchProgramCard />', () => {
 
     // handles click
     userEvent.click(searchProgramCard);
-    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
+    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/program/${PROGRAM_UUID}`);
   });
 
   test('renders the correct data with skills', async () => {

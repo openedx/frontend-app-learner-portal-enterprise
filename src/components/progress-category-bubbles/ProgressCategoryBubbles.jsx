@@ -2,7 +2,6 @@ import React from 'react';
 import { Bubble, Stack } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
-import './styles/index.scss';
 
 const ProgressCategoryBubbles = ({ notStarted, inProgress, completed }) => (
   <Stack direction="horizontal" gap={2} className="flex-wrap">

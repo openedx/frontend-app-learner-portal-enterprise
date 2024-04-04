@@ -1,21 +1,21 @@
 .callout-wrapper {
   .content {
-    background: #f0f2f2;
-    border: 2px solid #bfc9ca;
+    background: $dark-100;
+    border: 2px solid $primary-200;
     border-radius: 4px;
     padding: 30px 48px;
     margin-bottom: 30px;
   }
 }
 
- .endorsements {
+.endorsements {
   margin: 0;
   padding-bottom: 30px;
 
   .quote-icon-wrapper {
     display: block;
     margin-left: -45px;
-    color: #00688d;
+    color: $info-500;
 
     .quote-icon {
       position: absolute;
@@ -41,10 +41,10 @@
     font-size: 1.5rem;
   }
 
- .company-endorser-logo-wrapper {
-    border: 1px solid #bfc9ca;
+  .company-endorser-logo-wrapper {
+    border: 1px solid $primary-200;
     border-radius: 50%;
-    background-color: #fff;
+    background-color: $white;
     width: 110px;
     height: 110px;
     overflow: hidden;
@@ -56,12 +56,5 @@
     .company-endorser-logo {
       width: 80px;
     }
-  }
-}
-
- .attribution {
-  font: {
-    family:Inter,Helvetica Neue,Arial,sans-serif;
-    size: 0.875rem;
   }
 }

@@ -6,17 +6,14 @@ import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import userEvent from '@testing-library/user-event';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramCTA from '../ProgramCTA';
+import { useEnterpriseCustomer, useProgramDetails } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
-const userId = 'batman';
 const courseKey = 'edX+DemoX';
-const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
 const programUuid = '00000000-0000-0000-0000-000000000000';
 
 jest.mock('react-router-dom', () => ({
-  useLocation: jest.fn(),
   useParams: jest.fn().mockReturnValue({ programUuid }),
 }));
 jest.mock('@edx/frontend-enterprise-utils', () => {
@@ -27,135 +24,32 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
   });
 });
 
-const ProgramCTAtWithContext = ({
-  initialAppState = {},
-  initialProgramState = {},
-  initialUserSubsidyState = {},
-}) => (
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useProgramDetails: jest.fn(),
+}));
+
+const mockAuthenticatedUser = authenticatedUserFactory();
+
+const initialAppState = {
+  authenticatedUser: mockAuthenticatedUser,
+};
+
+const ProgramCTAtWithContext = () => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramContextProvider initialState={initialProgramState}>
-          <ProgramCTA />
-        </ProgramContextProvider>
-      </UserSubsidyContext.Provider>
+      <ProgramCTA />
     </AppContext.Provider>
   </IntlProvider>
 );
 
-describe('<ProgramCTA />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-      uuid: enterpriseUuid,
-    },
-    authenticatedUser: {
-      userId,
-    },
-  };
-  const initialProgramState = {
-    program: {
-      title: 'Test Program Title',
-      courses: [
-        {
-          key: 'edX+DemoX',
-          title: 'Test Course 1 Title',
-          shortDescription: 'Test course 1 description',
-          courseRuns: [
-            {
-              title: 'Test Course Run 1 Title',
-              start: '2013-02-05T05:00:00Z',
-              shortDescription: 'Test course 1 description',
-            },
-          ],
-          enterpriseHasCourse: true,
-        },
-        {
-          key: 'edX+DemoX',
-          title: 'Test Course 2 Title',
-          shortDescription: 'Test course 2 description',
-          courseRuns: [
-            {
-              title: 'Test Course Run 2 Title',
-              start: '2013-02-05T05:00:00Z',
-              shortDescription: 'Test course 2 description',
-            },
-          ],
-          enterpriseHasCourse: false,
-        },
-        {
-          key: 'edX+DemoX',
-          title: 'Test Course 3 Title',
-          shortDescription: 'Test course 3 description',
-          courseRuns: [
-            {
-              title: 'Test Course Run 3 Title',
-              start: '2013-02-05T05:00:00Z',
-              shortDescription: 'Test course 3 description',
-            },
-          ],
-          enterpriseHasCourse: true,
-        },
-      ],
-    },
-  };
-  const initialUserSubsidyState = {
-    subscriptionLicense: {
-      uuid: 'test-license-uuid',
-    },
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-  };
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-  test('renders program CTA.', () => {
-    render(
-      <ProgramCTAtWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
-
-    expect(screen.getByText('2 courses included in your enterprise catalog')).toBeInTheDocument();
-    expect(screen.getByText('View Course Details')).toBeInTheDocument();
-    userEvent.click(screen.getByText('View Course Details'));
-    fireEvent.click(screen.getByText('Test Course 1 Title'));
-    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      enterpriseUuid,
-      'edx.ui.enterprise.learner_portal.program.cta.course.clicked',
-      { courseKey, programUuid, userId },
-    );
-  });
-
-  test('renders program CTA with no courses available.', () => {
-    initialProgramState.program.courses = [{
-      key: 'edX+DemoX',
-      title: 'Test Course 1 Title',
-      shortDescription: 'Test course 1 description',
-      courseRuns: [
-        {
-          title: 'Test Course Run 1 Title',
-          start: '2013-02-05T05:00:00Z',
-          shortDescription: 'Test course 1 description',
-        },
-      ],
-      enterpriseHasCourse: false,
-    }];
-    render(
-      <ProgramCTAtWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
-
-    expect(screen.getByText('These courses are not included in your enterprise catalog')).toBeInTheDocument();
-  });
-
-  test('renders program CTA with all courses available.', () => {
-    initialProgramState.program.courses = [{
+const initialProgramState = {
+  title: 'Test Program Title',
+  courses: [
+    {
       key: 'edX+DemoX',
       title: 'Test Course 1 Title',
       shortDescription: 'Test course 1 description',
@@ -167,13 +61,103 @@ describe('<ProgramCTA />', () => {
         },
       ],
       enterpriseHasCourse: true,
-    }];
+    },
+    {
+      key: 'edX+DemoX',
+      title: 'Test Course 2 Title',
+      shortDescription: 'Test course 2 description',
+      courseRuns: [
+        {
+          title: 'Test Course Run 2 Title',
+          start: '2013-02-05T05:00:00Z',
+          shortDescription: 'Test course 2 description',
+        },
+      ],
+      enterpriseHasCourse: false,
+    },
+    {
+      key: 'edX+DemoX',
+      title: 'Test Course 3 Title',
+      shortDescription: 'Test course 3 description',
+      courseRuns: [
+        {
+          title: 'Test Course Run 3 Title',
+          start: '2013-02-05T05:00:00Z',
+          shortDescription: 'Test course 3 description',
+        },
+      ],
+      enterpriseHasCourse: true,
+    },
+  ],
+};
+
+describe('<ProgramCTA />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useProgramDetails.mockReturnValue({ data: initialProgramState });
+  });
+  test('renders program CTA.', () => {
     render(
-      <ProgramCTAtWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramCTAtWithContext />,
+    );
+
+    expect(screen.getByText('2 courses included in your enterprise catalog')).toBeInTheDocument();
+    expect(screen.getByText('View Course Details')).toBeInTheDocument();
+    userEvent.click(screen.getByText('View Course Details'));
+    fireEvent.click(screen.getByText('Test Course 1 Title'));
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      mockEnterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.program.cta.course.clicked',
+      { courseKey, programUuid, userId: mockAuthenticatedUser.userId },
+    );
+  });
+
+  test('renders program CTA with no courses available.', () => {
+    const updatedProgramState = {
+      ...initialProgramState,
+      courses: [{
+        key: 'edX+DemoX',
+        title: 'Test Course 1 Title',
+        shortDescription: 'Test course 1 description',
+        courseRuns: [
+          {
+            title: 'Test Course Run 1 Title',
+            start: '2013-02-05T05:00:00Z',
+            shortDescription: 'Test course 1 description',
+          },
+        ],
+        enterpriseHasCourse: false,
+      }],
+    };
+    useProgramDetails.mockReturnValue({ data: updatedProgramState });
+    render(
+      <ProgramCTAtWithContext />,
+    );
+
+    expect(screen.getByText('These courses are not included in your enterprise catalog')).toBeInTheDocument();
+  });
+
+  test('renders program CTA with all courses available.', () => {
+    const updatedProgramState = {
+      ...initialProgramState,
+      courses: [{
+        key: 'edX+DemoX',
+        title: 'Test Course 1 Title',
+        shortDescription: 'Test course 1 description',
+        courseRuns: [
+          {
+            title: 'Test Course Run 1 Title',
+            start: '2013-02-05T05:00:00Z',
+            shortDescription: 'Test course 1 description',
+          },
+        ],
+        enterpriseHasCourse: true,
+      }],
+    };
+    useProgramDetails.mockReturnValue({ data: updatedProgramState });
+    render(
+      <ProgramCTAtWithContext />,
     );
 
     expect(screen.getByText('All courses included in your enterprise catalog')).toBeInTheDocument();
@@ -186,21 +170,21 @@ describe('<ProgramCTA />', () => {
       shortDescription: 'Test course 1 description',
       weeksToComplete: 4,
     };
-    initialProgramState.program.courses = [{
-      key: 'edX+DemoX',
-      title: 'Test Course 1 Title',
-      shortDescription: 'Test course 1 description',
-      activeCourseRun: courseRun,
-      courseRuns: [courseRun],
-      enterpriseHasCourse: true,
-    }];
-    initialProgramState.program.weeksToComplete = 4;
+    const updatedProgramState = {
+      ...initialProgramState,
+      courses: [{
+        key: 'edX+DemoX',
+        title: 'Test Course 1 Title',
+        shortDescription: 'Test course 1 description',
+        activeCourseRun: courseRun,
+        courseRuns: [courseRun],
+        enterpriseHasCourse: true,
+      }],
+      weeksToComplete: 4,
+    };
+    useProgramDetails.mockReturnValue({ data: updatedProgramState });
     render(
-      <ProgramCTAtWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramCTAtWithContext />,
     );
 
     expect(screen.getByText('1 course in 1 month')).toBeInTheDocument();
@@ -213,33 +197,31 @@ describe('<ProgramCTA />', () => {
       shortDescription: 'Test course 1 description',
       weeksToComplete: 24,
     };
-    initialProgramState.program.courses = [
-      {
-        key: 'edX+DemoX',
-        title: 'Test Course 1 Title',
-        shortDescription: 'Test course 1 description',
-        activeCourseRun: courseRun,
-        courseRuns: [courseRun],
-        enterpriseHasCourse: true,
-      },
-      {
-        key: 'edX+DemoX',
-        title: 'Test Course 1 Title',
-        shortDescription: 'Test course 1 description',
-        activeCourseRun: courseRun,
-        courseRuns: [courseRun],
-        enterpriseHasCourse: true,
-      },
-    ];
-
-    initialProgramState.program.weeksToComplete = 48;
-
+    const updatedProgramState = {
+      ...initialProgramState,
+      courses: [
+        {
+          key: 'edX+DemoX',
+          title: 'Test Course 1 Title',
+          shortDescription: 'Test course 1 description',
+          activeCourseRun: courseRun,
+          courseRuns: [courseRun],
+          enterpriseHasCourse: true,
+        },
+        {
+          key: 'edX+DemoX',
+          title: 'Test Course 1 Title',
+          shortDescription: 'Test course 1 description',
+          activeCourseRun: courseRun,
+          courseRuns: [courseRun],
+          enterpriseHasCourse: true,
+        },
+      ],
+      weeksToComplete: 48,
+    };
+    useProgramDetails.mockReturnValue({ data: updatedProgramState });
     render(
-      <ProgramCTAtWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramCTAtWithContext />,
     );
 
     expect(screen.getByText('2 courses in 1 year')).toBeInTheDocument();
@@ -252,32 +234,31 @@ describe('<ProgramCTA />', () => {
       shortDescription: 'Test course 1 description',
       weeksToComplete: 26,
     };
-    initialProgramState.program.courses = [
-      {
-        key: 'edX+DemoX',
-        title: 'Test Course 1 Title',
-        shortDescription: 'Test course 1 description',
-        activeCourseRun: courseRun,
-        courseRuns: [courseRun],
-        enterpriseHasCourse: true,
-      },
-      {
-        key: 'edX+DemoX',
-        title: 'Test Course 1 Title',
-        shortDescription: 'Test course 1 description',
-        activeCourseRun: courseRun,
-        courseRuns: [courseRun],
-        enterpriseHasCourse: true,
-      },
-    ];
-
-    initialProgramState.program.weeksToComplete = 52;
+    const updatedProgramState = {
+      ...initialProgramState,
+      courses: [
+        {
+          key: 'edX+DemoX',
+          title: 'Test Course 1 Title',
+          shortDescription: 'Test course 1 description',
+          activeCourseRun: courseRun,
+          courseRuns: [courseRun],
+          enterpriseHasCourse: true,
+        },
+        {
+          key: 'edX+DemoX',
+          title: 'Test Course 1 Title',
+          shortDescription: 'Test course 1 description',
+          activeCourseRun: courseRun,
+          courseRuns: [courseRun],
+          enterpriseHasCourse: true,
+        },
+      ],
+      weeksToComplete: 52,
+    };
+    useProgramDetails.mockReturnValue({ data: updatedProgramState });
     render(
-      <ProgramCTAtWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramCTAtWithContext />,
     );
 
     expect(screen.getByText('2 courses in 1 year 1 month')).toBeInTheDocument();
@@ -290,32 +271,31 @@ describe('<ProgramCTA />', () => {
       shortDescription: 'Test course 1 description',
       weeksToComplete: 50,
     };
-    initialProgramState.program.courses = [
-      {
-        key: 'edX+DemoX',
-        title: 'Test Course 1 Title',
-        shortDescription: 'Test course 1 description',
-        activeCourseRun: courseRun,
-        courseRuns: [courseRun],
-        enterpriseHasCourse: true,
-      },
-      {
-        key: 'edX+DemoX',
-        title: 'Test Course 1 Title',
-        shortDescription: 'Test course 1 description',
-        activeCourseRun: courseRun,
-        courseRuns: [courseRun],
-        enterpriseHasCourse: true,
-      },
-    ];
-
-    initialProgramState.program.weeksToComplete = 100;
+    const updatedProgramState = {
+      ...initialProgramState,
+      courses: [
+        {
+          key: 'edX+DemoX',
+          title: 'Test Course 1 Title',
+          shortDescription: 'Test course 1 description',
+          activeCourseRun: courseRun,
+          courseRuns: [courseRun],
+          enterpriseHasCourse: true,
+        },
+        {
+          key: 'edX+DemoX',
+          title: 'Test Course 1 Title',
+          shortDescription: 'Test course 1 description',
+          activeCourseRun: courseRun,
+          courseRuns: [courseRun],
+          enterpriseHasCourse: true,
+        },
+      ],
+      weeksToComplete: 100,
+    };
+    useProgramDetails.mockReturnValue({ data: updatedProgramState });
     render(
-      <ProgramCTAtWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramCTAtWithContext />,
     );
 
     expect(screen.getByText('2 courses in 2 years 1 month')).toBeInTheDocument();
@@ -328,32 +308,31 @@ describe('<ProgramCTA />', () => {
       shortDescription: 'Test course 1 description',
       weeksToComplete: 59,
     };
-    initialProgramState.program.courses = [
-      {
-        key: 'edX+DemoX',
-        title: 'Test Course 1 Title',
-        shortDescription: 'Test course 1 description',
-        activeCourseRun: courseRun,
-        courseRuns: [courseRun],
-        enterpriseHasCourse: true,
-      },
-      {
-        key: 'edX+DemoX',
-        title: 'Test Course 1 Title',
-        shortDescription: 'Test course 1 description',
-        activeCourseRun: courseRun,
-        courseRuns: [courseRun],
-        enterpriseHasCourse: true,
-      },
-    ];
-
-    initialProgramState.program.weeksToComplete = 118;
+    const updatedProgramState = {
+      ...initialProgramState,
+      courses: [
+        {
+          key: 'edX+DemoX',
+          title: 'Test Course 1 Title',
+          shortDescription: 'Test course 1 description',
+          activeCourseRun: courseRun,
+          courseRuns: [courseRun],
+          enterpriseHasCourse: true,
+        },
+        {
+          key: 'edX+DemoX',
+          title: 'Test Course 1 Title',
+          shortDescription: 'Test course 1 description',
+          activeCourseRun: courseRun,
+          courseRuns: [courseRun],
+          enterpriseHasCourse: true,
+        },
+      ],
+      weeksToComplete: 118,
+    };
+    useProgramDetails.mockReturnValue({ data: updatedProgramState });
     render(
-      <ProgramCTAtWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramCTAtWithContext />,
     );
 
     expect(screen.getByText('2 courses in 2 years 6 months')).toBeInTheDocument();
@@ -366,32 +345,31 @@ describe('<ProgramCTA />', () => {
       shortDescription: 'Test course 1 description',
       weeksToComplete: 59,
     };
-    initialProgramState.program.courses = [
-      {
-        key: 'edX+DemoX',
-        title: 'Test Course 1 Title',
-        shortDescription: 'Test course 1 description',
-        activeCourseRun: courseRun,
-        courseRuns: [courseRun],
-        enterpriseHasCourse: true,
-      },
-      {
-        key: 'edX+DemoX',
-        title: 'Test Course 1 Title',
-        shortDescription: 'Test course 1 description',
-        activeCourseRun: courseRun,
-        courseRuns: [courseRun],
-        enterpriseHasCourse: true,
-      },
-    ];
-
-    initialProgramState.program.weeksToComplete = null;
+    const updatedProgramState = {
+      ...initialProgramState,
+      courses: [
+        {
+          key: 'edX+DemoX',
+          title: 'Test Course 1 Title',
+          shortDescription: 'Test course 1 description',
+          activeCourseRun: courseRun,
+          courseRuns: [courseRun],
+          enterpriseHasCourse: true,
+        },
+        {
+          key: 'edX+DemoX',
+          title: 'Test Course 1 Title',
+          shortDescription: 'Test course 1 description',
+          activeCourseRun: courseRun,
+          courseRuns: [courseRun],
+          enterpriseHasCourse: true,
+        },
+      ],
+      weeksToComplete: null,
+    };
+    useProgramDetails.mockReturnValue({ data: updatedProgramState });
     render(
-      <ProgramCTAtWithContext
-        initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
+      <ProgramCTAtWithContext />,
     );
 
     expect(screen.getByText('2 courses in 2 years 6 months')).toBeInTheDocument();

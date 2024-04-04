@@ -1,8 +1,7 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useNavigate } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
+import { Link } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
@@ -16,6 +15,7 @@ import {
   PATHWAY_SKILL_QUIZ_EVENT_NAME,
 } from './constants';
 import PathwayModal from './PathwayModal';
+import { useEnterpriseCustomer } from '../app/data';
 
 // This function is for filtering list of skillNames in a way that returning list
 // can be displayed in the form of 2 rows at max.
@@ -53,9 +53,8 @@ const SearchPathwayCard = ({
   isAcademyPathway,
   ...rest
 }) => {
-  const { enterpriseConfig: { uuid: enterpriseCustomerUUID, slug } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
-  const navigate = useNavigate();
 
   const pathway = useMemo(() => {
     if (!hit) {
@@ -78,17 +77,17 @@ const SearchPathwayCard = ({
       if (!Object.keys(pathway).length) {
         return undefined;
       }
-      return `/${slug}/search/${pathwayUuid}`;
+      return `/${enterpriseCustomer.slug}/search/${pathwayUuid}`;
     },
-    [pathway, pathwayUuid, slug],
+    [pathway, pathwayUuid, enterpriseCustomer.slug],
   );
 
-  const handleCardClick = () => {
+  const handleCardClick = (e) => {
     if (!linkToPathway) {
       return;
     }
     sendEnterpriseTrackEvent(
-      enterpriseCustomerUUID,
+      enterpriseCustomer.uuid,
       eventName,
       {
         objectID: pathway.objectId,
@@ -99,29 +98,27 @@ const SearchPathwayCard = ({
       },
     );
     if (isAcademyPathway) {
+      e.preventDefault();
       openLearnerPathwayModal();
-    } else {
-      navigate(linkToPathway);
     }
   };
 
   return (
     <>
-      {isAcademyPathway
-      && (
+      {isAcademyPathway && (
         <PathwayModal
           learnerPathwayUuid={pathwayUuid}
           isOpen={isLearnerPathwayModalOpen}
-          onClose={() => {
-            // navigate(`/${enterpriseConfig.slug}/search`);
-            onClose();
-          }}
+          onClose={onClose}
         />
       )}
       <Card
         data-testid="search-pathway-card"
+        className="d-inline-flex"
         isClickable
         isLoading={isLoading}
+        as={Link}
+        to={isAcademyPathway ? undefined : linkToPathway}
         onClick={handleCardClick}
         variant="dark"
         {...rest}
@@ -132,12 +129,12 @@ const SearchPathwayCard = ({
           alt=""
         />
         <Card.Header
-          title={(
-            <Truncate maxLine={3}>{pathway.title}</Truncate>
+          title={pathway.title && (
+            <Truncate lines={3}>{pathway.title}</Truncate>
           )}
         />
-        <Card.Section>
-          {pathway.skillNames && (
+        {pathway.skillNames && (
+          <Card.Section>
             <Stack direction="horizontal" gap={2} className="flex-wrap">
               {filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(skillName => (
                 <Badge
@@ -148,8 +145,8 @@ const SearchPathwayCard = ({
                 </Badge>
               ))}
             </Stack>
-          )}
-        </Card.Section>
+          </Card.Section>
+        )}
       </Card>
     </>
   );

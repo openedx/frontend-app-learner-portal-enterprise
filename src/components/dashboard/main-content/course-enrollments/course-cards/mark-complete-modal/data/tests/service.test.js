@@ -1,5 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import { mergeConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { updateCourseCompleteStatusRequest, ENROLL_ENDPOINT } from '../service';
@@ -13,9 +14,15 @@ axios.patch = jest.fn();
 describe('mark complete modal service', () => {
   const url = `${process.env.LMS_BASE_URL}${ENROLL_ENDPOINT}`;
 
+  beforeEach(() => {
+    mergeConfig({
+      LMS_BASE_URL: process.env.LMS_BASE_URL,
+    });
+  });
+
   it('calls apiClient patch with no parameters', () => {
     updateCourseCompleteStatusRequest();
-    expect(axios.patch).toBeCalledWith(url);
+    expect(axios.patch).toHaveBeenCalledWith(url);
   });
 
   it('calls apiClient patch with parameters', () => {
@@ -23,6 +30,6 @@ describe('mark complete modal service', () => {
       course_id: 'test-course-id',
       enterprise_id: 'test-enterprise-id',
     });
-    expect(axios.patch).toBeCalledWith(`${url}?course_id=test-course-id&enterprise_id=test-enterprise-id`);
+    expect(axios.patch).toHaveBeenCalledWith(`${url}?course_id=test-course-id&enterprise_id=test-enterprise-id`);
   });
 });

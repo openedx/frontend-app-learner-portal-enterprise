@@ -2,24 +2,24 @@ import React, { useContext, useMemo } from 'react';
 import {
   Badge, Card, Stack, Truncate,
 } from '@openedx/paragon';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 
 import getCommonSkills from './data/utils';
-import { linkToCourse, shortenString } from '../course/data/utils';
+import { getLinkToCourse, shortenString } from '../course/data/utils';
 import { ELLIPSIS_STR } from '../course/data/constants';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { MAX_VISIBLE_SKILLS_COURSE, SKILL_NAME_CUTOFF_LIMIT } from './constants';
+import { useEnterpriseCustomer } from '../app/data';
 
 const CourseCard = ({
   isLoading, course, allSkills,
 }) => {
-  const navigate = useNavigate();
-  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
-  const { slug, uuid } = enterpriseConfig;
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const partnerDetails = useMemo(() => {
     if (!Object.keys(course).length || !isDefinedAndNotNull(course.partners)) {
       return {};
@@ -40,17 +40,18 @@ const CourseCard = ({
       return;
     }
     sendEnterpriseTrackEvent(
-      uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.course.clicked',
-      { userId, enterprise: slug, selectedCourse: course.key },
+      { userId, enterprise: enterpriseCustomer.slug, selectedCourse: course.key },
     );
-
-    navigate(linkToCourse(course, slug));
   };
 
   return (
     <Card
       isClickable
+      className="d-inline-flex"
+      as={Link}
+      to={getLinkToCourse(course, enterpriseCustomer.slug)}
       isLoading={isLoading}
       onClick={handleCardClick}
       data-testid="skills-quiz-course-card"
@@ -64,12 +65,12 @@ const CourseCard = ({
       />
       <Card.Header
         title={(
-          <Truncate maxLine={course.skillNames?.length < 5 ? 3 : 2}>
+          <Truncate lines={course.skillNames?.length < 5 ? 3 : 2}>
             {course.title}
           </Truncate>
         )}
         subtitle={course.partners.length > 0 && (
-          <Truncate maxLine={2}>
+          <Truncate lines={2}>
             {course.partners.map((partner) => partner.name).join(', ')}
           </Truncate>
         )}

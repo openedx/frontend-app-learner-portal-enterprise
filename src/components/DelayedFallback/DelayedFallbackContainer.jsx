@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
  * @returns {React.ReactNode} - A container that either renders the fallback UI or the passed children after a delay.
  */
 const DelayedFallbackContainer = ({
+  screenReaderText,
   delay,
   className,
   children,
@@ -37,7 +38,7 @@ const DelayedFallbackContainer = ({
       className={className}
       data-testid="delayed-fallback-container"
     >
-      {children || <Spinner animation="border" screenReaderText="loading" data-testid="suspense-spinner" />}
+      {children || <Spinner animation="border" screenReaderText={screenReaderText} data-testid="suspense-spinner" />}
     </div>
   );
 };
@@ -46,12 +47,14 @@ DelayedFallbackContainer.propTypes = {
   delay: PropTypes.number,
   className: PropTypes.string,
   children: PropTypes.node,
+  screenReaderText: PropTypes.string,
 };
 
 DelayedFallbackContainer.defaultProps = {
   delay: 300,
   className: undefined,
   children: null,
+  screenReaderText: 'Loading...',
 };
 
 export default DelayedFallbackContainer;

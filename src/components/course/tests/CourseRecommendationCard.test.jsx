@@ -1,32 +1,31 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { screen } from '@testing-library/react';
-import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import userEvent from '@testing-library/user-event';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
+import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import CourseRecommendationCard, { COURSE_REC_EVENT_NAME, SAME_PART_EVENT_NAME } from '../CourseRecommendationCard';
+import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
+  hasFeatureFlagEnabled: jest.fn(),
 }));
 
-const TEST_UUID = '1234053423-4212-21323-45fdf';
-const initialAppState = {
-  enterpriseConfig: {
-    slug: TEST_ENTERPRISE_SLUG,
-    uuid: TEST_UUID,
-  },
-};
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const CourseRecommendationCardWithContext = (props) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <CourseRecommendationCard {...props} />
-    </AppContext.Provider>
+    <CourseRecommendationCard {...props} />
   </IntlProvider>
 );
 
@@ -46,6 +45,10 @@ const course = {
 };
 
 describe('<CourseRecommendationCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
   test('renders the correct data', () => {
     const { container } = renderWithRouter(
       <CourseRecommendationCardWithContext course={course} />,
@@ -53,7 +56,7 @@ describe('<CourseRecommendationCard />', () => {
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
     expect(screen.getByAltText(TEST_OWNER.name)).toBeInTheDocument();
 
-    expect(container.querySelector('p.partner')).toHaveTextContent(TEST_OWNER.name);
+    expect(container.querySelector('.partner')).toHaveTextContent(TEST_OWNER.name);
     expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMG_URL);
   });
 
@@ -63,7 +66,7 @@ describe('<CourseRecommendationCard />', () => {
     );
     userEvent.click(container.querySelector('.pgn__card'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      TEST_UUID,
+      mockEnterpriseCustomer.uuid,
       COURSE_REC_EVENT_NAME,
       { courseKey: course.key },
     );
@@ -75,7 +78,7 @@ describe('<CourseRecommendationCard />', () => {
     );
     userEvent.click(container.querySelector('.pgn__card'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      TEST_UUID,
+      mockEnterpriseCustomer.uuid,
       SAME_PART_EVENT_NAME,
       { courseKey: course.key },
     );

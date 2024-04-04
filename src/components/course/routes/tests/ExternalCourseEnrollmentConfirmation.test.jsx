@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { AppContext } from '@edx/frontend-platform/react';
 
 import ExternalCourseEnrollmentConfirmation from '../ExternalCourseEnrollmentConfirmation';
 import { CourseContext } from '../../CourseContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
+import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
@@ -35,6 +35,11 @@ jest.mock('../../data/hooks', () => ({
   }),
 }));
 
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
 const baseCourseContextValue = {
   state: {
     courseEntitlementProductSku: 'test-sku',
@@ -50,14 +55,7 @@ const baseCourseContextValue = {
   missingUserSubsidyReason: undefined,
 };
 
-const appContextValue = {
-  enterpriseConfig: {
-    name: 'Test Enterprise',
-    slug: 'test-enterprise',
-    orgId: 'test-enterprise',
-    adminUsers: ['edx@example.com'],
-  },
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const baseUserSubsidyContextValue = {
   subscriptionLicense: null,
@@ -73,19 +71,18 @@ const ExternalCourseEnrollmentConfirmationWrapper = ({
   initialUserSubsidyState = baseUserSubsidyContextValue,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={appContextValue}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <CourseContext.Provider value={courseContextValue}>
-          <ExternalCourseEnrollmentConfirmation />
-        </CourseContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <CourseContext.Provider value={courseContextValue}>
+        <ExternalCourseEnrollmentConfirmation />
+      </CourseContext.Provider>
+    </UserSubsidyContext.Provider>
   </IntlProvider>
 );
 
 describe('ExternalCourseEnrollment', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('renders', () => {

@@ -1,17 +1,15 @@
-import React, { useCallback, useContext, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Container } from '@openedx/paragon';
 import { ExpandCircleDown } from '@openedx/paragon/icons';
 import classNames from 'classnames';
 import { Link } from 'react-scroll';
-import { ProgramContext } from './ProgramContextProvider';
 import ProgramDataBarDetails from './ProgramDataBarDetails';
+import { useProgramDetails } from '../app/data';
 
 const ProgramDataBar = () => {
   const [stickProgramDataBar, setStickProgramDataBar] = useState(false);
-  const {
-    program: { authoringOrganizations: owners, isProgramEligibleForOneClickPurchase },
-  } = useContext(ProgramContext);
-
+  const { data: program } = useProgramDetails();
+  const { authoringOrganizations: owners, isProgramEligibleForOneClickPurchase } = program;
   const handleStick = useCallback(() => setStickProgramDataBar(true), []);
   const handleRelease = useCallback(() => setStickProgramDataBar(false), []);
 

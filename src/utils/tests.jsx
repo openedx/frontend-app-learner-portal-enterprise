@@ -1,9 +1,36 @@
-import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import React, { isValidElement } from 'react';
+import { BrowserRouter as Router, RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import dayjs from 'dayjs';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { render } from '@testing-library/react';
+import { render } from '@testing-library/react'; // eslint-disable-line import/no-extraneous-dependencies
+import { QueryCache, QueryClient } from '@tanstack/react-query';
+import { queryCacheOnErrorHandler } from './common';
+
+/**
+ * TODO
+ * @param {*} children
+ * @param {*} options
+ * @returns
+ */
+export function renderWithRouterProvider(
+  children,
+  {
+    routes = [],
+    initialEntries,
+    customRouter,
+  } = {},
+) {
+  const options = isValidElement(children)
+    ? { element: children, path: '/' }
+    : children;
+
+  const router = customRouter ?? createMemoryRouter([{ ...options }, ...routes], {
+    initialEntries: ['/', ...(initialEntries ?? [options.path])],
+    initialIndex: 1,
+  });
+
+  return render(<RouterProvider router={router} />);
+}
 
 export function renderWithRouter(
   ui,
@@ -30,12 +57,10 @@ export function renderWithRouter(
  * e.g., <AppContext.Provider value={appInitialState()}/>
  */
 export const initialAppState = ({
-  enterpriseConfig = { slug: 'test-enterprise-slug' },
   config = {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-}) => ({
-  enterpriseConfig,
+} = {}) => ({
   config,
 });
 
@@ -79,3 +104,17 @@ export const A_100_PERCENT_COUPON_CODE = {
   couponStartDate: dayjs().subtract(1, 'w').toISOString(),
   couponEndDate: dayjs().add(8, 'w').toISOString(),
 };
+
+export function queryClient(defaultOptions = {}) {
+  return new QueryClient({
+    queryCache: new QueryCache({
+      onError: queryCacheOnErrorHandler,
+    }),
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+      ...defaultOptions,
+    },
+  });
+}

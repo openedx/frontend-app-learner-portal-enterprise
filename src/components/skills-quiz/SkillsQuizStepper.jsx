@@ -1,5 +1,6 @@
-/* eslint-disable object-curly-newline */
-import React, { useEffect, useState, useContext, useMemo } from 'react';
+import React, {
+  useEffect, useState, useContext, useMemo,
+} from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
@@ -48,6 +49,7 @@ import SkillsQuizHeader from './SkillsQuizHeader';
 import headerImage from './images/headerImage.png';
 import { saveSkillsGoalsAndJobsUserSelected } from './data/utils';
 import { fetchCourseEnrollments } from './data/service';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const config = getConfig();
@@ -70,12 +72,15 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const handleIsStudentCheckedChange = (e) => setIsStudentChecked(e.target.checked);
 
   const {
-    state: { selectedJob, goal, currentJobRole, interestedJobs },
+    state: {
+      selectedJob, goal, currentJobRole, interestedJobs,
+    },
     dispatch: skillsDispatch,
   } = useContext(SkillsContext);
   const { refinements } = useContext(SearchContext);
   const { name: jobs, current_job: currentJob } = refinements;
-  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const navigate = useNavigate();
 
@@ -85,11 +90,11 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const canContinueToRecommendedCourses = goalExceptImproveAndJobSelected || improveGoalAndCurrentJobSelected;
 
   const closeSkillsQuiz = () => {
-    navigate(`/${enterpriseConfig.slug}/search`);
+    navigate(`/${enterpriseCustomer.slug}/search`);
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.done.clicked',
-      { userId, enterprise: enterpriseConfig.slug },
+      { userId, enterprise: enterpriseCustomer.slug },
     );
   };
 
@@ -104,9 +109,9 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
         && ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob)
       ) {
         sendEnterpriseTrackEvent(
-          enterpriseConfig.uuid,
+          enterpriseCustomer.uuid,
           'edx.ui.enterprise.learner_portal.skills_quiz.continue.clicked',
-          { userId, enterprise: enterpriseConfig.slug, selectedJob: jobs[0] },
+          { userId, enterprise: enterpriseCustomer.slug, selectedJob: jobs[0] },
         );
         skillsDispatch({
           type: SET_KEY_VALUE,
@@ -117,11 +122,11 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
       setCurrentStep(STEP2);
     } else if (improveGoalAndCurrentJobSelected) {
       sendEnterpriseTrackEvent(
-        enterpriseConfig.uuid,
+        enterpriseCustomer.uuid,
         'edx.ui.enterprise.learner_portal.skills_quiz.continue.clicked',
         {
           userId,
-          enterprise: enterpriseConfig.slug,
+          enterprise: enterpriseCustomer.slug,
           selectedJob: currentJob[0],
         },
       );
@@ -136,11 +141,11 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
 
   useEffect(() => {
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.started',
-      { userId, enterprise: enterpriseConfig.slug },
+      { userId, enterprise: enterpriseCustomer.slug },
     );
-  }, [enterpriseConfig.slug, enterpriseConfig.uuid, userId]);
+  }, [enterpriseCustomer.slug, enterpriseCustomer.uuid, userId]);
 
   // will be true if goal changed not because of first render.
   const [

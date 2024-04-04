@@ -1,42 +1,30 @@
-import React, { useContext } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Container, Stack,
-} from '@openedx/paragon';
-import { getConfig } from '@edx/frontend-platform/config';
-import { AppContext } from '@edx/frontend-platform/react';
+import { Container, Stack } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 
-import { useContentHighlights } from './data';
 import ContentHighlightSet from './ContentHighlightSet';
+import { useContentHighlightSets, useEnterpriseCustomer } from '../../app/data';
 
 const ContentHighlights = ({ className }) => {
-  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
-  const {
-    isLoading,
-    contentHighlights,
-  } = useContentHighlights(enterpriseUUID);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: contentHighlights } = useContentHighlightSets(enterpriseCustomer.uuid);
 
-  if (!getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
-    return null;
-  }
-
-  if (isLoading) {
-    return (
-      <Container size="lg" className={className}>
-        <ContentHighlightSet.Skeleton />
-      </Container>
+  const mappedContentHighlightSetCards = useMemo(() => {
+    const contentHighlightSets = contentHighlights || [];
+    return contentHighlightSets.map(
+      (highlightSet) => <ContentHighlightSet key={uuidv4()} {...highlightSet} />,
     );
-  }
+  }, [contentHighlights]);
 
-  if (contentHighlights.length === 0) {
+  if (mappedContentHighlightSetCards.length === 0) {
     return null;
   }
 
   return (
     <Container size="lg" className={className}>
       <Stack gap={5}>
-        {contentHighlights.map((highlightSet) => <ContentHighlightSet key={uuidv4()} highlightSet={highlightSet} />)}
+        {mappedContentHighlightSetCards}
       </Stack>
     </Container>
   );

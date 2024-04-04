@@ -4,7 +4,7 @@ import React, {
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
@@ -21,12 +21,10 @@ import { shortenString } from '../course/data/utils';
 import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_PROGRAM, NO_PROGRAMS_ALERT_MESSAGE } from './constants';
 import getCommonSkills from './data/utils';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
-import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
 import { ProgramType } from '../search/SearchProgramCard';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 
-const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
+const linkToProgram = (program, slug, programUuid) => {
   if (!Object.keys(program).length) {
     return '#';
   }
@@ -34,31 +32,9 @@ const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
 };
 
 const SearchProgramCard = ({ index }) => {
-  const navigate = useNavigate();
-  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
-  const { slug, uuid } = enterpriseConfig;
-  const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodes },
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-
-  const searchCatalogs = useSearchCatalogs({
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    catalogsForSubsidyRequests,
-    redeemableLearnerCreditPolicies,
-  });
-
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
-    searchCatalogs,
-  });
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const filters = useDefaultSearchFilters();
 
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -151,16 +127,14 @@ const SearchProgramCard = ({ index }) => {
     if (isLoading) {
       return;
     }
-    const url = linkToProgram(program, slug, uuid, programUuids[program.aggregationKey].uuid);
     sendEnterpriseTrackEvent(
-      uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.program.clicked',
       {
         userId,
         programUuid: programUuids[program.aggregationKey].uuid,
       },
     );
-    navigate(url);
   };
 
   if (hitCount === 0) {
@@ -192,8 +166,15 @@ const SearchProgramCard = ({ index }) => {
           return (
             <Card
               key={uuidv4()}
+              className="d-inline-flex"
               isClickable
               isLoading={isLoading}
+              as={Link}
+              to={linkToProgram(
+                program,
+                enterpriseCustomer.slug,
+                programUuids[program.aggregationKey].uuid,
+              )}
               onClick={() => handleCardClick(program)}
               variant="dark"
               data-testid="search-program-card"
@@ -207,12 +188,12 @@ const SearchProgramCard = ({ index }) => {
               />
               <Card.Header
                 title={(
-                  <Truncate maxLine={3}>
+                  <Truncate lines={3}>
                     {program.title}
                   </Truncate>
                 )}
                 subtitle={program.authoringOrganizations?.length > 0 && (
-                  <Truncate maxLine={2}>
+                  <Truncate lines={2}>
                     {program.authoringOrganizations.map(org => org.key).join(', ')}
                   </Truncate>
                 )}

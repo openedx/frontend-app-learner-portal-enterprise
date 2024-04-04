@@ -1,10 +1,6 @@
-@import "@edx/brand/paragon/variables";
-@import "@openedx/paragon/scss/core/core";
-@import "@edx/brand/paragon/overrides";
-
 .program-faq {
   .program-section-heading {
-    color: #001b1e;
+    color: $primary-900;
   }
 
   .collapsible {
@@ -21,8 +17,7 @@
   .collapsible-trigger {
     font-weight: 700;
     font-size: 1.25rem;
-    font-family: Inter,Helvetica Neue,Arial,sans-serif;
-    color: #001b1e;
+    color: $primary-900;
     justify-content: flex-start !important;
   }
 
@@ -31,15 +26,14 @@
   }
 
   .collapsible-trigger:hover {
-    background-color: #f0f2f2;
+    background-color: $dark-100;
   }
 
   .collapsible-trigger[aria-expanded="true"] {
-    background-color: #f0f2f2;
+    background-color: $dark-100;
   }
 
   .collapsible-body {
-    font-family: Inter,Helvetica Neue,Arial,sans-serif;
     font-weight: 350;
   }
 }

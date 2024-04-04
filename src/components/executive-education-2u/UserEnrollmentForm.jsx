@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   Alert, Card, CheckboxControl, Col, Form, Hyperlink, MailtoLink, Row, StatefulButton,
@@ -19,26 +20,32 @@ import { checkoutExecutiveEducation2U, isDuplicateExternalCourseOrder, toISOStri
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
-import { enterpriseUserSubsidyQueryKeys } from '../enterprise-user-subsidy/data/constants';
+import {
+  queryCanRedeemContextQueryKey,
+  queryEnterpriseCourseEnrollments,
+  queryRedeemablePolicies,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+} from '../app/data';
+import { useUserSubsidyApplicableToCourse } from '../course/data';
 
 const UserEnrollmentForm = ({
   className,
   productSKU,
-  onCheckoutSuccess,
   activeCourseRun,
-  userSubsidyApplicableToCourse,
 }) => {
+  const navigate = useNavigate();
   const config = getConfig();
   const queryClient = useQueryClient();
   const intl = useIntl();
   const {
-    enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent },
     authenticatedUser: { userId, email: userEmail },
   } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  const { courseKey } = useParams();
   const {
-    state: {
-      userEnrollments,
-    },
     externalCourseFormSubmissionError,
     setExternalCourseFormSubmissionError,
   } = useContext(CourseContext);
@@ -51,17 +58,24 @@ const UserEnrollmentForm = ({
     if (!isNil(newTransaction) && newTransaction.state !== 'committed') {
       return;
     }
+
+    const canRedeemQueryKey = queryCanRedeemContextQueryKey(enterpriseCustomer.uuid, courseKey);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: canRedeemQueryKey }),
+      queryClient.invalidateQueries({
+        queryKey: queryRedeemablePolicies({
+          enterpriseUuid: enterpriseCustomer.uuid,
+          lmsUserId: userId,
+        }),
+      }),
+      queryClient.invalidateQueries({ queryKey: queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid) }),
+      sendEnterpriseTrackEventWithDelay(
+        enterpriseCustomer.uuid,
+        'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
+      ),
+    ]);
     setEnrollButtonState('complete');
-    await sendEnterpriseTrackEventWithDelay(
-      enterpriseId,
-      'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
-    );
-    await queryClient.invalidateQueries({
-      queryKey: enterpriseUserSubsidyQueryKeys.policy(),
-    });
-    if (onCheckoutSuccess) {
-      onCheckoutSuccess(newTransaction);
-    }
+    navigate('complete');
   };
 
   const { redeem } = useStatefulEnroll({
@@ -73,7 +87,7 @@ const UserEnrollmentForm = ({
       setEnrollButtonState('error');
       logError(error);
     },
-    userEnrollments,
+    userEnrollments: enterpriseCourseEnrollments,
   });
 
   const handleFormValidation = (values) => {
@@ -121,7 +135,7 @@ const UserEnrollmentForm = ({
         description: 'Error message for when student terms and conditions are not agreed to',
       });
     }
-    if (enableDataSharingConsent && !values.dataSharingConsent) {
+    if (enterpriseCustomer.enableDataSharingConsent && !values.dataSharingConsent) {
       errors.dataSharingConsent = intl.formatMessage({
         id: 'executive.education.external.course.enrollment.page.data.sharing.consent.required',
         defaultMessage: "Please agree to GetSmarter's data sharing consent",
@@ -132,7 +146,7 @@ const UserEnrollmentForm = ({
     // Only track validation errors during the initial submit
     if (!isFormSubmitted && errors) {
       sendEnterpriseTrackEvent(
-        enterpriseId,
+        enterpriseCustomer.uuid,
         'edx.ui.enterprise.learner_portal.executive_education.checkout_form.validation.failed',
         { errors },
       );
@@ -148,7 +162,7 @@ const UserEnrollmentForm = ({
       geagEmail: userEmail,
       geagDateOfBirth: values.dateOfBirth,
       geagTermsAcceptedAt: toISOStringWithoutMilliseconds(dayjs().toISOString()),
-      geagDataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
+      geagDataShareConsent: enterpriseCustomer.enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
     });
     try {
       await redeem({ metadata: userDetails });
@@ -168,13 +182,13 @@ const UserEnrollmentForm = ({
           dateOfBirth: values.dateOfBirth,
         },
         termsAcceptedAt: toISOStringWithoutMilliseconds(dayjs().toISOString()),
-        dataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
+        dataShareConsent: enterpriseCustomer.enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
       });
       await handleFormSubmissionSuccess();
     } catch (error) {
       const httpErrorStatus = error?.customAttributes?.httpErrorStatus;
       if (httpErrorStatus === 422 && error?.message?.includes('User has already purchased the product.')) {
-        logInfo(`${enterpriseId} user ${userId} has already purchased course ${productSKU}.`);
+        logInfo(`${enterpriseCustomer.uuid} user ${userId} has already purchased course ${productSKU}.`);
         await handleFormSubmissionSuccess();
       } else {
         setExternalCourseFormSubmissionError(error);
@@ -327,8 +341,7 @@ const UserEnrollmentForm = ({
                     </Form.Group>
                   </Col>
                 </Row>
-
-                {enableDataSharingConsent && (
+                {enterpriseCustomer.enableDataSharingConsent && (
                   <Row>
                     <Col>
                       <Form.Group>
@@ -392,7 +405,7 @@ const UserEnrollmentForm = ({
                                   target="_blank"
                                   onClick={() => {
                                     sendEnterpriseTrackEvent(
-                                      enterpriseId,
+                                      enterpriseCustomer.uuid,
                                       'edx.ui.enterprise.learner_portal.executive_education.checkout_form.student_terms_conditions.clicked',
                                     );
                                   }}
@@ -476,7 +489,6 @@ const UserEnrollmentForm = ({
 UserEnrollmentForm.propTypes = {
   className: PropTypes.string,
   productSKU: PropTypes.string.isRequired,
-  onCheckoutSuccess: PropTypes.func,
   activeCourseRun: PropTypes.shape({
     key: PropTypes.string.isRequired,
   }).isRequired,
@@ -488,7 +500,6 @@ UserEnrollmentForm.propTypes = {
 UserEnrollmentForm.defaultProps = {
   className: undefined,
   userSubsidyApplicableToCourse: undefined,
-  onCheckoutSuccess: undefined,
 };
 
 export default UserEnrollmentForm;
