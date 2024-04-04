@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -52,27 +52,27 @@ describe('SubscriptionStatusCard', () => {
     useHasAvailableSubsidiesOrRequests.mockReturnValue(mockHasAvailableSubsidiesOrRequests);
   });
   it('renders "Not Active" badge when no active license or license request', () => {
-    const { getByText } = render(<SubscriptionStatusCardWrapper />);
-    expect(getByText('Not Active')).toBeInTheDocument();
+    render(<SubscriptionStatusCardWrapper />);
+    expect(screen.getByText('Not Active')).toBeInTheDocument();
   });
 
   it('renders "Active" badge when there is an active license or license request', () => {
     useHasAvailableSubsidiesOrRequests.mockReturnValue(mockActiveLicense);
-    const { getByText } = render(<SubscriptionStatusCardWrapper />);
-    expect(getByText('Active')).toBeInTheDocument();
+    render(<SubscriptionStatusCardWrapper />);
+    expect(screen.getByText('Active')).toBeInTheDocument();
   });
 
   it('renders expiry date when subscription is active and has expiration date', () => {
     useHasAvailableSubsidiesOrRequests.mockReturnValue(mockActiveLicense);
     useSubscriptions.mockReturnValue({ data: { subscriptionPlan: mockExpiredSubscriptionPlan } });
-    const { getByText } = render(<SubscriptionStatusCardWrapper />);
-    expect(getByText('Available until')).toBeInTheDocument();
-    expect(getByText(dayjs(mockExpiredSubscriptionPlan.expirationDate).format('MMMM Do, YYYY')));
+    render(<SubscriptionStatusCardWrapper />);
+    expect(screen.getByText('Available until')).toBeInTheDocument();
+    expect(screen.getByText(dayjs(mockExpiredSubscriptionPlan.expirationDate).format('MMMM Do, YYYY')));
   });
 
   it('does not render expiry date when subscription is not active', () => {
     useSubscriptions.mockReturnValue({ data: { subscriptionPlan: mockExpiredSubscriptionPlan } });
-    const { queryByText } = render(<SubscriptionStatusCardWrapper />);
-    expect(queryByText(dayjs(mockExpiredSubscriptionPlan.expirationDate).format('MMMM Do, YYYY'))).toBeNull();
+    render(<SubscriptionStatusCardWrapper />);
+    expect(screen.queryByText(dayjs(mockExpiredSubscriptionPlan.expirationDate).format('MMMM Do, YYYY'))).toBeNull();
   });
 });

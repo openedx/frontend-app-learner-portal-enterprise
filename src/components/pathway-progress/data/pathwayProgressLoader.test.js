@@ -44,7 +44,7 @@ describe('programProgressLoader', () => {
     expect(mockQueryClient.ensureQueryData).not.toHaveBeenCalled();
   });
 
-  it('ensures the requisite program progress data is resolved', async () => {
+  it('ensures the requisite pathway progress data is resolved', async () => {
     renderWithRouterProvider(
       {
         path: '/:enterpriseSlug/pathway/:pathwayUUID/progress',

@@ -44,7 +44,7 @@ describe('academiesLoader', () => {
     expect(mockQueryClient.ensureQueryData).not.toHaveBeenCalled();
   });
 
-  it('ensures the requisite program progress data is resolved', async () => {
+  it('ensures the requisite academies data is resolved', async () => {
     renderWithRouterProvider(
       {
         path: '/:enterpriseSlug/academies/:academyUUID',
