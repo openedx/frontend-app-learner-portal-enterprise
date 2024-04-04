@@ -100,13 +100,10 @@ const CourseRunCard = ({
 
   const enrollmentUrl = useCourseEnrollmentUrl({
     enterpriseCustomer,
-    key,
     courseRunKey: key,
     location,
     sku,
-    subscriptionLicense,
     userSubsidyApplicableToCourse,
-    courseUuid: courseRun.courseUuid,
     isExecutiveEducation2UCourse,
   });
 

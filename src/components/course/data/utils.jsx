@@ -652,9 +652,13 @@ export const getSubsidyToApplyForCourse = ({
 }) => {
   if (applicableSubscriptionLicense) {
     return {
+      subsidyType: LICENSE_SUBSIDY_TYPE,
       discountType: 'percentage',
       discountValue: 100,
-      subsidyType: LICENSE_SUBSIDY_TYPE,
+      startDate: applicableSubscriptionLicense.startDate,
+      expirationDate: applicableSubscriptionLicense.expirationDate,
+      status: applicableSubscriptionLicense.status,
+      subsidyId: applicableSubscriptionLicense.uuid,
     };
   }
 
