@@ -15,6 +15,7 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
       isClickable
       as={Link}
       to={`/${enterpriseCustomer.slug}/pathway/${learnerPathwayProgress.uuid}/progress`}
+      data-testid="pathway-progress-listing-card"
     >
       <Card.ImageCap
         src={learnerPathwayProgress.cardImage || cardFallbackImg}
