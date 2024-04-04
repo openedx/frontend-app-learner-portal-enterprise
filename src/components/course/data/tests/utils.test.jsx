@@ -11,7 +11,6 @@ import {
   LICENSE_SUBSIDY_TYPE,
 } from '../constants';
 import {
-  courseUsesEntitlementPricing,
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getSubsidyToApplyForCourse,
@@ -381,24 +380,6 @@ describe('getSubsidyToApplyForCourse', () => {
     });
 
     expect(subsidyToApply).toBeUndefined();
-  });
-});
-
-describe('courseUsesEntitlementPricing', () => {
-  const mockEntitlementCourse = {
-    courseType: 'entitlement_course',
-  };
-
-  const mockNonEntitlementCourse = {
-    courseType: 'non_entitlement_course',
-  };
-
-  it('Returns true when course type included in COURSE_TYPE_CONFIG usesEntitlementListPrice is true', () => {
-    expect(courseUsesEntitlementPricing(mockEntitlementCourse)).toEqual(true);
-  });
-
-  it('Returns false when course type not included in COURSE_TYPE_CONFIG', () => {
-    expect(courseUsesEntitlementPricing(mockNonEntitlementCourse)).toEqual(false);
   });
 });
 

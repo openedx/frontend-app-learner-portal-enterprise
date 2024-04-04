@@ -799,14 +799,6 @@ export const checkPolicyRedemptionEnabled = ({
   return false;
 };
 
-export const courseUsesEntitlementPricing = (course) => {
-  const courseTypeConfig = getCourseTypeConfig(course);
-  if (courseTypeConfig) {
-    return courseTypeConfig.usesEntitlementListPrice;
-  }
-  return false;
-};
-
 export function getLinkToCourse(course, slug) {
   if (!Object.keys(course).length) {
     return '#';
