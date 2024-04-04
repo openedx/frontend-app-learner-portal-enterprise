@@ -1,4 +1,4 @@
-import { getConfig } from '@edx/frontend-platform';
+import { getConfig } from '@edx/frontend-platform/config';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
@@ -10,8 +10,8 @@ export async function fetchAcademies(enterpriseUUID, options = {}) {
     enterprise_customer: enterpriseUUID,
     ...options,
   });
-
-  const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies?${queryParams.toString()}`;
+  const { ENTERPRISE_CATALOG_API_BASE_URL } = getConfig();
+  const url = `${ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies?${queryParams.toString()}`;
 
   try {
     const { results } = await fetchPaginatedData(url);
@@ -23,8 +23,8 @@ export async function fetchAcademies(enterpriseUUID, options = {}) {
 }
 
 export async function fetchAcademiesDetail(academyUUID) {
-  const config = getConfig();
-  const url = `${config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies/${academyUUID}/`;
+  const { ENTERPRISE_CATALOG_API_BASE_URL } = getConfig();
+  const url = `${ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies/${academyUUID}/`;
   try {
     const result = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(result.data);

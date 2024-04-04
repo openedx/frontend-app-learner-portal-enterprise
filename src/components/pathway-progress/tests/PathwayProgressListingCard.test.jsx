@@ -5,54 +5,43 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import userEvent from '@testing-library/user-event';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import PathwayProgressCard from '../PathwayProgressCard';
 import LearnerPathwayProgressData from '../data/__mocks__/PathwayProgressListData.json';
 import { renderWithRouter } from '../../../utils/tests';
+import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
-const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate,
   useLocation: jest.fn(),
 }));
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn().mockReturnValue({
-    data: { slug: 'test-enterprise-slug' },
-  }),
+  useEnterpriseCustomer: jest.fn(),
 }));
 
-const PathwayProgressListingCardWithContext = ({ initialUserSubsidyState, pathwayData }) => (
+const PathwayProgressListingCardWrapper = ({ pathwayData }) => (
   <IntlProvider locale="en">
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <PathwayProgressCard pathway={pathwayData} />
-    </UserSubsidyContext.Provider>
+    <PathwayProgressCard pathway={pathwayData} />
   </IntlProvider>
 );
 
-const userSubsidyState = {
-  subscriptionLicense: {
-    uuid: 'test-license-uuid',
-  },
-  couponCodes: {
-    couponCodes: [],
-    couponCodesCount: 0,
-  },
-};
-
 const pathwayData = camelCaseObject(LearnerPathwayProgressData[0]);
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 describe('<PathwayProgressCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   it('renders all data related to pathway progress correctly', () => {
-    const { getByAltText } = renderWithRouter(<PathwayProgressListingCardWithContext
-      initialUserSubsidyState={userSubsidyState}
-      pathwayData={pathwayData}
-    />);
+    renderWithRouter(<PathwayProgressListingCardWrapper pathwayData={pathwayData} />);
     const { learnerPathwayProgress } = pathwayData;
     expect(screen.getByText(learnerPathwayProgress.title)).toBeInTheDocument();
-    const cardImageNode = getByAltText('dug');
+    const cardImageNode = screen.getByAltText('dug');
     expect(cardImageNode).toHaveAttribute('src', learnerPathwayProgress.cardImage);
     expect(screen.getByText('Remaining')).toBeInTheDocument();
     expect(screen.getByTestId('remaining-count')).toHaveTextContent('1');
@@ -63,11 +52,8 @@ describe('<PathwayProgressCard />', () => {
   });
 
   it('redirects to correct page when clicked', () => {
-    const { container } = renderWithRouter(<PathwayProgressListingCardWithContext
-      initialUserSubsidyState={userSubsidyState}
-      pathwayData={pathwayData}
-    />);
-    userEvent.click(container.firstElementChild);
-    expect(mockedNavigate).toHaveBeenCalledWith('/test-enterprise-slug/pathway/0a017cbe-0f1c-4e5f-9095-2101823fac93/progress');
+    renderWithRouter(<PathwayProgressListingCardWrapper pathwayData={pathwayData} />);
+    userEvent.click(screen.getByTestId('pathway-progress-listing-card'));
+    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/pathway/0a017cbe-0f1c-4e5f-9095-2101823fac93/progress`);
   });
 });
