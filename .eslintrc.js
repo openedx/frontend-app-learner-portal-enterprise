@@ -24,7 +24,7 @@ const config = createConfig('eslint', {
     indent: ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchCase'] }],
     'template-curly-spacing': 'off',
     'import/prefer-default-export': 'off',
-    'no-underscore-dangle': ['error', { allow: ['_ctx'] }],
+    'no-underscore-dangle': ['error', { allow: ['_ctx', '_def'] }],
   },
 });
 

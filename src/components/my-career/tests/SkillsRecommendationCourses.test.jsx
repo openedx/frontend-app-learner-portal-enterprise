@@ -8,8 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../utils/tests';
 import SkillsRecommendationCourses from '../SkillsRecommendationCourses';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
-import { useEnterpriseCustomer } from '../../app/data';
-import { useDefaultSearchFilters } from '../../search';
+import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
@@ -26,10 +25,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
-}));
-
-jest.mock('../../search', () => ({
-  ...jest.requireActual('../../search'),
   useDefaultSearchFilters: jest.fn(),
 }));
 

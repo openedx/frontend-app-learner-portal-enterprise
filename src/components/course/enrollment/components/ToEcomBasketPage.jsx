@@ -1,15 +1,14 @@
-import React, { useState, useContext } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { useSubsidyDataForCourse } from '../hooks';
 import EnrollModal from '../../EnrollModal';
-
 import { EnrollButtonCta } from '../common';
-import { CourseContext } from '../../CourseContextProvider';
 import {
   useOptimizelyEnrollmentClickHandler,
   useTrackSearchConversionClickHandler,
+  useUserSubsidyApplicableToCourse,
 } from '../../data';
+import { useCouponCodes, useCourseMetadata, useEnterpriseCourseEnrollments } from '../../../app/data';
 
 /**
  * ToEcom page component implemention for Enroll Button.
@@ -19,15 +18,15 @@ import {
  * @returns {Component} Rendered enroll button with a enrollment modal behavior included.
  */
 const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
-  const { userSubsidyApplicableToCourse, couponCodesCount } = useSubsidyDataForCourse();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  const { data: { couponCodeAssignments } } = useCouponCodes();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const {
-    state: {
+    data: {
       activeCourseRun: { key: courseRunKey },
-      userEnrollments,
     },
-  } = useContext(CourseContext);
+  } = useCourseMetadata();
+  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
 
   const analyticsHandler = useTrackSearchConversionClickHandler({
     href: enrollmentUrl,
@@ -37,7 +36,7 @@ const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
   const optimizelyHandler = useOptimizelyEnrollmentClickHandler({
     href: enrollmentUrl,
     courseRunKey,
-    userEnrollments,
+    userEnrollments: enterpriseCourseEnrollments,
   });
 
   const handleEnroll = (e) => {
@@ -58,7 +57,7 @@ const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
         enrollmentUrl={enrollmentUrl}
         courseRunPrice={courseRunPrice}
         userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-        couponCodesCount={couponCodesCount}
+        couponCodesCount={couponCodeAssignments.length}
         onEnroll={handleEnroll}
       />
     </>

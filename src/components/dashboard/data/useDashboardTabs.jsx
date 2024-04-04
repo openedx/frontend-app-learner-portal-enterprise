@@ -101,7 +101,7 @@ const useDashboardTabs = () => {
         })}
         disabled={enterprisePathways.length === 0}
       >
-        {activeTab === DASHBOARD_PATHWAYS_TAB && <PathwayProgressListingPage />})
+        {activeTab === DASHBOARD_PATHWAYS_TAB && <PathwayProgressListingPage />}
       </Tab>
     ),
     features.FEATURE_ENABLE_MY_CAREER && (

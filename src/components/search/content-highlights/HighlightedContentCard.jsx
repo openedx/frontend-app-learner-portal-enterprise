@@ -49,6 +49,7 @@ const HighlightedContentCard = ({
 
   return (
     <Card
+      className="d-inline-flex"
       as={Link}
       to={href}
       variant={variant}

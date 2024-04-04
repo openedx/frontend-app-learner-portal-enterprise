@@ -101,6 +101,7 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
 
   return (
     <Card
+      className="d-inline-flex"
       isLoading={isLoading}
       as={Link}
       to={linkToProgram}

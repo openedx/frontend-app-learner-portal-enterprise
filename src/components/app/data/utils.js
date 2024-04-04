@@ -4,7 +4,10 @@ import { logError } from '@edx/frontend-platform/logging';
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { getBrandColorsFromCSSVariables } from '../../../utils/common';
-import { COURSE_STATUSES } from '../../../constants';
+import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
+import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
+import { COURSE_AVAILABILITY_MAP, COURSE_MODES_MAP } from './constants';
+import { features } from '../../../config';
 
 /**
  * Check if system maintenance alert is open, based on configuration.
@@ -62,6 +65,7 @@ export function determineLearnerHasContentAssignmentsOnly({
 }) {
   const hasActiveLicense = !!(subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED);
   const hasActiveLicenseOrLicenseRequest = hasActiveLicense || licenseRequests.length > 0;
+
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
   const autoAppliedPolicyTypes = [
     POLICY_TYPES.PER_LEARNER_CREDIT,
@@ -408,4 +412,163 @@ export function retrieveErrorMessage(error) {
     return error.customAttributes.httpErrorResponseData;
   }
   return error.message;
+}
+
+/**
+ * Retrieves the number of buffer days allowed for late enrollments, if any policy
+ * has late redemption enabled.
+ * @param {Array} redeemablePolicies List of redeemable policies.
+ * @returns {number|undefined} - Returns the number of late redemption buffer days
+ *  if any policy has late redemption enabled.
+ */
+export function getLateRedemptionBufferDays(redeemablePolicies) {
+  const anyPolicyHasLateRedemptionEnabled = redeemablePolicies.some((policy) => (
+    // is_late_redemption_enabled=True on the serialized policy represents the fact that late
+    // redemption has been temporarily enabled by an operator for the policy. It will toggle
+    // itself back to False after a finite period of time.
+    policy.isLateRedemptionEnabled
+  ));
+  const isEnrollableBufferDays = anyPolicyHasLateRedemptionEnabled ? LATE_ENROLLMENTS_BUFFER_DAYS : undefined;
+  return isEnrollableBufferDays;
+}
+
+// See https://2u-internal.atlassian.net/wiki/spaces/WS/pages/8749811/Enroll+button+and+Course+Run+Selector+Logic
+// for more detailed documentation on course run selection and the enroll button.
+export function getActiveCourseRun(course) {
+  return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
+}
+
+export function isArchived(courseRun) {
+  if (courseRun.availability) {
+    return courseRun.availability === COURSE_AVAILABILITY_MAP.ARCHIVED;
+  }
+  return false;
+}
+
+/**
+ * Returns list of available that are marketable, enrollable, and not archived.
+ *
+ * @param {object} course
+ * @returns List of course runs.
+ */
+export function getAvailableCourseRuns({ course, isEnrollableBufferDays }) {
+  if (!course?.courseRuns) {
+    return [];
+  }
+  const availableCourseRunsFilter = (courseRun) => {
+    if (!courseRun.isMarketable || isArchived(courseRun)) {
+      return false;
+    }
+
+    if (isEnrollableBufferDays === undefined) {
+      return courseRun.isEnrollable;
+    }
+
+    const today = dayjs();
+    if (courseRun.enrollmentStart && today.isBefore(dayjs(courseRun.enrollmentStart))) {
+      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
+      return courseRun.isEnrollable;
+    }
+    if (!courseRun.enrollmentEnd) {
+      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
+      return courseRun.isEnrollable;
+    }
+    const bufferedEnrollDeadline = dayjs(courseRun.enrollmentEnd).add(isEnrollableBufferDays, 'day');
+    return today.isBefore(bufferedEnrollDeadline);
+  };
+  return course.courseRuns.filter(availableCourseRunsFilter);
+}
+
+export function getCatalogsForSubsidyRequests({
+  browseAndRequestConfiguration,
+  customerAgreement,
+  couponsOverview,
+}) {
+  const catalogs = [];
+  if (!browseAndRequestConfiguration.subsidyRequestsEnabled) {
+    return catalogs;
+  }
+  if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE) {
+    const catalogsFromSubscriptions = customerAgreement.availableSubscriptionCatalogs;
+    catalogs.push(...catalogsFromSubscriptions);
+  }
+  if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
+    const catalogsFromCoupons = couponsOverview
+      .filter(coupon => !!coupon.available)
+      .map(coupon => coupon.enterpriseCatalogUuid);
+    catalogs.push(...new Set(catalogsFromCoupons));
+  }
+  return catalogs;
+}
+
+export function getSearchCatalogs({
+  redeemablePolicies,
+  subscriptionLicense,
+  couponCodeAssignments,
+  currentEnterpriseOffers,
+  catalogsForSubsidyRequests,
+}) {
+  // Track catalog uuids to include in search with a Set to avoid duplicates.
+  const catalogUUIDs = new Set();
+
+  // Scope to catalogs from redeemable subsidy access policies, coupons,
+  // enterprise offers, or subscription plan associated with learner's license.
+  redeemablePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
+
+  if (subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
+    catalogUUIDs.add(subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid);
+  }
+  if (features.ENROLL_WITH_CODES) {
+    const availableCouponCodes = couponCodeAssignments.filter(couponCode => couponCode.available);
+    availableCouponCodes.forEach((couponCode) => catalogUUIDs.add(couponCode.catalog));
+  }
+
+  if (features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS) {
+    currentEnterpriseOffers.forEach((offer) => catalogUUIDs.add(offer.enterpriseCatalogUuid));
+  }
+
+  // Scope to catalogs associated with assignable subsidies if browse and request is turned on
+  catalogsForSubsidyRequests.forEach((catalog) => catalogUUIDs.add(catalog));
+
+  // Convert Set back to array
+  return Array.from(catalogUUIDs);
+}
+
+const getBestCourseMode = (courseModes) => {
+  const {
+    VERIFIED,
+    PROFESSIONAL,
+    NO_ID_PROFESSIONAL,
+    AUDIT,
+    HONOR,
+    PAID_EXECUTIVE_EDUCATION,
+  } = COURSE_MODES_MAP;
+
+  // Returns the 'highest' course mode available.
+  // Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit', 'honor', 'paid-executive-education']
+  const courseModesByRank = [VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, PAID_EXECUTIVE_EDUCATION, AUDIT, HONOR];
+  const bestCourseMode = courseModesByRank.find((courseMode) => courseModes.includes(courseMode));
+  return bestCourseMode || null;
+};
+
+/**
+ * Returns the first seat found from the preferred course mode.
+ */
+export function findHighestLevelSkuByEntityModeType(seatsOrEntitlements, getModeType) {
+  const courseModes = seatsOrEntitlements.map(getModeType);
+  const courseMode = getBestCourseMode(courseModes);
+  if (courseMode) {
+    return seatsOrEntitlements.find(entity => getModeType(entity) === courseMode)?.sku;
+  }
+  return null;
+}
+
+/**
+ * Returns the first entitlement found from the preferred course mode
+ */
+export function findHighestLevelEntitlementSku(entitlements) {
+  if (!entitlements || entitlements.length <= 0) {
+    return null;
+  }
+  return findHighestLevelSkuByEntityModeType(entitlements, entitlement => entitlement.mode);
 }

@@ -13,10 +13,10 @@ import { SkillsContext } from './SkillsContextProvider';
 import { NO_COURSES_ALERT_MESSAGE } from './constants';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import CourseCard from './CourseCard';
-import { useDefaultSearchFilters } from '../search';
+import { useDefaultSearchFilters } from '../app/data';
 
 const SearchCourseCard = ({ index }) => {
-  const { filters } = useDefaultSearchFilters();
+  const filters = useDefaultSearchFilters();
 
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);

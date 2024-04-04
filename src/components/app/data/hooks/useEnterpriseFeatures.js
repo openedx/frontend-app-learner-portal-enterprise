@@ -1,4 +1,4 @@
-import { useEnterpriseLearner } from '../app/data';
+import useEnterpriseLearner from './useEnterpriseLearner';
 
 export default function useEnterpriseFeatures(queryOptions = {}) {
   const { select, ...queryOptionsRest } = queryOptions;

@@ -39,6 +39,7 @@ jest.mock('../../app/data', () => ({
   useContentHighlightsConfiguration: jest.fn(() => ({ data: {} })),
   useCanOnlyViewHighlights: jest.fn(() => ({ data: {} })),
   useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
+  useDefaultSearchFilters: jest.fn().mockReturnValue([]),
 }));
 
 jest.mock('../../../config', () => ({

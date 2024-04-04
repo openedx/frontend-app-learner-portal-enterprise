@@ -6,9 +6,9 @@ import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import ProgramListingPage from '../ProgramListingPage';
 import { renderWithRouter } from '../../../utils/tests';
-import { CONTENT_TYPE_PROGRAM } from '../../search/constants';
 import { useCanOnlyViewHighlights, useEnterpriseCustomer, useEnterpriseProgramsList } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { CONTENT_TYPE_PROGRAM } from '../../search/constants';
 
 const dummyProgramData = {
   uuid: 'test-uuid',

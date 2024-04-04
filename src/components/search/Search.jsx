@@ -29,11 +29,11 @@ import {
   useEnterpriseCustomer,
   useEnterpriseOffers,
   useCanOnlyViewHighlights,
+  useEnterpriseFeatures,
+  useDefaultSearchFilters,
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
-import { useEnterpriseFeatures } from '../hooks';
 import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
-import { useDefaultSearchFilters } from './data';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -68,7 +68,7 @@ const Search = () => {
   const navigate = useNavigate();
 
   const { refinements } = useContext(SearchContext);
-  const { filters } = useDefaultSearchFilters();
+  const filters = useDefaultSearchFilters();
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
 
   // Flag to toggle highlights visibility

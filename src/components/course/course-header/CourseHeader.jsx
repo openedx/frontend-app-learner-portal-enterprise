@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import classNames from 'classnames';
 import {
   Breadcrumb,
@@ -6,11 +6,11 @@ import {
   Row,
   Col,
   Badge,
+  Hyperlink,
 } from '@openedx/paragon';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
-import { CourseContext } from '../CourseContextProvider';
 import CourseSkills from '../CourseSkills';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollmentFailedAlert';
 import CourseRunCards from './CourseRunCards';
@@ -18,7 +18,6 @@ import CourseRunCards from './CourseRunCards';
 import {
   getDefaultProgram,
   formatProgramType,
-  isArchived,
 } from '../data/utils';
 import { useCoursePartners, useIsCourseAssigned } from '../data/hooks';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
@@ -26,76 +25,86 @@ import SubsidyRequestButton from '../SubsidyRequestButton';
 import CourseReview from '../CourseReview';
 
 import CoursePreview from './CoursePreview';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { features } from '../../../config';
 import CourseMaterialsButton from '../CourseMaterialsButton';
-import { useEnterpriseCustomer } from '../../app/data';
+import {
+  isArchived,
+  useCourseMetadata,
+  useCourseRedemptionEligibility,
+  useEnterpriseCustomer,
+  useEnterpriseCustomerContainsContent,
+  useIsAssignmentsOnlyLearner,
+} from '../../app/data';
 
 const CourseHeader = () => {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const {
-    state: {
-      course,
-      catalog,
-    },
-    isPolicyRedemptionEnabled,
-  } = useContext(CourseContext);
-  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies.learnerContentAssignments, course?.key);
-  const isCourseArchived = (course.courseRuns)?.every((courseRun) => isArchived(courseRun));
-  const [partners] = useCoursePartners(course);
-
-  const defaultProgram = useMemo(
-    () => getDefaultProgram(course.programs),
-    [course],
-  );
   const location = useLocation();
+  const { courseKey } = useParams();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: courseMetadata } = useCourseMetadata();
+  const { data: { isPolicyRedemptionEnabled } } = useCourseRedemptionEligibility();
+  const { data: { containsContentItems } } = useEnterpriseCustomerContainsContent([courseKey]);
+  const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();
+  const isCourseAssigned = useIsCourseAssigned();
+  const isCourseArchived = courseMetadata.courseRuns.every((courseRun) => isArchived(courseRun));
+  const [partners] = useCoursePartners(courseMetadata);
+  const defaultProgram = useMemo(
+    () => getDefaultProgram(courseMetadata.programs),
+    [courseMetadata],
+  );
   const routeLinks = [
     {
       label: 'Find a Course',
       to: `/${enterpriseCustomer.slug}/search`,
     },
   ];
-  if (location?.state?.parentRoute) {
+  if (location.state?.parentRoute) {
     routeLinks.push(location.state.parentRoute);
   }
 
   return (
     <div className="course-header">
-      <LicenseRequestedAlert catalogList={catalog.catalogList} />
+      <LicenseRequestedAlert />
       <CourseEnrollmentFailedAlert enrollmentSource={ENROLLMENT_SOURCE.COURSE_PAGE} />
       <Container size="lg">
         <Row className="py-4">
           <Col xs={12} lg={7}>
-            {!enterpriseCustomer.disableSearch && (
-              <div className="small">
+            {(!enterpriseCustomer.disableSearch && !isAssignmentsOnlyLearner) && (
+              <div className="small mb-4">
                 <Breadcrumb
                   links={routeLinks}
-                  activeLabel={course.title}
+                  activeLabel={courseMetadata.title}
                   linkAs={Link}
                 />
               </div>
             )}
             {partners.length > 0 && (
-              <div className="mt-4 mb-2 course-header__partner-logos">
+              <div className="mb-2 course-header__partner-logos">
                 {partners.map(partner => (
-                  <a
-                    href={partner.marketingUrl}
+                  <Hyperlink
+                    destination={partner.marketingUrl}
                     key={partner.uuid}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    showLaunchIcon={false}
                   >
                     <img
                       src={partner.logoImageUrl}
                       alt={`${partner.name} logo`}
                       style={{ maxWidth: 160, maxHeight: 144 }}
                     />
-                  </a>
+                  </Hyperlink>
                 ))}
               </div>
             )}
-            <div className={classNames({ 'mb-4': !course.shortDescription, 'd-flex': true, 'align-items-center': true })}>
-              <h2>{course.title}</h2>
+            <div
+              className={classNames(
+                'd-flex align-items-center',
+                {
+                  'mb-4': !courseMetadata.shortDescription,
+                  'mb-2': courseMetadata.shortDescription,
+                },
+              )}
+            >
+              <h2 className="mb-0">{courseMetadata.title}</h2>
               {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned) && (
                 <Badge variant="info" className="ml-4">
                   <FormattedMessage
@@ -106,16 +115,16 @@ const CourseHeader = () => {
                 </Badge>
               )}
             </div>
-            {course.shortDescription && (
+            {courseMetadata.shortDescription && (
               <div
                 className="lead font-weight-normal mb-4"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: course.shortDescription }}
+                dangerouslySetInnerHTML={{ __html: courseMetadata.shortDescription }}
               />
             )}
-            {course.skills?.length > 0 && <CourseSkills />}
+            <CourseSkills />
             {isPolicyRedemptionEnabled && <CourseRunCards />}
-            {catalog.containsContentItems && (
+            {containsContentItems && (
               <>
                 {!isPolicyRedemptionEnabled && <CourseRunCards />}
                 <SubsidyRequestButton />
@@ -124,44 +133,42 @@ const CourseHeader = () => {
           </Col>
           <Col xs={12} lg={{ span: 4, offset: 1 }} className="mt-3 mt-lg-0">
             <CoursePreview
-              previewImage={course?.image?.src || course?.video?.image}
-              previewVideoURL={course?.video?.src}
+              previewImage={courseMetadata.image?.src || courseMetadata.video?.image}
+              previewVideoURL={courseMetadata.video?.src}
             />
           </Col>
-          <Col xs={12} lg={12}>
-            {catalog.containsContentItems && (
-              <>
-                <CourseReview />
-                {defaultProgram && (
-                  <p className="font-weight-bold mt-3 mb-0">
-                    <FormattedMessage
-                      id="enterprise.course.about.page.course.part.of.program"
-                      defaultMessage="This course is part of a {programType}."
-                      description="Message for when a course is part of a program"
-                      values={{
-                        programType: formatProgramType(defaultProgram?.type),
-                      }}
-                    />
-                  </p>
-                )}
-              </>
-            )}
-            {!catalog.containsContentItems && isCourseArchived && (
-              <p className="d-block font-weight-bold mt-3 mb-0">
+          <Col xs={12}>
+            <CourseReview />
+            {defaultProgram && (
+              <p className="font-weight-bold mt-3 mb-0">
                 <FormattedMessage
-                  id="enterprise.course.about.page.course.not.in.catalog.and.archived"
-                  defaultMessage="This course is archived."
-                  description="Message for when a course is archived and not part of the company's curated course catalog"
+                  id="enterprise.course.about.page.course.part.of.program"
+                  defaultMessage="This course is part of a {programType}."
+                  description="Message for when a course is part of a program"
+                  values={{
+                    programType: formatProgramType(defaultProgram.type),
+                  }}
                 />
-                <CourseMaterialsButton course={course} />
               </p>
             )}
-            {!catalog.containsContentItems && !isCourseArchived && (
+            {isCourseArchived && (
+              <>
+                <p className="d-block font-weight-bold mt-3 mb-0">
+                  <FormattedMessage
+                    id="enterprise.course.about.page.course.not.in.catalog.and.archived"
+                    defaultMessage="This course is archived."
+                    description="Message for when a course is archived and not part of the company's curated course catalog"
+                  />
+                </p>
+                <CourseMaterialsButton className="mt-3" />
+              </>
+            )}
+            {!containsContentItems && !isCourseArchived && (
               <p className="font-weight-bold mt-3 mb-0">
                 <FormattedMessage
                   id="enterprise.course.about.page.course.not.in.catalog"
-                  defaultMessage="This course is not part of your company's curated course catalog."
-                  description="Message for when a course is not part of the company's curated course catalog"
+                  defaultMessage="This course is not part of your organization's curated course catalog."
+                  description="Message for when a course is not part of the organization's curated course catalog"
                 />
               </p>
             )}

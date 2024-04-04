@@ -1,5 +1,5 @@
+import { getActiveCourseRun } from '../app/data';
 import { PAID_EXECUTIVE_EDUCATION } from '../course/data/constants';
-import { getActiveCourseRun } from '../course/data/utils';
 
 const getCourseOrganizationDetails = (courseData) => {
   const organizationDetails = {};

@@ -10,7 +10,6 @@ import useSubscriptions from './useSubscriptions';
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
   const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
-
   if (!learnerCreditPolicyExpiringFirst && !enterpriseOfferExpiringFirst) {
     return undefined;
   }
@@ -48,7 +47,6 @@ export default function useHasAvailableSubsidiesOrRequests() {
     subscriptions.subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
       || requests.subscriptionLicenses.length > 0
   );
-
   const hasAssignedCodesOrCodeRequests = (
     couponCodes.couponCodeAssignments.length > 0
       || requests.couponCodes.length > 0

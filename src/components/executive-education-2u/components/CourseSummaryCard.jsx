@@ -8,16 +8,19 @@ import {
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { numberWithPrecision } from '../../course/data/utils';
 import { DATE_FORMAT, ZERO_PRICE } from '../../course/data/constants';
+import { useMinimalCourseMetadata } from '../../course/data/hooks';
 
-const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => {
+const CourseSummaryCard = ({ enrollmentCompleted }) => {
+  const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
+
   let coursePrice = null;
-  const precisePrice = courseMetadata?.priceDetails?.price ? `$${numberWithPrecision(
-    courseMetadata.priceDetails.price,
-  )} ${courseMetadata.priceDetails.currency}` : '-';
-  if (enrollmentCompleted && courseMetadata?.priceDetails?.price) {
+  const precisePrice = minimalCourseMetadata.priceDetails?.price ? `$${numberWithPrecision(
+    minimalCourseMetadata.priceDetails.price,
+  )} ${minimalCourseMetadata.priceDetails.currency}` : '-';
+  if (enrollmentCompleted && minimalCourseMetadata.priceDetails?.price) {
     coursePrice = (
       <><del>{precisePrice}</del>
-        ${numberWithPrecision(ZERO_PRICE)} {courseMetadata.priceDetails.currency}
+        ${numberWithPrecision(ZERO_PRICE)} {minimalCourseMetadata.priceDetails.currency}
       </>
     );
   } else {
@@ -32,8 +35,8 @@ const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => {
       <Card.Body>
         <Card.Header
           title={(
-            <Hyperlink destination={courseMetadata.organization.marketingUrl}>
-              <Image src={courseMetadata.organization.logoImgUrl} />
+            <Hyperlink destination={minimalCourseMetadata.organization.marketingUrl}>
+              <Image src={minimalCourseMetadata.organization.logoImgUrl} />
             </Hyperlink>
           )}
         />
@@ -42,8 +45,8 @@ const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => {
             <Col xs={12} lg={{ span: 8, offset: 0 }} className="vertical">
               <Row>
                 <Col xs={12} lg={{ span: 8, offset: 0 }}>
-                  <p className="small font-weight-light text-gray-500">{courseMetadata.organization.name}</p>
-                  <p>{courseMetadata.title}</p>
+                  <p className="small font-weight-light text-gray-500">{minimalCourseMetadata.organization.name}</p>
+                  <p>{minimalCourseMetadata.title}</p>
                 </Col>
               </Row>
             </Col>
@@ -68,7 +71,7 @@ const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => {
                         )
                     }
                   </Col>
-                  <Col className="justify-content-end"><Row className="justify-content-end mr-2.5">{dayjs(courseMetadata.startDate).format(DATE_FORMAT)}</Row></Col>
+                  <Col className="justify-content-end"><Row className="justify-content-end mr-2.5">{dayjs(minimalCourseMetadata.startDate).format(DATE_FORMAT)}</Row></Col>
                 </Row>
                 <Row className="align-items-center">
                   <Col className="small font-weight-light text-gray-500 justify-content-start">
@@ -78,7 +81,7 @@ const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => {
                       description="Showing duration of the course while enrolling executive education course"
                     />
                   </Col>
-                  <Col className="justify-content-end"><Row className="justify-content-end mr-2.5">{courseMetadata.duration}</Row></Col>
+                  <Col className="justify-content-end"><Row className="justify-content-end mr-2.5">{minimalCourseMetadata.duration}</Row></Col>
                 </Row>
                 <Row className="align-items-center">
                   <Col className="small font-weight-light text-gray-500 justify-content-start">
@@ -109,20 +112,6 @@ CourseSummaryCard.defaultProps = {
 
 CourseSummaryCard.propTypes = {
   enrollmentCompleted: PropTypes.bool,
-  courseMetadata: PropTypes.shape({
-    organization: PropTypes.shape({
-      name: PropTypes.string,
-      marketingUrl: PropTypes.string,
-      logoImgUrl: PropTypes.string,
-    }).isRequired,
-    title: PropTypes.string.isRequired,
-    startDate: PropTypes.string.isRequired,
-    duration: PropTypes.string.isRequired,
-    priceDetails: PropTypes.shape({
-      price: PropTypes.number.isRequired,
-      currency: PropTypes.string.isRequired,
-    }),
-  }).isRequired,
 };
 
 export default CourseSummaryCard;

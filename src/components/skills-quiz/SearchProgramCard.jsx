@@ -22,8 +22,7 @@ import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_PROGRAM, NO_PROGRAMS_ALERT_
 import getCommonSkills from './data/utils';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { ProgramType } from '../search/SearchProgramCard';
-import { useEnterpriseCustomer } from '../app/data';
-import { useDefaultSearchFilters } from '../search';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 
 const linkToProgram = (program, slug, programUuid) => {
   if (!Object.keys(program).length) {
@@ -35,7 +34,7 @@ const linkToProgram = (program, slug, programUuid) => {
 const SearchProgramCard = ({ index }) => {
   const { authenticatedUser: { userId } } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { filters } = useDefaultSearchFilters();
+  const filters = useDefaultSearchFilters();
 
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -167,6 +166,7 @@ const SearchProgramCard = ({ index }) => {
           return (
             <Card
               key={uuidv4()}
+              className="d-inline-flex"
               isClickable
               isLoading={isLoading}
               as={Link}

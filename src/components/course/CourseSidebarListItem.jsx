@@ -19,7 +19,7 @@ const CourseSidebarListItem = ({
 );
 
 CourseSidebarListItem.propTypes = {
-  icon: PropTypes.shape().isRequired,
+  icon: PropTypes.elementType.isRequired,
   label: PropTypes.string.isRequired,
   content: PropTypes.node.isRequired,
 };

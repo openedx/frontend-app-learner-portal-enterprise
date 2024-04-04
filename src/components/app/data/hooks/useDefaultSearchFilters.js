@@ -5,7 +5,7 @@ import {
   setRefinementAction,
   SHOW_ALL_NAME,
 } from '@edx/frontend-enterprise-catalog-search';
-import { useEnterpriseCustomer } from '../../../app/data';
+import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
 
 export default function useDefaultSearchFilters() {
@@ -37,5 +37,5 @@ export default function useDefaultSearchFilters() {
     [enterpriseCustomer.uuid, searchCatalogs, showAllRefinement],
   );
 
-  return { filters };
+  return filters;
 }

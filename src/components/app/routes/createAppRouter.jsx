@@ -4,10 +4,7 @@ import {
 } from 'react-router-dom';
 
 import RouteErrorBoundary from './RouteErrorBoundary';
-import {
-  makeCourseLoader,
-  makeRootLoader,
-} from './loaders';
+import { makeRootLoader } from './loaders';
 import Root from '../Root';
 import Layout from '../Layout';
 import NotFoundPage from '../../NotFoundPage';
@@ -124,9 +121,9 @@ export default function createAppRouter(queryClient) {
           <Route
             path=":courseType?/course/:courseKey/*"
             lazy={async () => {
-              const { default: CourseRoute } = await import('./CourseRoute');
+              const { CoursePage, makeCourseLoader } = await import('../../course');
               return {
-                Component: CourseRoute,
+                Component: CoursePage,
                 loader: makeCourseLoader(queryClient),
               };
             }}
@@ -136,7 +133,44 @@ export default function createAppRouter(queryClient) {
                 showSiteFooter={false}
               />
             )}
-          />
+          >
+            <Route
+              index
+              lazy={async () => {
+                const { default: CourseAbout } = await import('../../course/routes/CourseAbout');
+                return {
+                  Component: CourseAbout,
+                };
+              }}
+            />
+            <Route
+              path="enroll/:courseRunKey"
+              element={<Outlet />}
+            >
+              <Route
+                index
+                lazy={async () => {
+                  const {
+                    default: ExternalCourseEnrollment,
+                    makeExternalCourseEnrollmentLoader,
+                  } = await import('../../course/routes/ExternalCourseEnrollment');
+                  return {
+                    Component: ExternalCourseEnrollment,
+                    loader: makeExternalCourseEnrollmentLoader(queryClient),
+                  };
+                }}
+              />
+              <Route
+                path="complete"
+                lazy={async () => {
+                  const { default: ExternalCourseEnrollmentConfirmation } = await import('../../course/routes/ExternalCourseEnrollmentConfirmation');
+                  return {
+                    Component: ExternalCourseEnrollmentConfirmation,
+                  };
+                }}
+              />
+            </Route>
+          </Route>
           <Route
             path="licenses/:activationKey/activate"
             lazy={async () => {

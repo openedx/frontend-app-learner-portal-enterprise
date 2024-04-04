@@ -17,3 +17,19 @@ export const emptyRedeemableLearnerCreditPolicies = {
     hasAssignmentsForDisplay: false,
   },
 };
+
+export const COURSE_AVAILABILITY_MAP = {
+  CURRENT: 'Current',
+  UPCOMING: 'Upcoming',
+  STARTING_SOON: 'Starting Soon',
+  ARCHIVED: 'Archived',
+};
+
+export const COURSE_MODES_MAP = {
+  VERIFIED: 'verified',
+  PROFESSIONAL: 'professional',
+  NO_ID_PROFESSIONAL: 'no-id-professional',
+  AUDIT: 'audit',
+  HONOR: 'honor',
+  PAID_EXECUTIVE_EDUCATION: 'paid-executive-education',
+};

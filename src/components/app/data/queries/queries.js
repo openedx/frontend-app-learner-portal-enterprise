@@ -1,6 +1,6 @@
-import { getAvailableCourseRuns } from '../../../course/data/utils';
 import queries from './queryKeyFactory';
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
+import { getAvailableCourseRuns } from '../utils';
 
 /**
  * Helper function to assist querying with useQuery package
@@ -94,18 +94,43 @@ export function queryEnterprisePathwaysList(enterpriseUuid) {
  * Helper function to assist querying with useQuery package
  *
  * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.course
- * ._ctx.contentMetadata(courseKey)
+ * .content
+ * .course(courseKey, courseRunKey)
  * @returns {Types.QueryOptions}
  */
-export function queryCourseMetadata(enterpriseUuid, courseKey) {
+export function queryCourseMetadata(courseKey, courseRunKey) {
+  return queries
+    .content
+    .course(courseKey)
+    ._ctx.metadata(courseRunKey);
+}
+
+/**
+ * Helper function to assist with generating the query.
+ * @param {string} courseKey
+ * @returns {Types.QueryOptions}
+ */
+export function queryCourseReviews(courseKey) {
+  return queries
+    .content
+    .course(courseKey)
+    ._ctx.reviews;
+}
+
+/**
+ * Helper function to assist querying with useQuery package.
+ *
+ * @param {*} enterpriseUuid
+ * @param {*} courseKey
+ * @param {*} searchCatalogs
+ * @returns {Types.QueryOptions}
+ */
+export function queryCourseRecommendations(enterpriseUuid, courseKey, searchCatalogs) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course
-    ._ctx.contentMetadata(courseKey);
+    ._ctx.course(courseKey)
+    ._ctx.recommendations(searchCatalogs);
 }
 
 /**
@@ -180,6 +205,14 @@ export function queryContentHighlightSets(enterpriseUuid) {
     ._ctx.highlightSets;
 }
 
+export function queryCanRedeemContextQueryKey(enterpriseUuid, courseKey) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course(courseKey)
+    ._ctx.canRedeem._def;
+}
+
 /**
  * Helper function to assist querying with useQuery package
  *
@@ -190,12 +223,16 @@ export function queryContentHighlightSets(enterpriseUuid) {
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
  */
-export function queryCanRedeem(enterpriseUuid, courseMetadata) {
-  const availableCourseRunKeys = getAvailableCourseRuns(courseMetadata).map(courseRun => courseRun.key);
+export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBufferDays) {
+  const availableCourseRuns = getAvailableCourseRuns({
+    course: courseMetadata,
+    isEnrollableBufferDays,
+  });
+  const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course
+    ._ctx.course(courseMetadata.key)
     ._ctx.canRedeem(availableCourseRunKeys);
 }
 
@@ -233,6 +270,21 @@ export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
     ._ctx.subsidies
     ._ctx.policy
     ._ctx.redeemablePolicies(lmsUserId);
+}
+
+/**
+ * Helper function to assist querying with useQuery package.
+ * @param {string} enterpriseUuid
+ * @param {Object} transaction
+ * @returns {Types.QueryOptions}
+ */
+export function queryPolicyTransaction(enterpriseUuid, transaction) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.policy
+    ._ctx.policyTransaction(transaction);
 }
 
 /**
@@ -289,6 +341,14 @@ export function queryBrowseAndRequestConfiguration(enterpriseUuid) {
     ._ctx.subsidies
     ._ctx.browseAndRequest
     ._ctx.configuration;
+}
+
+export function queryRequestsContextQueryKey(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.browseAndRequest._ctx.requests._def;
 }
 
 /**

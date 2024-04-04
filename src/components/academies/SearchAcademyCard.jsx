@@ -1,7 +1,5 @@
-import React from 'react';
-import {
-  Card, Hyperlink, Image,
-} from '@openedx/paragon';
+import { Link } from 'react-router-dom';
+import { Card, Image } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 
 import { useEnterpriseCustomer } from '../app/data';
@@ -15,17 +13,14 @@ const SearchAcademyCard = ({
   return (
     <Card
       isClickable
-      as={Hyperlink}
+      as={Link}
       isLoading={isLoading}
-      destination={`/${enterpriseCustomer.slug}/academies/${uuid}/`}
-      className="academy-card"
+      to={`/${enterpriseCustomer.slug}/academies/${uuid}/`}
+      className="academy-card d-inline-flex"
     >
       <Card.Header title={title} />
-      <Card.Section>
-        {shortDescription}
-      </Card.Section>
-      <br />
-      <br />
+      <Card.Section>{shortDescription}</Card.Section>
+      <Card.Section />
       <Card.Section className="clearfix">
         <Image className="float-right academy-card-image" src={image} />
       </Card.Section>

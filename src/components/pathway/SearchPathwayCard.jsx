@@ -117,6 +117,7 @@ const SearchPathwayCard = ({
       )}
       <Card
         data-testid="search-pathway-card"
+        className="d-inline-flex"
         isClickable
         isLoading={isLoading}
         as={Link}

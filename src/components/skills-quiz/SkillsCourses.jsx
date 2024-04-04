@@ -26,8 +26,7 @@ import {
 } from './constants';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 import CourseCard from './CourseCard';
-import { useEnterpriseCustomer } from '../app/data';
-import { useDefaultSearchFilters } from '../search';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 
 const SkillsCourses = ({ index }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -37,7 +36,7 @@ const SkillsCourses = ({ index }) => {
   const [hitCount, setHitCount] = useState(undefined);
   const { refinements: { skill_names: skills } } = useContext(SearchContext);
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
-  const { filters } = useDefaultSearchFilters();
+  const filters = useDefaultSearchFilters();
 
   const skillsFacetFilter = useMemo(
     () => {

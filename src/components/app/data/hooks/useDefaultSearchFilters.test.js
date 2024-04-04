@@ -2,16 +2,12 @@ import { renderHook } from '@testing-library/react-hooks';
 import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catalog-search';
 import React from 'react';
 import { SearchContext, SHOW_ALL_NAME } from '@edx/frontend-enterprise-catalog-search';
-import { useDefaultSearchFilters } from './index';
-import { useEnterpriseCustomer } from '../../../app/data';
+import useDefaultSearchFilters from './useDefaultSearchFilters';
+import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
-import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import { enterpriseCustomerFactory } from '../services/data/__factories__';
 
-jest.mock('../../../app/data', () => ({
-  ...jest.requireActual('../../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-}));
-
+jest.mock('./useEnterpriseCustomer', () => jest.fn());
 jest.mock('./useSearchCatalogs', () => jest.fn());
 
 jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
@@ -20,6 +16,7 @@ jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
 }));
 
 jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useLocation: () => ({
     search: '?q=test%20query&subjects=Computer%20Science,Communication&availability=Upcoming&ignore=true',
   }),
@@ -52,8 +49,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    const { filters } = result.current;
-    expect(filters).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
     expect(mockDispatch).toHaveBeenCalled();
   });
 
@@ -63,8 +59,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) },
     );
-    const { filters } = result.current;
-    expect(filters).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
 
   // TODO: Fix this test
@@ -78,8 +73,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    const { filters } = result.current;
-    expect(filters).toEqual(frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs));
+    expect(result.current).toEqual(frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs));
   });
 
   it('should return aggregated catalog string if searchCatalogs.length === 0', () => {
@@ -88,7 +82,6 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    const { filters } = result.current;
-    expect(filters).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
 });
