@@ -219,8 +219,9 @@ export async function fetchSubscriptions(enterpriseUUID) {
       response,
     } = await fetchPaginatedData(url);
     const { customerAgreement } = response;
-    customerAgreement.availableSubscriptionCatalogs = customerAgreement?.availableSubscriptionCatalogs ?? [];
-    subscriptionsData.customerAgreement = customerAgreement;
+    if (customerAgreement) {
+      subscriptionsData.customerAgreement = customerAgreement;
+    }
     subscriptionsData.subscriptionLicenses = subscriptionLicenses;
     subscriptionsData.showExpirationNotifications = !(customerAgreement?.disableExpirationNotifications);
     subscriptionLicenses.forEach((license) => {
