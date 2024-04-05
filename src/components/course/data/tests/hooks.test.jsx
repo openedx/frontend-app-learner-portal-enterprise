@@ -62,9 +62,16 @@ import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
 import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../../constants';
-import { useEnterpriseCustomer } from '../../../app/data';
+import useEnterpriseCustomer from '../../../app/data/hooks/useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import { useCourseMetadata, useRedeemablePolicies } from '../../../app/data';
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useRedeemablePolicies: jest.fn(),
+  useCourseMetadata: jest.fn(),
+}));
 
 const oldGlobalLocation = global.location;
 
@@ -111,10 +118,12 @@ jest.mock('react-router-dom', () => ({
 }
 ));
 
-jest.mock('../../../app/data', () => ({
-  ...jest.requireActual('../../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-}));
+// jest.mock('../../../app/data', () => ({
+//   ...jest.requireActual('../../../app/data'),
+//   useEnterpriseCustomer: jest.fn(),
+// }));
+
+jest.mock('../../../app/data/hooks/useEnterpriseCustomer');
 
 jest.useFakeTimers();
 
@@ -138,7 +147,7 @@ const createGlobalLocationMock = () => {
 };
 const mockPreventDefault = jest.fn();
 
-const mockAuthenticatedUser = authenticatedUserFactory();
+const mockAuthenticatedUser = { authenticatedUser: authenticatedUserFactory() };
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('useAllCourseData', () => {
@@ -1616,12 +1625,23 @@ describe('useMinimalCourseMetadata', () => {
 
 describe('useIsCourseAssigned', () => {
   const mockContentKey = 'edX+DemoX';
-
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useCourseMetadata.mockReturnValue({ data: { key: 'test-key' } });
+  });
+  const Wrapper = ({ children }) => (
+    <AppContext.Provider value={mockAuthenticatedUser}>
+      {children}
+    </AppContext.Provider>
+  );
   it('should return false if there are no allocated assignments', () => {
     const learnerContentAssignments = {
       hasAllocatedAssignments: false,
     };
-    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments));
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    const { result } = renderHook(() => useIsCourseAssigned(), { wrapper: Wrapper });
+
     expect(result.current).toEqual(false);
   });
 
@@ -1635,7 +1655,14 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, 'non-existent-course-key'));
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useCourseMetadata.mockReturnValue({ data: { key: 'non-existent-course-key' } });
+
+    const { result } = renderHook(
+      () => useIsCourseAssigned(),
+      { wrapper: Wrapper },
+    );
+
     expect(result.current).toEqual(false);
   });
 
@@ -1651,7 +1678,14 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, mockContentKey));
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useCourseMetadata.mockReturnValue({ data: { key: mockContentKey } });
+
+    const { result } = renderHook(
+      () => useIsCourseAssigned(),
+      { wrapper: Wrapper },
+    );
+
     expect(result.current).toEqual(false);
   });
 
@@ -1665,7 +1699,13 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, mockContentKey));
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useCourseMetadata.mockReturnValue({ data: { key: mockContentKey } });
+
+    const { result } = renderHook(
+      () => useIsCourseAssigned(),
+      { wrapper: Wrapper },
+    );
     expect(result.current).toEqual(true);
   });
 });
