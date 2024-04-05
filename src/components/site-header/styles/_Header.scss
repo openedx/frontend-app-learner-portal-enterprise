@@ -60,6 +60,8 @@ $header-logo-height-mobile: 1.5rem;
     height: $header-logo-height-desktop;
   }
   .main-nav {
+    min-height: 68px; // height of the div with nav links; this forces header with no nav links to be consistent height
+
     .nav-link {
       padding: 1.125rem 1rem;
       text-decoration: none;

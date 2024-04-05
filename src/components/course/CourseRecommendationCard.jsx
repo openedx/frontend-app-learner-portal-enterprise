@@ -1,25 +1,21 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useNavigate } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
+import { Link } from 'react-router-dom';
 import { Card, Truncate } from '@openedx/paragon';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
-import { linkToCourse } from './data/utils';
+import { getLinkToCourse } from './data/utils';
+import { useEnterpriseCustomer } from '../app/data';
 
 export const COURSE_REC_EVENT_NAME = 'edx.ui.enterprise.learner_portal.recommended.course.clicked';
 export const SAME_PART_EVENT_NAME = 'edx.ui.enterprise.learner_portal.same.partner.recommended.course.clicked';
 
 const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
-  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const eventName = isPartnerRecommendation ? SAME_PART_EVENT_NAME : COURSE_REC_EVENT_NAME;
-  const navigate = useNavigate();
-  const cachedLinkToCourse = useMemo(
-    () => linkToCourse(course, slug),
-    [course, slug],
-  );
+  const linkToCourse = getLinkToCourse(course, enterpriseCustomer.slug);
 
   const partnerDetails = useMemo(
     () => {
@@ -30,6 +26,7 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
       return {
         primaryPartner: course.owners?.length > 0 ? course.owners[0] : undefined,
         showPartnerLogo: course.owners?.length === 1,
+        courseOwnersTransformed: course.owners?.map(owner => owner.name).join(', '),
       };
     },
     [course],
@@ -39,17 +36,18 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
 
   return (
     <Card
-      className="course-card-recommendation"
+      className="course-card-recommendation d-inline-flex"
+      as={Link}
+      to={linkToCourse}
       isClickable
       onClick={() => {
         sendEnterpriseTrackEvent(
-          uuid,
+          enterpriseCustomer.uuid,
           eventName,
           {
             courseKey: course.key,
           },
         );
-        navigate(cachedLinkToCourse);
       }}
     >
       <Card.ImageCap
@@ -58,18 +56,16 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}
       />
-
       <Card.Header
         title={(
-          <Truncate maxLine={3}>{course.title}</Truncate>
+          <Truncate lines={3}>{course.title}</Truncate>
         )}
-        subtitle={course.owners?.length > 0 && (
-          <p className="partner">
-            <Truncate maxLine={1}>{course.owners.map(partner => partner.name).join(', ')}</Truncate>
-          </p>
+        subtitle={partnerDetails.courseOwnersTransformed && (
+          <Truncate className="partner" lines={1}>
+            {partnerDetails.courseOwnersTransformed}
+          </Truncate>
         )}
       />
-
       {/* Intentionally empty section so the footer is correctly spaced at the bottom of the card */}
       <Card.Section />
       <Card.Footer textElement={<span className="text-muted">Course</span>} />

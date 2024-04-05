@@ -7,8 +7,6 @@ import dayjs from '../../../utils/dayjs';
 
 import {
   COUPON_CODE_SUBSIDY_TYPE,
-  COURSE_AVAILABILITY_MAP,
-  COURSE_MODES_MAP,
   COURSE_PACING_MAP,
   DISABLED_ENROLL_REASON_TYPES,
   DISABLED_ENROLL_USER_MESSAGES,
@@ -27,6 +25,11 @@ import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import {
+  COURSE_MODES_MAP,
+  findHighestLevelEntitlementSku,
+  findHighestLevelSkuByEntityModeType,
+} from '../../app/data';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -58,13 +61,6 @@ export function weeksRemainingUntilEnd(courseRun) {
 
 export function hasTimeToComplete(courseRun) {
   return courseRun.weeksToComplete <= weeksRemainingUntilEnd(courseRun);
-}
-
-export function isArchived(courseRun) {
-  if (courseRun.availability) {
-    return courseRun.availability === COURSE_AVAILABILITY_MAP.ARCHIVED;
-  }
-  return false;
 }
 
 export function isCourseSelfPaced(pacingType) {
@@ -125,62 +121,6 @@ export function getProgramIcon(type) {
 }
 
 export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);
-
-// See https://2u-internal.atlassian.net/wiki/spaces/WS/pages/8749811/Enroll+button+and+Course+Run+Selector+Logic
-// for more detailed documentation on course run selection and the enroll button.
-export function getActiveCourseRun(course) {
-  return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
-}
-
-/**
- * Returns list of available that are marketable, enrollable, and not archived.
- *
- * @param {object} course
- * @returns List of course runs.
- */
-export function getAvailableCourseRuns({ course, isEnrollableBufferDays }) {
-  if (!course?.courseRuns) {
-    return [];
-  }
-  const availableCourseRunsFilter = (courseRun) => {
-    if (!courseRun.isMarketable || isArchived(courseRun)) {
-      return false;
-    }
-
-    if (isEnrollableBufferDays === undefined) {
-      return courseRun.isEnrollable;
-    }
-
-    const today = dayjs();
-    if (courseRun.enrollmentStart && today.isBefore(dayjs(courseRun.enrollmentStart))) {
-      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
-      return courseRun.isEnrollable;
-    }
-    if (!courseRun.enrollmentEnd) {
-      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
-      return courseRun.isEnrollable;
-    }
-    const bufferedEnrollDeadline = dayjs(courseRun.enrollmentEnd).add(isEnrollableBufferDays, 'day');
-    return today.isBefore(bufferedEnrollDeadline);
-  };
-  return course.courseRuns.filter(availableCourseRunsFilter);
-}
-
-/**
- * Returns a filtered list of course run keys that are marketable, enrollable, and not archived.
- *
- * @param {object} courseData - Course data object deriving from the useAllCourseData hook response.
- * @returns List of course run keys.
- */
-export function getAvailableCourseRunKeysFromCourseData({ courseData, isEnrollableBufferDays }) {
-  if (!courseData?.courseDetails.courseRuns) {
-    return [];
-  }
-  return getAvailableCourseRuns({
-    course: courseData?.courseDetails,
-    isEnrollableBufferDays,
-  }).map(courseRun => courseRun.key);
-}
 
 export function findCouponCodeForCourse(couponCodes, catalogList = []) {
   return couponCodes.find((couponCode) => catalogList?.includes(couponCode.catalog) && hasValidStartExpirationDates({
@@ -321,9 +261,6 @@ export const findEnterpriseOfferForCourse = ({
   }
   const orderedEnterpriseOffers = enterpriseOffers
     .filter((enterpriseOffer) => {
-      if (!enterpriseOffer.isCurrent) {
-        return false;
-      }
       const isCourseInCatalog = catalogsWithCourse.includes(enterpriseOffer.enterpriseCatalogUuid);
       if (!isCourseInCatalog) {
         return false;
@@ -359,30 +296,6 @@ export const findEnterpriseOfferForCourse = ({
   return orderedEnterpriseOffers[0];
 };
 
-const getBestCourseMode = (courseModes) => {
-  const {
-    VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, AUDIT, HONOR, PAID_EXECUTIVE_EDUCATION,
-  } = COURSE_MODES_MAP;
-
-  // Returns the 'highest' course mode available.
-  // Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit', 'honor', 'paid-executive-education']
-  const courseModesByRank = [VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, PAID_EXECUTIVE_EDUCATION, AUDIT, HONOR];
-  const bestCourseMode = courseModesByRank.find((courseMode) => courseModes.includes(courseMode));
-  return bestCourseMode || null;
-};
-
-/**
- * Returns the first seat found from the preferred course mode.
- */
-export function findHighestLevelSkuByEntityModeType(seatsOrEntitlements, getModeType) {
-  const courseModes = seatsOrEntitlements.map(getModeType);
-  const courseMode = getBestCourseMode(courseModes);
-  if (courseMode) {
-    return seatsOrEntitlements.find(entity => getModeType(entity) === courseMode)?.sku;
-  }
-  return null;
-}
-
 /**
  * Returns the first seat found from the preferred course type
  */
@@ -391,16 +304,6 @@ export function findHighestLevelSeatSku(seats) {
     return null;
   }
   return findHighestLevelSkuByEntityModeType(seats, seat => seat.type);
-}
-
-/**
- * Returns the first entitlement found from the preferred course mode
- */
-export function findHighestLevelEntitlementSku(entitlements) {
-  if (!entitlements || entitlements.length <= 0) {
-    return null;
-  }
-  return findHighestLevelSkuByEntityModeType(entitlements, entitlement => entitlement.mode);
 }
 
 /**
@@ -497,33 +400,13 @@ export const getCouponCodesDisabledEnrollmentReasonType = ({
 };
 
 export const getSubscriptionDisabledEnrollmentReasonType = ({
-  customerAgreementConfig,
+  customerAgreement,
   catalogsWithCourse,
   subscriptionLicense,
   hasEnterpriseAdminUsers,
 }) => {
-  const subscriptionsApplicableToCourse = customerAgreementConfig?.subscriptions?.filter(
-    subscription => catalogsWithCourse.includes(subscription?.enterpriseCatalogUuid),
-  ) || [];
-
-  const hasSubscriptionsApplicableToCourse = subscriptionsApplicableToCourse.length > 0;
-  if (!hasSubscriptionsApplicableToCourse) {
-    return undefined;
-  }
-
-  const hasExpiredSubscriptions = subscriptionsApplicableToCourse.every(
-    subscription => subscription.daysUntilExpirationIncludingRenewals < 0,
-  );
-  const hasExhaustedSubscriptions = subscriptionsApplicableToCourse.every(
-    subscription => subscription?.licenses?.unassigned === 0,
-  );
-  const applicableSubscriptionNonExpiredNonExhausted = subscriptionsApplicableToCourse.find(
-    subscription => subscription.daysUntilExpirationIncludingRenewals >= 0 && subscription?.licenses?.unassigned > 0,
-  );
-
-  if (hasExpiredSubscriptions) {
-    // If customer's subscription plan(s) containing the course being viewed have expired,
-    // change `reasonType` to use the `SUBSCRIPTION_EXPIRED` message.
+  const hasExpiredSubscriptionLicense = customerAgreement?.netDaysUntilExpiration <= 0;
+  if (hasExpiredSubscriptionLicense) {
     return parseReasonTypeBasedOnEnterpriseAdmins({
       hasEnterpriseAdminUsers,
       reasonTypes: {
@@ -533,27 +416,20 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
     });
   }
 
-  if (hasExhaustedSubscriptions) {
-    // If customer's subscription plan(s) containing the course being viewed no longer have
-    // any remaining seats, change `reasonType` to use the `SUBSCRIPTION_SEATS_EXHAUSTED` message.
-    return parseReasonTypeBasedOnEnterpriseAdmins({
-      hasEnterpriseAdminUsers,
-      reasonTypes: {
-        hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
-        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS,
-      },
-    });
+  const hasSubscriptionApplicableToCourse = !!customerAgreement?.availableSubscriptionCatalogs.some(
+    subscriptionCatalogUuid => catalogsWithCourse.includes(subscriptionCatalogUuid),
+  );
+  if (!hasSubscriptionApplicableToCourse) {
+    return undefined;
   }
 
-  if (subscriptionLicense?.status === LICENSE_STATUS.REVOKED) {
-    // If learner's subscription license is revoked, change `reasonType` to use
-    // the `SUBSCRIPTION_DEACTIVATED` message.
-    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED;
-  }
-
-  if (applicableSubscriptionNonExpiredNonExhausted) {
+  const isSubscriptionLicenseApplicable = subscriptionLicense
+    ? catalogsWithCourse.includes(subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid)
+    : false;
+  if (!subscriptionLicense || !isSubscriptionLicenseApplicable) {
     // If customer has a subscription plan(s) containing the course being viewed that is not expired
-    // nor exhausted, change `reasonType` to use the `SUBSCRIPTION_LICENSE_NOT_ASSIGNED` message.
+    // nor exhausted but learner has no subscription license, change `reasonType` to use the
+    // `SUBSCRIPTION_LICENSE_NOT_ASSIGNED` message.
     return parseReasonTypeBasedOnEnterpriseAdmins({
       hasEnterpriseAdminUsers,
       reasonTypes: {
@@ -561,6 +437,12 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
         hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
       },
     });
+  }
+
+  if (subscriptionLicense.status === LICENSE_STATUS.REVOKED) {
+    // If learner's subscription license is revoked, change `reasonType` to use
+    // the `SUBSCRIPTION_DEACTIVATED` message.
+    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED;
   }
 
   // There is no applicable subscriptions-related reason for disabled enrollment.
@@ -692,7 +574,7 @@ export const getMissingApplicableSubsidyReason = ({
   catalogsWithCourse,
   couponCodes,
   couponsOverview,
-  customerAgreementConfig,
+  customerAgreement,
   subscriptionLicense,
   containsContentItems,
   missingSubsidyAccessPolicyReason,
@@ -701,7 +583,7 @@ export const getMissingApplicableSubsidyReason = ({
   // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
   let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
   let userMessage;
-  const hasEnterpriseAdminUsers = enterpriseAdminUsers?.length > 0;
+  const hasEnterpriseAdminUsers = !!enterpriseAdminUsers?.length > 0;
 
   // If there are admin users, change `reasonType` to use the
   // `DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY` message.
@@ -716,7 +598,7 @@ export const getMissingApplicableSubsidyReason = ({
     hasEnterpriseAdminUsers,
   });
   const subscriptionsDisabledEnrollmentReasonType = getSubscriptionDisabledEnrollmentReasonType({
-    customerAgreementConfig,
+    customerAgreement,
     catalogsWithCourse,
     subscriptionLicense,
     hasEnterpriseAdminUsers,
@@ -770,8 +652,13 @@ export const getSubsidyToApplyForCourse = ({
 }) => {
   if (applicableSubscriptionLicense) {
     return {
-      ...applicableSubscriptionLicense,
       subsidyType: LICENSE_SUBSIDY_TYPE,
+      discountType: 'percentage',
+      discountValue: 100,
+      startDate: applicableSubscriptionLicense.startDate,
+      expirationDate: applicableSubscriptionLicense.expirationDate,
+      status: applicableSubscriptionLicense.status,
+      subsidyId: applicableSubscriptionLicense.uuid,
     };
   }
 
@@ -916,15 +803,7 @@ export const checkPolicyRedemptionEnabled = ({
   return false;
 };
 
-export const courseUsesEntitlementPricing = (course) => {
-  const courseTypeConfig = getCourseTypeConfig(course);
-  if (courseTypeConfig) {
-    return courseTypeConfig.usesEntitlementListPrice;
-  }
-  return false;
-};
-
-export function linkToCourse(course, slug) {
+export function getLinkToCourse(course, slug) {
   if (!Object.keys(course).length) {
     return '#';
   }
@@ -963,18 +842,12 @@ export function getEntitlementPrice(entitlements) {
  * @param {number} args.firstEnrollablePaidSeatPrice Price of first enrollable paid seat.
  * @returns Price for the course run.
  */
-export const getCourseRunPrice = ({
-  courseDetails,
-  firstEnrollablePaidSeatPrice,
-}) => {
-  if (courseUsesEntitlementPricing(courseDetails)) {
-    return getEntitlementPrice(courseDetails?.entitlements);
+export function getCoursePrice(course) {
+  if (course.activeCourseRun?.firstEnrollablePaidSeatPrice) {
+    return course.activeCourseRun.firstEnrollablePaidSeatPrice;
   }
-  if (firstEnrollablePaidSeatPrice) {
-    return firstEnrollablePaidSeatPrice;
-  }
-  return undefined;
-};
+  return getEntitlementPrice(course.entitlements);
+}
 
 /**
  * Transforms a value into a float with 2 decimal places.

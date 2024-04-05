@@ -1,10 +1,9 @@
-import React, { useContext } from 'react';
 import { breakpoints, MediaQuery } from '@openedx/paragon';
 import { FormatQuote } from '@openedx/paragon/icons';
-import { ProgramContext } from './ProgramContextProvider';
+import { useProgramDetails } from '../app/data';
 
 const ProgramEndorsements = () => {
-  const { program: { corporateEndorsements } } = useContext(ProgramContext);
+  const { data: { corporateEndorsements } } = useProgramDetails();
   const formatAuthorFullName = endorser => `${endorser.givenName} ${endorser.familyName}`;
   const title = endorser => (endorser.position ? endorser.position.title : '');
 
@@ -39,10 +38,9 @@ const ProgramEndorsements = () => {
                     )}
                     {!image && <h3 className="h3">{corporation}</h3>}
                     <p className="endorsement">{quote}</p>
-                    <div className="attribution d-flex align-items-center">
-                      <div
-                        className="attribution-label"
-                      >{formatAuthorFullName(endorser)} {title(endorser).length > 0 && `, ${title(endorser)}`}
+                    <div className="small d-flex align-items-center">
+                      <div>
+                        {formatAuthorFullName(endorser)} {title(endorser).length > 0 && `, ${title(endorser)}`}
                       </div>
                     </div>
                   </div>

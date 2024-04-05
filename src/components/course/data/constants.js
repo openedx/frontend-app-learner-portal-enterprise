@@ -19,13 +19,6 @@ export const PROMISE_FULFILLED = 'fulfilled';
 
 export const CURRENCY_USD = 'USD';
 
-export const COURSE_AVAILABILITY_MAP = {
-  CURRENT: 'Current',
-  UPCOMING: 'Upcoming',
-  STARTING_SOON: 'Starting Soon',
-  ARCHIVED: 'Archived',
-};
-
 export const COURSE_RUN_AVAILABILITY = {
   UNPUBLISHED: 'unpublished',
   LEGAL_REVIEW: 'review_by_legal',
@@ -37,15 +30,6 @@ export const COURSE_RUN_AVAILABILITY = {
 
 export const SKILL_DESCRIPTION_CUTOFF_LIMIT = 950;
 export const ELLIPSIS_STR = '...';
-
-export const COURSE_MODES_MAP = {
-  VERIFIED: 'verified',
-  PROFESSIONAL: 'professional',
-  NO_ID_PROFESSIONAL: 'no-id-professional',
-  AUDIT: 'audit',
-  HONOR: 'honor',
-  PAID_EXECUTIVE_EDUCATION: 'paid-executive-education',
-};
 
 export const ENROLLMENT_FAILED_QUERY_PARAM = 'enrollment_failed';
 export const ENROLLMENT_FAILURE_REASON_QUERY_PARAM = 'failure_reason';

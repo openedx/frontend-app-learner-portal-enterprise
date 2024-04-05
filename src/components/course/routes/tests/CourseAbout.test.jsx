@@ -8,8 +8,16 @@ import CourseAbout from '../CourseAbout';
 import { CourseContext } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { renderWithRouter } from '../../../../utils/tests';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
+import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
+import { SUBSIDY_TYPE } from '../../../../constants';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
+}));
 
 jest.mock('../../course-header/CourseHeader', () => jest.fn(() => (
   <div data-testid="course-header" />
@@ -49,10 +57,11 @@ const baseCourseContextValue = {
   },
 };
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
+
 const appContextValues = {
-  enterpriseConfig: {
-    disableSearch: false,
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const initialUserSubsidyState = {
@@ -94,6 +103,11 @@ const CourseAboutWrapper = ({
 );
 
 describe('CourseAbout', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   it('renders', () => {
     renderWithRouter(<CourseAboutWrapper />);
     expect(screen.getByTestId('course-header')).toBeInTheDocument();

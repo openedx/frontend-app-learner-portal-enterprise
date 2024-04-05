@@ -1,4 +1,3 @@
-import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -6,16 +5,16 @@ import {
   useTrackSearchConversionClickHandler,
 } from '../../data/hooks';
 import { EnrollButtonCta } from '../common';
-import { CourseContext } from '../../CourseContextProvider';
+import { useCourseMetadata, useEnterpriseCourseEnrollments } from '../../../app/data';
 
 // Data sharing consent
 const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
   const {
-    state: {
+    data: {
       activeCourseRun: { key: courseRunKey },
-      userEnrollments,
     },
-  } = useContext(CourseContext);
+  } = useCourseMetadata();
+  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
 
   const analyticsHandler = useTrackSearchConversionClickHandler({
     href: enrollmentUrl,
@@ -24,7 +23,7 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
   const optimizelyHandler = useOptimizelyEnrollmentClickHandler({
     href: enrollmentUrl,
     courseRunKey,
-    userEnrollments,
+    userEnrollments: enterpriseCourseEnrollments,
   });
 
   return (

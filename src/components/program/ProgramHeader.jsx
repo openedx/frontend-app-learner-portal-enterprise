@@ -1,20 +1,18 @@
-import React, { useContext } from 'react';
 import { Parallax } from 'react-parallax';
 import { breakpoints, Breadcrumb } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
-import { useParams } from 'react-router-dom';
-import { ProgramContext } from './ProgramContextProvider';
+import { Link, useParams } from 'react-router-dom';
 import { fixedEncodeURIComponent } from '../../utils/common';
+import { useProgramDetails } from '../app/data';
 
 const ProgramHeader = () => {
   const config = getConfig();
   const { enterpriseSlug } = useParams();
   const {
-    program: {
+    data: {
       title, authoringOrganizations, subjects, marketingHook,
     },
-  } = useContext(ProgramContext);
-
+  } = useProgramDetails();
   let isMobileWindow = true;
   // Use the first subject as the primary subject
   const primarySubject = subjects?.length > 0 ? subjects[0] : '';
@@ -43,6 +41,10 @@ const ProgramHeader = () => {
   const prependProgramOrganizationsToTitle = () => {
     const organizationCount = authoringOrganizations.length;
 
+    if (organizationCount === 0) {
+      return `${title}`;
+    }
+
     if (organizationCount === 1) {
       return `${authoringOrganizations[0].key}'s ${title}`;
     }
@@ -61,9 +63,9 @@ const ProgramHeader = () => {
     return `${multipleOrganizationString}'s ${title}`;
   };
 
-  const links = [{ label: 'Catalog', url: `/${enterpriseSlug}/search` }];
+  const links = [{ label: 'Catalog', to: `/${enterpriseSlug}/search` }];
   if (subjectName && subjectSlug) {
-    links.push({ label: `${subjectName} Courses`, url: `/${enterpriseSlug}/search?subjects=${ fixedEncodeURIComponent(subjectName)}` });
+    links.push({ label: `${subjectName} Courses`, to: `/${enterpriseSlug}/search?subjects=${ fixedEncodeURIComponent(subjectName)}` });
   }
 
   if (!subjectSlug) {
@@ -83,6 +85,7 @@ const ProgramHeader = () => {
             <Breadcrumb
               links={links}
               activeLabel={prependProgramOrganizationsToTitle()}
+              linkAs={Link}
             />
           </div>
           <h1 className="display-3">{marketingHook}</h1>

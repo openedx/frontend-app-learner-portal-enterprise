@@ -1,118 +1,78 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
+import dayjs from 'dayjs';
 import SubscriptionStatusCard from '../SubscriptionStatusCard';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import {
+  useEnterpriseCustomer,
+  useHasAvailableSubsidiesOrRequests,
+  useSubscriptions,
+} from '../../app/data';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: () => ({
-    enterpriseSlug: 'test-enterprise-slug',
-  }),
-  useLocation: jest.fn(),
+const appState = {
+  authenticatedUser: authenticatedUserFactory(),
+};
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useHasAvailableSubsidiesOrRequests: jest.fn(),
 }));
 
-const userSubsidyState = {
-  subscriptionLicense: {
-    uuid: 'test-license-uuid',
-  },
-  couponCodes: {
-    couponCodes: [],
-    couponCodesCount: 0,
-  },
-};
-const appState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-    name: 'test',
-  },
-};
-const subsidyRequestsState = {
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-};
-
-const SubscriptionStatusCardWithContext = ({
-  initialAppState, initialUserSubsidyState, initialSubsidyRequestsState,
-}) => (
+const SubscriptionStatusCardWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <SubscriptionStatusCard />
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+    <AppContext.Provider value={appState}>
+      <SubscriptionStatusCard />
     </AppContext.Provider>
   </IntlProvider>
 );
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockHasAvailableSubsidiesOrRequests = {
+  hasActiveLicenseOrLicenseRequest: false,
+};
+const mockSubscriptionPlan = {
+  expirationDate: dayjs().add(70, 'days').toISOString(),
+};
+const mockActiveLicense = {
+  hasActiveLicenseOrLicenseRequest: true,
+};
+const mockExpiredSubscriptionPlan = {
+  expirationDate: dayjs().subtract(70, 'days').toISOString(),
+};
 describe('SubscriptionStatusCard', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useSubscriptions.mockReturnValue({ data: { subscriptionPlan: mockSubscriptionPlan } });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(mockHasAvailableSubsidiesOrRequests);
+  });
   it('renders "Not Active" badge when no active license or license request', () => {
-    const { getByText } = render(<SubscriptionStatusCardWithContext
-      initialAppState={appState}
-      initialUserSubsidyState={userSubsidyState}
-      initialSubsidyRequestsState={subsidyRequestsState}
-    />);
-    expect(getByText('Not Active')).toBeInTheDocument();
+    render(<SubscriptionStatusCardWrapper />);
+    expect(screen.getByText('Not Active')).toBeInTheDocument();
   });
 
   it('renders "Active" badge when there is an active license or license request', () => {
-    const mockUserSubsidyState = {
-      subscriptionLicense: {
-        uuid: 'test-license-uuid',
-        status: LICENSE_STATUS.ACTIVATED,
-      },
-      subscriptionPlan: {
-        expirationDate: '2024-12-31',
-      },
-      couponCodes: {
-        couponCodes: [],
-        couponCodesCount: 0,
-      },
-    };
-    const { getByText } = render(<SubscriptionStatusCardWithContext
-      initialAppState={appState}
-      initialUserSubsidyState={mockUserSubsidyState}
-      initialSubsidyRequestsState={subsidyRequestsState}
-    />);
-    expect(getByText('Active')).toBeInTheDocument();
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(mockActiveLicense);
+    render(<SubscriptionStatusCardWrapper />);
+    expect(screen.getByText('Active')).toBeInTheDocument();
   });
 
   it('renders expiry date when subscription is active and has expiration date', () => {
-    const expiredUserSubsidyState = {
-      subscriptionLicense: {
-        uuid: 'test-license-uuid',
-        status: LICENSE_STATUS.ACTIVATED,
-      },
-      subscriptionPlan: {
-        expirationDate: '2024-12-31',
-      },
-      couponCodes: {
-        couponCodes: [],
-        couponCodesCount: 0,
-      },
-    };
-    const { getByText } = render(<SubscriptionStatusCardWithContext
-      initialAppState={appState}
-      initialUserSubsidyState={expiredUserSubsidyState}
-      initialSubsidyRequestsState={subsidyRequestsState}
-    />);
-    expect(getByText('Available until')).toBeInTheDocument();
-    expect(getByText('December 31st, 2024')).toBeInTheDocument();
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(mockActiveLicense);
+    useSubscriptions.mockReturnValue({ data: { subscriptionPlan: mockExpiredSubscriptionPlan } });
+    render(<SubscriptionStatusCardWrapper />);
+    expect(screen.getByText('Available until')).toBeInTheDocument();
+    expect(screen.getByText(dayjs(mockExpiredSubscriptionPlan.expirationDate).format('MMMM Do, YYYY')));
   });
 
   it('does not render expiry date when subscription is not active', () => {
-    const { queryByText } = render(<SubscriptionStatusCardWithContext
-      initialAppState={appState}
-      initialUserSubsidyState={userSubsidyState}
-      initialSubsidyRequestsState={subsidyRequestsState}
-    />);
-    expect(queryByText('Available until December 31st, 2024')).toBeNull();
+    useSubscriptions.mockReturnValue({ data: { subscriptionPlan: mockExpiredSubscriptionPlan } });
+    render(<SubscriptionStatusCardWrapper />);
+    expect(screen.queryByText(dayjs(mockExpiredSubscriptionPlan.expirationDate).format('MMMM Do, YYYY'))).toBeNull();
   });
 });

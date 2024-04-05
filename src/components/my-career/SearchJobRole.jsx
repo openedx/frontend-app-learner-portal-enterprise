@@ -6,7 +6,6 @@ import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { SearchContext, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
-import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import {
   Button, Form, StatefulButton,
@@ -73,7 +72,7 @@ const SearchJobRole = (props) => {
     if (currentJob) {
       dispatch(deleteRefinementAction(customAttribute));
     }
-    props.onSave(camelCaseObject(resp));
+    await props.onSave(resp);
   };
 
   const handleCancelButtonClick = () => {

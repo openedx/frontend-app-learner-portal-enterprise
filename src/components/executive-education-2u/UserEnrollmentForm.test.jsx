@@ -7,6 +7,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { snakeCaseObject } from '@edx/frontend-platform/utils';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 import dayjs from 'dayjs';
 import MockDate from 'mockdate';
 
@@ -16,6 +17,8 @@ import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { CourseContext } from '../course/CourseContextProvider';
+import { useEnterpriseCustomer } from '../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
 
 const termsLabelText = "I agree to GetSmarter's Terms and Conditions for Students";
 const termsAndConsitionCTA = 'Terms and Conditions';
@@ -26,15 +29,12 @@ const mockFirstName = 'John';
 const mockLastName = 'Doe';
 const mockDateOfBirth = '1993-06-10';
 const mockProductSKU = 'ABC123';
-const mockEmail = 'edx@example.com';
 const mockOnCheckoutSuccess = jest.fn();
 
-const mockLogInfo = jest.fn();
-const mockLogError = jest.fn();
 jest.mock('@edx/frontend-platform/logging', () => ({
   ...jest.requireActual('@edx/frontend-platform/logging'),
-  logInfo: (msg) => mockLogInfo(msg),
-  logError: (msg) => mockLogError(msg),
+  logInfo: jest.fn(),
+  logError: jest.fn(),
 }));
 jest.mock('@edx/frontend-enterprise-utils');
 jest.mock('./data', () => ({
@@ -48,14 +48,23 @@ jest.mock('../stateful-enroll/data', () => ({
   useStatefulEnroll: jest.fn(() => ({ redeem: mockRedeem })),
 }));
 
+jest.mock('../app/data', () => ({
+  ...jest.requireActual('../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory({
+  enable_executive_education_2u_fulfillment: true,
+  enable_data_sharing_consent: true,
+});
+const mockEnterpriseCustomerWithDisabledDataSharingConsent = enterpriseCustomerFactory({
+  enable_executive_education_2u_fulfillment: true,
+  enable_data_sharing_consent: false,
+});
+const mockAuthenticatedUser = authenticatedUserFactory();
+
 const initialAppContextValue = {
-  enterpriseConfig: {
-    name: 'Test Enterprise',
-    uuid: 'test-enterprise-uuid',
-    enableExecutiveEducation2UFulfillment: true,
-    enableDataSharingConsent: true,
-  },
-  authenticatedUser: { userId: 1, email: mockEmail },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
@@ -100,6 +109,7 @@ const UserEnrollmentFormWrapper = ({
 describe('UserEnrollmentForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   afterEach(() => {
@@ -176,22 +186,12 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('does not have data sharing consent checkbox if data sharing consent is disabled', async () => {
-    const appContext = {
-      enterpriseConfig: {
-        ...initialAppContextValue.enterpriseConfig,
-        enableDataSharingConsent: false,
-      },
-      authenticatedUser: {
-        ...initialAppContextValue.authenticatedUser,
-      },
-    };
-
-    render(
-      <UserEnrollmentFormWrapper appContextValue={appContext} />,
-    );
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledDataSharingConsent });
+    render(<UserEnrollmentFormWrapper />);
 
     // form fields
     await waitFor(() => {
+      expect(screen.getByLabelText(termsLabelText)).toBeInTheDocument();
       expect(screen.queryByLabelText(dataSharingConsentLabelText)).not.toBeInTheDocument();
     });
 
@@ -222,7 +222,7 @@ describe('UserEnrollmentForm', () => {
         metadata: snakeCaseObject({
           geagFirstName: mockFirstName,
           geagLastName: mockLastName,
-          geagEmail: mockEmail,
+          geagEmail: mockAuthenticatedUser.email,
           geagDateOfBirth: mockDateOfBirth,
           geagTermsAcceptedAt: mockTermsAcceptedAt,
           geagDataShareConsent: true,
@@ -254,16 +254,9 @@ describe('UserEnrollmentForm', () => {
   it('handles successful form submission with data sharing consent disabled', async () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     MockDate.set(mockTermsAcceptedAt);
-    const appContext = {
-      enterpriseConfig: {
-        ...initialAppContextValue.enterpriseConfig,
-        enableDataSharingConsent: false,
-      },
-      authenticatedUser: {
-        ...initialAppContextValue.authenticatedUser,
-      },
-    };
-    render(<UserEnrollmentFormWrapper appContextValue={appContext} />);
+
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledDataSharingConsent });
+    render(<UserEnrollmentFormWrapper />);
 
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
@@ -280,7 +273,7 @@ describe('UserEnrollmentForm', () => {
         metadata: snakeCaseObject({
           geagFirstName: mockFirstName,
           geagLastName: mockLastName,
-          geagEmail: mockEmail,
+          geagEmail: mockAuthenticatedUser.email,
           geagDateOfBirth: mockDateOfBirth,
           geagTermsAcceptedAt: mockTermsAcceptedAt,
           geagDataShareConsent: undefined,
@@ -360,8 +353,10 @@ describe('UserEnrollmentForm', () => {
       expect(screen.getByText('Try again').closest('button')).toHaveAttribute('aria-disabled', 'false');
     });
 
-    expect(mockLogError).toHaveBeenCalledTimes(1);
-    expect(mockLogError).toHaveBeenCalledWith(mockError);
+    await waitFor(() => {
+      expect(logError).toHaveBeenCalledTimes(1);
+      expect(logError).toHaveBeenCalledWith(mockError);
+    });
 
     await waitFor(() => {
       // ensure error alert is visible
@@ -414,8 +409,8 @@ describe('UserEnrollmentForm', () => {
     );
 
     await waitFor(() => {
-      expect(mockLogInfo).toHaveBeenCalledTimes(1);
-      expect(mockLogInfo).toHaveBeenCalledWith('test-enterprise-uuid user 1 has already purchased course ABC123.');
+      expect(logInfo).toHaveBeenCalledTimes(1);
+      expect(logInfo).toHaveBeenCalledWith(`${mockEnterpriseCustomer.uuid} user ${mockAuthenticatedUser.userId} has already purchased course ABC123.`);
       expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
     });
 
@@ -448,8 +443,8 @@ describe('UserEnrollmentForm', () => {
       useStatefulEnroll.mock.calls[0][0].onError(mockError);
     });
 
-    expect(mockLogError).toHaveBeenCalledTimes(1);
-    expect(mockLogError).toHaveBeenCalledWith(mockError);
+    expect(logError).toHaveBeenCalledTimes(1);
+    expect(logError).toHaveBeenCalledWith(mockError);
 
     await waitFor(() => {
       // ensure regular error alert is not visible

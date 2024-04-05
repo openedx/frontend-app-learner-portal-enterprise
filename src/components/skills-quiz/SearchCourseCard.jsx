@@ -4,7 +4,6 @@ import React, {
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { Alert, CardGrid } from '@openedx/paragon';
 import { ZoomOut } from '@openedx/paragon/icons';
@@ -13,35 +12,11 @@ import { SkillsContext } from './SkillsContextProvider';
 
 import { NO_COURSES_ALERT_MESSAGE } from './constants';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
-import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import CourseCard from './CourseCard';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useDefaultSearchFilters } from '../app/data';
 
 const SearchCourseCard = ({ index }) => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodes },
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-
-  const searchCatalogs = useSearchCatalogs({
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    catalogsForSubsidyRequests,
-    redeemableLearnerCreditPolicies,
-  });
-
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
-    searchCatalogs,
-  });
+  const filters = useDefaultSearchFilters();
 
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);

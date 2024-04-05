@@ -2,8 +2,15 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import PathwayRequirements from '../PathwayRequirements';
-import { PathwayProgressContext } from '../PathwayProgressContextProvider';
 import '@testing-library/jest-dom';
+import { useEnterpriseCustomer, useLearnerPathwayProgressData } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useLearnerPathwayProgressData: jest.fn(),
+}));
 
 const mockLearnerPathwayProgress = {
   steps: [
@@ -52,29 +59,30 @@ const mockLearnerPathwayProgress = {
   ],
 };
 
-test('renders pathway requirements correctly', () => {
-  render(
-    <IntlProvider locale="en">
-      <PathwayProgressContext.Provider value={{ learnerPathwayProgress: mockLearnerPathwayProgress }}>
-        <PathwayRequirements />
-      </PathwayProgressContext.Provider>,
-    </IntlProvider>,
-  );
+const PathwayRequirementsWrapper = () => (
+  <IntlProvider locale="en">
+    <PathwayRequirements />
+  </IntlProvider>
+);
 
-  expect(screen.getByText('Pathway Requirements:')).toBeInTheDocument();
-  expect(screen.getByText('Course 1')).toBeInTheDocument();
-  expect(screen.getByText('Program 1')).toBeInTheDocument();
-  expect(screen.getByText('Course 3')).toBeInTheDocument();
-});
+describe('PathwayRequirements', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: enterpriseCustomerFactory() });
+    useLearnerPathwayProgressData.mockReturnValue({ data: { learnerPathwayProgress: mockLearnerPathwayProgress } });
+  });
+  it('renders pathway requirements correctly', () => {
+    render(<PathwayRequirementsWrapper />);
 
-test('renders pathway steps correctly', () => {
-  render(
-    <IntlProvider locale="en">
-      <PathwayProgressContext.Provider value={{ learnerPathwayProgress: mockLearnerPathwayProgress }}>
-        <PathwayRequirements />
-      </PathwayProgressContext.Provider>
-    </IntlProvider>,
-  );
+    expect(screen.getByText('Pathway Requirements:')).toBeInTheDocument();
+    expect(screen.getByText('Course 1')).toBeInTheDocument();
+    expect(screen.getByText('Program 1')).toBeInTheDocument();
+    expect(screen.getByText('Course 3')).toBeInTheDocument();
+  });
 
-  expect(screen.getByText('Requirement 1: Choose any 2 of the following')).toBeInTheDocument();
+  it('renders pathway steps correctly', () => {
+    render(<PathwayRequirementsWrapper />);
+
+    expect(screen.getByText('Requirement 1: Choose any 2 of the following')).toBeInTheDocument();
+  });
 });

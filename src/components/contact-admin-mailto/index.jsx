@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
+import React from 'react';
 import { MailtoLink } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { getContactEmail } from '../../utils/common';
+import { useEnterpriseCustomer } from '../app/data';
 
 const ContactAdminMailto = ({
   children,
 }) => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const email = getContactEmail(enterpriseConfig);
+  const { data: entepriseCustomer } = useEnterpriseCustomer();
+  const email = getContactEmail(entepriseCustomer);
   if (email) {
     return (
       <MailtoLink

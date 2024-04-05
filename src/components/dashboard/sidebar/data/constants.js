@@ -5,7 +5,7 @@ export const COUPON_CODES_SUMMARY_NOTICE = 'Use codes to enroll in courses from 
 export const COUPON_CODES_SUMMARY_REMAINING_CODES = 'Remaining Codes';
 export const COUPON_CODES_SUMMARY_DETAIL = 'Codes remaining, contact your administrator for additional codes.';
 // CouponCodesSummaryCard badge labels
-export const COUPON_CODES_AVAILABLE_BADGE_LABEL = 'Available';
+export const COUPON_CODES_AVAILABLE_BADGE_LABEL = 'Active';
 export const COUPON_CODES_REQUESTED_BADGE_LABEL = 'Requested';
 // CouponCodesSummaryCard badge variants
 export const COUPON_CODES_AVAILABLE_BADGE_VARIANT = 'success';

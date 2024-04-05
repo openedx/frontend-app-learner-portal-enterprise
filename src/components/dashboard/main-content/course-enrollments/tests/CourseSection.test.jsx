@@ -1,14 +1,13 @@
 import '@testing-library/jest-dom/extend-expect';
-import { AppContext } from '@edx/frontend-platform/react';
-import {
-  render, screen,
-} from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import * as frontendEnterpriseUtils from '@edx/frontend-enterprise-utils';
 
 import userEvent from '@testing-library/user-event';
 import CourseSection from '../CourseSection';
 import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
 import { COURSE_MODES, COURSE_STATUSES } from '../../../../../constants';
+import { useEnterpriseCustomer } from '../../../../app/data';
+import { enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils');
 jest.mock('../course-cards', () => ({
@@ -25,6 +24,11 @@ jest.mock('../UpgradeableCourseEnrollmentContextProvider', () => ({
   UpgradeableCourseEnrollmentContextProvider: () => '<UpgradeableCourseEnrollmentContextProvider />',
 }));
 
+jest.mock('../../../../app/data', () => ({
+  ...jest.requireActual('../../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
 const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.upcoming]: '<UpcomingCourseCard />',
   [COURSE_STATUSES.inProgress]: '<InProgressCourseCard />',
@@ -33,27 +37,19 @@ const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.requested]: '<RequestedCourseCard />',
   [COURSE_STATUSES.assigned]: '<AssignedCourseCard />',
 };
-const TEST_ENTERPRISE_UUID = 'test-uuid';
 
-const CourseSectionWrapper = (props) => (
-  <AppContext.Provider value={{
-    enterpriseConfig: {
-      uuid: TEST_ENTERPRISE_UUID,
-    },
-  }}
-  >
-    <CourseSection
-      {...props}
-    />
-  </AppContext.Provider>
-);
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('<CourseSection />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
   it('should handle collapsible toggle', () => {
     const title = 'Upcoming';
     const courseRuns = [...Array(3)].map(() => createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.upcoming }));
     render(
-      <CourseSectionWrapper
+      <CourseSection
         title={title}
         courseRuns={courseRuns}
       />,
@@ -72,7 +68,7 @@ describe('<CourseSection />', () => {
     Object.values(COURSE_STATUSES),
   )('should render the correct course cards', (courseStatus) => {
     render(
-      <CourseSectionWrapper
+      <CourseSection
         title="title"
         courseRuns={[
           createCourseEnrollmentWithStatus({ status: courseStatus }),
@@ -103,7 +99,7 @@ describe('<CourseSection />', () => {
     status, mode, isUpgradeable,
   }) => {
     render(
-      <CourseSectionWrapper
+      <CourseSection
         title="title"
         courseRuns={[
           createCourseEnrollmentWithStatus({ status, mode }),

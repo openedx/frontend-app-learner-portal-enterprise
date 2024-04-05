@@ -1,44 +1,20 @@
 import React, {
-  useContext, useMemo, useState, useEffect,
+  useMemo, useState, useEffect,
 } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { CardGrid, Hyperlink } from '@openedx/paragon';
+import { CardGrid } from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import SearchCourseCard from '../search/SearchCourseCard';
 
-import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 
 const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills }) => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodes },
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-  const navigate = useNavigate();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
-  const searchCatalogs = useSearchCatalogs({
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    catalogsForSubsidyRequests,
-    redeemableLearnerCreditPolicies,
-  });
-
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
-    searchCatalogs,
-  });
+  const filters = useDefaultSearchFilters();
 
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState([]);
@@ -83,6 +59,7 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
   if (hitCount === 0) {
     return null;
   }
+  const showMoreLinkPath = `/${enterpriseCustomer.slug}/search?showAll=1&content_type=course&skill_names=${subCategorySkills.join('&skill_names=')}`;
   return (
     <div>
       <h5 className="mb-3 mt-n4">
@@ -95,7 +72,12 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
           }}
         />
       </h5>
-      <CardGrid>
+      <CardGrid
+        columnSizes={{
+          xs: 12,
+          sm: 6,
+        }}
+      >
         {courses.map(course => (
           <SearchCourseCard
             key={`career-tab-${uuidv4()}`}
@@ -104,25 +86,18 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
           />
         ))}
       </CardGrid>
-      <Hyperlink
-        className="mt-3"
-        onClick={() => {
-          if (subCategorySkills.length > 0) {
-            navigate(
-              `/${enterpriseConfig.slug}/search`,
-              {
-                search: `showAll=1&content_type=course&skill_names=${subCategorySkills.join('&skill_names=')}`,
-              },
-            );
-          }
-        }}
-      >
-        <FormattedMessage
-          id="enterprise.dashboard.my.career.tab.visualize.career.data.skill.category.show.more.courses"
-          defaultMessage="Show more courses"
-          description="Label for button to show more recommended courses in a category"
-        />
-      </Hyperlink>
+      {subCategorySkills.length > 0 && (
+        <Link
+          className="mt-3"
+          to={showMoreLinkPath}
+        >
+          <FormattedMessage
+            id="enterprise.dashboard.my.career.tab.visualize.career.data.skill.category.show.more.courses"
+            defaultMessage="Show more courses"
+            description="Label for button to show more recommended courses in a category"
+          />
+        </Link>
+      )}
     </div>
   );
 };

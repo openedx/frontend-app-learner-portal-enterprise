@@ -4,23 +4,18 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+
 import {
   renderWithRouter,
   initialAppState,
   mockCourseState,
 } from '../../../../utils/tests';
-
-import {
-  COURSE_MODES_MAP,
-  COURSE_AVAILABILITY_MAP,
-  COURSE_PACING_MAP,
-} from '../../data/constants';
+import { COURSE_PACING_MAP } from '../../data/constants';
 import CourseRunCardDeprecated from '../deprecated/CourseRunCard';
-import { CourseContextProvider } from '../../CourseContextProvider';
-import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import * as subsidyRequestsHooks from '../../data/hooks';
 import { enrollButtonTypes } from '../../enrollment/constants';
+import { COURSE_AVAILABILITY_MAP, COURSE_MODES_MAP, useEnterpriseCustomer } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = dayjs().format();
@@ -42,6 +37,11 @@ jest.mock('../../data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
   useCourseEnrollmentUrl: jest.fn(() => false),
   useCoursePriceForUserSubsidy: jest.fn(() => []),
+}));
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
 }));
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -102,30 +102,27 @@ const renderCard = ({
   renderWithRouter(
     <IntlProvider locale="en">
       <AppContext.Provider value={INITIAL_APP_STATE}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-            <CourseContextProvider
-              courseState={courseState}
-              userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-              userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
-            >
-              <CourseRunCardDeprecated
-                catalogList={['foo']}
-                userEntitlements={userEntitlements}
-                userEnrollments={userEnrollments}
-                courseRun={courseRun}
-                courseKey={COURSE_ID}
-                courseEntitlements={courseEntitlements}
-              />
-            </CourseContextProvider>
-          </UserSubsidyContext.Provider>
-        </SubsidyRequestsContext.Provider>
+        <CourseRunCardDeprecated
+          catalogList={['foo']}
+          userEntitlements={userEntitlements}
+          userEnrollments={userEnrollments}
+          courseRun={courseRun}
+          courseKey={COURSE_ID}
+          courseEntitlements={courseEntitlements}
+        />
       </AppContext.Provider>,
     </IntlProvider>,
   );
 };
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 describe('<DeprecatedCourseRunCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   test('Course archived card', () => {
     renderCard({ courseRun: generateCourseRun({ availability: COURSE_AVAILABILITY_MAP.ARCHIVED }) });
     expect(screen.getByText('Course archived')).toBeInTheDocument();

@@ -1,136 +1,88 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
-import { useEnterpriseCuration } from '../../search/content-highlights/data';
-import DashboardMainContent from './DashboardMainContent';
-import { CourseEnrollmentsContextProvider } from './course-enrollments';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
-import { renderWithRouter } from '../../../utils/tests';
-import { features } from '../../../config';
-import { useContentAssignments } from './course-enrollments/data';
-import { emptyRedeemableLearnerCreditPolicies } from '../../enterprise-user-subsidy/data/constants';
+import { QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('../../search/content-highlights/data', () => ({
-  useEnterpriseCuration: jest.fn(() => ({
-    enterpriseCuration: {
-      canOnlyViewHighlightSets: jest.fn(),
-    },
-  })),
+import DashboardMainContent from './DashboardMainContent';
+import { queryClient, renderWithRouter } from '../../../utils/tests';
+import { features } from '../../../config';
+import { useCanOnlyViewHighlights, useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useCanOnlyViewHighlights: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
 }));
 
 jest.mock('../../../config', () => ({
+  ...jest.requireActual('../../../config'),
   features: {
     FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT: jest.fn(),
   },
 }));
 
-jest.mock('./course-enrollments/data', () => ({
-  ...jest.requireActual('./course-enrollments/data'),
-  useContentAssignments: jest.fn(),
-}));
-useContentAssignments.mockReturnValue({
-  assignments: [],
-  showCanceledAssignmentsAlert: false,
-  showExpiredAssignmentsAlert: false,
-  handleOnCloseCancelAlert: jest.fn(),
-  handleOnCloseExpiredAlert: jest.fn(),
-});
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-const defaultUserSubsidyState = {
-  subscriptionPlan: undefined,
-  subscriptionLicense: undefined,
-  couponCodes: {
-    couponCodes: [],
-    loading: false,
-    couponCodesCount: 0,
-  },
-  enterpriseOffers: [],
-  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
-};
-const defaultAppState = {
-  enterpriseConfig: {
-    slug: 'slug',
-    uuid: 'uuid',
-    adminUsers: [{ email: 'edx@example.com' }],
-  },
-};
-
-const DashboardMainContentWrapper = ({
-  initialAppState = defaultAppState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  initialSubsidyRequestsState = {
-    subsidyRequestConfiguration: {},
-    requestsBySubsidyType: {
-      [SUBSIDY_TYPE.LICENSE]: [],
-      [SUBSIDY_TYPE.COUPON]: [],
-    },
-
-  },
-  initialCourseEnrollmentsState = {
-    courseEnrollmentsByStatus: {},
-  },
-  canOnlyViewHighlightSets = false,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
-          <DashboardMainContent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
-        </CourseEnrollmentsContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+const DashboardMainContentWrapper = () => (
+  <QueryClientProvider client={queryClient()}>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+        <DashboardMainContent />
+      </AppContext.Provider>
+    </IntlProvider>
+  </QueryClientProvider>
 );
 
 describe('DashboardMainContent', () => {
-  it('does not render recommended courses when canOnlyViewHighlightSets true', () => {
-    useEnterpriseCuration.mockImplementation(() => ({
-      enterpriseCuration: {
-        canOnlyViewHighlightSets: true,
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useCanOnlyViewHighlights.mockReturnValue({ data: false });
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: {
+        allEnrollmentsByStatus: {
+          inProgress: [],
+          upcoming: [],
+          completed: [],
+          requested: [],
+          savedForLater: [],
+          assigned: {
+            assignmentsForDisplay: [],
+            canceledAssignments: [],
+            expiredAssignments: [],
+          },
+        },
       },
-    }));
-    renderWithRouter(
-      <IntlProvider locale="en">
-        <DashboardMainContentWrapper
-          canOnlyViewHighlightSets
-        />
-      </IntlProvider>,
-    );
-    expect(screen.queryByText('Recommend courses for me')).not.toBeInTheDocument();
+    });
   });
-  it('renders recommended courses when canOnlyViewHighlightSets false', () => {
-    features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT.mockImplementation(() => true);
-    useEnterpriseCuration.mockImplementation(() => ({
-      enterpriseCuration: {
-        canOnlyViewHighlightSets: false,
-      },
-    }));
+  it('does not render recommended courses when canOnlyViewHighlightSets true', async () => {
+    useCanOnlyViewHighlights.mockReturnValue({ data: true });
     renderWithRouter(
-      <IntlProvider locale="en">
-        <DashboardMainContentWrapper
-          canOnlyViewHighlightSets={false}
-        />
-      </IntlProvider>,
+      <DashboardMainContentWrapper />,
     );
-    expect(screen.getByText('Recommend courses for me')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Recommend courses for me')).not.toBeInTheDocument();
+    });
+  });
+  it('renders recommended courses when canOnlyViewHighlightSets false', async () => {
+    features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT.mockImplementation(() => true);
+    renderWithRouter(
+      <DashboardMainContentWrapper />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText('Recommend courses for me')).toBeInTheDocument();
+    });
   });
 
   it('Displays disableSearch flag message', () => {
-    const appState = {
-      ...defaultAppState,
-      enterpriseConfig: {
-        ...defaultAppState.enterpriseConfig,
-        disableSearch: true,
-      },
-    };
+    const mockEnterpriseCustomerWithDisabledSearch = enterpriseCustomerFactory({ disable_search: true });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledSearch });
     renderWithRouter(
-      <IntlProvider locale="en">
-        <DashboardMainContentWrapper
-          initialAppState={appState}
-        />
-      </IntlProvider>,
+      <DashboardMainContentWrapper />,
     );
     expect(screen.getByText('Reach out to your administrator for instructions on how to start learning with edX!', { exact: false })).toBeInTheDocument();
   });

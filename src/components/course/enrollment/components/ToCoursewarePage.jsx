@@ -17,7 +17,7 @@ const ToCoursewarePage = ({
     subscriptionLicense,
     enrollmentUrl,
   });
-  const landingUrl = shouldUseEnrollmentUrl ? enrollmentUrl : userEnrollment.courseRunUrl;
+  const landingUrl = shouldUseEnrollmentUrl ? enrollmentUrl : userEnrollment.linkToCourse;
   const handleClick = useTrackSearchConversionClickHandler({
     href: landingUrl,
     eventName: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_courseware.clicked',

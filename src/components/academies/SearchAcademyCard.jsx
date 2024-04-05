@@ -1,31 +1,26 @@
-import React, { useContext } from 'react';
-import {
-  Card, Hyperlink, Image,
-} from '@openedx/paragon';
+import { Link } from 'react-router-dom';
+import { Card, Image } from '@openedx/paragon';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
+
+import { useEnterpriseCustomer } from '../app/data';
 
 import './styles/Academy.scss';
 
 const SearchAcademyCard = ({
   uuid, title, shortDescription, image, isLoading,
 }) => {
-  const { enterpriseConfig } = useContext(AppContext);
-
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   return (
     <Card
       isClickable
-      as={Hyperlink}
+      as={Link}
       isLoading={isLoading}
-      destination={`/${enterpriseConfig.slug}/academies/${uuid}/`}
-      className="academy-card"
+      to={`/${enterpriseCustomer.slug}/academies/${uuid}/`}
+      className="academy-card d-inline-flex"
     >
       <Card.Header title={title} />
-      <Card.Section>
-        {shortDescription}
-      </Card.Section>
-      <br />
-      <br />
+      <Card.Section>{shortDescription}</Card.Section>
+      <Card.Section />
       <Card.Section className="clearfix">
         <Image className="float-right academy-card-image" src={image} />
       </Card.Section>

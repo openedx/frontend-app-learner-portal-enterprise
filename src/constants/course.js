@@ -9,6 +9,8 @@ export const COURSE_MODES = {
   PAID_EXECUTIVE_EDUCATION: 'paid-executive-education',
   UNPAID_EXECUTIVE_EDUCATION: 'unpaid-executive-education',
   EXECUTIVE_EDUCATION_2U: 'executive-education-2u',
+  CREDIT_VERIFIED_AUDIT: 'credit-verified-audit',
+  VERIFIED_AUDIT: 'verified-audit',
 };
 
 export const EXECUTIVE_EDUCATION_COURSE_MODES = [

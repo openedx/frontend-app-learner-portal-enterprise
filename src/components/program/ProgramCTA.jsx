@@ -1,19 +1,20 @@
-import React, { useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { defineMessages, useIntl, FormattedMessage } from '@edx/frontend-platform/i18n';
 import classNames from 'classnames';
 import { Dropdown } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { useParams } from 'react-router-dom';
-import { ProgramContext } from './ProgramContextProvider';
+import { useParams, Link } from 'react-router-dom';
 import { getProgramDuration } from './data/utils';
-import { linkToCourse } from '../course/data/utils';
+import { getLinkToCourse } from '../course/data/utils';
+import { useEnterpriseCustomer, useProgramDetails } from '../app/data';
 
 const ProgramCTA = () => {
   const intl = useIntl();
-  const { program } = useContext(ProgramContext);
+  const { data: program } = useProgramDetails();
   const { courses, subjects } = program;
-  const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { programUuid } = useParams();
 
   const { courseCount, availableCourseCount } = useMemo(() => (
@@ -165,12 +166,12 @@ const ProgramCTA = () => {
               course.enterpriseHasCourse ? (
                 <Dropdown.Item
                   key={course.title}
-                  as="a"
-                  href={linkToCourse(course, slug)}
+                  as={Link}
+                  to={getLinkToCourse(course, enterpriseCustomer.slug)}
                   className="wrap-word"
                   onClick={() => {
                     sendEnterpriseTrackEvent(
-                      uuid,
+                      enterpriseCustomer.uuid,
                       'edx.ui.enterprise.learner_portal.program.cta.course.clicked',
                       {
                         userId,
@@ -183,7 +184,7 @@ const ProgramCTA = () => {
                   {course.title}
                 </Dropdown.Item>
               ) : (
-                <Dropdown.Item key={course.title} className="wrap-word">{course.title}</Dropdown.Item>
+                <Dropdown.Item key={course.title} className="wrap-word" disabled>{course.title}</Dropdown.Item>
               )
             ))}
           </Dropdown.Menu>

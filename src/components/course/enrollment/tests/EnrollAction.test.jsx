@@ -2,8 +2,8 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
-
 import userEvent from '@testing-library/user-event';
+
 import {
   renderWithRouter,
   initialAppState,
@@ -18,11 +18,20 @@ import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import {
   CourseEnrollmentsContext,
 } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import { useEnterpriseCustomer } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('../components/ToEcomBasketPage', () => ({
   __esModule: true,
   default: () => '<ToEcomBasketPage />',
 }));
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 /**
  * These tests verify that the correct enroll component is rendered.
@@ -56,6 +65,7 @@ const subscriptionLicense = { uuid: 'a-license' };
 const EnrollLabel = (props) => (
   <div>{props.enrollLabelText}</div>
 );
+
 const renderEnrollAction = ({
   enrollAction,
   courseState = selfPacedCourseWithLicenseSubsidy,
@@ -90,6 +100,11 @@ const renderEnrollAction = ({
 };
 
 describe('Scenarios where user is enrolled in course', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   test('to_courseware_page rendered with course info url for self paced course', () => {
     const enrollLabelText = 'hello enrollee!';
     const enrollAction = (
@@ -122,11 +137,16 @@ describe('Scenarios where user is enrolled in course', () => {
 
     // the slug in the url comes from the appcontext passed when rendering.
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
-    expect(actualUrl).toContain(`${INITIAL_APP_STATE.enterpriseConfig.slug}`);
+    expect(actualUrl).toContain(`${mockEnterpriseCustomer.slug}`);
   });
 });
 
 describe('scenarios when use is not enrolled and is not eligible to', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   test('disabled div rendered when enrollmentType is ENROLL_DISABLED', () => {
     const enrollLabelText = 'disabled text!';
     const enrollAction = (
@@ -147,7 +167,13 @@ describe('scenarios when use is not enrolled and is not eligible to', () => {
 describe('scenarios user not yet enrolled, but eligible to enroll', () => {
   const enrollmentUrl = 'http://test';
   const enrollLabelText = 'disabled text!';
-  test('datasharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT', () => {
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
+  test('data sharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT', () => {
     const enrollAction = (
       <EnrollAction
         enrollmentType={TO_DATASHARING_CONSENT}

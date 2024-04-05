@@ -9,7 +9,8 @@ import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
+import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 const testCourseKey = 'bin+bar';
 const testCourseRunKey = 'course-v1:bin+bar+baz';
@@ -54,6 +55,11 @@ jest.mock('@edx/frontend-platform/config', () => ({
   })),
 }));
 
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
 const baseCourseContextValue = {
   state: {
     courseEntitlementProductSku: 'test-sku',
@@ -76,14 +82,11 @@ const baseCourseContextValue = {
   hasSuccessfulRedemption: false,
 };
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
+
 const baseAppContextValue = {
-  enterpriseConfig: {
-    uuid: 'test-uuid',
-    enableDataSharingConsent: true,
-    adminUsers: ['edx@example.com'],
-    authOrgId: 'test-uuid',
-  },
-  authenticatedUser: { userId: 3 },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const baseUserSubsidyContextValue = {
@@ -109,9 +112,7 @@ const ExternalCourseEnrollmentWrapper = ({
 describe('ExternalCourseEnrollment', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-  afterEach(() => {
-    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
   it('renders and handles checkout success', () => {
     renderWithRouter(<ExternalCourseEnrollmentWrapper />);
@@ -212,7 +213,10 @@ describe('ExternalCourseEnrollment', () => {
       expect(screen.getByText('Already Enrolled')).toBeInTheDocument();
       const dashboardButton = screen.getByText('Go to dashboard');
       expect(dashboardButton).toBeInTheDocument();
-      expect(dashboardButton).toHaveAttribute('href', 'https://getsmarter.example.com/account?org_id=test-uuid');
+      expect(dashboardButton).toHaveAttribute(
+        'href',
+        `https://getsmarter.example.com/account?org_id=${mockEnterpriseCustomer.authOrgId}`,
+      );
       expect(mockScrollIntoView).toHaveBeenCalledTimes(1);
       expect(mockScrollIntoView).toHaveBeenCalledWith(
         expect.objectContaining({ behavior: 'smooth' }),

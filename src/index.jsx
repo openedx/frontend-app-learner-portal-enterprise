@@ -9,16 +9,17 @@ import {
 } from '@edx/frontend-platform';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { mergeConfig } from '@edx/frontend-platform/config';
-import { messages as footerMessages } from '@edx/frontend-component-footer';
-import { messages as paragonMessages } from '@openedx/paragon';
 import messages from './i18n';
 
 import { App } from './components/app';
 
-import './index.scss';
+import './styles/index.scss';
 
 subscribe(APP_READY, () => {
-  ReactDOM.render(<App />, document.getElementById('root'));
+  ReactDOM.render(
+    <App />,
+    document.getElementById('root'),
+  );
 });
 
 subscribe(APP_INIT_ERROR, (error) => {
@@ -59,11 +60,7 @@ initialize({
       });
     },
   },
-  messages: [
-    paragonMessages,
-    footerMessages,
-    ...messages,
-  ],
+  messages,
   // We don't require authenticated users so that we can perform our own auth redirect to a proxy login that depends on
   // the route, rather than the LMS like frontend-platform does.
   requireAuthenticatedUser: false,

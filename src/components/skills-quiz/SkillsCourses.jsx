@@ -14,7 +14,6 @@ import {
 } from '@edx/frontend-enterprise-catalog-search';
 import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { ZoomOut } from '@openedx/paragon/icons';
 import PropTypes from 'prop-types';
@@ -22,46 +21,22 @@ import PropTypes from 'prop-types';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { sortSkillsCoursesWithCourseCount } from './data/utils';
 import { SkillsContext } from './SkillsContextProvider';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
 import {
   NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS,
 } from './constants';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 import CourseCard from './CourseCard';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 
 const SkillsCourses = ({ index }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { state: { selectedJob } } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(false);
   const [courses, setCourses] = useState([]);
   const [hitCount, setHitCount] = useState(undefined);
   const { refinements: { skill_names: skills } } = useContext(SearchContext);
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
-
-  const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodes },
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-
-  const searchCatalogs = useSearchCatalogs({
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    catalogsForSubsidyRequests,
-    redeemableLearnerCreditPolicies,
-  });
-
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
-    searchCatalogs,
-  });
+  const filters = useDefaultSearchFilters();
 
   const skillsFacetFilter = useMemo(
     () => {
@@ -134,7 +109,7 @@ const SkillsCourses = ({ index }) => {
         ) : coursesWithSkills?.map(coursesWithSkill => (
           <Badge
             as={Link}
-            to={`/${enterpriseConfig.slug}/search?skill_names=${coursesWithSkill.key}`}
+            to={`/${enterpriseCustomer.slug}/search?skill_names=${coursesWithSkill.key}`}
             key={coursesWithSkill.key}
             className="course-skill"
             variant="light"
@@ -158,7 +133,7 @@ const SkillsCourses = ({ index }) => {
             </h3>
             <Button
               as={Link}
-              to={`/${enterpriseConfig.slug}/search?skill_names=${coursesWithSkill.key}`}
+              to={`/${enterpriseCustomer.slug}/search?skill_names=${coursesWithSkill.key}`}
               variant="link"
               size="inline"
             >

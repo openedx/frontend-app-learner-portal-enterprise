@@ -1,14 +1,14 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import React from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
-import { screen, act } from '@testing-library/react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { renderWithRouter } from '../../../utils/tests';
+import { queryClient, renderWithRouter } from '../../../utils/tests';
 
 import SearchAcademy from '../SearchAcademy';
+import { queryAcademiesList, useEnterpriseCustomer } from '../../app/data';
 
 // config
 const APP_CONFIG = {
@@ -22,6 +22,7 @@ const ENTERPRISE_UUID = '12345678-9000-0000-0000-123456789101';
 const ACADEMY_MOCK_DATA = {
   uuid: ACADEMY_UUID,
   title: 'My Awesome Academy',
+  short_description: 'I am a short academy description.',
   long_description: 'I am an awesome academy.',
   image: 'example.com/academies/images/awesome-academy.png',
   tags: [
@@ -46,8 +47,8 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ enterpriseSlug: 'test-enterprise-uuid', academyUUID: ACADEMY_UUID }),
 }));
-jest.mock('@edx/frontend-platform/config', () => ({
-  ...jest.requireActual('@edx/frontend-platform/config'),
+jest.mock('@edx/frontend-platform', () => ({
+  ...jest.requireActual('@edx/frontend-platform'),
   getConfig: jest.fn(() => APP_CONFIG),
 }));
 jest.mock('@edx/frontend-platform/auth');
@@ -56,31 +57,37 @@ getAuthenticatedHttpClient.mockReturnValue(axios);
 axiosMock.onGet(ACADEMY_API_ENDPOINT).reply(200, ACADEMY_MOCK_DATA);
 axiosMock.onGet(ACADEMIES_LIST_API_ENDPOINT).reply(200, { count: 1, results: [ACADEMY_MOCK_DATA] });
 
-const SearchAcademyWithContext = ({
-  initialAppState = {}, ...rest
-}) => (
-  <AppContext.Provider value={initialAppState}>
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockQueryClient = queryClient();
+
+const SearchAcademyWithContext = ({ ...rest }) => (
+  <QueryClientProvider client={mockQueryClient}>
     <SearchAcademy {...rest} />
-  </AppContext.Provider>
+  </QueryClientProvider>
 );
 
-describe('<SearchAcademy />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-      uuid: ENTERPRISE_UUID,
-    },
-  };
+const mockEnterpriseCustomer = {
+  slug: 'test-enterprise-slug',
+  uuid: ENTERPRISE_UUID,
+};
 
+describe('<SearchAcademy />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    mockQueryClient.setQueryData(queryAcademiesList(ENTERPRISE_UUID).queryKey, []);
+  });
   it('renders search academy section correctly.', async () => {
-    await act(async () => renderWithRouter(
+    renderWithRouter(
       <IntlProvider locale="en">
-        <SearchAcademyWithContext
-          initialAppState={initialAppState}
-        />
+        <SearchAcademyWithContext />
       </IntlProvider>,
-    ));
-    expect(screen.getByText('edX Academies; designed to meet your most critical business needs')).toBeInTheDocument();
+    );
+    expect(await screen.findByText('edX Academies; designed to meet your most critical business needs')).toBeInTheDocument();
     expect(screen.getByText('My Awesome Academy')).toBeInTheDocument();
   });
 });

@@ -1,7 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
+import { Link } from 'react-router-dom';
 import { Card, Icon, Truncate } from '@openedx/paragon';
 import { Archive } from '@openedx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -9,21 +8,14 @@ import cardImageCapFallbackSrc from '@edx/brand/paragon/images/card-imagecap-fal
 
 import { useHighlightedContentCardData } from './data';
 import { COURSE_RUN_AVAILABILITY } from '../../course/data/constants';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const HighlightedContentCard = ({
   highlightSetUUID,
   highlightedContent,
-  isLoading,
   ...props
 }) => {
-  const {
-    enterpriseConfig: {
-      slug: enterpriseSlug,
-      uuid: enterpriseUUID,
-    },
-  } = useContext(AppContext);
-  const navigate = useNavigate();
-
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     variant,
     title,
@@ -34,7 +26,7 @@ const HighlightedContentCard = ({
     aggregationKey,
     courseRunStatuses,
   } = useHighlightedContentCardData({
-    enterpriseSlug,
+    enterpriseSlug: enterpriseCustomer.slug,
     highlightedContent,
   });
 
@@ -45,9 +37,8 @@ const HighlightedContentCard = ({
       // do nothing
       return;
     }
-    navigate(href);
     sendEnterpriseTrackEvent(
-      enterpriseUUID,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.search.content_highlights.card_carousel.item.clicked',
       {
         highlightSetUUID,
@@ -58,10 +49,12 @@ const HighlightedContentCard = ({
 
   return (
     <Card
-      isClickable={!isLoading}
-      isLoading={isLoading}
+      className="d-inline-flex"
+      as={Link}
+      to={href}
       variant={variant}
       onClick={handleContentCardClick}
+      isClickable
       {...props}
     >
       <Card.ImageCap
@@ -73,10 +66,10 @@ const HighlightedContentCard = ({
       />
       <Card.Header
         title={(
-          <Truncate maxLine={3}>{title}</Truncate>
+          <Truncate lines={3}>{title}</Truncate>
         )}
         subtitle={authoringOrganizations?.content && (
-          <Truncate maxLine={2}>{authoringOrganizations.content}</Truncate>
+          <Truncate lines={2}>{authoringOrganizations.content}</Truncate>
         )}
       />
       <Card.Section />

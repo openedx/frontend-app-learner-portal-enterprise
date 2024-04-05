@@ -1,23 +1,26 @@
-import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import {
   Badge, OverlayTrigger, Popover,
 } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { AppContext } from '@edx/frontend-platform/react';
-import { CourseContext } from './CourseContextProvider';
 import {
   SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR,
 } from './data/constants';
 import { shortenString } from './data/utils';
+import { useCourseMetadata, useEnterpriseCustomer } from '../app/data';
 
 export const MAX_VISIBLE_SKILLS = 5;
 
 const CourseSkills = () => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const { state } = useContext(CourseContext);
-  const { skills } = state.course;
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: skills } = useCourseMetadata({
+    select: ({ transformed }) => transformed.skills,
+  });
+
+  if (skills.length === 0) {
+    return null;
+  }
 
   return (
     <div className="mb-5">
@@ -56,7 +59,7 @@ const CourseSkills = () => {
           >
             <Badge
               as={Link}
-              to={`/${enterpriseConfig.slug}/search?skill_names=${skill.name}`}
+              to={`/${enterpriseCustomer.slug}/search?skill_names=${skill.name}`}
               key={skill.name}
               className="course-skill"
               variant="light"

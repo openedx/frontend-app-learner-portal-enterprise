@@ -1,18 +1,12 @@
-import React, { useContext } from 'react';
 import { Button } from '@openedx/paragon';
 import { Link } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import SkillsQuizImage from '../../../assets/images/skills-quiz/skills-quiz.png';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const CourseRecommendations = () => {
-  const {
-    enterpriseConfig: {
-      slug,
-    },
-  } = useContext(AppContext);
-
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   return (
     <div className="course-recommendations">
       <h2 className="course-recommendations-title">
@@ -33,7 +27,7 @@ const CourseRecommendations = () => {
           </p>
           <Button
             as={Link}
-            to={`/${slug}/skills-quiz`}
+            to={`/${enterpriseCustomer.slug}/skills-quiz`}
             className="btn-brand-primary d-block d-md-inline-block"
           >
             <FormattedMessage

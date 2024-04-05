@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { enterpriseUserSubsidyQueryKeys } from '../../../../enterprise-user-subsidy/data/constants';
 
 /**
  * Acts as a state machine for the redemption status, with side effects for
@@ -9,7 +7,6 @@ import { enterpriseUserSubsidyQueryKeys } from '../../../../enterprise-user-subs
  * @returns An object containing the redemption status, and functions to mutate the redemption status.
  */
 const useRedemptionStatus = () => {
-  const queryClient = useQueryClient();
   const [redemptionStatus, setRedemptionStatus] = useState();
 
   const handleRedeemClick = () => {
@@ -17,8 +14,6 @@ const useRedemptionStatus = () => {
   };
 
   const handleRedeemSuccess = (transaction) => {
-    queryClient.invalidateQueries({ queryKey: enterpriseUserSubsidyQueryKeys.policy() });
-
     setRedemptionStatus('success');
 
     // redirect to courseware

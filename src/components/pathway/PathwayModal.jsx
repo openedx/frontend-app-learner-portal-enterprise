@@ -1,7 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import {
   Button,
@@ -20,10 +19,11 @@ import DOMPurify from 'dompurify';
 import { useLearnerPathwayData } from './data/hooks';
 import coursesAndProgramsText from './data/utils';
 import defaultBannerImage from '../../assets/images/pathway/default-back-up-image.png';
-import { linkToCourse } from '../course/data/utils';
+import { getLinkToCourse } from '../course/data/utils';
+import { useEnterpriseCustomer } from '../app/data';
 
 const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).map((node, index) => {
-  const nodePageLink = node.contentType === 'course' ? linkToCourse(node, slug) : `/${slug}/program/${node.uuid}`;
+  const nodePageLink = node.contentType === 'course' ? getLinkToCourse(node, slug) : `/${slug}/program/${node.uuid}`;
   const buttonText = node.contentType === 'course' ? 'Course Details' : 'Program Details';
   const rowKey = node.contentType === 'course' ? node.key : node.uuid;
 
@@ -66,8 +66,7 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
 
 const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
   const intl = useIntl();
-
-  const { enterpriseConfig: { slug } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const pathwayUuid = isOpen ? learnerPathwayUuid : null;
   const [pathway, isLoading] = useLearnerPathwayData({ learnerPathwayUuid: pathwayUuid });
 
@@ -89,7 +88,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
 
     const requirementsTitleWithMultipleSteps = intl.formatMessage(
       {
-        id: 'enterprise.dashboard.pathways.progress.page.pathway.requirements.step.title',
+        id: 'enterprise.dashboard.pathways.progress.page.pathway.requirements.step.title.with.options',
         defaultMessage: 'Requirement {index}: Choose any {count} of the following',
         description: 'Title indicating multiple requirements steps for a pathway on the pathway progress page.',
       },
@@ -224,7 +223,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
             className="mb-4"
             key={step.uuid}
           >
-            {renderStepNodes(step, slug)}
+            {renderStepNodes(step, enterpriseCustomer.slug)}
           </Collapsible>
         ))}
       </Container>

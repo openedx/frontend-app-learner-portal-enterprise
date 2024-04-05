@@ -1,53 +1,37 @@
-import React, { useContext, useEffect, useRef } from 'react';
-import {
-  useNavigate,
-  useLocation,
-  useParams,
-} from 'react-router-dom';
+import { useContext, useEffect, useRef } from 'react';
 import {
   Alert, Button, Col, Container, Hyperlink, Row,
 } from '@openedx/paragon';
 import { CheckCircle } from '@openedx/paragon/icons';
-
 import { getConfig } from '@edx/frontend-platform/config';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
+
 import { isDuplicateExternalCourseOrder } from '../../executive-education-2u/data';
 import { CourseContext } from '../CourseContextProvider';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import RegistrationSummaryCard from '../../executive-education-2u/components/RegistrationSummaryCard';
 import UserEnrollmentForm from '../../executive-education-2u/UserEnrollmentForm';
-import { useExternalEnrollmentFailureReason, useIsCourseAssigned, useMinimalCourseMetadata } from '../data/hooks';
+import {
+  useExternalEnrollmentFailureReason,
+  useIsCourseAssigned,
+  useMinimalCourseMetadata,
+} from '../data/hooks';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { features } from '../../../config';
+import { useEnterpriseCustomer } from '../../app/data';
+
+export { default as makeExternalCourseEnrollmentLoader } from './externalCourseEnrollmentLoader';
 
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
-  const navigate = useNavigate();
-  const { courseRunKey } = useParams();
-  const { pathname } = useLocation();
-  const {
-    state: {
-      courseEntitlementProductSku,
-      course,
-    },
-    userSubsidyApplicableToCourse,
-    redeemabilityPerContentKey,
-    externalCourseFormSubmissionError,
-  } = useContext(CourseContext);
-  const {
-    enterpriseConfig: { authOrgId, slug },
-  } = useContext(AppContext);
-  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const completeEnrollmentUrl = `${pathname}/complete`;
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
-
-  const courseMetadata = useMinimalCourseMetadata();
+  const { externalCourseFormSubmissionError } = useContext(CourseContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const isCourseAssigned = useIsCourseAssigned();
+  const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
 
   const externalDashboardQueryParams = new URLSearchParams();
-  if (authOrgId) {
-    externalDashboardQueryParams.set('org_id', authOrgId);
+  if (enterpriseCustomer.authOrgId) {
+    externalDashboardQueryParams.set('org_id', enterpriseCustomer.authOrgId);
   }
 
   let externalDashboardUrl = config.GETSMARTER_LEARNER_DASHBOARD_URL;
@@ -68,18 +52,6 @@ const ExternalCourseEnrollment = () => {
       containerRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [externalCourseFormSubmissionError, containerRef]);
-
-  // Once a redemption has successfully completed and the can-redeem query has been invalidated or
-  // a user attempts to navigate directly to :slug/:courseType/course/:courseKey/enroll/:courseRunKey,
-  // redirect to the enrollment complete page.
-  useEffect(() => {
-    const runHasSuccessfulRedemption = !!redeemabilityPerContentKey.find(
-      r => r.contentKey === courseRunKey,
-    )?.hasSuccessfulRedemption;
-    if (runHasSuccessfulRedemption) {
-      navigate(completeEnrollmentUrl);
-    }
-  }, [completeEnrollmentUrl, course.key, courseRunKey, redeemabilityPerContentKey, navigate, pathname, slug]);
 
   return (
     <div className="fill-vertical-space page-light-bg">
@@ -156,13 +128,9 @@ const ExternalCourseEnrollment = () => {
                     )}
                 </p>
               )}
-              <CourseSummaryCard courseMetadata={courseMetadata} />
-              <RegistrationSummaryCard priceDetails={courseMetadata.priceDetails} />
-              <UserEnrollmentForm
-                productSKU={courseEntitlementProductSku}
-                courseRunKey={courseRunKey}
-                userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-              />
+              <CourseSummaryCard courseMetadata={minimalCourseMetadata} />
+              <RegistrationSummaryCard priceDetails={minimalCourseMetadata.priceDetails} />
+              <UserEnrollmentForm />
             </Col>
           </Row>
         </Container>

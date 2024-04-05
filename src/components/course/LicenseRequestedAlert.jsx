@@ -1,40 +1,33 @@
-import React, { useState, useContext, useMemo } from 'react';
-import { Container, Alert } from '@openedx/paragon';
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import Cookies from 'universal-cookie';
-import PropTypes from 'prop-types';
+import { Container, Alert } from '@openedx/paragon';
 
 import {
   LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME,
   LICENSE_REQUESTED_ALERT_HEADING,
   LICENSE_REQUESTED_ALERT_TEXT,
 } from './data/constants';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
-import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
+import { useBrowseAndRequest, useEnterpriseCustomerContainsContent, useSubscriptions } from '../app/data';
 
 /**
  * A component to render an alert when a learner has a license request that is pending review.
  * Once dismissed, the learner will not see this alert again until the cookies are cleared.
  */
-const LicenseRequestedAlert = ({ catalogList }) => {
+const LicenseRequestedAlert = () => {
+  const { courseKey } = useParams();
+  const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
   const cookies = new Cookies();
   const previouslyDismissed = cookies.get(LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME);
   const [isAlertOpen, setIsAlertOpen] = useState(!previouslyDismissed);
 
-  const {
-    requestsBySubsidyType,
-  } = useContext(SubsidyRequestsContext);
+  const { data: browseAndRequest } = useBrowseAndRequest();
+  const hasPendingLicenseRequest = browseAndRequest.requests.subscriptionLicenses.length > 0;
 
-  const { customerAgreementConfig } = useContext(UserSubsidyContext);
+  const { data: { customerAgreement } } = useSubscriptions();
 
-  const hasPendingLicenseRequest = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
-
-  const subscriptionCatalogUUIDs = useMemo(() => customerAgreementConfig?.subscriptions?.map(
-    subscription => subscription.enterpriseCatalogUuid,
-  ) ?? [], [customerAgreementConfig]);
-
-  const hasApplicableSubscription = useMemo(() => subscriptionCatalogUUIDs.find(
-    uuid => catalogList.includes(uuid),
-  ), [catalogList, subscriptionCatalogUUIDs]);
+  const subscriptionCatalogUUIDs = customerAgreement?.availableSubscriptionCatalogs;
+  const hasApplicableSubscription = !!subscriptionCatalogUUIDs?.find(uuid => catalogList.includes(uuid));
 
   // Do not show the alert if there is no applicable subscription or no pending license request
   if (!(hasApplicableSubscription && hasPendingLicenseRequest && isAlertOpen)) {
@@ -56,10 +49,6 @@ const LicenseRequestedAlert = ({ catalogList }) => {
       </Alert>
     </Container>
   );
-};
-
-LicenseRequestedAlert.propTypes = {
-  catalogList: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default LicenseRequestedAlert;

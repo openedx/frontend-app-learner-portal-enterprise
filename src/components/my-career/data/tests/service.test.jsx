@@ -2,9 +2,8 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-import {
-  getLearnerProfileInfo, getLearnerSkillLevels, patchProfile,
-} from '../service';
+import { patchProfile } from '../service';
+import { fetchLearnerSkillLevels } from '../../../app/data';
 import { CURRENT_JOB_PROFILE_FIELD_NAME } from '../constants';
 
 // config
@@ -14,7 +13,8 @@ const APP_CONFIG = {
   LMS_BASE_URL: 'http://localhost:18000',
 };
 
-jest.mock('@edx/frontend-platform/config', () => ({
+jest.mock('@edx/frontend-platform', () => ({
+  ...jest.requireActual('@edx/frontend-platform'),
   getConfig: () => (APP_CONFIG),
 }));
 
@@ -40,23 +40,13 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 
 describe('my career services', () => {
   beforeEach(() => {
-    axiosMock.resetHistory();
     jest.clearAllMocks();
-  });
-
-  afterEach(() => {
     axiosMock.resetHistory();
-    jest.clearAllMocks();
-  });
-
-  it('fetches enterprise learner profile info', async () => {
-    await getLearnerProfileInfo(USERNAME);
-    expect(axios.get).toBeCalledWith(LEARNER_PROFILE_ENDPOINT);
   });
 
   it('fetches enterprise learner skill levels', async () => {
-    await getLearnerSkillLevels(JOB_ID);
-    expect(axios.get).toBeCalledWith(LEARNER_SKILL_LEVELS_ENDPOINT);
+    await fetchLearnerSkillLevels(JOB_ID);
+    expect(axios.get).toHaveBeenCalledWith(LEARNER_SKILL_LEVELS_ENDPOINT);
   });
 
   it('patches enterprise learner profile info', async () => {
@@ -69,6 +59,6 @@ describe('my career services', () => {
       headers: { 'Content-Type': 'application/merge-patch+json' },
     };
     await patchProfile(USERNAME, params);
-    expect(axios.patch).toBeCalledWith(LEARNER_PROFILE_ENDPOINT, params, header);
+    expect(axios.patch).toHaveBeenCalledWith(LEARNER_PROFILE_ENDPOINT, params, header);
   });
 });

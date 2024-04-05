@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { FormattedMessage, IntlProvider } from '@edx/frontend-platform/i18n';
 import ProgramPathwayOpportunity from '../ProgramPathwayOpportunity';
 
 describe('<ProgramPathwayOpportunity />', () => {
@@ -25,13 +25,19 @@ describe('<ProgramPathwayOpportunity />', () => {
       <IntlProvider locale="en">
         <ProgramPathwayOpportunity
           pathways={mockPathways}
-          title="Mock Title"
+          title={(
+            <FormattedMessage
+              id="enterprise.dashboard.program.sidebar.credit.opportunities"
+              defaultMessage="Additional Credit Opportunities"
+              description="Title for additional credit opportunities on program sidebar"
+            />
+          )}
           pathwayClass="mock-class"
         />
       </IntlProvider>,
     );
 
-    expect(screen.getByText('Mock Title')).toBeInTheDocument();
+    expect(screen.getByText('Additional Credit Opportunities')).toBeInTheDocument();
 
     mockPathways.forEach((pathway) => {
       expect(screen.getByText(pathway.name)).toBeInTheDocument();

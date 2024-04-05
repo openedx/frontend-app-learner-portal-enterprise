@@ -1,21 +1,25 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { screen, waitFor } from '@testing-library/react';
-import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SearchPathways from '../SearchPathways';
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useDefaultSearchFilters: jest.fn(),
 }));
 
 const TEST_PATHWAY_UUID = 'test-pathway-uuid';
@@ -37,13 +41,6 @@ const pathways = {
 const testIndex = {
   indexName: 'test-index-name',
   search: jest.fn().mockImplementation(() => Promise.resolve(pathways)),
-};
-
-const defaultAppState = {
-  enterpriseConfig: {
-    slug: TEST_ENTERPRISE_SLUG,
-    uuid: '5d3v5ee2-761b-49b4-8f47-f6f51589d815',
-  },
 };
 
 const defaultSearchContext = {
@@ -71,44 +68,28 @@ const defaultSkillsState = {
   },
 };
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const SearchPathwaysWithContext = ({
-  initialAppState = defaultAppState,
   initialSkillsState = defaultSkillsState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
   initialSearchContext = defaultSearchContext,
   index,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <SearchContext.Provider value={initialSearchContext}>
-            <SkillsContext.Provider value={initialSkillsState}>
-              <SearchPathways index={index} />
-            </SkillsContext.Provider>
-          </SearchContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
+    <SearchContext.Provider value={initialSearchContext}>
+      <SkillsContext.Provider value={initialSkillsState}>
+        <SearchPathways index={index} />
+      </SkillsContext.Provider>
+    </SearchContext.Provider>
   </IntlProvider>
 );
 
 describe('<SearchPathways />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+  });
   test('renders the correct data', async () => {
     renderWithRouter(<SearchPathwaysWithContext index={testIndex} />);
     await waitFor(() => {

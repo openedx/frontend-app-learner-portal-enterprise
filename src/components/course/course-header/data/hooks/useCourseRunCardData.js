@@ -1,10 +1,10 @@
 import { useLocation } from 'react-router-dom';
 
-import { COURSE_AVAILABILITY_MAP } from '../../../data/constants';
 import useCourseRunCardHeading from './useCourseRunCardHeading';
 import useCourseRunCardSubHeading from './useCourseRunCardSubHeading';
 import useCourseRunCardAction from './useCourseRunCardAction';
 import { getExternalCourseEnrollmentUrl } from '../../../enrollment/utils';
+import { COURSE_AVAILABILITY_MAP } from '../../../../app/data';
 
 /**
  * Gathers the data needed to render the `CourseRunCard` component.

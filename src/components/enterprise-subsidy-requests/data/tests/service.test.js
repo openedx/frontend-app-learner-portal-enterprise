@@ -8,7 +8,8 @@ import {
   fetchCouponCodeRequests,
   fetchLicenseRequests,
 } from '../service';
-import { SUBSIDY_REQUEST_STATE } from '../../constants';
+
+import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);

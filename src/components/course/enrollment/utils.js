@@ -41,7 +41,7 @@ export function canUserRequestSubsidyForCourse({
   }
   return (
     subsidyRequestConfiguration.subsidyRequestsEnabled
-    && subsidyRequestCatalogsApplicableToCourse.size > 0
+    && subsidyRequestCatalogsApplicableToCourse.length > 0
     && !userSubsidyApplicableToCourse
   );
 }
