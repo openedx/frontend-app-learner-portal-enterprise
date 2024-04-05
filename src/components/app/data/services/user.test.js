@@ -79,7 +79,7 @@ describe('fetchUserEntitlements', () => {
     const mockEntitlements = { results: [] };
     axiosMock.onGet(ENTITLEMENTS_ENDPOINT).reply(200, mockEntitlements);
     const entitlements = await fetchUserEntitlements();
-    expect(entitlements).toEqual(mockEntitlements);
+    expect(entitlements).toEqual(mockEntitlements.results);
   });
 });
 

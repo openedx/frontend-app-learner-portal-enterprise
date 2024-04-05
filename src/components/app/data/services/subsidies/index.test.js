@@ -3,8 +3,10 @@ import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
+import { logError } from '@edx/frontend-platform/logging';
 import { fetchEnterpriseOffers, fetchRedeemablePolicies } from '.';
 import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { transformEnterpriseOffer } from '../../../../enterprise-user-subsidy/enterprise-offers/data/utils';
 
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
@@ -37,17 +39,41 @@ describe('fetchEnterpriseOffers', () => {
 
   it('returns enterprise offers', async () => {
     const enterpriseOffers = {
-      results: [{ id: 123 }],
+      results: [{
+        id: 123,
+        maxDiscount: 100,
+        maxGlobalApplications: 5,
+      }],
     };
     axiosMock.onGet(ENTERPRISE_OFFERS_URL).reply(200, enterpriseOffers);
     const result = await fetchEnterpriseOffers(mockEnterpriseId);
-    expect(result).toEqual(enterpriseOffers.results);
+    const transformedOffers = enterpriseOffers.results.map((offer) => transformEnterpriseOffer(offer));
+    const currentEnterpriseOffers = transformedOffers.filter((offer) => offer.isCurrent);
+    const expectedResults = {
+      enterpriseOffers: transformedOffers,
+      currentEnterpriseOffers,
+      canEnrollWithEnterpriseOffers: enterpriseOffers.results.length > 0,
+      hasCurrentEnterpriseOffers: currentEnterpriseOffers.length > 0,
+      hasLowEnterpriseOffersBalance: currentEnterpriseOffers.some(offer => offer.isLowOnBalance),
+      hasNoEnterpriseOffersBalance: currentEnterpriseOffers.every(offer => offer.isOutOfBalance),
+    };
+    expect(result).toEqual(expectedResults);
   });
 
-  it('returns empty array on error', async () => {
+  it('returns array with empty data on error', async () => {
+    const expectedEmptyResult = {
+      canEnrollWithEnterpriseOffers: false,
+      currentEnterpriseOffers: [],
+      enterpriseOffers: [],
+      hasCurrentEnterpriseOffers: false,
+      hasLowEnterpriseOffersBalance: false,
+      hasNoEnterpriseOffersBalance: false,
+    };
     axiosMock.onGet(ENTERPRISE_OFFERS_URL).reply(500);
     const result = await fetchEnterpriseOffers(mockEnterpriseId);
-    expect(result).toEqual([]);
+    expect(logError).toHaveBeenCalledTimes(1);
+    expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 500'));
+    expect(result).toEqual(expectedEmptyResult);
   });
 });
 
