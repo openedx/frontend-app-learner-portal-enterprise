@@ -1,5 +1,4 @@
-import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';

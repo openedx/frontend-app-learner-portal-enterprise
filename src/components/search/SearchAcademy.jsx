@@ -17,7 +17,7 @@ const SearchAcademy = () => {
 
   if (fetchError) {
     return (
-      <Container size="lg" className="search-results">
+      <Container size="lg" className="search-results" data-testid="search-error">
         <SearchError title={ACADEMY_TITLE} />
       </Container>
     );

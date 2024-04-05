@@ -7,7 +7,6 @@ import { screen } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient, renderWithRouter } from '../../../utils/tests';
 import AddJobRole from '../AddJobRole';
-import { SUBSIDY_TYPE } from '../../../constants';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../app/data';
 
@@ -39,28 +38,6 @@ jest.mock('react-router-dom', () => ({
 console.error = jest.fn();
 
 const defaultAppState = { authenticatedUser: authenticatedUserFactory() };
-
-const defaultSubsidyRequestState = {
-  subsidyRequestConfiguration: null,
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
-};
-
-const expiringSubscriptionUserSubsidyState = {
-  subsidyRequestConfiguration: null,
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
-  subscriptionPlan: {
-    daysUntilExpiration: 60,
-  },
-  showExpirationNotifications: false,
-};
 
 const AddJobRoleWrapper = () => (
   <QueryClientProvider client={queryClient()}>

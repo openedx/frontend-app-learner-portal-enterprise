@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
-import dayjs from 'dayjs';
 import useSearchCatalogs from './useSearchCatalogs';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../../config';
