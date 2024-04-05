@@ -184,7 +184,7 @@ const ProgramCTA = () => {
                   {course.title}
                 </Dropdown.Item>
               ) : (
-                <Dropdown.Item key={course.title} className="wrap-word">{course.title}</Dropdown.Item>
+                <Dropdown.Item key={course.title} className="wrap-word" disabled>{course.title}</Dropdown.Item>
               )
             ))}
           </Dropdown.Menu>
