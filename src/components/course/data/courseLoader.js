@@ -85,7 +85,7 @@ export default function makeCourseLoader(queryClient) {
       queryClient.ensureQueryData(queryUserEntitlements()),
       queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseId, [courseKey])),
       queryClient.ensureQueryData(queryCourseReviews(courseKey)),
-      subsidyQueries.then((subsidyResponses) => {
+      subsidyQueries.then(async (subsidyResponses) => {
         const redeemableLearnerCreditPolicies = subsidyResponses[0];
         const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[1];
         const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[2];
