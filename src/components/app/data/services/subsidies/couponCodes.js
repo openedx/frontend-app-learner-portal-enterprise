@@ -2,6 +2,7 @@ import { getConfig } from '@edx/frontend-platform';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { fetchPaginatedData } from '../utils';
+import { hasValidStartExpirationDates } from '../../../../../utils/common';
 
 // Coupon Codes
 
@@ -21,7 +22,14 @@ export async function fetchCouponCodeAssignments(enterpriseId, options = {}) {
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/?${queryParams.toString()}`;
   try {
     const { results } = await fetchPaginatedData(url);
-    return results;
+    const transformedResults = results.map((couponCode) => ({
+      ...couponCode,
+      available: hasValidStartExpirationDates({
+        startDate: couponCode.couponStartDate,
+        endDate: couponCode.couponEndDate,
+      }),
+    }));
+    return transformedResults;
   } catch (error) {
     logError(error);
     return [];
