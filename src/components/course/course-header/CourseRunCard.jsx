@@ -31,7 +31,7 @@ const CourseRunCard = ({ courseRun }) => {
     course: courseMetadata,
     courseRun,
     userEnrollment: userEnrollmentForCourseRun,
-    courseRunUrl: userEnrollmentForCourseRun.linkToCourse,
+    courseRunUrl: userEnrollmentForCourseRun?.linkToCourse,
     userCanRequestSubsidyForCourse,
     subsidyAccessPolicy: userSubsidyApplicableToCourse,
   });
