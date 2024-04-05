@@ -18,7 +18,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     requestsBySubsidyType,
   } = useContext(SubsidyRequestsContext);
 
-  const isSubsidyRequestsEnabled = subsidyRequestConfiguration?.subsidyRequestsEnabled;
+  const isSubsidyRequestsEnabled = !!subsidyRequestConfiguration?.subsidyRequestsEnabled;
 
   const requestedCourseEnrollments = useMemo(() => {
     if (!isSubsidyRequestsEnabled) {

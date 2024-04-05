@@ -84,7 +84,7 @@ const SubsidyRequestButton = () => {
    *    - user not already enrolled in crouse
    *    - user has no subsidy for course
    */
-  const hasSubsidyRequestsEnabled = browseAndRequestConfiguration?.subsidyRequestsEnabled;
+  const hasSubsidyRequestsEnabled = !!browseAndRequestConfiguration?.subsidyRequestsEnabled;
   const showSubsidyRequestButton = hasSubsidyRequestsEnabled && (
     userHasSubsidyRequest || (
       subsidyRequestCatalogsApplicableToCourse.length > 0 && !isUserEnrolled && !userSubsidyApplicableToCourse
