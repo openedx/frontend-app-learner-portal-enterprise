@@ -30,7 +30,7 @@ const CourseMaterialsButton = ({ className }) => {
       className={className}
       variant="brand"
       as={Hyperlink}
-      destination={userEnrollment.resumeCourseRunUrl || userEnrollment.linkToCourse}
+      destination={userEnrollment.linkToCourse}
       target="_blank"
     >
       {intl.formatMessage({
