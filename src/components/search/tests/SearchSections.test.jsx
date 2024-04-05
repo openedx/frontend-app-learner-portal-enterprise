@@ -12,8 +12,9 @@ import SearchProgram from '../SearchProgram';
 import SearchPathway from '../SearchPathway';
 import Search, { sendPushEvent } from '../Search';
 import { EVENTS, pushEvent } from '../../../utils/optimizely';
-import { useEnterpriseCustomer, useEnterpriseFeatures } from '../../app/data';
+import { useDefaultSearchFilters, useEnterpriseFeatures, useEnterpriseCustomer } from '../../app/data';
 import { useAlgoliaSearch } from '../../../utils/hooks';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -27,6 +28,7 @@ jest.mock('../../app/data', () => ({
   useCanOnlyViewHighlights: jest.fn(() => ({ data: {} })),
   useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
   useEnterpriseFeatures: jest.fn(),
+  useDefaultSearchFilters: jest.fn(),
 }));
 
 jest.mock('../../../utils/hooks', () => ({
@@ -72,18 +74,15 @@ const SearchWrapper = ({
   </QueryClientProvider>
 );
 
-const mockFilter = 'enterprise_customer_uuids: test-uuid';
-const mockEnterpriseCustomer = {
-  name: 'test-enterprise',
-  slug: 'test-enterprise-slug',
-  uuid: 'test-enterprise-uuid',
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockFilter = `enterprise_customer_uuids: ${mockEnterpriseCustomer.uuid}`;
 
 describe('<Search />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useEnterpriseFeatures.mockReturnValue({ data: { featurePrequerySearchSuggestions: false } });
+    useDefaultSearchFilters.mockReturnValue(mockFilter);
     useAlgoliaSearch.mockReturnValue([{ search: jest.fn(), appId: 'test-app-id' }, { indexName: 'mock-index-name' }]);
   });
 
@@ -96,7 +95,7 @@ describe('<Search />', () => {
     expect(screen.getByText('Courses (2 results)')).toBeInTheDocument();
   });
 
-  test('renders the programe section with the correct title', () => {
+  test('renders the program section with the correct title', () => {
     renderWithRouter(
       <SearchWrapper>
         <SearchProgram filter={mockFilter} />
