@@ -485,7 +485,7 @@ export function getCatalogsForSubsidyRequests({
   couponsOverview,
 }) {
   const catalogs = [];
-  if (!browseAndRequestConfiguration.subsidyRequestsEnabled) {
+  if (!browseAndRequestConfiguration?.subsidyRequestsEnabled) {
     return catalogs;
   }
   if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE && customerAgreement) {
