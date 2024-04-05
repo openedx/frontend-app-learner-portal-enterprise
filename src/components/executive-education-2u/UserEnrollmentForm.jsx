@@ -24,16 +24,13 @@ import {
   queryCanRedeemContextQueryKey,
   queryEnterpriseCourseEnrollments,
   queryRedeemablePolicies,
+  useCourseMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
 } from '../app/data';
 import { useUserSubsidyApplicableToCourse } from '../course/data';
 
-const UserEnrollmentForm = ({
-  className,
-  productSKU,
-  activeCourseRun,
-}) => {
+const UserEnrollmentForm = ({ className }) => {
   const navigate = useNavigate();
   const config = getConfig();
   const queryClient = useQueryClient();
@@ -44,11 +41,12 @@ const UserEnrollmentForm = ({
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
-  const { courseKey } = useParams();
+  const { courseKey, courseRunKey } = useParams();
   const {
     externalCourseFormSubmissionError,
     setExternalCourseFormSubmissionError,
   } = useContext(CourseContext);
+  const { data: { courseEntitlementProductSku } } = useCourseMetadata();
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [enrollButtonState, setEnrollButtonState] = useState('default');
@@ -79,7 +77,7 @@ const UserEnrollmentForm = ({
   };
 
   const { redeem } = useStatefulEnroll({
-    contentKey: activeCourseRun.key,
+    contentKey: courseRunKey,
     subsidyAccessPolicy: userSubsidyApplicableToCourse,
     onSuccess: handleFormSubmissionSuccess,
     onError: (error) => {
@@ -175,7 +173,7 @@ const UserEnrollmentForm = ({
   const handleLegacyFormSubmit = async (values) => {
     try {
       await checkoutExecutiveEducation2U({
-        sku: productSKU,
+        sku: courseEntitlementProductSku,
         userDetails: {
           firstName: values.firstName,
           lastName: values.lastName,
@@ -188,7 +186,7 @@ const UserEnrollmentForm = ({
     } catch (error) {
       const httpErrorStatus = error?.customAttributes?.httpErrorStatus;
       if (httpErrorStatus === 422 && error?.message?.includes('User has already purchased the product.')) {
-        logInfo(`${enterpriseCustomer.uuid} user ${userId} has already purchased course ${productSKU}.`);
+        logInfo(`${enterpriseCustomer.uuid} user ${userId} has already purchased course ${courseEntitlementProductSku}.`);
         await handleFormSubmissionSuccess();
       } else {
         setExternalCourseFormSubmissionError(error);
@@ -488,18 +486,10 @@ const UserEnrollmentForm = ({
 
 UserEnrollmentForm.propTypes = {
   className: PropTypes.string,
-  productSKU: PropTypes.string.isRequired,
-  activeCourseRun: PropTypes.shape({
-    key: PropTypes.string.isRequired,
-  }).isRequired,
-  userSubsidyApplicableToCourse: PropTypes.shape({
-    subsidyType: PropTypes.string,
-  }),
 };
 
 UserEnrollmentForm.defaultProps = {
   className: undefined,
-  userSubsidyApplicableToCourse: undefined,
 };
 
 export default UserEnrollmentForm;

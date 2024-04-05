@@ -12,10 +12,18 @@ import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
+const testCourseKey = 'bin+bar';
+const testCourseRunKey = 'course-v1:bin+bar+baz';
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+  useParams: () => ({
+    enterpriseSlug: 'test-enterprise-uuid',
+    courseKey: testCourseKey,
+    courseRunKey: testCourseRunKey,
+  }),
 }));
 
 jest.mock('../../data/hooks', () => ({
@@ -65,6 +73,13 @@ const baseCourseContextValue = {
   },
   userSubsidyApplicableToCourse: { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },
   missingUserSubsidyReason: undefined,
+  redeemabilityPerContentKey: [
+    {
+      contentKey: testCourseRunKey,
+      hasSuccessfulRedemption: false,
+    },
+  ],
+  hasSuccessfulRedemption: false,
 };
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -113,6 +128,7 @@ describe('ExternalCourseEnrollment', () => {
     expect(UserEnrollmentForm.mock.calls[0][0]).toEqual(
       expect.objectContaining({
         productSKU: 'test-sku',
+        courseRunKey: testCourseRunKey,
       }),
     );
   });
@@ -144,6 +160,12 @@ describe('ExternalCourseEnrollment', () => {
     const courseContextValue = {
       ...baseCourseContextValue,
       userSubsidyApplicableToCourse: undefined,
+      redeemabilityPerContentKey: [
+        {
+          contentKey: testCourseRunKey,
+          hasSuccessfulRedemption: true,
+        },
+      ],
       hasSuccessfulRedemption: true,
       missingUserSubsidyReason: { reason: DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY },
     };
@@ -162,6 +184,12 @@ describe('ExternalCourseEnrollment', () => {
   it('handles a courserun that has already been enrolled', () => {
     const courseContextValue = {
       ...baseCourseContextValue,
+      redeemabilityPerContentKey: [
+        {
+          contentKey: testCourseRunKey,
+          hasSuccessfulRedemption: true,
+        },
+      ],
       hasSuccessfulRedemption: true,
     };
     renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
