@@ -34,6 +34,14 @@ const queryClient = new QueryClient({
       // per-query, as needed, if certain queries expect to be more up-to-date than others. Allows
       // `useQuery` to be used as a state manager.
       staleTime: 1000 * 20,
+      // To prevent hard loading states if/when query keys change during automatic query background
+      // re-fetches, we can set `keepPreviousData` to `true` to keep the previous data until the new
+      // data is fetched. By enabling this option, UI components generally will not need to consider
+      // explicit loading states when query keys change. Note: `keepPreviousData` is deprecated, replaced
+      // by `placeholderData` in `@tanstack/react-query` v5 (i.e., for when React is upgraded to v18). See
+      // https://tanstack.com/query/latest/docs/framework/vue/guides/migrating-to-v5#removed-keeppreviousdata-in-favor-of-placeholderdata-identity-function
+      // for more details.
+      keepPreviousData: true,
     },
   },
 });
