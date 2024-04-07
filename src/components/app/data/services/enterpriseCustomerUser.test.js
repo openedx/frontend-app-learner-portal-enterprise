@@ -9,6 +9,7 @@ import {
   fetchLearnerProgramsList,
   postLinkEnterpriseLearner,
   updateUserActiveEnterprise,
+  updateUserCsodParams,
 } from './enterpriseCustomerUser';
 
 const axiosMock = new MockAdapter(axios);
@@ -291,5 +292,20 @@ describe('fetchInProgressPathways', () => {
     axiosMock.onGet(PATHWAYS_PROGRESS_URL).reply(500);
     const response = await fetchInProgressPathways();
     expect(response).toEqual([]);
+  });
+
+  it('pass learner csod params', async () => {
+    const SAVE_CSOD_LEARNER_PARAMS_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/integrated_channels/api/v1/cornerstone/save-learner-information`;
+    const data = {
+      userGuid: '11115def-de43-40b7-a831-213d1128c215',
+      sessionToken: 'kpp7t4d',
+      callbackUrl: 'csod-callback',
+      subdomain: 'contentsandbox',
+      enterpriseUUID: mockEnterpriseId,
+      courseKey: 'edx+DemoX',
+    };
+    axiosMock.onPost(SAVE_CSOD_LEARNER_PARAMS_ENDPOINT).reply(200);
+    const response = await updateUserCsodParams(data);
+    expect(response.status).toEqual(200);
   });
 });

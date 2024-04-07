@@ -193,3 +193,15 @@ export async function fetchInProgressPathways(enterpriseUUID) { // eslint-disabl
     return [];
   }
 }
+
+/**
+ * Helper function to update the CSOD parameters for the learner by making a POST API request.
+ * request, updating the CSOD params for the learner.
+ * @param {Object} params - The parameters object.
+ * @param {Object} params.data - The CSOD parameters data to be updated.
+ * @returns {Promise} - A promise that resolves when the parameters are updated.
+ */
+export async function updateUserCsodParams({ data }) {
+  const url = `${getConfig().LMS_BASE_URL}/integrated_channels/api/v1/cornerstone/save-learner-information`;
+  return getAuthenticatedHttpClient().post(url, data);
+}
