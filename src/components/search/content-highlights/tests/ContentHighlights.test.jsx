@@ -3,8 +3,7 @@ import '@testing-library/jest-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import ContentHighlights from '../ContentHighlights';
-import { useEnterpriseCustomer } from '../../../app/data';
-import { useContentHighlightSets } from '../../../hooks';
+import { useContentHighlightSets, useEnterpriseCustomer } from '../../../app/data';
 
 jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(() => ({
@@ -15,10 +14,6 @@ jest.mock('@edx/frontend-platform/config', () => ({
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
-}));
-
-jest.mock('../../../hooks', () => ({
-  ...jest.requireActual('../../../hooks'),
   useContentHighlightSets: jest.fn(),
 }));
 
@@ -40,11 +35,6 @@ jest.mock('../ContentHighlightSet', () => {
     default: Component,
   };
 });
-
-jest.mock('../../../app/data', () => ({
-  ...jest.requireActual('../../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-}));
 
 const mockEnterpriseCustomer = {
   name: 'test-enterprise',
