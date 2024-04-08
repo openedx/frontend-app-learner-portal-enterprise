@@ -402,9 +402,7 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
 export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: { activeCourseRun } } = useCourseMetadata();
-  const {
-    algoliaSearchParams,
-  } = useContext(CourseContext);
+  const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
   const handleClick = useCallback(
     (e) => {
       const { queryId, objectId } = algoliaSearchParams;

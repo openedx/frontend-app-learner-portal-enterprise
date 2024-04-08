@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import {
   BrowserRouter, MemoryRouter, RouterProvider, useLocation, useParams,
 } from 'react-router-dom';
@@ -458,9 +458,9 @@ describe('useTrackSearchConversionClickHandler', () => {
   };
   const wrapper = ({ children }) => (
     <IntlProvider locale="en">
-      <CourseContext.Provider value={{ state: mockCourseState }}>
+      <MemoryRouter initialEntries={['/?queryId=algolia-query-id&objectId=algolia-object-id']}>
         {children}
-      </CourseContext.Provider>
+      </MemoryRouter>
     </IntlProvider>
   );
 
@@ -472,6 +472,8 @@ describe('useTrackSearchConversionClickHandler', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useCourseMetadata.mockReturnValue({ data: { activeCourseRun: { key: 'course-run-key' } } });
+    useLocation.mockReturnValue({ pathname: '/', search: mockCourseState.algoliaSearchParams });
+    getConfig.mockReturnValue({ ALGOLIA_INDEX_NAME: 'test-algolia-index' });
   });
 
   afterAll(() => {
@@ -480,7 +482,7 @@ describe('useTrackSearchConversionClickHandler', () => {
   });
 
   it('sends segment event and redirects', async () => {
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useTrackSearchConversionClickHandler(basicProps),
       { wrapper },
     );
@@ -495,9 +497,9 @@ describe('useTrackSearchConversionClickHandler', () => {
       mockEventName,
       {
         products: [{ objectID: mockCourseState.algoliaSearchParams.objectId }],
-        index: getConfig().ALGOLIA_INDEX_NAME,
+        index: 'test-algolia-index',
         queryID: mockCourseState.algoliaSearchParams.queryId,
-        courseKey: mockCourseState.activeCourseRun.key,
+        courseKey: 'course-run-key',
       },
     );
 
@@ -524,9 +526,9 @@ describe('useTrackSearchConversionClickHandler', () => {
       mockEventName,
       {
         products: [{ objectID: mockCourseState.algoliaSearchParams.objectId }],
-        index: getConfig().ALGOLIA_INDEX_NAME,
+        index: 'test-algolia-index',
         queryID: mockCourseState.algoliaSearchParams.queryId,
-        courseKey: mockCourseState.activeCourseRun.key,
+        courseKey: 'course-run-key',
       },
     );
   });
@@ -966,7 +968,6 @@ describe('useUserSubsidyApplicableToCourse', () => {
       subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
     });
     const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
-    // await waitForNextUpdate();
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: expect.objectContaining({
