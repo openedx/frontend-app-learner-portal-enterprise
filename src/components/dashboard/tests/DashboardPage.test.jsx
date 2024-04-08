@@ -25,6 +25,7 @@ import {
   useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
+  useAcademies,
   useEnterpriseOffers,
   useEnterprisePathwaysList,
   useEnterpriseProgramsList,
@@ -33,7 +34,11 @@ import {
   useSubscriptions,
   useHasAvailableSubsidiesOrRequests,
 } from '../../app/data';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import {
+  authenticatedUserFactory,
+  enterpriseCustomerFactory,
+  academiesFactory,
+} from '../../app/data/services/data/__factories__';
 
 const dummyProgramData = {
   uuid: 'test-uuid',
@@ -98,6 +103,7 @@ jest.mock('../../app/data', () => ({
   useBrowseAndRequest: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
   useHasAvailableSubsidiesOrRequests: jest.fn(),
+  useAcademies: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -200,6 +206,7 @@ describe('<Dashboard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useAcademies.mockReturnValue({ data: academiesFactory(3) });
     useSubscriptions.mockReturnValue({
       data: {
         subscriptionLicense: undefined,

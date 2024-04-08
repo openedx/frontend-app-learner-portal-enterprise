@@ -1,12 +1,14 @@
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { NavLink } from 'react-router-dom';
 import { useEnterpriseCustomer, useIsAssignmentsOnlyLearner } from '../app/data';
+import { useContentDiscoveryNavLink } from './data';
 
 const SiteHeaderNavMenu = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const intl = useIntl();
   const mainMenuLinkClassName = 'nav-link';
+  const contentDiscoveryNavLink = useContentDiscoveryNavLink(mainMenuLinkClassName);
 
   if (enterpriseCustomer.disableSearch) {
     return null;
@@ -21,15 +23,7 @@ const SiteHeaderNavMenu = () => {
           description: 'Dashboard link title in site header navigation.',
         })}
       </NavLink>
-      {!isAssignmentOnlyLearner && (
-        <NavLink to={`/${enterpriseCustomer.slug}/search`} className={mainMenuLinkClassName}>
-          {intl.formatMessage({
-            id: 'site.header.nav.search.title',
-            defaultMessage: 'Find a Course',
-            description: 'Find a course link in site header navigation.',
-          })}
-        </NavLink>
-      )}
+      {!isAssignmentOnlyLearner && contentDiscoveryNavLink}
     </>
   );
 };

@@ -1,5 +1,6 @@
+import { generatePath, redirect } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
-import { ensureAuthenticatedUser } from '../../app/routes/data';
+import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
 import { extractEnterpriseCustomer, queryAcademiesList, queryContentHighlightSets } from '../../app/data';
 
 export default function makeSearchLoader(queryClient) {
@@ -18,11 +19,10 @@ export default function makeSearchLoader(queryClient) {
       authenticatedUser,
       enterpriseSlug,
     });
-    const searchData = [
-      queryClient.ensureQueryData(
-        queryAcademiesList(enterpriseCustomer.uuid),
-      ),
-    ];
+
+    const academiesListQuery = queryAcademiesList(enterpriseCustomer.uuid);
+
+    const searchData = [queryClient.ensureQueryData(academiesListQuery)];
     if (getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
       searchData.push(
         queryClient.ensureQueryData(
@@ -32,6 +32,15 @@ export default function makeSearchLoader(queryClient) {
     }
 
     await Promise.all(searchData);
+
+    const academies = queryClient.getQueryData(academiesListQuery.queryKey);
+    if (enterpriseCustomer.enableOneAcademy && academies.length === 1) {
+      const redirectPath = generatePath('/:enterpriseSlug/academies/:academyUUID', {
+        enterpriseSlug,
+        academyUUID: academies[0].uuid,
+      });
+      return redirect(redirectPath);
+    }
 
     return null;
   };
