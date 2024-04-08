@@ -18,8 +18,8 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
   const isEnrollableBufferDays = useLateRedemptionBufferDays();
 
   return useQuery({
-    ...queryOptionsRest,
     ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, isEnrollableBufferDays),
+    enabled: !!courseMetadata,
     select: (data) => {
       const redeemabilityForActiveCourseRun = data.find(r => r.contentKey === courseMetadata.activeCourseRun?.key);
       const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
@@ -54,5 +54,6 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
       }
       return transformedData;
     },
+    ...queryOptionsRest,
   });
 }

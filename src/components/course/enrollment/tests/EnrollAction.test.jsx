@@ -5,20 +5,19 @@ import { AppContext } from '@edx/frontend-platform/react';
 import userEvent from '@testing-library/user-event';
 
 import {
-  renderWithRouter,
   initialAppState,
   mockCourseState,
+  renderWithRouterProvider,
 } from '../../../../utils/tests';
-import { COURSE_MODES_MAP } from '../../data/constants';
 import EnrollAction from '../EnrollAction';
 import { enrollButtonTypes } from '../constants';
-import { CourseContextProvider } from '../../CourseContextProvider';
-import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
+import { CourseContext } from '../../CourseContextProvider';
 import {
-  CourseEnrollmentsContext,
-} from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { useEnterpriseCustomer } from '../../../app/data';
+  COURSE_MODES_MAP,
+  useCourseMetadata,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+} from '../../../app/data';
 import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('../components/ToEcomBasketPage', () => ({
@@ -29,6 +28,13 @@ jest.mock('../components/ToEcomBasketPage', () => ({
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useCourseMetadata: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
+}));
+
+jest.mock('../../data', () => ({
+  ...jest.requireActual('../../data'),
+  shouldUpgradeUserEnrollment: jest.fn().mockReturnValue(false),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -49,54 +55,38 @@ const {
 } = enrollButtonTypes;
 
 const INITIAL_APP_STATE = initialAppState({});
-const selfPacedCourseWithLicenseSubsidy = mockCourseState({});
+const mockCourseMetadata = mockCourseState({});
 const verifiedTrackEnrollment = {
   mode: COURSE_MODES_MAP.VERIFIED,
   isActive: true,
-  courseRunId: selfPacedCourseWithLicenseSubsidy.activeCourseRun.key,
-  courseRunUrl: 'https://learning.edx.org',
+  courseRunId: mockCourseMetadata.activeCourseRun.key,
+  linkToCourse: 'https://learning.edx.org',
 };
 const subscriptionLicense = { uuid: 'a-license' };
 
-/**
-   * @param {object} args Arguments.
-   * @param {string} args.enrollAction
-   */
 const EnrollLabel = (props) => (
   <div>{props.enrollLabelText}</div>
 );
 
-const renderEnrollAction = ({
-  enrollAction,
-  courseState = selfPacedCourseWithLicenseSubsidy,
-  initialUserSubsidyState = {
-    subscriptionLicense,
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-  },
-  initialSubsidyRequestsState = {
-    catalogsForSubsidyRequests: [],
-  },
-  initialCourseEnrollmentsRequestState = {
-    courseEnrollmentsByStatus: {},
-  },
-}) => {
+const mockCourseContextValue = {
+  algoliaSearchParams: {},
+};
+
+const renderEnrollAction = ({ enrollAction }) => {
+  useCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
   // need to use router, to render component such as react-router's <Link>
-  renderWithRouter(
-    <AppContext.Provider value={INITIAL_APP_STATE}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsRequestState}>
-            <CourseContextProvider courseState={courseState}>
-              {enrollAction}
-            </CourseContextProvider>
-          </CourseEnrollmentsContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>,
-  );
+  renderWithRouterProvider({
+    path: '/:enterpriseSlug/course/:courseKey',
+    element: (
+      <AppContext.Provider value={INITIAL_APP_STATE}>
+        <CourseContext.Provider value={mockCourseContextValue}>
+          {enrollAction}
+        </CourseContext.Provider>
+      </AppContext.Provider>
+    ),
+  }, {
+    initialEntries: [`/${mockEnterpriseCustomer.slug}/course/edX+DemoX`],
+  });
 };
 
 describe('Scenarios where user is enrolled in course', () => {
@@ -122,7 +112,7 @@ describe('Scenarios where user is enrolled in course', () => {
     // check info url is rendered, instead of enrollment url (in this case)
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
     expect(actualUrl)
-      .toContain(verifiedTrackEnrollment.courseRunUrl);
+      .toContain(verifiedTrackEnrollment.linkToCourse);
   });
   test('view_on_dashboard link is rendered with enterprise slug url as course has not started', () => {
     const enrollLabelText = 'hello enrollee!';
@@ -171,6 +161,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCourseEnrollments.mockReturnValue({ data: { enterpriseCourseEnrollments: [] } });
   });
 
   test('data sharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT', () => {
@@ -192,6 +183,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     const enrollButton = screen.getByText(enrollLabelText);
     userEvent.click(enrollButton);
   });
+
   test('<ToEcomBasketPage /> is rendered if enrollmentType is TO_ECOM_BASKET', () => {
     const enrollAction = (
       <EnrollAction

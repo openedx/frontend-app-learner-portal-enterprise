@@ -19,7 +19,7 @@ import {
   getDefaultProgram,
   formatProgramType,
 } from '../data/utils';
-import { useCoursePartners, useIsCourseAssigned } from '../data/hooks';
+import { useCoursePartners, useIsCourseAssigned } from '../data';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import SubsidyRequestButton from '../SubsidyRequestButton';
 import CourseReview from '../CourseReview';
@@ -138,18 +138,22 @@ const CourseHeader = () => {
             />
           </Col>
           <Col xs={12}>
-            <CourseReview />
-            {defaultProgram && (
-              <p className="font-weight-bold mt-3 mb-0">
-                <FormattedMessage
-                  id="enterprise.course.about.page.course.part.of.program"
-                  defaultMessage="This course is part of a {programType}."
-                  description="Message for when a course is part of a program"
-                  values={{
-                    programType: formatProgramType(defaultProgram.type),
-                  }}
-                />
-              </p>
+            {containsContentItems && (
+              <>
+                <CourseReview />
+                {defaultProgram && (
+                  <p className="font-weight-bold mt-3 mb-0">
+                    <FormattedMessage
+                      id="enterprise.course.about.page.course.part.of.program"
+                      defaultMessage="This course is part of a {programType}."
+                      description="Message for when a course is part of a program"
+                      values={{
+                        programType: formatProgramType(defaultProgram.type),
+                      }}
+                    />
+                  </p>
+                )}
+              </>
             )}
             {isCourseArchived && (
               <>

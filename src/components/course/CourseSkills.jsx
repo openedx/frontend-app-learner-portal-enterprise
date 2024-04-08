@@ -14,11 +14,9 @@ export const MAX_VISIBLE_SKILLS = 5;
 
 const CourseSkills = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: skills } = useCourseMetadata({
-    select: ({ transformed }) => transformed.skills,
-  });
+  const { data: courseMetadata } = useCourseMetadata();
 
-  if (skills.length === 0) {
+  if (courseMetadata.skills.length === 0) {
     return null;
   }
 
@@ -32,7 +30,7 @@ const CourseSkills = () => {
         />
       </h5>
       <div>
-        {skills.map((skill, index) => (
+        {courseMetadata.skills.map((skill, index) => (
           <OverlayTrigger
             trigger={['hover', 'focus']}
             key={skill.name}
@@ -65,7 +63,7 @@ const CourseSkills = () => {
               variant="light"
               style={{ display: index < MAX_VISIBLE_SKILLS ? 'inline-block' : 'none' }}
             >
-              { skill.name }
+              {skill.name}
             </Badge>
           </OverlayTrigger>
         ))}
