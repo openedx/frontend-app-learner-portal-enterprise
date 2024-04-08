@@ -1,13 +1,11 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { render, screen, waitFor } from '@testing-library/react';
 import {
-  BrowserRouter, MemoryRouter, RouterProvider, useLocation, useParams,
+  BrowserRouter, MemoryRouter, useLocation, useParams,
 } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { camelCaseObject, getConfig } from '@edx/frontend-platform';
+import { getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
-import { logError } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
@@ -33,7 +31,6 @@ import {
   getSubscriptionDisabledEnrollmentReasonType,
   getSubsidyToApplyForCourse,
 } from '../utils';
-import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
@@ -420,7 +417,7 @@ describe('useOptimizelyEnrollmentClickHandler', () => {
 
   it('sends correct optimizely event', async () => {
     const pushEventSpy = jest.spyOn(optimizelyUtils, 'pushEvent').mockImplementation(() => true);
-    const { result, waitFor } = renderHook(() => useOptimizelyEnrollmentClickHandler(basicProps));
+    const { result } = renderHook(() => useOptimizelyEnrollmentClickHandler(basicProps));
 
     const outputClickHandler = result.current;
     outputClickHandler({ preventDefault: mockPreventDefault });
@@ -772,7 +769,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual({ list: 100, discounted: 90 });
   });
 
@@ -789,7 +786,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual({ list: 100, discounted: 100 });
   });
 
@@ -806,7 +803,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual({ list: 150, discounted: 140 });
   });
 
@@ -817,7 +814,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual({ list: 100 });
   });
 
@@ -829,7 +826,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual({ list: 200 });
   });
 
@@ -840,7 +837,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [, currency] = result.current;
+    const { currency } = result.current;
     expect(currency).toEqual('USD');
   });
 
@@ -849,7 +846,7 @@ describe('useCoursePriceForUserSubsidy', () => {
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual(null);
   });
 });
