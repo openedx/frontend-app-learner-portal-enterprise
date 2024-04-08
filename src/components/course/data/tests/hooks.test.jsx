@@ -41,25 +41,13 @@ import {
   REASON_USER_MESSAGES,
 } from '../constants';
 import {
-  mockCanRedeemData,
-  mockCanRedeemForContentKey,
-  mockCanRedeemReason,
-  mockCourseData,
-  mockCourseRecommendations,
-  mockCourseRunKey,
   mockCourseService,
-  mockCourseServiceUninitialized,
-  mockLmsUserId,
-  mockRedeemableSubsidyAccessPolicy,
   mockSubscriptionLicense,
-  mockUserLicenseSubsidy,
 } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
-import { CourseContext } from '../../CourseContextProvider';
-import { enterpriseUserSubsidyQueryKeys, LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
-import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../../constants';
+import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
+import { SUBSIDY_TYPE } from '../../../../constants';
 import useEnterpriseCustomer from '../../../app/data/hooks/useEnterpriseCustomer';
-import { queryClient } from '../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import {
   useCourseMetadata,
