@@ -159,6 +159,12 @@ export async function activateOrAutoApplySubscriptionLicense({
   // activate OR if the user should request an auto-applied subscription
   // license.
   let activatedOrAutoAppliedLicense = null;
+
+  console.log('autoApplied!?!', {
+    hasRevokedSubscriptionLicense,
+    isUserLinkedToEnterpriseCustomer,
+  });
+
   if (subscriptionLicenseToActivate) {
     activatedOrAutoAppliedLicense = await activateSubscriptionLicense({
       enterpriseCustomer,
@@ -173,6 +179,7 @@ export async function activateOrAutoApplySubscriptionLicense({
       enterpriseCustomer,
       customerAgreement,
     });
+    console.log('activatedOrAutoAppliedLicense', activatedOrAutoAppliedLicense);
   }
   if (activatedOrAutoAppliedLicense) {
     checkLicenseActivationRouteAndRedirectToDashboard();
