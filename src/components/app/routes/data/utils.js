@@ -64,29 +64,35 @@ export async function ensureEnterpriseAppData({
         const { licensesByStatus } = subscriptionsData;
         const updatedLicensesByStatus = { ...licensesByStatus };
         Object.entries(licensesByStatus).forEach(([status, licenses]) => {
-          const hasActivatedOrAutoAppliedLicense = licenses.some(
+          const licensesIncludesActivatedOrAutoAppliedLicense = licenses.some(
             (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
           );
           const isCurrentStatusMatchingLicenseStatus = status === activatedOrAutoAppliedLicense.status;
-          if (hasActivatedOrAutoAppliedLicense) {
+          if (licensesIncludesActivatedOrAutoAppliedLicense) {
             updatedLicensesByStatus[status] = isCurrentStatusMatchingLicenseStatus
               ? licenses.filter((license) => license.uuid !== activatedOrAutoAppliedLicense.uuid)
               : [...licenses, activatedOrAutoAppliedLicense];
+          } else if (isCurrentStatusMatchingLicenseStatus) {
+            updatedLicensesByStatus[activatedOrAutoAppliedLicense.status].push(activatedOrAutoAppliedLicense);
           }
         });
         // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
-        queryClient.setQueryData(subscriptionsQuery.queryKey, {
-          ...queryClient.getQueryData(subscriptionsQuery.queryKey),
-          licensesByStatus: updatedLicensesByStatus,
-          subscriptionLicense: activatedOrAutoAppliedLicense,
-          subscriptionLicenses: subscriptionsData.subscriptionLicenses.map((license) => {
+        const updatedSubscriptionLicenses = subscriptionsData.subscriptionLicenses.length > 0
+          ? subscriptionsData.subscriptionLicenses.map((license) => {
             // Ensures an auto-activated license is updated in the query cache to change
             // its status from "assigned" to "activated".
             if (license.uuid === activatedOrAutoAppliedLicense.uuid) {
               return activatedOrAutoAppliedLicense;
             }
             return license;
-          }),
+          })
+          : [activatedOrAutoAppliedLicense];
+        queryClient.setQueryData(subscriptionsQuery.queryKey, {
+          ...queryClient.getQueryData(subscriptionsQuery.queryKey),
+          licensesByStatus: updatedLicensesByStatus,
+          subscriptionPlan: activatedOrAutoAppliedLicense.subscriptionPlan,
+          subscriptionLicense: activatedOrAutoAppliedLicense,
+          subscriptionLicenses: updatedSubscriptionLicenses,
         });
       }
 

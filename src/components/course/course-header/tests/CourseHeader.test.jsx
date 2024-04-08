@@ -1,34 +1,50 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom/extend-expect';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { UserSubsidyContext } from '../../../enterprise-user-subsidy/UserSubsidy';
-import { CourseContextProvider } from '../../CourseContextProvider';
-import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import CourseHeader from '../CourseHeader';
 
 import { COURSE_PACING_MAP } from '../../data/constants';
 import { TEST_OWNER } from '../../tests/data/constants';
-import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../../app/data';
-import { SUBSIDY_TYPE } from '../../../../constants';
+import {
+  useCourseMetadata,
+  useCourseRedemptionEligibility,
+  useCourseReviews,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+  useEnterpriseCustomerContainsContent,
+  useIsAssignmentsOnlyLearner,
+} from '../../../app/data';
 import { renderWithRouterProvider } from '../../../../utils/tests';
 import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import { useIsCourseAssigned } from '../../data';
 
-// Stub out the enroll button to avoid testing its implementation here
 jest.mock('../CourseRunCards', () => function CourseRunCards() {
   return <p>Cards</p>;
 });
 jest.mock('../../SubsidyRequestButton', () => function SubsidyRequestButton() {
   return <p>SubsidyRequestButton</p>;
 });
+jest.mock('../../LicenseRequestedAlert', () => function LicenseRequestedAlert() {
+  return <div data-testid="license-requested-alert" />;
+});
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
+  useCourseMetadata: jest.fn(),
+  useCourseRedemptionEligibility: jest.fn(),
+  useEnterpriseCustomerContainsContent: jest.fn(),
+  useIsAssignmentsOnlyLearner: jest.fn(),
+  useCourseReviews: jest.fn(),
+}));
+
+jest.mock('../../data', () => ({
+  ...jest.requireActual('../../data'),
+  useIsCourseAssigned: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -36,15 +52,8 @@ const mockEnterpriseCustomerWithDisabledSearch = enterpriseCustomerFactory({
   disable_search: true,
 });
 
-const defaultSubsidyRequestsState = {
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
-};
-
 const defaultCourseEnrollmentsState = {
+  enterpriseCourseEnrollments: [],
   allEnrollmentsByStatus: {
     inProgress: [],
     upcoming: [],
@@ -55,117 +64,61 @@ const defaultCourseEnrollmentsState = {
   },
 };
 
-const defaultCourseState = {
-  course: {
-    key: 'test-course-key',
-    subjects: [{
-      name: 'Test Subject 1',
-      slug: 'test-subject-slug',
-    }],
-    shortDescription: 'Course short description.',
-    title: 'Test Course Title',
-    owners: [TEST_OWNER],
-    programs: [],
-    image: {
-      src: 'http://test-image.url',
-    },
-    skills: [],
+const mockCourseRun = {
+  isEnrollable: true,
+  key: 'test-course-run-key',
+  pacingType: COURSE_PACING_MAP.SELF_PACED,
+  start: '2020-09-09T04:00:00Z',
+  availability: 'Current',
+  courseUuid: 'Foo',
+};
+const mockArchivedCourseRun = {
+  ...mockCourseRun,
+  availability: 'Archived',
+};
+const mockCourseMetadata = {
+  key: 'test-course-key',
+  subjects: [{
+    name: 'Test Subject 1',
+    slug: 'test-subject-slug',
+  }],
+  shortDescription: 'Course short description.',
+  title: 'Test Course Title',
+  owners: [TEST_OWNER],
+  programs: [],
+  image: {
+    src: 'http://test-image.url',
   },
-  activeCourseRun: {
-    isEnrollable: true,
-    key: 'test-course-run-key',
-    pacingType: COURSE_PACING_MAP.SELF_PACED,
-    start: '2020-09-09T04:00:00Z',
-    availability: 'Current',
-    courseUuid: 'Foo',
-  },
-  userEnrollments: [],
-  userEntitlements: [],
-  catalog: {
-    containsContentItems: true,
-    catalogList: ['catalog-uuid'],
-  },
-  courseReviews: {
-    course_key: 'test-course-run-key',
-    reviewsCount: 345,
-    avgCourseRating: 3,
-    confidentLearnersPercentage: 33,
-    mostCommonGoal: 'Job advancement',
-    mostCommonGoalLearnersPercentage: 34,
-    totalEnrollments: 4444,
-  },
-  courseRecommendations: { allRecommendations: [], samePartnerRecommendations: [] },
+  skills: [],
+  activeCourseRun: mockCourseRun,
+  courseRuns: [mockCourseRun],
+};
+const mockArchivedCourseMetadata = {
+  ...mockCourseMetadata,
+  courseRuns: [mockArchivedCourseRun],
+  activeCourseRun: mockArchivedCourseRun,
+};
+const mockCourseReviews = {
+  course_key: 'test-course-run-key',
+  reviewsCount: 345,
+  avgCourseRating: 3,
+  confidentLearnersPercentage: 33,
+  mostCommonGoal: 'Job advancement',
+  mostCommonGoalLearnersPercentage: 34,
+  totalEnrollments: 4444,
+};
+const mockEnterpriseCourseEnrollment = {
+  id: 1,
+  isEnrollmentActive: true,
+  isRevoked: false,
+  courseRunId: 'test-course-run-key',
+  linkToCourse: 'http://course.url',
+  mode: 'verified',
 };
 
-const archivedCourseState = {
-  ...defaultCourseState,
-  course: {
-    subjects: [{
-      name: 'Old course',
-      slug: 'old-course-slug',
-    }],
-    key: 'old-course-key',
-    shortDescription: 'teeny tiny short description',
-    title: 'Wow what a nice course this is!',
-    owners: [TEST_OWNER],
-    programs: [],
-    image: {
-      src: 'http://test-image.url',
-    },
-    skills: [],
-    courseRuns: [
-      {
-        key: 'test-course-run-key',
-        availability: 'Archived',
-      },
-
-    ],
-  },
-  activeCourseRun: {
-    isEnrollable: true,
-    key: 'test-course-run-key',
-    pacingType: COURSE_PACING_MAP.SELF_PACED,
-    start: '2020-09-09T04:00:00Z',
-    availability: 'Archived',
-    courseUuid: 'Foo',
-  },
-  userEnrollments: [],
-  userEntitlements: [],
-  catalog: {
-    containsContentItems: false,
-    catalogList: [],
-  },
-  courseRunKeys: ['test-course-run-key'],
-  courseRunStatuses: ['archived'],
-};
-
-const defaultUserSubsidyState = {
-  subscriptionLicense: {
-    uuid: 'test-license-uuid',
-  },
-  couponCodes: {
-    couponCodes: [],
-    couponCodesCount: 0,
-  },
-  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
-};
-
-const CourseHeaderWrapper = ({
-  initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
-  courseState = defaultCourseState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  initialSubsidyRequestsState = defaultSubsidyRequestsState,
-}) => (
+const CourseHeaderWrapper = () => (
   <IntlProvider locale="en">
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-          <CourseContextProvider courseState={courseState}>
-            <CourseHeader />
-          </CourseContextProvider>
-        </CourseEnrollmentsContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
+    <CourseHeader />
   </IntlProvider>
 );
 
@@ -173,7 +126,20 @@ describe('<CourseHeader />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useEnterpriseCourseEnrollments.mockReturnValue({ data: defaultCourseEnrollmentsState });
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: defaultCourseEnrollmentsState,
+    });
+    useCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
+    useCourseRedemptionEligibility.mockReturnValue({ data: { isPolicyRedemptionEnabled: false } });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        containsContentItems: true,
+        catalogList: ['test-enterprise-catalog-uuid'],
+      },
+    });
+    useIsAssignmentsOnlyLearner.mockReturnValue(false);
+    useIsCourseAssigned.mockReturnValue(false);
+    useCourseReviews.mockReturnValue({ data: mockCourseReviews });
   });
 
   test('renders breadcrumb', () => {
@@ -181,10 +147,10 @@ describe('<CourseHeader />', () => {
       path: '/:enterpriseSlug/course/:courseKey',
       element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
     });
-    expect(screen.queryByText('Find a Course')).toBeInTheDocument();
-    expect(screen.queryAllByText(defaultCourseState.course.title)[0]).toBeInTheDocument();
+    expect(screen.getByText('Find a Course')).toBeInTheDocument();
+    expect(screen.getByText(mockCourseMetadata.title, { selector: 'li' })).toBeInTheDocument();
   });
 
   test('does not render breadcrumb when search is disabled for customer', () => {
@@ -193,10 +159,10 @@ describe('<CourseHeader />', () => {
       path: '/:enterpriseSlug/course/:courseKey',
       element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomerWithDisabledSearch.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomerWithDisabledSearch.slug}/course/${mockCourseMetadata.key}`],
     });
-    expect(screen.queryByText('Find a Course')).toBeFalsy();
-    expect(screen.queryAllByText(defaultCourseState.course.title)[0]).toBeInTheDocument();
+    expect(screen.queryByText('Find a Course')).not.toBeInTheDocument();
+    expect(screen.queryByText(mockCourseMetadata.title, { selector: 'li' })).not.toBeInTheDocument();
   });
 
   test('renders course title and short description', () => {
@@ -204,12 +170,11 @@ describe('<CourseHeader />', () => {
       path: '/:enterpriseSlug/course/:courseKey',
       element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
     });
-
-    const { title, shortDescription } = defaultCourseState.course;
-    expect(screen.queryAllByText(title)[1]).toBeInTheDocument();
-    expect(screen.queryByText(shortDescription)).toBeInTheDocument();
+    const { title, shortDescription } = mockCourseMetadata;
+    expect(screen.getByText(title, { selector: 'h2' })).toBeInTheDocument();
+    expect(screen.getByText(shortDescription)).toBeInTheDocument();
   });
 
   test('renders course reviews section', () => {
@@ -217,11 +182,10 @@ describe('<CourseHeader />', () => {
       path: '/:enterpriseSlug/course/:courseKey',
       element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
     });
-
-    expect(screen.queryByText('average rating')).toBeInTheDocument();
-    expect(screen.queryByText('learners took this course in the last 12 months')).toBeInTheDocument();
+    expect(screen.getByText('average rating')).toBeInTheDocument();
+    expect(screen.getByText('learners took this course in the last 12 months')).toBeInTheDocument();
     expect(screen.getByText('for this course on a 5-star scale')).toBeInTheDocument();
   });
 
@@ -230,7 +194,7 @@ describe('<CourseHeader />', () => {
       path: '/:enterpriseSlug/course/:courseKey',
       element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
     });
 
     userEvent.click(screen.queryByTestId('average-rating'));
@@ -244,34 +208,29 @@ describe('<CourseHeader />', () => {
   });
 
   test('does not renders course reviews section', () => {
-    const courseStateWithNoCourseReviews = {
-      ...defaultCourseState,
-      courseReviews: null,
-    };
+    useCourseReviews.mockReturnValue({ data: null });
     renderWithRouterProvider({
       path: '/:enterpriseSlug/course/:courseKey',
-      element: <CourseHeaderWrapper courseState={courseStateWithNoCourseReviews} />,
+      element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
     });
-
     expect(screen.queryByText('average rating')).not.toBeInTheDocument();
     expect(screen.queryByText('learners took this course in the last 12 months')).not.toBeInTheDocument();
   });
 
   test('does not renders course reviews section if course not part of catalog', () => {
-    const courseStateWithNoCourseReviews = {
-      ...defaultCourseState,
-      catalog: {
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
         containsContentItems: false,
         catalogList: [],
       },
-    };
+    });
     renderWithRouterProvider({
       path: '/:enterpriseSlug/course/:courseKey',
-      element: <CourseHeaderWrapper courseState={courseStateWithNoCourseReviews} />,
+      element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
     });
 
     expect(screen.queryByText('average rating')).not.toBeInTheDocument();
@@ -283,7 +242,7 @@ describe('<CourseHeader />', () => {
       path: '/:enterpriseSlug/course/:courseKey',
       element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
     });
     expect(screen.queryByAltText('course preview')).toBeInTheDocument();
   });
@@ -293,31 +252,29 @@ describe('<CourseHeader />', () => {
       path: '/:enterpriseSlug/course/:courseKey',
       element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
     });
-    const partner = defaultCourseState.course.owners[0];
+    const partner = mockCourseMetadata.owners[0];
     expect(screen.queryByAltText(`${partner.name} logo`)).toBeInTheDocument();
   });
 
   test('renders not in catalog messaging', () => {
-    const courseStateWithNoCatalog = {
-      ...defaultCourseState,
-      catalog: {
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
         containsContentItems: false,
         catalogList: [],
       },
-    };
+    });
 
     renderWithRouterProvider({
       path: '/:enterpriseSlug/course/:courseKey',
-      element: <CourseHeaderWrapper courseState={courseStateWithNoCatalog} />,
+      element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
     });
 
-    const messaging = 'This course is not part of your company\'s curated course catalog.';
-    expect(screen.queryByText(messaging)).toBeInTheDocument();
-
+    const messaging = 'This course is not part of your organization\'s curated course catalog.';
+    expect(screen.getByText(messaging)).toBeInTheDocument();
     expect(screen.queryByText('Cards')).not.toBeInTheDocument();
   });
 
@@ -332,7 +289,7 @@ describe('<CourseHeader />', () => {
         path: '/:enterpriseSlug/course/:courseKey',
         element: <CourseHeaderWrapper />,
       }, {
-        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}?enrollment_failed=${enrollmentFailed}&failure_reason=${failureReason}`],
+        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}?enrollment_failed=${enrollmentFailed}&failure_reason=${failureReason}`],
       });
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     },
@@ -354,86 +311,84 @@ describe('<CourseHeader />', () => {
         path: '/:enterpriseSlug/course/:courseKey',
         element: <CourseHeaderWrapper />,
       }, {
-        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}${mockedSearchString}`],
+        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}${mockedSearchString}`],
       });
-      expect(screen.queryByRole('alert')).toBeInTheDocument();
-      expect(screen.queryByText(expectedMessage, { exact: false })).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByText(expectedMessage, { exact: false })).toBeInTheDocument();
     },
   );
 
   test('renders archived warning', () => {
+    useCourseMetadata.mockReturnValue({ data: mockArchivedCourseMetadata });
     renderWithRouterProvider({
       path: '/:enterpriseSlug/course/:courseKey',
-      element: <CourseHeaderWrapper courseState={archivedCourseState} />,
+      element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockArchivedCourseMetadata.key}`],
     });
-    const messaging = 'This course is not part of your company\'s curated course catalog.';
+    const messaging = 'This course is not part of your organization\'s curated course catalog.';
     expect(screen.queryByText(messaging)).not.toBeInTheDocument();
-    expect(screen.queryByText('This course is archived.')).toBeInTheDocument();
+    expect(screen.getByText('This course is archived.')).toBeInTheDocument();
   });
 
   test('renders view course materials button if previously enrolled', () => {
-    const courseStateWithEnrollment = {
-      ...archivedCourseState,
-      userEnrollments: [
-        {
-          id: 1,
-          isEnrollmentActive: true,
-          isRevoked: false,
-          courseRunId: 'test-course-run-key',
-          courseRunUrl: 'http://course.url',
-          mode: 'verified',
+    useCourseMetadata.mockReturnValue({ data: mockArchivedCourseMetadata });
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: {
+        enterpriseCourseEnrollments: [mockEnterpriseCourseEnrollment],
+        allEnrollmentsByStatus: {
+          inProgress: [mockEnterpriseCourseEnrollment],
         },
-      ],
-    };
+      },
+    });
     renderWithRouterProvider({
       path: '/:enterpriseSlug/course/:courseKey',
-      element: <CourseHeaderWrapper courseState={courseStateWithEnrollment} />,
+      element: <CourseHeaderWrapper />,
     }, {
-      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockArchivedCourseMetadata.key}`],
     });
-    expect(screen.queryByText('This course is archived.')).toBeInTheDocument();
-    const button = screen.queryByText('View course materials');
+    expect(screen.getByText('This course is archived.')).toBeInTheDocument();
+    const button = screen.getByText('View course materials');
     expect(button).toBeInTheDocument();
-    const href = button.closest('a').getAttribute('href');
+    const href = button.getAttribute('href');
     expect(href).toEqual('http://course.url');
   });
 
   describe('renders program messaging', () => {
-    const courseStateWithProgramType = (type) => ({
-      ...defaultCourseState,
-      course: {
-        ...defaultCourseState.course,
-        programs: [{
-          type,
-        }],
-      },
-    });
+    const mockCourseMetadataWithProgramType = (type) => {
+      useCourseMetadata.mockReturnValue({
+        data: {
+          ...mockCourseMetadata,
+          programs: [{ type }],
+        },
+      });
+    };
 
     test('MicroMasters', () => {
       const micromasters = 'MicroMasters';
+      mockCourseMetadataWithProgramType(micromasters);
       renderWithRouterProvider({
         path: '/:enterpriseSlug/course/:courseKey',
-        element: <CourseHeaderWrapper courseState={courseStateWithProgramType(micromasters)} />,
+        element: <CourseHeaderWrapper />,
       }, {
-        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
       });
 
       const messaging = `This course is part of a ${micromasters}`;
-      expect(screen.queryByText(messaging, { exact: false })).toBeInTheDocument();
+      expect(screen.getByText(messaging, { exact: false })).toBeInTheDocument();
     });
 
     test('Professional Certificate', () => {
       const profCert = 'Professional Certificate';
+      mockCourseMetadataWithProgramType(profCert);
       renderWithRouterProvider({
         path: '/:enterpriseSlug/course/:courseKey',
-        element: <CourseHeaderWrapper courseState={courseStateWithProgramType(profCert)} />,
+        element: <CourseHeaderWrapper />,
       }, {
-        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${defaultCourseState.course.key}`],
+        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
       });
       const messaging = `This course is part of a ${profCert}`;
-      expect(screen.queryByText(messaging, { exact: false })).toBeInTheDocument();
+      expect(screen.getByText(messaging, { exact: false })).toBeInTheDocument();
     });
   });
 });

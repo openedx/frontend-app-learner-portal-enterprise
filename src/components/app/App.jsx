@@ -1,3 +1,6 @@
+import {
+  Suspense, lazy, useEffect, useState,
+} from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { AppProvider } from '@edx/frontend-platform/react';
 import {
@@ -11,14 +14,13 @@ import {
   queryCacheOnErrorHandler,
   defaultQueryClientRetryHandler,
 } from '../../utils/common';
-// import extractNamedExport from '../../utils/extract-named-export';
 
 import { RouterFallback, createAppRouter } from './routes';
 
-/* eslint-disable max-len */
-// const EnterpriseAppPageRoutes = lazy(() => import(/* webpackChunkName: "enterprise-app-routes" */ './EnterpriseAppPageRoutes'));
-// const EnterpriseInvitePage = lazy(() => extractNamedExport(import(/* webpackChunkName: "enterprise-invite" */ '../enterprise-invite'), 'EnterpriseInvitePage'));
-/* eslint-enable no-unused-vars */
+// eslint-disable-next-line import/no-unresolved
+const ReactQueryDevtoolsProduction = lazy(() => import('@tanstack/react-query-devtools/production').then((d) => ({
+  default: d.ReactQueryDevtools,
+})));
 
 // Create a query client for @tanstack/react-query
 const queryClient = new QueryClient({
@@ -48,26 +50,28 @@ const queryClient = new QueryClient({
 
 const router = createAppRouter(queryClient);
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ReactQueryDevtools initialIsOpen={false} />
-    <AppProvider wrapWithRouter={false}>
-      <RouterProvider
-        router={router}
-        fallbackElement={<RouterFallback />}
-      />
-      {/* page routes for the app
-      <Suspense fallback={(
-        <DelayedFallbackContainer className="py-5 d-flex justify-content-center align-items-center" />
+const App = () => {
+  const [showReactQueryDevtools, setShowReactQueryDevtools] = useState(false);
+  useEffect(() => {
+    window.toggleReactQueryDevtools = () => setShowReactQueryDevtools((prevState) => !prevState);
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} />
+      {showReactQueryDevtools && (
+        <Suspense fallback={null}>
+          <ReactQueryDevtoolsProduction />
+        </Suspense>
       )}
-      >
-        <Routes>
-          <Route path="/invite/:enterpriseCustomerInviteKey" element={<PageWrap><EnterpriseInvitePage /></PageWrap>} />
-          <Route path="/:enterpriseSlug/*" element={<EnterpriseAppPageRoutes />} />
-        </Routes>
-      </Suspense> */}
-    </AppProvider>
-  </QueryClientProvider>
-);
+      <AppProvider wrapWithRouter={false}>
+        <RouterProvider
+          router={router}
+          fallbackElement={<RouterFallback />}
+        />
+      </AppProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
