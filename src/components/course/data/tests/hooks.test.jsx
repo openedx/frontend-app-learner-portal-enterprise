@@ -1,6 +1,8 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter, MemoryRouter, RouterProvider, useLocation, useParams,
+} from 'react-router-dom';
 import dayjs from 'dayjs';
 import { QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
@@ -65,12 +67,26 @@ import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../../constants';
 import useEnterpriseCustomer from '../../../app/data/hooks/useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
-import { useCourseMetadata, useRedeemablePolicies } from '../../../app/data';
+import {
+  useCourseMetadata,
+  useCourseRedemptionEligibility,
+  useRedeemablePolicies as defaultRedeemablePolicies,
+  useSubscriptions,
+  useEnterpriseCustomerContainsContent,
+  useEnterpriseOffers,
+  useCouponCodes,
+} from '../../../app/data';
+import useRedeemablePolices from '../../../app/data/hooks/useRedeemablePolicies';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useRedeemablePolicies: jest.fn(),
   useCourseMetadata: jest.fn(),
+  useCourseRedemptionEligibility: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useEnterpriseCustomerContainsContent: jest.fn(),
+  useEnterpriseOffers: jest.fn(),
+  useCouponCodes: jest.fn(),
 }));
 
 const oldGlobalLocation = global.location;
@@ -115,6 +131,7 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
   useLocation: jest.fn(),
+  useParams: jest.fn(),
 }
 ));
 
@@ -124,6 +141,7 @@ jest.mock('react-router-dom', () => ({
 // }));
 
 jest.mock('../../../app/data/hooks/useEnterpriseCustomer');
+jest.mock('../../../app/data/hooks/useRedeemablePolicies');
 
 jest.useFakeTimers();
 
@@ -1466,73 +1484,86 @@ describe('useMinimalCourseMetadata', () => {
   const mockCurrency = 'USD';
   const mockCourseTitle = 'Test Course Title';
   const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
-  const baseCourseContextValue = {
-    state: {
-      course: {
-        title: mockCourseTitle,
-        organizationShortCodeOverride: undefined,
-        organizationLogoOverrideUrl: undefined,
-        owners: [
-          {
-            name: mockOrgName,
-            logoImageUrl: mockLogoImageUrl,
-            marketingUrl: mockOrgMarketingUrl,
-          },
-        ],
-      },
-      activeCourseRun: {
-        start: mockCourseRunStartDate,
-        weeksToComplete: mockWeeksToComplete,
-      },
+
+  const baseCourseMetadataValue = {
+    organization: {
+      name: mockOrgName,
+      logoImgUrl: mockLogoImageUrl,
+      marketingUrl: mockOrgMarketingUrl,
     },
-    coursePrice: { list: mockListPrice, discount: 0 },
-    currency: mockCurrency,
+    title: mockCourseTitle,
+    startDate: mockCourseRunStartDate,
+    duration: `${mockWeeksToComplete} Weeks`,
+    priceDetails: {
+      price: mockListPrice,
+      currency: mockCurrency,
+    },
   };
-  const Wrapper = ({
-    courseContextValue = baseCourseContextValue,
-    children,
-  }) => (
-    <CourseContext.Provider value={courseContextValue}>
-      {children}
-    </CourseContext.Provider>
+
+  const Wrapper = ({ children }) => (
+    <BrowserRouter>
+      <AppContext.Provider value={mockAuthenticatedUser}>
+        {children}
+      </AppContext.Provider>
+    </BrowserRouter>
   );
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useCourseMetadata.mockReturnValue(baseCourseMetadataValue);
+    useParams.mockReturnValue({ courseKey: 'test-course-key' });
+    useRedeemablePolices.mockReturnValue({
+      data: {
+        redeemablePolicies: [],
+      },
+    });
+    useCourseRedemptionEligibility.mockReturnValue({ data: {} });
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: undefined,
+        subscriptionLicense: undefined,
+        subscriptionPlan: undefined,
+        shouldShowActivationSuccessMessage: false,
+      },
+    });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        containsContentItems: false,
+        catalogList: [],
+      },
+    });
+    useEnterpriseOffers.mockReturnValue({
+      data: {
+        enterpriseOffers: [],
+        canEnrollWithEnterpriseOffers: false,
+      },
+    });
+    useCouponCodes.mockReturnValue({
+      data: {
+        couponCodeAssignments: [],
+      },
+    });
+  });
 
   it('should return the correct base course metadata', () => {
     const { result } = renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        organization: {
-          name: mockOrgName,
-          logoImgUrl: mockLogoImageUrl,
-          marketingUrl: mockOrgMarketingUrl,
-        },
-        title: mockCourseTitle,
-        startDate: mockCourseRunStartDate,
-        duration: `${mockWeeksToComplete} Weeks`,
-        priceDetails: {
-          price: mockListPrice,
-          currency: mockCurrency,
-        },
-      }),
-    );
+    expect(result.current).toEqual(baseCourseMetadataValue);
   });
 
   it('should handle empty activeCourseRun', () => {
-    const args = {
-      ...baseCourseContextValue,
-      state: {
-        ...baseCourseContextValue.state,
-        activeCourseRun: undefined,
-      },
+    const updatedCourseMetadataValue = {
+      ...baseCourseMetadataValue,
+      duration: '-',
+      startDate: undefined,
     };
-    const CustomWrapper = (props) => <Wrapper courseContextValue={args} {...props} />;
-
+    useCourseMetadata.mockReturnValue(updatedCourseMetadataValue);
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
-      { wrapper: CustomWrapper },
+      { wrapper: Wrapper },
     );
     expect(result.current).toEqual(
-      expect.objectContaining({
+      {
         organization: {
           name: mockOrgName,
           logoImgUrl: mockLogoImageUrl,
@@ -1545,29 +1576,22 @@ describe('useMinimalCourseMetadata', () => {
           price: mockListPrice,
           currency: mockCurrency,
         },
-      }),
+      },
     );
   });
 
   it('should handle when weeksToComplete is only 1', () => {
-    const args = {
-      ...baseCourseContextValue,
-      state: {
-        ...baseCourseContextValue.state,
-        activeCourseRun: {
-          ...baseCourseContextValue.state.activeCourseRun,
-          weeksToComplete: 1,
-        },
-      },
+    const updatedCourseMetadataValue = {
+      ...baseCourseMetadataValue,
+      duration: '1 Week',
     };
-    const CustomWrapper = (props) => <Wrapper courseContextValue={args} {...props} />;
-
+    useCourseMetadata.mockReturnValue(updatedCourseMetadataValue);
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
-      { wrapper: CustomWrapper },
+      { wrapper: Wrapper },
     );
     expect(result.current).toEqual(
-      expect.objectContaining({
+      {
         organization: {
           name: mockOrgName,
           logoImgUrl: mockLogoImageUrl,
@@ -1580,32 +1604,28 @@ describe('useMinimalCourseMetadata', () => {
           price: mockListPrice,
           currency: mockCurrency,
         },
-      }),
+      },
     );
   });
 
   it('should handle organization short code and logo overrides', () => {
     const mockOrgShortCode = 'Test Shortcode Override';
     const mockOrgLogoUrl = 'https://fake-logo-override.url';
-    const args = {
-      ...baseCourseContextValue,
-      state: {
-        ...baseCourseContextValue.state,
-        course: {
-          ...baseCourseContextValue.state.course,
-          organizationShortCodeOverride: mockOrgShortCode,
-          organizationLogoOverrideUrl: mockOrgLogoUrl,
-        },
+    const updatedCourseMetadataValue = {
+      ...baseCourseMetadataValue,
+      organization: {
+        name: mockOrgShortCode,
+        logoImgUrl: mockOrgLogoUrl,
+        marketingUrl: mockOrgMarketingUrl,
       },
     };
-    const CustomWrapper = (props) => <Wrapper courseContextValue={args} {...props} />;
-
+    useCourseMetadata.mockReturnValue(updatedCourseMetadataValue);
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
-      { wrapper: CustomWrapper },
+      { wrapper: Wrapper },
     );
     expect(result.current).toEqual(
-      expect.objectContaining({
+      {
         organization: {
           name: mockOrgShortCode,
           logoImgUrl: mockOrgLogoUrl,
@@ -1618,7 +1638,7 @@ describe('useMinimalCourseMetadata', () => {
           price: mockListPrice,
           currency: mockCurrency,
         },
-      }),
+      },
     );
   });
 });
@@ -1639,7 +1659,7 @@ describe('useIsCourseAssigned', () => {
     const learnerContentAssignments = {
       hasAllocatedAssignments: false,
     };
-    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    defaultRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
     const { result } = renderHook(() => useIsCourseAssigned(), { wrapper: Wrapper });
 
     expect(result.current).toEqual(false);
@@ -1655,7 +1675,7 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    defaultRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
     useCourseMetadata.mockReturnValue({ data: { key: 'non-existent-course-key' } });
 
     const { result } = renderHook(
@@ -1678,7 +1698,7 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    defaultRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
     useCourseMetadata.mockReturnValue({ data: { key: mockContentKey } });
 
     const { result } = renderHook(
@@ -1699,7 +1719,7 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    defaultRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
     useCourseMetadata.mockReturnValue({ data: { key: mockContentKey } });
 
     const { result } = renderHook(
