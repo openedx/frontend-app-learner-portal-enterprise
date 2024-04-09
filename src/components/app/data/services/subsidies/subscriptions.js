@@ -144,7 +144,7 @@ export async function activateOrAutoApplySubscriptionLicense({
   }
 
   const isUserLinkedToEnterpriseCustomer = allLinkedEnterpriseCustomerUsers.some(
-    (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer.uuid === enterpriseCustomer.uuid,
+    (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer?.uuid === enterpriseCustomer.uuid,
   );
   const hasActivatedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.ACTIVATED].length > 0;
   const hasRevokedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.REVOKED].length > 0;

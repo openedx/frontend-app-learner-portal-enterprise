@@ -278,7 +278,7 @@ export async function ensureActiveEnterpriseCustomerUser({
   // Otherwise, try to find the enterprise customer for the given slug and, if found, update it
   // as the active enterprise customer for the learner.
   const foundEnterpriseCustomerUserForSlug = allLinkedEnterpriseCustomerUsers.find(
-    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
+    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
   );
   if (foundEnterpriseCustomerUserForSlug) {
     const {
