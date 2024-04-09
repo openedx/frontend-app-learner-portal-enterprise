@@ -1,13 +1,12 @@
 import {
   Outlet, ScrollRestoration, useParams, Link,
 } from 'react-router-dom';
-import { Suspense, useContext } from 'react';
+import { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
 import { getLoginRedirectUrl } from '@edx/frontend-platform/auth';
 import { Hyperlink } from '@openedx/paragon';
 
-import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import { Toasts, ToastsProvider } from '../Toasts';
 import { ErrorPage } from '../error-page';
 import { useNProgressLoader } from './data';
@@ -48,9 +47,7 @@ const Root = () => {
     <>
       <ToastsProvider>
         <Toasts />
-        <Suspense fallback={<DelayedFallbackContainer />}>
-          <Outlet />
-        </Suspense>
+        <Outlet />
       </ToastsProvider>
       <ScrollRestoration />
     </>

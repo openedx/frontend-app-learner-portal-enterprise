@@ -1,4 +1,5 @@
 export { default as RouterFallback } from './RouterFallback';
+export { default as AppSuspenseFallback } from './AppSuspenseFallback';
 export { default as RouteErrorBoundary } from './RouteErrorBoundary';
 export { default as createAppRouter } from './createAppRouter';
 

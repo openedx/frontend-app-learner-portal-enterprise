@@ -15,7 +15,7 @@ import {
   defaultQueryClientRetryHandler,
 } from '../../utils/common';
 
-import { RouterFallback, createAppRouter } from './routes';
+import { AppSuspenseFallback, RouterFallback, createAppRouter } from './routes';
 
 // eslint-disable-next-line import/no-unresolved
 const ReactQueryDevtoolsProduction = lazy(() => import('@tanstack/react-query-devtools/production').then((d) => ({
@@ -30,6 +30,14 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: defaultQueryClientRetryHandler,
+      // Suspense mode on queries enables loading/error states to be caught and handled by a surrounding
+      // `Suspense` component from React, with a fallback UI component to display while the query is resolving.
+      // Generally, queries should be resolved within a route loader so it's "guaranteed" to exist within the UI
+      // components. However, `@tanstack/react-query` removes queries from the query cache when they are inactive
+      // (i.e., not rendered) for more than the default `cacheTime` (garbage collection time). To prevent this, by
+      // suspense, we can trigger a loading state with a `Suspense` fallback component while queries that were garbage
+      // collected are re-fetched again, instead of throwing a JS error.
+      suspense: true,
       // Specifying a longer `staleTime` of 20 seconds means queries will not refetch their data
       // as often; mitigates making duplicate queries when within the `staleTime` window, instead
       // relying on the cached data until the `staleTime` window has exceeded. This may be modified
@@ -65,10 +73,12 @@ const App = () => {
         </Suspense>
       )}
       <AppProvider wrapWithRouter={false}>
-        <RouterProvider
-          router={router}
-          fallbackElement={<RouterFallback />}
-        />
+        <Suspense fallback={<AppSuspenseFallback />}>
+          <RouterProvider
+            router={router}
+            fallbackElement={<RouterFallback />}
+          />
+        </Suspense>
       </AppProvider>
     </QueryClientProvider>
   );
