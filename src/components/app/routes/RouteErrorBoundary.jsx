@@ -40,12 +40,14 @@ const RouteErrorBoundary = ({
   useEffect(() => {
     if (routeError) {
       logError(routeError);
+      console.error('[RouteErrorBoundary] routeError:', routeError);
     }
   }, [routeError]);
 
   useEffect(() => {
     if (asyncError) {
       logError(asyncError);
+      console.error('[RouteErrorBoundary] asyncError:', asyncError);
     }
   }, [asyncError]);
 
