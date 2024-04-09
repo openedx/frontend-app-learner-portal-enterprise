@@ -40,6 +40,7 @@ const RouteErrorBoundary = ({
   useEffect(() => {
     if (routeError) {
       logError(routeError);
+      // eslint-disable-next-line no-console
       console.error('[RouteErrorBoundary] routeError:', routeError);
     }
   }, [routeError]);
@@ -47,6 +48,7 @@ const RouteErrorBoundary = ({
   useEffect(() => {
     if (asyncError) {
       logError(asyncError);
+      // eslint-disable-next-line no-console
       console.error('[RouteErrorBoundary] asyncError:', asyncError);
     }
   }, [asyncError]);
