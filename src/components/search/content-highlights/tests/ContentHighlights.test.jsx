@@ -37,7 +37,6 @@ jest.mock('../ContentHighlightSet', () => {
   };
 });
 
-
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('ContentHighlights', () => {
