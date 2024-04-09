@@ -35,6 +35,7 @@ import {
   useEnterpriseCustomerContainsContent,
   useIsAssignmentsOnlyLearner,
 } from '../../app/data';
+import usePassLearnerCsodParams from '../../app/data/hooks/usePassLearnerCsodParams';
 
 const CourseHeader = () => {
   const location = useLocation();
@@ -47,6 +48,7 @@ const CourseHeader = () => {
   const isCourseAssigned = useIsCourseAssigned();
   const isCourseArchived = courseMetadata.courseRuns.every((courseRun) => isArchived(courseRun));
   const [partners] = useCoursePartners(courseMetadata);
+  usePassLearnerCsodParams(enterpriseCustomer.uuid);
   const defaultProgram = useMemo(
     () => getDefaultProgram(courseMetadata.programs),
     [courseMetadata],
