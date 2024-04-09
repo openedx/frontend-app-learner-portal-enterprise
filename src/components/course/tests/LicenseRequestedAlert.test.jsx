@@ -10,12 +10,11 @@ import { LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME, LICENSE_REQUESTED_ALERT_
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import {
   useBrowseAndRequest,
-  useEnterpriseCustomer as defaultEnterpriseCustomer,
+  useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useSubscriptions,
 } from '../../app/data';
 import { renderWithRouterProvider } from '../../../utils/tests';
-import useEnterpriseCustomer from '../../app/data/hooks/useEnterpriseCustomer';
 
 const mockCatalogUUID = 'uuid';
 jest.mock('universal-cookie');
@@ -27,8 +26,6 @@ jest.mock('../../app/data', () => ({
   useSubscriptions: jest.fn(),
   useBrowseAndRequest: jest.fn(),
 }));
-
-jest.mock('../../app/data/hooks/useEnterpriseCustomer');
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -51,7 +48,6 @@ describe('<LicenseRequestedAlert />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
-    defaultEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useEnterpriseCustomerContainsContent.mockReturnValue({
       data: {

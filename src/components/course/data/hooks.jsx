@@ -1,5 +1,5 @@
 import {
-  useCallback, useEffect, useMemo, useState,
+  useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -52,6 +52,7 @@ import {
   useCatalogsForSubsidyRequests,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { CourseContext } from '../CourseContextProvider';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -401,7 +402,9 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
 export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: { activeCourseRun } } = useCourseMetadata();
-  const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
+  const {
+    algoliaSearchParams,
+  } = useContext(CourseContext);
   const handleClick = useCallback(
     (e) => {
       const { queryId, objectId } = algoliaSearchParams;

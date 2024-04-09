@@ -47,22 +47,24 @@ import {
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_TYPE } from '../../../../constants';
-import useEnterpriseCustomer from '../../../app/data/hooks/useEnterpriseCustomer';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import {
   useCourseMetadata,
   useCourseRedemptionEligibility,
-  useRedeemablePolicies as defaultRedeemablePolicies,
+  useRedeemablePolicies,
   useSubscriptions,
   useEnterpriseCustomerContainsContent,
   useEnterpriseOffers,
   useCouponCodes,
-  useEnterpriseCustomer as defaultEnterpriseCustomer, useBrowseAndRequest,
+  useEnterpriseCustomer,
+  useBrowseAndRequest,
 } from '../../../app/data';
-import useRedeemablePolices from '../../../app/data/hooks/useRedeemablePolicies';
+import { CourseContext } from '../../CourseContextProvider';
+// import useRedeemablePolices from '../../../app/data/hooks/useRedeemablePolicies';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
   useRedeemablePolicies: jest.fn(),
   useCourseMetadata: jest.fn(),
   useCourseRedemptionEligibility: jest.fn(),
@@ -107,7 +109,6 @@ jest.mock('../utils', () => ({
   getSubscriptionDisabledEnrollmentReasonType: jest.fn(),
   getCouponCodesDisabledEnrollmentReasonType: jest.fn(),
   getMissingApplicableSubsidyReason: jest.fn(),
-  useEnterpriseCustomer: jest.fn(),
 }));
 
 const mockNavigate = jest.fn();
@@ -120,8 +121,8 @@ jest.mock('react-router-dom', () => ({
 }
 ));
 
-jest.mock('../../../app/data/hooks/useEnterpriseCustomer');
-jest.mock('../../../app/data/hooks/useRedeemablePolicies');
+// jest.mock('../../../app/data/hooks/useEnterpriseCustomer');
+// jest.mock('../../../app/data/hooks/useRedeemablePolicies');
 
 jest.useFakeTimers();
 
@@ -305,9 +306,6 @@ describe('useUserHasSubsidyRequestForCourse', () => {
   );
   beforeEach(() => {
     jest.clearAllMocks();
-    defaultEnterpriseCustomer.mockReturnValue(
-      { data: mockEnterpriseCustomer },
-    );
     useBrowseAndRequest.mockReturnValue({
       data: {
         configuration: undefined,
@@ -444,7 +442,9 @@ describe('useTrackSearchConversionClickHandler', () => {
   const wrapper = ({ children }) => (
     <IntlProvider locale="en">
       <MemoryRouter initialEntries={['/?queryId=algolia-query-id&objectId=algolia-object-id']}>
-        {children}
+        <CourseContext.Provider value={mockCourseState}>
+          {children}
+        </CourseContext.Provider>
       </MemoryRouter>
     </IntlProvider>
   );
@@ -905,9 +905,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
-    defaultEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useCourseMetadata.mockReturnValue({});
-    useRedeemablePolices.mockReturnValue({
+    useRedeemablePolicies.mockReturnValue({
       data: {
         redeemablePolicies: [],
       },
@@ -997,7 +997,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
         : DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS],
       actions: null,
     });
-    defaultEnterpriseCustomer.mockReturnValue({
+    useEnterpriseCustomer.mockReturnValue({
       data: {
         ...mockEnterpriseCustomer,
         enterpriseAdminUsers,
@@ -1261,7 +1261,7 @@ describe('useMinimalCourseMetadata', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useCourseMetadata.mockReturnValue(baseCourseMetadataValue);
     useParams.mockReturnValue({ courseKey: 'test-course-key' });
-    useRedeemablePolices.mockReturnValue({
+    useRedeemablePolicies.mockReturnValue({
       data: {
         redeemablePolicies: [],
       },
@@ -1407,7 +1407,7 @@ describe('useIsCourseAssigned', () => {
     const learnerContentAssignments = {
       hasAllocatedAssignments: false,
     };
-    defaultRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
     const { result } = renderHook(() => useIsCourseAssigned(), { wrapper: Wrapper });
 
     expect(result.current).toEqual(false);
@@ -1423,7 +1423,7 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    defaultRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
     useCourseMetadata.mockReturnValue({ data: { key: 'non-existent-course-key' } });
 
     const { result } = renderHook(
@@ -1446,7 +1446,7 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    defaultRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
     useCourseMetadata.mockReturnValue({ data: { key: mockContentKey } });
 
     const { result } = renderHook(
@@ -1467,7 +1467,7 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    defaultRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
     useCourseMetadata.mockReturnValue({ data: { key: mockContentKey } });
 
     const { result } = renderHook(
