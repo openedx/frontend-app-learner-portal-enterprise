@@ -63,7 +63,11 @@ const AvatarDropdown = ({ showLabel }) => {
           })}
         </Dropdown.Item>
         {allLinkedEnterpriseCustomerUsers
-          .sort((a, b) => a.enterpriseCustomer.name.localeCompare(b.enterpriseCustomer.name))
+          .sort((a, b) => {
+            const nameA = a.enterpriseCustomer?.name || ''; // Fallback to empty string if enterpriseCustomer or its name is undefined
+            const nameB = b.enterpriseCustomer?.name || ''; // Fallback to empty string if enterpriseCustomer or its name is undefined
+            return nameA.localeCompare(nameB);
+          })
           .map((enterpriseCustomerUser) => (
             <Dropdown.Item
               key={enterpriseCustomerUser.enterpriseCustomer.slug}
