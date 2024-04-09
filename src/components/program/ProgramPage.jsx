@@ -21,7 +21,7 @@ const ProgramPage = () => {
   const { data: program } = useProgramDetails();
 
   // if there is not even single course that does not belongs to the enterprise customer's catalog
-  if (!program.catalogContainsProgram) {
+  if (!program?.catalogContainsProgram) {
     return (
       <NotFoundPage
         pageTitle={PROGRAM_NOT_FOUND_TITLE}
