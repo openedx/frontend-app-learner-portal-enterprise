@@ -68,19 +68,24 @@ const AvatarDropdown = ({ showLabel }) => {
             const nameB = b.enterpriseCustomer?.name || ''; // Fallback to empty string if enterpriseCustomer or its name is undefined
             return nameA.localeCompare(nameB);
           })
-          .map((enterpriseCustomerUser) => (
-            <Dropdown.Item
-              key={enterpriseCustomerUser.enterpriseCustomer.slug}
-              as={NavLink}
-              to={generatePath('/:enterpriseSlug/*', {
-                enterpriseSlug: enterpriseCustomerUser.enterpriseCustomer.slug,
-                '*': location.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
-              })}
-              className="text-wrap"
-            >
-              {enterpriseCustomerUser.enterpriseCustomer.name}
-            </Dropdown.Item>
-          ))}
+          .map((enterpriseCustomerUser) => {
+            if (!enterpriseCustomerUser.enterpriseCustomer) {
+              return null;
+            }
+            return (
+              <Dropdown.Item
+                key={enterpriseCustomerUser.enterpriseCustomer.slug}
+                as={NavLink}
+                to={generatePath('/:enterpriseSlug/*', {
+                  enterpriseSlug: enterpriseCustomerUser.enterpriseCustomer.slug,
+                  '*': location.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
+                })}
+                className="text-wrap"
+              >
+                {enterpriseCustomerUser.enterpriseCustomer.name}
+              </Dropdown.Item>
+            );
+          })}
         <Dropdown.Divider className="border-light" />
         <Dropdown.Item href={`${LMS_BASE_URL}/u/${username}`}>
           {intl.formatMessage({
