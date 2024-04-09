@@ -30,7 +30,7 @@ async function extractEnterpriseId({
   }
 
   const foundEnterpriseIdForSlug = allLinkedEnterpriseCustomerUsers.find(
-    (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
+    (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
   )?.enterpriseCustomer.uuid;
 
   // Otherwise, there is a slug provided for a specific enterprise customer. If the
