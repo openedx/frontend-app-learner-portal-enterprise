@@ -48,9 +48,7 @@ const Root = () => {
     <>
       <ToastsProvider>
         <Toasts />
-        <Suspense fallback={<DelayedFallbackContainer />}>
-          <Outlet />
-        </Suspense>
+        <Outlet />
       </ToastsProvider>
       <ScrollRestoration />
     </>
