@@ -1,67 +1,104 @@
-import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import Cookies from 'universal-cookie';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import userEvent from '@testing-library/user-event';
+import { AppContext } from '@edx/frontend-platform/react';
+import { useParams } from 'react-router-dom';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
-import { CourseContext } from '../CourseContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME, LICENSE_REQUESTED_ALERT_HEADING, LICENSE_REQUESTED_ALERT_TEXT } from '../data/constants';
-import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../constants';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import {
+  useBrowseAndRequest,
+  useEnterpriseCustomer as defaultEnterpriseCustomer,
+  useEnterpriseCustomerContainsContent,
+  useSubscriptions,
+} from '../../app/data';
+import { renderWithRouterProvider } from '../../../utils/tests';
+import useEnterpriseCustomer from '../../app/data/hooks/useEnterpriseCustomer';
 
 const mockCatalogUUID = 'uuid';
 jest.mock('universal-cookie');
 
-const initialSubscriptions = [
-  {
-    enterpriseCatalogUuid: mockCatalogUUID,
-  },
-];
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useEnterpriseCustomerContainsContent: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useBrowseAndRequest: jest.fn(),
+}));
 
-const initialLicenseRequests = [
-  {
-    state: SUBSIDY_REQUEST_STATE.REQUESTED,
-  },
-];
+jest.mock('../../app/data/hooks/useEnterpriseCustomer');
 
-const LicenseRequestedAlertWrapper = ({
-  subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
-}) => (
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn(),
+}
+));
+
+const mockAuthenticatedUser = { authenticatedUser: authenticatedUserFactory() };
+const LicenseRequestedAlertWrapper = () => (
   <IntlProvider locale="en">
-    <UserSubsidyContext.Provider value={{
-      couponCodes: {
-        couponCodes: [],
-        couponCodesCount: 0,
-      },
-      subscriptionLicense: {},
-      customerAgreementConfig: {
-        subscriptions,
-      },
-    }}
-    >
-      <SubsidyRequestsContext.Provider value={
-        {
-          subsidyRequestConfiguration: null,
-          requestsBySubsidyType: {
-            [SUBSIDY_TYPE.LICENSE]: licenseRequests,
-            [SUBSIDY_TYPE.COUPON]: [],
-          },
-        }
-      }
-      >
-        <CourseContext.Provider>
-          <LicenseRequestedAlert catalogList={[mockCatalogUUID]} />
-        </CourseContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
+    <AppContext.Provider value={mockAuthenticatedUser}>
+      <LicenseRequestedAlert />
+    </AppContext.Provider>
   </IntlProvider>
 );
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 describe('<LicenseRequestedAlert />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
+    defaultEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        containsContentItems: false,
+        catalogList: [],
+      },
+    });
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: undefined,
+        requests: {
+          subscriptionLicenses: [],
+          couponCodes: [],
+        },
+      },
+    });
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: undefined,
+        subscriptionLicense: undefined,
+        subscriptionPlan: undefined,
+        shouldShowActivationSuccessMessage: false,
+      },
+    });
+  });
   it('renders correctly', () => {
-    const { getByText } = render(<LicenseRequestedAlertWrapper />);
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        requests: {
+          subscriptionLicenses: [mockCatalogUUID],
+        },
+      },
+    });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        catalogList: [mockCatalogUUID],
+      },
+    });
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: {
+          availableSubscriptionCatalogs: [mockCatalogUUID],
+        },
+      },
+    });
+    const { getByText } = renderWithRouterProvider(<LicenseRequestedAlertWrapper />);
+
     expect(getByText(LICENSE_REQUESTED_ALERT_HEADING));
     expect(getByText(LICENSE_REQUESTED_ALERT_TEXT));
   });
@@ -69,28 +106,44 @@ describe('<LicenseRequestedAlert />', () => {
   it('does not render if it was previously dismissed', () => {
     const mockGetCookies = jest.fn(() => true);
     Cookies.mockReturnValue({ get: mockGetCookies });
-    const { container } = render(<LicenseRequestedAlertWrapper />);
+    const { container } = renderWithRouterProvider(<LicenseRequestedAlertWrapper />);
     expect(container.childElementCount).toEqual(0);
     expect(mockGetCookies).toHaveBeenCalledWith(LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME);
   });
 
   it('does not render if there is no pending license request', () => {
-    const { container } = render(<LicenseRequestedAlertWrapper licenseRequests={[]} />);
+    const { container } = renderWithRouterProvider(<LicenseRequestedAlertWrapper />);
     expect(container.childElementCount).toEqual(0);
   });
 
   it('does not render if there are no applicable subscriptions', () => {
-    const { container } = render(<LicenseRequestedAlertWrapper subscriptions={[{
-      enterpriseCatalogUuid: 'abc',
-    }]}
-    />);
+    const { container } = renderWithRouterProvider(<LicenseRequestedAlertWrapper />);
     expect(container.childElementCount).toEqual(0);
   });
 
   it('sets alert dismissed cookie on close', async () => {
     const mockSetCookies = jest.fn();
     Cookies.mockReturnValue({ get: jest.fn(), set: mockSetCookies });
-    const { getByText, queryByText } = render(<LicenseRequestedAlertWrapper />);
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        requests: {
+          subscriptionLicenses: [mockCatalogUUID],
+        },
+      },
+    });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        catalogList: [mockCatalogUUID],
+      },
+    });
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: {
+          availableSubscriptionCatalogs: [mockCatalogUUID],
+        },
+      },
+    });
+    const { getByText, queryByText } = renderWithRouterProvider(<LicenseRequestedAlertWrapper />);
     userEvent.click(getByText('Dismiss'));
     expect(mockSetCookies).toHaveBeenCalledWith(
       LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME,
