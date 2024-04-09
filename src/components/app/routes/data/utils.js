@@ -254,7 +254,8 @@ export async function ensureAuthenticatedUser(requestUrl, params) {
 }
 
 /**
- * TODO
+ * Ensures the user's EnterpriseCustomerUser is marked as active when
+ * visiting its customer slug.
  * @param {*} enterpriseSlug
  * @param {*} activeEnterpriseCustomer
  * @param {*} staffEnterpriseCustomer
@@ -278,23 +279,24 @@ export async function ensureActiveEnterpriseCustomerUser({
   // Otherwise, try to find the enterprise customer for the given slug and, if found, update it
   // as the active enterprise customer for the learner.
   const foundEnterpriseCustomerUserForSlug = allLinkedEnterpriseCustomerUsers.find(
-    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
+    enterpriseCustomerUser => {
+      if (!enterpriseCustomerUser.enterpriseCustomer) {
+        return false;
+      }
+      return enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug;
+    },
   );
-  if (foundEnterpriseCustomerUserForSlug) {
+  if (enterpriseSlug && foundEnterpriseCustomerUserForSlug) {
     const {
       enterpriseCustomer: nextActiveEnterpriseCustomer,
     } = foundEnterpriseCustomerUserForSlug;
     // Makes the POST API request to update the active enterprise customer
     // for the learner in the backend for future sessions.
-    await updateUserActiveEnterprise({
-      enterpriseCustomer: nextActiveEnterpriseCustomer,
-    });
+    await updateUserActiveEnterprise({ enterpriseCustomer: nextActiveEnterpriseCustomer });
     const updatedLinkedEnterpriseCustomerUsers = allLinkedEnterpriseCustomerUsers.map(
       ecu => ({
         ...ecu,
-        active: (
-          ecu.enterpriseCustomer.uuid === nextActiveEnterpriseCustomer.uuid
-        ),
+        active: !!(ecu.enterpriseCustomer?.uuid === nextActiveEnterpriseCustomer.uuid),
       }),
     );
     return {
