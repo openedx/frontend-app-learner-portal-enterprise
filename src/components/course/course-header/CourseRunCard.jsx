@@ -22,7 +22,18 @@ const CourseRunCard = ({ courseRun }) => {
     userEnrollments: enterpriseCourseEnrollments,
     key: courseRun.key,
   });
-
+  console.log(
+    '1',
+    courseMetadata,
+    '2',
+    courseRun,
+    '3',
+    userEnrollmentForCourseRun,
+    '4',
+    userCanRequestSubsidyForCourse,
+    '5',
+    userSubsidyApplicableToCourse,
+  );
   const {
     heading,
     subHeading,

@@ -2,10 +2,48 @@ import React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import { AppContext } from '@edx/frontend-platform/react';
+import { QueryClientProvider } from '@tanstack/react-query';
 import CourseRunCard from '../CourseRunCard';
 import { CourseContext } from '../../CourseContextProvider';
 import { useCourseRunCardData } from '../data';
 import { findUserEnrollmentForCourseRun } from '../../data/utils';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import {
+  useCouponCodes,
+  useCourseMetadata,
+  useCourseRedemptionEligibility,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+  useEnterpriseCustomerContainsContent,
+  useEnterpriseOffers,
+  useLateRedemptionBufferDays,
+  useSubscriptions,
+} from '../../../app/data';
+import { useCanUserRequestSubsidyForCourse, useCourseListPrice } from '../../data';
+import { queryClient, renderWithRouterProvider } from '../../../../utils/tests';
+import useRedeemablePolices from '../../../app/data/hooks/useRedeemablePolicies';
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useCourseMetadata: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useEnterpriseOffers: jest.fn(),
+  useEnterpriseCustomerContainsContent: jest.fn(),
+  useCouponCodes: jest.fn(),
+  useCourseRedemptionEligibility: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
+}));
+
+jest.mock('../../../app/data/hooks/useRedeemablePolicies');
+jest.mock('../../../app/data/hooks/useLateRedemptionBufferDays');
+
+jest.mock('../../data', () => ({
+  ...jest.requireActual('../../data'),
+  useCanUserRequestSubsidyForCourse: jest.fn(),
+  useCourseListPrice: jest.fn(),
+}));
 
 jest.mock('../../data/utils', () => ({
   ...jest.requireActual('../../data/utils'),
@@ -20,26 +58,29 @@ jest.mock('../data', () => ({
     action: 'Action',
   }),
 }));
-
-const mockCourseRun = {
-  key: 'course-v1:edX+DemoX+Demo_Course',
-  availability: 'Current',
-  start: '2020-01-01T00:00:00Z',
-  pacingType: 'self_paced',
-  enrollmentCount: 0,
-};
-
+const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
+const mockCourseRunUrl = 'http://course.url';
 const mockUserEnrollment = {
   id: 1,
   isEnrollmentActive: true,
   isRevoked: false,
-  courseRunId: mockCourseRun.key,
-  courseRunUrl: 'http://course.url',
+  courseRunId: mockCourseRunKey,
+  courseRunUrl: mockCourseRunUrl,
+  linkToCourse: mockCourseRunUrl,
 };
+const mockCourseRun = {
+  key: mockCourseRunKey,
+  availability: 'Current',
+  start: '2020-01-01T00:00:00Z',
+  pacingType: 'self_paced',
+  enrollmentCount: 0,
+  linkToCourse: mockCourseRunUrl,
+};
+
 const mockUserSubsidy = { subsidyType: 'learnerCredit' };
 const mockUserEnrollments = [mockUserEnrollment];
 const mockUserCanRequestSubsidy = false;
-
+const mockAuthenticatedUser = { authenticatedUser: authenticatedUserFactory() };
 const CourseRunCardWrapper = (props) => {
   const courseContextValue = {
     state: {
@@ -52,19 +93,68 @@ const CourseRunCardWrapper = (props) => {
     userCanRequestSubsidyForCourse: mockUserCanRequestSubsidy,
   };
   return (
-    <CourseContext.Provider value={courseContextValue}>
-      <CourseRunCard
-        courseRun={mockCourseRun}
-        {...props}
-      />
-    </CourseContext.Provider>
+    <QueryClientProvider client={queryClient()}>
+      <CourseContext.Provider value={courseContextValue}>
+        <AppContext.Provider value={mockAuthenticatedUser}>
+          <CourseRunCard
+            courseRun={mockCourseRun}
+            {...props}
+          />
+        </AppContext.Provider>
+      </CourseContext.Provider>
+    </QueryClientProvider>
   );
 };
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 describe('<CourseRunCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({
+      data: mockEnterpriseCustomer,
+    });
+    useCourseMetadata.mockReturnValue({ data: { entitlements: [] } });
+    useCanUserRequestSubsidyForCourse.mockReturnValue(false);
+    useRedeemablePolices.mockReturnValue({
+      data: {
+        redeemablePolicies: [],
+      },
+    });
+    useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: 199 } });
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: undefined,
+        subscriptionLicense: undefined,
+        subscriptionPlan: undefined,
+        shouldShowActivationSuccessMessage: false,
+      },
+    });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        containsContentItems: false,
+        catalogList: [],
+      },
+    });
+    useEnterpriseOffers.mockReturnValue({
+      data: {
+        enterpriseOffers: [],
+        currentEnterpriseOffers: [],
+        canEnrollWithEnterpriseOffers: false,
+      },
+    });
+    useCouponCodes.mockReturnValue({
+      data: {
+        couponCodeAssignments: [],
+      },
+    });
+    useLateRedemptionBufferDays.mockReturnValue(1);
+    useCourseListPrice.mockReturnValue({ data: 199 });
+    useEnterpriseCourseEnrollments.mockReturnValue({ data: { enterpriseCourseEnrollments: mockUserEnrollment } });
+  });
   test('renders', () => {
     findUserEnrollmentForCourseRun.mockReturnValue(mockUserEnrollment);
-    render(<CourseRunCardWrapper />);
+    renderWithRouterProvider(<CourseRunCardWrapper />);
     expect(screen.getByText('Heading')).toBeInTheDocument();
     expect(screen.getByText('Subheading')).toBeInTheDocument();
     expect(screen.getByText('Action')).toBeInTheDocument();
