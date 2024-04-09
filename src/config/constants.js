@@ -20,4 +20,4 @@ export const SUBSCRIPTION_EXPIRED = 0;
 export const SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX = 'seen-expiration-modal-';
 
 // [ENT-8519] Late enrollments feature
-export const LATE_ENROLLMENTS_BUFFER_DAYS = 60;
+export const LATE_ENROLLMENTS_BUFFER_DAYS = 30;
