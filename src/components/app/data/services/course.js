@@ -92,8 +92,8 @@ export async function fetchCourseReviews(courseKey) {
 export async function fetchCourseRecommendations(enterpriseUuid, courseKey, searchCatalogs) {
   const courseRecommendationsUrl = `${getConfig().DISCOVERY_API_BASE_URL}/taxonomy/api/v1/course_recommendations/${courseKey}/`;
   try {
-    const courseRecommendationsRepsonse = await getAuthenticatedHttpClient().get(courseRecommendationsUrl);
-    const courseRecommendations = camelCaseObject(courseRecommendationsRepsonse.data);
+    const courseRecommendationsResponse = await getAuthenticatedHttpClient().get(courseRecommendationsUrl);
+    const courseRecommendations = camelCaseObject(courseRecommendationsResponse.data);
     const {
       allRecommendations,
       samePartnerRecommendations,

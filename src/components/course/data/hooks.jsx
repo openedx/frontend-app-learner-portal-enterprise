@@ -320,6 +320,7 @@ export const useCourseEnrollmentUrl = ({
       if (isExecutiveEducation2UCourse) {
         const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
           currentRouteUrl: pathname,
+          selectedCourseRunKey: courseRunKey,
         });
         return externalCourseEnrollmentUrl;
       }
@@ -549,7 +550,12 @@ export const useUserSubsidyApplicableToCourse = () => {
       catalogList: catalogsWithCourse,
     },
   } = useEnterpriseCustomerContainsContent([courseKey]);
-  const { data: { currentEnterpriseOffers } } = useEnterpriseOffers();
+  const {
+    data: {
+      enterpriseOffers,
+      currentEnterpriseOffers,
+    },
+  } = useEnterpriseOffers();
   const {
     data: {
       isPolicyRedemptionEnabled,
@@ -594,7 +600,7 @@ export const useUserSubsidyApplicableToCourse = () => {
       subscriptionLicense,
       containsContentItems,
       missingSubsidyAccessPolicyReason,
-      enterpriseOffers: currentEnterpriseOffers,
+      enterpriseOffers,
     });
   }
 

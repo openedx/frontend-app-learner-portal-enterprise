@@ -18,25 +18,13 @@ import {
 } from '../data/hooks';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
 import { features } from '../../../config';
-import { useCourseMetadata, useEnterpriseCustomer } from '../../app/data';
+import { useEnterpriseCustomer } from '../../app/data';
 
 export { default as makeExternalCourseEnrollmentLoader } from './externalCourseEnrollmentLoader';
 
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
   const { externalCourseFormSubmissionError } = useContext(CourseContext);
-  const {
-    data: {
-      activeCourseRun,
-      courseEntitlementProductSku,
-    },
-  } = useCourseMetadata({
-    select: ({ transformed }) => ({
-      courseMetadata: transformed,
-      activeCourseRun: transformed.activeCourseRun,
-      courseEntitlementProductSku: transformed.courseEntitlementProductSku,
-    }),
-  });
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const isCourseAssigned = useIsCourseAssigned();
   const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
@@ -142,10 +130,7 @@ const ExternalCourseEnrollment = () => {
               )}
               <CourseSummaryCard courseMetadata={minimalCourseMetadata} />
               <RegistrationSummaryCard priceDetails={minimalCourseMetadata.priceDetails} />
-              <UserEnrollmentForm
-                productSKU={courseEntitlementProductSku}
-                activeCourseRun={activeCourseRun}
-              />
+              <UserEnrollmentForm />
             </Col>
           </Row>
         </Container>

@@ -42,7 +42,6 @@ const SubsidiesSummary = ({
     hasActiveLicenseOrLicenseRequest,
     learnerCreditSummaryCardData,
   } = useHasAvailableSubsidiesOrRequests();
-
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
 
   // if there are course enrollments, the cta button below will be the only one on the page

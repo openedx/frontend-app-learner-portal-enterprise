@@ -26,7 +26,7 @@ const CoursePage = () => {
   ]);
 
   // If there isn't an active course run we don't show the course at all
-  if (!courseMetadata.activeCourseRun) {
+  if (!courseMetadata?.activeCourseRun) {
     return <NotFoundPage />;
   }
 

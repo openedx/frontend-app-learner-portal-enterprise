@@ -51,20 +51,25 @@ const AcademyDetailPage = () => {
   }
 
   return (
-    <Container size="lg" className="pt-3 pb-4">
-      <div className="small">
-        <Breadcrumb
-          data-testid="academy-breadcrumb"
-          links={[
-            { label: 'Find a Course', to: `/${enterpriseCustomer.slug}/search` },
-          ]}
-          linkAs={Link}
-          activeLabel={academy.title}
-        />
-      </div>
-      <div>
-        <h2 data-testid="academy-title" className="mb-3 mt-3">{academy?.title}</h2>
-        <p data-testid="academy-description">{academy?.longDescription}</p>
+    <>
+      <Container size="lg" className="pt-3">
+        <div className="small">
+          <Breadcrumb
+            data-testid="academy-breadcrumb"
+            links={[
+              { label: 'Find a Course', to: `/${enterpriseCustomer.slug}/search` },
+            ]}
+            linkAs={Link}
+            activeLabel={academy.title}
+          />
+        </div>
+        <div>
+          <h2 data-testid="academy-title" className="mb-3 mt-3">{academy?.title}</h2>
+          <p data-testid="academy-description">{academy?.longDescription}</p>
+        </div>
+      </Container>
+      {/* new pathway sectoin will come here */}
+      <Container size="lg" className="pb-4">
         <AcademyContentCard
           courseIndex={courseIndex}
           academyUUID={academyUUID}
@@ -72,8 +77,8 @@ const AcademyDetailPage = () => {
           academyURL={academyURL}
           tags={academy?.tags}
         />
-      </div>
-    </Container>
+      </Container>
+    </>
   );
 };
 
