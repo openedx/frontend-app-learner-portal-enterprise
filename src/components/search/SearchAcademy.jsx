@@ -32,7 +32,7 @@ const SearchAcademy = () => {
       <h2>
         <FormattedMessage
           id="enterprise.search.page.academies.section.title"
-          defaultMessage="edX Academies; designed to meet your most critical business needs"
+          defaultMessage="edX Academies: designed to meet your most critical business needs"
           description="Title of the academies section on the enterprise search page."
         />
       </h2>
