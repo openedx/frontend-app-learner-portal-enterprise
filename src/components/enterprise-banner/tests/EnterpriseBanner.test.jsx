@@ -7,38 +7,22 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import EnterpriseBanner from '../EnterpriseBanner';
 import {
-  useEnterpriseLearner,
+  useEnterpriseCustomer,
   useRecommendCoursesForMe,
 } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  useEnterpriseLearner: jest.fn(),
+  useEnterpriseCustomer: jest.fn(),
   useRecommendCoursesForMe: jest.fn(),
 }));
-useEnterpriseLearner.mockReturnValue({
-  data: {
-    enterpriseCustomer: {
-      name: 'Test Enterprise',
-      slug: 'test-enterprise-slug',
-    },
-  },
-});
-useRecommendCoursesForMe.mockReturnValue({
-  shouldRecommendCourses: false,
-});
 
-const mockEnterpriseSlug = 'test-enterprise-slug';
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const defaultAppContextValue = {
-  authenticatedUser: {
-    username: 'edx',
-    userId: 3,
-  },
-  enterpriseConfig: {
-    slug: mockEnterpriseSlug,
-    uuid: 'uuid',
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const EnterpriseBannerWrapper = ({
@@ -52,6 +36,21 @@ const EnterpriseBannerWrapper = ({
 );
 
 describe('<EnterpriseBanner />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({
+      data: mockEnterpriseCustomer,
+    });
+    useRecommendCoursesForMe.mockReturnValue({
+      shouldRecommendCourses: false,
+    });
+  });
+
+  it('renders the enterprise customer name', () => {
+    renderWithRouter(<EnterpriseBannerWrapper />);
+    expect(screen.getByText(mockEnterpriseCustomer.name)).toBeInTheDocument();
+  });
+
   it('does not render recommend courses for me by default', () => {
     renderWithRouter(<EnterpriseBannerWrapper />);
     expect(screen.queryByText('Recommend courses for me')).not.toBeInTheDocument();
@@ -64,6 +63,6 @@ describe('<EnterpriseBanner />', () => {
     renderWithRouter(<EnterpriseBannerWrapper />);
     const recommendCoursesCTA = screen.getByText('Recommend courses for me', { selector: 'a' });
     expect(recommendCoursesCTA).toBeInTheDocument();
-    expect(recommendCoursesCTA).toHaveAttribute('href', `/${mockEnterpriseSlug}/skills-quiz`);
+    expect(recommendCoursesCTA).toHaveAttribute('href', `/${mockEnterpriseCustomer.slug}/skills-quiz`);
   });
 });
