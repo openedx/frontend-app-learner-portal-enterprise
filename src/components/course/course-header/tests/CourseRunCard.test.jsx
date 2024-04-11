@@ -80,7 +80,7 @@ const mockCourseRun = {
 const mockUserSubsidy = { subsidyType: 'learnerCredit' };
 const mockUserEnrollments = [mockUserEnrollment];
 const mockUserCanRequestSubsidy = false;
-const mockAuthenticatedUser = { authenticatedUser: authenticatedUserFactory() };
+const mockAuthenticatedUser = authenticatedUserFactory();
 const CourseRunCardWrapper = (props) => {
   const courseContextValue = {
     state: {

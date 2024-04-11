@@ -20,9 +20,7 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
-const appState = {
-  authenticatedUser: authenticatedUserFactory(),
-};
+const appState = authenticatedUserFactory();
 
 const pathwaySteps = camelCaseObject(
   LearnerPathwayProgressData[0].learner_pathway_progress.steps,

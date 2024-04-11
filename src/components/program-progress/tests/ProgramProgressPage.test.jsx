@@ -37,9 +37,7 @@ jest.mock('@edx/frontend-platform/react', () => ({
   ErrorPage: () => <div data-testid="error-page" />,
 }));
 
-const mockAppContext = {
-  authenticatedUser: authenticatedUserFactory(),
-};
+const mockAppContext = authenticatedUserFactory();
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 

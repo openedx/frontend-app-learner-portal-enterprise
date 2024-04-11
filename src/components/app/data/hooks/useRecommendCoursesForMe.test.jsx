@@ -19,12 +19,10 @@ jest.mock('./useContentHighlightsConfiguration', () => jest.fn().mockReturnValue
 }));
 jest.mock('./useIsAssignmentsOnlyLearner', () => jest.fn().mockReturnValue(false));
 
-const appContextValue = {
-  authenticatedUser: authenticatedUserFactory(),
-};
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const wrapper = ({ children }) => (
-  <AppContext.Provider value={appContextValue}>
+  <AppContext.Provider value={mockAuthenticatedUser}>
     {children}
   </AppContext.Provider>
 );

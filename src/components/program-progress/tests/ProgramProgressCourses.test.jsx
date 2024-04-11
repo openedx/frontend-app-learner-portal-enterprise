@@ -18,9 +18,7 @@ jest.mock('../../app/data', () => ({
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-const mockAppContext = {
-  authenticatedUser: authenticatedUserFactory(),
-};
+const mockAppContext = authenticatedUserFactory();
 
 const ProgramProgressCoursesWithContext = ({
   courseData,

@@ -12,9 +12,7 @@ import {
   useSubscriptions,
 } from '../../app/data';
 
-const appState = {
-  authenticatedUser: authenticatedUserFactory(),
-};
+const appState = authenticatedUserFactory();
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),

@@ -37,12 +37,12 @@ jest.mock('react-router-dom', () => ({
 // eslint-disable-next-line no-console
 console.error = jest.fn();
 
-const defaultAppState = { authenticatedUser: authenticatedUserFactory() };
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const AddJobRoleWrapper = () => (
   <QueryClientProvider client={queryClient()}>
     <IntlProvider locale="en">
-      <AppContext.Provider value={defaultAppState}>
+      <AppContext.Provider value={mockAuthenticatedUser}>
         <AddJobRole submitClickHandler={() => jest.fn()} />
       </AppContext.Provider>
     </IntlProvider>
