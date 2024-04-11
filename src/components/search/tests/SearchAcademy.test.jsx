@@ -64,8 +64,10 @@ jest.mock('../../app/data', () => ({
   useAcademies: jest.fn(),
 }));
 
-const SearchAcademyWithContext = ({ ...rest }) => (
-  <AppContext.Provider value={{ authenticatedUser: authenticatedUserFactory() }}>
+const mockAuthenticatedUser = authenticatedUserFactory();
+
+const SearchAcademyWrapper = ({ ...rest }) => (
+  <AppContext.Provider value={mockAuthenticatedUser}>
     <SearchAcademy {...rest} />
   </AppContext.Provider>
 );
@@ -80,17 +82,17 @@ describe('<SearchAcademy />', () => {
   it('renders search academy section correctly.', async () => {
     renderWithRouter(
       <IntlProvider locale="en">
-        <SearchAcademyWithContext />
+        <SearchAcademyWrapper />
       </IntlProvider>,
     );
-    expect(await screen.findByText('edX Academies; designed to meet your most critical business needs')).toBeInTheDocument();
+    expect(await screen.findByText('edX Academies: designed to meet your most critical business needs')).toBeInTheDocument();
     expect(screen.getByText('My Awesome Academy')).toBeInTheDocument();
   });
   it('renders error page correctly', () => {
     useAcademies.mockReturnValue({ data: [], isError: true });
     renderWithRouter(
       <IntlProvider locale="en">
-        <SearchAcademyWithContext />
+        <SearchAcademyWrapper />
       </IntlProvider>,
     );
     expect(screen.getByTestId('search-error')).toBeTruthy();
