@@ -60,7 +60,6 @@ import {
   useBrowseAndRequest,
 } from '../../../app/data';
 import { CourseContext } from '../../CourseContextProvider';
-// import useRedeemablePolices from '../../../app/data/hooks/useRedeemablePolicies';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
@@ -121,9 +120,6 @@ jest.mock('react-router-dom', () => ({
 }
 ));
 
-// jest.mock('../../../app/data/hooks/useEnterpriseCustomer');
-// jest.mock('../../../app/data/hooks/useRedeemablePolicies');
-
 jest.useFakeTimers();
 
 jest.mock('../service', () => ({
@@ -146,7 +142,7 @@ const createGlobalLocationMock = () => {
 };
 const mockPreventDefault = jest.fn();
 
-const mockAuthenticatedUser = { authenticatedUser: authenticatedUserFactory() };
+const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('useCourseEnrollmentUrl', () => {
@@ -334,7 +330,7 @@ describe('useUserHasSubsidyRequestForCourse', () => {
           subsidyType: SUBSIDY_TYPE.LICENSE,
         },
         requests: {
-          subscriptionLicenses: ['test-license'],
+          subscriptionLicenses: [{ uuid: 'test-license-uuid' }],
           couponCodes: [],
         },
       },
@@ -441,11 +437,9 @@ describe('useTrackSearchConversionClickHandler', () => {
   };
   const wrapper = ({ children }) => (
     <IntlProvider locale="en">
-      <MemoryRouter initialEntries={['/?queryId=algolia-query-id&objectId=algolia-object-id']}>
-        <CourseContext.Provider value={mockCourseState}>
-          {children}
-        </CourseContext.Provider>
-      </MemoryRouter>
+      <CourseContext.Provider value={mockCourseState}>
+        {children}
+      </CourseContext.Provider>
     </IntlProvider>
   );
 
@@ -457,7 +451,6 @@ describe('useTrackSearchConversionClickHandler', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useCourseMetadata.mockReturnValue({ data: { activeCourseRun: { key: 'course-run-key' } } });
-    useLocation.mockReturnValue({ pathname: '/', search: mockCourseState.algoliaSearchParams });
     getConfig.mockReturnValue({ ALGOLIA_INDEX_NAME: 'test-algolia-index' });
   });
 
@@ -981,7 +974,6 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  // TODO Fix test, shows 'No matching tests found'
   it.each(
     [
       { enterpriseAdminUsers: [] },

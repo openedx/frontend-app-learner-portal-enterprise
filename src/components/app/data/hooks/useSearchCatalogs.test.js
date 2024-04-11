@@ -4,20 +4,12 @@ import { AppContext } from '@edx/frontend-platform/react';
 import useSearchCatalogs from './useSearchCatalogs';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../../config';
-import {
-  useEnterpriseCustomer,
-} from '..';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
 import useCatalogsForSubsidyRequests from './useCatalogsForSubsidyRequests';
 import useSubscriptions from './useSubscriptions';
 import useRedeemablePolicies from './useRedeemablePolicies';
 import useCouponCodes from './useCouponCodes';
 import useEnterpriseOffers from './useEnterpriseOffers';
-
-jest.mock('../../../app/data', () => ({
-  ...jest.requireActual('../../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-}));
 
 jest.mock('./useSubscriptions');
 jest.mock('./useCatalogsForSubsidyRequests');
@@ -61,37 +53,46 @@ describe('useSearchCatalogs', () => {
   );
   beforeEach(() => {
     jest.clearAllMocks();
-    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useRedeemablePolicies.mockReturnValue({ data: { redeemablePolicies: [] } });
     useCatalogsForSubsidyRequests.mockReturnValue([]);
     useEnterpriseOffers.mockReturnValue({ data: { currentEnterpriseOffers: [] } });
-    useSubscriptions.mockReturnValue({ data: { subscriptionLicense: [] } });
+    useSubscriptions.mockReturnValue({ data: { subscriptionLicense: { subscriptionPlan: { isCustom: false } } } });
     useCouponCodes.mockReturnValue({ data: { couponCodeAssignments: [] } });
   });
 
   it.each([
     {
-      isSubscriptionPlanExpired: true,
+      isSubscriptionPlanCurrent: true,
+      status: LICENSE_STATUS.ASSIGNED,
     },
     {
-      isSubscriptionPlanExpired: false,
+      isSubscriptionPlanCurrent: false,
+      status: LICENSE_STATUS.ASSIGNED,
     },
-  ])('should include catalog from subscription (%s)', ({ isSubscriptionPlanExpired }) => {
+    {
+      isSubscriptionPlanCurrent: true,
+      status: LICENSE_STATUS.ACTIVATED,
+    },
+    {
+      isSubscriptionPlanCurrent: false,
+      status: LICENSE_STATUS.ACTIVATED,
+    },
+  ])('should include catalog from subscription (%s)', ({ isSubscriptionPlanCurrent, status }) => {
     const mockSubscriptionLicense = {
-      status: isSubscriptionPlanExpired ? LICENSE_STATUS.ASSIGNED : LICENSE_STATUS.ACTIVATED,
+      status,
       subscriptionPlan: {
         enterpriseCatalogUuid: mockSubscriptionCatalog,
-        isActive: isSubscriptionPlanExpired,
+        isCurrent: isSubscriptionPlanCurrent,
       },
     };
     useSubscriptions.mockReturnValue({
       data: { subscriptionLicense: mockSubscriptionLicense },
     });
     const { result } = renderHook(() => useSearchCatalogs(), { wrapper: Wrapper });
-    if (isSubscriptionPlanExpired) {
-      expect(result.current).toEqual([]);
-    } else {
+    if (isSubscriptionPlanCurrent && status === LICENSE_STATUS.ACTIVATED) {
       expect(result.current).toEqual([mockSubscriptionCatalog]);
+    } else {
+      expect(result.current).toEqual([]);
     }
   });
 
