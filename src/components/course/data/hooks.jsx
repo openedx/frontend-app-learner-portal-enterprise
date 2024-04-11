@@ -7,8 +7,6 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { CourseContext } from '../CourseContextProvider';
-
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
 
@@ -54,6 +52,7 @@ import {
   useCatalogsForSubsidyRequests,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { CourseContext } from '../CourseContextProvider';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function

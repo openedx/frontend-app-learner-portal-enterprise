@@ -515,7 +515,7 @@ export function getSearchCatalogs({
   // enterprise offers, or subscription plan associated with learner's license.
   redeemablePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
 
-  if (subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
+  if (subscriptionLicense?.subscriptionPlan.isCurrent && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
     catalogUUIDs.add(subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid);
   }
   if (features.ENROLL_WITH_CODES) {
