@@ -128,7 +128,7 @@ const ExternalCourseEnrollment = () => {
                     )}
                 </p>
               )}
-              <CourseSummaryCard courseMetadata={minimalCourseMetadata} />
+              <CourseSummaryCard />
               <RegistrationSummaryCard priceDetails={minimalCourseMetadata.priceDetails} />
               <UserEnrollmentForm />
             </Col>
