@@ -3,7 +3,6 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import CourseRunCards from '../CourseRunCards';
-import { CourseContext } from '../../CourseContextProvider';
 import { LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../../data/constants';
 import { authenticatedUserFactory } from '../../../app/data/services/data/__factories__';
 import {

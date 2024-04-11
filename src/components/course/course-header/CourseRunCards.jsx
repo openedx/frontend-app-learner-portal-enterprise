@@ -18,7 +18,10 @@ import {
  */
 const CourseRunCards = () => {
   const { courseKey } = useParams();
-  const data = useUserSubsidyApplicableToCourse();
+  const {
+    userSubsidyApplicableToCourse,
+    missingUserSubsidyReason,
+  } = useUserSubsidyApplicableToCourse();
   const { data: courseMetadata } = useCourseMetadata();
   const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
@@ -30,11 +33,11 @@ const CourseRunCards = () => {
       hasEqualColumnHeights={false}
     >
       {courseMetadata.availableCourseRuns.map((courseRun) => {
-        const hasRedeemablePolicy = data.userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
+        const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
 
         // Render the newer `CourseRunCard` component when the user's subsidy, if any, is
         // a policy OR if there is a known disabled enroll reason.
-        if (hasRedeemablePolicy || data.missingUserSubsidyReason?.userMessage) {
+        if (hasRedeemablePolicy || missingUserSubsidyReason?.userMessage) {
           return (
             <CourseRunCard
               key={courseRun.uuid}
@@ -52,7 +55,7 @@ const CourseRunCards = () => {
             catalogList={catalogList}
             userEntitlements={userEntitlements}
             courseEntitlements={courseMetadata.entitlements}
-            missingUserSubsidyReason={data.missingUserSubsidyReason}
+            missingUserSubsidyReason={missingUserSubsidyReason}
           />
         );
       })}
