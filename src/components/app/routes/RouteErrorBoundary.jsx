@@ -60,23 +60,23 @@ const RouteErrorBoundary = ({
     if (!routeError) {
       return;
     }
+    // eslint-disable-next-line no-console
+    console.error('[RouteErrorBoundary] routeError:', routeError);
     if (routeError.name === 'ChunkLoadError') {
       logInfo(routeError);
       openAppUpdateAvailableModal();
       return;
     }
     logError(routeError);
-    // eslint-disable-next-line no-console
-    console.error('[RouteErrorBoundary] routeError:', routeError);
   }, [routeError, openAppUpdateAvailableModal]);
 
   useEffect(() => {
     if (!asyncError) {
       return;
     }
-    logError(asyncError);
     // eslint-disable-next-line no-console
     console.error('[RouteErrorBoundary] asyncError:', asyncError);
+    logError(asyncError);
   }, [asyncError]);
 
   const error = routeError || asyncError;
