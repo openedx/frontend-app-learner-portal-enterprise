@@ -7,10 +7,10 @@ import {
 import { Link, generatePath } from 'react-router-dom';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
-import { useEnterpriseLearner, useRecommendCoursesForMe } from '../app/data';
+import { useEnterpriseCustomer, useRecommendCoursesForMe } from '../app/data';
 
 const EnterpriseBanner = () => {
-  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { shouldRecommendCourses } = useRecommendCoursesForMe();
 
   return (
