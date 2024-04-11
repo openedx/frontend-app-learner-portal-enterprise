@@ -41,7 +41,6 @@ import {
   REASON_USER_MESSAGES,
 } from '../constants';
 import {
-  mockCourseService,
   mockSubscriptionLicense,
 } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
@@ -76,9 +75,6 @@ jest.mock('../../../app/data', () => ({
 
 const oldGlobalLocation = global.location;
 
-jest.mock('@edx/frontend-platform/logging', () => ({
-  logError: jest.fn(),
-}));
 jest.mock('@edx/frontend-platform', () => ({
   ...jest.requireActual('@edx/frontend-platform'),
   getConfig: jest.fn(),
@@ -92,10 +88,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
   useQuery: jest.fn().mockReturnValue({ data: undefined, isInitialLoading: false }),
-}));
-
-jest.mock('../../../../config', () => ({
-  features: { ENROLL_WITH_CODES: true },
 }));
 
 jest.mock('../utils', () => ({
@@ -120,13 +112,6 @@ jest.mock('react-router-dom', () => ({
 }
 ));
 
-jest.useFakeTimers();
-
-jest.mock('../service', () => ({
-  __esModule: true,
-  default: jest.fn(() => mockCourseService),
-}));
-
 const createGlobalLocationMock = () => {
   delete global.location;
   global.location = Object.defineProperties(
@@ -140,6 +125,7 @@ const createGlobalLocationMock = () => {
     },
   );
 };
+
 const mockPreventDefault = jest.fn();
 
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -867,9 +853,7 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
 describe('useUserSubsidyApplicableToCourse', () => {
   const mockCatalogUUID = 'test-enterprise-catalog-uuid';
   const baseArgs = {
-    isLoadingAny: true,
     isPolicyRedemptionEnabled: false,
-    courseService: mockCourseService,
     courseData: {
       catalog: {
         containsContentItems: true,
@@ -1170,7 +1154,6 @@ describe('useUserSubsidyApplicableToCourse', () => {
   });
 
   it('finds applicable enterprise offer', () => {
-    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
     getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(undefined);
     const mockEnterpriseOffer = {
       catalog: mockCatalogUUID,
