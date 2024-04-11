@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useAsyncError, useRouteError } from 'react-router-dom';
-import { logError } from '@edx/frontend-platform/logging';
-import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
-import { Button, Hyperlink } from '@openedx/paragon';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
+import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platform/i18n';
+import {
+  ActionRow, AlertModal, Button, useToggle,
+} from '@openedx/paragon';
 
 import { ErrorPage } from '../../error-page';
 import { retrieveErrorMessage } from '../data';
@@ -24,6 +26,21 @@ const messages = defineMessages({
     defaultMessage: 'Try again',
     description: 'CTA to try again by reloading the page',
   },
+  updateAvailableModalHeading: {
+    id: 'updateAvailableModal.heading',
+    defaultMessage: 'Update: New Version Available',
+    description: 'Heading for the update available modal',
+  },
+  updateAvailableModalContent: {
+    id: 'updateAvailableModal.content',
+    defaultMessage: 'Attention: A new version of the website was released. To leverage the latest features and improvements, please perform a page refresh.',
+    description: 'Content for the update available modal',
+  },
+  updateAvailableModalRefreshButtonText: {
+    id: 'updateAvailableModal.refreshButtonText',
+    defaultMessage: 'Refresh',
+    description: 'Button text to refresh the page',
+  },
 });
 
 const RouteErrorBoundary = ({
@@ -37,25 +54,60 @@ const RouteErrorBoundary = ({
   const routeError = useRouteError();
   const asyncError = useAsyncError();
 
-  useEffect(() => {
-    if (routeError) {
-      logError(routeError);
-      // eslint-disable-next-line no-console
-      console.error('[RouteErrorBoundary] routeError:', routeError);
-    }
-  }, [routeError]);
+  const [isAppUpdateAvailable, openAppUpdateAvailableModal] = useToggle(false);
 
   useEffect(() => {
-    if (asyncError) {
-      logError(asyncError);
-      // eslint-disable-next-line no-console
-      console.error('[RouteErrorBoundary] asyncError:', asyncError);
+    if (!routeError) {
+      return;
     }
+    if (routeError.name === 'ChunkLoadError') {
+      logInfo(routeError);
+      openAppUpdateAvailableModal();
+      return;
+    }
+    logError(routeError);
+    // eslint-disable-next-line no-console
+    console.error('[RouteErrorBoundary] routeError:', routeError);
+  }, [routeError, openAppUpdateAvailableModal]);
+
+  useEffect(() => {
+    if (!asyncError) {
+      return;
+    }
+    logError(asyncError);
+    // eslint-disable-next-line no-console
+    console.error('[RouteErrorBoundary] asyncError:', asyncError);
   }, [asyncError]);
 
   const error = routeError || asyncError;
 
   const errorMessage = retrieveErrorMessage(error);
+
+  if (isAppUpdateAvailable) {
+    return (
+      <AlertModal
+        title={intl.formatMessage(messages.updateAvailableModalHeading)}
+        variant="danger"
+        isOpen={isAppUpdateAvailable}
+        onClose={() => {}}
+        footerNode={(
+          <ActionRow>
+            <Button
+              variant="primary"
+              href={global.location.href}
+            >
+              <FormattedMessage {...messages.updateAvailableModalRefreshButtonText} />
+            </Button>
+          </ActionRow>
+        )}
+        isBlocking
+      >
+        <p>
+          <FormattedMessage {...messages.updateAvailableModalContent} />
+        </p>
+      </AlertModal>
+    );
+  }
 
   return (
     <ErrorPage
@@ -68,8 +120,7 @@ const RouteErrorBoundary = ({
     >
       <pre className="py-4">{errorMessage}</pre>
       <Button
-        as={Hyperlink}
-        destination={global.location.href}
+        href={global.location.href}
         variant="primary"
       >
         {intl.formatMessage(messages.tryAgainCTA)}
