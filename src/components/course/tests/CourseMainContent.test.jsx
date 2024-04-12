@@ -1,5 +1,4 @@
 import renderer from 'react-test-renderer';
-import { AppContext } from '@edx/frontend-platform/react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
