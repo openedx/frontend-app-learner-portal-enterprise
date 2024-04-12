@@ -17,12 +17,14 @@ import {
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useEnterpriseOffers,
-  useLateRedemptionBufferDays,
   useSubscriptions,
 } from '../../../app/data';
-import { useCanUserRequestSubsidyForCourse, useCourseListPrice } from '../../data';
+import {
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  useCanUserRequestSubsidyForCourse,
+  useUserSubsidyApplicableToCourse,
+} from '../../data';
 import { queryClient, renderWithRouterProvider } from '../../../../utils/tests';
-import useRedeemablePolices from '../../../app/data/hooks/useRedeemablePolicies';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
@@ -36,12 +38,10 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseCourseEnrollments: jest.fn(),
 }));
 
-jest.mock('../../../app/data/hooks/useRedeemablePolicies');
-jest.mock('../../../app/data/hooks/useLateRedemptionBufferDays');
-
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
   useCanUserRequestSubsidyForCourse: jest.fn(),
+  useUserSubsidyApplicableToCourse: jest.fn(),
   useCourseListPrice: jest.fn(),
 }));
 
@@ -115,12 +115,6 @@ describe('<CourseRunCard />', () => {
       data: mockEnterpriseCustomer,
     });
     useCourseMetadata.mockReturnValue({ data: { entitlements: [] } });
-    useCanUserRequestSubsidyForCourse.mockReturnValue(false);
-    useRedeemablePolices.mockReturnValue({
-      data: {
-        redeemablePolicies: [],
-      },
-    });
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: 199 } });
     useSubscriptions.mockReturnValue({
       data: {
@@ -148,9 +142,14 @@ describe('<CourseRunCard />', () => {
         couponCodeAssignments: [],
       },
     });
-    useLateRedemptionBufferDays.mockReturnValue(1);
-    useCourseListPrice.mockReturnValue({ data: 199 });
     useEnterpriseCourseEnrollments.mockReturnValue({ data: { enterpriseCourseEnrollments: mockUserEnrollment } });
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: {
+        subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+      },
+      missingUserSubsidyReason: undefined,
+    });
+    useCanUserRequestSubsidyForCourse.mockReturnValue(false);
   });
   test('renders', () => {
     findUserEnrollmentForCourseRun.mockReturnValue(mockUserEnrollment);
