@@ -193,12 +193,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
         courseRunPrice={100}
       />
     );
-    // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
-    // which is then used by a hook to check if the user has a license
-    renderEnrollAction({
-      enrollAction,
-    });
-
+    renderEnrollAction({ enrollAction });
     expect(screen.getByText('<ToEcomBasketPage />'));
   });
 });
