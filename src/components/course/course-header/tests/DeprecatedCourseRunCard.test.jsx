@@ -8,7 +8,6 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
   renderWithRouter,
   initialAppState,
-  mockCourseState,
 } from '../../../../utils/tests';
 import { COURSE_PACING_MAP } from '../../data/constants';
 import CourseRunCardDeprecated from '../deprecated/CourseRunCard';
@@ -45,16 +44,6 @@ jest.mock('../../../app/data', () => ({
 }));
 
 const INITIAL_APP_STATE = initialAppState({});
-const defaultCourse = mockCourseState({});
-
-const selfPacedCourseWithoutLicenseSubsidy = {
-  ...defaultCourse,
-  activeCourseRun: {
-    ...defaultCourse.activeCourseRun,
-    seats: [{ sku: 'sku', type: COURSE_MODES_MAP.VERIFIED }],
-  },
-  catalog: { catalogList: [] },
-};
 
 const generateCourseRun = ({
   availability = COURSE_AVAILABILITY_MAP.STARTING_SOON,
@@ -80,23 +69,6 @@ const renderCard = ({
   userEntitlements = [],
   courseEntitlements = [],
   userEnrollments = [],
-  courseState = selfPacedCourseWithoutLicenseSubsidy,
-  initialUserSubsidyState = {
-    subscriptionLicense: null,
-    couponCodes: {
-      couponCodes: [{ discountValue: 90 }],
-      couponCodesCount: 0,
-    },
-  },
-  initialSubsidyRequestsState = {
-    subsidyRequestConfiguration: {
-      subsidyRequestsEnabled: true,
-    },
-    isLoading: false,
-    catalogsForSubsidyRequests: [],
-  },
-  userSubsidyApplicableToCourse = undefined,
-  userCanRequestSubsidyForCourse = false,
 }) => {
   // need to use router, to render component such as react-router's <Link>
   renderWithRouter(

@@ -1,17 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { AppContext } from '@edx/frontend-platform/react';
 import userEvent from '@testing-library/user-event';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { initialAppState } from '../../../utils/tests';
-import { CourseContextProvider } from '../CourseContextProvider';
 import CourseAssociatedPrograms from '../CourseAssociatedPrograms';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useCourseMetadata, useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
@@ -21,65 +16,34 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useCourseMetadata: jest.fn(),
 }));
 
-const baseSubsidyRequestContextValue = {
-  catalogsForSubsidyRequests: [],
-};
-
-const INITIAL_APP_STATE = initialAppState();
-
-const CourseAssociatedProgramsWithCourseContext = ({
-  initialState,
-  subsidyRequestContextValue,
-}) => (
+const CourseAssociatedProgramsWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={INITIAL_APP_STATE}>
-      <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
-        <CourseContextProvider courseState={initialState}>
-          <CourseAssociatedPrograms />
-        </CourseContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </AppContext.Provider>
+    <CourseAssociatedPrograms />
   </IntlProvider>
 );
 
-CourseAssociatedProgramsWithCourseContext.propTypes = {
-  initialState: PropTypes.shape(),
-  subsidyRequestContextValue: PropTypes.shape(),
-};
-
-CourseAssociatedProgramsWithCourseContext.defaultProps = {
-  initialState: {},
-  subsidyRequestContextValue: baseSubsidyRequestContextValue,
-};
+const mockPrograms = [
+  {
+    uuid: '123', type: 'abc', title: 'title a', marketingUrl: 'www.example.com',
+  },
+  {
+    uuid: '456', type: 'def', title: 'title b', marketingUrl: 'www.example.com',
+  },
+];
 
 describe('<CourseAssociatedPrograms />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: { uuid: 'test-enterprise-uuid' } });
+    useCourseMetadata.mockReturnValue({ data: { programs: mockPrograms } });
   });
-  const initialState = {
-    course: {
-      programs: [
-        {
-          uuid: '123', type: 'abc', title: 'title a', marketingUrl: 'www.example.com',
-        },
-        {
-          uuid: '456', type: 'def', title: 'title b', marketingUrl: 'www.example.com',
-        },
-      ],
-    },
-    activeCourseRun: {},
-    userEnrollments: [],
-    userEntitlements: [],
-    catalog: {},
-    courseRecommendations: {},
-  };
 
   test('renders programs with title', () => {
-    render(<CourseAssociatedProgramsWithCourseContext initialState={initialState} />);
-    initialState.course.programs.forEach((program, index) => {
+    render(<CourseAssociatedProgramsWrapper />);
+    mockPrograms.forEach((program, index) => {
       expect(screen.queryByText(program.title)).toBeInTheDocument();
       const button = screen.getByText(program.title);
       userEvent.click(button);
