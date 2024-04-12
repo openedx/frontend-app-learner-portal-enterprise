@@ -78,7 +78,7 @@ const mockCourseMetadata = {
   additionalInformation: '<p>Test Additional Information</p>',
 };
 
-describe('ExternalCourseEnrollment', () => {
+describe('CourseMainContent', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useCourseMetadata.mockReturnValue({ data: mockCourseMetadata });

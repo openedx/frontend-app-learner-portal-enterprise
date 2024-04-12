@@ -298,6 +298,9 @@ describe('findEnterpriseOfferForCourse', () => {
 describe('getSubsidyToApplyForCourse', () => {
   const mockApplicableSubscriptionLicense = {
     uuid: 'license-uuid',
+    startDate: '2023-08-11',
+    expirationDate: '2024-08-11',
+    status: 'activated',
   };
 
   const mockApplicableCouponCode = {
@@ -329,8 +332,13 @@ describe('getSubsidyToApplyForCourse', () => {
     });
 
     expect(subsidyToApply).toEqual({
-      ...mockApplicableSubscriptionLicense,
       subsidyType: LICENSE_SUBSIDY_TYPE,
+      subsidyId: mockApplicableSubscriptionLicense.uuid,
+      startDate: mockApplicableSubscriptionLicense.startDate,
+      expirationDate: mockApplicableSubscriptionLicense.expirationDate,
+      status: mockApplicableSubscriptionLicense.status,
+      discountType: 'percentage',
+      discountValue: 100,
     });
   });
 
@@ -569,52 +577,53 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
 
   it.each([
     {
-      daysUntilExpirationIncludingRenewals: -17,
+      netDaysUntilExpiration: -17,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: -17,
+      netDaysUntilExpiration: -17,
       hasEnterpriseAdminUsers: false,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: -17,
+      netDaysUntilExpiration: -17,
       hasEnterpriseAdminUsers: true,
-      expectedReasonType: undefined,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
       catalogsWithCourse: ['fake-catalog-uuid'],
     },
     {
-      daysUntilExpirationIncludingRenewals: 0,
+      netDaysUntilExpiration: 1,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: 10,
+      netDaysUntilExpiration: 10,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: [mockCatalogUuid],
     },
   ])('handles expired subscription: %s', ({
-    daysUntilExpirationIncludingRenewals,
+    netDaysUntilExpiration,
     hasEnterpriseAdminUsers,
     expectedReasonType,
     catalogsWithCourse,
   }) => {
-    const customerAgreementConfig = {
+    const customerAgreement = {
       subscriptions: [
         {
           enterpriseCatalogUuid: mockCatalogUuid,
-          daysUntilExpirationIncludingRenewals,
         },
       ],
+      netDaysUntilExpiration,
+      availableSubscriptionCatalogs: [],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
-      customerAgreementConfig,
+      customerAgreement,
       catalogsWithCourse,
       subscriptionLicense: undefined,
       hasEnterpriseAdminUsers,
@@ -622,7 +631,9 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
     expect(reasonType).toEqual(expectedReasonType);
   });
 
-  it.each([
+  // Test skipped due to the learner-licenses API no longer returning information related to exhausted seats
+  // TODO: once the learner-licenses api supports exhausted seats, reimplement and verify tests
+  it.skip.each([
     {
       unassignedLicensesCount: 0,
       hasEnterpriseAdminUsers: true,
@@ -647,7 +658,7 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
     expectedReasonType,
     catalogsWithCourse,
   }) => {
-    const customerAgreementConfig = {
+    const customerAgreement = {
       subscriptions: [
         {
           enterpriseCatalogUuid: mockCatalogUuid,
@@ -657,10 +668,11 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
           },
         },
       ],
+      availableSubscriptionCatalogs: [],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
-      customerAgreementConfig,
+      customerAgreement,
       catalogsWithCourse,
       subscriptionLicense: undefined,
       hasEnterpriseAdminUsers,
@@ -670,34 +682,45 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
 
   it.each([
     {
-      subscriptionLicense: { status: 'revoked' },
+      subscriptionLicense: {
+        status: 'revoked',
+        subscriptionPlan: {
+          enterpriseCatalogUuid: mockCatalogUuid,
+        },
+      },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      subscriptionLicense: { status: 'activated' },
+      subscriptionLicense: {
+        status: 'activated',
+        subscriptionPlan: {
+          enterpriseCatalogUuid: mockCatalogUuid,
+        },
+      },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: [mockCatalogUuid],
     },
-  ])('handles revoked/deactivated subscription license', ({
+  ])('handles revoked/deactivated subscription license: %s', ({
     subscriptionLicense,
     hasEnterpriseAdminUsers,
     expectedReasonType,
     catalogsWithCourse,
   }) => {
-    const customerAgreementConfig = {
+    const customerAgreement = {
       subscriptions: [
         {
           enterpriseCatalogUuid: mockCatalogUuid,
           daysUntilExpirationIncludingRenewals: 10,
         },
       ],
+      availableSubscriptionCatalogs: [mockCatalogUuid],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
-      customerAgreementConfig,
+      customerAgreement,
       catalogsWithCourse,
       subscriptionLicense,
       hasEnterpriseAdminUsers,
@@ -734,7 +757,7 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
     expectedReasonType,
     catalogsWithCourse,
   }) => {
-    const customerAgreementConfig = {
+    const customerAgreement = {
       subscriptions: [
         {
           enterpriseCatalogUuid: mockCatalogUuid,
@@ -744,10 +767,11 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
           },
         },
       ],
+      availableSubscriptionCatalogs: [mockCatalogUuid],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
-      customerAgreementConfig,
+      customerAgreement,
       catalogsWithCourse,
       subscriptionLicense: undefined,
       hasEnterpriseAdminUsers,
@@ -933,7 +957,9 @@ describe('getMissingApplicableSubsidyReason', () => {
     enterpriseAdminUsers: [{}],
     catalogsWithCourse: [],
     couponsOverview: {},
-    customerAgreementConfig: {},
+    customerAgreement: {
+      availableSubscriptionCatalogs: [],
+    },
     subscriptionLicense: undefined,
     containsContentItems: true,
     missingSubsidyAccessPolicyReason: null,
@@ -984,13 +1010,14 @@ describe('getMissingApplicableSubsidyReason', () => {
     const mockData = {
       ...baseMockData,
       catalogsWithCourse: ['test-catalog-uuid'],
-      customerAgreementConfig: {
+      customerAgreement: {
         subscriptions: [
           {
             enterpriseCatalogUuid: 'test-catalog-uuid',
             ...subscriptionProperties,
           },
         ],
+        netDaysUntilExpiration: -17,
       },
     };
     const result = getMissingApplicableSubsidyReason(mockData);
