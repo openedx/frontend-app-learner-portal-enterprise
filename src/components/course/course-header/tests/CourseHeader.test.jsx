@@ -41,6 +41,7 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseCustomerContainsContent: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
   useCourseReviews: jest.fn(),
+  usePassLearnerCsodParams: jest.fn(),
 }));
 
 jest.mock('../../data', () => ({
