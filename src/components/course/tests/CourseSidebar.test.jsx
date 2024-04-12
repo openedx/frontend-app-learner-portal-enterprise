@@ -7,11 +7,11 @@ import {
 } from '@openedx/paragon/icons';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { AppContext } from '@edx/frontend-platform/react';
 import CourseSidebar from '../CourseSidebar';
 import CourseSidebarListItem from '../CourseSidebarListItem';
-import { CourseContext } from '../CourseContextProvider';
-import { useEnterpriseCustomer } from '../../app/data';
-import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useCourseMetadata, useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -68,6 +68,7 @@ jest.mock('../CourseSidebarPrice', () => jest.fn(() => (
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useCourseMetadata: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory({
@@ -88,20 +89,14 @@ const mockActiveCourseRun = {
   maxEffort: 2,
   contentLanguage: 'en-us',
 };
-const baseCourseContextValue = {
-  state: {
-    activeCourseRun: mockActiveCourseRun,
-    course: mockCourse,
-  },
-};
 
-const CourseSidebarWrapper = ({
-  courseContextValue = baseCourseContextValue,
-}) => (
+const mockAutenticatedUser = { authenticatedUser: authenticatedUserFactory() };
+
+const CourseSidebarWrapper = () => (
   <IntlProvider locale="en">
-    <CourseContext.Provider value={courseContextValue}>
+    <AppContext.Provider value={mockAutenticatedUser}>
       <CourseSidebar />
-    </CourseContext.Provider>
+    </AppContext.Provider>
   </IntlProvider>
 );
 
@@ -109,6 +104,7 @@ describe('CourseSidebarWrapper', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useCourseMetadata.mockReturnValue({ data: { activeCourseRun: mockActiveCourseRun, ...mockCourse } });
   });
 
   it('renders', () => {
