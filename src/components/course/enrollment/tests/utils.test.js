@@ -125,19 +125,19 @@ describe('canUserRequestSubsidyForCourse', () => {
     },
     {
       subsidyRequestConfiguration: disabledSubsidyRequests,
-      subsidyRequestCatalogsApplicableToCourse: Array.from(new Set(['catalog-uuid'])),
+      subsidyRequestCatalogsApplicableToCourse: ['catalog-uuid'],
       userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
       expected: false,
     },
     {
       subsidyRequestConfiguration: enabledSubsidyRequests,
-      subsidyRequestCatalogsApplicableToCourse: Array.from(new Set(['catalog-uuid'])),
+      subsidyRequestCatalogsApplicableToCourse: ['catalog-uuid'],
       userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
       expected: false,
     },
     {
       subsidyRequestConfiguration: enabledSubsidyRequests,
-      subsidyRequestCatalogsApplicableToCourse: Array.from(new Set(['catalog-uuid'])),
+      subsidyRequestCatalogsApplicableToCourse: ['catalog-uuid'],
       userSubsidyApplicableToCourse: undefined,
       expected: true,
     },

@@ -90,11 +90,11 @@ const mockActiveCourseRun = {
   contentLanguage: 'en-us',
 };
 
-const mockAutenticatedUser = { authenticatedUser: authenticatedUserFactory() };
+const mockAutenticatedUser = authenticatedUserFactory();
 
 const CourseSidebarWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={mockAutenticatedUser}>
+    <AppContext.Provider value={{ authenticatedUser: mockAutenticatedUser }}>
       <CourseSidebar />
     </AppContext.Provider>
   </IntlProvider>

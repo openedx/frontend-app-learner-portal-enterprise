@@ -52,11 +52,11 @@ const defaultCourseState = {
   },
 };
 
-const mockAuthenticatedUser = { authenticatedUser: authenticatedUserFactory() };
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const CourseRecommendationsWithContext = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={mockAuthenticatedUser}>
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
       <CourseContext.Provider value={defaultCourseState}>
         <CourseRecommendations />
       </CourseContext.Provider>

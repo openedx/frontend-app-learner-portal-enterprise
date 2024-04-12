@@ -20,7 +20,7 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
-const appState = authenticatedUserFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const pathwaySteps = camelCaseObject(
   LearnerPathwayProgressData[0].learner_pathway_progress.steps,
@@ -28,7 +28,7 @@ const pathwaySteps = camelCaseObject(
 
 const PathwayNodeWithContext = ({ pathwayNodedData }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={appState}>
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
       <PathwayNode node={pathwayNodedData} />
     </AppContext.Provider>
   </IntlProvider>

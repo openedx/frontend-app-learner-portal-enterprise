@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ExternalCourseEnrollment renders and matches snapshot 1`] = `
+exports[`CourseMainContent renders and matches snapshot 1`] = `
 Array [
   <div
     className="mb-5"

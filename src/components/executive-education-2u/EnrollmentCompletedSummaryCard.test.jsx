@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { useParams } from 'react-router-dom';
+import React from 'react';
 import EnrollmentCompletedSummaryCard from './components/EnrollmentCompletedSummaryCard';
 import { renderWithRouterProvider } from '../../utils/tests';
 
@@ -11,20 +11,18 @@ jest.mock('@edx/frontend-platform', () => ({
   })),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
-}
-));
-
 describe('EnrollmentCompletedSummaryCard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useParams.mockReturnValue({ enterpriseSlug: 'test-enterprise-slug' });
   });
 
   it('renders the card with correct content', () => {
-    renderWithRouterProvider(<IntlProvider locale="en"><EnrollmentCompletedSummaryCard /></IntlProvider>);
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug',
+      element: <IntlProvider locale="en"><EnrollmentCompletedSummaryCard /></IntlProvider>,
+    }, {
+      initialEntries: ['/test-enterprise-slug'],
+    });
 
     // Check for the title
     expect(screen.getByText('What happens next?')).toBeInTheDocument();

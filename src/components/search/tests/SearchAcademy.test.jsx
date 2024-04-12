@@ -67,7 +67,7 @@ jest.mock('../../app/data', () => ({
 const mockAuthenticatedUser = authenticatedUserFactory();
 
 const SearchAcademyWrapper = ({ ...rest }) => (
-  <AppContext.Provider value={mockAuthenticatedUser}>
+  <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
     <SearchAcademy {...rest} />
   </AppContext.Provider>
 );

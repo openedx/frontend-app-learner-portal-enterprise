@@ -3,9 +3,7 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { AppContext } from '@edx/frontend-platform/react';
-import { QueryClientProvider } from '@tanstack/react-query';
 import CourseRunCard from '../CourseRunCard';
-import { CourseContext } from '../../CourseContextProvider';
 import { useCourseRunCardData } from '../data';
 import { findUserEnrollmentForCourseRun } from '../../data/utils';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
@@ -24,7 +22,7 @@ import {
   useCanUserRequestSubsidyForCourse,
   useUserSubsidyApplicableToCourse,
 } from '../../data';
-import { queryClient, renderWithRouterProvider } from '../../../../utils/tests';
+import { renderWithRouterProvider } from '../../../../utils/tests';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
@@ -78,33 +76,16 @@ const mockCourseRun = {
 };
 
 const mockUserSubsidy = { subsidyType: 'learnerCredit' };
-const mockUserEnrollments = [mockUserEnrollment];
 const mockUserCanRequestSubsidy = false;
 const mockAuthenticatedUser = authenticatedUserFactory();
-const CourseRunCardWrapper = (props) => {
-  const courseContextValue = {
-    state: {
-      course: {
-        entitlements: [],
-      },
-      userEnrollments: mockUserEnrollments,
-    },
-    userSubsidyApplicableToCourse: mockUserSubsidy,
-    userCanRequestSubsidyForCourse: mockUserCanRequestSubsidy,
-  };
-  return (
-    <QueryClientProvider client={queryClient()}>
-      <CourseContext.Provider value={courseContextValue}>
-        <AppContext.Provider value={mockAuthenticatedUser}>
-          <CourseRunCard
-            courseRun={mockCourseRun}
-            {...props}
-          />
-        </AppContext.Provider>
-      </CourseContext.Provider>
-    </QueryClientProvider>
-  );
-};
+const CourseRunCardWrapper = (props) => (
+  <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+    <CourseRunCard
+      courseRun={mockCourseRun}
+      {...props}
+    />
+  </AppContext.Provider>
+);
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 

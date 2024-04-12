@@ -4,8 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
 
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient, renderWithRouter } from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import AddJobRole from '../AddJobRole';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../app/data';
@@ -40,13 +39,11 @@ console.error = jest.fn();
 const mockAuthenticatedUser = authenticatedUserFactory();
 
 const AddJobRoleWrapper = () => (
-  <QueryClientProvider client={queryClient()}>
-    <IntlProvider locale="en">
-      <AppContext.Provider value={mockAuthenticatedUser}>
-        <AddJobRole submitClickHandler={() => jest.fn()} />
-      </AppContext.Provider>
-    </IntlProvider>
-  </QueryClientProvider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+      <AddJobRole submitClickHandler={() => jest.fn()} />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();

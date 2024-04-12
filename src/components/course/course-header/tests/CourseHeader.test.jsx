@@ -117,10 +117,10 @@ const mockEnterpriseCourseEnrollment = {
   linkToCourse: 'http://course.url',
   mode: 'verified',
 };
-const mockAuthenticatedUser = { authenticatedUser: authenticatedUserFactory() };
+const mockAuthenticatedUser = authenticatedUserFactory();
 const CourseHeaderWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={mockAuthenticatedUser}>
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
       <CourseHeader />
     </AppContext.Provider>
   </IntlProvider>

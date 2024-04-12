@@ -37,7 +37,7 @@ jest.mock('@edx/frontend-platform/react', () => ({
   ErrorPage: () => <div data-testid="error-page" />,
 }));
 
-const mockAppContext = authenticatedUserFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
@@ -62,7 +62,7 @@ const useMockHasAvailableSubsidyOrRequests = ({
 
 const ProgramProgressPageWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={mockAppContext}>
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
       <ProgramProgressPage />
     </AppContext.Provider>
   </IntlProvider>

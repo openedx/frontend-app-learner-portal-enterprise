@@ -38,10 +38,10 @@ jest.mock('../../data', () => ({
 
 const mockCourseRunKey = 'course-run-key';
 
-const mockAuthenticatedUser = { authenticatedUser: authenticatedUserFactory() };
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const CourseRunCardsWrapper = () => (
-  <AppContext.Provider value={mockAuthenticatedUser}>
+  <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
     <CourseRunCards />
   </AppContext.Provider>
 );
