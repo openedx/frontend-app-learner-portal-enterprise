@@ -38,13 +38,10 @@ const SubsidyRequestButton = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: browseAndRequestConfiguration } = useBrowseAndRequestConfiguration();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
-  const subsidyRequestCatalogsApplicableToCourse = useBrowseAndRequestCatalogsApplicableToCourse();
   const { data: courseMetadata } = useCourseMetadata();
-  const {
-    data: {
-      enterpriseCourseEnrollments: userEnrollments,
-    },
-  } = useEnterpriseCourseEnrollments();
+  const { data: { enterpriseCourseEnrollments: userEnrollments } } = useEnterpriseCourseEnrollments();
+  const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseMetadata.key);
+  const subsidyRequestCatalogsApplicableToCourse = useBrowseAndRequestCatalogsApplicableToCourse();
 
   /**
    * Check every course run to see if user is enrolled in any of them
@@ -61,8 +58,6 @@ const SubsidyRequestButton = () => {
     },
     [courseMetadata.courseRunKeys, userEnrollments],
   );
-
-  const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseMetadata.key);
 
   const requestSubsidy = useCallback(async (key) => {
     switch (browseAndRequestConfiguration.subsidyType) {

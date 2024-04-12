@@ -1,14 +1,16 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import {
   Card, Image, Row, Col, Hyperlink,
 } from '@openedx/paragon';
-
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { numberWithPrecision } from '../../course/data/utils';
-import { DATE_FORMAT, ZERO_PRICE } from '../../course/data/constants';
-import { useMinimalCourseMetadata } from '../../course/data/hooks';
+
+import {
+  useMinimalCourseMetadata,
+  DATE_FORMAT,
+  ZERO_PRICE,
+  numberWithPrecision,
+} from '../../course/data';
 
 const CourseSummaryCard = ({ enrollmentCompleted }) => {
   const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
@@ -54,22 +56,20 @@ const CourseSummaryCard = ({ enrollmentCompleted }) => {
               <div className="course-details">
                 <Row className="align-items-center">
                   <Col className="small font-weight-light text-gray-500 justify-content-start">
-                    {
-                      enrollmentCompleted
-                        ? (
-                          <FormattedMessage
-                            id="executive.education.external.course.enrollment.page.course.start.date"
-                            defaultMessage="Start date:"
-                            description="Showing start date as a label to show date for course while enrolling executive education course"
-                          />
-                        ) : (
-                          <FormattedMessage
-                            id="executive.education.external.course.enrollment.page.course.start.date.placeholder"
-                            defaultMessage="Available start date:"
-                            description="Showing available start date as a label to show date for course while enrolling executive education course"
-                          />
-                        )
-                    }
+                    {enrollmentCompleted
+                      ? (
+                        <FormattedMessage
+                          id="executive.education.external.course.enrollment.page.course.start.date"
+                          defaultMessage="Start date:"
+                          description="Showing start date as a label to show date for course while enrolling executive education course"
+                        />
+                      ) : (
+                        <FormattedMessage
+                          id="executive.education.external.course.enrollment.page.course.start.date.placeholder"
+                          defaultMessage="Available start date:"
+                          description="Showing available start date as a label to show date for course while enrolling executive education course"
+                        />
+                      )}
                   </Col>
                   <Col className="justify-content-end"><Row className="justify-content-end mr-2.5">{dayjs(minimalCourseMetadata.startDate).format(DATE_FORMAT)}</Row></Col>
                 </Row>

@@ -4,7 +4,7 @@ import {
 } from '@openedx/paragon';
 
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { useExternalEnrollmentFailureReason } from '../data/hooks';
+import { useExternalEnrollmentFailureReason } from '../data';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import EnrollmentCompletedSummaryCard from '../../executive-education-2u/components/EnrollmentCompletedSummaryCard';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
