@@ -443,7 +443,7 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
  * @returns Click handler function for clicks on enrollment buttons.
  */
 export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, userEnrollments }) => {
-  const hasNoExistingEnrollments = userEnrollments?.length === 0 || true;
+  const hasNoExistingEnrollments = !userEnrollments || userEnrollments.length === 0;
   const handleClick = useCallback(
     (e) => {
       // If tracking is on a link with an external href destination, we must intentionally delay the default click

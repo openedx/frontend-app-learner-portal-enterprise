@@ -26,7 +26,7 @@ const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
       activeCourseRun: { key: courseRunKey },
     },
   } = useCourseMetadata();
-  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
+  const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
 
   const analyticsHandler = useTrackSearchConversionClickHandler({
     href: enrollmentUrl,
