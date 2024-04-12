@@ -20,6 +20,7 @@ import {
   useSubscriptions,
 } from '../../app/data';
 import { COURSE_STATUSES } from '../../../constants';
+import { getStatusMetadata } from '../data/utils';
 
 const SubsidiesSummary = ({
   className,
@@ -43,6 +44,7 @@ const SubsidiesSummary = ({
     learnerCreditSummaryCardData,
   } = useHasAvailableSubsidiesOrRequests();
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
+  const statusMetadata = getStatusMetadata({ endDateStr: learnerCreditSummaryCardData?.expirationDate });
 
   // if there are course enrollments, the cta button below will be the only one on the page
   const ctaButtonVariant = useMemo(() => {
@@ -109,6 +111,7 @@ const SubsidiesSummary = ({
             className="border-0 shadow-none"
             expirationDate={learnerCreditSummaryCardData.expirationDate}
             assignmentOnlyLearner={isAssignmentOnlyLearner}
+            statusMetadata={statusMetadata}
           />
         )}
       </div>

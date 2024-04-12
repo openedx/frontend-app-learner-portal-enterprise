@@ -15,6 +15,7 @@ import {
   useEnterpriseCustomer,
   useSubscriptions,
 } from '../app/data';
+import BudgetExpiryNotification from '../budget-expiry-notification';
 
 const DashboardPage = () => {
   const intl = useIntl();
@@ -55,6 +56,7 @@ const DashboardPage = () => {
   return (
     <Container size="lg" className="py-4">
       <Helmet title={PAGE_TITLE} />
+      <BudgetExpiryNotification />
       <h2 className="h1 mb-4">
         {userFirstName
           ? intl.formatMessage(
