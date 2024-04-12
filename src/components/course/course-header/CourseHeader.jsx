@@ -34,8 +34,8 @@ import {
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useIsAssignmentsOnlyLearner,
+  usePassLearnerCsodParams,
 } from '../../app/data';
-import usePassLearnerCsodParams from '../../app/data/hooks/usePassLearnerCsodParams';
 
 const CourseHeader = () => {
   const location = useLocation();

@@ -12,9 +12,7 @@ import {
   useSubscriptions,
 } from '../../app/data';
 
-const appState = {
-  authenticatedUser: authenticatedUserFactory(),
-};
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -25,7 +23,7 @@ jest.mock('../../app/data', () => ({
 
 const SubscriptionStatusCardWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={appState}>
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
       <SubscriptionStatusCard />
     </AppContext.Provider>
   </IntlProvider>

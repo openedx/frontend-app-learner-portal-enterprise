@@ -488,7 +488,6 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
       },
     },
   } = useBrowseAndRequest();
-
   if (!browseAndRequestConfiguration?.subsidyRequestsEnabled) {
     return false;
   }

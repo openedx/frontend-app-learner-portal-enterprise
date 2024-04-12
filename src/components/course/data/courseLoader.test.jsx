@@ -108,7 +108,9 @@ describe('courseLoader', () => {
     {
       hasCourseMetadata: false,
       isAssignmentOnlyLearner: false,
-      hasAllocatedAssignmentForCourse: false,
+      assignments: {
+        allocatedAssignments: [],
+      },
     },
   ])('ensures the requisite course-related metadata data is resolved (%s)', async ({
     hasCourseMetadata,
@@ -162,8 +164,8 @@ describe('courseLoader', () => {
     // ensure its mock return value is valid.
     const mockSubscriptionPlan = {
       uuid: 'test-subscription-plan-uuid',
-      isActive: true,
       enterpriseCatalogUuid: mockSubscriptionCatalog,
+      isCurrent: true,
     };
     const mockSubscriptionsData = isAssignmentOnlyLearner
       ? null

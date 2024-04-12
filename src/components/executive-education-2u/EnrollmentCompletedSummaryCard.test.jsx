@@ -1,40 +1,38 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import React from 'react';
 import EnrollmentCompletedSummaryCard from './components/EnrollmentCompletedSummaryCard';
+import { renderWithRouterProvider } from '../../utils/tests';
+
+jest.mock('@edx/frontend-platform', () => ({
+  getConfig: jest.fn(() => ({
+    GETSMARTER_STUDENT_TC_URL: 'https://test.org/terms',
+  })),
+}));
 
 describe('EnrollmentCompletedSummaryCard', () => {
-  const mockProps = {
-    isCourseAssigned: true,
-    externalDashboardUrl: 'https://test.org/external-dashboard',
-    dashboardUrl: 'https://test.org/dashboard',
-    getStudnetTCUrl: 'https://test.org/terms',
-  };
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('renders the card with correct content', () => {
-    render(<IntlProvider locale="en"><EnrollmentCompletedSummaryCard {...mockProps} /></IntlProvider>);
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug',
+      element: <IntlProvider locale="en"><EnrollmentCompletedSummaryCard /></IntlProvider>,
+    }, {
+      initialEntries: ['/test-enterprise-slug'],
+    });
 
     // Check for the title
     expect(screen.getByText('What happens next?')).toBeInTheDocument();
 
     // Check for the email section
     expect(screen.getByText('Notified by email')).toBeInTheDocument();
+    expect(screen.getByText('dashboard', { exact: false })).toHaveAttribute('href', '/test-enterprise-slug');
 
     // Check for the refund policy section
     expect(screen.getByText('Read the refund policy')).toBeInTheDocument();
-  });
-
-  it('renders the card with external dashboard link when course is not assigned', () => {
-    const props = {
-      ...mockProps,
-      isCourseAssigned: false,
-    };
-    render(<IntlProvider locale="en"><EnrollmentCompletedSummaryCard {...props} /></IntlProvider>);
-
-    // Check for the email section
-    expect(screen.getByText('Notified by email')).toBeInTheDocument();
-    expect(screen.getByText('GetSmarter learner dashboard')).toBeInTheDocument();
-    expect(screen.queryByText('edx dashboard')).not.toBeInTheDocument();
-    expect(screen.getByText('GetSmarter learner dashboard')).toHaveAttribute('href', 'https://test.org/external-dashboard');
+    expect(screen.getByText('Terms and Conditions')).toHaveAttribute('href', 'https://test.org/terms');
   });
 });

@@ -5,16 +5,32 @@ import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
+import { QueryClientProvider } from '@tanstack/react-query';
 import {
   renderWithRouter,
-  initialAppState,
+  queryClient,
 } from '../../../../utils/tests';
 import { COURSE_PACING_MAP } from '../../data/constants';
 import CourseRunCardDeprecated from '../deprecated/CourseRunCard';
-import * as subsidyRequestsHooks from '../../data/hooks';
 import { enrollButtonTypes } from '../../enrollment/constants';
-import { COURSE_AVAILABILITY_MAP, COURSE_MODES_MAP, useEnterpriseCustomer } from '../../../app/data';
-import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import {
+  COURSE_AVAILABILITY_MAP,
+  COURSE_MODES_MAP,
+  useBrowseAndRequest,
+  useCouponCodes,
+  useCourseMetadata,
+  useCourseRedemptionEligibility,
+  useEnterpriseCustomer,
+  useEnterpriseCustomerContainsContent,
+  useEnterpriseOffers,
+  useRedeemablePolicies,
+  useSubscriptions,
+} from '../../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import {
+  useCanUserRequestSubsidyForCourse,
+} from '../../data/hooks';
+import { SUBSIDY_TYPE } from '../../../../constants';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = dayjs().format();
@@ -33,17 +49,30 @@ jest.mock('../../enrollment/EnrollAction', () => function EnrollAction({ enrollL
   );
 });
 jest.mock('../../data/hooks', () => ({
-  useUserHasSubsidyRequestForCourse: jest.fn(() => false),
-  useCourseEnrollmentUrl: jest.fn(() => false),
-  useCoursePriceForUserSubsidy: jest.fn(() => []),
+  useCanUserRequestSubsidyForCourse: jest.fn(),
+  useUserHasSubsidyRequestForCourse: jest.fn(),
+  useCourseEnrollmentUrl: jest.fn(),
+  useCoursePriceForUserSubsidy: jest.fn(),
 }));
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useCourseMetadata: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useRedeemablePolicies: jest.fn(),
+  useCourseRedemptionEligibility: jest.fn(),
+  useEnterpriseCustomerContainsContent: jest.fn(),
+  useEnterpriseOffers: jest.fn(),
+  useCouponCodes: jest.fn(),
+  useBrowseAndRequest: jest.fn(),
+}));
+jest.mock('../../data/hooks', () => ({
+  ...jest.requireActual('../../data/hooks'),
+  useCanUserRequestSubsidyForCourse: jest.fn(),
 }));
 
-const INITIAL_APP_STATE = initialAppState({});
+const INITIAL_APP_STATE = { authenticatedUser: authenticatedUserFactory() };
 
 const generateCourseRun = ({
   availability = COURSE_AVAILABILITY_MAP.STARTING_SOON,
@@ -72,18 +101,20 @@ const renderCard = ({
 }) => {
   // need to use router, to render component such as react-router's <Link>
   renderWithRouter(
-    <IntlProvider locale="en">
-      <AppContext.Provider value={INITIAL_APP_STATE}>
-        <CourseRunCardDeprecated
-          catalogList={['foo']}
-          userEntitlements={userEntitlements}
-          userEnrollments={userEnrollments}
-          courseRun={courseRun}
-          courseKey={COURSE_ID}
-          courseEntitlements={courseEntitlements}
-        />
-      </AppContext.Provider>,
-    </IntlProvider>,
+    <QueryClientProvider client={queryClient()}>
+      <IntlProvider locale="en">
+        <AppContext.Provider value={INITIAL_APP_STATE}>
+          <CourseRunCardDeprecated
+            catalogList={['foo']}
+            userEntitlements={userEntitlements}
+            userEnrollments={userEnrollments}
+            courseRun={courseRun}
+            courseKey={COURSE_ID}
+            courseEntitlements={courseEntitlements}
+          />
+        </AppContext.Provider>,
+      </IntlProvider>,
+    </QueryClientProvider>,
   );
 };
 
@@ -93,10 +124,55 @@ describe('<DeprecatedCourseRunCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useCourseMetadata.mockReturnValue({ data: { test: false } });
+    useCanUserRequestSubsidyForCourse.mockReturnValue(false);
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: undefined,
+        subscriptionLicense: undefined,
+        subscriptionPlan: undefined,
+        shouldShowActivationSuccessMessage: false,
+      },
+    });
+    useRedeemablePolicies.mockReturnValue({
+      data: {
+        redeemablePolicies: [],
+      },
+    });
+    useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: 100 } });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        containsContentItems: false,
+        catalogList: [],
+      },
+    });
+    useEnterpriseOffers.mockReturnValue({
+      data: {
+        enterpriseOffers: [],
+        currentEnterpriseOffers: [],
+        canEnrollWithEnterpriseOffers: false,
+      },
+    });
+    useCouponCodes.mockReturnValue({
+      data: {
+        couponCodeAssignments: [],
+      },
+    });
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: undefined,
+        requests: {
+          subscriptionLicenses: [],
+          couponCodes: [],
+        },
+      },
+    });
   });
 
   test('Course archived card', () => {
-    renderCard({ courseRun: generateCourseRun({ availability: COURSE_AVAILABILITY_MAP.ARCHIVED }) });
+    renderCard({
+      courseRun: generateCourseRun({ availability: COURSE_AVAILABILITY_MAP.ARCHIVED }),
+    });
     expect(screen.getByText('Course archived')).toBeInTheDocument();
     expect(screen.getByText('Future dates to be announced')).toBeInTheDocument();
     expect(screen.queryByText('Enroll')).not.toBeInTheDocument();
@@ -158,7 +234,17 @@ describe('<DeprecatedCourseRunCard />', () => {
   });
 
   test('User has a subsidy request for the course', () => {
-    subsidyRequestsHooks.useUserHasSubsidyRequestForCourse.mockReturnValueOnce(true);
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: {
+          subsidyType: SUBSIDY_TYPE.LICENSE,
+          subsidyRequestsEnabled: true,
+        },
+        requests: {
+          subscriptionLicenses: ['test-license'],
+        },
+      },
+    });
     const courseRun = generateCourseRun({});
     renderCard({
       courseRun,
@@ -173,17 +259,9 @@ describe('<DeprecatedCourseRunCard />', () => {
     // The user should only see a Request Enrollment button if they have no assigned subsidies
     // and there is an applicable catalog for the configured subsidy request type.
     const courseRun = generateCourseRun({});
-    const noUserSubsidyState = {
-      subscriptionLicense: null,
-      couponCodes: {
-        couponCodes: [],
-        couponCodesCount: 0,
-      },
-    };
+    useCanUserRequestSubsidyForCourse.mockReturnValue(true);
     renderCard({
       courseRun,
-      initialUserSubsidyState: noUserSubsidyState,
-      userCanRequestSubsidyForCourse: true,
     });
     const startDate = dayjs(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
@@ -195,19 +273,9 @@ describe('<DeprecatedCourseRunCard />', () => {
     // The user should NOT see a Request Enrollment button if they have no assigned
     // subsidies and there is no applicable catalog for the configured subsidy type.
     // Instead, the CTA should bring the user through the ecommerce basket flow.
-    subsidyRequestsHooks.useCourseEnrollmentUrl.mockReturnValueOnce('https://enrollment.url');
     const courseRun = generateCourseRun({});
-    const noUserSubsidyState = {
-      subscriptionLicense: null,
-      couponCodes: {
-        couponCodes: [],
-        couponCodesCount: 0,
-      },
-    };
     renderCard({
       courseRun,
-      initialUserSubsidyState: noUserSubsidyState,
-      subsidyRequestCatalogsApplicableToCourse: new Set(),
     });
     const startDate = dayjs(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();

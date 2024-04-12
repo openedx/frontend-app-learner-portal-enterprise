@@ -59,7 +59,6 @@ const CourseRunCard = ({
     defaultMessage: 'Enroll',
     description: 'Default button label for enrolling in a course run.',
   });
-
   const location = useLocation();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();

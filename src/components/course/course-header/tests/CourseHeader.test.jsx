@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { AppContext } from '@edx/frontend-platform/react';
 import CourseHeader from '../CourseHeader';
 
 import { COURSE_PACING_MAP } from '../../data/constants';
@@ -18,7 +19,7 @@ import {
   useIsAssignmentsOnlyLearner,
 } from '../../../app/data';
 import { renderWithRouterProvider } from '../../../../utils/tests';
-import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import { useIsCourseAssigned } from '../../data';
 
 jest.mock('../CourseRunCards', () => function CourseRunCards() {
@@ -40,6 +41,7 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseCustomerContainsContent: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
   useCourseReviews: jest.fn(),
+  usePassLearnerCsodParams: jest.fn(),
 }));
 
 jest.mock('../../data', () => ({
@@ -115,10 +117,12 @@ const mockEnterpriseCourseEnrollment = {
   linkToCourse: 'http://course.url',
   mode: 'verified',
 };
-
+const mockAuthenticatedUser = authenticatedUserFactory();
 const CourseHeaderWrapper = () => (
   <IntlProvider locale="en">
-    <CourseHeader />
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+      <CourseHeader />
+    </AppContext.Provider>
   </IntlProvider>
 );
 

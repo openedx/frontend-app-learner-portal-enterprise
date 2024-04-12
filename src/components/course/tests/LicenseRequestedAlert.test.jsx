@@ -33,7 +33,7 @@ jest.mock('react-router-dom', () => ({
 }
 ));
 
-const mockAuthenticatedUser = { authenticatedUser: authenticatedUserFactory() };
+const mockAuthenticatedUser = authenticatedUserFactory();
 const LicenseRequestedAlertWrapper = () => (
   <IntlProvider locale="en">
     <AppContext.Provider value={mockAuthenticatedUser}>

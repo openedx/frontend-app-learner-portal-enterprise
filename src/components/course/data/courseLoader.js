@@ -105,7 +105,6 @@ export default function makeCourseLoader(queryClient) {
         const isCourseAssigned = redeemableLearnerCreditPolicies.learnerContentAssignments.allocatedAssignments.some(
           (assignment) => assignment.contentKey === courseKey,
         );
-
         // If learner is an assignment-only learner and is not assigned to the currently
         // viewed course, redirect to the Dashboard page route.
         if (isAssignmentOnlyLearner && !isCourseAssigned) {

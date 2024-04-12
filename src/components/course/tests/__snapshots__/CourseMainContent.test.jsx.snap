@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ExternalCourseEnrollment renders and matches snapshot 1`] = `
+exports[`CourseMainContent renders and matches snapshot 1`] = `
 Array [
   <div
     className="mb-5"
@@ -37,7 +37,7 @@ Array [
         >
           <a
             aria-hidden="true"
-            href="https://test.org/https://test.org"
+            href="https://test-marketing-site-base-url/https://test.org"
             rel="noopener noreferrer"
             tabIndex="-1"
             target="_blank"
@@ -50,7 +50,7 @@ Array [
         </div>
         <a
           className="pgn__hyperlink default-link standalone-link"
-          href="https://test.org/https://test.org"
+          href="https://test-marketing-site-base-url/https://test.org"
           onClick={[Function]}
           rel="noopener noreferrer"
           target="_blank"

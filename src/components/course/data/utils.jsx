@@ -590,7 +590,6 @@ export const getMissingApplicableSubsidyReason = ({
   if (hasEnterpriseAdminUsers) {
     reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
   }
-
   const couponCodesDisabledEnrollmentReasonType = getCouponCodesDisabledEnrollmentReasonType({
     catalogsWithCourse,
     couponCodes,
