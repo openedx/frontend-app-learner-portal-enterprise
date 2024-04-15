@@ -497,7 +497,7 @@ export function getCatalogsForSubsidyRequests({
     const catalogsFromCoupons = couponsOverview
       .filter(coupon => !!coupon.available)
       .map(coupon => coupon.enterpriseCatalogUuid);
-    // catalogs from coupons may be duplicative, so pushing a Set of a catalog is necessary here
+    // catalogs from coupons may be duplicative, so pushing a Set of catalogs is necessary here
     catalogs.push(...new Set(catalogsFromCoupons));
   }
   return catalogs;
