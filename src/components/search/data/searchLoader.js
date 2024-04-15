@@ -1,6 +1,6 @@
 import { getConfig } from '@edx/frontend-platform/config';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import { extractEnterpriseId, queryAcademiesList, queryContentHighlightSets } from '../../app/data';
+import { extractEnterpriseCustomer, queryAcademiesList, queryContentHighlightSets } from '../../app/data';
 
 export default function makeSearchLoader(queryClient) {
   return async function searchLoader({ params = {}, request }) {
@@ -13,20 +13,20 @@ export default function makeSearchLoader(queryClient) {
 
     const { enterpriseSlug } = params;
 
-    const enterpriseId = await extractEnterpriseId({
+    const enterpriseCustomer = await extractEnterpriseCustomer({
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
     const searchData = [
       queryClient.ensureQueryData(
-        queryAcademiesList(enterpriseId),
+        queryAcademiesList(enterpriseCustomer.uuid),
       ),
     ];
     if (getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
       searchData.push(
         queryClient.ensureQueryData(
-          queryContentHighlightSets(enterpriseId),
+          queryContentHighlightSets(enterpriseCustomer.uuid),
         ),
       );
     }
