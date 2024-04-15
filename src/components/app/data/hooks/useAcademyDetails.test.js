@@ -44,7 +44,7 @@ describe('useAcademiesDetails', () => {
     jest.clearAllMocks();
     useParams.mockReturnValue({ academyUUID: 'academy-uuid' });
   });
-  it('should resolved correctly', async () => {
+  it('should handle resolved value correctly', async () => {
     fetchAcademiesDetail.mockResolvedValue(mockAcademyDetailsData);
     const { result, waitForNextUpdate } = renderHook(() => useAcademyDetails(), { wrapper: Wrapper });
     await waitForNextUpdate();
@@ -57,8 +57,8 @@ describe('useAcademiesDetails', () => {
       }),
     );
   });
-  it('should rejected correctly', async () => {
-    const errorMessage = new Error({ message: 'Test Error' });
+  it('should handle rejected value correctly', async () => {
+    const errorMessage = new Error('Test Error');
     fetchAcademiesDetail.mockRejectedValue(errorMessage);
     const { result, waitForNextUpdate } = renderHook(() => useAcademyDetails(), { wrapper: Wrapper });
     await waitForNextUpdate();

@@ -54,7 +54,7 @@ describe('useAcademies', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
-  it('should resolved correctly', async () => {
+  it('should handle resolved value correctly', async () => {
     fetchAcademies.mockResolvedValue(mockAcademyListData);
     const { result, waitForNextUpdate } = renderHook(() => useAcademies(), { wrapper: Wrapper });
     await waitForNextUpdate();
@@ -67,8 +67,8 @@ describe('useAcademies', () => {
       }),
     );
   });
-  it('should rejected correctly', async () => {
-    const errorMessage = new Error({ message: 'Test Error' });
+  it('should handle rejected value correctly', async () => {
+    const errorMessage = new Error('Test Error');
     fetchAcademies.mockRejectedValue(errorMessage);
     const { result, waitForNextUpdate } = renderHook(() => useAcademies(), { wrapper: Wrapper });
     await waitForNextUpdate();
