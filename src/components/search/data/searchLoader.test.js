@@ -5,9 +5,12 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { renderWithRouterProvider } from '../../../utils/tests';
 import makeSearchLoader from './searchLoader';
 import {
-  extractEnterpriseId, queryAcademiesList, queryContentHighlightSets,
+  extractEnterpriseCustomer,
+  queryAcademiesList,
+  queryContentHighlightSets,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/routes/data', () => ({
   ...jest.requireActual('../../app/routes/data'),
@@ -15,7 +18,7 @@ jest.mock('../../app/routes/data', () => ({
 }));
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  extractEnterpriseId: jest.fn(),
+  extractEnterpriseCustomer: jest.fn(),
 }));
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
@@ -31,8 +34,8 @@ jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(),
 }));
 
-const mockEnterpriseId = 'test-enterprise-uuid';
-extractEnterpriseId.mockResolvedValue(mockEnterpriseId);
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+extractEnterpriseCustomer.mockResolvedValue(mockEnterpriseCustomer);
 
 const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue({}),
@@ -81,13 +84,13 @@ describe('searchLoader', () => {
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: queryAcademiesList(mockEnterpriseId).queryKey,
+        queryKey: queryAcademiesList(mockEnterpriseCustomer.uuid).queryKey,
         queryFn: expect.any(Function),
       }),
     );
     expect(mockQueryClient.ensureQueryData).not.toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: queryContentHighlightSets(mockEnterpriseId).queryKey,
+        queryKey: queryContentHighlightSets(mockEnterpriseCustomer.uuid).queryKey,
         queryFn: expect.any(Function),
       }),
     );
@@ -111,13 +114,13 @@ describe('searchLoader', () => {
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(2);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: queryAcademiesList(mockEnterpriseId).queryKey,
+        queryKey: queryAcademiesList(mockEnterpriseCustomer.uuid).queryKey,
         queryFn: expect.any(Function),
       }),
     );
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: queryContentHighlightSets(mockEnterpriseId).queryKey,
+        queryKey: queryContentHighlightSets(mockEnterpriseCustomer.uuid).queryKey,
         queryFn: expect.any(Function),
       }),
     );
