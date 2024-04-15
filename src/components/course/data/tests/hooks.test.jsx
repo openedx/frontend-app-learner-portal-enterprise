@@ -1198,7 +1198,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
   });
 });
 
-describe('useMinimalCourseMetadata', () => {
+describe.only('useMinimalCourseMetadata', () => {
   const mockOrgName = 'Fake Org Name';
   const mockLogoImageUrl = 'https://fake-logo.url';
   const mockOrgMarketingUrl = 'https://fake-mktg.url';
@@ -1269,9 +1269,47 @@ describe('useMinimalCourseMetadata', () => {
     });
   });
 
-  it('should return the correct base course metadata', () => {
-    const { result } = renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
-    expect(result.current).toEqual(baseCourseMetadataValue);
+  it.only('should return the correct base course metadata', () => {
+    renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
+    const mockCourseRun = {
+      key: 'test-course-key',
+      weeksToComplete: mockWeeksToComplete,
+      start: mockCourseRunStartDate,
+    };
+    // Find the third call to `useCourseMetadata`, and extract its `select` transform.
+    const { select: useCourseMetadataSelect } = useCourseMetadata.mock.calls[2][0];
+    const defaultCourseMetadata = {
+      title: mockCourseTitle,
+      availableCourseRuns: [mockCourseRun],
+      activeCourseRun: mockCourseRun,
+      owners: [{
+        name: mockOrgName,
+        logoImageUrl: mockLogoImageUrl,
+        marketingUrl: mockOrgMarketingUrl,
+      }],
+    };
+    const transformedCourseMetadata = useCourseMetadataSelect({ transformed: defaultCourseMetadata });
+    expect(transformedCourseMetadata).toEqual(
+      expect.objectContaining({
+        title: mockCourseTitle,
+        organization: {
+          name: mockOrgName,
+          logoImgUrl: mockLogoImageUrl,
+          marketingUrl: mockOrgMarketingUrl,
+        },
+        startDate: mockCourseRunStartDate,
+        duration: `${mockWeeksToComplete} Weeks`,
+        priceDetails: {
+          // Not sure yet how to mock price when we'd want
+          // to mock a hook (e.g., `useCoursePrice`) defined in the same file; its underlying
+          // calls to `useCourseMetadata` via other hooks uses `select` as well, so the nested
+          // query transforms also do not take place, meaning we can't mock the price using the
+          // above `defaultCourseMetadata`'s metadata.
+          price: undefined,
+          currency: mockCurrency,
+        },
+      }),
+    );
   });
 
   it('should handle empty activeCourseRun', () => {

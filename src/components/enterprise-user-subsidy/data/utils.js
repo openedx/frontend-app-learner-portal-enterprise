@@ -2,6 +2,7 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../enterprise-offers/data/constants';
 import { LICENSE_STATUS } from './constants';
+import { useSubscriptions } from '../../app/data';
 
 /**
  * Transforms the redeemable policies data by attaching the subsidy expiration date
