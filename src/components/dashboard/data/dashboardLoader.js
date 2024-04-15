@@ -4,6 +4,7 @@ import {
   queryEnterpriseCourseEnrollments,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
+  queryEnterpriseGroupMemberships,
 } from '../../app/data';
 
 /**
@@ -27,6 +28,7 @@ export default function makeDashboardLoader(queryClient) {
       enterpriseSlug,
     });
     await Promise.all([
+      queryClient.ensureQueryData(queryEnterpriseGroupMemberships(enterpriseId, authenticatedUser.email)),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
       queryClient.ensureQueryData(queryEnterpriseProgramsList(enterpriseId)),
       queryClient.ensureQueryData(queryEnterprisePathwaysList(enterpriseId)),

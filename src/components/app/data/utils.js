@@ -572,3 +572,45 @@ export function findHighestLevelEntitlementSku(entitlements) {
   }
   return findHighestLevelSkuByEntityModeType(entitlements, entitlement => entitlement.mode);
 }
+
+/**
+ * Transforms a learner's group membership into a shape that will be used for the
+ * display of NewGroupAssignmentAlert when they are added to a new group.
+ *
+ * @param {Array} groupMemberships - Array of groupMemberships to be transformed.
+ * @param {String} groupUuid - UUID of the group.
+ * @param {String} catalogUuid - UUID of the catalog.
+ * @param {Object} catalogContentMetadata - Object of catalog content metadata.
+ * @returns {Array} Returns the transformed array of group memberships.
+ */
+export function transformGroupMembership(groupMemberships, groupUuid, catalogUuid, catalogContentMetadata) {
+  return groupMemberships.map(groupMembership => ({
+    ...groupMembership,
+    groupUuid,
+    enterpriseCatalog: {
+      catalogUuid,
+      courseCount: catalogContentMetadata.count,
+    },
+  }));
+}
+
+/**
+ * Transforms policies to only include groupUuid and catalogUuid.
+ *
+ * @param {Array} policies - Array of policies to be transformed.
+ * @returns {Array} Returns the transformed array of policies.
+ */
+export function transformPolicies(policies) {
+  const transformedPolicies = [];
+  policies.forEach(policy => {
+    if (policy.groupAssociations.length > 0) {
+      policy.groupAssociations.forEach(groupAssociation => {
+        transformedPolicies.push({
+          catalogUuid: policy.catalogUuid,
+          groupUuid: groupAssociation,
+        });
+      });
+    }
+  });
+  return transformedPolicies;
+}

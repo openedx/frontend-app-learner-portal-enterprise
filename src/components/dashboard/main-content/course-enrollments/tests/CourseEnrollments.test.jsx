@@ -18,7 +18,7 @@ import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete
 import { COURSE_STATUSES } from '../data/constants';
 import * as hooks from '../data/hooks';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../../../app/data';
+import { useEnterpriseCourseEnrollments, useEnterpriseCustomer, useEnterpriseFeatures } from '../../../../app/data';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
 
@@ -107,6 +107,7 @@ jest.mock('../../../../app/data', () => ({
   ...jest.requireActual('../../../../app/data'),
   useEnterpriseCourseEnrollments: jest.fn(),
   useEnterpriseCustomer: jest.fn(),
+  useEnterpriseFeatures: jest.fn(),
 }));
 
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -126,6 +127,7 @@ jest.mock('../data/utils', () => ({
 }));
 
 const mockAcknowledgeAssignments = jest.fn();
+const mockHandleAddNewGroupToLocalStorage = jest.fn();
 
 describe('Course enrollments', () => {
   beforeEach(() => {
@@ -147,6 +149,15 @@ describe('Course enrollments', () => {
 
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
     sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentData]);
+    useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: false } });
+    hooks.useGroupMembershipAssignments.mockReturnValue({
+      shouldShowNewGroupMembershipAlert: true,
+      handleAddNewGroupAssignmentToLocalStorage: mockHandleAddNewGroupToLocalStorage,
+      enterpriseCustomer: {
+        name: 'test-enterprise-customer',
+        catalogCourseCount: 5,
+      },
+    });
   });
 
   it('renders course sections', () => {
@@ -225,6 +236,43 @@ describe('Course enrollments', () => {
     expect(mockAcknowledgeAssignments).toHaveBeenCalledTimes(1);
     expect(mockAcknowledgeAssignments).toHaveBeenCalledWith({ assignmentState: ASSIGNMENT_TYPES.EXPIRED });
   });
+
+  it(
+    'renders NewGroupAssignmentAlert when shouldShowNewGroupMembershipAlert is true',
+    async () => {
+      useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: true } });
+      hooks.useGroupMembershipAssignments.mockReturnValue({
+        shouldShowNewGroupMembershipAlert: true,
+        handleAddNewGroupAssignmentToLocalStorage: mockHandleAddNewGroupToLocalStorage,
+        enterpriseCustomer: {
+          name: 'test-enterprise-customer',
+        },
+        catalogCourseCount: 5,
+      });
+      renderWithRouter(<CourseEnrollmentsWrapper />);
+      const dismissButton = screen.getAllByRole('button', { name: 'Dismiss' })[0];
+      userEvent.click(dismissButton);
+      expect(await screen.findByText('You have new courses to browse')).toBeInTheDocument();
+      expect(mockHandleAddNewGroupToLocalStorage).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it(
+    'does not render NewGroupAssignmentAlert when shouldShowNewGroupMembershipAlert is false',
+    async () => {
+      hooks.useGroupMembershipAssignments.mockReturnValue({
+        shouldShowNewGroupMembershipAlert: false,
+        handleAddNewGroupAssignmentToLocalStorage: mockHandleAddNewGroupToLocalStorage,
+        enterpriseCustomer: {
+          name: 'test-enterprise-customer',
+          catalogCourseCount: 5,
+        },
+      });
+      renderWithRouter(<CourseEnrollmentsWrapper />);
+      expect(screen.queryByText('You have new courses to browse')).not.toBeInTheDocument();
+      expect(mockHandleAddNewGroupToLocalStorage).not.toHaveBeenCalled();
+    },
+  );
 
   it('generates course status update on move to in progress action', async () => {
     useLocation.mockReturnValue({
