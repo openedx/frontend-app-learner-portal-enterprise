@@ -106,7 +106,7 @@ describe('enterpriseInviteLoader', () => {
     expect(screen.queryByTestId('invite-link')).not.toBeInTheDocument();
   });
 
-  it.only('does NOT redirect to dashboard when error occurs during linking of user <> enterprise customer', async () => {
+  it('does NOT redirect to dashboard when error occurs during linking of user <> enterprise customer', async () => {
     postLinkEnterpriseLearner.mockRejectedValue(new Error('test-error'));
     renderWithRouterProvider({
       path: '/invite/:enterpriseCustomerInviteKey',
