@@ -655,18 +655,27 @@ export function useCanUserRequestSubsidyForCourse() {
   });
 }
 
+/**
+ * Use "minimal" metadata about a specific course run.
+ *
+ * The run is determined by first checking the URL Param "courseRunKey", then falling back to the "active" run.
+ *
+ * @returns {Object} - The minimal metadata object about the course run.
+ */
 export function useMinimalCourseMetadata() {
+  const { courseRunKey } = useParams();
   const { coursePrice, currency } = useCoursePrice();
   return useCourseMetadata({
     select: ({ transformed }) => {
-      const { activeCourseRun } = transformed;
+      const { activeCourseRun, availableCourseRuns } = transformed;
+      const courseRun = availableCourseRuns.find(run => run.key === courseRunKey) || activeCourseRun;
       const organizationDetails = getCourseOrganizationDetails(transformed);
       const getDuration = () => {
-        if (!activeCourseRun) {
+        if (!courseRun) {
           return '-';
         }
-        let duration = `${activeCourseRun.weeksToComplete} Week`;
-        if (activeCourseRun.weeksToComplete > 1) {
+        let duration = `${courseRun.weeksToComplete} Week`;
+        if (courseRun.weeksToComplete > 1) {
           duration += 's';
         }
         return duration;
