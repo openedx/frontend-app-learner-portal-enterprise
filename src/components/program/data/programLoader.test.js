@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../utils/tests';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import { extractEnterpriseId, queryEnterpriseProgram } from '../../app/data';
+import { extractEnterpriseCustomer, queryEnterpriseProgram } from '../../app/data';
 import makeProgramLoader from './programLoader';
 
 jest.mock('../../app/routes/data', () => ({
@@ -14,14 +14,14 @@ jest.mock('../../app/routes/data', () => ({
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  extractEnterpriseId: jest.fn(),
+  extractEnterpriseCustomer: jest.fn(),
 }));
 
 const mockEnterpriseId = 'test-enterprise-uuid';
 const mockProgramUUID = 'test-program-uuid';
 const mockProgramsURL = `/${mockEnterpriseId}/program/${mockProgramUUID}`;
 
-extractEnterpriseId.mockResolvedValue(mockEnterpriseId);
+extractEnterpriseCustomer.mockResolvedValue({ uuid: mockEnterpriseId });
 
 const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue({}),

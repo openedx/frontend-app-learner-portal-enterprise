@@ -5,7 +5,7 @@ import {
   queryCanRedeem,
   queryCourseMetadata,
   queryEnterpriseCourseEnrollments,
-  extractEnterpriseId,
+  extractEnterpriseCustomer,
   queryRedeemablePolicies,
   getLateRedemptionBufferDays,
   querySubscriptions,
@@ -47,23 +47,22 @@ export default function makeCourseLoader(queryClient) {
     // need to replace it with `+` again to be a valid course run key.
     const courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
-    const enterpriseId = await extractEnterpriseId({
+    const enterpriseCustomer = await extractEnterpriseCustomer({
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
-
     const subsidyQueries = Promise.all([
       queryClient.ensureQueryData(queryRedeemablePolicies({
-        enterpriseUuid: enterpriseId,
+        enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: authenticatedUser.userId,
       })),
-      queryClient.ensureQueryData(querySubscriptions(enterpriseId)),
-      queryClient.ensureQueryData(queryEnterpriseLearnerOffers(enterpriseId)),
-      queryClient.ensureQueryData(queryCouponCodes(enterpriseId)),
-      queryClient.ensureQueryData(queryLicenseRequests(enterpriseId, authenticatedUser.email)),
-      queryClient.ensureQueryData(queryCouponCodeRequests(enterpriseId, authenticatedUser.email)),
-      queryClient.ensureQueryData(queryBrowseAndRequestConfiguration(enterpriseId)),
+      queryClient.ensureQueryData(querySubscriptions(enterpriseCustomer.uuid)),
+      queryClient.ensureQueryData(queryEnterpriseLearnerOffers(enterpriseCustomer.uuid)),
+      queryClient.ensureQueryData(queryCouponCodes(enterpriseCustomer.uuid)),
+      queryClient.ensureQueryData(queryLicenseRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
+      queryClient.ensureQueryData(queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
+      queryClient.ensureQueryData(queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid)),
     ]);
 
     await Promise.all([
@@ -75,15 +74,17 @@ export default function makeCourseLoader(queryClient) {
           return null;
         }
         const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-          enterpriseUuid: enterpriseId,
+          enterpriseUuid: enterpriseCustomer.uuid,
           lmsUserId: authenticatedUser.userId,
         }));
         const isEnrollableBufferDays = getLateRedemptionBufferDays(redeemableLearnerCreditPolicies.redeemablePolicies);
-        return queryClient.ensureQueryData(queryCanRedeem(enterpriseId, courseMetadata, isEnrollableBufferDays));
+        return queryClient.ensureQueryData(
+          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, isEnrollableBufferDays),
+        );
       }),
-      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
+      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
       queryClient.ensureQueryData(queryUserEntitlements()),
-      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseId, [courseKey])),
+      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey])),
       queryClient.ensureQueryData(queryCourseReviews(courseKey)),
       subsidyQueries.then(async (subsidyResponses) => {
         const redeemableLearnerCreditPolicies = subsidyResponses[0];
@@ -124,7 +125,7 @@ export default function makeCourseLoader(queryClient) {
           subscriptionLicense,
         });
         return queryClient.ensureQueryData(queryCourseRecommendations(
-          enterpriseId,
+          enterpriseCustomer.uuid,
           courseKey,
           searchCatalogs,
         ));
