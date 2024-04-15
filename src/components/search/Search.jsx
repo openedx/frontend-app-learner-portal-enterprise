@@ -63,7 +63,7 @@ function useSearchPathwayModal() {
 const Search = () => {
   const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: { enterpriseFeatures } } = useEnterpriseFeatures();
+  const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const intl = useIntl();
   const navigate = useNavigate();
 
