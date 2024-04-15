@@ -1,7 +1,6 @@
-import { AppContext } from '@edx/frontend-platform/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
+import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useAcademies from './useAcademies';
 import { queryClient } from '../../../../utils/tests';
@@ -12,37 +11,43 @@ jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
   fetchAcademies: jest.fn().mockResolvedValue(null),
 }));
-const mockAuthenticatedUser = {
-  authenticatedUser: authenticatedUserFactory(),
-};
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
-const mockAcademyData = {
-  uuid: 'academy-uuid',
-  title: 'My Awesome Academy',
-  shortDescription: 'I am a short academy description.',
-  longDescription: 'I am an awesome academy.',
-  image: 'example.com/academies/images/awesome-academy.png',
-  tags: [
-    {
-      id: 111,
-      title: 'wowwww',
-      description: 'description 111',
-    },
-    {
-      id: 222,
-      title: 'boooo',
-      description: 'description 222',
-    },
-  ],
-};
+const mockAcademyListData = [
+  {
+    uuid: 'test-uuid-1',
+    title: 'Test Academy 1',
+    short_description: 'All enterprise - All catalogs',
+    long_description: 'All enterprise - All catalogs',
+    image: 'http://google.com',
+    tags: [
+      {
+        id: 1,
+        title: 'Test tag1',
+        description: 'Test tag1',
+      },
+    ],
+  },
+  {
+    uuid: 'test-uuid-2',
+    title: 'Test Academy3',
+    short_description: 'Test Academy3',
+    long_description: 'Test Academy3',
+    image: 'https://picsum.photos/400/200',
+    tags: [
+      {
+        id: 2,
+        title: 'test tag 2',
+        description: 'test tag 2',
+      },
+    ],
+  },
+];
 
 describe('useAcademies', () => {
   const Wrapper = ({ children }) => (
     // eslint-disable-next-line react/jsx-filename-extension
     <QueryClientProvider client={queryClient()}>
-      <AppContext.Provider value={mockAuthenticatedUser}>
-        {children}
-      </AppContext.Provider>
+      {children}
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -50,13 +55,13 @@ describe('useAcademies', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
   it('should resolved correctly', async () => {
-    fetchAcademies.mockResolvedValue(mockAcademyData);
+    fetchAcademies.mockResolvedValue(mockAcademyListData);
     const { result, waitForNextUpdate } = renderHook(() => useAcademies(), { wrapper: Wrapper });
     await waitForNextUpdate();
 
     expect(result.current).toEqual(
       expect.objectContaining({
-        data: mockAcademyData,
+        data: mockAcademyListData,
         isLoading: false,
         isFetching: false,
       }),
