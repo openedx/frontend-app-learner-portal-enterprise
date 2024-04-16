@@ -19,6 +19,7 @@ jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
   useSearchParams: jest.fn(),
 }));
+
 const mockCourseMetadata = {
   key: 'edX+DemoX',
   courseRuns: [{
