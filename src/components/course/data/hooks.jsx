@@ -687,7 +687,7 @@ export function useMinimalCourseMetadata() {
           marketingUrl: organizationDetails.organizationMarketingUrl,
         },
         title: transformed.title,
-        startDate: getCourseStartDate({ contentMetadata: transformed, courseRun: activeCourseRun }),
+        startDate: getCourseStartDate({ contentMetadata: transformed, courseRun }),
         duration: getDuration(),
         priceDetails: {
           price: coursePrice.list,
