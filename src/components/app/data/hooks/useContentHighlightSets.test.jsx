@@ -71,7 +71,7 @@ describe('useContentHighlightSets', () => {
     );
   });
   it(
-    'should handle resolved value correctly when select is not passed as a parameter and FEATURE_CONTENT_HIGHLIGHTS are disabled',
+    'should handle resolved value correctly when select is not passed as a parameter and FEATURE_CONTENT_HIGHLIGHTS is disabled',
     () => {
       getConfig.mockReturnValue({
         FEATURE_CONTENT_HIGHLIGHTS: false,
