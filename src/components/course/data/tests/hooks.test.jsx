@@ -257,7 +257,6 @@ describe('useCourseEnrollmentUrl', () => {
           'executive-education-2u': {
             pathSlug: 'executive-education-2u',
             usesEntitlementListPrice: true,
-            useAdditionalMetadata: true,
           },
         },
       });
