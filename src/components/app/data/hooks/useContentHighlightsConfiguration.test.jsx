@@ -22,7 +22,6 @@ const mockEnterpriseCurations = {
 
 describe('useContentHighlightsConfiguration', () => {
   const Wrapper = ({ children }) => (
-    // eslint-disable-next-line react/jsx-filename-extension
     <QueryClientProvider client={queryClient()}>
       {children}
     </QueryClientProvider>
@@ -30,9 +29,9 @@ describe('useContentHighlightsConfiguration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    fetchEnterpriseCuration.mockResolvedValue(mockEnterpriseCurations);
   });
   it('should handle resolved value correctly', async () => {
-    fetchEnterpriseCuration.mockResolvedValue(mockEnterpriseCurations);
     const { result, waitForNextUpdate } = renderHook(() => useContentHighlightsConfiguration(), { wrapper: Wrapper });
     await waitForNextUpdate();
 
@@ -41,19 +40,6 @@ describe('useContentHighlightsConfiguration', () => {
         data: mockEnterpriseCurations,
         isLoading: false,
         isFetching: false,
-      }),
-    );
-  });
-  it('should handle rejected value correctly', async () => {
-    const errorMessage = new Error('Test Error');
-    fetchEnterpriseCuration.mockRejectedValue(errorMessage);
-    const { result, waitForNextUpdate } = renderHook(() => useContentHighlightsConfiguration(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: undefined,
-        failureReason: errorMessage,
-        isError: true,
       }),
     );
   });

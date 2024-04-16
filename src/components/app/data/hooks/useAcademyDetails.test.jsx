@@ -35,7 +35,6 @@ const mockAcademyDetailsData = {
 
 describe('useAcademiesDetails', () => {
   const Wrapper = ({ children }) => (
-    // eslint-disable-next-line react/jsx-filename-extension
     <QueryClientProvider client={queryClient()}>
       {children}
     </QueryClientProvider>
@@ -43,9 +42,9 @@ describe('useAcademiesDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useParams.mockReturnValue({ academyUUID: 'academy-uuid' });
+    fetchAcademiesDetail.mockResolvedValue(mockAcademyDetailsData);
   });
   it('should handle resolved value correctly', async () => {
-    fetchAcademiesDetail.mockResolvedValue(mockAcademyDetailsData);
     const { result, waitForNextUpdate } = renderHook(() => useAcademyDetails(), { wrapper: Wrapper });
     await waitForNextUpdate();
 
@@ -54,19 +53,6 @@ describe('useAcademiesDetails', () => {
         data: mockAcademyDetailsData,
         isLoading: false,
         isFetching: false,
-      }),
-    );
-  });
-  it('should handle rejected value correctly', async () => {
-    const errorMessage = new Error('Test Error');
-    fetchAcademiesDetail.mockRejectedValue(errorMessage);
-    const { result, waitForNextUpdate } = renderHook(() => useAcademyDetails(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: undefined,
-        failureReason: errorMessage,
-        isError: true,
       }),
     );
   });

@@ -54,7 +54,6 @@ describe('searchLoader', () => {
     ensureAuthenticatedUser.mockResolvedValue(null);
     renderWithRouterProvider({
       path: '/:enterpriseSlug/search',
-      // eslint-disable-next-line react/jsx-filename-extension
       element: <div>hello world</div>,
       loader: makeSearchLoader(mockQueryClient),
     }, [

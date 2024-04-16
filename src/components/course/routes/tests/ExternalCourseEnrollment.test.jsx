@@ -109,7 +109,7 @@ const ExternalCourseEnrollmentWrapper = ({
   </IntlProvider>
 );
 
-describe.skip('ExternalCourseEnrollment', () => {
+describe('ExternalCourseEnrollment', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });

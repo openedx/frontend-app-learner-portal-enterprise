@@ -38,20 +38,18 @@ const mockBrowseAndRequestConfiguration = {
 
 describe('useCatalogsForSubsidyRequests', () => {
   const Wrapper = ({ children }) => (
-    // eslint-disable-next-line react/jsx-filename-extension
     <QueryClientProvider client={queryClient()}>
       {children}
     </QueryClientProvider>
   );
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-  it('should handle return when subsidy request not enabled for browseAndRequestConfiguration', () => {
     useBrowseAndRequestConfiguration.mockReturnValue({ data: mockBrowseAndRequestConfiguration });
     useSubscriptions.mockReturnValue({ data: mockSubscriptionsData });
     useCouponCodes.mockReturnValue({ data: { couponsOverview: mockCouponsOverviewResponse } });
+  });
+  it('should handle return when subsidy request not enabled for browseAndRequestConfiguration', () => {
     const { result } = renderHook(() => useCatalogsForSubsidyRequest(), { wrapper: Wrapper });
-
     expect(result.current).toEqual([]);
   });
   it('should handle return when subsidyType is a license', () => {

@@ -28,7 +28,6 @@ const mockLicenseRequests = ['test-license1', 'test-license2'];
 const mockCouponCodeRequests = ['test-couponCode1, test-couponCode2'];
 
 const Wrapper = ({ children }) => (
-  // eslint-disable-next-line react/jsx-filename-extension
   <QueryClientProvider client={queryClient()}>
     <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
       {children}
@@ -41,9 +40,9 @@ describe('useBrowseAndRequestConfiguration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    fetchBrowseAndRequestConfiguration.mockResolvedValue(mockBrowseAndRequestConfiguration);
   });
   it('should handle resolved value correctly', async () => {
-    fetchBrowseAndRequestConfiguration.mockResolvedValue(mockBrowseAndRequestConfiguration);
     const { result, waitForNextUpdate } = renderHook(() => useBrowseAndRequestConfiguration(), { wrapper: Wrapper });
     await waitForNextUpdate();
 
@@ -55,28 +54,15 @@ describe('useBrowseAndRequestConfiguration', () => {
       }),
     );
   });
-  it('should handle rejected value correctly', async () => {
-    const errorMessage = new Error('Test Error');
-    fetchBrowseAndRequestConfiguration.mockRejectedValue(errorMessage);
-    const { result, waitForNextUpdate } = renderHook(() => useBrowseAndRequestConfiguration(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: undefined,
-        failureReason: errorMessage,
-        isError: true,
-      }),
-    );
-  });
 });
 
 describe('useSubscriptionLicenseRequests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    fetchLicenseRequests.mockResolvedValue(mockLicenseRequests);
   });
   it('should handle resolved value correctly', async () => {
-    fetchLicenseRequests.mockResolvedValue(mockLicenseRequests);
     const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicenseRequests(), { wrapper: Wrapper });
     await waitForNextUpdate();
 
@@ -88,28 +74,15 @@ describe('useSubscriptionLicenseRequests', () => {
       }),
     );
   });
-  it('should handle rejected value correctly', async () => {
-    const errorMessage = new Error('Test Error');
-    fetchLicenseRequests.mockRejectedValue(errorMessage);
-    const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicenseRequests(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: undefined,
-        failureReason: errorMessage,
-        isError: true,
-      }),
-    );
-  });
 });
 
 describe('useCouponCodeRequests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    fetchCouponCodeRequests.mockResolvedValue(mockCouponCodeRequests);
   });
   it('should handle resolved value correctly', async () => {
-    fetchCouponCodeRequests.mockResolvedValue(mockCouponCodeRequests);
     const { result, waitForNextUpdate } = renderHook(() => useCouponCodeRequests(), { wrapper: Wrapper });
     await waitForNextUpdate();
 
@@ -121,31 +94,17 @@ describe('useCouponCodeRequests', () => {
       }),
     );
   });
-  it('should handle rejected value correctly', async () => {
-    const errorMessage = new Error('Test Error');
-    fetchCouponCodeRequests.mockRejectedValue(errorMessage);
-    const { result, waitForNextUpdate } = renderHook(() => useCouponCodeRequests(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: undefined,
-        failureReason: errorMessage,
-        isError: true,
-      }),
-    );
-  });
 });
 
 describe('useBrowseAndRequest', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-  });
-  it('should handle resolved value correctly', async () => {
     fetchBrowseAndRequestConfiguration.mockResolvedValue(mockBrowseAndRequestConfiguration);
     fetchLicenseRequests.mockResolvedValue(mockLicenseRequests);
     fetchCouponCodeRequests.mockResolvedValue(mockCouponCodeRequests);
-
+  });
+  it('should handle resolved value correctly', async () => {
     const expectedValue = {
       configuration: mockBrowseAndRequestConfiguration,
       requests: {

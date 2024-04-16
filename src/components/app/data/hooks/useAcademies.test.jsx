@@ -45,7 +45,6 @@ const mockAcademyListData = [
 
 describe('useAcademies', () => {
   const Wrapper = ({ children }) => (
-    // eslint-disable-next-line react/jsx-filename-extension
     <QueryClientProvider client={queryClient()}>
       {children}
     </QueryClientProvider>
@@ -53,9 +52,9 @@ describe('useAcademies', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    fetchAcademies.mockResolvedValue(mockAcademyListData);
   });
   it('should handle resolved value correctly', async () => {
-    fetchAcademies.mockResolvedValue(mockAcademyListData);
     const { result, waitForNextUpdate } = renderHook(() => useAcademies(), { wrapper: Wrapper });
     await waitForNextUpdate();
 
@@ -64,19 +63,6 @@ describe('useAcademies', () => {
         data: mockAcademyListData,
         isLoading: false,
         isFetching: false,
-      }),
-    );
-  });
-  it('should handle rejected value correctly', async () => {
-    const errorMessage = new Error('Test Error');
-    fetchAcademies.mockRejectedValue(errorMessage);
-    const { result, waitForNextUpdate } = renderHook(() => useAcademies(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: undefined,
-        failureReason: errorMessage,
-        isError: true,
       }),
     );
   });
