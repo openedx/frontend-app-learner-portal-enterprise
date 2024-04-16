@@ -667,8 +667,8 @@ export function useMinimalCourseMetadata() {
   const { coursePrice, currency } = useCoursePrice();
   return useCourseMetadata({
     select: ({ transformed }) => {
-      const { activeCourseRun, availableCourseRuns } = transformed;
-      const courseRun = availableCourseRuns.find(run => run.key === courseRunKey) || activeCourseRun;
+      const { activeCourseRun, courseRuns } = transformed;
+      const courseRun = courseRuns.find(run => run.key === courseRunKey) || activeCourseRun;
       const organizationDetails = getCourseOrganizationDetails(transformed);
       const getDuration = () => {
         if (!courseRun) {
