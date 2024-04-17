@@ -46,7 +46,6 @@ const defaultAppContextValue = {
 
 describe('useSearchCatalogs', () => {
   const Wrapper = ({ children }) => (
-    // eslint-disable-next-line react/jsx-filename-extension
     <AppContext.Provider value={defaultAppContextValue}>
       {children}
     </AppContext.Provider>

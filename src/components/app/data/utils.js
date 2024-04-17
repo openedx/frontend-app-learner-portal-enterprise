@@ -489,6 +489,8 @@ export function getCatalogsForSubsidyRequests({
     return catalogs;
   }
   if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE && customerAgreement) {
+    // availableSubscriptionCatalogs only contains the unique catalogs
+    // across all subscription plans for an enterprise customer
     const catalogsFromSubscriptions = customerAgreement.availableSubscriptionCatalogs;
     catalogs.push(...catalogsFromSubscriptions);
   }
@@ -496,6 +498,7 @@ export function getCatalogsForSubsidyRequests({
     const catalogsFromCoupons = couponsOverview
       .filter(coupon => !!coupon.available)
       .map(coupon => coupon.enterpriseCatalogUuid);
+    // catalogs from coupons may be duplicative, so pushing a Set of catalogs is necessary here
     catalogs.push(...new Set(catalogsFromCoupons));
   }
   return catalogs;
