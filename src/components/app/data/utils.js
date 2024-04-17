@@ -489,7 +489,8 @@ export function getCatalogsForSubsidyRequests({
     return catalogs;
   }
   if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE && customerAgreement) {
-    // availableSubscriptionCatalogs are returned from the API as a Set
+    // availableSubscriptionCatalogs only contains the unique catalogs
+    // across all subscription plans for an enterprise customer
     const catalogsFromSubscriptions = customerAgreement.availableSubscriptionCatalogs;
     catalogs.push(...catalogsFromSubscriptions);
   }
