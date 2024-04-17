@@ -2,7 +2,7 @@ import { Container } from '@openedx/paragon';
 import React from 'react';
 
 const PathwaysSection = () => (
-  <Container className="pathway-section">
+  <Container className="pathway-section mb-4">
     <Container size="lg" className="inner-container pr-0">
       <div className="row">
         <div className="col">

@@ -109,6 +109,22 @@ const AcademyContentCard = ({
     }
     return showAllOcmCourses;
   };
+
+  const toggleButtonText = (showMoreBtnEnabled, contentType, title, contentLength) => {
+    if (showMoreBtnEnabled) {
+      return intl.formatMessage({
+        id: 'academy.detail.page.show.less.button.text',
+        defaultMessage: '< Show less {title} courses',
+        description: 'Text for the show less button on academy detail page.',
+      }, { title });
+    }
+    return intl.formatMessage({
+      id: 'academy.detail.page.show.more.button.text',
+      defaultMessage: 'Show more {title} courses ({contentLength}) >',
+      description: 'Text for the show more button on academy detail page.',
+    }, { title, contentLength });
+  };
+
   const renderableContent = ({
     content,
     contentLength,
@@ -125,8 +141,8 @@ const AcademyContentCard = ({
 
     return (
       <div className={additionalClass}>
-        <div className="d-flex flex-row align-items-center justify-content-between">
-          <h3 data-testid={titleTestId}>{title}</h3>
+        <div className="d-flex flex-row align-items-center justify-content-between mt-5">
+          <h3 data-testid={titleTestId} className="font-weight-normal">{title}</h3>
           {contentType !== LEARNING_TYPE_PATHWAY && contentLength > 4 && (
             <Button
               className=""
@@ -134,7 +150,7 @@ const AcademyContentCard = ({
               size="xl"
               onClick={toggleShowMore(contentType)}
             >
-              {showMoreButton(contentType) ? '< Show Less' : `Show More (${contentLength}) >`}
+              { toggleButtonText(showMoreButton(contentType), contentType, title, contentLength) }
             </Button>
           )}
         </div>
