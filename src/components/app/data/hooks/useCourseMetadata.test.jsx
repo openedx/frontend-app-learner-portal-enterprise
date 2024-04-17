@@ -30,7 +30,6 @@ const mockCourseMetadata = {
     isEnrollable: true,
   }],
 };
-const mockURL = new URL('https://example.com?course_run_key=edX DemoX');
 
 describe('useCourseMetadata', () => {
   const Wrapper = ({ children }) => (
@@ -43,7 +42,7 @@ describe('useCourseMetadata', () => {
     fetchCourseMetadata.mockResolvedValue(mockCourseMetadata);
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
     useLateRedemptionBufferDays.mockReturnValue(undefined);
-    useSearchParams.mockReturnValue([new URLSearchParams(mockURL.search)]);
+    useSearchParams.mockReturnValue([new URLSearchParams({ course_run_key: 'course-v1:edX+DemoX+T2024' })]);
   });
   it('should handle resolved value correctly with no select function passed', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
@@ -73,7 +72,7 @@ describe('useCourseMetadata', () => {
       }),
     );
   });
-  it('should handle resolved value correctly when no data is returned with a select function passed', async () => {
+  it('should handle resolved value correctly when data is returned with a select function passed', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(
       { select: (data) => data },
     ), { wrapper: Wrapper });
@@ -88,6 +87,21 @@ describe('useCourseMetadata', () => {
             availableCourseRuns: [mockCourseMetadata.courseRuns[0]],
           },
         },
+        isLoading: false,
+        isFetching: false,
+      }),
+    );
+  });
+  it('should handle resolved value correctly when no data is returned with a select function passed', async () => {
+    fetchCourseMetadata.mockResolvedValue(null);
+    const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(
+      { select: (data) => data },
+    ), { wrapper: Wrapper });
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        data: null,
         isLoading: false,
         isFetching: false,
       }),

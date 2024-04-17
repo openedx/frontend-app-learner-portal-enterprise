@@ -70,46 +70,64 @@ describe('useContentHighlightSets', () => {
       }),
     );
   });
-  it(
-    'should handle resolved value correctly when select is not passed as a parameter and FEATURE_CONTENT_HIGHLIGHTS is disabled',
-    () => {
-      getConfig.mockReturnValue({
-        FEATURE_CONTENT_HIGHLIGHTS: false,
-      });
-      const { result } = renderHook(() => useContentHighlightSets(), { wrapper: Wrapper });
+  it('should handle resolved value correctly when select is not passed as a parameter and filters out empty sets', async () => {
+    const updatedMockContentHighlightSets = [
+      ...mockContentHighlightSets,
+      {
+        uuid: 'empty-test-highlight-set',
+        title: 'sample highlight',
+        isPublished: true,
+        enterpriseCuration: 'test-curation-uuid',
+        cardImageUrl: 'https://placehold.co/400',
+        highlightedContent: [],
+      },
+    ];
+    fetchContentHighlights.mockResolvedValue(updatedMockContentHighlightSets);
+    const { result, waitForNextUpdate } = renderHook(() => useContentHighlightSets(), { wrapper: Wrapper });
+    await waitForNextUpdate();
 
-      expect(result.current).toEqual(
-        expect.objectContaining({
-          data: undefined,
-        }),
-      );
-    },
-  );
-  it(
-    'should handle resolved value correctly when select is passed as a parameter, and filters empty highlight sets',
-    async () => {
-      const mockUpdatedContentHighlightSets = [
-        ...mockContentHighlightSets,
-        {
-          uuid: 'test-highlight-set-2',
-          title: 'sample highlight',
-          isPublished: true,
-          enterpriseCuration: 'test-curation-uuid',
-          cardImageUrl: 'https://placehold.co/400',
-          highlightedContent: [],
-        },
-      ];
-      fetchContentHighlights.mockResolvedValue(mockUpdatedContentHighlightSets);
-      const { result, waitForNextUpdate } = renderHook(() => useContentHighlightSets({
-        select: (data) => data,
-      }), { wrapper: Wrapper });
-      await waitForNextUpdate();
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        data: mockContentHighlightSets,
+        isLoading: false,
+        isFetching: false,
+      }),
+    );
+  });
+  it('should handle resolved value correctly when select is not passed as a parameter and FEATURE_CONTENT_HIGHLIGHTS is disabled', () => {
+    getConfig.mockReturnValue({
+      FEATURE_CONTENT_HIGHLIGHTS: false,
+    });
+    const { result } = renderHook(() => useContentHighlightSets(), { wrapper: Wrapper });
 
-      expect(result.current.data.original).toEqual(mockUpdatedContentHighlightSets);
-      expect(result.current.data.transformed).not.toEqual(mockUpdatedContentHighlightSets);
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        data: undefined,
+      }),
+    );
+  });
+  it('should handle resolved value correctly when select is passed as a parameter, and filters empty highlight sets', async () => {
+    const mockUpdatedContentHighlightSets = [
+      ...mockContentHighlightSets,
+      {
+        uuid: 'empty-test-highlight-set',
+        title: 'sample highlight',
+        isPublished: true,
+        enterpriseCuration: 'test-curation-uuid',
+        cardImageUrl: 'https://placehold.co/400',
+        highlightedContent: [],
+      },
+    ];
+    fetchContentHighlights.mockResolvedValue(mockUpdatedContentHighlightSets);
+    const { result, waitForNextUpdate } = renderHook(() => useContentHighlightSets({
+      select: (data) => data,
+    }), { wrapper: Wrapper });
+    await waitForNextUpdate();
 
-      expect(result.current.data.original.length).toEqual(2);
-      expect(result.current.data.transformed.length).toEqual(1);
-    },
-  );
+    expect(result.current.data.original).toEqual(mockUpdatedContentHighlightSets);
+    expect(result.current.data.transformed).not.toEqual(mockUpdatedContentHighlightSets);
+
+    expect(result.current.data.original.length).toEqual(2);
+    expect(result.current.data.transformed.length).toEqual(1);
+  });
 });

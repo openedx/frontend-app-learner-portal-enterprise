@@ -1,23 +1,19 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
-import { render, screen, waitFor } from '@testing-library/react';
-import { authenticatedUserFactory } from '../services/data/__factories__';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseLearnerData } from '../services';
-import { useEnterpriseLearner } from './index';
 
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
   fetchEnterpriseLearnerData: jest.fn().mockResolvedValue(null),
 }));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseLearnerData = {
-  enterpriseCustomer: {
-    uuid: 'test-enterprise-customer',
-    slug: 'test-enterprise-slug',
-  },
+  enterpriseCustomer: mockEnterpriseCustomer,
   enterpriseCustomerUserRoleAssignments: [],
   activeEnterpriseCustomer: null,
   activeEnterpriseCustomerUserRoleAssignments: [],
@@ -38,58 +34,20 @@ describe('useEnterpriseCustomer', () => {
     jest.clearAllMocks();
     fetchEnterpriseLearnerData.mockResolvedValue(mockEnterpriseLearnerData);
   });
-  it('should return nested hook value correctly', async () => {
-    const {
-      result,
-      waitForNextUpdate,
-    } = renderHook(() => useEnterpriseLearner(), { wrapper: Wrapper });
+  it('should return enterprise customer metadata correctly', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomer(), { wrapper: Wrapper });
     await waitForNextUpdate();
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockEnterpriseLearnerData,
-      }),
-    );
+    const actualEnterpriseCustomer = result.current.data;
+    expect(actualEnterpriseCustomer.uuid).toEqual(mockEnterpriseCustomer.uuid);
+    expect(actualEnterpriseCustomer.slug).toEqual(mockEnterpriseCustomer.slug);
   });
-  it('should handle parent hook return value correctly', async () => {
-    const EnterpriseCustomer = () => {
-      const { data: enterpriseCustomer } = useEnterpriseCustomer();
-      return (
-        <>
-          <div>{enterpriseCustomer?.uuid}</div>
-          <div>{enterpriseCustomer?.slug}</div>
-        </>
-      );
-    };
-
-    render(
-      <Wrapper>
-        <EnterpriseCustomer />
-      </Wrapper>,
-    );
-    await waitFor(() => {
-      expect(screen.getByText(mockEnterpriseLearnerData.enterpriseCustomer.uuid)).toBeTruthy();
-      expect(screen.getByText(mockEnterpriseLearnerData.enterpriseCustomer.slug)).toBeTruthy();
-    });
-  });
-  it('should handle parent hook return value correctly with select', async () => {
-    const EnterpriseCustomer = ({ queryOptions }) => {
-      const { data: enterpriseCustomer } = useEnterpriseCustomer(queryOptions);
-      return (
-        <>
-          <div>{JSON.stringify(enterpriseCustomer?.original)}</div>
-          <div>{JSON.stringify(enterpriseCustomer?.transformed)}</div>
-        </>
-      );
-    };
-
-    render(
-      <Wrapper>
-        <EnterpriseCustomer queryOptions={{ select: (data) => data }} />
-      </Wrapper>,
-    );
-    await waitFor(() => {
-      expect(screen.getByText(JSON.stringify(mockEnterpriseLearnerData))).toBeTruthy();
-      expect(screen.getByText(JSON.stringify(mockEnterpriseLearnerData.enterpriseCustomer))).toBeTruthy();
-    });
+  it('should return enterprise customer metadata correctly with select', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomer({
+      select: (data) => data,
+    }), { wrapper: Wrapper });
+    await waitForNextUpdate();
+    const actualEnterpriseCustomerSelectArgs = result.current.data;
+    expect(actualEnterpriseCustomerSelectArgs.original).toEqual(mockEnterpriseLearnerData);
+    expect(actualEnterpriseCustomerSelectArgs.transformed).toEqual(mockEnterpriseCustomer);
   });
 });
