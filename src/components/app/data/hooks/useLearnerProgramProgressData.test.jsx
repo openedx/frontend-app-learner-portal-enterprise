@@ -1,22 +1,27 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { queryClient } from '../../../../utils/tests';
-import { fetchPathwayProgressDetails } from '../services';
-import { useLearnerPathwayProgressData } from './index';
-import LearnerPathwayProgressData from '../../../pathway-progress/data/__mocks__/PathwayProgressListData.json';
+import { fetchLearnerProgramProgressDetail } from '../services';
+import useLearnerProgramProgressData from './useLearnerProgramProgressData';
 
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
-  fetchPathwayProgressDetails: jest.fn().mockResolvedValue(null),
+  fetchLearnerProgramProgressDetail: jest.fn().mockResolvedValue(null),
 }));
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(),
 }));
-const mockLearnerPathwayProgressData = camelCaseObject(LearnerPathwayProgressData)[0].learnerPathwayProgress;
-describe('useLearnerPathwayProgressData', () => {
+const mockLearnerProgramProgressData = {
+  certificateData: [],
+  courseData: null,
+  creditPathways: [],
+  industryPathways: [],
+  programData: null,
+  urls: null,
+};
+describe('useLearnerProgramProgressData', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
       {children}
@@ -24,16 +29,16 @@ describe('useLearnerPathwayProgressData', () => {
   );
   beforeEach(() => {
     jest.clearAllMocks();
-    fetchPathwayProgressDetails.mockResolvedValue(mockLearnerPathwayProgressData);
-    useParams.mockReturnValue({ pathwayUUID: 'test-pathway-uuid' });
+    fetchLearnerProgramProgressDetail.mockResolvedValue(mockLearnerProgramProgressData);
+    useParams.mockReturnValue({ programUUID: 'test-program-uuid' });
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useLearnerPathwayProgressData(), { wrapper: Wrapper });
+    const { result, waitForNextUpdate } = renderHook(() => useLearnerProgramProgressData(), { wrapper: Wrapper });
     await waitForNextUpdate();
 
     expect(result.current).toEqual(
       expect.objectContaining({
-        data: mockLearnerPathwayProgressData,
+        data: mockLearnerProgramProgressData,
         isLoading: false,
         isFetching: false,
       }),
