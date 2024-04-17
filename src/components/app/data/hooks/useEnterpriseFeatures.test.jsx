@@ -3,10 +3,9 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { authenticatedUserFactory } from '../services/data/__factories__';
-import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseLearnerData } from '../services';
-import { useEnterpriseLearner } from './index';
+import { useEnterpriseFeatures, useEnterpriseLearner } from './index';
 
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
@@ -22,11 +21,13 @@ const mockEnterpriseLearnerData = {
   activeEnterpriseCustomer: null,
   activeEnterpriseCustomerUserRoleAssignments: [],
   allLinkedEnterpriseCustomerUsers: [],
-  enterpriseFeatures: {},
+  enterpriseFeatures: {
+    featurePrequerySearchSuggestions: true,
+  },
   staffEnterpriseCustomer: null,
 };
 
-describe('useEnterpriseCustomer', () => {
+describe('useEnterpriseFeatures', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
       <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
@@ -50,46 +51,21 @@ describe('useEnterpriseCustomer', () => {
       }),
     );
   });
-  it('should handle parent hook return value correctly', async () => {
-    const EnterpriseCustomer = () => {
-      const { data: enterpriseCustomer } = useEnterpriseCustomer();
-      return (
-        <>
-          <div>{enterpriseCustomer?.uuid}</div>
-          <div>{enterpriseCustomer?.slug}</div>
-        </>
-      );
-    };
-
-    render(
-      <Wrapper>
-        <EnterpriseCustomer />
-      </Wrapper>,
-    );
-    await waitFor(() => {
-      expect(screen.getByText(mockEnterpriseLearnerData.enterpriseCustomer.uuid)).toBeTruthy();
-      expect(screen.getByText(mockEnterpriseLearnerData.enterpriseCustomer.slug)).toBeTruthy();
-    });
-  });
   it('should handle parent hook return value correctly with select', async () => {
-    const EnterpriseCustomer = ({ queryOptions }) => {
-      const { data: enterpriseCustomer } = useEnterpriseCustomer(queryOptions);
+    const EnterpriseFeatures = ({ queryOptions }) => {
+      const { data: enterpriseFeatures } = useEnterpriseFeatures(queryOptions);
       return (
-        <>
-          <div>{JSON.stringify(enterpriseCustomer?.original)}</div>
-          <div>{JSON.stringify(enterpriseCustomer?.transformed)}</div>
-        </>
+        <div>{JSON.stringify(enterpriseFeatures)}</div>
       );
     };
 
     render(
       <Wrapper>
-        <EnterpriseCustomer queryOptions={{ select: (data) => data }} />
+        <EnterpriseFeatures queryOptions={{ select: (data) => data }} />
       </Wrapper>,
     );
     await waitFor(() => {
-      expect(screen.getByText(JSON.stringify(mockEnterpriseLearnerData))).toBeTruthy();
-      expect(screen.getByText(JSON.stringify(mockEnterpriseLearnerData.enterpriseCustomer))).toBeTruthy();
+      expect(screen.getByText(JSON.stringify(mockEnterpriseLearnerData.enterpriseFeatures))).toBeTruthy();
     });
   });
 });
