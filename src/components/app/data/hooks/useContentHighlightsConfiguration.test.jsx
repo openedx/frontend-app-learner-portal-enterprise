@@ -66,9 +66,23 @@ describe('useCanOnlyViewHighlights', () => {
   it('should handle resolved value correctly when isHighlightFeatureActive is disabled', async () => {
     const updatedMockEnterpriseCuration = {
       ...mockEnterpriseCurations,
-      hasHighlightFeatureActive: false,
+      isHighlightFeatureActive: false,
     };
     fetchEnterpriseCuration.mockResolvedValue(updatedMockEnterpriseCuration);
+    const { result, waitForNextUpdate } = renderHook(() => useCanOnlyViewHighlights(), { wrapper: Wrapper });
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        data: false,
+        isLoading: false,
+        isFetching: false,
+      }),
+    );
+  });
+  it('should handle resolved value correctly when isHighlightFeatureActive is not present in the object', async () => {
+    delete mockEnterpriseCurations.isHighlightFeatureActive;
+    fetchEnterpriseCuration.mockResolvedValue(mockEnterpriseCurations);
     const { result, waitForNextUpdate } = renderHook(() => useCanOnlyViewHighlights(), { wrapper: Wrapper });
     await waitForNextUpdate();
 
