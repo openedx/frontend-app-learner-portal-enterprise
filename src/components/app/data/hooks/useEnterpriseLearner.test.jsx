@@ -1,18 +1,20 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
-import useEnterpriseCustomer from './useEnterpriseCustomer';
+import { useParams } from 'react-router-dom';
+import { authenticatedUserFactory } from '../services/data/__factories__';
 import { queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseLearnerData } from '../services';
 import useEnterpriseLearner from './useEnterpriseLearner';
 
-jest.mock('./useEnterpriseCustomer');
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
   fetchEnterpriseLearnerData: jest.fn().mockResolvedValue(null),
 }));
-const mockEnterpriseCustomer = enterpriseCustomerFactory();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn(),
+}));
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseLearnerData = {
   enterpriseCustomer: {
@@ -37,8 +39,8 @@ describe('useEnterpriseLearner', () => {
   );
   beforeEach(() => {
     jest.clearAllMocks();
-    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     fetchEnterpriseLearnerData.mockResolvedValue(mockEnterpriseLearnerData);
+    useParams.mockReturnValue({ enterpriseSlug: 'test-slug' });
   });
   it('should handle resolved value correctly', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseLearner(), { wrapper: Wrapper });
