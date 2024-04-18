@@ -10,43 +10,35 @@ const useExpiry = (enterpriseId, budget, modalOpen, modalClose, alertOpen, alert
   const [expirationThreshold, setExpirationThreshold] = useState(null);
   const [modal, setModal] = useState(null);
   const { thresholdKey, threshold } = useExpirationMetadata(budget?.end);
-  const { alertTemplate, modalTemplate } = threshold;
 
   useEffect(() => {
-    if (!budget) {
+    if (!budget || !thresholdKey) {
       return;
     }
-
-    if (thresholdKey !== null) {
-      setAlert(alertTemplate);
-      setModal(modalTemplate);
-      setExpirationThreshold({
-        thresholdKey,
-        threshold,
-      });
-    }
-
+    const { alertTemplate, modalTemplate } = threshold;
+    setAlert(alertTemplate);
+    setModal(modalTemplate);
+    setExpirationThreshold({
+      thresholdKey,
+      threshold,
+    });
     const seenCurrentExpiringModalCookieName = getEnterpriseBudgetExpiringModalCookieName({
       expirationThreshold: thresholdKey,
       enterpriseId,
     });
-
     const seenCurrentExpiringAlertCookieName = getEnterpriseBudgetExpiringAlertCookieName({
       expirationThreshold: thresholdKey,
       enterpriseId,
     });
-
     const isModalDismissed = global.localStorage.getItem(seenCurrentExpiringModalCookieName);
-    const isAlertDismissed = global.localStorage.getItem(seenCurrentExpiringAlertCookieName);
-
     if (!isModalDismissed) {
       modalOpen();
     }
-
+    const isAlertDismissed = global.localStorage.getItem(seenCurrentExpiringAlertCookieName);
     if (!isAlertDismissed) {
       alertOpen();
     }
-  }, [budget, modalOpen, alertOpen, enterpriseId, thresholdKey, threshold, alertTemplate, modalTemplate]);
+  }, [budget, modalOpen, alertOpen, enterpriseId, thresholdKey, threshold]);
 
   const dismissModal = () => {
     const seenCurrentExpirationModalCookieName = getEnterpriseBudgetExpiringModalCookieName({

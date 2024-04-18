@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { MailtoLink } from '@openedx/paragon';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { PLAN_EXPIRY_VARIANTS } from '../constants';
@@ -5,8 +6,7 @@ import { PLAN_EXPIRY_VARIANTS } from '../constants';
 // TODO: The components that renders these objects expects strings and returning console error.
 const useExpiryThresholds = () => {
   const intl = useIntl();
-
-  return {
+  return useMemo(() => ({
     60: ({ date }) => ({
       alertTemplate: {
         title: intl.formatMessage(
@@ -172,7 +172,7 @@ const useExpiryThresholds = () => {
       },
       variant: PLAN_EXPIRY_VARIANTS.expiring,
     }),
-  };
+  }), [intl]);
 };
 
 export default useExpiryThresholds;
