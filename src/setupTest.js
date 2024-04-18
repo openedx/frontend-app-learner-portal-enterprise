@@ -1,6 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+import 'jest-localstorage-mock';
 
 import matchMediaMock from 'match-media-mock';
 import ResizeObserverPolyfill from 'resize-observer-polyfill';

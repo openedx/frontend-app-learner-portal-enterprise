@@ -8,7 +8,6 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import BudgetExpiryNotification from '../index';
 import { useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests } from '../../app/data';
-import { queryClient } from '../../../utils/tests';
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
