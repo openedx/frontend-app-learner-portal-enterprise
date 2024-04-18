@@ -21,6 +21,7 @@ import {
 } from '../../app/data';
 import { COURSE_STATUSES } from '../../../constants';
 import { getStatusMetadata } from '../data/utils';
+import useExpirationMetadata from '../../budget-expiry-notification/data/hooks/useExpirationMetadata';
 
 const SubsidiesSummary = ({
   className,
@@ -44,7 +45,14 @@ const SubsidiesSummary = ({
     learnerCreditSummaryCardData,
   } = useHasAvailableSubsidiesOrRequests();
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
-  const statusMetadata = getStatusMetadata({ endDateStr: learnerCreditSummaryCardData?.expirationDate });
+  const { isPlanApproachingExpiry } = useExpirationMetadata(
+    learnerCreditSummaryCardData?.expirationDate,
+  );
+
+  const learnerCreditStatusMetadata = getStatusMetadata({
+    isPlanApproachingExpiry,
+    endDateStr: learnerCreditSummaryCardData?.expirationDate,
+  });
 
   // if there are course enrollments, the cta button below will be the only one on the page
   const ctaButtonVariant = useMemo(() => {
@@ -111,7 +119,7 @@ const SubsidiesSummary = ({
             className="border-0 shadow-none"
             expirationDate={learnerCreditSummaryCardData.expirationDate}
             assignmentOnlyLearner={isAssignmentOnlyLearner}
-            statusMetadata={statusMetadata}
+            statusMetadata={learnerCreditStatusMetadata}
           />
         )}
       </div>

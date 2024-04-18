@@ -1,5 +1,4 @@
 import { BUDGET_STATUSES } from './constants';
-import { isPlanApproachingExpiry } from '../../budget-expiry-notification/data/utils';
 
 /**
  * Determines whether there are any unacknowledged assignments.
@@ -13,12 +12,13 @@ export function getHasUnacknowledgedAssignments(assignments) {
 
 //  Utility function to check the budget status
 export const getStatusMetadata = ({
+  isPlanApproachingExpiry,
   endDateStr,
   currentDate = new Date(),
 }) => {
   const endDate = new Date(endDateStr);
 
-  if (isPlanApproachingExpiry(endDateStr)) {
+  if (isPlanApproachingExpiry) {
     return {
       status: BUDGET_STATUSES.expiring,
       badgeVariant: 'warning',

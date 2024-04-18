@@ -33,6 +33,7 @@
     "formik": "2.2.9",
     "history": "4.10.1",
     "iso-639-1": "2.1.4",
+    "jest-localstorage-mock": "2.4.26",
     "lodash.camelcase": "4.3.0",
     "lodash.capitalize": "4.2.1",
     "lodash.clonedeep": "4.5.0",

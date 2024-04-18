@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActionRow,
   Alert, AlertModal,
@@ -7,7 +7,6 @@ import {
 } from '@openedx/paragon';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { getConfig } from '@edx/frontend-platform/config';
 import useExpiry from './data/hooks/useExpiry';
 import { useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests } from '../app/data';
 import { EVENT_NAMES } from './data/constants';
@@ -16,6 +15,7 @@ import { getContactEmail } from '../../utils/common';
 const BudgetExpiryNotification = () => {
   const [modalIsOpen, modalOpen, modalClose] = useToggle(false);
   const [alertIsOpen, alertOpen, alertClose] = useToggle(false);
+  const [alertActions, setAlertActions] = useState([]);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { learnerCreditSummaryCardData } = useHasAvailableSubsidiesOrRequests();
   const budget = useMemo(() => ({ end: learnerCreditSummaryCardData?.expirationDate }), [learnerCreditSummaryCardData]);
@@ -37,18 +37,14 @@ const BudgetExpiryNotification = () => {
       alert,
     };
   }, [modal, alert]);
-  
+
   const contactEmail = getContactEmail(enterpriseCustomer);
 
-  const AlertTitle = alert?.title;
-  const ModalTitle = modal?.title;
   const AlertMessage = alert?.message;
   const ModalMessage = modal?.message;
 
-  const alertActions = [];
-
   if (contactEmail) {
-    alertActions.push(
+    setAlertActions([
       <Button
         as={MailtoLink}
         to={contactEmail}
@@ -62,7 +58,7 @@ const BudgetExpiryNotification = () => {
       >
         Contact administrator
       </Button>,
-    );
+    ]);
   }
 
   return (
@@ -75,11 +71,10 @@ const BudgetExpiryNotification = () => {
           dismissible={alert.dismissible}
           onClose={dismissAlert}
           data-testid="expiry-notification-alert"
-          stacked
           className="mb-4.5"
         >
           <Alert.Heading>
-            <AlertTitle />
+            {alert.title}
           </Alert.Heading>
           <AlertMessage />
         </Alert>
@@ -87,9 +82,7 @@ const BudgetExpiryNotification = () => {
 
       {modal && (
         <AlertModal
-          title={(
-            <ModalTitle />
-          )}
+          title={modal.title}
           size="md"
           isOpen={modalIsOpen}
           onClose={dismissModal}

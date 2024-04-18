@@ -2,24 +2,22 @@ import { useState, useEffect } from 'react';
 import {
   getEnterpriseBudgetExpiringAlertCookieName,
   getEnterpriseBudgetExpiringModalCookieName,
-  getExpirationMetadata,
 } from '../utils';
+import useExpirationMetadata from './useExpirationMetadata';
 
 const useExpiry = (enterpriseId, budget, modalOpen, modalClose, alertOpen, alertClose) => {
   const [alert, setAlert] = useState(null);
   const [expirationThreshold, setExpirationThreshold] = useState(null);
   const [modal, setModal] = useState(null);
+  const { thresholdKey, threshold } = useExpirationMetadata(budget?.end);
+  const { alertTemplate, modalTemplate } = threshold;
 
   useEffect(() => {
     if (!budget) {
       return;
     }
 
-    const { thresholdKey, threshold } = getExpirationMetadata(budget.end);
-
     if (thresholdKey !== null) {
-      const { alertTemplate, modalTemplate } = threshold;
-
       setAlert(alertTemplate);
       setModal(modalTemplate);
       setExpirationThreshold({
@@ -48,7 +46,7 @@ const useExpiry = (enterpriseId, budget, modalOpen, modalClose, alertOpen, alert
     if (!isAlertDismissed) {
       alertOpen();
     }
-  }, [budget, modalOpen, alertOpen, enterpriseId]);
+  }, [budget, modalOpen, alertOpen, enterpriseId, thresholdKey, threshold, alertTemplate, modalTemplate]);
 
   const dismissModal = () => {
     const seenCurrentExpirationModalCookieName = getEnterpriseBudgetExpiringModalCookieName({
