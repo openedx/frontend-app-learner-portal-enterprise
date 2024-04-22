@@ -10,8 +10,9 @@ import {
   fetchEnterpriseCourseEnrollments,
   fetchLicenseRequests, fetchRedeemablePolicies,
 } from '../services';
-import useEnterpriseCourseEnrollments from './useEnterpriseCourseEnrollments';
+import useEnterpriseCourseEnrollments, { transformAllEnrollmentsByStatus } from './useEnterpriseCourseEnrollments';
 import { COURSE_STATUSES } from '../../../../constants';
+import { canUnenrollCourseEnrollment } from '../utils';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('../services', () => ({
@@ -25,7 +26,14 @@ jest.mock('../services', () => ({
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
-const mockCourseEnrollments = [{ key: 'edX+DemoX' }];
+const mockCourseEnrollments = {
+  displayName: 'Education',
+  micromastersTitle: 'Demo in higher education',
+  courseRunUrl: 'test-course-url',
+  certificateDownloadUrl: 'test-certificate-download-url',
+  emailsEnabled: false,
+  dueDates: ['Finish your course soon'],
+};
 const mockBrowseAndRequestConfiguration = {
   id: 123,
 };
@@ -48,6 +56,16 @@ const mockContentAssignment = {
   earliestPossibleExpiration: {
     date: dayjs().add(25, 'days').toISOString(),
   },
+  contentKey: 'edX+DemoX',
+  contentTitle: 'Test Content Title 1',
+  contentMetadata: {
+    startDate: dayjs().add(25, 'days').toISOString(),
+    endDate: dayjs().add(65, 'days').toISOString(),
+    mode: 'test-mode',
+    partners: [{ name: 'edx' }],
+  },
+  assignmentConfiguration: 'test-configuration',
+  learnerAcknowledged: true,
 };
 const redeemablePolicies = [
   {
@@ -103,35 +121,75 @@ describe('useEnterpriseCourseEnrollments', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    fetchEnterpriseCourseEnrollments.mockResolvedValue(mockCourseEnrollments);
+    fetchEnterpriseCourseEnrollments.mockResolvedValue([mockCourseEnrollments]);
     fetchBrowseAndRequestConfiguration.mockResolvedValue(mockBrowseAndRequestConfiguration);
     fetchLicenseRequests.mockResolvedValue([mockLicenseRequests]);
     fetchCouponCodeRequests.mockResolvedValue([mockCouponCodeRequests]);
     fetchRedeemablePolicies.mockResolvedValue(mockRedeemablePolicies);
   });
-  it('should return transformed requests', async () => {
+  it('should return transformed return values', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCourseEnrollments(), { wrapper: Wrapper });
     await waitForNextUpdate();
-
-    expect(result.current.data.requests).toEqual({
-      couponCodes: [{
-        courseRunId: mockCouponCodeRequests.courseId,
-        title: mockCouponCodeRequests.courseTitle,
-        orgName: mockCouponCodeRequests.coursePartners?.map(partner => partner.name).join(', '),
-        courseRunStatus: COURSE_STATUSES.requested,
-        linkToCourse: `${mockEnterpriseCustomer.slug}/course/${mockCouponCodeRequests.courseId}`,
-        created: mockCouponCodeRequests.created,
-        notifications: [],
-      }],
-      subscriptionLicenses: [{
-        courseRunId: mockLicenseRequests.courseId,
-        title: mockLicenseRequests.courseTitle,
-        orgName: mockLicenseRequests.coursePartners?.map(partner => partner.name).join(', '),
-        courseRunStatus: COURSE_STATUSES.requested,
-        linkToCourse: `${mockEnterpriseCustomer.slug}/course/${mockLicenseRequests.courseId}`,
-        created: mockLicenseRequests.created,
-        notifications: [],
-      }],
+    const expectedEnterpriseCourseEnrollments = {
+      title: mockCourseEnrollments.displayName,
+      microMastersTitle: mockCourseEnrollments.micromastersTitle,
+      linkToCourse: mockCourseEnrollments.courseRunUrl,
+      linkToCertificate: mockCourseEnrollments.certificateDownloadUrl,
+      hasEmailsEnabled: mockCourseEnrollments.emailsEnabled,
+      notifications: mockCourseEnrollments.dueDates,
+      canUnenroll: canUnenrollCourseEnrollment(mockCourseEnrollments),
+      isCourseAssigned: false,
+    };
+    const expectedTransformedRequests = (request) => ({
+      courseRunId: request.courseId,
+      title: request.courseTitle,
+      orgName: request.coursePartners?.map(partner => partner.name).join(', '),
+      courseRunStatus: COURSE_STATUSES.requested,
+      linkToCourse: `${mockEnterpriseCustomer.slug}/course/${request.courseId}`,
+      created: request.created,
+      notifications: [],
     });
+    const expectedRequests = {
+      couponCodes: [expectedTransformedRequests(mockCouponCodeRequests)],
+      subscriptionLicenses: [expectedTransformedRequests(mockLicenseRequests)],
+    };
+    const expectedTransformedLearnerContentAssignment = {
+      linkToCourse: `/${mockEnterpriseCustomer.slug}/course/${mockContentAssignment.contentKey}`,
+      courseRunId: mockContentAssignment.contentKey,
+      title: mockContentAssignment.contentTitle,
+      isRevoked: false,
+      notifications: [],
+      courseRunStatus: COURSE_STATUSES.assigned,
+      endDate: mockContentAssignment.contentMetadata?.endDate,
+      startDate: mockContentAssignment.contentMetadata?.startDate,
+      mode: mockContentAssignment.contentMetadata?.courseType,
+      orgName: mockContentAssignment.contentMetadata?.partners[0]?.name,
+      enrollBy: mockContentAssignment.earliestPossibleExpiration.date,
+      isCanceledAssignment: false,
+      isExpiredAssignment: false,
+      assignmentConfiguration: mockContentAssignment.assignmentConfiguration,
+      uuid: mockContentAssignment.uuid,
+      learnerAcknowledged: mockContentAssignment.learnerAcknowledged,
+    };
+    const expectedContentAssignment = {
+      acceptedAssignments: [],
+      allocatedAssignments: [expectedTransformedLearnerContentAssignment],
+      assignmentsForDisplay: [expectedTransformedLearnerContentAssignment],
+      assignments: [expectedTransformedLearnerContentAssignment],
+      canceledAssignments: [],
+      erroredAssignments: [],
+      expiredAssignments: [],
+    };
+
+    const expectedTransformedAllEnrollmentsByStatus = transformAllEnrollmentsByStatus({
+      enterpriseCourseEnrollments: [expectedEnterpriseCourseEnrollments],
+      requests: expectedRequests,
+      contentAssignments: expectedContentAssignment,
+    });
+
+    expect(result.current.data.allEnrollmentsByStatus).toEqual(expectedTransformedAllEnrollmentsByStatus);
+    expect(result.current.data.enterpriseCourseEnrollments).toEqual([expectedEnterpriseCourseEnrollments]);
+    expect(result.current.data.contentAssignments).toEqual(expectedContentAssignment);
+    expect(result.current.data.requests).toEqual(expectedRequests);
   });
 });

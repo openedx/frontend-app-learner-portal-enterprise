@@ -13,6 +13,20 @@ import {
 } from '../utils';
 import { COURSE_STATUSES } from '../../../../constants';
 
+export const transformAllEnrollmentsByStatus = ({
+  enterpriseCourseEnrollments,
+  requests,
+  contentAssignments,
+}) => {
+  const enrollmentsByStatus = groupCourseEnrollmentsByStatus(enterpriseCourseEnrollments);
+  const licenseRequests = requests.subscriptionLicenses;
+  const couponCodeRequests = requests.couponCodes;
+  const subsidyRequests = [].concat(licenseRequests).concat(couponCodeRequests);
+  enrollmentsByStatus[COURSE_STATUSES.requested] = subsidyRequests;
+  enrollmentsByStatus[COURSE_STATUSES.assigned] = contentAssignments;
+  return enrollmentsByStatus;
+};
+
 /**
  * Retrieves the relevant enterprise course enrollments, subsidy requests (e.g., license
  * requests), and content assignments for the active enterprise customer user.
@@ -55,15 +69,11 @@ export default function useEnterpriseCourseEnrollments() {
     },
   });
 
-  const allEnrollmentsByStatus = useMemo(() => {
-    const enrollmentsByStatus = groupCourseEnrollmentsByStatus(enterpriseCourseEnrollments);
-    const licenseRequests = requests.subscriptionLicenses;
-    const couponCodeRequests = requests.couponCodes;
-    const subsidyRequests = [].concat(licenseRequests).concat(couponCodeRequests);
-    enrollmentsByStatus[COURSE_STATUSES.requested] = subsidyRequests;
-    enrollmentsByStatus[COURSE_STATUSES.assigned] = contentAssignments;
-    return enrollmentsByStatus;
-  }, [enterpriseCourseEnrollments, requests, contentAssignments]);
+  const allEnrollmentsByStatus = useMemo(() => transformAllEnrollmentsByStatus({
+    enterpriseCourseEnrollments,
+    requests,
+    contentAssignments,
+  }), [contentAssignments, enterpriseCourseEnrollments, requests]);
 
   return useMemo(() => ({
     data: {
