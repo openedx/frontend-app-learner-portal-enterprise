@@ -8,28 +8,42 @@ import {
   LEARNER_CREDIT_CARD_SUMMARY,
   LEARNER_CREDIT_SUMMARY_CARD_TITLE,
 } from '../data/constants';
+import { BUDGET_STATUSES } from '../../data';
 
 const TEST_EXPIRATION_DATE = '2022-06-01T00:00:00Z';
+
+const mockActiveStatusMetadata = {
+  status: BUDGET_STATUSES.active,
+  badgeVariant: 'success',
+  term: 'Expires',
+  date: TEST_EXPIRATION_DATE,
+};
+
+const LearnerCreditSummaryCardWrapper = (props) => (
+  <IntlProvider locale="en">
+    <LearnerCreditSummaryCard {...props} />
+  </IntlProvider>
+);
 
 describe('<LearnerCreditSummaryCard />', () => {
   it('should render searchCoursesCta', () => {
     render(
-      <IntlProvider locale="en">
-        <LearnerCreditSummaryCard
-          expirationDate={TEST_EXPIRATION_DATE}
-        />
-      </IntlProvider>,
+      <LearnerCreditSummaryCardWrapper
+        expirationDate={TEST_EXPIRATION_DATE}
+        statusMetadata={mockActiveStatusMetadata}
+        assignmentOnlyLearner
+      />,
     );
     expect(screen.getByText(LEARNER_CREDIT_SUMMARY_CARD_TITLE)).toBeInTheDocument();
   });
 
   it('should render the expiration date passed as prop', () => {
     render(
-      <IntlProvider locale="en">
-        <LearnerCreditSummaryCard
-          expirationDate={TEST_EXPIRATION_DATE}
-        />
-      </IntlProvider>,
+      <LearnerCreditSummaryCardWrapper
+        expirationDate={TEST_EXPIRATION_DATE}
+        statusMetadata={mockActiveStatusMetadata}
+        assignmentOnlyLearner
+      />,
     );
     expect(screen.getByTestId('learner-credit-summary-end-date-text')).toBeInTheDocument();
     expect(screen.getByText('2022', { exact: false })).toBeInTheDocument();
@@ -44,12 +58,11 @@ describe('<LearnerCreditSummaryCard />', () => {
   },
   ])('should render summary text based on assignmentOnlyLearner (%p)', ({ assignmentOnlyLearner, summaryText }) => {
     render(
-      <IntlProvider locale="en">
-        <LearnerCreditSummaryCard
-          assignmentOnlyLearner={assignmentOnlyLearner}
-          expirationDate={TEST_EXPIRATION_DATE}
-        />
-      </IntlProvider>,
+      <LearnerCreditSummaryCardWrapper
+        expirationDate={TEST_EXPIRATION_DATE}
+        statusMetadata={mockActiveStatusMetadata}
+        assignmentOnlyLearner={assignmentOnlyLearner}
+      />,
     );
     expect(screen.getByText(summaryText)).toBeInTheDocument();
   });
