@@ -22,7 +22,7 @@ const mockedUserGuid = 'test-guid';
 const mockedSessionToken = 'test-token';
 const mockedCallbackUrl = 'mock-url';
 const mockedSubdomain = 'test-subdomain';
-const mockedSearchString = `?userGuid=${mockedUserGuid}&sessionToken=${mockedSessionToken}&callbackUrl=${mockedCallbackUrl}&subdomain=${mockedSubdomain}`;
+const mockedSearchString = new URLSearchParams(`?userGuid=${mockedUserGuid}&sessionToken=${mockedSessionToken}&callbackUrl=${mockedCallbackUrl}&subdomain=${mockedSubdomain}`);
 
 describe('usePassLearnerCsodParams', () => {
   const Wrapper = ({ children }) => (
@@ -84,6 +84,7 @@ describe('usePassLearnerCsodParams', () => {
     if (userGuid || sessionToken) {
       updatedSearchString = `${mockedUserGuid}${mockedSessionToken}&callbackUrl=${mockedCallbackUrl}&subdomain=${mockedSubdomain}`;
     }
+    updatedSearchString = new URLSearchParams(updatedSearchString);
     useLocation.mockReturnValue({
       search: updatedSearchString,
     });
