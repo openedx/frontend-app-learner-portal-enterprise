@@ -101,23 +101,8 @@ describe('useLateRedemptionBufferDays', () => {
       })),
     }));
     const updatedMockRedeemablePolicies = {
+      ...mockContentAssignment,
       redeemablePolicies: updatedExpectedTransformedPolicies,
-      learnerContentAssignments: {
-        acceptedAssignments: [],
-        allocatedAssignments: [mockContentAssignmentWithSubsidyExpiration],
-        assignments: [mockContentAssignmentWithSubsidyExpiration],
-        assignmentsForDisplay: [mockContentAssignmentWithSubsidyExpiration],
-        canceledAssignments: [],
-        erroredAssignments: [],
-        expiredAssignments: [],
-        hasAcceptedAssignments: false,
-        hasAllocatedAssignments: true,
-        hasAssignments: true,
-        hasAssignmentsForDisplay: true,
-        hasCanceledAssignments: false,
-        hasErroredAssignments: false,
-        hasExpiredAssignments: false,
-      },
     };
     fetchRedeemablePolicies.mockResolvedValue(updatedMockRedeemablePolicies);
 
