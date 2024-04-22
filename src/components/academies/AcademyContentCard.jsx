@@ -111,17 +111,22 @@ const AcademyContentCard = ({
   };
 
   const toggleButtonText = (showMoreBtnEnabled, contentType, title, contentLength) => {
+    let defaultMessage;
+
     if (showMoreBtnEnabled) {
-      return intl.formatMessage({
-        id: 'academy.detail.page.show.less.button.text',
-        defaultMessage: '< Show less {title} courses',
-        description: 'Text for the show less button on academy detail page.',
-      }, { title });
+      defaultMessage = title === 'Self-paced courses'
+        ? '< Show less {title}'
+        : '< Show less {title} courses';
+    } else {
+      defaultMessage = title === 'Self-paced courses'
+        ? 'Show more {title} ({contentLength}) >'
+        : 'Show more {title} courses ({contentLength}) >';
     }
+
     return intl.formatMessage({
-      id: 'academy.detail.page.show.more.button.text',
-      defaultMessage: 'Show more {title} courses ({contentLength}) >',
-      description: 'Text for the show more button on academy detail page.',
+      id: 'academy.detail.page.show.more.toggle.button.text',
+      defaultMessage,
+      description: 'Text for the show more/show less toggle button on academy detail page.',
     }, { title, contentLength });
   };
 
