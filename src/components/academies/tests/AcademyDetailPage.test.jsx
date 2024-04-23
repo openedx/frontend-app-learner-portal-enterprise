@@ -12,6 +12,7 @@ import { renderWithRouter } from '../../../utils/tests';
 import AcademyDetailPage from '../AcademyDetailPage';
 import { useAcademyDetails, useEnterpriseCustomer } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useAcademyPathwayData } from '../data/hooks';
 
 // config
 const APP_CONFIG = {
@@ -57,6 +58,15 @@ const ALOGLIA_MOCK_DATA = {
   nbHits: 2,
 };
 
+const mockPathwayResponse = [
+  {
+    title: 'Pathway Title',
+    overview: 'Pathway Overview',
+    pathwayUuid: '9d7c7c42-682d-4fa4-a133-2913e939f771',
+  },
+  false,
+  null,
+];
 // endpoints
 
 jest.mock('react-router-dom', () => ({
@@ -105,6 +115,10 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useAcademyDetails: jest.fn(),
 }));
+jest.mock('../data/hooks', () => ({
+  ...jest.requireActual('../data/hooks'),
+  useAcademyPathwayData: jest.fn(),
+}));
 
 const AcademyDetailPageWrapper = () => (
   <IntlProvider locale="en">
@@ -119,6 +133,7 @@ describe('<AcademyDetailPage />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAcademyDetails.mockReturnValue({ data: ACADEMY_MOCK_DATA });
+    useAcademyPathwayData.mockReturnValue(mockPathwayResponse);
   });
   it('renders academy detail page', async () => {
     renderWithRouter(<AcademyDetailPageWrapper />);
