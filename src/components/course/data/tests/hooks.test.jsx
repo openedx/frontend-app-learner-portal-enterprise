@@ -9,6 +9,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
+  useBrowseAndRequestCatalogsApplicableToCourse,
   useCourseEnrollmentUrl, useCourseListPrice,
   useCoursePacingType,
   useCoursePartners,
@@ -57,6 +58,7 @@ import {
   useCouponCodes,
   useEnterpriseCustomer,
   useBrowseAndRequest,
+  useCatalogsForSubsidyRequests,
 } from '../../../app/data';
 import { CourseContext } from '../../CourseContextProvider';
 
@@ -71,6 +73,7 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseOffers: jest.fn(),
   useCouponCodes: jest.fn(),
   useBrowseAndRequest: jest.fn(),
+  useCatalogsForSubsidyRequests: jest.fn(),
 }));
 
 const oldGlobalLocation = global.location;
@@ -1551,5 +1554,40 @@ describe('useCourseListPrice', () => {
       { wrapper: Wrapper },
     );
     expect(result.current).toEqual(undefined);
+  });
+});
+
+describe('useBrowseAndRequestCatalogsApplicableToCourse', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
+    useCatalogsForSubsidyRequests.mockReturnValue(['test-catalog']);
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: { catalogList: ['test-catalog'] },
+    });
+  });
+  const Wrapper = ({ children }) => (
+    <AppContext.Provider value={mockAuthenticatedUser}>
+      {children}
+    </AppContext.Provider>
+  );
+  it('returns catalog list if a match exist from the subsidy request and customer contains content', () => {
+    const { result } = renderHook(
+      () => useBrowseAndRequestCatalogsApplicableToCourse(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual(['test-catalog']);
+  });
+  it('filters sets effectively', () => {
+    useCatalogsForSubsidyRequests.mockReturnValue(['test-catalog', 'test-catalog', 'test-catalog1']);
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: { catalogList: ['test-catalog', 'test-catalog1', 'test-catalog2'] },
+    });
+
+    const { result } = renderHook(
+      () => useBrowseAndRequestCatalogsApplicableToCourse(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual(['test-catalog', 'test-catalog1']);
   });
 });
