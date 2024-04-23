@@ -30,7 +30,7 @@ import {
   getCourseTypeConfig,
   getMissingApplicableSubsidyReason,
   getSubscriptionDisabledEnrollmentReasonType,
-  getSubsidyToApplyForCourse,
+  getSubsidyToApplyForCourse, transformedCourseMetadata,
 } from '../utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -898,11 +898,16 @@ describe('useUserSubsidyApplicableToCourse', () => {
     userMessage: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
     actions: expect.any(Object),
   };
-
+  const resolvedTransformedEnterpriseCustomerData = ({ transformed }) => ({
+    fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
+    contactEmail: transformed.contactEmail,
+  });
   beforeEach(() => {
     jest.clearAllMocks();
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
-    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCustomer.mockReturnValue({
+      data: resolvedTransformedEnterpriseCustomerData({ transformed: mockEnterpriseCustomer }),
+    });
     useCourseMetadata.mockReturnValue({});
     useRedeemablePolicies.mockReturnValue({
       data: {
@@ -1227,6 +1232,7 @@ describe('useMinimalCourseMetadata', () => {
   const mockCurrency = 'USD';
   const mockCourseTitle = 'Test Course Title';
   const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
+  const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
 
   const baseCourseMetadataValue = {
     organization: {
@@ -1241,6 +1247,19 @@ describe('useMinimalCourseMetadata', () => {
       price: mockListPrice,
       currency: mockCurrency,
     },
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: mockWeeksToComplete,
+      start: mockCourseRunStartDate,
+    }],
+    owners: [{
+      name: mockOrgName,
+      marketingUrl: mockOrgMarketingUrl,
+      logoImageUrl: mockLogoImageUrl,
+    }],
+  };
+  const coursePrice = {
+    list: mockListPrice,
   };
 
   const Wrapper = ({ children }) => (
@@ -1250,11 +1269,16 @@ describe('useMinimalCourseMetadata', () => {
       </AppContext.Provider>
     </BrowserRouter>
   );
-
+  const courseMetadataTransformer = ({ transformed }) => transformedCourseMetadata({
+    transformed,
+    coursePrice,
+    courseRunKey: mockCourseRunKey,
+    currency: mockCurrency,
+  });
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useCourseMetadata.mockReturnValue(baseCourseMetadataValue);
+    useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: baseCourseMetadataValue }));
     useParams.mockReturnValue({ courseKey: 'test-course-key' });
     useRedeemablePolicies.mockReturnValue({
       data: {
@@ -1291,7 +1315,7 @@ describe('useMinimalCourseMetadata', () => {
 
   it('should return the correct base course metadata', () => {
     const { result } = renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
-    expect(result.current).toEqual(baseCourseMetadataValue);
+    expect(result.current).toEqual(courseMetadataTransformer({ transformed: baseCourseMetadataValue }));
   });
 
   it('should handle empty activeCourseRun', () => {
@@ -1300,27 +1324,12 @@ describe('useMinimalCourseMetadata', () => {
       duration: '-',
       startDate: undefined,
     };
-    useCourseMetadata.mockReturnValue(updatedCourseMetadataValue);
+    useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(
-      {
-        organization: {
-          name: mockOrgName,
-          logoImgUrl: mockLogoImageUrl,
-          marketingUrl: mockOrgMarketingUrl,
-        },
-        title: mockCourseTitle,
-        startDate: undefined,
-        duration: '-',
-        priceDetails: {
-          price: mockListPrice,
-          currency: mockCurrency,
-        },
-      },
-    );
+    expect(result.current).toEqual(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
   });
 
   it('should handle when weeksToComplete is only 1', () => {
@@ -1328,27 +1337,12 @@ describe('useMinimalCourseMetadata', () => {
       ...baseCourseMetadataValue,
       duration: '1 Week',
     };
-    useCourseMetadata.mockReturnValue(updatedCourseMetadataValue);
+    useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(
-      {
-        organization: {
-          name: mockOrgName,
-          logoImgUrl: mockLogoImageUrl,
-          marketingUrl: mockOrgMarketingUrl,
-        },
-        title: mockCourseTitle,
-        startDate: mockCourseRunStartDate,
-        duration: '1 Week',
-        priceDetails: {
-          price: mockListPrice,
-          currency: mockCurrency,
-        },
-      },
-    );
+    expect(result.current).toEqual(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
   });
 
   it('should handle organization short code and logo overrides', () => {
@@ -1362,27 +1356,12 @@ describe('useMinimalCourseMetadata', () => {
         marketingUrl: mockOrgMarketingUrl,
       },
     };
-    useCourseMetadata.mockReturnValue(updatedCourseMetadataValue);
+    useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(
-      {
-        organization: {
-          name: mockOrgShortCode,
-          logoImgUrl: mockOrgLogoUrl,
-          marketingUrl: mockOrgMarketingUrl,
-        },
-        title: mockCourseTitle,
-        startDate: mockCourseRunStartDate,
-        duration: '8 Weeks',
-        priceDetails: {
-          price: mockListPrice,
-          currency: mockCurrency,
-        },
-      },
-    );
+    expect(result.current).toEqual(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
   });
 });
 

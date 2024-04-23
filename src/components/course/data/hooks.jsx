@@ -17,12 +17,12 @@ import {
   findEnterpriseOfferForCourse,
   getCourseOrganizationDetails,
   getCoursePrice,
-  getCourseStartDate,
   getCourseTypeConfig,
   getMissingApplicableSubsidyReason,
   getSubsidyToApplyForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
+  transformedCourseMetadata,
 } from './utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -528,16 +528,17 @@ export function useCourseListPrice() {
  */
 export const useUserSubsidyApplicableToCourse = () => {
   const { courseKey } = useParams();
+  const resolvedTransformedEnterpriseCustomerData = ({ transformed }) => ({
+    fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
+    contactEmail: transformed.contactEmail,
+  });
   const {
     data: {
       fallbackAdminUsers,
       contactEmail,
     },
   } = useEnterpriseCustomer({
-    select: ({ transformed }) => ({
-      fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
-      contactEmail: transformed.contactEmail,
-    }),
+    select: resolvedTransformedEnterpriseCustomerData,
   });
   const { data: courseListPrice } = useCourseListPrice();
   const {
@@ -666,37 +667,14 @@ export function useCanUserRequestSubsidyForCourse() {
 export function useMinimalCourseMetadata() {
   const { courseRunKey } = useParams();
   const { coursePrice, currency } = useCoursePrice();
+  const courseMetadataTransformer = ({ transformed }) => transformedCourseMetadata({
+    transformed,
+    coursePrice,
+    courseRunKey,
+    currency,
+  });
   return useCourseMetadata({
-    select: ({ transformed }) => {
-      const { activeCourseRun, courseRuns } = transformed;
-      const courseRun = courseRuns.find(run => run.key === courseRunKey) || activeCourseRun;
-      const organizationDetails = getCourseOrganizationDetails(transformed);
-      const getDuration = () => {
-        if (!courseRun) {
-          return '-';
-        }
-        let duration = `${courseRun.weeksToComplete} Week`;
-        if (courseRun.weeksToComplete > 1) {
-          duration += 's';
-        }
-        return duration;
-      };
-      const minimalCourseMetadata = {
-        organization: {
-          logoImgUrl: organizationDetails.organizationLogo,
-          name: organizationDetails.organizationName,
-          marketingUrl: organizationDetails.organizationMarketingUrl,
-        },
-        title: transformed.title,
-        startDate: getCourseStartDate({ courseRun }),
-        duration: getDuration(),
-        priceDetails: {
-          price: coursePrice.list,
-          currency,
-        },
-      };
-      return minimalCourseMetadata;
-    },
+    select: courseMetadataTransformer,
   });
 }
 
