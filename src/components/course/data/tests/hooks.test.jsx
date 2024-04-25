@@ -1278,7 +1278,6 @@ describe('useMinimalCourseMetadata', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: baseCourseMetadataValue }));
     useParams.mockReturnValue({ courseKey: 'test-course-key' });
     useRedeemablePolicies.mockReturnValue({
       data: {
@@ -1314,35 +1313,71 @@ describe('useMinimalCourseMetadata', () => {
   });
 
   it('should return the correct base course metadata', () => {
+    const expectedResults = {
+      organization: {
+        logoImgUrl: 'https://fake-logo.url',
+        name: 'Fake Org Name',
+        marketingUrl: 'https://fake-mktg.url',
+      },
+      title: 'Test Course Title',
+      startDate: '2023-04-20T12:00:00Z',
+      duration: '8 Weeks',
+      priceDetails: { price: 100, currency: 'USD' },
+    };
+    useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: baseCourseMetadataValue }));
     const { result } = renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
-    expect(result.current).toEqual(courseMetadataTransformer({ transformed: baseCourseMetadataValue }));
+    expect(result.current).toEqual(expectedResults);
   });
 
-  it('should handle empty activeCourseRun', () => {
+  it('should handle empty courseRuns', () => {
     const updatedCourseMetadataValue = {
       ...baseCourseMetadataValue,
-      duration: '-',
+      courseRuns: [],
+    };
+    const expectedResults = {
+      organization: {
+        logoImgUrl: 'https://fake-logo.url',
+        name: 'Fake Org Name',
+        marketingUrl: 'https://fake-mktg.url',
+      },
+      title: 'Test Course Title',
       startDate: undefined,
+      duration: '-',
+      priceDetails: { price: 100, currency: 'USD' },
     };
     useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
+    expect(result.current).toEqual(expectedResults);
   });
 
   it('should handle when weeksToComplete is only 1', () => {
     const updatedCourseMetadataValue = {
       ...baseCourseMetadataValue,
+      courseRuns: [{
+        ...baseCourseMetadataValue.courseRuns[0],
+        weeksToComplete: 1,
+      }],
+    };
+    const expectedResults = {
+      organization: {
+        logoImgUrl: 'https://fake-logo.url',
+        name: 'Fake Org Name',
+        marketingUrl: 'https://fake-mktg.url',
+      },
+      title: 'Test Course Title',
+      startDate: '2023-04-20T12:00:00Z',
       duration: '1 Week',
+      priceDetails: { price: 100, currency: 'USD' },
     };
     useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
+    expect(result.current).toEqual(expectedResults);
   });
 
   it('should handle organization short code and logo overrides', () => {
@@ -1350,18 +1385,30 @@ describe('useMinimalCourseMetadata', () => {
     const mockOrgLogoUrl = 'https://fake-logo-override.url';
     const updatedCourseMetadataValue = {
       ...baseCourseMetadataValue,
-      organization: {
+      owners: [{
         name: mockOrgShortCode,
+        logoImageUrl: mockOrgLogoUrl,
+        marketingUrl: mockOrgMarketingUrl,
+      }],
+    };
+    const expectedResults = {
+      organization: {
         logoImgUrl: mockOrgLogoUrl,
+        name: mockOrgShortCode,
         marketingUrl: mockOrgMarketingUrl,
       },
+      title: 'Test Course Title',
+      startDate: '2023-04-20T12:00:00Z',
+      duration: '8 Weeks',
+      priceDetails: { price: 100, currency: 'USD' },
     };
     useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
+
+    expect(result.current).toEqual(expectedResults);
   });
 });
 
