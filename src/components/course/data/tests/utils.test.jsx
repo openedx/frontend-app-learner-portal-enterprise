@@ -1037,16 +1037,16 @@ describe('transformedCourseMetadata', () => {
   });
 
   it('returns the minimal course metadata with typical values, happy path', () => {
-    const minimaCourseMetadata = transformedCourseMetadata({
+    const minimalCourseMetadata = transformedCourseMetadata({
       transformed,
       coursePrice,
       courseRunKey: mockCourseRunKey,
       currency: mockCurrency,
     });
-    expect(minimaCourseMetadata).toEqual(expectedValue);
+    expect(minimalCourseMetadata).toEqual(expectedValue);
   });
   it('fallsback to activeCourseRun if no course run key matches', () => {
-    const minimaCourseMetadata = transformedCourseMetadata({
+    const minimalCourseMetadata = transformedCourseMetadata({
       transformed,
       coursePrice,
       courseRunKey: mockActiveCourseRunKey,
@@ -1057,7 +1057,7 @@ describe('transformedCourseMetadata', () => {
       startDate: mockActiveCourseRunStartDate,
       duration: '16 Weeks',
     };
-    expect(minimaCourseMetadata).toEqual(updatedExpectedValue);
+    expect(minimalCourseMetadata).toEqual(updatedExpectedValue);
   });
   it.each([
     {
@@ -1104,13 +1104,13 @@ describe('transformedCourseMetadata', () => {
       organizationShortCodeOverride,
       owners,
     };
-    const minimaCourseMetadata = transformedCourseMetadata({
+    const minimalCourseMetadata = transformedCourseMetadata({
       transformed: updatedTransformedData,
       coursePrice,
       courseRunKey: mockCourseRunKey,
       currency: mockCurrency,
     });
-    expect(minimaCourseMetadata.organization).toEqual(organization);
+    expect(minimalCourseMetadata.organization).toEqual(organization);
   });
   it.each([{
     courseRuns: [{
@@ -1136,22 +1136,16 @@ describe('transformedCourseMetadata', () => {
     courseRuns,
     duration,
   }) => {
-    let updatedTransformed = {
-      ...transformed,
-      courseRuns,
-    };
+    const updatedTransformed = { ...transformed, courseRuns };
     if (courseRuns.length === 0) {
-      updatedTransformed = {
-        ...updatedTransformed,
-        activeCourseRun: null,
-      };
+      updatedTransformed.activeCourseRun = null;
     }
-    const minimaCourseMetadata = transformedCourseMetadata({
+    const minimalCourseMetadata = transformedCourseMetadata({
       transformed: updatedTransformed,
       coursePrice,
       courseRunKey: mockCourseRunKey,
       currency: mockCurrency,
     });
-    expect(minimaCourseMetadata.duration).toEqual(duration);
+    expect(minimalCourseMetadata.duration).toEqual(duration);
   });
 });
