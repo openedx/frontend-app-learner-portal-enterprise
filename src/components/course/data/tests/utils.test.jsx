@@ -23,7 +23,7 @@ import {
   processCourseSubjects,
   isCurrentCoupon,
   getCouponCodesDisabledEnrollmentReasonType,
-  getMissingApplicableSubsidyReason,
+  getMissingApplicableSubsidyReason, transformedCourseMetadata,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform', () => ({
@@ -968,5 +968,190 @@ describe('getMissingApplicableSubsidyReason', () => {
     };
     const result = getMissingApplicableSubsidyReason(mockData);
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED);
+  });
+});
+
+describe('transformedCourseMetadata', () => {
+  const mockOrgName = 'Fake Org Name';
+  const mockLogoImageUrl = 'https://fake-logo.url';
+  const mockOrgMarketingUrl = 'https://fake-mktg.url';
+  const mockWeeksToComplete = 8;
+  const mockListPrice = 100;
+  const mockCurrency = 'USD';
+  const mockCourseTitle = 'Test Course Title';
+  const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
+  const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
+  const mockActiveCourseRunKey = 'course-v2:edX+DemoX+Demo_Course';
+  const mockActiveCourseRunStartDate = '2024-04-20T12:00:00Z';
+  const mockActiveCourseRunWeeksToComplete = 16;
+
+  const transformed = {
+    organization: {
+      name: mockOrgName,
+      logoImgUrl: mockLogoImageUrl,
+      marketingUrl: mockOrgMarketingUrl,
+    },
+    title: mockCourseTitle,
+    startDate: mockCourseRunStartDate,
+    duration: `${mockWeeksToComplete} Weeks`,
+    priceDetails: {
+      price: mockListPrice,
+      currency: mockCurrency,
+    },
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: mockWeeksToComplete,
+      start: mockCourseRunStartDate,
+    }],
+    owners: [{
+      name: mockOrgName,
+      marketingUrl: mockOrgMarketingUrl,
+      logoImageUrl: mockLogoImageUrl,
+    }],
+    activeCourseRun: {
+      key: mockActiveCourseRunKey,
+      weeksToComplete: mockActiveCourseRunWeeksToComplete,
+      start: mockActiveCourseRunStartDate,
+    },
+  };
+  const coursePrice = {
+    list: mockListPrice,
+  };
+  const expectedValue = {
+    duration: '8 Weeks',
+    organization: {
+      logoImgUrl: 'https://fake-logo.url',
+      marketingUrl: 'https://fake-mktg.url',
+      name: 'Fake Org Name',
+    },
+    priceDetails: {
+      currency: 'USD',
+      price: 100,
+    },
+    startDate: '2023-04-20T12:00:00Z',
+    title: 'Test Course Title',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns the minimal course metadata with typical values, happy path', () => {
+    const minimaCourseMetadata = transformedCourseMetadata({
+      transformed,
+      coursePrice,
+      courseRunKey: mockCourseRunKey,
+      currency: mockCurrency,
+    });
+    expect(minimaCourseMetadata).toEqual(expectedValue);
+  });
+  it('fallsback to activeCourseRun if no course run key matches', () => {
+    const minimaCourseMetadata = transformedCourseMetadata({
+      transformed,
+      coursePrice,
+      courseRunKey: mockActiveCourseRunKey,
+      currency: mockCurrency,
+    });
+    const updatedExpectedValue = {
+      ...expectedValue,
+      startDate: mockActiveCourseRunStartDate,
+      duration: '16 Weeks',
+    };
+    expect(minimaCourseMetadata).toEqual(updatedExpectedValue);
+  });
+  it.each([
+    {
+      organizationShortCodeOverride: null,
+      organizationLogoOverrideUrl: null,
+      owners: [{
+        name: mockOrgName,
+        marketingUrl: mockOrgMarketingUrl,
+        logoImageUrl: mockLogoImageUrl,
+        uuid: 'test-uuid',
+        key: 'test-key',
+      }],
+      organization: {
+        logoImgUrl: 'https://fake-logo.url',
+        marketingUrl: 'https://fake-mktg.url',
+        name: 'Fake Org Name',
+      },
+    },
+    {
+      organizationShortCodeOverride: 'test-short-code-override',
+      organizationLogoOverrideUrl: 'test-logo-override',
+      owners: [{
+        name: mockOrgName,
+        marketingUrl: mockOrgMarketingUrl,
+        logoImageUrl: mockLogoImageUrl,
+        uuid: 'test-uuid',
+        key: 'test-key',
+      }],
+      organization: {
+        logoImgUrl: 'test-logo-override',
+        marketingUrl: 'https://fake-mktg.url',
+        name: 'test-short-code-override',
+      },
+    },
+  ])('handles organizations correctly when values are %s', ({
+    organizationShortCodeOverride,
+    organizationLogoOverrideUrl,
+    owners,
+    organization,
+  }) => {
+    const updatedTransformedData = {
+      ...transformed,
+      organizationLogoOverrideUrl,
+      organizationShortCodeOverride,
+      owners,
+    };
+    const minimaCourseMetadata = transformedCourseMetadata({
+      transformed: updatedTransformedData,
+      coursePrice,
+      courseRunKey: mockCourseRunKey,
+      currency: mockCurrency,
+    });
+    expect(minimaCourseMetadata.organization).toEqual(organization);
+  });
+  it.each([{
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: mockWeeksToComplete,
+      start: mockCourseRunStartDate,
+    }],
+    duration: '8 Weeks',
+  },
+  {
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: 1,
+      start: mockCourseRunStartDate,
+    }],
+    duration: '1 Week',
+  },
+  {
+    courseRuns: [],
+    duration: '-',
+  },
+  ])('handles duration correctly when values are %s', ({
+    courseRuns,
+    duration,
+  }) => {
+    let updatedTransformed = {
+      ...transformed,
+      courseRuns,
+    };
+    if (courseRuns.length === 0) {
+      updatedTransformed = {
+        ...updatedTransformed,
+        activeCourseRun: null,
+      };
+    }
+    const minimaCourseMetadata = transformedCourseMetadata({
+      transformed: updatedTransformed,
+      coursePrice,
+      courseRunKey: mockCourseRunKey,
+      currency: mockCurrency,
+    });
+    expect(minimaCourseMetadata.duration).toEqual(duration);
   });
 });

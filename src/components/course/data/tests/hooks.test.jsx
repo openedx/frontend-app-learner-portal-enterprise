@@ -10,7 +10,8 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
   useBrowseAndRequestCatalogsApplicableToCourse,
-  useCourseEnrollmentUrl, useCourseListPrice,
+  useCourseEnrollmentUrl,
+  useCourseListPrice,
   useCoursePacingType,
   useCoursePartners,
   useCoursePriceForUserSubsidy,
@@ -26,11 +27,13 @@ import {
 } from '../hooks';
 import {
   findCouponCodeForCourse,
-  findEnterpriseOfferForCourse, getCoursePrice,
+  findEnterpriseOfferForCourse,
+  getCoursePrice,
   getCourseTypeConfig,
   getMissingApplicableSubsidyReason,
   getSubscriptionDisabledEnrollmentReasonType,
-  getSubsidyToApplyForCourse, transformedCourseMetadata,
+  getSubsidyToApplyForCourse,
+  transformedCourseMetadata,
 } from '../utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
