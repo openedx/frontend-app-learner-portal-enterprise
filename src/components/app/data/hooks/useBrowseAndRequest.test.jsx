@@ -32,7 +32,6 @@ const Wrapper = ({ children }) => (
     <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
       {children}
     </AppContext.Provider>
-
   </QueryClientProvider>
 );
 

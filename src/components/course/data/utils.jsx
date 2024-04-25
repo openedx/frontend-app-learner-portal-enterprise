@@ -902,3 +902,36 @@ export function processCourseSubjects(course) {
     },
   };
 }
+
+export function transformedCourseMetadata({
+  transformed, coursePrice, currency, courseRunKey,
+}) {
+  const { activeCourseRun, courseRuns } = transformed;
+  const courseRun = courseRuns.find(run => run.key === courseRunKey) || activeCourseRun;
+  const organizationDetails = getCourseOrganizationDetails(transformed);
+  const getDuration = () => {
+    if (!courseRun) {
+      return '-';
+    }
+    let duration = `${courseRun.weeksToComplete} Week`;
+    if (courseRun.weeksToComplete > 1) {
+      duration += 's';
+    }
+    return duration;
+  };
+  const minimalCourseMetadata = {
+    organization: {
+      logoImgUrl: organizationDetails.organizationLogo,
+      name: organizationDetails.organizationName,
+      marketingUrl: organizationDetails.organizationMarketingUrl,
+    },
+    title: transformed.title,
+    startDate: getCourseStartDate({ courseRun }),
+    duration: getDuration(),
+    priceDetails: {
+      price: coursePrice.list,
+      currency,
+    },
+  };
+  return minimalCourseMetadata;
+}
