@@ -1,7 +1,8 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { getConfig } from '@edx/frontend-platform/config';
+import { when } from 'jest-when';
 import { renderWithRouterProvider } from '../../../utils/tests';
 import makeSearchLoader from './searchLoader';
 import {
@@ -9,11 +10,11 @@ import {
   queryAcademiesList,
   queryContentHighlightSets,
 } from '../../app/data';
-import { ensureAuthenticatedUser } from '../../app/routes/data';
+import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
-jest.mock('../../app/routes/data', () => ({
-  ...jest.requireActual('../../app/routes/data'),
+jest.mock('../../app/routes/data/utils', () => ({
+  ...jest.requireActual('../../app/routes/data/utils'),
   ensureAuthenticatedUser: jest.fn(),
 }));
 jest.mock('../../app/data', () => ({
@@ -37,8 +38,15 @@ jest.mock('@edx/frontend-platform/config', () => ({
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 extractEnterpriseCustomer.mockResolvedValue(mockEnterpriseCustomer);
 
+const mockAcademies = [
+  {
+    uuid: 'test-academy-uuid-1',
+  },
+];
+
 const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue({}),
+  getQueryData: jest.fn().mockReturnValue(mockAcademies),
 };
 
 describe('searchLoader', () => {
@@ -94,6 +102,7 @@ describe('searchLoader', () => {
       }),
     );
   });
+
   it('ensures the requisite search data is resolved with content highlights', async () => {
     getConfig.mockReturnValue({
       FEATURE_CONTENT_HIGHLIGHTS: true,
@@ -123,5 +132,66 @@ describe('searchLoader', () => {
         queryFn: expect.any(Function),
       }),
     );
+  });
+
+  it('Redirect learners whose enterprise has enabled one academy.', async () => {
+    extractEnterpriseCustomer.mockResolvedValue(enterpriseCustomerFactory({ enable_one_academy: true }));
+    const academiesQuery = queryAcademiesList(mockEnterpriseCustomer.uuid);
+
+    when(mockQueryClient.ensureQueryData).calledWith(
+      expect.objectContaining({
+        queryKey: academiesQuery.queryKey,
+      }),
+    ).mockResolvedValue(mockAcademies);
+    ensureAuthenticatedUser.mockResolvedValue({ userId: 3, username: 'test-user' });
+
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/search',
+      element: <div data-testid="search-page" />,
+      loader: makeSearchLoader(mockQueryClient),
+    }, {
+      routes: [
+        {
+          path: '/:enterpriseCustomer/academies/:academyUUID',
+          element: <div data-testid="academy-details-page" />,
+        },
+      ],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/search`],
+    });
+
+    // Validate user is redirected to the academy details page.
+    await waitFor(() => {
+      expect(screen.getByTestId('academy-details-page')).toBeInTheDocument();
+    });
+  });
+
+  it('Does not redirect the learners if enterprise one academy is not enabled.', async () => {
+    extractEnterpriseCustomer.mockResolvedValue(mockEnterpriseCustomer);
+    const academiesQuery = queryAcademiesList(mockEnterpriseCustomer.uuid);
+    when(mockQueryClient.ensureQueryData).calledWith(
+      expect.objectContaining({
+        queryKey: academiesQuery.queryKey,
+      }),
+    ).mockResolvedValue(mockAcademies);
+    ensureAuthenticatedUser.mockResolvedValue({ userId: 3, username: 'test-user' });
+
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/search',
+      element: <div data-testid="search-page" />,
+      loader: makeSearchLoader(mockQueryClient),
+    }, {
+      routes: [
+        {
+          path: '/:enterpriseCustomer/academies/:academyUUID',
+          element: <div data-testid="academy-details-page" />,
+        },
+      ],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/search`],
+    });
+
+    // Validate user is not redirected to the academy details page.
+    await waitFor(() => {
+      expect(screen.getByTestId('search-page')).toBeInTheDocument();
+    });
   });
 });

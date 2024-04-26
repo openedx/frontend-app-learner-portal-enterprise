@@ -4,13 +4,16 @@ import { Link } from 'react-router-dom';
 
 import {
   useEnterpriseCustomer,
-  useCanOnlyViewHighlights,
+  useCanOnlyViewHighlights, useAcademies,
 } from '../../../app/data';
 import CourseRecommendations from '../CourseRecommendations';
+import GoToAcademy from '../../../academies/GoToAcademy';
 
 const CourseEnrollmentsEmptyState = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
+  const { data: academies } = useAcademies();
+
   if (enterpriseCustomer.disableSearch) {
     return (
       <p>
@@ -25,6 +28,11 @@ const CourseEnrollmentsEmptyState = () => {
       </p>
     );
   }
+
+  if (enterpriseCustomer.enableOneAcademy && academies?.length === 1) {
+    return <GoToAcademy />;
+  }
+
   return (
     <>
       <p>
@@ -45,7 +53,6 @@ const CourseEnrollmentsEmptyState = () => {
           description="Label for Find a course button on enterprise dashboard's courses tab."
         />
       </Button>
-
       <br />
       {canOnlyViewHighlightSets === false && <CourseRecommendations />}
     </>
