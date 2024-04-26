@@ -1,10 +1,9 @@
-name: node_js CI
+name: Upload coverage for default branch
 
-on: [pull_request]
-
-concurrency:
-  group: ci-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   tests:
@@ -20,14 +19,10 @@ jobs:
         node-version: ${{ env.NODE_VER }}
     - name: Install dependencies
       run: npm ci
-    - name: Lint
-      run: npm run lint
     - name: Test
       run: npm run test
-    - name: Build
-      run: npm run build
     - name: Upload Coverage
       uses: codecov/codecov-action@v4
       with:
-        fail_ci_if_error: false
+        fail_ci_if_error: true
         token: ${{ secrets.CODECOV_TOKEN }}
