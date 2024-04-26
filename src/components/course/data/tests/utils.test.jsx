@@ -23,7 +23,7 @@ import {
   processCourseSubjects,
   isCurrentCoupon,
   getCouponCodesDisabledEnrollmentReasonType,
-  getMissingApplicableSubsidyReason,
+  getMissingApplicableSubsidyReason, transformedCourseMetadata,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform', () => ({
@@ -39,7 +39,6 @@ jest.mock('@edx/frontend-platform', () => ({
       'executive-education-2u': {
         pathSlug: 'executive-education-2u',
         usesEntitlementListPrice: true,
-        usesAdditionalMetadata: true,
       },
     },
   }),
@@ -298,6 +297,9 @@ describe('findEnterpriseOfferForCourse', () => {
 describe('getSubsidyToApplyForCourse', () => {
   const mockApplicableSubscriptionLicense = {
     uuid: 'license-uuid',
+    startDate: '2023-08-11',
+    expirationDate: '2024-08-11',
+    status: 'activated',
   };
 
   const mockApplicableCouponCode = {
@@ -329,8 +331,13 @@ describe('getSubsidyToApplyForCourse', () => {
     });
 
     expect(subsidyToApply).toEqual({
-      ...mockApplicableSubscriptionLicense,
       subsidyType: LICENSE_SUBSIDY_TYPE,
+      subsidyId: mockApplicableSubscriptionLicense.uuid,
+      startDate: mockApplicableSubscriptionLicense.startDate,
+      expirationDate: mockApplicableSubscriptionLicense.expirationDate,
+      status: mockApplicableSubscriptionLicense.status,
+      discountType: 'percentage',
+      discountValue: 100,
     });
   });
 
@@ -426,39 +433,9 @@ describe('getLinkToCourse', () => {
 });
 
 describe('getCourseStartDate tests', () => {
-  it('Validate additionalMetadata gets priority in course start date calculation', async () => {
-    const mockAdditionalMetadataStartDate = '2023-06-10T12:00:00Z';
-    const startDate = getCourseStartDate({
-      contentMetadata: {
-        additionalMetadata: {
-          startDate: mockAdditionalMetadataStartDate,
-        },
-        courseType: 'executive-education-2u',
-      },
-      courseRun: {
-        start: '2022-03-08T12:00:00Z',
-      },
-    });
-    expect(startDate).toMatch(mockAdditionalMetadataStartDate);
-  });
-
-  it('Validate active course run\'s start date is used when additionalMetadata is null.', async () => {
-    const mockCourseRuStartDate = '2022-03-08T12:00:00Z';
-    const startDate = getCourseStartDate({
-      contentMetadata: {
-        additionalMetadata: null,
-        courseType: 'executive-education-2u',
-      },
-      courseRun: {
-        start: mockCourseRuStartDate,
-      },
-    });
-    expect(startDate).toMatch(mockCourseRuStartDate);
-  });
-
   it('Validate getCourseDate handles empty data for course run and course metadata.', async () => {
     const startDate = getCourseStartDate(
-      { contentMetadata: null, courseRun: null },
+      { courseRun: null },
     );
     expect(startDate).toBe(undefined);
   });
@@ -569,52 +546,48 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
 
   it.each([
     {
-      daysUntilExpirationIncludingRenewals: -17,
+      netDaysUntilExpiration: -17,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: -17,
+      netDaysUntilExpiration: -17,
       hasEnterpriseAdminUsers: false,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: -17,
+      netDaysUntilExpiration: -17,
       hasEnterpriseAdminUsers: true,
-      expectedReasonType: undefined,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
       catalogsWithCourse: ['fake-catalog-uuid'],
     },
     {
-      daysUntilExpirationIncludingRenewals: 0,
+      netDaysUntilExpiration: 1,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: 10,
+      netDaysUntilExpiration: 10,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: [mockCatalogUuid],
     },
   ])('handles expired subscription: %s', ({
-    daysUntilExpirationIncludingRenewals,
+    netDaysUntilExpiration,
     hasEnterpriseAdminUsers,
     expectedReasonType,
     catalogsWithCourse,
   }) => {
-    const customerAgreementConfig = {
-      subscriptions: [
-        {
-          enterpriseCatalogUuid: mockCatalogUuid,
-          daysUntilExpirationIncludingRenewals,
-        },
-      ],
+    const customerAgreement = {
+      netDaysUntilExpiration,
+      availableSubscriptionCatalogs: [],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
-      customerAgreementConfig,
+      customerAgreement,
       catalogsWithCourse,
       subscriptionLicense: undefined,
       hasEnterpriseAdminUsers,
@@ -622,7 +595,10 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
     expect(reasonType).toEqual(expectedReasonType);
   });
 
-  it.each([
+  // Test skipped due to the learner-licenses API, it does not include information related
+  // to exhausted seats previously returned by a separate API that is no longer called.
+  // TODO: once the learner-licenses api supports exhausted seats, reimplement and verify tests
+  it.skip.each([
     {
       unassignedLicensesCount: 0,
       hasEnterpriseAdminUsers: true,
@@ -647,7 +623,7 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
     expectedReasonType,
     catalogsWithCourse,
   }) => {
-    const customerAgreementConfig = {
+    const customerAgreement = {
       subscriptions: [
         {
           enterpriseCatalogUuid: mockCatalogUuid,
@@ -657,10 +633,11 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
           },
         },
       ],
+      availableSubscriptionCatalogs: [],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
-      customerAgreementConfig,
+      customerAgreement,
       catalogsWithCourse,
       subscriptionLicense: undefined,
       hasEnterpriseAdminUsers,
@@ -670,34 +647,39 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
 
   it.each([
     {
-      subscriptionLicense: { status: 'revoked' },
+      subscriptionLicense: {
+        status: 'revoked',
+        subscriptionPlan: {
+          enterpriseCatalogUuid: mockCatalogUuid,
+        },
+      },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      subscriptionLicense: { status: 'activated' },
+      subscriptionLicense: {
+        status: 'activated',
+        subscriptionPlan: {
+          enterpriseCatalogUuid: mockCatalogUuid,
+        },
+      },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: [mockCatalogUuid],
     },
-  ])('handles revoked/deactivated subscription license', ({
+  ])('handles revoked/deactivated subscription license: %s', ({
     subscriptionLicense,
     hasEnterpriseAdminUsers,
     expectedReasonType,
     catalogsWithCourse,
   }) => {
-    const customerAgreementConfig = {
-      subscriptions: [
-        {
-          enterpriseCatalogUuid: mockCatalogUuid,
-          daysUntilExpirationIncludingRenewals: 10,
-        },
-      ],
+    const customerAgreement = {
+      availableSubscriptionCatalogs: [mockCatalogUuid],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
-      customerAgreementConfig,
+      customerAgreement,
       catalogsWithCourse,
       subscriptionLicense,
       hasEnterpriseAdminUsers,
@@ -707,47 +689,31 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
 
   it.each([
     {
-      daysUntilExpirationIncludingRenewals: 10,
-      unassignedLicensesCount: 50,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: 10,
-      unassignedLicensesCount: 50,
       hasEnterpriseAdminUsers: false,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: 10,
-      unassignedLicensesCount: 50,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: ['fake-catalog-uuid'],
     },
   ])('handles no subscription license with remaining seats: %s', ({
-    daysUntilExpirationIncludingRenewals,
-    unassignedLicensesCount,
     hasEnterpriseAdminUsers,
     expectedReasonType,
     catalogsWithCourse,
   }) => {
-    const customerAgreementConfig = {
-      subscriptions: [
-        {
-          enterpriseCatalogUuid: mockCatalogUuid,
-          daysUntilExpirationIncludingRenewals,
-          licenses: {
-            unassigned: unassignedLicensesCount,
-          },
-        },
-      ],
+    const customerAgreement = {
+      availableSubscriptionCatalogs: [mockCatalogUuid],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
-      customerAgreementConfig,
+      customerAgreement,
       catalogsWithCourse,
       subscriptionLicense: undefined,
       hasEnterpriseAdminUsers,
@@ -933,7 +899,9 @@ describe('getMissingApplicableSubsidyReason', () => {
     enterpriseAdminUsers: [{}],
     catalogsWithCourse: [],
     couponsOverview: {},
-    customerAgreementConfig: {},
+    customerAgreement: {
+      availableSubscriptionCatalogs: [],
+    },
     subscriptionLicense: undefined,
     containsContentItems: true,
     missingSubsidyAccessPolicyReason: null,
@@ -975,22 +943,11 @@ describe('getMissingApplicableSubsidyReason', () => {
   });
 
   it('returns SUBSCRIPTION_EXPIRED if there is an expired subscription', () => {
-    const subscriptionProperties = {
-      daysUntilExpirationIncludingRenewals: -17,
-      hasEnterpriseAdminUsers: true,
-      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
-      catalogsWithCourse: ['test-catalog-uuid'],
-    };
     const mockData = {
       ...baseMockData,
       catalogsWithCourse: ['test-catalog-uuid'],
-      customerAgreementConfig: {
-        subscriptions: [
-          {
-            enterpriseCatalogUuid: 'test-catalog-uuid',
-            ...subscriptionProperties,
-          },
-        ],
+      customerAgreement: {
+        netDaysUntilExpiration: -17,
       },
     };
     const result = getMissingApplicableSubsidyReason(mockData);
@@ -1011,5 +968,184 @@ describe('getMissingApplicableSubsidyReason', () => {
     };
     const result = getMissingApplicableSubsidyReason(mockData);
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED);
+  });
+});
+
+describe('transformedCourseMetadata', () => {
+  const mockOrgName = 'Fake Org Name';
+  const mockLogoImageUrl = 'https://fake-logo.url';
+  const mockOrgMarketingUrl = 'https://fake-mktg.url';
+  const mockWeeksToComplete = 8;
+  const mockListPrice = 100;
+  const mockCurrency = 'USD';
+  const mockCourseTitle = 'Test Course Title';
+  const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
+  const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
+  const mockActiveCourseRunKey = 'course-v2:edX+DemoX+Demo_Course';
+  const mockActiveCourseRunStartDate = '2024-04-20T12:00:00Z';
+  const mockActiveCourseRunWeeksToComplete = 16;
+
+  const transformed = {
+    organization: {
+      name: mockOrgName,
+      logoImgUrl: mockLogoImageUrl,
+      marketingUrl: mockOrgMarketingUrl,
+    },
+    title: mockCourseTitle,
+    startDate: mockCourseRunStartDate,
+    duration: `${mockWeeksToComplete} Weeks`,
+    priceDetails: {
+      price: mockListPrice,
+      currency: mockCurrency,
+    },
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: mockWeeksToComplete,
+      start: mockCourseRunStartDate,
+    }],
+    owners: [{
+      name: mockOrgName,
+      marketingUrl: mockOrgMarketingUrl,
+      logoImageUrl: mockLogoImageUrl,
+    }],
+    activeCourseRun: {
+      key: mockActiveCourseRunKey,
+      weeksToComplete: mockActiveCourseRunWeeksToComplete,
+      start: mockActiveCourseRunStartDate,
+    },
+  };
+  const coursePrice = {
+    list: mockListPrice,
+  };
+  const expectedValue = {
+    duration: '8 Weeks',
+    organization: {
+      logoImgUrl: 'https://fake-logo.url',
+      marketingUrl: 'https://fake-mktg.url',
+      name: 'Fake Org Name',
+    },
+    priceDetails: {
+      currency: 'USD',
+      price: 100,
+    },
+    startDate: '2023-04-20T12:00:00Z',
+    title: 'Test Course Title',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns the minimal course metadata with typical values, happy path', () => {
+    const minimalCourseMetadata = transformedCourseMetadata({
+      transformed,
+      coursePrice,
+      courseRunKey: mockCourseRunKey,
+      currency: mockCurrency,
+    });
+    expect(minimalCourseMetadata).toEqual(expectedValue);
+  });
+  it('fallsback to activeCourseRun if no course run key matches', () => {
+    const minimalCourseMetadata = transformedCourseMetadata({
+      transformed,
+      coursePrice,
+      courseRunKey: mockActiveCourseRunKey,
+      currency: mockCurrency,
+    });
+    const updatedExpectedValue = {
+      ...expectedValue,
+      startDate: mockActiveCourseRunStartDate,
+      duration: '16 Weeks',
+    };
+    expect(minimalCourseMetadata).toEqual(updatedExpectedValue);
+  });
+  it.each([
+    {
+      organizationShortCodeOverride: null,
+      organizationLogoOverrideUrl: null,
+      owners: [{
+        name: mockOrgName,
+        marketingUrl: mockOrgMarketingUrl,
+        logoImageUrl: mockLogoImageUrl,
+        uuid: 'test-uuid',
+        key: 'test-key',
+      }],
+      organization: {
+        logoImgUrl: 'https://fake-logo.url',
+        marketingUrl: 'https://fake-mktg.url',
+        name: 'Fake Org Name',
+      },
+    },
+    {
+      organizationShortCodeOverride: 'test-short-code-override',
+      organizationLogoOverrideUrl: 'test-logo-override',
+      owners: [{
+        name: mockOrgName,
+        marketingUrl: mockOrgMarketingUrl,
+        logoImageUrl: mockLogoImageUrl,
+        uuid: 'test-uuid',
+        key: 'test-key',
+      }],
+      organization: {
+        logoImgUrl: 'test-logo-override',
+        marketingUrl: 'https://fake-mktg.url',
+        name: 'test-short-code-override',
+      },
+    },
+  ])('handles organizations correctly when values are %s', ({
+    organizationShortCodeOverride,
+    organizationLogoOverrideUrl,
+    owners,
+    organization,
+  }) => {
+    const updatedTransformedData = {
+      ...transformed,
+      organizationLogoOverrideUrl,
+      organizationShortCodeOverride,
+      owners,
+    };
+    const minimalCourseMetadata = transformedCourseMetadata({
+      transformed: updatedTransformedData,
+      coursePrice,
+      courseRunKey: mockCourseRunKey,
+      currency: mockCurrency,
+    });
+    expect(minimalCourseMetadata.organization).toEqual(organization);
+  });
+  it.each([{
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: mockWeeksToComplete,
+      start: mockCourseRunStartDate,
+    }],
+    duration: '8 Weeks',
+  },
+  {
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: 1,
+      start: mockCourseRunStartDate,
+    }],
+    duration: '1 Week',
+  },
+  {
+    courseRuns: [],
+    duration: '-',
+  },
+  ])('handles duration correctly when values are %s', ({
+    courseRuns,
+    duration,
+  }) => {
+    const updatedTransformed = { ...transformed, courseRuns };
+    if (courseRuns.length === 0) {
+      updatedTransformed.activeCourseRun = null;
+    }
+    const minimalCourseMetadata = transformedCourseMetadata({
+      transformed: updatedTransformed,
+      coursePrice,
+      courseRunKey: mockCourseRunKey,
+      currency: mockCurrency,
+    });
+    expect(minimalCourseMetadata.duration).toEqual(duration);
   });
 });

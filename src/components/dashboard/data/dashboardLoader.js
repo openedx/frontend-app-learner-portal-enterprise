@@ -1,6 +1,6 @@
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import {
-  extractEnterpriseId,
+  extractEnterpriseCustomer,
   queryEnterpriseCourseEnrollments,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
@@ -22,16 +22,16 @@ export default function makeDashboardLoader(queryClient) {
     }
 
     const { enterpriseSlug } = params;
-    const enterpriseId = await extractEnterpriseId({
+    const enterpriseCustomer = await extractEnterpriseCustomer({
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
     await Promise.all([
-      queryClient.ensureQueryData(queryEnterpriseGroupMemberships(enterpriseId, authenticatedUser.email)),
-      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
-      queryClient.ensureQueryData(queryEnterpriseProgramsList(enterpriseId)),
-      queryClient.ensureQueryData(queryEnterprisePathwaysList(enterpriseId)),
+      queryClient.ensureQueryData(queryEnterpriseGroupMemberships(enterpriseCustomer.uuid, authenticatedUser.email)),
+      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
+      queryClient.ensureQueryData(queryEnterpriseProgramsList(enterpriseCustomer.uuid)),
+      queryClient.ensureQueryData(queryEnterprisePathwaysList(enterpriseCustomer.uuid)),
     ]);
 
     return null;

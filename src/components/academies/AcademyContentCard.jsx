@@ -11,10 +11,12 @@ import PropTypes from 'prop-types';
 import { LEARNING_TYPE_COURSE, LEARNING_TYPE_EXECUTIVE_EDUCATION, LEARNING_TYPE_PATHWAY } from '@edx/frontend-enterprise-catalog-search/data/constants';
 import SearchCourseCard from '../search/SearchCourseCard';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
+import { useEnterpriseCustomer } from '../app/data';
 
 const AcademyContentCard = ({
   courseIndex, academyUUID, academyTitle, academyURL, tags,
 }) => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [isAlgoliaLoading, setIsAlgoliaLoading] = useState(true);
   const [courses, setCourses] = useState([]);
   const [showAllExecEdCourses, setShowAllExecEdCourses] = useState(false);
@@ -29,45 +31,26 @@ const AcademyContentCard = ({
 
   useEffect(
     () => {
-      function contentIntersect(academyContent, tagContent) {
-        const intersect = [];
-        tagContent.forEach((content) => {
-          if (academyContent.some(o => o.aggregation_key === content.aggregation_key)) {
-            intersect.push(content);
-          }
-        });
-        return intersect;
-      }
       async function fetchCourses() {
         setIsAlgoliaLoading(true);
-
-        const { hits: academyHits, nbHits: nbAcademyHits } = await courseIndex.search('', {
-          filters: `(content_type:course OR content_type:learnerpathway) AND academy_uuids:${academyUUID}`, // eslint-disable-line object-shorthand
+        const searchFacetFilters = selectedTag ? [
+          ['content_type:course', 'content_type:learnerpathway'],
+          `academy_uuids:${academyUUID}`,
+          `enterprise_customer_uuids:${enterpriseCustomer.uuid}`,
+          `academy_tags:${selectedTag}`,
+        ] : [
+          ['content_type:course', 'content_type:learnerpathway'],
+          `academy_uuids:${academyUUID}`,
+          `enterprise_customer_uuids:${enterpriseCustomer.uuid}`,
+        ];
+        const { hits, nbHits } = await courseIndex.search('', {
+          facetFilters: searchFacetFilters,
           hitsPerPage: 100,
           page: 0,
         });
-        let tagHits;
-        let nbTagHits;
-        if (selectedTag) {
-          const response = await courseIndex.search('', {
-            facetFilters: [['content_type:course', 'content_type:learnerpathway'], `academy_tags:${selectedTag}`],
-          });
-          ({ hits: tagHits, nbHits: nbTagHits } = response);
-        }
-
-        if (nbAcademyHits > 0) {
-          let allHits;
-          const academyHitsCamelCased = camelCaseObject(academyHits);
-          if (nbTagHits > 0) {
-            const tagHitsCamelCased = camelCaseObject(tagHits);
-            allHits = contentIntersect(academyHitsCamelCased, tagHitsCamelCased);
-          } else if (nbTagHits === 0) {
-            allHits = [];
-          } else {
-            allHits = academyHitsCamelCased;
-          }
-
-          setCourses(allHits);
+        if (nbHits > 0) {
+          const hitsCamelCased = camelCaseObject(hits);
+          setCourses(hitsCamelCased);
           setIsAlgoliaLoading(false);
         } else {
           setIsAlgoliaLoading(false);
@@ -75,7 +58,7 @@ const AcademyContentCard = ({
       }
       fetchCourses();
     },
-    [courseIndex, academyUUID, selectedTag],
+    [courseIndex, academyUUID, selectedTag, enterpriseCustomer],
   );
 
   courses.forEach(course => {
@@ -109,6 +92,27 @@ const AcademyContentCard = ({
     }
     return showAllOcmCourses;
   };
+
+  const toggleButtonText = (showMoreBtnEnabled, contentType, title, contentLength) => {
+    let defaultMessage;
+
+    if (showMoreBtnEnabled) {
+      defaultMessage = title === 'Self-paced courses'
+        ? '< Show less {title}'
+        : '< Show less {title} courses';
+    } else {
+      defaultMessage = title === 'Self-paced courses'
+        ? 'Show more {title} ({contentLength}) >'
+        : 'Show more {title} courses ({contentLength}) >';
+    }
+
+    return intl.formatMessage({
+      id: 'academy.detail.page.show.more.toggle.button.text',
+      defaultMessage,
+      description: 'Text for the show more/show less toggle button on academy detail page.',
+    }, { title, contentLength });
+  };
+
   const renderableContent = ({
     content,
     contentLength,
@@ -125,8 +129,8 @@ const AcademyContentCard = ({
 
     return (
       <div className={additionalClass}>
-        <div className="d-flex flex-row align-items-center justify-content-between">
-          <h3 data-testid={titleTestId}>{title}</h3>
+        <div className="d-flex flex-row align-items-center justify-content-between mt-5">
+          <h3 data-testid={titleTestId} className="font-weight-normal">{title}</h3>
           {contentType !== LEARNING_TYPE_PATHWAY && contentLength > 4 && (
             <Button
               className=""
@@ -134,7 +138,7 @@ const AcademyContentCard = ({
               size="xl"
               onClick={toggleShowMore(contentType)}
             >
-              {showMoreButton(contentType) ? '< Show Less' : `Show More (${contentLength}) >`}
+              { toggleButtonText(showMoreButton(contentType), contentType, title, contentLength) }
             </Button>
           )}
         </div>

@@ -28,7 +28,6 @@ import { determineEnrollmentType } from '../../enrollment/utils';
 import {
   COURSE_AVAILABILITY_MAP,
   isArchived,
-  useCourseMetadata,
   useEnterpriseCustomer,
   useSubscriptions,
 } from '../../../app/data';
@@ -59,13 +58,11 @@ const CourseRunCard = ({
     defaultMessage: 'Enroll',
     description: 'Default button label for enrolling in a course run.',
   });
-
   const location = useLocation();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: courseMetadata } = useCourseMetadata();
   const userCanRequestSubsidyForCourse = useCanUserRequestSubsidyForCourse();
 
-  const courseStartDate = getCourseStartDate({ contentMetadata: courseMetadata, courseRun });
+  const courseStartDate = getCourseStartDate({ courseRun });
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(courseStartDate),

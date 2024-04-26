@@ -590,7 +590,6 @@ export const getMissingApplicableSubsidyReason = ({
   if (hasEnterpriseAdminUsers) {
     reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
   }
-
   const couponCodesDisabledEnrollmentReasonType = getCouponCodesDisabledEnrollmentReasonType({
     catalogsWithCourse,
     couponCodes,
@@ -878,28 +877,17 @@ export const getCourseOrganizationDetails = (courseData) => {
 };
 
 /**
- * Determines the start date for the the course run, pulling the appropriate date
- * from either `contentMetadata.additionalMetadata.startDate` or `courseRun.start`
- * based on the course type configuration.
+ * Determines the start date for the the course run, pulling ONLY from the metadata of the run.
+ *
+ * Historically, for some course types we would derive certain fields from `contentMetadata.additionalMetadata`, but now
+ * that additionalMetadata is being phased out we only read from course run metadata.
  *
  * @param {Object} args
- * @param {Object} args.contentMetadata
  * @param {Object} args.courseRun
  *
  * @returns {string|undefined} Formatted date if a start date was found; otherwise, undefined.
  */
-export const getCourseStartDate = ({ contentMetadata, courseRun }) => {
-  let startDate;
-  const courseTypeConfig = contentMetadata && getCourseTypeConfig(contentMetadata);
-
-  if (courseTypeConfig?.usesAdditionalMetadata && contentMetadata?.additionalMetadata) {
-    startDate = contentMetadata.additionalMetadata.startDate;
-  } else {
-    startDate = courseRun?.start;
-  }
-
-  return startDate;
-};
+export const getCourseStartDate = ({ courseRun }) => courseRun?.start;
 
 export function processCourseSubjects(course) {
   const config = getConfig();
@@ -913,4 +901,37 @@ export function processCourseSubjects(course) {
       url: `${config.MARKETING_SITE_BASE_URL}/course/subject/${course.subjects[0].slug}`,
     },
   };
+}
+
+export function transformedCourseMetadata({
+  transformed, coursePrice, currency, courseRunKey,
+}) {
+  const { activeCourseRun, courseRuns } = transformed;
+  const courseRun = courseRuns.find(run => run.key === courseRunKey) || activeCourseRun;
+  const organizationDetails = getCourseOrganizationDetails(transformed);
+  const getDuration = () => {
+    if (!courseRun) {
+      return '-';
+    }
+    let duration = `${courseRun.weeksToComplete} Week`;
+    if (courseRun.weeksToComplete > 1) {
+      duration += 's';
+    }
+    return duration;
+  };
+  const minimalCourseMetadata = {
+    organization: {
+      logoImgUrl: organizationDetails.organizationLogo,
+      name: organizationDetails.organizationName,
+      marketingUrl: organizationDetails.organizationMarketingUrl,
+    },
+    title: transformed.title,
+    startDate: getCourseStartDate({ courseRun }),
+    duration: getDuration(),
+    priceDetails: {
+      price: coursePrice.list,
+      currency,
+    },
+  };
+  return minimalCourseMetadata;
 }

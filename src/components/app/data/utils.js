@@ -217,7 +217,7 @@ export function getAssignmentsByState(assignments = []) {
 export function transformEnterpriseCustomer(enterpriseCustomer) {
   // If the learner portal is not enabled for the displayed enterprise customer, return null. This
   // results in the enterprise learner portal not being accessible for the user, showing a 404 page.
-  if (!enterpriseCustomer.enableLearnerPortal) {
+  if (!enterpriseCustomer?.enableLearnerPortal) {
     return undefined;
   }
 
@@ -489,6 +489,8 @@ export function getCatalogsForSubsidyRequests({
     return catalogs;
   }
   if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE && customerAgreement) {
+    // availableSubscriptionCatalogs only contains the unique catalogs
+    // across all subscription plans for an enterprise customer
     const catalogsFromSubscriptions = customerAgreement.availableSubscriptionCatalogs;
     catalogs.push(...catalogsFromSubscriptions);
   }
@@ -496,6 +498,7 @@ export function getCatalogsForSubsidyRequests({
     const catalogsFromCoupons = couponsOverview
       .filter(coupon => !!coupon.available)
       .map(coupon => coupon.enterpriseCatalogUuid);
+    // catalogs from coupons may be duplicative, so pushing a Set of catalogs is necessary here
     catalogs.push(...new Set(catalogsFromCoupons));
   }
   return catalogs;
@@ -515,7 +518,7 @@ export function getSearchCatalogs({
   // enterprise offers, or subscription plan associated with learner's license.
   redeemablePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
 
-  if (subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
+  if (subscriptionLicense?.subscriptionPlan.isCurrent && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
     catalogUUIDs.add(subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid);
   }
   if (features.ENROLL_WITH_CODES) {

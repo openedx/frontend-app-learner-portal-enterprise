@@ -1,6 +1,5 @@
-import React from 'react';
 import {
-  act, render, screen, waitFor,
+  act, screen, waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
@@ -12,24 +11,25 @@ import dayjs from 'dayjs';
 import MockDate from 'mockdate';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 import UserEnrollmentForm from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
-import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { CourseContext } from '../course/CourseContextProvider';
-import { useEnterpriseCustomer } from '../app/data';
+import { useCourseMetadata, useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
+import { renderWithRouter } from '../../utils/tests';
+import { LEARNER_CREDIT_SUBSIDY_TYPE, useUserSubsidyApplicableToCourse } from '../course/data';
 
 const termsLabelText = "I agree to GetSmarter's Terms and Conditions for Students";
 const termsAndConsitionCTA = 'Terms and Conditions';
 const dataSharingConsentLabelText = 'I have read and accepted GetSmarter\'s data sharing consent';
 
-const mockEnterpriseId = 'test-enterprise-id';
 const mockFirstName = 'John';
 const mockLastName = 'Doe';
 const mockDateOfBirth = '1993-06-10';
 const mockProductSKU = 'ABC123';
-const mockOnCheckoutSuccess = jest.fn();
+const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
 
 jest.mock('@edx/frontend-platform/logging', () => ({
   ...jest.requireActual('@edx/frontend-platform/logging'),
@@ -51,6 +51,18 @@ jest.mock('../stateful-enroll/data', () => ({
 jest.mock('../app/data', () => ({
   ...jest.requireActual('../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
+  useCourseMetadata: jest.fn(),
+}));
+
+jest.mock('../course/data', () => ({
+  ...jest.requireActual('../course/data'),
+  useUserSubsidyApplicableToCourse: jest.fn(),
+}));
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory({
@@ -61,26 +73,29 @@ const mockEnterpriseCustomerWithDisabledDataSharingConsent = enterpriseCustomerF
   enable_executive_education_2u_fulfillment: true,
   enable_data_sharing_consent: false,
 });
+
+const mockEnterpriseCourseEnrollmentsState = {
+  enterpriseCourseEnrollments: [],
+  allEnrollmentsByStatus: {
+    inProgress: [],
+    upcoming: [],
+    completed: [],
+    savedForLater: [],
+    requested: [],
+    assigned: [],
+  },
+};
+
 const mockAuthenticatedUser = authenticatedUserFactory();
 
 const initialAppContextValue = {
   authenticatedUser: mockAuthenticatedUser,
 };
 
-const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
-const mockUserSubsidyApplicableToCourse = {
-  subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-};
-
 const queryClient = new QueryClient();
 
 const UserEnrollmentFormWrapper = ({
   appContextValue = initialAppContextValue,
-  enterpriseId = mockEnterpriseId,
-  productSKU = mockProductSKU,
-  onCheckoutSuccess = mockOnCheckoutSuccess,
-  courseRunKey = mockCourseRunKey,
-  userSubsidyApplicableToCourse = mockUserSubsidyApplicableToCourse,
   courseContextValue = {
     state: {
       userEnrollments: [],
@@ -93,13 +108,7 @@ const UserEnrollmentFormWrapper = ({
     <QueryClientProvider client={queryClient}>
       <AppContext.Provider value={appContextValue}>
         <CourseContext.Provider value={courseContextValue}>
-          <UserEnrollmentForm
-            enterpriseId={enterpriseId}
-            productSKU={productSKU}
-            onCheckoutSuccess={onCheckoutSuccess}
-            courseRunKey={courseRunKey}
-            userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-          />
+          <UserEnrollmentForm />
         </CourseContext.Provider>
       </AppContext.Provider>
     </QueryClientProvider>
@@ -110,6 +119,15 @@ describe('UserEnrollmentForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: mockEnterpriseCourseEnrollmentsState,
+    });
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: {},
+      missingUserSubsidyReason: undefined,
+    });
+    useCourseMetadata.mockReturnValue({ data: {} });
+    useParams.mockReturnValue({ courseRunKey: mockCourseRunKey });
   });
 
   afterEach(() => {
@@ -117,7 +135,7 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('has course enrollment information section and handles validation', async () => {
-    render(<UserEnrollmentFormWrapper />);
+    renderWithRouter(<UserEnrollmentFormWrapper />);
     expect(screen.getByText('Course enrollment information')).toBeInTheDocument();
 
     // form fields
@@ -152,7 +170,7 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('has terms and conditions checkbox', async () => {
-    render(<UserEnrollmentFormWrapper />);
+    renderWithRouter(<UserEnrollmentFormWrapper />);
 
     // form fields
     expect(screen.getByLabelText(termsLabelText)).toBeInTheDocument();
@@ -169,7 +187,7 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('has data sharing consent checkbox', async () => {
-    render(<UserEnrollmentFormWrapper />);
+    renderWithRouter(<UserEnrollmentFormWrapper />);
 
     // form fields
     expect(screen.getByLabelText(dataSharingConsentLabelText)).toBeInTheDocument();
@@ -187,7 +205,7 @@ describe('UserEnrollmentForm', () => {
 
   it('does not have data sharing consent checkbox if data sharing consent is disabled', async () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledDataSharingConsent });
-    render(<UserEnrollmentFormWrapper />);
+    renderWithRouter(<UserEnrollmentFormWrapper />);
 
     // form fields
     await waitFor(() => {
@@ -206,13 +224,19 @@ describe('UserEnrollmentForm', () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     MockDate.set(mockTermsAcceptedAt);
 
-    render(<UserEnrollmentFormWrapper />);
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: {
+        subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+      },
+    });
+    renderWithRouter(<UserEnrollmentFormWrapper />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
     userEvent.click(screen.getByLabelText(termsLabelText));
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
     userEvent.click(screen.getByText('Confirm registration'));
+
     await waitFor(() => {
       expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
     });
@@ -243,20 +267,20 @@ describe('UserEnrollmentForm', () => {
     });
 
     // disabled after submitting
-    expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
-
-    await waitFor(() => {
-      expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
-      expect(mockOnCheckoutSuccess).toHaveBeenCalledWith(newTransaction);
-    });
+    await waitFor(() => expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true'));
   });
 
   it('handles successful form submission with data sharing consent disabled', async () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     MockDate.set(mockTermsAcceptedAt);
 
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: {
+        subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+      },
+    });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledDataSharingConsent });
-    render(<UserEnrollmentFormWrapper />);
+    renderWithRouter(<UserEnrollmentFormWrapper />);
 
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
@@ -286,18 +310,13 @@ describe('UserEnrollmentForm', () => {
     act(() => {
       useStatefulEnroll.mock.calls[0][0].onSuccess(newTransaction);
     });
-
-    await waitFor(() => {
-      expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
-      expect(mockOnCheckoutSuccess).toHaveBeenCalledWith(newTransaction);
-    });
   });
 
   it('handles age related errors during form submission', async () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     MockDate.set(mockTermsAcceptedAt);
 
-    render(<UserEnrollmentFormWrapper />);
+    renderWithRouter(<UserEnrollmentFormWrapper />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     // Set this year as date of birthday, so user is marked as less than 18 years old.
@@ -314,7 +333,6 @@ describe('UserEnrollmentForm', () => {
       expect(screen.getByText(invalidAgeErrorMessage, { exact: false })).toBeInTheDocument();
       expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(0);
     });
-    expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(0);
   });
 
   it('handles network error with form submission', async () => {
@@ -322,7 +340,7 @@ describe('UserEnrollmentForm', () => {
     MockDate.set(new Date());
     const mockFormSubmissionValue = { message: 'oh noes' };
 
-    render(<UserEnrollmentFormWrapper
+    renderWithRouter(<UserEnrollmentFormWrapper
       courseContextValue={{
         state: {
           userEnrollments: [],
@@ -376,10 +394,8 @@ describe('UserEnrollmentForm', () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     MockDate.set(mockTermsAcceptedAt);
 
-    const userSubsidyApplicableToCourse = {
-      subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
-    };
-    render(<UserEnrollmentFormWrapper userSubsidyApplicableToCourse={userSubsidyApplicableToCourse} />);
+    useCourseMetadata.mockReturnValue({ data: { courseEntitlementProductSku: mockProductSKU } });
+    renderWithRouter(<UserEnrollmentFormWrapper />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
@@ -411,7 +427,6 @@ describe('UserEnrollmentForm', () => {
     await waitFor(() => {
       expect(logInfo).toHaveBeenCalledTimes(1);
       expect(logInfo).toHaveBeenCalledWith(`${mockEnterpriseCustomer.uuid} user ${mockAuthenticatedUser.userId} has already purchased course ABC123.`);
-      expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
     });
 
     // disabled after submitting
@@ -422,7 +437,7 @@ describe('UserEnrollmentForm', () => {
     const mockError = new Error('duplicate order');
     MockDate.set(new Date());
     const mockFormSubmissionValue = { message: 'duplicate order' };
-    render(<UserEnrollmentFormWrapper
+    renderWithRouter(<UserEnrollmentFormWrapper
       courseContextValue={{
         state: {
           userEnrollments: [],

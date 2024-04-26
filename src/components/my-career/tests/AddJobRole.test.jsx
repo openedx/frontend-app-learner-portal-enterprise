@@ -3,12 +3,17 @@ import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 import { renderWithRouter } from '../../../utils/tests';
 import AddJobRole from '../AddJobRole';
-import { SUBSIDY_TYPE } from '../../../constants';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
+}));
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -31,53 +36,39 @@ jest.mock('react-router-dom', () => ({
 // eslint-disable-next-line no-console
 console.error = jest.fn();
 
-const defaultAppState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise',
-  },
-};
+const mockAuthenticatedUser = authenticatedUserFactory();
 
-const defaultSubsidyRequestState = {
-  subsidyRequestConfiguration: null,
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
-};
-
-const expiringSubscriptionUserSubsidyState = {
-  subsidyRequestConfiguration: null,
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
-  subscriptionPlan: {
-    daysUntilExpiration: 60,
-  },
-  showExpirationNotifications: false,
-};
-
-const AddJobRoleWithContext = ({
-  initialAppState = defaultAppState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
-  initialUserSubsidyState = expiringSubscriptionUserSubsidyState,
-}) => (
+const AddJobRoleWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <AddJobRole />
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+      <AddJobRole submitClickHandler={() => jest.fn()} />
     </AppContext.Provider>
   </IntlProvider>
 );
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 describe('<AddJobRole />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: {
+        allEnrollmentsByStatus: {
+          inProgress: [{
+            courseRunId: 'edx+Demo',
+          }],
+          upcoming: [],
+          completed: [],
+          savedForLater: [],
+          requested: [],
+          assigned: [],
+        },
+      },
+    });
+  });
   it('renders the AddJobRole component', () => {
-    renderWithRouter(<AddJobRoleWithContext />);
+    renderWithRouter(<AddJobRoleWrapper />);
     expect(screen.getAllByText('Add Role')).toBeTruthy();
   });
 });

@@ -1,38 +1,18 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { getConfig } from '@edx/frontend-platform';
 
 import ExternalCourseEnrollmentConfirmation from '../ExternalCourseEnrollmentConfirmation';
-import { CourseContext } from '../../CourseContextProvider';
-import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
-import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
+import { DISABLED_ENROLL_REASON_TYPES } from '../../data/constants';
+import { useExternalEnrollmentFailureReason, useMinimalCourseMetadata } from '../../data';
+import { renderWithRouterProvider } from '../../../../utils/tests';
+import { useEnterpriseCustomer } from '../../../app/data';
 import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
-jest.mock('@edx/frontend-platform/config', () => ({
-  ...jest.requireActual('@edx/frontend-platform/config'),
-  getConfig: jest.fn().mockReturnValue({
-    GETSMARTER_LEARNER_DASHBOARD_URL: 'https://test.org/dashboard',
-    GETSMARTER_STUDENT_TC_URL: 'https://test.org/terms',
-  }),
-}));
-
-jest.mock('../../data/hooks', () => ({
-  ...jest.requireActual('../../data/hooks'),
-  useMinimalCourseMetadata: () => ({
-    organization: {
-      logoImgUrl: 'https://test.org/logo.png',
-      name: 'Test Org',
-      marketingUrl: 'https://test.org',
-    },
-    title: 'Test Course Title',
-    startDate: '2023-03-05',
-    duration: '3 Weeks',
-    priceDetails: {
-      price: 100,
-      currency: 'USD',
-    },
-  }),
+jest.mock('@edx/frontend-platform', () => ({
+  ...jest.requireActual('@edx/frontend-platform'),
+  getConfig: jest.fn(),
 }));
 
 jest.mock('../../../app/data', () => ({
@@ -40,53 +20,56 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const baseCourseContextValue = {
-  state: {
-    courseEntitlementProductSku: 'test-sku',
-    activeCourseRun: {
-      weeksToComplete: 8,
-    },
-    course: {
-      organizationShortCodeOverride: 'Test Org',
-      organizationLogoOverrideUrl: 'https://test.org/logo.png',
-    },
-  },
-  userSubsidyApplicableToCourse: { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },
-  missingUserSubsidyReason: undefined,
-};
+jest.mock('../../data', () => ({
+  ...jest.requireActual('../../data'),
+  useExternalEnrollmentFailureReason: jest.fn(),
+  useMinimalCourseMetadata: jest.fn(),
+}));
 
-const mockEnterpriseCustomer = enterpriseCustomerFactory();
-
-const baseUserSubsidyContextValue = {
-  subscriptionLicense: null,
-  couponCodes: {
-    couponCodes: [{ discountValue: 90 }],
-    couponCodesCount: 0,
-  },
-  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
-};
-
-const ExternalCourseEnrollmentConfirmationWrapper = ({
-  courseContextValue = baseCourseContextValue,
-  initialUserSubsidyState = baseUserSubsidyContextValue,
-}) => (
+const ExternalCourseEnrollmentConfirmationWrapper = () => (
   <IntlProvider locale="en">
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <CourseContext.Provider value={courseContextValue}>
-        <ExternalCourseEnrollmentConfirmation />
-      </CourseContext.Provider>
-    </UserSubsidyContext.Provider>
+    <ExternalCourseEnrollmentConfirmation />
   </IntlProvider>
 );
 
-describe('ExternalCourseEnrollment', () => {
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
+describe('ExternalCourseEnrollmentConfirmation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    getConfig.mockReturnValue({
+      GETSMARTER_STUDENT_TC_URL: 'https://example.com/terms',
+    });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useExternalEnrollmentFailureReason.mockReturnValue({
+      failureReason: undefined,
+      failureMessage: undefined,
+    });
+    useMinimalCourseMetadata.mockReturnValue({
+      data: {
+        title: 'Test Course Title',
+        organization: {
+          name: 'Test Org',
+          marketingUrl: 'https://example.com',
+          logoImgUrl: 'https://example.com/logo.png',
+        },
+        priceDetails: {
+          price: 100,
+          currency: 'USD',
+        },
+        startDate: '2023-03-05T12:00:00Z',
+        duration: '3 Weeks',
+      },
+    });
   });
 
   it('renders', () => {
-    render(<ExternalCourseEnrollmentConfirmationWrapper />);
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug',
+      element: <ExternalCourseEnrollmentConfirmationWrapper />,
+    }, {
+      initialEntries: ['/test-enterprise'],
+    });
     expect(screen.getByText('Congratulations, you have completed your enrollment for your online course')).toBeInTheDocument();
     expect(screen.getByText('Test Course Title')).toBeInTheDocument();
     expect(screen.getByText('Test Org')).toBeInTheDocument();
@@ -102,37 +85,20 @@ describe('ExternalCourseEnrollment', () => {
   });
 
   it('handles failure reason', () => {
-    const courseContextValue = {
-      ...baseCourseContextValue,
-      userSubsidyApplicableToCourse: undefined,
-      missingUserSubsidyReason: { reason: DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS },
-    };
-    render(<ExternalCourseEnrollmentConfirmationWrapper courseContextValue={courseContextValue} />);
+    useExternalEnrollmentFailureReason.mockReturnValue({
+      failureReason: DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS,
+      failureMessage: 'No learner credit is available to cover this course.',
+    });
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug',
+      element: <ExternalCourseEnrollmentConfirmationWrapper />,
+    }, {
+      initialEntries: ['/test-enterprise'],
+    });
     expect(screen.queryByText('Congratulations, you have completed your enrollment for your online course')).not.toBeInTheDocument();
     expect(screen.queryByText('Test Course Title')).not.toBeInTheDocument();
     expect(screen.getByText("We're sorry.")).toBeInTheDocument();
     expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
     expect(screen.getByText('No learner credit is available to cover this course.'));
-  });
-
-  it('handles successful prior redemption', () => {
-    const courseContextValue = {
-      ...baseCourseContextValue,
-      userSubsidyApplicableToCourse: undefined,
-      hasSuccessfulRedemption: true,
-      missingUserSubsidyReason: { reason: DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS },
-    };
-    render(<ExternalCourseEnrollmentConfirmationWrapper courseContextValue={courseContextValue} />);
-    expect(screen.getByText('Congratulations, you have completed your enrollment for your online course')).toBeInTheDocument();
-    expect(screen.getByText('Test Course Title')).toBeInTheDocument();
-    expect(screen.getByText('Test Org')).toBeInTheDocument();
-    expect(screen.getByText('Start date:')).toBeInTheDocument();
-    expect(screen.getByText('Mar 5, 2023')).toBeInTheDocument();
-    expect(screen.getByText('Course duration:')).toBeInTheDocument();
-    expect(screen.getByText('3 Weeks')).toBeInTheDocument();
-    expect(screen.getByText('Course total:')).toBeInTheDocument();
-    expect(screen.getByText('$100.00 USD')).toBeInTheDocument();
-    expect(screen.getByText('What happens next?')).toBeInTheDocument();
-    expect(screen.getByText('Terms and Conditions')).toBeInTheDocument();
   });
 });

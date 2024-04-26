@@ -18,3 +18,69 @@
   padding: 0px;
   text-decoration: underline !important;
 }
+
+.pathway-section {
+  background: {
+    image: url('../../../assets/images/academies/academy-pathwaya-section.png');
+  }
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
+  margin-left: 0px;
+  margin-right: 0px;
+
+  .inner-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .eyebrow {
+    font-size: 22px;
+    color: white;
+    font-family: 'Roboto Mono';
+    line-height: 36px;
+    margin: 0px;
+  }
+
+  .pathway-title {
+    color: white;
+    margin-bottom: 2rem;
+
+    opacity: 0px;
+    font-family: Inter;
+    font-size: 60px;
+    font-weight: 900;
+    text-align: left;
+    display: flex;
+    line-height: 1;
+  }
+
+  .pathway-description {
+    color: white;
+  }
+
+  .launch-btn {
+    font-size: 32px;
+    font-weight: bold;
+    color: #002B2B;
+    background-color: #82E0C1;
+    font-family: Inter;
+    border: none;
+    width: Hug (298px);
+    height: Fixed (77px);
+    padding: 10px 16px 10px 16px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #55cca4;
+    }
+  }
+}
+
+.academy-title {
+  font-size: 55px;
+  line-height: 60px;
+  letter-spacing: -0.02em;
+}

@@ -7,8 +7,6 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { CourseContext } from '../CourseContextProvider';
-
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
 
@@ -19,12 +17,12 @@ import {
   findEnterpriseOfferForCourse,
   getCourseOrganizationDetails,
   getCoursePrice,
-  getCourseStartDate,
   getCourseTypeConfig,
   getMissingApplicableSubsidyReason,
   getSubsidyToApplyForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
+  transformedCourseMetadata,
 } from './utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -54,6 +52,7 @@ import {
   useCatalogsForSubsidyRequests,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { CourseContext } from '../CourseContextProvider';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -444,7 +443,7 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
  * @returns Click handler function for clicks on enrollment buttons.
  */
 export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, userEnrollments }) => {
-  const hasNoExistingEnrollments = userEnrollments?.length === 0 || true;
+  const hasNoExistingEnrollments = !userEnrollments || userEnrollments.length === 0;
   const handleClick = useCallback(
     (e) => {
       // If tracking is on a link with an external href destination, we must intentionally delay the default click
@@ -489,7 +488,6 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
       },
     },
   } = useBrowseAndRequest();
-
   if (!browseAndRequestConfiguration?.subsidyRequestsEnabled) {
     return false;
   }
@@ -510,8 +508,9 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
 
 export function useCourseListPrice() {
   const { data: { listPrice } } = useCourseRedemptionEligibility();
+  const resolveListPrice = ({ transformed }) => listPrice || getCoursePrice(transformed);
   return useCourseMetadata({
-    select: ({ transformed }) => listPrice || getCoursePrice(transformed),
+    select: resolveListPrice,
   });
 }
 
@@ -529,16 +528,17 @@ export function useCourseListPrice() {
  */
 export const useUserSubsidyApplicableToCourse = () => {
   const { courseKey } = useParams();
+  const resolvedTransformedEnterpriseCustomerData = ({ transformed }) => ({
+    fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
+    contactEmail: transformed.contactEmail,
+  });
   const {
     data: {
       fallbackAdminUsers,
       contactEmail,
     },
   } = useEnterpriseCustomer({
-    select: ({ transformed }) => ({
-      fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
-      contactEmail: transformed.contactEmail,
-    }),
+    select: resolvedTransformedEnterpriseCustomerData,
   });
   const { data: courseListPrice } = useCourseListPrice();
   const {
@@ -554,7 +554,12 @@ export const useUserSubsidyApplicableToCourse = () => {
       catalogList: catalogsWithCourse,
     },
   } = useEnterpriseCustomerContainsContent([courseKey]);
-  const { data: { currentEnterpriseOffers } } = useEnterpriseOffers();
+  const {
+    data: {
+      enterpriseOffers,
+      currentEnterpriseOffers,
+    },
+  } = useEnterpriseOffers();
   const {
     data: {
       isPolicyRedemptionEnabled,
@@ -599,7 +604,7 @@ export const useUserSubsidyApplicableToCourse = () => {
       subscriptionLicense,
       containsContentItems,
       missingSubsidyAccessPolicyReason,
-      enterpriseOffers: currentEnterpriseOffers,
+      enterpriseOffers,
     });
   }
 
@@ -652,38 +657,24 @@ export function useCanUserRequestSubsidyForCourse() {
   });
 }
 
+/**
+ * Use "minimal" metadata about a specific course run.
+ *
+ * The run is determined by first checking the URL Param "courseRunKey", then falling back to the "active" run.
+ *
+ * @returns {Object} - The minimal metadata object about the course run.
+ */
 export function useMinimalCourseMetadata() {
+  const { courseRunKey } = useParams();
   const { coursePrice, currency } = useCoursePrice();
+  const courseMetadataTransformer = ({ transformed }) => transformedCourseMetadata({
+    transformed,
+    coursePrice,
+    courseRunKey,
+    currency,
+  });
   return useCourseMetadata({
-    select: ({ transformed }) => {
-      const { activeCourseRun } = transformed;
-      const organizationDetails = getCourseOrganizationDetails(transformed);
-      const getDuration = () => {
-        if (!activeCourseRun) {
-          return '-';
-        }
-        let duration = `${activeCourseRun.weeksToComplete} Week`;
-        if (activeCourseRun.weeksToComplete > 1) {
-          duration += 's';
-        }
-        return duration;
-      };
-      const minimalCourseMetadata = {
-        organization: {
-          logoImgUrl: organizationDetails.organizationLogo,
-          name: organizationDetails.organizationName,
-          marketingUrl: organizationDetails.organizationMarketingUrl,
-        },
-        title: transformed.title,
-        startDate: getCourseStartDate({ contentMetadata: transformed, courseRun: activeCourseRun }),
-        duration: getDuration(),
-        priceDetails: {
-          price: coursePrice.list,
-          currency,
-        },
-      };
-      return minimalCourseMetadata;
-    },
+    select: courseMetadataTransformer,
   });
 }
 

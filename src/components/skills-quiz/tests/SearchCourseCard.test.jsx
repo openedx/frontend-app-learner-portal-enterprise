@@ -20,8 +20,8 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-jest.mock('../../search', () => ({
-  ...jest.requireActual('../../search'),
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
   useDefaultSearchFilters: jest.fn(),
   useEnterpriseCustomer: jest.fn(),
 }));

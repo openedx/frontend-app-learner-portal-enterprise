@@ -26,6 +26,7 @@ const CourseRunCards = () => {
   const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
   const { data: userEntitlements } = useUserEntitlements();
+
   return (
     <CardGrid
       columnSizes={{ xs: 12, md: 6, lg: 5 }}

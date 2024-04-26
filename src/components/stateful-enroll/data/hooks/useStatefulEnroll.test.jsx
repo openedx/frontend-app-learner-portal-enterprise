@@ -1,13 +1,30 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { useMutation, useQuery } from '@tanstack/react-query';
-
 import { AppContext } from '@edx/frontend-platform/react';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+
 import useStatefulEnroll from './useStatefulEnroll';
 import * as hooks from '../../../course/data/hooks';
 import { EVENT_NAMES } from '../../../course/data/constants';
 
-import { retrieveTransactionStatus, submitRedemptionRequest } from '../service';
-import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
+import { submitRedemptionRequest } from '../service';
+import { queryPolicyTransaction, useEnterpriseCustomer } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+jest.mock('@edx/frontend-platform/auth');
+const axiosMock = new MockAdapter(axios);
+const mockTransactionStatusApiUrl = 'transaction_status_api_url';
+getAuthenticatedHttpClient.mockReturnValue(axios);
+axiosMock.onGet(mockTransactionStatusApiUrl).reply(200, {
+  state: 'committed',
+});
 
 const mockMutateAsync = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
@@ -30,9 +47,12 @@ const optimizelyClick = jest.fn();
 const trackSearchSpy = jest.spyOn(hooks, 'useTrackSearchConversionClickHandler').mockReturnValue(trackSearchClick);
 const optimizelySpy = jest.spyOn(hooks, 'useOptimizelyEnrollmentClickHandler').mockReturnValue(optimizelyClick);
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 describe('useStatefulEnroll', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   const renderUseStatefulEnroll = async ({
@@ -147,64 +167,68 @@ describe('useStatefulEnroll', () => {
     expect(submitRedemptionRequest).toHaveBeenCalledTimes(1);
   });
 
-  test('should call retrieveTransactionStatus on checkTransactionStatus', async () => {
-    await renderUseStatefulEnroll();
-
+  test('should call checkTransactionStatus', async () => {
     const mockTransaction = {
       state: 'pending',
-      transactionStatusApiUrl: 'transaction_status_api_url',
+      transactionStatusApiUrl: mockTransactionStatusApiUrl,
     };
-
+    await renderUseStatefulEnroll();
     const onSuccessHandler = mockMutateAsync.mock.calls[0][1].onSuccess;
     await act(() => onSuccessHandler(mockTransaction));
 
     expect(onSuccess).toHaveBeenCalledTimes(0);
 
     expect(useQuery).toHaveBeenCalledTimes(2);
+    const policyTransactionQueryKey = queryPolicyTransaction(mockEnterpriseCustomer.uuid, mockTransaction).queryKey;
     expect(useQuery).toHaveBeenCalledWith({
-      queryKey: [...enterpriseUserSubsidyQueryKeys.policy(), 'transactions', mockTransaction],
+      queryKey: policyTransactionQueryKey,
       queryFn: expect.any(Function),
       refetchInterval: expect.any(Function),
       onSuccess: expect.any(Function),
       onError: expect.any(Function),
       enabled: true,
     });
-
-    // use the second call to useQuery to get the queryFn
-    const useQueryArgs = useQuery.mock.calls[1][0];
-    const { queryFn } = useQueryArgs;
-    await queryFn({ queryKey: useQueryArgs.queryKey });
-
-    expect(retrieveTransactionStatus).toHaveBeenCalledTimes(1);
-    expect(retrieveTransactionStatus).toHaveBeenCalledWith({
-      transactionStatusApiUrl: mockTransaction.transactionStatusApiUrl,
-    });
   });
 
   test.each([
-    { state: 'pending', expected: 1000 },
-    { state: 'committed', expected: false },
-    { state: 'failed', expected: false },
-  ])('should return correct refetchInterval (%s)', async ({ state, expected }) => {
+    {
+      transaction: { state: 'pending' },
+      expectedEnabled: true,
+      expectedRefetchInterval: 1000,
+    },
+    {
+      transaction: { state: 'committed' },
+      expectedEnabled: false,
+      expectedRefetchInterval: false,
+    },
+    {
+      transaction: { state: 'failed' },
+      expectedEnabled: false,
+      expectedRefetchInterval: false,
+    },
+  ])('should return correct refetchInterval (%s)', async ({ transaction, expectedEnabled, expectedRefetchInterval }) => {
+    const mockTransaction = {
+      ...transaction,
+      transactionStatusApiUrl: mockTransactionStatusApiUrl,
+    };
     await renderUseStatefulEnroll();
-
-    const mockTransaction = { state };
-
-    expect(useQuery).toHaveBeenCalledTimes(1);
+    const onSuccessHandler = mockMutateAsync.mock.calls[0][1].onSuccess;
+    await act(() => onSuccessHandler(mockTransaction));
+    expect(useQuery).toHaveBeenCalledTimes(2);
+    const policyTransactionQueryKey = queryPolicyTransaction(mockEnterpriseCustomer.uuid, mockTransaction).queryKey;
     expect(useQuery).toHaveBeenCalledWith({
-      // undefined here is expected, as we're testing before the redemption mutation has resolved
-      queryKey: [...enterpriseUserSubsidyQueryKeys.policy(), 'transactions', undefined],
+      queryKey: policyTransactionQueryKey,
       queryFn: expect.any(Function),
       refetchInterval: expect.any(Function),
       onSuccess: expect.any(Function),
       onError: expect.any(Function),
-      enabled: false,
+      enabled: expectedEnabled,
     });
 
-    // use the second call to useQuery to get the refetchInterval
+    // use the call to useQuery to get the refetchInterval
     const useQueryArgs = useQuery.mock.calls[0][0];
     const { refetchInterval } = useQueryArgs;
-    expect(refetchInterval(mockTransaction)).toEqual(expected);
+    expect(refetchInterval(mockTransaction)).toEqual(expectedRefetchInterval);
   });
 
   test('handles error when calling mutateAsync', async () => {

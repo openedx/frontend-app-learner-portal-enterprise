@@ -71,7 +71,21 @@ const JobCardComponent = ({
     setShowMoreRecommendedCourses(false);
   };
 
-  return !isLoading ? (
+  if (!isLoading) {
+    return (
+      <Spinner
+        animation="border"
+        className="mie-3 d-block mt-4"
+        screenReaderText="loading"
+      />
+    );
+  }
+
+  if (!jobs || jobs.length === 0) {
+    return null;
+  }
+
+  return (
     <div className="skills-quiz-v2-job-card">
       <SelectableBox.Set
         type="radio"
@@ -110,38 +124,28 @@ const JobCardComponent = ({
           </SelectableBox>
         ))}
       </SelectableBox.Set>
-      {jobs?.length > 0 && (
-        <>
-          <TopSkillsOverview index={jobIndex} />
-          <Stack gap={4}>
-            <SearchCourseCard index={courseIndex} />
-            <SearchProgramCard index={courseIndex} />
-            <SearchPathways index={courseIndex} />
-          </Stack>
-          <div className="text-center py-4">
-            { !showMoreRecommendedCourses && (
-              <Button
-                variant="outline-primary"
-                onClick={() => setShowMoreRecommendedCourses(true)}
-              >
-                <FormattedMessage
-                  id="enterprise.skills.quiz.v2.see.more.recommendations.label"
-                  defaultMessage="See more course recommendations"
-                  description="Label prompting the user to see more course recommendations on the skills quiz v2 page."
-                />
-              </Button>
-            ) }
-          </div>
-          { showMoreRecommendedCourses && <SkillsCourses index={courseIndex} />}
-        </>
-      )}
+      <TopSkillsOverview index={jobIndex} />
+      <Stack gap={4}>
+        <SearchCourseCard index={courseIndex} />
+        <SearchProgramCard index={courseIndex} />
+        <SearchPathways index={courseIndex} />
+      </Stack>
+      <div className="text-center py-4">
+        {!showMoreRecommendedCourses && (
+          <Button
+            variant="outline-primary"
+            onClick={() => setShowMoreRecommendedCourses(true)}
+          >
+            <FormattedMessage
+              id="enterprise.skills.quiz.v2.see.more.recommendations.label"
+              defaultMessage="See more course recommendations"
+              description="Label prompting the user to see more course recommendations on the skills quiz v2 page."
+            />
+          </Button>
+        )}
+      </div>
+      {showMoreRecommendedCourses && <SkillsCourses index={courseIndex} />}
     </div>
-  ) : (
-    <Spinner
-      animation="border"
-      className="mie-3 d-block mt-4"
-      screenReaderText="loading"
-    />
   );
 };
 

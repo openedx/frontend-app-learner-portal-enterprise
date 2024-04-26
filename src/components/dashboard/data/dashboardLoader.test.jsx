@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouterProvider } from '../../../utils/tests';
 import makeDashboardLoader from './dashboardLoader';
 import {
-  extractEnterpriseId,
+  extractEnterpriseCustomer,
   queryEnterpriseCourseEnrollments,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
@@ -17,7 +17,7 @@ jest.mock('../../app/routes/data', () => ({
 }));
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  extractEnterpriseId: jest.fn(),
+  extractEnterpriseCustomer: jest.fn(),
 }));
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
@@ -30,7 +30,7 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 }));
 
 const mockEnterpriseId = 'test-enterprise-uuid';
-extractEnterpriseId.mockResolvedValue(mockEnterpriseId);
+extractEnterpriseCustomer.mockResolvedValue({ uuid: mockEnterpriseId });
 
 const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue({}),

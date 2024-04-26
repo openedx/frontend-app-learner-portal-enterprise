@@ -47,7 +47,7 @@ const SkillQuizForm = ({ isStyleAutoSuggest }) => {
         <Button
           variant="link"
           className="mb-2 mb-sm-0 text-decoration-none my-2 mx-n3"
-          onClick={() => setHide(!hide)}
+          onClick={() => setHide(prevState => !prevState)}
         >
           {!hide ? (
             <FormattedMessage

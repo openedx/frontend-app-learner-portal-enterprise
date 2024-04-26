@@ -17,7 +17,7 @@ const SearchAcademy = () => {
 
   if (fetchError) {
     return (
-      <Container size="lg" className="search-results">
+      <Container size="lg" className="search-results" data-testid="search-error">
         <SearchError title={ACADEMY_TITLE} />
       </Container>
     );
@@ -32,7 +32,7 @@ const SearchAcademy = () => {
       <h2>
         <FormattedMessage
           id="enterprise.search.page.academies.section.title"
-          defaultMessage="edX Academies; designed to meet your most critical business needs"
+          defaultMessage="edX Academies: designed to meet your most critical business needs"
           description="Title of the academies section on the enterprise search page."
         />
       </h2>

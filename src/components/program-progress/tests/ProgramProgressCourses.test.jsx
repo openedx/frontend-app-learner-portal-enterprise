@@ -18,15 +18,13 @@ jest.mock('../../app/data', () => ({
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-const mockAppContext = {
-  authenticatedUser: authenticatedUserFactory(),
-};
+const mockAuthenticatedUser = authenticatedUserFactory();
 
-const ProgramProgressCoursesWithContext = ({
+const ProgramProgressCoursesWrapper = ({
   courseData,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={mockAppContext}>
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
       <ProgramProgressCourses courseData={courseData} />
     </AppContext.Provider>
   </IntlProvider>
@@ -93,7 +91,7 @@ describe('<ProgramProgressCourses />', () => {
         },
       ],
     };
-    render(<ProgramProgressCoursesWithContext courseData={courseDataCompletedCourse} />);
+    render(<ProgramProgressCoursesWrapper courseData={courseDataCompletedCourse} />);
     const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataCompletedCourse.completed[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.completed[0].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText('View Course').closest('a')).toHaveAttribute('href', courseLink);
@@ -134,7 +132,7 @@ describe('<ProgramProgressCourses />', () => {
         },
       ],
     };
-    render(<ProgramProgressCoursesWithContext courseData={courseDataCompletedCourse} />);
+    render(<ProgramProgressCoursesWrapper courseData={courseDataCompletedCourse} />);
     const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText('View Course').closest('a')).toHaveAttribute('href', courseLink);
@@ -177,7 +175,7 @@ describe('<ProgramProgressCourses />', () => {
         },
       ],
     };
-    render(<ProgramProgressCoursesWithContext courseData={courseDataCompletedCourse} />);
+    render(<ProgramProgressCoursesWrapper courseData={courseDataCompletedCourse} />);
 
     const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[1].title)).toBeInTheDocument();
@@ -245,7 +243,7 @@ describe('<ProgramProgressCourses />', () => {
       mockHasActiveLicenseOrLicenseRequest: true,
     }));
     render((
-      <ProgramProgressCoursesWithContext courseData={courseDataCompletedCourse} />
+      <ProgramProgressCoursesWrapper courseData={courseDataCompletedCourse} />
     ));
     const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeInTheDocument();
@@ -290,7 +288,7 @@ describe('<ProgramProgressCourses />', () => {
         },
       ],
     };
-    render(<ProgramProgressCoursesWithContext courseData={courseDataCompletedCourse} />);
+    render(<ProgramProgressCoursesWrapper courseData={courseDataCompletedCourse} />);
     const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText('View Archived Course').closest('a')).toHaveAttribute('href', courseLink);
@@ -322,7 +320,7 @@ describe('<ProgramProgressCourses />', () => {
       ],
     };
     const courseRunEnrollable = courseDataNotStartedCourse.notStarted[0].courseRuns;
-    render(<ProgramProgressCoursesWithContext courseData={courseDataNotStartedCourse} />);
+    render(<ProgramProgressCoursesWrapper courseData={courseDataNotStartedCourse} />);
     const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
     expect(screen.getByText(courseRunEnrollable[0].title)).toBeInTheDocument();
     expect(screen.getByText('Enroll now').closest('a')).toHaveAttribute('href', courseLink);
@@ -355,7 +353,7 @@ describe('<ProgramProgressCourses />', () => {
       ],
     };
 
-    render(<ProgramProgressCoursesWithContext courseData={courseDataNotStartedCourse} />);
+    render(<ProgramProgressCoursesWrapper courseData={courseDataNotStartedCourse} />);
     expect(screen.getByText(courseDataNotStartedCourse.notStarted[0].title)).toBeInTheDocument();
     expect(screen.getByText(NotCurrentlyAvailable)).toBeInTheDocument();
   });
@@ -402,7 +400,7 @@ describe('<ProgramProgressCourses />', () => {
     const courseRun = courseDataNotStartedCourse.notStarted[0].courseRuns;
     const courseRunDateNotEnrollable = `${dayjs(courseRun[0].start)
       .format('MMMM Do, YYYY')} - ${dayjs(courseRun[0].end).format('MMMM Do, YYYY')}`;
-    render(<ProgramProgressCoursesWithContext courseData={courseDataNotStartedCourse} />);
+    render(<ProgramProgressCoursesWrapper courseData={courseDataNotStartedCourse} />);
     const courseLink1 = `/${mockEnterpriseCustomer.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
     expect(screen.getByText(courseDataNotStartedCourse.notStarted[0].title)).toBeInTheDocument();
     expect(screen.queryByText(courseRunDateNotEnrollable)).not.toBeInTheDocument();
@@ -472,7 +470,7 @@ describe('<ProgramProgressCourses />', () => {
     const courseRunDateWithOutEnd = `${dayjs(courseRun[0].start).format('MMMM Do, YYYY')}`;
     const courseRunDateWithEnd = `${dayjs(courseRun[1].start)
       .format('MMMM Do, YYYY')} - ${dayjs(courseRun[1].end).format('MMMM Do, YYYY')}`;
-    render(<ProgramProgressCoursesWithContext courseData={courseDataNotStartedCourse} />);
+    render(<ProgramProgressCoursesWrapper courseData={courseDataNotStartedCourse} />);
     const courseLink1 = `/${mockEnterpriseCustomer.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
     const courseLink2 = `/${mockEnterpriseCustomer.slug}/course/${courseDataNotStartedCourse.notStarted[1].key}`;
     expect(screen.getByText(courseDataNotStartedCourse.notStarted[0].title)).toBeInTheDocument();

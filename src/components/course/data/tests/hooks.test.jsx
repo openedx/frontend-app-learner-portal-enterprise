@@ -1,17 +1,17 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { render, screen, waitFor } from '@testing-library/react';
+import {
+  BrowserRouter, MemoryRouter, useLocation, useParams,
+} from 'react-router-dom';
 import dayjs from 'dayjs';
-import { QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { camelCaseObject, getConfig } from '@edx/frontend-platform';
+import { getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
-import { logError } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
-  useAllCourseData,
-  useCheckSubsidyAccessPolicyRedeemability,
+  useBrowseAndRequestCatalogsApplicableToCourse,
   useCourseEnrollmentUrl,
+  useCourseListPrice,
   useCoursePacingType,
   useCoursePartners,
   useCoursePriceForUserSubsidy,
@@ -28,13 +28,13 @@ import {
 import {
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
-  getCourseRunPrice,
+  getCoursePrice,
   getCourseTypeConfig,
   getMissingApplicableSubsidyReason,
   getSubscriptionDisabledEnrollmentReasonType,
   getSubsidyToApplyForCourse,
+  transformedCourseMetadata,
 } from '../utils';
-import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
@@ -45,32 +45,42 @@ import {
   REASON_USER_MESSAGES,
 } from '../constants';
 import {
-  mockCanRedeemData,
-  mockCanRedeemForContentKey,
-  mockCanRedeemReason,
-  mockCourseData,
-  mockCourseRecommendations,
-  mockCourseRunKey,
-  mockCourseService,
-  mockCourseServiceUninitialized,
-  mockLmsUserId,
-  mockRedeemableSubsidyAccessPolicy,
   mockSubscriptionLicense,
-  mockUserLicenseSubsidy,
 } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
-import { CourseContext } from '../../CourseContextProvider';
-import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
-import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../../constants';
-import { useEnterpriseCustomer } from '../../../app/data';
-import { queryClient } from '../../../../utils/tests';
+import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
+import { SUBSIDY_TYPE } from '../../../../constants';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import {
+  useCourseMetadata,
+  useCourseRedemptionEligibility,
+  useRedeemablePolicies,
+  useSubscriptions,
+  useEnterpriseCustomerContainsContent,
+  useEnterpriseOffers,
+  useCouponCodes,
+  useEnterpriseCustomer,
+  useBrowseAndRequest,
+  useCatalogsForSubsidyRequests,
+} from '../../../app/data';
+import { CourseContext } from '../../CourseContextProvider';
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useRedeemablePolicies: jest.fn(),
+  useCourseMetadata: jest.fn(),
+  useCourseRedemptionEligibility: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useEnterpriseCustomerContainsContent: jest.fn(),
+  useEnterpriseOffers: jest.fn(),
+  useCouponCodes: jest.fn(),
+  useBrowseAndRequest: jest.fn(),
+  useCatalogsForSubsidyRequests: jest.fn(),
+}));
 
 const oldGlobalLocation = global.location;
 
-jest.mock('@edx/frontend-platform/logging', () => ({
-  logError: jest.fn(),
-}));
 jest.mock('@edx/frontend-platform', () => ({
   ...jest.requireActual('@edx/frontend-platform'),
   getConfig: jest.fn(),
@@ -84,10 +94,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
   useQuery: jest.fn().mockReturnValue({ data: undefined, isInitialLoading: false }),
-}));
-
-jest.mock('../../../../config', () => ({
-  features: { ENROLL_WITH_CODES: true },
 }));
 
 jest.mock('../utils', () => ({
@@ -108,20 +114,9 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
   useLocation: jest.fn(),
+  useParams: jest.fn(),
 }
 ));
-
-jest.mock('../../../app/data', () => ({
-  ...jest.requireActual('../../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-}));
-
-jest.useFakeTimers();
-
-jest.mock('../service', () => ({
-  __esModule: true,
-  default: jest.fn(() => mockCourseService),
-}));
 
 const createGlobalLocationMock = () => {
   delete global.location;
@@ -136,88 +131,11 @@ const createGlobalLocationMock = () => {
     },
   );
 };
+
 const mockPreventDefault = jest.fn();
 
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
-
-describe('useAllCourseData', () => {
-  const basicProps = {
-    courseService: mockCourseService,
-    activeCatalogs: [],
-  };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('returns course data, course recommendations, and course reviews', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useAllCourseData(basicProps));
-
-    await waitForNextUpdate();
-    expect(result.current.courseData).toEqual(mockCourseData);
-
-    expect(mockCourseService.fetchAllCourseData).toHaveBeenCalledTimes(1);
-    expect(mockCourseService.fetchAllCourseRecommendations).toHaveBeenCalledTimes(1);
-    expect(mockCourseService.fetchCourseReviews).toHaveBeenCalledTimes(1);
-
-    expect(result.current.courseRecommendations).toEqual(camelCaseObject(mockCourseRecommendations));
-  });
-
-  it('returns null if no courseKey or enterpriseCustomer is provided', async () => {
-    const { result } = renderHook(() => useAllCourseData({
-      ...basicProps,
-      courseService: mockCourseServiceUninitialized,
-    }));
-
-    expect(result.current.courseData).toBeFalsy();
-    expect(result.current.courseRecommendations).toBeFalsy();
-  });
-
-  it('handles non 404 errors fetching All course data', async () => {
-    const mockError = new Error('error');
-    mockCourseService.fetchAllCourseData.mockRejectedValueOnce(mockError);
-    const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
-      ...basicProps,
-    }));
-    await waitForNextUpdate();
-
-    expect(mockCourseService.fetchAllCourseData).toHaveBeenCalled();
-    expect(result.current.fetchError).toEqual(mockError);
-  });
-
-  it('handles non 404 errors fetching course recommendations', async () => {
-    const mockError = new Error('error');
-    mockCourseService.fetchAllCourseRecommendations.mockRejectedValueOnce(mockError);
-    const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
-      ...basicProps,
-      activeCatalogs: null,
-    }));
-
-    await waitForNextUpdate();
-    expect(result.current.courseData).toEqual(mockCourseData);
-
-    expect(mockCourseService.fetchAllCourseRecommendations).toHaveBeenCalledWith(null);
-    expect(logError).toHaveBeenCalledWith(mockError);
-    expect(result.current.courseRecommendations).toEqual([]);
-  });
-
-  it('handles non 404 errors fetching course reviews', async () => {
-    const mockError = new Error('error');
-    mockCourseService.fetchCourseReviews.mockRejectedValueOnce(mockError);
-    const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
-      ...basicProps,
-      activeCatalogs: null,
-    }));
-
-    await waitForNextUpdate();
-    expect(result.current.courseData).toEqual(mockCourseData);
-
-    expect(mockCourseService.fetchCourseReviews).toHaveBeenCalled();
-    expect(logError).toHaveBeenCalledWith(mockError);
-    expect(result.current.courseReviews).toEqual(undefined);
-  });
-});
 
 describe('useCourseEnrollmentUrl', () => {
   const mockCouponCode = {
@@ -345,7 +263,6 @@ describe('useCourseEnrollmentUrl', () => {
           'executive-education-2u': {
             pathSlug: 'executive-education-2u',
             usesEntitlementListPrice: true,
-            useAdditionalMetadata: true,
           },
         },
       });
@@ -369,87 +286,102 @@ describe('useCourseEnrollmentUrl', () => {
 });
 
 describe('useUserHasSubsidyRequestForCourse', () => {
-  afterEach(() => jest.clearAllMocks());
-
+  const Wrapper = ({ children }) => (
+    <AppContext.Provider value={mockAuthenticatedUser}>
+      {children}
+    </AppContext.Provider>
+  );
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: undefined,
+        requests: {
+          subscriptionLicenses: [],
+          couponCodes: [],
+        },
+      },
+    });
+  });
   it('returns false when `subsidyRequestConfiguration` are not set', () => {
-    const context = {
-      subsidyRequestConfiguration: null,
-    };
-    const wrapper = ({ children }) => (
-      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
-    );
-    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper: Wrapper });
     expect(result.current).toBe(false);
   });
 
   it('returns false when `subsidyType` is undefined', () => {
-    const context = {
-      subsidyRequestConfiguration: {
-        subsidyRequestsEnabled: true,
-        subsidyType: undefined,
-      },
-    };
-    const wrapper = ({ children }) => (
-      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
-    );
-    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
-
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper: Wrapper });
     expect(result.current).toBe(false);
   });
 
   it('returns true when `subsidyType` is LICENSE && 1 license request is found', () => {
-    const context = {
-      subsidyRequestConfiguration: {
-        subsidyRequestsEnabled: true,
-        subsidyType: SUBSIDY_TYPE.LICENSE,
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: {
+          subsidyRequestsEnabled: true,
+          subsidyType: SUBSIDY_TYPE.LICENSE,
+        },
+        requests: {
+          subscriptionLicenses: [{ uuid: 'test-license-uuid' }],
+          couponCodes: [],
+        },
       },
-      requestsBySubsidyType: {
-        [SUBSIDY_TYPE.LICENSE]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED }],
-        [SUBSIDY_TYPE.COUPON]: [],
-      },
-    };
-    const wrapper = ({ children }) => (
-      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
-    );
-    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper: Wrapper });
 
     expect(result.current).toBe(true);
   });
 
   it('returns true when `subsidyType` is COUPON && 1 coupon request is found', () => {
-    const courseId = '123';
-    const context = {
-      subsidyRequestConfiguration: {
-        subsidyRequestsEnabled: true,
-        subsidyType: SUBSIDY_TYPE.COUPON,
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: {
+          subsidyRequestsEnabled: true,
+          subsidyType: SUBSIDY_TYPE.COUPON,
+        },
+        requests: {
+          subscriptionLicenses: [],
+          couponCodes: ['test-coupon'],
+        },
       },
-      requestsBySubsidyType: {
-        [SUBSIDY_TYPE.LICENSE]: [],
-        [SUBSIDY_TYPE.COUPON]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId }],
-      },
-    };
-    const wrapper = ({ children }) => (
-      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
-    );
-    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(courseId), { wrapper });
+    });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper: Wrapper });
+
     expect(result.current).toBe(true);
   });
 
   it('returns false when `subsidyType` is COUPON && no matching courseId', () => {
-    const context = {
-      subsidyRequestConfiguration: {
-        subsidyRequestsEnabled: true,
-        subsidyType: SUBSIDY_TYPE.COUPON,
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: {
+          subsidyRequestsEnabled: true,
+          subsidyType: SUBSIDY_TYPE.COUPON,
+        },
+        requests: {
+          subscriptionLicenses: [],
+          couponCodes: [],
+        },
       },
-      requestsBySubsidyType: {
-        [SUBSIDY_TYPE.LICENSE]: [],
-        [SUBSIDY_TYPE.COUPON]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId: 'lorem' }],
+    });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper: Wrapper });
+
+    expect(result.current).toBe(false);
+  });
+
+  it('returns false when `subsidyType` doesnt match the cases', () => {
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: {
+          subsidyRequestsEnabled: true,
+          subsidyType: 'Pikachu\'s super subsidy',
+        },
+        requests: {
+          subscriptionLicenses: [],
+          couponCodes: [],
+        },
       },
-    };
-    const wrapper = ({ children }) => (
-      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
-    );
-    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('ipsum'), { wrapper });
+    });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper: Wrapper });
+
     expect(result.current).toBe(false);
   });
 });
@@ -476,7 +408,7 @@ describe('useOptimizelyEnrollmentClickHandler', () => {
 
   it('sends correct optimizely event', async () => {
     const pushEventSpy = jest.spyOn(optimizelyUtils, 'pushEvent').mockImplementation(() => true);
-    const { result, waitFor } = renderHook(() => useOptimizelyEnrollmentClickHandler(basicProps));
+    const { result } = renderHook(() => useOptimizelyEnrollmentClickHandler(basicProps));
 
     const outputClickHandler = result.current;
     outputClickHandler({ preventDefault: mockPreventDefault });
@@ -507,7 +439,6 @@ describe('useTrackSearchConversionClickHandler', () => {
   };
 
   const mockCourseState = {
-    activeCourseRun: { key: 'course-run-key' },
     algoliaSearchParams: {
       queryId: 'algolia-query-id',
       objectId: 'algolia-object-id',
@@ -515,7 +446,7 @@ describe('useTrackSearchConversionClickHandler', () => {
   };
   const wrapper = ({ children }) => (
     <IntlProvider locale="en">
-      <CourseContext.Provider value={{ state: mockCourseState }}>
+      <CourseContext.Provider value={mockCourseState}>
         {children}
       </CourseContext.Provider>
     </IntlProvider>
@@ -528,6 +459,8 @@ describe('useTrackSearchConversionClickHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useCourseMetadata.mockReturnValue({ data: { activeCourseRun: { key: 'course-run-key' } } });
+    getConfig.mockReturnValue({ ALGOLIA_INDEX_NAME: 'test-algolia-index' });
   });
 
   afterAll(() => {
@@ -536,7 +469,7 @@ describe('useTrackSearchConversionClickHandler', () => {
   });
 
   it('sends segment event and redirects', async () => {
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useTrackSearchConversionClickHandler(basicProps),
       { wrapper },
     );
@@ -551,9 +484,9 @@ describe('useTrackSearchConversionClickHandler', () => {
       mockEventName,
       {
         products: [{ objectID: mockCourseState.algoliaSearchParams.objectId }],
-        index: getConfig().ALGOLIA_INDEX_NAME,
+        index: 'test-algolia-index',
         queryID: mockCourseState.algoliaSearchParams.queryId,
-        courseKey: mockCourseState.activeCourseRun.key,
+        courseKey: 'course-run-key',
       },
     );
 
@@ -580,9 +513,9 @@ describe('useTrackSearchConversionClickHandler', () => {
       mockEventName,
       {
         products: [{ objectID: mockCourseState.algoliaSearchParams.objectId }],
-        index: getConfig().ALGOLIA_INDEX_NAME,
+        index: 'test-algolia-index',
         queryID: mockCourseState.algoliaSearchParams.queryId,
-        courseKey: mockCourseState.activeCourseRun.key,
+        courseKey: 'course-run-key',
       },
     );
   });
@@ -826,7 +759,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual({ list: 100, discounted: 90 });
   });
 
@@ -843,7 +776,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual({ list: 100, discounted: 100 });
   });
 
@@ -860,7 +793,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual({ list: 150, discounted: 140 });
   });
 
@@ -871,7 +804,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual({ list: 100 });
   });
 
@@ -883,7 +816,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual({ list: 200 });
   });
 
@@ -894,7 +827,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       listPrice,
       userSubsidyApplicableToCourse,
     }));
-    const [, currency] = result.current;
+    const { currency } = result.current;
     expect(currency).toEqual('USD');
   });
 
@@ -903,7 +836,7 @@ describe('useCoursePriceForUserSubsidy', () => {
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
       userSubsidyApplicableToCourse,
     }));
-    const [coursePrice] = result.current;
+    const { coursePrice } = result.current;
     expect(coursePrice).toEqual(null);
   });
 });
@@ -940,151 +873,10 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
   });
 });
 
-describe('useCheckSubsidyAccessPolicyRedeemability', () => {
-  const wrapper = ({ children }) => (
-    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-      <QueryClientProvider client={queryClient()}>
-        {children}
-      </QueryClientProvider>
-    </AppContext.Provider>
-  );
-
-  const baseArgs = {
-    enterpriseUuid: 'test-enterprise-uuid',
-    isQueryEnabled: true,
-  };
-  const argsWithCourseRunKeys = {
-    ...baseArgs,
-    activeCourseRunKey: mockCourseRunKey,
-    courseRunKeys: [mockCourseRunKey],
-  };
-  const argsWithoutCourseRunKeys = {
-    ...baseArgs,
-    courseRunKeys: [],
-  };
-  const argsWithDisabledFeature = {
-    ...baseArgs,
-    isQueryEnabled: false,
-  };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it.each([
-    baseArgs,
-    argsWithDisabledFeature,
-    argsWithoutCourseRunKeys,
-  ])('handles disabled query (%s)', (args) => {
-    const { result } = renderHook(
-      () => useCheckSubsidyAccessPolicyRedeemability(args),
-      { wrapper },
-    );
-    expect(result.current.isInitialLoading).toBeDefined();
-    expect(useQuery).toHaveBeenCalledWith(
-      expect.objectContaining({
-        queryKey: [...enterpriseUserSubsidyQueryKeys.policy(), baseArgs.enterpriseUuid, 'can-redeem', {
-          activeCourseRunKey: undefined,
-          courseRunKeys: [],
-          lmsUserId: mockLmsUserId,
-        }],
-        enabled: false,
-        queryFn: expect.any(Function),
-      }),
-    );
-  });
-
-  it.each([
-    { hasMissingSubsidy: false, hasSuccessfulRedemption: false },
-    { hasMissingSubsidy: true, hasSuccessfulRedemption: false },
-    { hasMissingSubsidy: true, hasSuccessfulRedemption: true },
-  ])('makes query to check redemption eligibility (%s)', async ({ hasMissingSubsidy, hasSuccessfulRedemption }) => {
-    // default to not-yet-redeemed, redeemable state
-    const queryData = {
-      hasSuccessfulRedemption: false,
-      isPolicyRedemptionEnabled: true,
-      redeemabilityPerContentKey: mockCanRedeemData,
-      redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
-      missingSubsidyAccessPolicyReason: null,
-    };
-
-    if (hasMissingSubsidy) {
-      queryData.redeemableSubsidyAccessPolicy = null;
-      queryData.isPolicyRedemptionEnabled = false;
-      queryData.redeemabilityPerContentKey = [{
-        ...mockCanRedeemForContentKey,
-        can_redeem: false,
-        redeemable_subsidy_access_policy: null,
-        reasons: [mockCanRedeemReason],
-      }];
-      queryData.missingSubsidyAccessPolicyReason = mockCanRedeemReason;
-    }
-
-    if (hasSuccessfulRedemption) {
-      queryData.hasSuccessfulRedemption = true;
-    }
-
-    useQuery.mockReturnValueOnce({
-      data: queryData,
-      isInitialLoading: false,
-    });
-
-    const { result } = renderHook(
-      () => useCheckSubsidyAccessPolicyRedeemability(argsWithCourseRunKeys),
-      { wrapper },
-    );
-
-    expect(result.current.isInitialLoading).toBeDefined();
-    expect(result.current.data.redeemabilityPerContentKey).toBeDefined();
-
-    if (!hasMissingSubsidy) {
-      expect(result.current.data.isPolicyRedemptionEnabled).toBeTruthy();
-      expect(result.current.data.redeemableSubsidyAccessPolicy).toEqual(mockRedeemableSubsidyAccessPolicy);
-    } else {
-      expect(result.current.data.missingSubsidyAccessPolicyReason).toBeDefined();
-    }
-
-    if (hasSuccessfulRedemption) {
-      expect(result.current.data.hasSuccessfulRedemption).toBeTruthy();
-    } else {
-      expect(result.current.data.hasSuccessfulRedemption).toBeFalsy();
-    }
-
-    const expectQueryKey = [...enterpriseUserSubsidyQueryKeys.policy(), baseArgs.enterpriseUuid, 'can-redeem', {
-      activeCourseRunKey: argsWithCourseRunKeys.courseRunKeys[0],
-      lmsUserId: mockLmsUserId,
-      courseRunKeys: argsWithCourseRunKeys.courseRunKeys,
-    }];
-    expect(useQuery).toHaveBeenCalledWith(
-      expect.objectContaining({
-        queryKey: expectQueryKey,
-        enabled: true,
-        queryFn: expect.any(Function),
-      }),
-    );
-
-    const checkRedeemability = useQuery.mock.calls[0][0].queryFn;
-    const redeemability = await checkRedeemability({
-      enterpriseUuid: argsWithCourseRunKeys.enterpriseUuid,
-      queryKey: expectQueryKey,
-    });
-    expect(redeemability).toEqual(camelCaseObject({
-      hasSuccessfulRedemption: false,
-      isPolicyRedemptionEnabled: true,
-      redeemabilityPerContentKey: mockCanRedeemData,
-      redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
-      missingSubsidyAccessPolicyReason: undefined,
-      listPrice: mockCanRedeemForContentKey.list_price.usd,
-    }));
-  });
-});
-
 describe('useUserSubsidyApplicableToCourse', () => {
   const mockCatalogUUID = 'test-enterprise-catalog-uuid';
   const baseArgs = {
-    isLoadingAny: true,
     isPolicyRedemptionEnabled: false,
-    courseService: mockCourseService,
     courseData: {
       catalog: {
         containsContentItems: true,
@@ -1099,10 +891,6 @@ describe('useUserSubsidyApplicableToCourse', () => {
     customerAgreementConfig: undefined,
     contactEmail: undefined,
   };
-  const argsWithMissingCourse = {
-    ...baseArgs,
-    courseData: undefined,
-  };
   const missingUserSubsidyReason = {
     reason: DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
     userMessage: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
@@ -1113,36 +901,63 @@ describe('useUserSubsidyApplicableToCourse', () => {
     userMessage: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
     actions: expect.any(Object),
   };
-
+  const resolvedTransformedEnterpriseCustomerData = ({ transformed }) => ({
+    fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
+    contactEmail: transformed.contactEmail,
+  });
   beforeEach(() => {
     jest.clearAllMocks();
+    useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
+    useEnterpriseCustomer.mockReturnValue({
+      data: resolvedTransformedEnterpriseCustomerData({ transformed: mockEnterpriseCustomer }),
+    });
+    useCourseMetadata.mockReturnValue({});
+    useRedeemablePolicies.mockReturnValue({
+      data: {
+        redeemablePolicies: [],
+      },
+    });
+    useCourseRedemptionEligibility.mockReturnValue({ data: {} });
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: undefined,
+        subscriptionLicense: undefined,
+        subscriptionPlan: undefined,
+        shouldShowActivationSuccessMessage: false,
+      },
+    });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        containsContentItems: false,
+        catalogList: [],
+      },
+    });
+    useEnterpriseOffers.mockReturnValue({
+      data: {
+        enterpriseOffers: [],
+        canEnrollWithEnterpriseOffers: false,
+      },
+    });
+    useCouponCodes.mockReturnValue({
+      data: {
+        couponCodeAssignments: [],
+      },
+    });
   });
 
   it('handles null course data', () => {
-    const { result } = renderHook(() => useUserSubsidyApplicableToCourse(argsWithMissingCourse));
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: undefined,
     });
   });
 
-  it('handles course data with redeemable subsidy access policy', async () => {
+  it('handles course data with redeemable subsidy access policy', () => {
     getSubsidyToApplyForCourse.mockReturnValueOnce({
       subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
     });
-
-    const mockRedeemablePolicy = {
-      perLearnerEnrollmentLimit: null,
-      perLearnerSpendLimit: null,
-      policyRedemptionUrl: 'http://policy-redemption.url',
-    };
-    const argsWithRedeemablePolicy = {
-      ...baseArgs,
-      isPolicyRedemptionEnabled: true,
-      redeemableSubsidyAccessPolicy: mockRedeemablePolicy,
-    };
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(argsWithRedeemablePolicy));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: expect.objectContaining({
@@ -1152,26 +967,14 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it('does not have redeemable subsidy access policy and catalog(s) does not contain course', async () => {
+  it('does not have redeemable subsidy access policy and catalog(s) does not contain course', () => {
     getMissingApplicableSubsidyReason.mockReturnValueOnce({
       reason: DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
       userMessage: DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG],
       actions: null,
     });
-    const args = {
-      ...baseArgs,
-      enterpriseAdminUsers: [],
-      courseData: {
-        ...baseArgs.courseData,
-        catalog: {
-          ...baseArgs.courseData.catalog,
-          containsContentItems: false,
-        },
-      },
-    };
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
 
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
@@ -1183,10 +986,12 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it.each([
-    { enterpriseAdminUsers: [] },
-    { enterpriseAdminUsers: ['edx@example.com'] },
-  ])('does not have redeemable subsidy access policy and catalog(s) contains course (%s)', async ({ enterpriseAdminUsers }) => {
+  it.each(
+    [
+      { enterpriseAdminUsers: [] },
+      { enterpriseAdminUsers: ['edx@example.com'] },
+    ],
+  )('does not have redeemable subsidy access policy and catalog(s) contains course', ({ enterpriseAdminUsers }) => {
     getMissingApplicableSubsidyReason.mockReturnValueOnce({
       reason: enterpriseAdminUsers.length > 0
         ? DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY
@@ -1196,13 +1001,13 @@ describe('useUserSubsidyApplicableToCourse', () => {
         : DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS],
       actions: null,
     });
-    const args = {
-      ...baseArgs,
-      enterpriseAdminUsers,
-    };
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
-
-    await waitForNextUpdate();
+    useEnterpriseCustomer.mockReturnValue({
+      data: {
+        ...mockEnterpriseCustomer,
+        enterpriseAdminUsers,
+      },
+    });
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
 
     let expectedReasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
     let expectedAction = null;
@@ -1222,19 +1027,14 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it('does not have redeemable subsidy access policy and has missing subsidy access policy user message', async () => {
+  it('does not have redeemable subsidy access policy and has missing subsidy access policy user message', () => {
     getMissingApplicableSubsidyReason.mockReturnValueOnce({
       reason: missingUserSubsidyReason.reason,
       userMessage: missingUserSubsidyReason.userMessage,
       actions: null,
     });
-    const args = {
-      ...baseArgs,
-      missingSubsidyAccessPolicyReason: missingUserSubsidyReason,
-    };
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
 
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
@@ -1242,26 +1042,51 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it('finds applicable subscription license', async () => {
+  it('finds applicable subscription license', () => {
     getSubsidyToApplyForCourse.mockReturnValueOnce({
       subsidyType: LICENSE_SUBSIDY_TYPE,
     });
-    const args = {
-      ...baseArgs,
-      subscriptionLicense: mockSubscriptionLicense,
-    };
-    const { result, waitFor } = renderHook(() => useUserSubsidyApplicableToCourse(args));
 
-    expect(mockCourseService.fetchUserLicenseSubsidy).toHaveBeenCalledTimes(1);
-    await waitFor(() => {
-      expect(getSubsidyToApplyForCourse).toHaveBeenCalledTimes(1);
+    useSubscriptions.mockReturnValueOnce({
+      data: {
+        subscriptionLicense: {
+          ...mockSubscriptionLicense,
+          status: LICENSE_STATUS.ACTIVATED,
+          discountType: 'percentage',
+          discountValue: 100,
+        },
+        subscriptionPlan: {
+          enterpriseCatalogUuid: 'test-catalog-uuid',
+        },
+      },
     });
+
+    useEnterpriseCustomerContainsContent.mockReturnValueOnce({
+      data: {
+        catalogList: ['test-catalog-uuid'],
+        containsContentItems: true,
+      },
+    });
+    useCourseRedemptionEligibility.mockReturnValue({
+      data: {
+        isPolicyRedemptionEnabled: false,
+        redeemableSubsidyAccessPolicy: undefined,
+      },
+    });
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
+
     expect(getSubsidyToApplyForCourse).toHaveBeenCalledWith({
-      applicableSubscriptionLicense: mockUserLicenseSubsidy,
+      applicableSubscriptionLicense: {
+        ...mockSubscriptionLicense,
+        status: LICENSE_STATUS.ACTIVATED,
+        discountType: 'percentage',
+        discountValue: 100,
+      },
       applicableCouponCode: undefined,
       applicableEnterpriseOffer: undefined,
       applicableSubsidyAccessPolicy: {
         isPolicyRedemptionEnabled: false,
+        redeemableSubsidyAccessPolicy: undefined,
       },
     });
 
@@ -1273,28 +1098,14 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it('handles disabled enrollment reason related to subscriptions', async () => {
+  it('handles disabled enrollment reason related to subscriptions', () => {
     getMissingApplicableSubsidyReason.mockReturnValueOnce({
       reason: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
       userMessage: DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS],
       actions: {},
     });
 
-    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
-
-    const mockCustomerAgreementConfig = {
-      subscriptions: [
-        {
-          enterpriseCatalogUuid: baseArgs.courseData.catalog.catalogList[0],
-          daysUntilExpirationIncludingRenewals: -5,
-        },
-      ],
-    };
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse({
-      ...baseArgs,
-      customerAgreementConfig: mockCustomerAgreementConfig,
-    }));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
@@ -1306,14 +1117,13 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it('handles disabled enrollment reason related to coupon codes', async () => {
+  it('handles disabled enrollment reason related to coupon codes', () => {
     getMissingApplicableSubsidyReason.mockReturnValueOnce({
       reason: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
       userMessage: REASON_USER_MESSAGES.COUPON_CODE_NOT_ASSIGNED,
       actions: {},
     });
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(baseArgs));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
@@ -1325,8 +1135,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it('finds applicable coupon code', async () => {
-    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
+  it('finds applicable coupon code', () => {
     getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(undefined);
     const mockCouponCode = {
       catalog: mockCatalogUUID,
@@ -1340,17 +1149,20 @@ describe('useUserSubsidyApplicableToCourse', () => {
       subsidyType: COUPON_CODE_SUBSIDY_TYPE,
     });
     findCouponCodeForCourse.mockReturnValueOnce(mockCouponCode);
-
+    useCouponCodes.mockReturnValueOnce({ data: { couponCodeAssignments: [mockCouponCode] } });
+    useEnterpriseCustomerContainsContent.mockReturnValueOnce({ data: { catalogList: [mockCatalogUUID] } });
+    useCourseRedemptionEligibility.mockReturnValue({
+      data: {
+        isPolicyRedemptionEnabled: false,
+      },
+    });
     const args = {
       ...baseArgs,
       couponCodes: [mockCouponCode],
     };
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
 
-    expect(findCouponCodeForCourse).toHaveBeenCalledTimes(1);
     expect(findCouponCodeForCourse).toHaveBeenCalledWith(args.couponCodes, args.courseData.catalog.catalogList);
-    expect(getSubsidyToApplyForCourse).toHaveBeenCalledTimes(1);
     expect(getSubsidyToApplyForCourse).toHaveBeenCalledWith({
       applicableCouponCode: mockCouponCode,
       applicableEnterpriseOffer: undefined,
@@ -1369,8 +1181,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it('finds applicable enterprise offer', async () => {
-    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
+  it('finds applicable enterprise offer', () => {
     getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(undefined);
     const mockEnterpriseOffer = {
       catalog: mockCatalogUUID,
@@ -1380,21 +1191,12 @@ describe('useUserSubsidyApplicableToCourse', () => {
       couponStartDate: dayjs().format('YYYY-MM-DD'),
       couponEndDate: dayjs().add(1, 'year').format('YYYY-MM-DD'),
     };
-    const mockCoursePrice = 100;
-    getCourseRunPrice.mockReturnValueOnce(mockCoursePrice);
     getSubsidyToApplyForCourse.mockReturnValueOnce({
       subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
     });
     findEnterpriseOfferForCourse.mockReturnValueOnce(mockEnterpriseOffer);
 
-    const args = {
-      ...baseArgs,
-      canEnrollWithEnterpriseOffers: true,
-      enterpriseOffers: [mockEnterpriseOffer],
-    };
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
-
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: expect.objectContaining({
@@ -1403,39 +1205,15 @@ describe('useUserSubsidyApplicableToCourse', () => {
       missingUserSubsidyReason: undefined,
     });
   });
-  it('returns offer error', async () => {
+  it('returns offer error', () => {
     getMissingApplicableSubsidyReason.mockReturnValueOnce({
       reason: DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED,
       userMessage: REASON_USER_MESSAGES.ENTERPRISE_OFFER_EXPIRED,
       actions: null,
     });
-    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
     findCouponCodeForCourse.mockReturnValueOnce(undefined);
 
-    const mockExpiredEnterpriseOffer = {
-      discountType: 'percentage',
-      discountValue: 100,
-      startDate: '2023-05-01T00:00:00Z',
-      endDate: '2023-07-27T00:00:00Z',
-      offerType: 'Bookings limit',
-      subsidyType: 'enterpriseOffer',
-      maxUserDiscount: null,
-      maxUserApplications: null,
-      remainingBalance: 10000,
-      remainingBalanceForUser: null,
-      remainingApplications: null,
-      remainingApplicationsForUser: null,
-      isCurrent: false,
-    };
-    const args = {
-      ...baseArgs,
-      canEnrollWithEnterpriseOffers: true,
-      enterpriseOffers: [mockExpiredEnterpriseOffer],
-      isPolicyRedemptionEnabled: false,
-    };
-
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
@@ -1457,171 +1235,205 @@ describe('useMinimalCourseMetadata', () => {
   const mockCurrency = 'USD';
   const mockCourseTitle = 'Test Course Title';
   const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
-  const baseCourseContextValue = {
-    state: {
-      course: {
-        title: mockCourseTitle,
-        organizationShortCodeOverride: undefined,
-        organizationLogoOverrideUrl: undefined,
-        owners: [
-          {
-            name: mockOrgName,
-            logoImageUrl: mockLogoImageUrl,
-            marketingUrl: mockOrgMarketingUrl,
-          },
-        ],
-      },
-      activeCourseRun: {
-        start: mockCourseRunStartDate,
-        weeksToComplete: mockWeeksToComplete,
-      },
-    },
-    coursePrice: { list: mockListPrice, discount: 0 },
-    currency: mockCurrency,
-  };
-  const Wrapper = ({
-    courseContextValue = baseCourseContextValue,
-    children,
-  }) => (
-    <CourseContext.Provider value={courseContextValue}>
-      {children}
-    </CourseContext.Provider>
-  );
+  const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
 
-  it('should return the correct base course metadata', () => {
-    const { result } = renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        organization: {
-          name: mockOrgName,
-          logoImgUrl: mockLogoImageUrl,
-          marketingUrl: mockOrgMarketingUrl,
-        },
-        title: mockCourseTitle,
-        startDate: mockCourseRunStartDate,
-        duration: `${mockWeeksToComplete} Weeks`,
-        priceDetails: {
-          price: mockListPrice,
-          currency: mockCurrency,
-        },
-      }),
-    );
+  const baseCourseMetadataValue = {
+    organization: {
+      name: mockOrgName,
+      logoImgUrl: mockLogoImageUrl,
+      marketingUrl: mockOrgMarketingUrl,
+    },
+    title: mockCourseTitle,
+    startDate: mockCourseRunStartDate,
+    duration: `${mockWeeksToComplete} Weeks`,
+    priceDetails: {
+      price: mockListPrice,
+      currency: mockCurrency,
+    },
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: mockWeeksToComplete,
+      start: mockCourseRunStartDate,
+    }],
+    owners: [{
+      name: mockOrgName,
+      marketingUrl: mockOrgMarketingUrl,
+      logoImageUrl: mockLogoImageUrl,
+    }],
+  };
+  const coursePrice = {
+    list: mockListPrice,
+  };
+
+  const Wrapper = ({ children }) => (
+    <BrowserRouter>
+      <AppContext.Provider value={mockAuthenticatedUser}>
+        {children}
+      </AppContext.Provider>
+    </BrowserRouter>
+  );
+  const courseMetadataTransformer = ({ transformed }) => transformedCourseMetadata({
+    transformed,
+    coursePrice,
+    courseRunKey: mockCourseRunKey,
+    currency: mockCurrency,
+  });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useParams.mockReturnValue({ courseKey: 'test-course-key' });
+    useRedeemablePolicies.mockReturnValue({
+      data: {
+        redeemablePolicies: [],
+      },
+    });
+    useCourseRedemptionEligibility.mockReturnValue({ data: {} });
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: undefined,
+        subscriptionLicense: undefined,
+        subscriptionPlan: undefined,
+        shouldShowActivationSuccessMessage: false,
+      },
+    });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        containsContentItems: false,
+        catalogList: [],
+      },
+    });
+    useEnterpriseOffers.mockReturnValue({
+      data: {
+        enterpriseOffers: [],
+        canEnrollWithEnterpriseOffers: false,
+      },
+    });
+    useCouponCodes.mockReturnValue({
+      data: {
+        couponCodeAssignments: [],
+      },
+    });
   });
 
-  it('should handle empty activeCourseRun', () => {
-    const args = {
-      ...baseCourseContextValue,
-      state: {
-        ...baseCourseContextValue.state,
-        activeCourseRun: undefined,
+  it('should return the correct base course metadata', () => {
+    const expectedResults = {
+      organization: {
+        logoImgUrl: 'https://fake-logo.url',
+        name: 'Fake Org Name',
+        marketingUrl: 'https://fake-mktg.url',
       },
+      title: 'Test Course Title',
+      startDate: '2023-04-20T12:00:00Z',
+      duration: '8 Weeks',
+      priceDetails: { price: 100, currency: 'USD' },
     };
-    const CustomWrapper = (props) => <Wrapper courseContextValue={args} {...props} />;
+    useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: baseCourseMetadataValue }));
+    const { result } = renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
+    expect(result.current).toEqual(expectedResults);
+  });
 
+  it('should handle empty courseRuns', () => {
+    const updatedCourseMetadataValue = {
+      ...baseCourseMetadataValue,
+      courseRuns: [],
+    };
+    const expectedResults = {
+      organization: {
+        logoImgUrl: 'https://fake-logo.url',
+        name: 'Fake Org Name',
+        marketingUrl: 'https://fake-mktg.url',
+      },
+      title: 'Test Course Title',
+      startDate: undefined,
+      duration: '-',
+      priceDetails: { price: 100, currency: 'USD' },
+    };
+    useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
-      { wrapper: CustomWrapper },
+      { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        organization: {
-          name: mockOrgName,
-          logoImgUrl: mockLogoImageUrl,
-          marketingUrl: mockOrgMarketingUrl,
-        },
-        title: mockCourseTitle,
-        startDate: undefined,
-        duration: '-',
-        priceDetails: {
-          price: mockListPrice,
-          currency: mockCurrency,
-        },
-      }),
-    );
+    expect(result.current).toEqual(expectedResults);
   });
 
   it('should handle when weeksToComplete is only 1', () => {
-    const args = {
-      ...baseCourseContextValue,
-      state: {
-        ...baseCourseContextValue.state,
-        activeCourseRun: {
-          ...baseCourseContextValue.state.activeCourseRun,
-          weeksToComplete: 1,
-        },
-      },
+    const updatedCourseMetadataValue = {
+      ...baseCourseMetadataValue,
+      courseRuns: [{
+        ...baseCourseMetadataValue.courseRuns[0],
+        weeksToComplete: 1,
+      }],
     };
-    const CustomWrapper = (props) => <Wrapper courseContextValue={args} {...props} />;
-
+    const expectedResults = {
+      organization: {
+        logoImgUrl: 'https://fake-logo.url',
+        name: 'Fake Org Name',
+        marketingUrl: 'https://fake-mktg.url',
+      },
+      title: 'Test Course Title',
+      startDate: '2023-04-20T12:00:00Z',
+      duration: '1 Week',
+      priceDetails: { price: 100, currency: 'USD' },
+    };
+    useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
-      { wrapper: CustomWrapper },
+      { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        organization: {
-          name: mockOrgName,
-          logoImgUrl: mockLogoImageUrl,
-          marketingUrl: mockOrgMarketingUrl,
-        },
-        title: mockCourseTitle,
-        startDate: mockCourseRunStartDate,
-        duration: '1 Week',
-        priceDetails: {
-          price: mockListPrice,
-          currency: mockCurrency,
-        },
-      }),
-    );
+    expect(result.current).toEqual(expectedResults);
   });
 
   it('should handle organization short code and logo overrides', () => {
     const mockOrgShortCode = 'Test Shortcode Override';
     const mockOrgLogoUrl = 'https://fake-logo-override.url';
-    const args = {
-      ...baseCourseContextValue,
-      state: {
-        ...baseCourseContextValue.state,
-        course: {
-          ...baseCourseContextValue.state.course,
-          organizationShortCodeOverride: mockOrgShortCode,
-          organizationLogoOverrideUrl: mockOrgLogoUrl,
-        },
-      },
+    const updatedCourseMetadataValue = {
+      ...baseCourseMetadataValue,
+      owners: [{
+        name: mockOrgShortCode,
+        logoImageUrl: mockOrgLogoUrl,
+        marketingUrl: mockOrgMarketingUrl,
+      }],
     };
-    const CustomWrapper = (props) => <Wrapper courseContextValue={args} {...props} />;
-
+    const expectedResults = {
+      organization: {
+        logoImgUrl: mockOrgLogoUrl,
+        name: mockOrgShortCode,
+        marketingUrl: mockOrgMarketingUrl,
+      },
+      title: 'Test Course Title',
+      startDate: '2023-04-20T12:00:00Z',
+      duration: '8 Weeks',
+      priceDetails: { price: 100, currency: 'USD' },
+    };
+    useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
       () => useMinimalCourseMetadata(),
-      { wrapper: CustomWrapper },
+      { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        organization: {
-          name: mockOrgShortCode,
-          logoImgUrl: mockOrgLogoUrl,
-          marketingUrl: mockOrgMarketingUrl,
-        },
-        title: mockCourseTitle,
-        startDate: mockCourseRunStartDate,
-        duration: '8 Weeks',
-        priceDetails: {
-          price: mockListPrice,
-          currency: mockCurrency,
-        },
-      }),
-    );
+
+    expect(result.current).toEqual(expectedResults);
   });
 });
 
 describe('useIsCourseAssigned', () => {
   const mockContentKey = 'edX+DemoX';
-
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useCourseMetadata.mockReturnValue({ data: { key: 'test-key' } });
+  });
+  const Wrapper = ({ children }) => (
+    <AppContext.Provider value={mockAuthenticatedUser}>
+      {children}
+    </AppContext.Provider>
+  );
   it('should return false if there are no allocated assignments', () => {
     const learnerContentAssignments = {
       hasAllocatedAssignments: false,
     };
-    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments));
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    const { result } = renderHook(() => useIsCourseAssigned(), { wrapper: Wrapper });
+
     expect(result.current).toEqual(false);
   });
 
@@ -1635,7 +1447,14 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, 'non-existent-course-key'));
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useCourseMetadata.mockReturnValue({ data: { key: 'non-existent-course-key' } });
+
+    const { result } = renderHook(
+      () => useIsCourseAssigned(),
+      { wrapper: Wrapper },
+    );
+
     expect(result.current).toEqual(false);
   });
 
@@ -1651,7 +1470,14 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, mockContentKey));
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useCourseMetadata.mockReturnValue({ data: { key: mockContentKey } });
+
+    const { result } = renderHook(
+      () => useIsCourseAssigned(),
+      { wrapper: Wrapper },
+    );
+
     expect(result.current).toEqual(false);
   });
 
@@ -1665,7 +1491,132 @@ describe('useIsCourseAssigned', () => {
         },
       ],
     };
-    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, mockContentKey));
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useCourseMetadata.mockReturnValue({ data: { key: mockContentKey } });
+
+    const { result } = renderHook(
+      () => useIsCourseAssigned(),
+      { wrapper: Wrapper },
+    );
     expect(result.current).toEqual(true);
+  });
+});
+
+describe('useCourseListPrice', () => {
+  const mockOrgName = 'Fake Org Name';
+  const mockLogoImageUrl = 'https://fake-logo.url';
+  const mockOrgMarketingUrl = 'https://fake-mktg.url';
+  const mockWeeksToComplete = 8;
+  const mockListPrice = 100;
+  const mockCurrency = 'USD';
+  const mockCourseTitle = 'Test Course Title';
+  const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
+
+  const baseCourseMetadataValue = {
+    organization: {
+      name: mockOrgName,
+      logoImgUrl: mockLogoImageUrl,
+      marketingUrl: mockOrgMarketingUrl,
+    },
+    title: mockCourseTitle,
+    startDate: mockCourseRunStartDate,
+    duration: `${mockWeeksToComplete} Weeks`,
+    priceDetails: {
+      price: mockListPrice,
+      currency: mockCurrency,
+    },
+    activeCourseRun: {
+      firstEnrollablePaidSeatPrice: 25,
+    },
+    entitlements: [
+      {
+        price: 15,
+      },
+    ],
+  };
+
+  const Wrapper = ({ children }) => (
+    <AppContext.Provider value={mockAuthenticatedUser}>
+      {children}
+    </AppContext.Provider>
+  );
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: mockListPrice } });
+    useCourseMetadata.mockReturnValue(mockListPrice || getCoursePrice(baseCourseMetadataValue));
+  });
+  it('should return the list price if one exist', () => {
+    const { result } = renderHook(
+      () => useCourseListPrice(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual(mockListPrice);
+  });
+  it('should not return the list price if one doesnt, first fallback, firstEnrollablePaidSeatPrice', () => {
+    const updatedListPrice = undefined;
+    useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
+    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
+    const { result } = renderHook(
+      () => useCourseListPrice(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual(baseCourseMetadataValue.activeCourseRun.firstEnrollablePaidSeatPrice);
+  });
+  it('should not return the list price if one doesnt, second fallback, entitlements', () => {
+    const updatedListPrice = undefined;
+    useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
+    delete baseCourseMetadataValue.activeCourseRun.firstEnrollablePaidSeatPrice;
+    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
+    const { result } = renderHook(
+      () => useCourseListPrice(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual(baseCourseMetadataValue.entitlements[0].price);
+  });
+  it('should not return the list price if one doesnt exist or the course metadata doesnt include it', () => {
+    const updatedListPrice = undefined;
+    useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
+    delete baseCourseMetadataValue.entitlements;
+    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
+    const { result } = renderHook(
+      () => useCourseListPrice(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual(undefined);
+  });
+});
+
+describe('useBrowseAndRequestCatalogsApplicableToCourse', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
+    useCatalogsForSubsidyRequests.mockReturnValue(['test-catalog']);
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: { catalogList: ['test-catalog'] },
+    });
+  });
+  const Wrapper = ({ children }) => (
+    <AppContext.Provider value={mockAuthenticatedUser}>
+      {children}
+    </AppContext.Provider>
+  );
+  it('returns catalog list if a match exist from the subsidy request and customer contains content', () => {
+    const { result } = renderHook(
+      () => useBrowseAndRequestCatalogsApplicableToCourse(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual(['test-catalog']);
+  });
+  it('filters sets effectively', () => {
+    useCatalogsForSubsidyRequests.mockReturnValue(['test-catalog', 'test-catalog', 'test-catalog1']);
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: { catalogList: ['test-catalog', 'test-catalog1', 'test-catalog2'] },
+    });
+
+    const { result } = renderHook(
+      () => useBrowseAndRequestCatalogsApplicableToCourse(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual(['test-catalog', 'test-catalog1']);
   });
 });

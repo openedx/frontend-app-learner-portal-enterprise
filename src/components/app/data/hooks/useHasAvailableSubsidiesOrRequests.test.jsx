@@ -24,7 +24,6 @@ const appContextValue = {
 };
 
 const wrapper = ({ children }) => (
-  // eslint-disable-next-line react/jsx-filename-extension
   <AppContext.Provider value={appContextValue}>
     {children}
   </AppContext.Provider>

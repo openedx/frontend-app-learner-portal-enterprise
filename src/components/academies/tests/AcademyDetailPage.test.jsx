@@ -123,9 +123,9 @@ describe('<AcademyDetailPage />', () => {
   it('renders academy detail page', async () => {
     renderWithRouter(<AcademyDetailPageWrapper />);
 
-    const headingElement = await screen.findByRole('heading', { level: 2 });
-    expect(headingElement.textContent).toBe(ACADEMY_MOCK_DATA.title);
-    expect(screen.getByTestId('academy-description')).toHaveTextContent(ACADEMY_MOCK_DATA.longDescription);
+    const headingElement = await screen.getByTestId('academy-all-courses-title');
+    const expectedHeadingElement = `All ${ACADEMY_MOCK_DATA.title} Academy Courses`;
+    expect(headingElement.textContent).toBe(expectedHeadingElement);
     const academyTags = screen.getAllByTestId('academy-tag').map((tag) => tag.textContent);
     expect(academyTags).toEqual(['wowwww', 'boooo']);
     expect(screen.getByTestId('academy-exec-ed-courses-title')).toHaveTextContent('Executive Education');

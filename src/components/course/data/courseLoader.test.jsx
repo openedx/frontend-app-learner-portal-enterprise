@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouterProvider } from '../../../utils/tests';
 import makeCourseLoader from './courseLoader';
 import {
-  extractEnterpriseId,
+  extractEnterpriseCustomer,
   queryBrowseAndRequestConfiguration,
   queryCanRedeem,
   queryCouponCodeRequests,
@@ -31,7 +31,7 @@ jest.mock('../../app/routes/data', () => ({
 }));
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  extractEnterpriseId: jest.fn(),
+  extractEnterpriseCustomer: jest.fn(),
 }));
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
@@ -46,7 +46,7 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 const mockCourseKey = 'edX+DemoX';
 const mockSubscriptionCatalog = 'test-subscription-catalog-uuid';
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
-extractEnterpriseId.mockResolvedValue(mockEnterpriseCustomer.uuid);
+extractEnterpriseCustomer.mockResolvedValue(mockEnterpriseCustomer);
 
 const mockAuthenticatedUser = authenticatedUserFactory();
 
@@ -108,7 +108,9 @@ describe('courseLoader', () => {
     {
       hasCourseMetadata: false,
       isAssignmentOnlyLearner: false,
-      hasAllocatedAssignmentForCourse: false,
+      assignments: {
+        allocatedAssignments: [],
+      },
     },
   ])('ensures the requisite course-related metadata data is resolved (%s)', async ({
     hasCourseMetadata,
@@ -162,8 +164,8 @@ describe('courseLoader', () => {
     // ensure its mock return value is valid.
     const mockSubscriptionPlan = {
       uuid: 'test-subscription-plan-uuid',
-      isActive: true,
       enterpriseCatalogUuid: mockSubscriptionCatalog,
+      isCurrent: true,
     };
     const mockSubscriptionsData = isAssignmentOnlyLearner
       ? null

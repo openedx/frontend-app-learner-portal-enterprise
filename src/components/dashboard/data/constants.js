@@ -19,3 +19,11 @@ export const DASHBOARD_TABS_SEGMENT_KEY = {
   [DASHBOARD_PATHWAYS_TAB]: 'pathways_tab',
   [DASHBOARD_MY_CAREER_TAB]: 'career_tab',
 };
+
+export const BUDGET_STATUSES = {
+  active: 'Active',
+  expired: 'Expired',
+  expiring: 'Expiring',
+  scheduled: 'Scheduled',
+  retired: 'Retired',
+};

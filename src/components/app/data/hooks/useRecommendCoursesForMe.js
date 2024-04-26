@@ -2,6 +2,7 @@ import { useMatch } from 'react-router-dom';
 
 import useContentHighlightsConfiguration from './useContentHighlightsConfiguration';
 import useIsAssignmentsOnlyLearner from './useIsAssignmentsOnlyLearner';
+import useEnterpriseCustomer from './useEnterpriseCustomer';
 
 /**
  * Keeps track of whether the enterprise banner should include the "Recommend courses for me" button.
@@ -12,9 +13,10 @@ export default function useRecommendCoursesForMe() {
   const { data: contentHighlightsConfiguration } = useContentHighlightsConfiguration();
   const canOnlyViewHighlightSets = !!contentHighlightsConfiguration?.canOnlyViewHighlightSets;
   const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();
-  // If user is not on the search page route, or users are restricted to only viewing highlight sets,
-  // the "Recommend courses for me" button should not be shown.
-  if (!isSearchPage || canOnlyViewHighlightSets) {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  // If user is not on the search page route, or users are restricted to only viewing highlight sets or
+  // if the enterprise customer has enabled one academy, the "Recommend courses for me" button should not be shown.
+  if (!isSearchPage || canOnlyViewHighlightSets || enterpriseCustomer.enableOneAcademy) {
     return {
       shouldRecommendCourses: false,
     };

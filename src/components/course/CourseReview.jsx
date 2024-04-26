@@ -110,7 +110,7 @@ const CourseReview = () => {
             onClick={() => { setShowInfoContent(REVIEW_SECTION_CONTENT.DEMAND_AND_GROWTH); }}
             className={`number-color mb-0 ${ showInfoContent === REVIEW_SECTION_CONTENT.DEMAND_AND_GROWTH && 'text-underline'}`}
           >
-            {courseReviews.totalEnrollments}
+            {courseReviews?.totalEnrollments.toLocaleString('en-US')}
           </h1>
           <div>
             <FormattedMessage

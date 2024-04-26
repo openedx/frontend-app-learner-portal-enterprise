@@ -8,7 +8,7 @@ import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeRootLoader from '../rootLoader';
 import { ensureAuthenticatedUser } from '../../data';
 import {
-  extractEnterpriseId,
+  extractEnterpriseCustomer,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
@@ -28,7 +28,7 @@ jest.mock('../../data', () => ({
 }));
 jest.mock('../../../data', () => ({
   ...jest.requireActual('../../../data'),
-  extractEnterpriseId: jest.fn(),
+  extractEnterpriseCustomer: jest.fn(),
   updateUserActiveEnterprise: jest.fn(),
 }));
 
@@ -64,7 +64,7 @@ describe('rootLoader', () => {
     jest.clearAllMocks();
     localStorage.clear();
     ensureAuthenticatedUser.mockResolvedValue(mockAuthenticatedUser);
-    extractEnterpriseId.mockResolvedValue(mockEnterpriseCustomer.uuid);
+    extractEnterpriseCustomer.mockResolvedValue(mockEnterpriseCustomer);
   });
 
   it('does nothing if the user is not authenticated', async () => {

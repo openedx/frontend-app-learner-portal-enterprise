@@ -1,4 +1,3 @@
-import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -12,6 +11,7 @@ import {
   useIsAssignmentsOnlyLearner,
   useLearnerSkillLevels,
   useDefaultSearchFilters,
+  useEnterpriseCourseEnrollments,
 } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
@@ -33,6 +33,7 @@ jest.mock('../../app/data', () => ({
   useLearnerSkillLevels: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
   useDefaultSearchFilters: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
 }));
 
 hooks.usePlotlySpiderChart.mockReturnValue({});
@@ -175,6 +176,20 @@ describe('<MyCareerTab />', () => {
     useLearnerSkillLevels.mockReturnValue({ data: mockLearnerSkillsData });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
     useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: {
+        allEnrollmentsByStatus: {
+          inProgress: [{
+            courseRunId: 'edx+Demo',
+          }],
+          upcoming: [],
+          completed: [],
+          savedForLater: [],
+          requested: [],
+          assigned: [],
+        },
+      },
+    });
   });
 
   it('renders the VisualizeCareer component when learner has a current job', () => {

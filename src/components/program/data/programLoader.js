@@ -1,5 +1,5 @@
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import { extractEnterpriseId, queryEnterpriseProgram } from '../../app/data';
+import { extractEnterpriseCustomer, queryEnterpriseProgram } from '../../app/data';
 
 export default function makeProgramLoader(queryClient) {
   return async function programLoader({ params = {}, request }) {
@@ -12,13 +12,13 @@ export default function makeProgramLoader(queryClient) {
 
     const { enterpriseSlug, programUUID } = params;
 
-    const enterpriseId = await extractEnterpriseId({
+    const enterpriseCustomer = await extractEnterpriseCustomer({
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
 
-    await queryClient.ensureQueryData(queryEnterpriseProgram(enterpriseId, programUUID));
+    await queryClient.ensureQueryData(queryEnterpriseProgram(enterpriseCustomer.uuid, programUUID));
 
     return null;
   };

@@ -1,14 +1,15 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { queryClient, renderWithRouter } from '../../../utils/tests';
+import { AppContext } from '@edx/frontend-platform/react';
+import { renderWithRouter } from '../../../utils/tests';
 
 import SearchAcademy from '../SearchAcademy';
-import { queryAcademiesList, useEnterpriseCustomer } from '../../app/data';
+import { useAcademies, useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 // config
 const APP_CONFIG = {
@@ -60,34 +61,40 @@ axiosMock.onGet(ACADEMIES_LIST_API_ENDPOINT).reply(200, { count: 1, results: [AC
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useAcademies: jest.fn(),
 }));
 
-const mockQueryClient = queryClient();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
-const SearchAcademyWithContext = ({ ...rest }) => (
-  <QueryClientProvider client={mockQueryClient}>
+const SearchAcademyWrapper = ({ ...rest }) => (
+  <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
     <SearchAcademy {...rest} />
-  </QueryClientProvider>
+  </AppContext.Provider>
 );
 
-const mockEnterpriseCustomer = {
-  slug: 'test-enterprise-slug',
-  uuid: ENTERPRISE_UUID,
-};
-
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 describe('<SearchAcademy />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    mockQueryClient.setQueryData(queryAcademiesList(ENTERPRISE_UUID).queryKey, []);
+    useAcademies.mockReturnValue({ data: [ACADEMY_MOCK_DATA], isError: false });
   });
   it('renders search academy section correctly.', async () => {
     renderWithRouter(
       <IntlProvider locale="en">
-        <SearchAcademyWithContext />
+        <SearchAcademyWrapper />
       </IntlProvider>,
     );
-    expect(await screen.findByText('edX Academies; designed to meet your most critical business needs')).toBeInTheDocument();
+    expect(await screen.findByText('edX Academies: designed to meet your most critical business needs')).toBeInTheDocument();
     expect(screen.getByText('My Awesome Academy')).toBeInTheDocument();
+  });
+  it('renders error page correctly', () => {
+    useAcademies.mockReturnValue({ data: [], isError: true });
+    renderWithRouter(
+      <IntlProvider locale="en">
+        <SearchAcademyWrapper />
+      </IntlProvider>,
+    );
+    expect(screen.getByTestId('search-error')).toBeTruthy();
   });
 });
