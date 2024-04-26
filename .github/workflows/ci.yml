@@ -1,6 +1,6 @@
 name: node_js CI
 
-on: [pull_request, workflow_dispatch]
+on: [pull_request]
 
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
