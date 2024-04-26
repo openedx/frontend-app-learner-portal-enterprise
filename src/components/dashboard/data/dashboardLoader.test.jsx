@@ -8,6 +8,7 @@ import {
   queryEnterpriseCourseEnrollments,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
+  queryEnterpriseGroupMemberships,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
@@ -72,7 +73,13 @@ describe('dashboardLoader', () => {
 
     expect(await screen.findByText('hello world')).toBeInTheDocument();
 
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(3);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(4);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: queryEnterpriseGroupMemberships(mockEnterpriseId).queryKey,
+        queryFn: expect.any(Function),
+      }),
+    );
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: queryEnterpriseCourseEnrollments(mockEnterpriseId).queryKey,

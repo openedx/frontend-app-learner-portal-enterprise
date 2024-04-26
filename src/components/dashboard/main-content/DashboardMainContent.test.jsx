@@ -12,11 +12,13 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useAcademies,
+  useEnterpriseGroupMemberships,
 } from '../../app/data';
 import {
   authenticatedUserFactory,
   enterpriseCustomerFactory,
   academiesFactory,
+  groupMembershipFactories,
 } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
@@ -25,6 +27,7 @@ jest.mock('../../app/data', () => ({
   useCanOnlyViewHighlights: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
   useAcademies: jest.fn(),
+  useEnterpriseGroupMemberships: jest.fn(),
 }));
 
 jest.mock('../../../config', () => ({
@@ -53,6 +56,9 @@ describe('DashboardMainContent', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAcademies.mockReturnValue({ data: academiesFactory(3) });
     useCanOnlyViewHighlights.mockReturnValue({ data: false });
+    useEnterpriseGroupMemberships.mockReturnValue({
+      data: groupMembershipFactories(),
+    });
     useEnterpriseCourseEnrollments.mockReturnValue({
       data: {
         allEnrollmentsByStatus: {
