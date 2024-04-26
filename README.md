@@ -30,7 +30,7 @@ At this point, it will ask you to login. Use the user indicated in devstack (edx
 
 Our goal is to setup a enterprise customer, obtains its slug, then visit it such as http://localhostL8734/{enterprise_slug}
 
-Now quickly check the .env.development file for which services are used by the application. e.g. `LMS_BASE_URL='http://localhost:18000'` . We will get back to this.
+Now quickly check the `.env.development` file for which services are used by the application. e.g. `LMS_BASE_URL='http://localhost:18000'` . We will get back to this.
 
 
 ## Serving production builds
