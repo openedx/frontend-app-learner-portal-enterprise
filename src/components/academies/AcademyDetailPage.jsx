@@ -11,8 +11,10 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { ArrowDownward } from '@openedx/paragon/icons';
 import NotFoundPage from '../NotFoundPage';
 import './styles/Academy.scss';
+import { isObjEmpty, useAcademyDetails, useEnterpriseCustomer } from '../app/data';
+import PathwaysSection from './PathwaysSection';
 import AcademyContentCard from './AcademyContentCard';
-import { useAcademyDetails, useEnterpriseCustomer } from '../app/data';
+import { useAcademyPathwayData } from './data/hooks';
 
 const AcademyDetailPage = () => {
   const config = getConfig();
@@ -34,6 +36,8 @@ const AcademyDetailPage = () => {
     [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
   );
 
+  const [pathway] = useAcademyPathwayData(academyUUID, courseIndex);
+
   if (!academy) {
     return (
       <NotFoundPage
@@ -50,7 +54,6 @@ const AcademyDetailPage = () => {
       />
     );
   }
-
   return (
     <>
       <Container size="lg" className="pt-3">
@@ -73,37 +76,41 @@ const AcademyDetailPage = () => {
               values={{ academyTitle: academy?.title || 'Academy' }}
             />
           </h1>
-          <div>
-            <h3 data-testid="academy-instruction-header">
-              <FormattedMessage
-                id="academy.detail.page.instruction.header"
-                defaultMessage="Follow a recommended pathway - or select individual courses"
-                description="Header for pathways and course selection instructions in a specific academy on the academy detail page"
-              />
-            </h3>
-            <p data-testid="academy-instruction-description">
-              <FormattedMessage
-                id="academy.detail.page.instruction.description"
-                defaultMessage="Pathways are curated roadmaps through the academy’s content designed specifically for your learning goals. Or select a specific course from Executive Education or Self-paced courses in this Academy."
-                description="Description for pathways and course selection in a specific academy on the academy detail page"
-              />
-            </p>
-          </div>
-          <div data-testid="academies-jump-link" className="mt-3 mb-4 text-right mr-5">
-            <Link to="#academy-all-courses">
-              <FormattedMessage
-                id="academy.detail.page.view.all.courses.link"
-                defaultMessage="View all {academyTitle} Academy Courses"
-                description="Link text to view all courses for a specific academy on the academy detail page"
-                values={{ academyTitle: academy?.title || '' }}
-              />
-              <ArrowDownward />
-            </Link>
-          </div>
+          {!isObjEmpty(pathway) && (
+            <>
+              <div>
+                <h3 data-testid="academy-instruction-header">
+                  <FormattedMessage
+                    id="academy.detail.page.instruction.header"
+                    defaultMessage="Follow a recommended pathway - or select individual courses"
+                    description="Header for pathways and course selection instructions in a specific academy on the academy detail page"
+                  />
+                </h3>
+                <p data-testid="academy-instruction-description" className="mb-0">
+                  <FormattedMessage
+                    id="academy.detail.page.instruction.description"
+                    defaultMessage="Pathways are curated roadmaps through the academy’s content designed specifically for your learning goals. Or select a specific course from Executive Education or Self-paced courses in this Academy."
+                    description="Description for pathways and course selection in a specific academy on the academy detail page"
+                  />
+                </p>
+              </div>
+              <div data-testid="academies-jump-link" className="mb-4 text-right mr-5">
+                <Link to="#academy-all-courses">
+                  <FormattedMessage
+                    id="academy.detail.page.view.all.courses.link"
+                    defaultMessage="View all {academyTitle} Academy Courses"
+                    description="Link text to view all courses for a specific academy on the academy detail page"
+                    values={{ academyTitle: academy?.title || '' }}
+                  />
+                  <ArrowDownward />
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </Container>
-      {/* new pathway sectoin will come here */}
-      <Container size="lg" className="pb-4 mt-4">
+      {!isObjEmpty(pathway) && <PathwaysSection pathwayData={pathway} />}
+      <Container size="lg">
         <h3 id="academy-all-courses" data-testid="academy-all-courses-title">
           <FormattedMessage
             id="academy.detail.page.all.courses.title"
@@ -112,6 +119,8 @@ const AcademyDetailPage = () => {
             values={{ academyTitle: academy?.title }}
           />
         </h3>
+      </Container>
+      <Container size="lg" className="pb-4">
         <AcademyContentCard
           courseIndex={courseIndex}
           academyUUID={academyUUID}

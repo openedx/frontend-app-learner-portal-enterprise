@@ -575,3 +575,12 @@ export function findHighestLevelEntitlementSku(entitlements) {
   }
   return findHighestLevelSkuByEntityModeType(entitlements, entitlement => entitlement.mode);
 }
+
+/**
+ * check if an object is empty
+ * @param {Object} obj
+ * @returns {boolean}
+ */
+export function isObjEmpty(obj) {
+  return Object.keys(obj).length === 0;
+}
