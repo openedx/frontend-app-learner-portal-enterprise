@@ -92,7 +92,6 @@ const CourseEnrollments = ({ children }) => {
     shouldShowNewGroupMembershipAlert,
     handleAddNewGroupAssignmentToLocalStorage,
     enterpriseCustomer,
-    catalogCourseCount,
   } = useGroupMembershipAssignments();
 
   // If there are no enrollments or assignments, render the children. This
@@ -109,7 +108,6 @@ const CourseEnrollments = ({ children }) => {
           showAlert={shouldShowNewGroupMembershipAlert}
           onClose={() => handleAddNewGroupAssignmentToLocalStorage()}
           enterpriseCustomer={enterpriseCustomer}
-          catalogCourseCount={catalogCourseCount}
         />
       )}
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (

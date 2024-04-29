@@ -580,10 +580,6 @@ describe('transformGroupMembership', () => {
     MockDate.reset();
   });
   const mockGroupUuid = 'test-group-uuid';
-  const mockCatalogUuid = 'test-catalog-uuid';
-  const mockCatalogContentMetadata = {
-    count: 5,
-  };
   const mockGroupMemberships = [
     {
       learner_id: 1,
@@ -606,7 +602,7 @@ describe('transformGroupMembership', () => {
       status: 'accepted',
     },
   ];
-  const mockReturnData = [
+  const mockTransformedData = [
     {
       learner_id: 1,
       pending_learner_id: null,
@@ -617,10 +613,6 @@ describe('transformGroupMembership', () => {
       recent_action: 'Accepted: April 15, 2024',
       status: 'accepted',
       groupUuid: mockGroupUuid,
-      enterpriseCatalog: {
-        catalogUuid: mockCatalogUuid,
-        courseCount: 5,
-      },
     },
     {
       learner_id: 2,
@@ -632,18 +624,12 @@ describe('transformGroupMembership', () => {
       recent_action: 'Accepted: April 15, 2024',
       status: 'accepted',
       groupUuid: mockGroupUuid,
-      enterpriseCatalog: {
-        catalogUuid: mockCatalogUuid,
-        courseCount: 5,
-      },
     },
   ];
   it('returns array with transformed group membership data', () => {
     expect(transformGroupMembership(
       mockGroupMemberships,
       mockGroupUuid,
-      mockCatalogUuid,
-      mockCatalogContentMetadata,
-    )).toEqual(mockReturnData);
+    )).toEqual(mockTransformedData);
   });
 });

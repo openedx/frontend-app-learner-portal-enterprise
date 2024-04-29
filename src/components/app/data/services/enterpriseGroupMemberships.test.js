@@ -4,7 +4,6 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import {
   fetchEnterpriseAccessPolicies,
-  fetchEnterpriseCatalogContentMetadata,
   fetchEnterpriseGroupMemberships,
 } from './enterpriseGroupMemberships';
 
@@ -12,14 +11,11 @@ const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
 
 const mockEnterpriseId = 'test-enterprise-uuid';
-const mockCatalogUuid = 'test-catalog-uuid';
 const mockGroupUuid = 'test-group-uuid';
 const APP_CONFIG = {
   LMS_BASE_URL: 'http://localhost:18000',
   ENTERPRISE_ACCESS_BASE_URL: 'http://localhost:18270',
-  ENTERPRISE_CATALOG_API_BASE_URL: 'http://localhost:18160',
 };
-const ENTERPRISE_CATALOG_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-catalogs/${mockCatalogUuid}/get_content_metadata`;
 const SUBSIDY_ACCESS_POLICY_ENDPOINT = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/subsidy-access-policies/?enterprise_customer_uuid=${mockEnterpriseId}`;
 const ENTERPRISE_GROUPS_LEARNERS_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/enterprise/api/v1/enterprise-group/${mockGroupUuid}/learners/`;
 
@@ -44,7 +40,6 @@ describe('fetchEnterpriseAccessPolicies', () => {
       results: [{
         uuid: 'test-policy-uuid',
         enterpriseCustomerUuid: mockEnterpriseId,
-        catalogUuid: mockCatalogUuid,
         groupAssociations: ['test-group-association'],
       }],
     };
@@ -58,14 +53,6 @@ describe('fetchEnterpriseCatalogContentMetadata', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     axiosMock.reset();
-  });
-
-  it('returns catalog metadata', async () => {
-    axiosMock.onGet(ENTERPRISE_CATALOG_ENDPOINT).reply(200, {
-      count: 5,
-    });
-    const results = await fetchEnterpriseCatalogContentMetadata(mockCatalogUuid);
-    expect(results).toEqual({ count: 5 });
   });
 });
 
@@ -93,23 +80,15 @@ describe('fetchEnterpriseGroupMemberships', () => {
       results: [{
         uuid: 'test-policy-uuid',
         enterpriseCustomerUuid: mockEnterpriseId,
-        catalogUuid: mockCatalogUuid,
         groupAssociations: ['test-group-uuid'],
       }],
     };
     axiosMock.onGet(SUBSIDY_ACCESS_POLICY_ENDPOINT).reply(200, subsidyAccessPolicies);
     axiosMock.onGet(ENTERPRISE_GROUPS_LEARNERS_ENDPOINT).reply(200, groupMemberships);
-    axiosMock.onGet(ENTERPRISE_CATALOG_ENDPOINT).reply(200, {
-      count: 5,
-    });
 
     const response = await fetchEnterpriseGroupMemberships(mockEnterpriseId, mockUserEmail);
     const mockTransformedResponse = [
       {
-        enterpriseCatalog: {
-          catalogUuid: 'test-catalog-uuid',
-          courseCount: 5,
-        },
         enterpriseGroupMembershipUuid: 'test-group-uuid',
         groupUuid: 'test-group-uuid',
         learnerId: 1,

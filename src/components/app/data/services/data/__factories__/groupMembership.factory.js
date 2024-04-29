@@ -5,10 +5,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 Factory.define('groupMembership')
   .attr('groupUuid', uuidv4())
-  .attr('enterpriseCatalog', {
-    catalogContentCount: 3,
-    catalogUuid: uuidv4(),
-  })
   .attr('enterpriseGroupMembershipUuid', uuidv4)
   .attr('learnerId', 1)
   .attr('membershipDetails', {

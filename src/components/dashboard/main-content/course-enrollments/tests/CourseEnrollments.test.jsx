@@ -155,7 +155,6 @@ describe('Course enrollments', () => {
       handleAddNewGroupAssignmentToLocalStorage: mockHandleAddNewGroupToLocalStorage,
       enterpriseCustomer: {
         name: 'test-enterprise-customer',
-        catalogCourseCount: 5,
       },
     });
   });
@@ -247,7 +246,6 @@ describe('Course enrollments', () => {
         enterpriseCustomer: {
           name: 'test-enterprise-customer',
         },
-        catalogCourseCount: 5,
       });
       renderWithRouter(<CourseEnrollmentsWrapper />);
       const dismissButton = screen.getAllByRole('button', { name: 'Dismiss' })[0];
@@ -265,7 +263,6 @@ describe('Course enrollments', () => {
         handleAddNewGroupAssignmentToLocalStorage: mockHandleAddNewGroupToLocalStorage,
         enterpriseCustomer: {
           name: 'test-enterprise-customer',
-          catalogCourseCount: 5,
         },
       });
       renderWithRouter(<CourseEnrollmentsWrapper />);

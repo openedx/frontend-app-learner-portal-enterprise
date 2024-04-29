@@ -7,7 +7,6 @@ const NewGroupAssignmentAlert = ({
   showAlert,
   enterpriseCustomer,
   onClose,
-  catalogCourseCount,
 }) => {
   const intl = useIntl();
   return (
@@ -36,7 +35,7 @@ const NewGroupAssignmentAlert = ({
       })}
     >
       <Alert.Heading>You have new courses to browse</Alert.Heading>
-      <p>You can now browse {catalogCourseCount} new courses and enroll
+      <p>You can now browse new courses and enroll
         using the Learner Credit provided by {enterpriseCustomer.name}.
       </p>
     </Alert>
@@ -49,13 +48,11 @@ NewGroupAssignmentAlert.propTypes = {
   enterpriseCustomer: PropTypes.shape({
     name: PropTypes.string,
   }),
-  catalogCourseCount: PropTypes.number,
 };
 
 NewGroupAssignmentAlert.defaultProps = {
   onClose: null,
   showAlert: false,
-  catalogCourseCount: null,
   enterpriseCustomer: null,
 };
 

@@ -647,7 +647,7 @@ describe('useCourseEnrollmentsBySection', () => {
 });
 
 describe('useGroupMembershipAssignments', () => {
-  it('returns expectedValues', async () => {
+  it('returns expected values', async () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
 
     useEnterpriseGroupMemberships.mockReturnValue({
@@ -686,19 +686,19 @@ describe('useGroupMembershipAssignments', () => {
       shouldShowNewGroupMembershipAlert: true,
       handleAddNewGroupAssignmentToLocalStorage: expect.any(Function),
       enterpriseCustomer: mockEnterpriseCustomer,
-      catalogCourseCount: 71,
     });
     expect(result.current.handleAddNewGroupAssignmentToLocalStorage).toBeInstanceOf(Function);
-    result.current.handleAddNewGroupAssignmentToLocalStorage();
-    let localStorageGroup = global.localStorage.getItem(
+    act(() => result.current.handleAddNewGroupAssignmentToLocalStorage());
+    const localStorageGroup1 = global.localStorage.getItem(
       `${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-test-group-uuid-1`,
     );
-    await waitFor(() => { expect(localStorageGroup).toBe('true'); });
-    result.current.handleAddNewGroupAssignmentToLocalStorage();
     // checks that a second local storage key is added
-    localStorageGroup = global.localStorage.getItem(
+    const localStorageGroup2 = global.localStorage.getItem(
       `${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-test-group-uuid-2`,
     );
-    await waitFor(() => { expect(localStorageGroup).toBe('true'); });
+    await waitFor(() => {
+      expect(localStorageGroup1).toBe('true');
+      expect(localStorageGroup2).toBe('true');
+    });
   });
 });

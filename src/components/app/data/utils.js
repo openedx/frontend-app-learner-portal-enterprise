@@ -582,38 +582,27 @@ export function findHighestLevelEntitlementSku(entitlements) {
  *
  * @param {Array} groupMemberships - Array of groupMemberships to be transformed.
  * @param {String} groupUuid - UUID of the group.
- * @param {String} catalogUuid - UUID of the catalog.
- * @param {Object} catalogContentMetadata - Object of catalog content metadata.
  * @returns {Array} Returns the transformed array of group memberships.
  */
-export function transformGroupMembership(groupMemberships, groupUuid, catalogUuid, catalogContentMetadata) {
+export function transformGroupMembership(groupMemberships, groupUuid) {
   return groupMemberships.map(groupMembership => ({
     ...groupMembership,
     groupUuid,
-    enterpriseCatalog: {
-      catalogUuid,
-      courseCount: catalogContentMetadata.count,
-    },
   }));
 }
 
 /**
- * Transforms policies to only include groupUuid and catalogUuid.
+ * Gets array of group UUIDs.
  *
  * @param {Array} policies - Array of policies to be transformed.
  * @returns {Array} Returns the transformed array of policies.
  */
-export function transformPolicies(policies) {
-  const transformedPolicies = [];
+export function getCustomerGroupAssociations(policies) {
+  const customerGroupAssociations = [];
   policies.forEach(policy => {
     if (policy.groupAssociations.length > 0) {
-      policy.groupAssociations.forEach(groupAssociation => {
-        transformedPolicies.push({
-          catalogUuid: policy.catalogUuid,
-          groupUuid: groupAssociation,
-        });
-      });
+      customerGroupAssociations.push(...policy.groupAssociations);
     }
   });
-  return transformedPolicies;
+  return customerGroupAssociations;
 }
