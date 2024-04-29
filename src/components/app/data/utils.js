@@ -607,7 +607,7 @@ export function getCustomerGroupAssociations(policies) {
   return customerGroupAssociations;
 }
 
-/** 
+/**
  * check if an object is empty
  * @param {Object} obj
  * @returns {boolean}
