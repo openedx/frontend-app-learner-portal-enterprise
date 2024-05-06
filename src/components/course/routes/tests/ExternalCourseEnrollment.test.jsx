@@ -5,7 +5,11 @@ import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouterProvider } from '../../../../utils/tests';
 
-import { DISABLED_ENROLL_REASON_TYPES } from '../../data/constants';
+import {
+  DISABLED_ENROLL_REASON_TYPES,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
+} from '../../data/constants';
 import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
 import {
@@ -18,6 +22,7 @@ import {
   useExternalEnrollmentFailureReason,
   useIsCourseAssigned,
   useMinimalCourseMetadata,
+  useUserSubsidyApplicableToCourse,
 } from '../../data/hooks';
 
 const mockCourseKey = 'bin+bar';
@@ -55,6 +60,7 @@ jest.mock('../../data/hooks', () => ({
   useExternalEnrollmentFailureReason: jest.fn(),
   useIsCourseAssigned: jest.fn(),
   useMinimalCourseMetadata: jest.fn(),
+  useUserSubsidyApplicableToCourse: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -111,14 +117,55 @@ describe('ExternalCourseEnrollment', () => {
     useCourseRedemptionEligibility.mockReturnValue({
       data: {
         isPolicyRedemptionEnabled: true,
+        redeemabilityPerContentKey: [
+          {
+            contentKey: mockCourseRunKey,
+            hasSuccessfulRedemption: false,
+            canRedeem: true,
+          },
+        ],
         listPrice: 10000, // can_redeem returns the course price, even though course metadata already does too.
       },
+    });
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
+      missingUserSubsidyReason: undefined,
     });
     // The course is NOT assigned using top-down learner credit assignments.
     useIsCourseAssigned.mockReturnValue(false);
   });
 
-  it('renders and handles checkout success', () => {
+  it.each([
+    // The auto-selected subsidy type is learner credit, and the specific requested run is redeemable.
+    [
+      {
+        contentKey: mockCourseRunKey,
+        hasSuccessfulRedemption: false,
+        canRedeem: true,
+      },
+      LEARNER_CREDIT_SUBSIDY_TYPE,
+    ],
+    // The specific run is not redeemable via LC, but that's okay because we're not using learner credit anyway.
+    [
+      {
+        contentKey: mockCourseRunKey,
+        hasSuccessfulRedemption: false,
+        canRedeem: false, // Not redeemable!?
+      },
+      LICENSE_SUBSIDY_TYPE, // Auto-selected subsidy type is not learner credit anyway, so allow the page to render.
+    ],
+  ])('renders and handles checkout success', (mockCanRedeemData, mockSubsidyTypeApplicable) => {
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: { subsidyType: mockSubsidyTypeApplicable },
+      missingUserSubsidyReason: undefined,
+    });
+    useCourseRedemptionEligibility.mockReturnValue({
+      data: {
+        isPolicyRedemptionEnabled: true,
+        redeemabilityPerContentKey: [mockCanRedeemData],
+        listPrice: 10000, // can_redeem returns the course price, even though course metadata already does too.
+      },
+    });
     renderWithRouterProvider({
       path: '/:enterpriseSlug/course/:courseKey/enroll/:courseRunKey',
       element: <ExternalCourseEnrollmentWrapper />,
@@ -134,6 +181,46 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('Registration summary:')).toBeInTheDocument();
     expect(screen.getByText('Registration total:')).toBeInTheDocument();
     expect(screen.getByTestId('user-enrollment-form')).toBeInTheDocument();
+  });
+
+  it.each([
+    // The course exists and is "available", but non-redeemable via subsidy.
+    [
+      {
+        contentKey: mockCourseRunKey,
+        hasSuccessfulRedemption: false,
+        canRedeem: false,
+      },
+      LEARNER_CREDIT_SUBSIDY_TYPE,
+    ],
+    // The requested course run is not included in the can-redeem response, so it is "unavailable".
+    [
+      {
+        contentKey: 'some+other+course', // A different run than what was requested in the URL.
+        hasSuccessfulRedemption: false,
+        canRedeem: true, // This one happens to be redeemable, but it's moot since it's the wrong course run.
+      },
+      LEARNER_CREDIT_SUBSIDY_TYPE,
+    ],
+  ])('renders 404 page when appropriate', (mockCanRedeemData, mockSubsidyTypeApplicable) => {
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: { subsidyType: mockSubsidyTypeApplicable },
+      missingUserSubsidyReason: undefined,
+    });
+    useCourseRedemptionEligibility.mockReturnValue({
+      data: {
+        isPolicyRedemptionEnabled: true,
+        redeemabilityPerContentKey: [mockCanRedeemData],
+        listPrice: 10000, // can_redeem returns the course price, even though course metadata already does too.
+      },
+    });
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/course/:courseKey/enroll/:courseRunKey',
+      element: <ExternalCourseEnrollmentWrapper />,
+    }, {
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseKey}/enroll/${mockCourseRunKey}`],
+    });
+    expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });
 
   it.each([
