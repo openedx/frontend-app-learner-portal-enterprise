@@ -598,13 +598,7 @@ export function transformGroupMembership(groupMemberships, groupUuid) {
  * @returns {Array} Returns the transformed array of policies.
  */
 export function getCustomerGroupAssociations(policies) {
-  const customerGroupAssociations = [];
-  policies.forEach(policy => {
-    if (policy.groupAssociations.length > 0) {
-      customerGroupAssociations.push(...policy.groupAssociations);
-    }
-  });
-  return customerGroupAssociations;
+  return policies.flatMap(policy => policy.groupAssociations);
 }
 
 /**
