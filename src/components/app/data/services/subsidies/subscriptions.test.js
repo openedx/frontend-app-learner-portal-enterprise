@@ -6,6 +6,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { activateOrAutoApplySubscriptionLicense, fetchSubscriptions } from '.';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
+import { hasValidStartExpirationDates } from '../../../../../utils/common';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -61,26 +62,36 @@ describe('fetchSubscriptions', () => {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
       isSubscriptionPlanActive: true,
       daysUntilExpiration: 30,
+      startDate: dayjs().subtract(15, 'days').toISOString(),
+      expirationDate: dayjs().add(30, 'days').toISOString(),
     },
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
       isSubscriptionPlanActive: false,
       daysUntilExpiration: 30,
+      startDate: dayjs().subtract(15, 'days').toISOString(),
+      expirationDate: dayjs().add(30, 'days').toISOString(),
     },
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
       isSubscriptionPlanActive: true,
       daysUntilExpiration: 0,
+      startDate: dayjs().subtract(15, 'days').toISOString(),
+      expirationDate: dayjs().toISOString(),
     },
     {
       licenseStatus: LICENSE_STATUS.UNASSIGNED,
       isSubscriptionPlanActive: true,
       daysUntilExpiration: 30,
+      startDate: dayjs().subtract(15, 'days').toISOString(),
+      expirationDate: dayjs().add(30, 'days').toISOString(),
     },
   ])('returns subscriptions (%s)', async ({
     licenseStatus,
     isSubscriptionPlanActive,
     daysUntilExpiration,
+    startDate,
+    expirationDate,
   }) => {
     const mockSubscriptionLicense = {
       uuid: 'test-license-uuid',
@@ -89,6 +100,8 @@ describe('fetchSubscriptions', () => {
         uuid: 'test-subscription-plan-uuid',
         isActive: isSubscriptionPlanActive,
         daysUntilExpiration,
+        startDate,
+        expirationDate,
       },
     };
     const mockResponse = {
@@ -101,6 +114,7 @@ describe('fetchSubscriptions', () => {
     const queryParams = new URLSearchParams({
       enterprise_customer_uuid: mockEnterpriseId,
       include_revoked: true,
+      current_plans_only: false,
     });
     const SUBSCRIPTIONS_URL = `${APP_CONFIG.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
     axiosMock.onGet(SUBSCRIPTIONS_URL).reply(200, mockResponse);
@@ -113,21 +127,32 @@ describe('fetchSubscriptions', () => {
     const isLicenseApplicable = (
       licenseStatus !== LICENSE_STATUS.UNASSIGNED
       && isSubscriptionPlanActive
-      && daysUntilExpiration > 0
     );
+    const updatedMockSubscriptionLicense = {
+      ...mockSubscriptionLicense,
+      subscriptionPlan: {
+        ...mockSubscriptionLicense.subscriptionPlan,
+        isCurrent: hasValidStartExpirationDates({ startDate, expirationDate }),
+      },
+    };
     if (isLicenseApplicable) {
-      expectedLicensesByStatus[licenseStatus].push(mockSubscriptionLicense);
+      expectedLicensesByStatus[licenseStatus].push(updatedMockSubscriptionLicense);
     }
+
+    const updatedCustomerAgreement = {
+      customerAgreement: { ...mockResponse.customerAgreement },
+      results: [updatedMockSubscriptionLicense],
+    };
     const expectedResult = {
-      customerAgreement: mockResponse.customerAgreement,
+      customerAgreement: updatedCustomerAgreement.customerAgreement,
       licensesByStatus: expectedLicensesByStatus,
-      subscriptionPlan: isLicenseApplicable ? mockSubscriptionLicense.subscriptionPlan : null,
-      subscriptionLicense: isLicenseApplicable ? mockSubscriptionLicense : null,
-      subscriptionLicenses: [mockSubscriptionLicense],
+      subscriptionPlan: isLicenseApplicable ? updatedMockSubscriptionLicense.subscriptionPlan : null,
+      subscriptionLicense: isLicenseApplicable ? updatedMockSubscriptionLicense : null,
+      subscriptionLicenses: [updatedMockSubscriptionLicense],
       shouldShowActivationSuccessMessage: false,
       showExpirationNotifications: true,
     };
-    expect(response).toEqual(expect.objectContaining(expectedResult));
+    expect(response).toEqual(expectedResult);
   });
 });
 

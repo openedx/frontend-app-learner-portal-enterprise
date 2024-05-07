@@ -20,24 +20,24 @@ import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import learnerPathwayData from '../../pathway-progress/data/__mocks__/PathwayProgressListData.json';
 import {
   emptyRedeemableLearnerCreditPolicies,
+  useAcademies,
   useBrowseAndRequest,
   useCanOnlyViewHighlights,
   useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
-  useAcademies,
   useEnterpriseOffers,
   useEnterprisePathwaysList,
   useEnterpriseProgramsList,
+  useHasAvailableSubsidiesOrRequests,
   useIsAssignmentsOnlyLearner,
   useRedeemablePolicies,
   useSubscriptions,
-  useHasAvailableSubsidiesOrRequests,
 } from '../../app/data';
 import {
+  academiesFactory,
   authenticatedUserFactory,
   enterpriseCustomerFactory,
-  academiesFactory,
 } from '../../app/data/services/data/__factories__';
 
 const dummyProgramData = {
@@ -440,7 +440,8 @@ describe('<Dashboard />', () => {
         data: {
           showExpirationNotifications: true,
           subscriptionPlan: {
-            daysUntilExpiration: 60,
+            daysUntilExpirationIncludingRenewals: 60,
+            isCurrent: true,
           },
         },
       });
@@ -456,7 +457,7 @@ describe('<Dashboard />', () => {
         data: {
           showExpirationNotifications: true,
           subscriptionPlan: {
-            daysUntilExpiration: 0,
+            daysUntilExpirationIncludingRenewals: 0,
           },
         },
       });
@@ -472,7 +473,7 @@ describe('<Dashboard />', () => {
         data: {
           showExpirationNotifications: false,
           subscriptionPlan: {
-            daysUntilExpiration: 0,
+            daysUntilExpirationIncludingRenewals: 0,
           },
         },
       });
@@ -488,7 +489,7 @@ describe('<Dashboard />', () => {
         data: {
           showExpirationNotifications: false,
           subscriptionPlan: {
-            daysUntilExpiration: 60,
+            daysUntilExpirationIncludingRenewals: 60,
           },
         },
       });
@@ -504,7 +505,8 @@ describe('<Dashboard />', () => {
         data: {
           showExpirationNotifications: true,
           subscriptionPlan: {
-            daysUntilExpiration: 60,
+            daysUntilExpirationIncludingRenewals: 60,
+            isCurrent: true,
           },
         },
       });
@@ -525,7 +527,8 @@ describe('<Dashboard />', () => {
           showExpirationNotifications: true,
           subscriptionPlan: {
             uuid: subscriptionPlanId,
-            daysUntilExpiration: 60,
+            daysUntilExpirationIncludingRenewals: 60,
+            isCurrent: true,
           },
         },
       });
@@ -549,7 +552,8 @@ describe('<Dashboard />', () => {
         data: {
           showExpirationNotifications: true,
           subscriptionPlan: {
-            daysUntilExpiration: 60,
+            daysUntilExpirationIncludingRenewals: 60,
+            isCurrent: true,
           },
         },
       });
@@ -570,7 +574,8 @@ describe('<Dashboard />', () => {
           showExpirationNotifications: true,
           subscriptionPlan: {
             uuid: subscriptionPlanId,
-            daysUntilExpiration: 30,
+            daysUntilExpirationIncludingRenewals: 30,
+            isCurrent: true,
           },
         },
       });
@@ -594,7 +599,8 @@ describe('<Dashboard />', () => {
         data: {
           showExpirationNotifications: true,
           subscriptionPlan: {
-            daysUntilExpiration: 30,
+            daysUntilExpirationIncludingRenewals: 30,
+            isCurrent: true,
           },
         },
       });

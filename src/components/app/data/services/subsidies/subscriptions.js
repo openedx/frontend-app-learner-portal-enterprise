@@ -150,7 +150,6 @@ export async function activateOrAutoApplySubscriptionLicense({
   const isUserLinkedToEnterpriseCustomer = allLinkedEnterpriseCustomerUsers.some(
     (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer?.uuid === enterpriseCustomer.uuid,
   );
-
   const isCurrentSubscriptionLicenseFilter = (subscriptionLicense) => subscriptionLicense.isCurrent;
   const filterLicenseStatus = (licenseStatusType) => licenseStatusType.filter(
     isCurrentSubscriptionLicenseFilter,
@@ -158,7 +157,7 @@ export async function activateOrAutoApplySubscriptionLicense({
 
   const hasActivatedSubscriptionLicense = filterLicenseStatus(licensesByStatus[LICENSE_STATUS.ACTIVATED]);
   const hasRevokedSubscriptionLicense = filterLicenseStatus(licensesByStatus[LICENSE_STATUS.REVOKED]);
-  const subscriptionLicenseToActivate = filterLicenseStatus(licensesByStatus[LICENSE_STATUS.ASSIGNED])[0];
+  const subscriptionLicenseToActivate = licensesByStatus[LICENSE_STATUS.ASSIGNED][0];
 
   // Check if learner already has activated license. If so, return early.
   if (hasActivatedSubscriptionLicense) {
@@ -241,8 +240,8 @@ export async function fetchSubscriptions(enterpriseUUID) {
         subscriptionPlan,
         status,
       } = license;
-      const { isActive } = subscriptionPlan;
-      licenseCopy.subscriptionPlan.isCurrent = hasValidStartExpirationDates(subscriptionPlan);
+      const { isActive, startDate, expirationDate } = subscriptionPlan;
+      licenseCopy.subscriptionPlan.isCurrent = hasValidStartExpirationDates({ startDate, expirationDate });
       const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
       if (isUnassignedLicense || !isActive) {
         return;
