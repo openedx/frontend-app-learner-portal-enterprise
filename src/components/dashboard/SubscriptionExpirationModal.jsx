@@ -1,15 +1,14 @@
 import React, { useContext } from 'react';
 import Cookies from 'universal-cookie';
-import { Modal, MailtoLink } from '@openedx/paragon';
+import { MailtoLink, Modal } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import dayjs from '../../utils/dayjs';
 
 import {
+  SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX,
   SUBSCRIPTION_DAYS_REMAINING_EXCEPTIONAL,
   SUBSCRIPTION_DAYS_REMAINING_SEVERE,
-  SUBSCRIPTION_EXPIRED,
-  SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX,
 } from '../../config/constants';
 
 import { getContactEmail } from '../../utils/common';
@@ -30,13 +29,14 @@ const SubscriptionExpirationModal = () => {
   const { data: subscriptions } = useSubscriptions();
   const { subscriptionPlan } = subscriptions;
   const {
-    daysUntilExpiration,
+    daysUntilExpirationIncludingRenewals,
     expirationDate,
     uuid: subscriptionPlanId,
+    isCurrent,
   } = subscriptionPlan;
 
   const renderTitle = () => {
-    if (daysUntilExpiration > SUBSCRIPTION_EXPIRED) {
+    if (isCurrent) {
       return (
         <small className="font-weight-bold">{SUBSCRIPTION_EXPIRING_MODAL_TITLE}</small>
       );
@@ -65,12 +65,37 @@ const SubscriptionExpirationModal = () => {
     </a>
   );
 
+  const timeTillExpiration = () => {
+    const expiryDate = dayjs(expirationDate);
+    const hoursTillExpiration = expiryDate.diff(dayjs(), 'hour');
+    const minutesTillExpiration = expiryDate.diff(dayjs(), 'minute');
+    const pluralText = (textToPlural, pluralBenchmark) => (pluralBenchmark > 1 ? `${textToPlural}s` : textToPlural);
+    if (hoursTillExpiration >= 24) {
+      return (
+        <span><span className="font-weight-bold">{` ${daysUntilExpirationIncludingRenewals} `}</span>
+          {pluralText('day', daysUntilExpirationIncludingRenewals)}.
+        </span>
+      );
+    }
+    if (hoursTillExpiration > 0) {
+      return (
+        <span><span className="font-weight-bold">{` ${hoursTillExpiration} `}</span>
+          {pluralText('hour', hoursTillExpiration)}.
+        </span>
+      );
+    }
+    return (
+      <span><span className="font-weight-bold">{` ${minutesTillExpiration} `}</span>
+        {pluralText('minute', minutesTillExpiration)}.
+      </span>
+    );
+  };
+
   const renderBody = () => (
     <>
       <p>
         Your company&#39;s access to your edX learning portal is expiring in
-        <span className="font-weight-bold">{` ${daysUntilExpiration} `}</span>
-        days. After it expires you will only have audit access to your courses.
+        {timeTillExpiration()} After it expires you will only have audit access to your courses.
       </p>
       <p>
         If you are currently taking courses, plan your learning accordingly. You should also take
@@ -105,8 +130,7 @@ const SubscriptionExpirationModal = () => {
   );
 
   // If the subscription has already expired, we show a different un-dismissible modal
-  const subscriptionExpired = daysUntilExpiration <= SUBSCRIPTION_EXPIRED;
-  if (subscriptionExpired) {
+  if (!isCurrent) {
     return (
       <Modal
         dialogClassName={`${MODAL_DIALOG_CLASS_NAME} expired`}
@@ -120,7 +144,7 @@ const SubscriptionExpirationModal = () => {
     );
   }
 
-  if (daysUntilExpiration > SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
+  if (daysUntilExpirationIncludingRenewals > SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
     return null;
   }
 
@@ -130,7 +154,7 @@ const SubscriptionExpirationModal = () => {
   ];
 
   const subscriptionExpirationThreshold = subscriptionExpirationThresholds.find(
-    threshold => threshold >= daysUntilExpiration,
+    threshold => threshold >= daysUntilExpirationIncludingRenewals,
   );
 
   const seenCurrentExpirationModalCookieName = `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${subscriptionExpirationThreshold}-${enterpriseCustomer.uuid}-${subscriptionPlanId}`;

@@ -7,6 +7,7 @@ import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { fetchPaginatedData } from '../utils';
+import { hasValidStartExpirationDates } from '../../../../../utils/common';
 
 // Subscriptions
 
@@ -18,7 +19,8 @@ import { fetchPaginatedData } from '../utils';
 export async function activateLicense(activationKey) {
   const queryParams = new URLSearchParams({ activation_key: activationKey });
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/license-activation/?${queryParams.toString()}`;
-  return getAuthenticatedHttpClient().post(url);
+  return getAuthenticatedHttpClient()
+    .post(url);
 }
 
 /**
@@ -40,7 +42,8 @@ export async function activateSubscriptionLicense({
     const autoActivatedSubscriptionLicense = {
       ...subscriptionLicenseToActivate,
       status: 'activated',
-      activationDate: dayjs().toISOString(),
+      activationDate: dayjs()
+        .toISOString(),
     };
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
@@ -77,7 +80,8 @@ export async function activateSubscriptionLicense({
  */
 export async function requestAutoAppliedUserLicense(customerAgreementId) {
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/customer-agreement/${customerAgreementId}/auto-apply/`;
-  const response = await getAuthenticatedHttpClient().post(url);
+  const response = await getAuthenticatedHttpClient()
+    .post(url);
   return camelCaseObject(response.data);
 }
 
@@ -146,9 +150,15 @@ export async function activateOrAutoApplySubscriptionLicense({
   const isUserLinkedToEnterpriseCustomer = allLinkedEnterpriseCustomerUsers.some(
     (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer?.uuid === enterpriseCustomer.uuid,
   );
-  const hasActivatedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.ACTIVATED].length > 0;
-  const hasRevokedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.REVOKED].length > 0;
-  const subscriptionLicenseToActivate = licensesByStatus[LICENSE_STATUS.ASSIGNED][0];
+
+  const isCurrentSubscriptionLicenseFilter = (subscriptionLicense) => subscriptionLicense.isCurrent;
+  const filterLicenseStatus = (licenseStatusType) => licenseStatusType.filter(
+    isCurrentSubscriptionLicenseFilter,
+  ).length > 0;
+
+  const hasActivatedSubscriptionLicense = filterLicenseStatus(licensesByStatus[LICENSE_STATUS.ACTIVATED]);
+  const hasRevokedSubscriptionLicense = filterLicenseStatus(licensesByStatus[LICENSE_STATUS.REVOKED]);
+  const subscriptionLicenseToActivate = filterLicenseStatus(licensesByStatus[LICENSE_STATUS.ASSIGNED])[0];
 
   // Check if learner already has activated license. If so, return early.
   if (hasActivatedSubscriptionLicense) {
@@ -189,6 +199,7 @@ export async function fetchSubscriptions(enterpriseUUID) {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,
     include_revoked: true,
+    current_plans_only: false,
   });
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
   /**
@@ -225,16 +236,21 @@ export async function fetchSubscriptions(enterpriseUUID) {
     subscriptionsData.subscriptionLicenses = subscriptionLicenses;
     subscriptionsData.showExpirationNotifications = !(customerAgreement?.disableExpirationNotifications);
     subscriptionLicenses.forEach((license) => {
-      const { subscriptionPlan, status } = license;
-      const { isActive, daysUntilExpiration } = subscriptionPlan;
-      const isCurrent = daysUntilExpiration > 0;
+      const licenseCopy = { ...license };
+      const {
+        subscriptionPlan,
+        status,
+      } = license;
+      const { isActive } = subscriptionPlan;
+      licenseCopy.subscriptionPlan.isCurrent = hasValidStartExpirationDates(subscriptionPlan);
       const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
-      if (isUnassignedLicense || !isCurrent || !isActive) {
+      if (isUnassignedLicense || !isActive) {
         return;
       }
       licensesByStatus[license.status].push(license);
     });
-    const applicableSubscriptionLicense = Object.values(licensesByStatus).flat()[0];
+    const applicableSubscriptionLicense = Object.values(licensesByStatus)
+      .flat()[0];
     if (applicableSubscriptionLicense) {
       subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
       subscriptionsData.subscriptionPlan = applicableSubscriptionLicense.subscriptionPlan;

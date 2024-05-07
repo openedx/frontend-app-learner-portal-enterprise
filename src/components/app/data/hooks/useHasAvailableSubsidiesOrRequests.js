@@ -42,7 +42,6 @@ export default function useHasAvailableSubsidiesOrRequests() {
     enterpriseOffers: enterpriseOffersData.currentEnterpriseOffers,
     redeemableLearnerCreditPolicies,
   }), [enterpriseOffersData.currentEnterpriseOffers, redeemableLearnerCreditPolicies]);
-
   const hasActiveLicenseOrLicenseRequest = (
     subscriptions.subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
       || requests.subscriptionLicenses.length > 0
