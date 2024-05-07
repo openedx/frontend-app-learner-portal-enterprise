@@ -81,7 +81,10 @@ describe('fetchCouponCodes', () => {
     const COUPON_CODE_ASSIGNMENTS_URL = getCouponCodeAssignmentsUrl(enterpriseId);
     const COUPONS_OVERVIEW_URL = getCouponsOverviewUrl(enterpriseId);
     const couponCodeAssignmentsResponse = {
-      results: [{ id: 123 }],
+      results: [
+        { code: 123, redemptionsRemaining: 1 },
+        { code: 456, redemptionsRemaining: 2 },
+      ],
     };
     const couponsOverviewResponse = {
       results: [{ id: 123 }],
@@ -90,10 +93,14 @@ describe('fetchCouponCodes', () => {
     axiosMock.onGet(COUPONS_OVERVIEW_URL).reply(200, couponsOverviewResponse);
     const result = await fetchCouponCodes(enterpriseId);
 
-    const expectedCouponsCodeAssignmentsResponse = [{ ...couponCodeAssignmentsResponse.results[0], available: false }];
+    const expectedCouponsCodeAssignmentsResponse = couponCodeAssignmentsResponse.results.map((assignment) => ({
+      ...assignment,
+      available: false,
+    }));
     expect(result).toEqual({
       couponCodeAssignments: expectedCouponsCodeAssignmentsResponse,
       couponsOverview: couponsOverviewResponse.results,
+      couponCodeRedemptionCount: 3,
     });
   });
 });

@@ -90,7 +90,11 @@ export default function makeCourseLoader(queryClient) {
         const redeemableLearnerCreditPolicies = subsidyResponses[0];
         const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[1];
         const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[2];
-        const { couponCodeAssignments, couponsOverview } = subsidyResponses[3];
+        const {
+          couponCodeAssignments,
+          couponCodeRedemptionCount,
+          couponsOverview,
+        } = subsidyResponses[3];
         const licenseRequests = subsidyResponses[4];
         const couponCodeRequests = subsidyResponses[5];
         const browseAndRequestConfiguration = subsidyResponses[6];
@@ -99,7 +103,7 @@ export default function makeCourseLoader(queryClient) {
           subscriptionLicense,
           licenseRequests,
           couponCodeRequests,
-          couponCodesCount: couponCodeAssignments.length,
+          couponCodesCount: couponCodeRedemptionCount,
           redeemableLearnerCreditPolicies,
           hasCurrentEnterpriseOffers,
         });
