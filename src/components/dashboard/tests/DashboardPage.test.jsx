@@ -33,11 +33,13 @@ import {
   useRedeemablePolicies,
   useSubscriptions,
   useHasAvailableSubsidiesOrRequests,
+  useEnterpriseGroupMemberships,
 } from '../../app/data';
 import {
   authenticatedUserFactory,
   enterpriseCustomerFactory,
   academiesFactory,
+  groupMembershipFactories,
 } from '../../app/data/services/data/__factories__';
 
 const dummyProgramData = {
@@ -104,6 +106,7 @@ jest.mock('../../app/data', () => ({
   useIsAssignmentsOnlyLearner: jest.fn(),
   useHasAvailableSubsidiesOrRequests: jest.fn(),
   useAcademies: jest.fn(),
+  useEnterpriseGroupMemberships: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -255,6 +258,9 @@ describe('<Dashboard />', () => {
     useHasAvailableSubsidiesOrRequests.mockReturnValue(
       useMockHasAvailableSubsidyOrRequests(mockUseActiveSubsidyOrRequestsData),
     );
+    useEnterpriseGroupMemberships.mockReturnValue({
+      data: groupMembershipFactories(),
+    });
   });
 
   it('renders user first name if available', () => {

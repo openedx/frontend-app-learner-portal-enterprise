@@ -7,10 +7,11 @@ import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import CourseSection from './CourseSection';
 import CourseAssignmentAlert from './CourseAssignmentAlert';
 import { features } from '../../../../config';
-import { useCourseEnrollmentsBySection, useContentAssignments } from './data';
+import { useCourseEnrollmentsBySection, useContentAssignments, useGroupMembershipAssignments } from './data';
 import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { useEnterpriseCourseEnrollments } from '../../../app/data';
+import { useEnterpriseCourseEnrollments, useEnterpriseFeatures } from '../../../app/data';
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
+import NewGroupAssignmentAlert from './NewGroupAssignmentAlert';
 
 function useIsFirstDashboardVisit() {
   const [isFirstVisit, setIsFirstVisit] = useState(false);
@@ -62,6 +63,7 @@ const CourseEnrollments = ({ children }) => {
     },
   } = useEnterpriseCourseEnrollments();
 
+  const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const {
     hasCourseEnrollments,
     currentCourseEnrollments,
@@ -86,6 +88,12 @@ const CourseEnrollments = ({ children }) => {
     setShouldShowMoveToInProgressCourseSuccess,
   } = useSaveForLaterAlerts();
 
+  const {
+    shouldShowNewGroupMembershipAlert,
+    handleAddNewGroupAssignmentToLocalStorage,
+    enterpriseCustomer,
+  } = useGroupMembershipAssignments();
+
   // If there are no enrollments or assignments, render the children. This
   // allows the parent component to customize what gets displayed as empty
   // state if the user does not have any course enrollments or assignments.
@@ -95,6 +103,13 @@ const CourseEnrollments = ({ children }) => {
 
   return (
     <>
+      {enterpriseFeatures.enterpriseGroupsV1 && (
+        <NewGroupAssignmentAlert
+          showAlert={shouldShowNewGroupMembershipAlert}
+          onClose={() => handleAddNewGroupAssignmentToLocalStorage()}
+          enterpriseCustomer={enterpriseCustomer}
+        />
+      )}
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
         <>
           <CourseAssignmentAlert
