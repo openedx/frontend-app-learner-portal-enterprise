@@ -577,6 +577,31 @@ export function findHighestLevelEntitlementSku(entitlements) {
 }
 
 /**
+ * Transforms a learner's group membership into a shape that will be used for the
+ * display of NewGroupAssignmentAlert when they are added to a new group.
+ *
+ * @param {Array} groupMemberships - Array of groupMemberships to be transformed.
+ * @param {String} groupUuid - UUID of the group.
+ * @returns {Array} Returns the transformed array of group memberships.
+ */
+export function transformGroupMembership(groupMemberships, groupUuid) {
+  return groupMemberships.map(groupMembership => ({
+    ...groupMembership,
+    groupUuid,
+  }));
+}
+
+/**
+ * Gets array of group UUIDs.
+ *
+ * @param {Array} policies - Array of policies to be transformed.
+ * @returns {Array} Returns the transformed array of policies.
+ */
+export function getCustomerGroupAssociations(policies) {
+  return policies.flatMap(policy => policy.groupAssociations);
+}
+
+/**
  * check if an object is empty
  * @param {Object} obj
  * @returns {boolean}

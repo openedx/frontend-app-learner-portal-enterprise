@@ -4,6 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import camelCase from 'lodash.camelcase';
 import dayjs from 'dayjs';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { waitFor } from '@testing-library/react';
 
 import { queryClient } from '../../../../../../utils/tests';
 import {
@@ -11,9 +12,10 @@ import {
   useCourseEnrollments,
   useCourseEnrollmentsBySection,
   useCourseUpgradeData,
+  useGroupMembershipAssignments,
 } from '../hooks';
 import * as service from '../service';
-import { COURSE_STATUSES } from '../constants';
+import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT } from '../constants';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import { createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl } from '../../../../../course/data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
@@ -23,6 +25,7 @@ import {
   transformLearnerContentAssignment,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
+  useEnterpriseGroupMemberships,
 } from '../../../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 
@@ -36,6 +39,7 @@ jest.mock('../../../../../app/data', () => ({
   ...jest.requireActual('../../../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
+  useEnterpriseGroupMemberships: jest.fn(),
 }));
 
 const mockCourseService = {
@@ -638,6 +642,63 @@ describe('useCourseEnrollmentsBySection', () => {
       currentCourseEnrollments: [],
       completedCourseEnrollments: [],
       savedForLaterCourseEnrollments: [],
+    });
+  });
+});
+
+describe('useGroupMembershipAssignments', () => {
+  it('returns expected values', async () => {
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+
+    useEnterpriseGroupMemberships.mockReturnValue({
+      data: [
+        {
+          enterpriseCatalog: {
+            catalogUuid: 'test-uuid',
+            courseCount: 2,
+          },
+          enterpriseGroupMembershipUuid: 'test-membership-uuid-1',
+          groupUuid: 'test-group-uuid-2',
+          memberDetails: {
+            userEmail: 'test@email.com',
+            userName: 'Test Username',
+          },
+        },
+        {
+          enterpriseCatalog: {
+            catalogUuid: 'test-uuid-2',
+            courseCount: 71,
+          },
+          enterpriseGroupMembershipUuid: 'test-membership-uuid-2',
+          groupUuid: 'test-group-uuid-1',
+          memberDetails: {
+            userEmail: 'test@email.com',
+            userName: 'Test Username',
+          },
+        },
+      ],
+    });
+    const { result } = renderHook(
+      () => useGroupMembershipAssignments(),
+      { wrapper },
+    );
+    expect(result.current).toEqual({
+      shouldShowNewGroupMembershipAlert: true,
+      handleAddNewGroupAssignmentToLocalStorage: expect.any(Function),
+      enterpriseCustomer: mockEnterpriseCustomer,
+    });
+    expect(result.current.handleAddNewGroupAssignmentToLocalStorage).toBeInstanceOf(Function);
+    act(() => result.current.handleAddNewGroupAssignmentToLocalStorage());
+    const localStorageGroup1 = global.localStorage.getItem(
+      `${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-test-group-uuid-1`,
+    );
+    // checks that a second local storage key is added
+    const localStorageGroup2 = global.localStorage.getItem(
+      `${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-test-group-uuid-2`,
+    );
+    await waitFor(() => {
+      expect(localStorageGroup1).toBe('true');
+      expect(localStorageGroup2).toBe('true');
     });
   });
 });
