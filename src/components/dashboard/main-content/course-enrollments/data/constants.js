@@ -19,3 +19,4 @@ export const COURSE_STATUSES = {
 };
 
 export const GETSMARTER_BASE_URL = 'https://www.getsmarter.com';
+export const HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT = 'has-user-dismissed-group-assignment-alert';
