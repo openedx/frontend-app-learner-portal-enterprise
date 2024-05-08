@@ -65,27 +65,30 @@ const SubscriptionExpirationModal = () => {
     </a>
   );
 
-  const timeTillExpiration = () => {
+  const timeUntilExpiration = () => {
     const expiryDate = dayjs(expirationDate);
     const hoursTillExpiration = expiryDate.diff(dayjs(), 'hour');
     const minutesTillExpiration = expiryDate.diff(dayjs(), 'minute');
     const pluralText = (textToPlural, pluralBenchmark) => (pluralBenchmark > 1 ? `${textToPlural}s` : textToPlural);
     if (hoursTillExpiration >= 24) {
       return (
-        <span><span className="font-weight-bold">{` ${daysUntilExpirationIncludingRenewals} `}</span>
+        <span>
+          <span className="font-weight-bold">{` ${daysUntilExpirationIncludingRenewals} `}</span>
           {pluralText('day', daysUntilExpirationIncludingRenewals)}.
         </span>
       );
     }
     if (hoursTillExpiration > 0) {
       return (
-        <span><span className="font-weight-bold">{` ${hoursTillExpiration} `}</span>
+        <span>
+          <span className="font-weight-bold">{` ${hoursTillExpiration} `}</span>
           {pluralText('hour', hoursTillExpiration)}.
         </span>
       );
     }
     return (
-      <span><span className="font-weight-bold">{` ${minutesTillExpiration} `}</span>
+      <span>
+        <span className="font-weight-bold">{` ${minutesTillExpiration} `}</span>
         {pluralText('minute', minutesTillExpiration)}.
       </span>
     );
@@ -95,7 +98,7 @@ const SubscriptionExpirationModal = () => {
     <>
       <p>
         Your company&#39;s access to your edX learning portal is expiring in
-        {timeTillExpiration()} After it expires you will only have audit access to your courses.
+        {timeUntilExpiration()} After it expires you will only have audit access to your courses.
       </p>
       <p>
         If you are currently taking courses, plan your learning accordingly. You should also take

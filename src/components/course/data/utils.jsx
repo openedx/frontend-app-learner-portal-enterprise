@@ -25,11 +25,7 @@ import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import {
-  COURSE_MODES_MAP,
-  findHighestLevelEntitlementSku,
-  findHighestLevelSkuByEntityModeType,
-} from '../../app/data';
+import { COURSE_MODES_MAP, findHighestLevelEntitlementSku, findHighestLevelSkuByEntityModeType } from '../../app/data';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -405,8 +401,10 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
   subscriptionLicense,
   hasEnterpriseAdminUsers,
 }) => {
-  const hasExpiredSubscriptionLicense = customerAgreement?.netDaysUntilExpiration <= 0;
+  const hasExpiredSubscriptionLicense = !subscriptionLicense.subscriptionPlan.isCurrent;
+  console.log(hasExpiredSubscriptionLicense, subscriptionLicense);
   if (hasExpiredSubscriptionLicense) {
+    console.log('i am here');
     return parseReasonTypeBasedOnEnterpriseAdmins({
       hasEnterpriseAdminUsers,
       reasonTypes: {
@@ -584,7 +582,7 @@ export const getMissingApplicableSubsidyReason = ({
   let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
   let userMessage;
   const hasEnterpriseAdminUsers = !!enterpriseAdminUsers?.length > 0;
-
+  console.log(customerAgreement, catalogsWithCourse, subscriptionLicense, hasEnterpriseAdminUsers);
   // If there are admin users, change `reasonType` to use the
   // `DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY` message.
   if (hasEnterpriseAdminUsers) {
@@ -654,8 +652,8 @@ export const getSubsidyToApplyForCourse = ({
       subsidyType: LICENSE_SUBSIDY_TYPE,
       discountType: 'percentage',
       discountValue: 100,
-      startDate: applicableSubscriptionLicense.startDate,
-      expirationDate: applicableSubscriptionLicense.expirationDate,
+      startDate: applicableSubscriptionLicense.subscriptionPlan.startDate,
+      expirationDate: applicableSubscriptionLicense.subscriptionPlan.expirationDate,
       status: applicableSubscriptionLicense.status,
       subsidyId: applicableSubscriptionLicense.uuid,
     };

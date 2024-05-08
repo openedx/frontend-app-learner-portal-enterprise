@@ -157,7 +157,9 @@ export async function activateOrAutoApplySubscriptionLicense({
 
   const hasActivatedSubscriptionLicense = filterLicenseStatus(licensesByStatus[LICENSE_STATUS.ACTIVATED]);
   const hasRevokedSubscriptionLicense = filterLicenseStatus(licensesByStatus[LICENSE_STATUS.REVOKED]);
-  const subscriptionLicenseToActivate = licensesByStatus[LICENSE_STATUS.ASSIGNED][0];
+  const subscriptionLicenseToActivate = licensesByStatus[LICENSE_STATUS.ASSIGNED].filter(
+    isCurrentSubscriptionLicenseFilter,
+  )[0];
 
   // Check if learner already has activated license. If so, return early.
   if (hasActivatedSubscriptionLicense) {

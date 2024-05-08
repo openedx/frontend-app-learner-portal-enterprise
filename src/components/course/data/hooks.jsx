@@ -1,7 +1,7 @@
 import {
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getConfig } from '@edx/frontend-platform';
@@ -41,6 +41,7 @@ import { SUBSIDY_TYPE } from '../../../constants';
 import {
   useBrowseAndRequest,
   useBrowseAndRequestConfiguration,
+  useCatalogsForSubsidyRequests,
   useCouponCodes,
   useCourseMetadata,
   useCourseRedemptionEligibility,
@@ -49,7 +50,6 @@ import {
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
-  useCatalogsForSubsidyRequests,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CourseContext } from '../CourseContextProvider';
@@ -576,9 +576,9 @@ export const useUserSubsidyApplicableToCourse = () => {
 
   const isSubscriptionLicenseApplicable = (
     subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
+    && subscriptionLicense?.subscriptionPlan.isCurrent
     && catalogsWithCourse.includes(subscriptionPlan?.enterpriseCatalogUuid)
   );
-
   const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
     applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
     applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy },
@@ -589,6 +589,7 @@ export const useUserSubsidyApplicableToCourse = () => {
       coursePrice: courseListPrice,
     }),
   });
+  console.log(userSubsidyApplicableToCourse);
   let missingUserSubsidyReason;
   if (!userSubsidyApplicableToCourse) {
     const enterpriseAdminUsers = (
@@ -607,7 +608,7 @@ export const useUserSubsidyApplicableToCourse = () => {
       enterpriseOffers,
     });
   }
-
+  console.log(missingUserSubsidyReason);
   return useMemo(() => ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
