@@ -589,7 +589,6 @@ export const useUserSubsidyApplicableToCourse = () => {
       coursePrice: courseListPrice,
     }),
   });
-  console.log(userSubsidyApplicableToCourse);
   let missingUserSubsidyReason;
   if (!userSubsidyApplicableToCourse) {
     const enterpriseAdminUsers = (
