@@ -14,6 +14,7 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
   useCanOnlyViewHighlights: jest.fn().mockReturnValue(false),
+  usePassLearnerCsodParams: jest.fn(),
 }));
 
 jest.mock('../../course-header/CourseHeader', () => jest.fn(() => (

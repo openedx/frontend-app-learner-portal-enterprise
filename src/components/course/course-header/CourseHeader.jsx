@@ -34,7 +34,6 @@ import {
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useIsAssignmentsOnlyLearner,
-  usePassLearnerCsodParams,
 } from '../../app/data';
 
 const CourseHeader = () => {
@@ -48,7 +47,6 @@ const CourseHeader = () => {
   const isCourseAssigned = useIsCourseAssigned();
   const isCourseArchived = courseMetadata.courseRuns.every((courseRun) => isArchived(courseRun));
   const [partners] = useCoursePartners(courseMetadata);
-  usePassLearnerCsodParams(enterpriseCustomer.uuid);
   const defaultProgram = useMemo(
     () => getDefaultProgram(courseMetadata.programs),
     [courseMetadata],
