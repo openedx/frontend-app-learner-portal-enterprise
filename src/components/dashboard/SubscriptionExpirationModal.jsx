@@ -69,12 +69,12 @@ const SubscriptionExpirationModal = () => {
     const expiryDate = dayjs(expirationDate);
     const hoursTillExpiration = expiryDate.diff(dayjs(), 'hour');
     const minutesTillExpiration = expiryDate.diff(dayjs(), 'minute');
-    const pluralText = (textToPlural, pluralBenchmark) => (pluralBenchmark > 1 ? `${textToPlural}s` : textToPlural);
+    const pluralText = (textToPlural, pluralBenchmark) => (pluralBenchmark > 1 ? `${textToPlural}s.` : `${textToPlural}.`);
     if (hoursTillExpiration >= 24) {
       return (
         <span>
           <span className="font-weight-bold">{` ${daysUntilExpirationIncludingRenewals} `}</span>
-          {pluralText('day', daysUntilExpirationIncludingRenewals)}.
+          {pluralText('day', daysUntilExpirationIncludingRenewals)}
         </span>
       );
     }
@@ -82,14 +82,14 @@ const SubscriptionExpirationModal = () => {
       return (
         <span>
           <span className="font-weight-bold">{` ${hoursTillExpiration} `}</span>
-          {pluralText('hour', hoursTillExpiration)}.
+          {pluralText('hour', hoursTillExpiration)}
         </span>
       );
     }
     return (
       <span>
         <span className="font-weight-bold">{` ${minutesTillExpiration} `}</span>
-        {pluralText('minute', minutesTillExpiration)}.
+        {pluralText('minute', minutesTillExpiration)}
       </span>
     );
   };

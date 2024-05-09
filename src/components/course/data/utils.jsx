@@ -401,6 +401,7 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
   subscriptionLicense,
   hasEnterpriseAdminUsers,
 }) => {
+  if (!subscriptionLicense) { return undefined; }
   const hasExpiredSubscriptionLicense = !subscriptionLicense.subscriptionPlan.isCurrent;
   if (hasExpiredSubscriptionLicense) {
     return parseReasonTypeBasedOnEnterpriseAdmins({
@@ -580,7 +581,6 @@ export const getMissingApplicableSubsidyReason = ({
   let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
   let userMessage;
   const hasEnterpriseAdminUsers = !!enterpriseAdminUsers?.length > 0;
-  console.log(containsContentItems);
   // If there are admin users, change `reasonType` to use the
   // `DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY` message.
   if (hasEnterpriseAdminUsers) {

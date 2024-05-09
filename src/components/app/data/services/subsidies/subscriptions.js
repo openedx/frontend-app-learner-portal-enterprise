@@ -19,8 +19,7 @@ import { hasValidStartExpirationDates } from '../../../../../utils/common';
 export async function activateLicense(activationKey) {
   const queryParams = new URLSearchParams({ activation_key: activationKey });
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/license-activation/?${queryParams.toString()}`;
-  return getAuthenticatedHttpClient()
-    .post(url);
+  return getAuthenticatedHttpClient().post(url);
 }
 
 /**
@@ -42,8 +41,7 @@ export async function activateSubscriptionLicense({
     const autoActivatedSubscriptionLicense = {
       ...subscriptionLicenseToActivate,
       status: 'activated',
-      activationDate: dayjs()
-        .toISOString(),
+      activationDate: dayjs().toISOString(),
     };
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
@@ -80,8 +78,7 @@ export async function activateSubscriptionLicense({
  */
 export async function requestAutoAppliedUserLicense(customerAgreementId) {
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/customer-agreement/${customerAgreementId}/auto-apply/`;
-  const response = await getAuthenticatedHttpClient()
-    .post(url);
+  const response = await getAuthenticatedHttpClient().post(url);
   return camelCaseObject(response.data);
 }
 
@@ -142,15 +139,16 @@ export async function activateOrAutoApplySubscriptionLicense({
   const {
     customerAgreement,
     licensesByStatus,
+    subscriptionLicense,
   } = subscriptionsData;
-  if (!customerAgreement || customerAgreement.netDaysUntilExpiration <= 0) {
+  if (!customerAgreement || !subscriptionLicense?.subscriptionPlan?.isCurrent) {
     return checkLicenseActivationRouteAndRedirectToDashboard();
   }
 
   const isUserLinkedToEnterpriseCustomer = allLinkedEnterpriseCustomerUsers.some(
     (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer?.uuid === enterpriseCustomer.uuid,
   );
-  const isCurrentSubscriptionLicenseFilter = (subscriptionLicense) => subscriptionLicense.isCurrent;
+  const isCurrentSubscriptionLicenseFilter = (license) => license.subscriptionPlan.isCurrent;
   const filterLicenseStatus = (licenseStatusType) => licenseStatusType.filter(
     isCurrentSubscriptionLicenseFilter,
   ).length > 0;
@@ -250,8 +248,7 @@ export async function fetchSubscriptions(enterpriseUUID) {
       }
       licensesByStatus[license.status].push(license);
     });
-    const applicableSubscriptionLicense = Object.values(licensesByStatus)
-      .flat()[0];
+    const applicableSubscriptionLicense = Object.values(licensesByStatus).flat()[0];
     if (applicableSubscriptionLicense) {
       subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
       subscriptionsData.subscriptionPlan = applicableSubscriptionLicense.subscriptionPlan;

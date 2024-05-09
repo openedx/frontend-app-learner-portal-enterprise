@@ -10,6 +10,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import dayjs from 'dayjs';
 import { SUBSCRIPTION_EXPIRED_MODAL_TITLE, SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../SubscriptionExpirationModal';
 import { SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX } from '../../../config/constants';
 import { features } from '../../../config';
@@ -26,6 +27,7 @@ import {
   useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
+  useEnterpriseGroupMemberships,
   useEnterpriseOffers,
   useEnterprisePathwaysList,
   useEnterpriseProgramsList,
@@ -33,7 +35,6 @@ import {
   useIsAssignmentsOnlyLearner,
   useRedeemablePolicies,
   useSubscriptions,
-  useEnterpriseGroupMemberships,
 } from '../../app/data';
 import {
   academiesFactory,
@@ -441,12 +442,55 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
     });
 
-    it('should render when 60 >= daysUntilExpiration > 0', () => {
+    it.each([
+      {
+        daysUntilExpirationIncludingRenewals: 60,
+        expirationDate: dayjs().add(60, 'days').toISOString(),
+        expectedText: 'days.',
+        expectedTimeDiff: (dayjs().add(60, 'days')).diff(dayjs(), 'day'),
+      },
+      {
+        daysUntilExpirationIncludingRenewals: 1,
+        expirationDate: dayjs().add(36, 'hours').toISOString(),
+        expectedText: 'day.',
+        expectedTimeDiff: (dayjs().add(36, 'hours')).diff(dayjs(), 'day'),
+      },
+      {
+        daysUntilExpirationIncludingRenewals: 0,
+        expirationDate: dayjs().add(150, 'minutes').toISOString(),
+        expectedText: 'hours.',
+        expectedTimeDiff: (dayjs().add(150, 'minutes')).diff(dayjs(), 'hour'),
+      },
+      {
+        daysUntilExpirationIncludingRenewals: 0,
+        expirationDate: dayjs().add(90, 'minutes').toISOString(),
+        expectedText: 'hour.',
+        expectedTimeDiff: (dayjs().add(90, 'minutes')).diff(dayjs(), 'hour'),
+      },
+      {
+        daysUntilExpirationIncludingRenewals: 0,
+        expirationDate: dayjs().add(150, 'seconds').toISOString(),
+        expectedText: 'minutes.',
+        expectedTimeDiff: (dayjs().add(150, 'seconds')).diff(dayjs(), 'minute'),
+      },
+      {
+        daysUntilExpirationIncludingRenewals: 0,
+        expirationDate: dayjs().add(90, 'seconds').toISOString(),
+        expectedText: 'minute.',
+        expectedTimeDiff: (dayjs().add(90, 'seconds')).diff(dayjs(), 'minute'),
+      },
+    ])('should render expiration modal with (%s)', ({
+      expirationDate,
+      daysUntilExpirationIncludingRenewals,
+      expectedText,
+      expectedTimeDiff,
+    }) => {
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: true,
           subscriptionPlan: {
-            daysUntilExpirationIncludingRenewals: 60,
+            daysUntilExpirationIncludingRenewals,
+            expirationDate,
             isCurrent: true,
           },
         },
@@ -456,14 +500,16 @@ describe('<Dashboard />', () => {
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
+      expect(screen.getByText(expectedTimeDiff)).toBeTruthy();
+      expect(screen.getByText(expectedText)).toBeTruthy();
     });
 
-    it('should render the expired version of the modal when 0 >= daysUntilExpiration', () => {
+    it('should render the expired version of the modal when 0 >= daysUntilExpirationIncludingRenewals', () => {
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: true,
           subscriptionPlan: {
-            daysUntilExpirationIncludingRenewals: 0,
+            daysUntilExpirationIncludingRenewalsIncludingRenewals: 0,
           },
         },
       });
@@ -474,7 +520,7 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy();
     });
 
-    it('should not render when 0 >= daysUntilExpiration and expiration messages are disabled ', () => {
+    it('should not render when 0 >= daysUntilExpirationIncludingRenewals and expiration messages are disabled ', () => {
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: false,
@@ -490,7 +536,7 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
     });
 
-    it('should not render when 60 >= daysUntilExpiration > 0 and expiration messages are disabled', () => {
+    it('should not render when 60 >= daysUntilExpirationIncludingRenewals > 0 and expiration messages are disabled', () => {
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: false,
@@ -506,7 +552,7 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
     });
 
-    it('should render the expiration warning version of the modal when 60 >= daysUntilExpiration > 0', () => {
+    it('should render the expiration warning version of the modal when 60 >= daysUntilExpirationIncludingRenewals > 0', () => {
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: true,
@@ -552,7 +598,7 @@ describe('<Dashboard />', () => {
       );
     });
 
-    it('should not show the modal if 60 >= daysUntilExpiration > 30 and the 60 day cookie has been set', () => {
+    it('should not show the modal if 60 >= daysUntilExpirationIncludingRenewals > 30 and the 60 day cookie has been set', () => {
       Cookies.mockReturnValue({ get: () => 'cookie' });
       useSubscriptions.mockReturnValue({
         data: {
@@ -599,7 +645,7 @@ describe('<Dashboard />', () => {
       );
     });
 
-    it('should not show the modal if 30 >= daysUntilExpiration > 0 and the 30 day cookie has been set', () => {
+    it('should not show the modal if 30 >= daysUntilExpirationIncludingRenewals > 0 and the 30 day cookie has been set', () => {
       Cookies.mockReturnValue({ get: () => 'cookie' });
       useSubscriptions.mockReturnValue({
         data: {

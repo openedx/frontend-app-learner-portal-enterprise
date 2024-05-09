@@ -339,6 +339,11 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     const mockSubscriptionsData = {
       customerAgreement: mockCustomerAgreementWithAutoApplied,
       licensesByStatus: mockLicensesByStatus,
+      subscriptionLicense: {
+        subscriptionPlan: {
+          isCurrent: true,
+        },
+      },
     };
     const mockSubscriptionPlan = {
       uuid: mockSubscriptionPlanUUID,

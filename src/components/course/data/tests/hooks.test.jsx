@@ -44,24 +44,22 @@ import {
   LICENSE_SUBSIDY_TYPE,
   REASON_USER_MESSAGES,
 } from '../constants';
-import {
-  mockSubscriptionLicense,
-} from '../../tests/constants';
+import { mockSubscriptionLicense } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_TYPE } from '../../../../constants';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import {
-  useCourseMetadata,
-  useCourseRedemptionEligibility,
-  useRedeemablePolicies,
-  useSubscriptions,
-  useEnterpriseCustomerContainsContent,
-  useEnterpriseOffers,
-  useCouponCodes,
-  useEnterpriseCustomer,
   useBrowseAndRequest,
   useCatalogsForSubsidyRequests,
+  useCouponCodes,
+  useCourseMetadata,
+  useCourseRedemptionEligibility,
+  useEnterpriseCustomer,
+  useEnterpriseCustomerContainsContent,
+  useEnterpriseOffers,
+  useRedeemablePolicies,
+  useSubscriptions,
 } from '../../../app/data';
 import { CourseContext } from '../../CourseContextProvider';
 
@@ -1054,9 +1052,10 @@ describe('useUserSubsidyApplicableToCourse', () => {
           status: LICENSE_STATUS.ACTIVATED,
           discountType: 'percentage',
           discountValue: 100,
-        },
-        subscriptionPlan: {
-          enterpriseCatalogUuid: 'test-catalog-uuid',
+          subscriptionPlan: {
+            enterpriseCatalogUuid: 'test-catalog-uuid',
+            isCurrent: true,
+          },
         },
       },
     });
@@ -1081,6 +1080,10 @@ describe('useUserSubsidyApplicableToCourse', () => {
         status: LICENSE_STATUS.ACTIVATED,
         discountType: 'percentage',
         discountValue: 100,
+        subscriptionPlan: {
+          enterpriseCatalogUuid: 'test-catalog-uuid',
+          isCurrent: true,
+        },
       },
       applicableCouponCode: undefined,
       applicableEnterpriseOffer: undefined,
@@ -1103,6 +1106,20 @@ describe('useUserSubsidyApplicableToCourse', () => {
       reason: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
       userMessage: DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS],
       actions: {},
+    });
+    useSubscriptions.mockReturnValueOnce({
+      data: {
+        subscriptionLicense: {
+          ...mockSubscriptionLicense,
+          status: LICENSE_STATUS.ACTIVATED,
+          discountType: 'percentage',
+          discountValue: 100,
+          subscriptionPlan: {
+            enterpriseCatalogUuid: 'test-catalog-uuid',
+            isCurrent: false,
+          },
+        },
+      },
     });
 
     const { result } = renderHook(() => useUserSubsidyApplicableToCourse());

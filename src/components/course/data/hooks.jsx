@@ -545,7 +545,6 @@ export const useUserSubsidyApplicableToCourse = () => {
     data: {
       customerAgreement,
       subscriptionLicense,
-      subscriptionPlan,
     },
   } = useSubscriptions();
   const {
@@ -577,7 +576,7 @@ export const useUserSubsidyApplicableToCourse = () => {
   const isSubscriptionLicenseApplicable = (
     subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
     && subscriptionLicense?.subscriptionPlan.isCurrent
-    && catalogsWithCourse.includes(subscriptionPlan?.enterpriseCatalogUuid)
+    && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
   );
   const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
     applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
@@ -607,7 +606,6 @@ export const useUserSubsidyApplicableToCourse = () => {
       enterpriseOffers,
     });
   }
-  console.log(missingUserSubsidyReason);
   return useMemo(() => ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
