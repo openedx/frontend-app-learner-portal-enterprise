@@ -1,3 +1,5 @@
+import { SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX } from '../../../config/constants';
+
 export const LICENSE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
 export const COURSE_SECTION_TITLES = {
@@ -27,3 +29,6 @@ export const BUDGET_STATUSES = {
   scheduled: 'Scheduled',
   retired: 'Retired',
 };
+
+export const EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY = ({ uuid }) => (`hasSeenSubscriptionLicenseExpiredModal-${uuid}`);
+export const EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY = ({ uuid, threshold }) => (`${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${threshold}-${uuid}`);

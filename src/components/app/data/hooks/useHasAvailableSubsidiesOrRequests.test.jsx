@@ -286,7 +286,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         },
       },
     },
-  ])('returns true for hasAvailableSubsidyOrRequests', ({
+  ])('returns true for hasAvailableSubsidyOrRequests (%s)', ({
     mockEnterpriseOffers,
     mockRedeemableLearnerCreditPolicies,
     mockSubscriptions,

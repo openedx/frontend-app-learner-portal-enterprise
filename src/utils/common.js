@@ -42,7 +42,9 @@ export const hasTruthyValue = (value) => {
   return values.every(item => !!item);
 };
 
-export const hasValidStartExpirationDates = ({ startDate, expirationDate, endDate }) => {
+export const hasValidStartExpirationDates = ({
+  startDate, expirationDate, endDate,
+}) => {
   const now = dayjs();
   // Subscriptions use "expirationDate" while Codes use "endDate"
   const realEndDate = expirationDate || endDate;

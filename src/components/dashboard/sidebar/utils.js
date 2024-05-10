@@ -11,6 +11,7 @@ export const getPolicyExpiringFirst = (policies) => {
   if (!policies) {
     return undefined;
   }
+
   return policies
     .filter(policy => policy.active)
     .sort((a, b) => new Date(a.subsidyExpirationDate) - new Date(b.subsidyExpirationDate))[0];

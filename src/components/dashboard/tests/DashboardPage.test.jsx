@@ -4,19 +4,23 @@ import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { breakpoints } from '@openedx/paragon';
-import Cookies from 'universal-cookie';
 import userEvent from '@testing-library/user-event';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import dayjs from 'dayjs';
+import { v4 as uuidv4 } from 'uuid';
 import { SUBSCRIPTION_EXPIRED_MODAL_TITLE, SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../SubscriptionExpirationModal';
 import { SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX } from '../../../config/constants';
 import { features } from '../../../config';
 import { queryClient, renderWithRouter } from '../../../utils/tests';
 import DashboardPage from '../DashboardPage';
-import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
+import {
+  EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY,
+  EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY,
+  LICENSE_ACTIVATION_MESSAGE,
+} from '../data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import learnerPathwayData from '../../pathway-progress/data/__mocks__/PathwayProgressListData.json';
 import {
@@ -42,6 +46,7 @@ import {
   enterpriseCustomerFactory,
   groupMembershipFactories,
 } from '../../app/data/services/data/__factories__';
+import { hasLocalStorageData, setLocalStorageData } from '../data';
 
 const dummyProgramData = {
   uuid: 'test-uuid',
@@ -434,6 +439,10 @@ describe('<Dashboard />', () => {
   });
 
   describe('SubscriptionExpirationModal', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      localStorage.clear();
+    });
     it('should not render when > 60 days of access remain', () => {
       renderWithRouter(
         <DashboardWithContext />,
@@ -504,20 +513,31 @@ describe('<Dashboard />', () => {
       expect(screen.getByText(expectedText)).toBeTruthy();
     });
 
-    it('should render the expired version of the modal when 0 >= daysUntilExpirationIncludingRenewals', () => {
+    it('should render the expired version of the modal when 0 >= daysUntilExpirationIncludingRenewals', async () => {
+      const subscriptionLicense = {
+        uuid: uuidv4(),
+      };
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: true,
+          subscriptionLicense,
           subscriptionPlan: {
-            daysUntilExpirationIncludingRenewalsIncludingRenewals: 0,
+            daysUntilExpirationIncludingRenewals: 5,
           },
         },
       });
       renderWithRouter(
         <DashboardWithContext />,
       );
+
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy();
+      userEvent.click(screen.getByTestId('modal-footer-btn'));
+      await waitFor(() => expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy());
+      const expiredModalLocalStorageKey = hasLocalStorageData(
+        EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense),
+      );
+      expect(expiredModalLocalStorageKey).toBe(true);
     });
 
     it('should not render when 0 >= daysUntilExpirationIncludingRenewals and expiration messages are disabled ', () => {
@@ -526,6 +546,7 @@ describe('<Dashboard />', () => {
           showExpirationNotifications: false,
           subscriptionPlan: {
             daysUntilExpirationIncludingRenewals: 0,
+            isCurrent: false,
           },
         },
       });
@@ -542,6 +563,7 @@ describe('<Dashboard />', () => {
           showExpirationNotifications: false,
           subscriptionPlan: {
             daysUntilExpirationIncludingRenewals: 60,
+            isCurrent: true,
           },
         },
       });
@@ -569,17 +591,18 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
     });
 
-    it('should set the 60 day cookie when closed for the 60 day threshold', () => {
-      const mockSetCookies = jest.fn();
-      Cookies.mockReturnValue({ get: () => null, set: mockSetCookies });
-
-      const subscriptionPlanId = 'expiring-plan-60';
+    it.each([{
+      threshold: 30,
+    }, {
+      threshold: 60,
+    }])('should set localstorage when closed for the threshold (%s)', ({ threshold }) => {
+      const subscriptionPlanId = `expiring-plan-${threshold}`;
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: true,
           subscriptionPlan: {
             uuid: subscriptionPlanId,
-            daysUntilExpirationIncludingRenewals: 60,
+            daysUntilExpirationIncludingRenewals: threshold,
             isCurrent: true,
           },
         },
@@ -589,73 +612,34 @@ describe('<Dashboard />', () => {
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
-      const modal = screen.getByRole('dialog');
-      userEvent.click(modal.querySelector('button'));
-      expect(mockSetCookies).toHaveBeenCalledWith(
-        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}60-${mockEnterpriseCustomer.uuid}-${subscriptionPlanId}`,
-        true,
-        { sameSite: 'strict' },
-      );
+      userEvent.click(screen.getByTestId('modal-footer-btn'));
+      const hasExpirationModal = hasLocalStorageData(`${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${threshold}-${subscriptionPlanId}`);
+      expect(hasExpirationModal).toEqual(true);
     });
 
-    it('should not show the modal if 60 >= daysUntilExpirationIncludingRenewals > 30 and the 60 day cookie has been set', () => {
-      Cookies.mockReturnValue({ get: () => 'cookie' });
-      useSubscriptions.mockReturnValue({
-        data: {
-          showExpirationNotifications: true,
-          subscriptionPlan: {
-            daysUntilExpirationIncludingRenewals: 60,
-            isCurrent: true,
-          },
-        },
-      });
-      renderWithRouter(
-        <DashboardWithContext />,
-      );
-      expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
-      expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
-    });
-
-    it('should set the 30 day cookie when closed for the 30 day threshold', () => {
-      const mockSetCookies = jest.fn();
-      Cookies.mockReturnValue({ get: () => null, set: mockSetCookies });
-
-      const subscriptionPlanId = 'expiring-plan-30';
+    it.each([{
+      threshold: 30,
+    }, {
+      threshold: 60,
+    }])('should not show the modal if localstorage has been set (%s)', ({ threshold }) => {
+      const subscriptionPlanId = `expiring-plan-${threshold}`;
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: true,
           subscriptionPlan: {
             uuid: subscriptionPlanId,
-            daysUntilExpirationIncludingRenewals: 30,
+            daysUntilExpirationIncludingRenewals: threshold,
             isCurrent: true,
           },
         },
       });
-      renderWithRouter(
-        <DashboardWithContext />,
-      );
-      expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
-      expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
-      const modal = screen.getByRole('dialog');
-      userEvent.click(modal.querySelector('button'));
-      expect(mockSetCookies).toHaveBeenCalledWith(
-        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}30-${mockEnterpriseCustomer.uuid}-${subscriptionPlanId}`,
+      setLocalStorageData([
+        EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY({
+          uuid: subscriptionPlanId,
+          threshold,
+        }),
         true,
-        { sameSite: 'strict' },
-      );
-    });
-
-    it('should not show the modal if 30 >= daysUntilExpirationIncludingRenewals > 0 and the 30 day cookie has been set', () => {
-      Cookies.mockReturnValue({ get: () => 'cookie' });
-      useSubscriptions.mockReturnValue({
-        data: {
-          showExpirationNotifications: true,
-          subscriptionPlan: {
-            daysUntilExpirationIncludingRenewals: 30,
-            isCurrent: true,
-          },
-        },
-      });
+      ]);
       renderWithRouter(
         <DashboardWithContext />,
       );

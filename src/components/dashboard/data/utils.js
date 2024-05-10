@@ -45,3 +45,10 @@ export const getStatusMetadata = ({
     date: endDateStr,
   };
 };
+
+export const setLocalStorageData = (localStorageKeyValue) => {
+  const [key, value] = localStorageKeyValue;
+  global.localStorage.setItem(key, value);
+};
+
+export const hasLocalStorageData = (localStorageKey) => !!global.localStorage.getItem(localStorageKey);

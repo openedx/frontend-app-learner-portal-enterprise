@@ -37,7 +37,6 @@ export default function useHasAvailableSubsidiesOrRequests() {
   const { data: couponCodes } = useCouponCodes();
   const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const { data: enterpriseOffersData } = useEnterpriseOffers();
-
   const learnerCreditSummaryCardData = useMemo(() => getLearnerCreditSummaryCardData({
     enterpriseOffers: enterpriseOffersData.currentEnterpriseOffers,
     redeemableLearnerCreditPolicies,

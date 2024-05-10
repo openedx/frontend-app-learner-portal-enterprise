@@ -1,18 +1,19 @@
 import React, { useContext } from 'react';
-import Cookies from 'universal-cookie';
 import { MailtoLink, Modal } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import dayjs from '../../utils/dayjs';
 
-import {
-  SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX,
-  SUBSCRIPTION_DAYS_REMAINING_EXCEPTIONAL,
-  SUBSCRIPTION_DAYS_REMAINING_SEVERE,
-} from '../../config/constants';
+import { SUBSCRIPTION_DAYS_REMAINING_EXCEPTIONAL, SUBSCRIPTION_DAYS_REMAINING_SEVERE } from '../../config/constants';
 
 import { getContactEmail } from '../../utils/common';
 import { useEnterpriseCustomer, useSubscriptions } from '../app/data';
+import {
+  EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY,
+  EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY,
+  hasLocalStorageData,
+  setLocalStorageData,
+} from './data';
 
 export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
 export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
@@ -27,7 +28,7 @@ const SubscriptionExpirationModal = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const { data: subscriptions } = useSubscriptions();
-  const { subscriptionPlan } = subscriptions;
+  const { subscriptionPlan, subscriptionLicense } = subscriptions;
   const {
     daysUntilExpirationIncludingRenewals,
     expirationDate,
@@ -97,7 +98,7 @@ const SubscriptionExpirationModal = () => {
   const renderBody = () => (
     <>
       <p>
-        Your company&#39;s access to your edX learning portal is expiring in
+        Your company&#39;s access to your current subscription is expiring in
         {timeUntilExpiration()} After it expires you will only have audit access to your courses.
       </p>
       <p>
@@ -116,7 +117,7 @@ const SubscriptionExpirationModal = () => {
   const renderExpiredBody = () => (
     <>
       <p>
-        You company&#39;s access to your edX learning portal has expired. You will only have audit
+        You company&#39;s access to your subscription has expired. You will only have audit
         access to the courses you were enrolled in with your subscription (courses from vouchers
         will still be fully accessible).
       </p>
@@ -133,7 +134,7 @@ const SubscriptionExpirationModal = () => {
   );
 
   // If the subscription has already expired, we show a different un-dismissible modal
-  if (!isCurrent) {
+  if (!isCurrent && !hasLocalStorageData(EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense))) {
     return (
       <Modal
         dialogClassName={`${MODAL_DIALOG_CLASS_NAME} expired`}
@@ -141,13 +142,16 @@ const SubscriptionExpirationModal = () => {
         title={renderTitle()}
         body={renderExpiredBody()}
         closeText="OK"
-        onClose={() => {}}
+        onClose={() => {
+          setLocalStorageData([EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense), true]);
+        }}
         open
+        data-testid="expiration-modal"
       />
     );
   }
 
-  if (daysUntilExpirationIncludingRenewals > SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
+  if (daysUntilExpirationIncludingRenewals > SUBSCRIPTION_DAYS_REMAINING_SEVERE || !isCurrent) {
     return null;
   }
 
@@ -160,9 +164,11 @@ const SubscriptionExpirationModal = () => {
     threshold => threshold >= daysUntilExpirationIncludingRenewals,
   );
 
-  const seenCurrentExpirationModalCookieName = `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${subscriptionExpirationThreshold}-${enterpriseCustomer.uuid}-${subscriptionPlanId}`;
-  const cookies = new Cookies();
-  const seenCurrentExpirationModal = cookies.get(seenCurrentExpirationModalCookieName);
+  const expirationModalLocalStorageName = EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY({
+    threshold: subscriptionExpirationThreshold,
+    uuid: subscriptionPlanId,
+  });
+  const seenCurrentExpirationModal = hasLocalStorageData(expirationModalLocalStorageName);
   // If they have already seen the expiration modal for their current expiration range (as
   // determined by the cookie), don't show them anything
   if (seenCurrentExpirationModal) {
@@ -178,16 +184,10 @@ const SubscriptionExpirationModal = () => {
       closeText="OK"
       // Mark that the user has seen this range's expiration modal when they close it
       onClose={() => {
-        cookies.set(
-          seenCurrentExpirationModalCookieName,
-          true,
-          // Cookies without the `sameSite` attribute are rejected if they are missing the `secure`
-          // attribute. See
-          // https//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
-          { sameSite: 'strict' },
-        );
+        setLocalStorageData([expirationModalLocalStorageName, true]);
       }}
       open
+      data-testid="expiration-modal"
     />
   );
 };
