@@ -43,11 +43,11 @@ export const hasTruthyValue = (value) => {
 };
 
 export const hasValidStartExpirationDates = ({
-  startDate, expirationDate, endDate,
+  startDate, expirationDate, endDate, subsidyExpirationDate,
 }) => {
   const now = dayjs();
   // Subscriptions use "expirationDate" while Codes use "endDate"
-  const realEndDate = expirationDate || endDate;
+  const realEndDate = expirationDate || endDate || subsidyExpirationDate;
   return now.isBetween(startDate, realEndDate);
 };
 
