@@ -18,7 +18,7 @@ const UpgradeCourseButton = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: { couponCodeAssignments } } = useCouponCodes();
+  const { data: { couponCodeRedemptionCount } } = useCouponCodes();
   const {
     subsidyForCourse,
     couponUpgradeUrl,
@@ -57,7 +57,7 @@ const UpgradeCourseButton = ({
         enrollmentUrl={couponUpgradeUrl}
         courseRunPrice={courseRunPrice}
         userSubsidyApplicableToCourse={subsidyForCourse}
-        couponCodesCount={couponCodeAssignments.length}
+        couponCodesCount={couponCodeRedemptionCount}
         onEnroll={handleEnroll}
       />
     </>
