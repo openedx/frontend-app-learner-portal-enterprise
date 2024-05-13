@@ -106,7 +106,7 @@ const SubsidiesSummary = ({
         )}
         {hasAssignedCodesOrCodeRequests && (
           <CouponCodesSummaryCard
-            couponCodesCount={couponCodes.couponCodeAssignments.length}
+            couponCodesCount={couponCodes.couponCodeRedemptionCount}
             couponCodeRequestsCount={requests.couponCodes.length}
             totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
             programProgressPage={programProgressPage}
