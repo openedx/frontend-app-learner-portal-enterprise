@@ -35,7 +35,7 @@ export default function useHasAvailableSubsidiesOrRequests() {
   const { data: subscriptions } = useSubscriptions();
   const { data: { requests } } = useBrowseAndRequest();
   const { data: couponCodes } = useCouponCodes();
-  const { data: { expiredPolicies, unexpiredPolicies } } = useRedeemablePolicies();
+  const { data: { expiredPolicies, unexpiredPolicies, redeemablePolicies } } = useRedeemablePolicies();
   const { data: enterpriseOffersData } = useEnterpriseOffers();
   const learnerCreditSummaryCardData = useMemo(() => getLearnerCreditSummaryCardData({
     enterpriseOffers: enterpriseOffersData.currentEnterpriseOffers,
@@ -51,7 +51,7 @@ export default function useHasAvailableSubsidiesOrRequests() {
     couponCodes.couponCodeAssignments.length > 0
       || requests.couponCodes.length > 0
   );
-  const hasAvailableLearnerCreditPolicies = unexpiredPolicies.length > 0 || expiredPolicies.length > 0;
+  const hasAvailableLearnerCreditPolicies = redeemablePolicies.length > 0;
 
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData

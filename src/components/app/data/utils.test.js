@@ -1,8 +1,14 @@
 import MockDate from 'mockdate';
 
+import dayjs from 'dayjs';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { determineLearnerHasContentAssignmentsOnly, getAvailableCourseRuns, transformGroupMembership } from './utils';
+import {
+  determineLearnerHasContentAssignmentsOnly,
+  filterPoliciesByExpirationAndActive,
+  getAvailableCourseRuns,
+  transformGroupMembership,
+} from './utils';
 import { COURSE_AVAILABILITY_MAP, emptyRedeemableLearnerCreditPolicies } from './constants';
 
 describe('determineLearnerHasContentAssignmentsOnly', () => {
@@ -631,5 +637,45 @@ describe('transformGroupMembership', () => {
       mockGroupMemberships,
       mockGroupUuid,
     )).toEqual(mockTransformedData);
+  });
+});
+
+describe('filterPoliciesByExpirationAndActive', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  it.each([
+    {
+      active: true,
+      subsidyExpirationDate: dayjs().add(10, 'days').toISOString(),
+    },
+    {
+      active: false,
+      subsidyExpirationDate: dayjs().add(10, 'days').toISOString(),
+    },
+    {
+      active: true,
+      subsidyExpirationDate: dayjs().subtract(10, 'days').toISOString(),
+    },
+    {
+      active: false,
+      subsidyExpirationDate: dayjs().subtract(10, 'days').toISOString(),
+    },
+  ])('correctly filters expired and unexpired policies (%s)', ({
+    active,
+    subsidyExpirationDate,
+  }) => {
+    const mockPolicies = [{
+      active,
+      subsidyExpirationDate,
+    }];
+    const filteredPolicies = filterPoliciesByExpirationAndActive(mockPolicies);
+    if (dayjs(subsidyExpirationDate).isAfter(dayjs()) && active) {
+      expect(filteredPolicies.expiredPolicies).toEqual([]);
+      expect(filteredPolicies.unexpiredPolicies).toEqual(mockPolicies);
+    } else {
+      expect(filteredPolicies.expiredPolicies).toEqual(mockPolicies);
+      expect(filteredPolicies.unexpiredPolicies).toEqual([]);
+    }
   });
 });

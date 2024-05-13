@@ -57,6 +57,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       data: {
         expiredPolicies: [],
         unexpiredPolicies: [],
+        redeemablePolicies: [],
         learnerContentAssignments: null,
       },
     });
@@ -83,6 +84,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockRedeemableLearnerCreditPolicies: {
         expiredPolicies: [],
         unexpiredPolicies: [],
+        redeemablePolicies: [],
         learnerContentAssignments: null,
       },
       mockSubscriptions: {
@@ -114,6 +116,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockRedeemableLearnerCreditPolicies: {
         expiredPolicies: [],
         unexpiredPolicies: [],
+        redeemablePolicies: [],
         learnerContentAssignments: null,
       },
       mockSubscriptions: {
@@ -145,6 +148,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockRedeemableLearnerCreditPolicies: {
         expiredPolicies: [],
         unexpiredPolicies: [],
+        redeemablePolicies: [],
         learnerContentAssignments: null,
       },
       mockSubscriptions: {
@@ -174,6 +178,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockRedeemableLearnerCreditPolicies: {
         expiredPolicies: [],
         unexpiredPolicies: [],
+        redeemablePolicies: [],
         learnerContentAssignments: null,
       },
       mockSubscriptions: {
@@ -214,6 +219,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockRedeemableLearnerCreditPolicies: {
         expiredPolicies: [],
         unexpiredPolicies: [],
+        redeemablePolicies: [],
         learnerContentAssignments: null,
       },
       mockSubscriptions: {
@@ -259,6 +265,16 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         learnerContentAssignments: null,
         expiredPolicies: [],
         unexpiredPolicies: [
+          {
+            active: true,
+            subsidyExpirationDate: mockEndDateTimeOneDayOff,
+          },
+          {
+            active: true,
+            subsidyExpirationDate: mockEndDateTimeTwoDaysOff,
+          },
+        ],
+        redeemablePolicies: [
           {
             active: true,
             subsidyExpirationDate: mockEndDateTimeOneDayOff,
