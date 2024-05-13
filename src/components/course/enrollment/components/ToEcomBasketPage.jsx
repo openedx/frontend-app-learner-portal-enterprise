@@ -19,7 +19,7 @@ import { useCouponCodes, useCourseMetadata, useEnterpriseCourseEnrollments } fro
  */
 const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
-  const { data: { couponCodeAssignments } } = useCouponCodes();
+  const { data: { couponCodeRedemptionCount } } = useCouponCodes();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     data: {
@@ -57,7 +57,7 @@ const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
         enrollmentUrl={enrollmentUrl}
         courseRunPrice={courseRunPrice}
         userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-        couponCodesCount={couponCodeAssignments.length}
+        couponCodesCount={couponCodeRedemptionCount}
         onEnroll={handleEnroll}
       />
     </>

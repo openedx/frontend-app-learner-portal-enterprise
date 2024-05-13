@@ -1,4 +1,4 @@
-import findCouponCodeRedemptionCount from '../utils';
+import { findCouponCodeRedemptionCount } from '../utils';
 
 describe('find coupon code redemption count function', () => {
   it('should not fail and return 0 if there are no remaining redemptions', () => {

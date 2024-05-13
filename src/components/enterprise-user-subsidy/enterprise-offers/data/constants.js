@@ -30,6 +30,7 @@ export const NO_BALANCE_CONTACT_ADMIN_TEXT = 'Contact administrator';
 
 export const OFFER_BALANCE_CLICK_EVENT = 'edx.ui.enterprise.learner_portal.offer_balance_alert.clicked';
 
+// TODO: why are these Learner Credit policies and content assignments related constants in this file?
 export const ASSIGNMENT_TYPES = {
   ACCEPTED: 'accepted',
   ALLOCATED: 'allocated',
@@ -37,7 +38,6 @@ export const ASSIGNMENT_TYPES = {
   EXPIRED: 'expired',
   ERRORED: 'errored',
 };
-
 export const POLICY_TYPES = {
   ASSIGNED_CREDIT: 'AssignedLearnerCreditAccessPolicy',
   PER_LEARNER_CREDIT: 'PerLearnerSpendCreditAccessPolicy',

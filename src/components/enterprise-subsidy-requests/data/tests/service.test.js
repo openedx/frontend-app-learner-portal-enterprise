@@ -4,12 +4,9 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { mergeConfig } from '@edx/frontend-platform/config';
 
 import {
-  fetchSubsidyRequestConfiguration,
-  fetchCouponCodeRequests,
-  fetchLicenseRequests,
+  postLicenseRequest,
+  postCouponCodeRequest,
 } from '../service';
-
-import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);
@@ -17,55 +14,45 @@ getAuthenticatedHttpClient.mockReturnValue(axios);
 
 axiosMock.onAny().reply(200);
 axios.get = jest.fn();
+axios.post = jest.fn();
 const enterpriseAccessBaseUrl = `${process.env.ENTERPRISE_ACCESS_BASE_URL}`;
 const mockEnterpriseUUID = 'test-enterprise-id';
-const mockEmail = 'edx@example.com';
+const mockCourseId = 'test-course-id';
 
-describe('fetchSubsidyRequestConfiguration', () => {
+describe('postCouponCodeRequest', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     mergeConfig({
       ENTERPRISE_ACCESS_BASE_URL: enterpriseAccessBaseUrl,
     });
   });
 
-  it('fetches subsidy request configuration for the given enterprise', () => {
-    fetchSubsidyRequestConfiguration(mockEnterpriseUUID);
-    expect(axios.get).toBeCalledWith(`${enterpriseAccessBaseUrl}/api/v1/customer-configurations/${mockEnterpriseUUID}/`);
+  it('posts coupon code request for the given enterprise and course', () => {
+    postCouponCodeRequest(mockEnterpriseUUID, mockCourseId);
+    const options = {
+      enterprise_customer_uuid: mockEnterpriseUUID,
+      course_id: mockCourseId,
+    };
+    expect(axios.post).toHaveBeenCalledTimes(1);
+    expect(axios.post).toHaveBeenCalledWith(`${enterpriseAccessBaseUrl}/api/v1/coupon-code-requests/`, options);
   });
 });
 
-describe('fetchLicenseRequests', () => {
-  it('fetches license requests', () => {
-    fetchLicenseRequests({
-      enterpriseUUID: mockEnterpriseUUID,
-      userEmail: mockEmail,
-      state: SUBSIDY_REQUEST_STATE.DECLINED,
+describe('postLicenseRequest', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mergeConfig({
+      ENTERPRISE_ACCESS_BASE_URL: enterpriseAccessBaseUrl,
     });
-    const queryParams = new URLSearchParams({
-      enterprise_customer_uuid: mockEnterpriseUUID,
-      user__email: mockEmail,
-      state: SUBSIDY_REQUEST_STATE.DECLINED,
-    });
-    expect(axios.get).toBeCalledWith(
-      `${enterpriseAccessBaseUrl}/api/v1/license-requests/?${queryParams.toString()}`,
-    );
   });
-});
 
-describe('fetchCouponCodeRequests', () => {
-  it('fetches coupon code requests', () => {
-    fetchCouponCodeRequests({
-      enterpriseUUID: mockEnterpriseUUID,
-      userEmail: mockEmail,
-      state: SUBSIDY_REQUEST_STATE.REQUESTED,
-    });
-    const queryParams = new URLSearchParams({
+  it('posts license request for the given enterprise and course', () => {
+    postLicenseRequest(mockEnterpriseUUID, mockCourseId);
+    const options = {
       enterprise_customer_uuid: mockEnterpriseUUID,
-      user__email: mockEmail,
-      state: SUBSIDY_REQUEST_STATE.REQUESTED,
-    });
-    expect(axios.get).toBeCalledWith(
-      `${enterpriseAccessBaseUrl}/api/v1/coupon-code-requests/?${queryParams.toString()}`,
-    );
+      course_id: mockCourseId,
+    };
+    expect(axios.post).toHaveBeenCalledTimes(1);
+    expect(axios.post).toHaveBeenCalledWith(`${enterpriseAccessBaseUrl}/api/v1/license-requests/`, options);
   });
 });

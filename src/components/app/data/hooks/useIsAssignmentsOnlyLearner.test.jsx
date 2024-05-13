@@ -385,9 +385,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
         },
       },
       hasCurrentEnterpriseOffers: false,
-      subscriptionPlan: {
-        isActive: false,
-      },
+      subscriptionPlan: undefined,
       subscriptionLicense: undefined,
       licenseRequests: [],
       couponCodesCount: 1,
@@ -475,7 +473,10 @@ describe('useIsAssignmentsOnlyLearner', () => {
     });
     useCouponCodes.mockReturnValue({
       data: {
-        couponCodeAssignments: new Array(couponCodesCount).fill('test-coupon-code-assignments'),
+        couponCodeAssignments: new Array(couponCodesCount).fill({
+          redemptionsRemaining: 1,
+        }),
+        couponCodeRedemptionCount: couponCodesCount,
       },
     });
     useEnterpriseOffers.mockReturnValue({
