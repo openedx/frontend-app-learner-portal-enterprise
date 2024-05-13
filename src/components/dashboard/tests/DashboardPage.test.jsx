@@ -46,7 +46,6 @@ import {
   enterpriseCustomerFactory,
   groupMembershipFactories,
 } from '../../app/data/services/data/__factories__';
-import { hasLocalStorageData, setLocalStorageData } from '../data';
 
 const dummyProgramData = {
   uuid: 'test-uuid',
@@ -497,6 +496,9 @@ describe('<Dashboard />', () => {
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: true,
+          subscriptionLicense: {
+            uuid: 'test-uuid',
+          },
           subscriptionPlan: {
             daysUntilExpirationIncludingRenewals,
             expirationDate,
@@ -534,7 +536,7 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy();
       userEvent.click(screen.getByTestId('modal-footer-btn'));
       await waitFor(() => expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy());
-      const expiredModalLocalStorageKey = hasLocalStorageData(
+      const expiredModalLocalStorageKey = !!global.localStorage.getItem(
         EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense),
       );
       expect(expiredModalLocalStorageKey).toBe(true);
@@ -578,6 +580,9 @@ describe('<Dashboard />', () => {
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: true,
+          subscriptionLicense: {
+            uuid: 'test-uuid',
+          },
           subscriptionPlan: {
             daysUntilExpirationIncludingRenewals: 60,
             isCurrent: true,
@@ -600,6 +605,9 @@ describe('<Dashboard />', () => {
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: true,
+          subscriptionLicense: {
+            uuid: 'test-uuid',
+          },
           subscriptionPlan: {
             uuid: subscriptionPlanId,
             daysUntilExpirationIncludingRenewals: threshold,
@@ -613,7 +621,7 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
       userEvent.click(screen.getByTestId('modal-footer-btn'));
-      const hasExpirationModal = hasLocalStorageData(`${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${threshold}-${subscriptionPlanId}`);
+      const hasExpirationModal = !!global.localStorage.getItem(`${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${threshold}-${subscriptionPlanId}`);
       expect(hasExpirationModal).toEqual(true);
     });
 
@@ -626,6 +634,9 @@ describe('<Dashboard />', () => {
       useSubscriptions.mockReturnValue({
         data: {
           showExpirationNotifications: true,
+          subscriptionLicense: {
+            uuid: 'test-uuid',
+          },
           subscriptionPlan: {
             uuid: subscriptionPlanId,
             daysUntilExpirationIncludingRenewals: threshold,
@@ -633,13 +644,13 @@ describe('<Dashboard />', () => {
           },
         },
       });
-      setLocalStorageData([
+      global.localStorage.setItem(
         EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY({
           uuid: subscriptionPlanId,
           threshold,
         }),
-        true,
-      ]);
+        'true',
+      );
       renderWithRouter(
         <DashboardWithContext />,
       );

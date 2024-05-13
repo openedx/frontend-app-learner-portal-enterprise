@@ -8,12 +8,7 @@ import { SUBSCRIPTION_DAYS_REMAINING_EXCEPTIONAL, SUBSCRIPTION_DAYS_REMAINING_SE
 
 import { getContactEmail } from '../../utils/common';
 import { useEnterpriseCustomer, useSubscriptions } from '../app/data';
-import {
-  EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY,
-  EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY,
-  hasLocalStorageData,
-  setLocalStorageData,
-} from './data';
+import { EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY, EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY } from './data';
 
 export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
 export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
@@ -98,7 +93,7 @@ const SubscriptionExpirationModal = () => {
   const renderBody = () => (
     <>
       <p>
-        Your company&#39;s access to your current subscription is expiring in
+        Your organization&#39;s access to your current subscription is expiring in
         {timeUntilExpiration()} After it expires you will only have audit access to your courses.
       </p>
       <p>
@@ -117,7 +112,7 @@ const SubscriptionExpirationModal = () => {
   const renderExpiredBody = () => (
     <>
       <p>
-        You company&#39;s access to your subscription has expired. You will only have audit
+        Your organization&#39;s access to your subscription has expired. You will only have audit
         access to the courses you were enrolled in with your subscription (courses from vouchers
         will still be fully accessible).
       </p>
@@ -133,8 +128,14 @@ const SubscriptionExpirationModal = () => {
     </>
   );
 
+  const seenExpiredSubscriptionModal = !!global.localStorage.getItem(
+    EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense),
+  );
   // If the subscription has already expired, we show a different un-dismissible modal
-  if (!isCurrent && !hasLocalStorageData(EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense))) {
+  if (!isCurrent) {
+    if (seenExpiredSubscriptionModal) {
+      return null;
+    }
     return (
       <Modal
         dialogClassName={`${MODAL_DIALOG_CLASS_NAME} expired`}
@@ -143,15 +144,15 @@ const SubscriptionExpirationModal = () => {
         body={renderExpiredBody()}
         closeText="OK"
         onClose={() => {
-          setLocalStorageData([EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense), true]);
+          global.localStorage.setItem(EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense), 'true');
         }}
         open
-        data-testid="expiration-modal"
+        data-testid="expired-modal"
       />
     );
   }
 
-  if (daysUntilExpirationIncludingRenewals > SUBSCRIPTION_DAYS_REMAINING_SEVERE || !isCurrent) {
+  if (daysUntilExpirationIncludingRenewals > SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
     return null;
   }
 
@@ -168,7 +169,7 @@ const SubscriptionExpirationModal = () => {
     threshold: subscriptionExpirationThreshold,
     uuid: subscriptionPlanId,
   });
-  const seenCurrentExpirationModal = hasLocalStorageData(expirationModalLocalStorageName);
+  const seenCurrentExpirationModal = !!global.localStorage.getItem(expirationModalLocalStorageName);
   // If they have already seen the expiration modal for their current expiration range (as
   // determined by the cookie), don't show them anything
   if (seenCurrentExpirationModal) {
@@ -184,7 +185,7 @@ const SubscriptionExpirationModal = () => {
       closeText="OK"
       // Mark that the user has seen this range's expiration modal when they close it
       onClose={() => {
-        setLocalStorageData([expirationModalLocalStorageName, true]);
+        global.localStorage.setItem(expirationModalLocalStorageName, 'true');
       }}
       open
       data-testid="expiration-modal"

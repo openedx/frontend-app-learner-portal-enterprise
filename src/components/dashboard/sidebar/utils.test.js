@@ -47,12 +47,16 @@ describe('getPolicyExpiringFirst', () => {
     expect(getPolicyExpiringFirst(policies)).toBeUndefined();
   });
   it('returns policy expiring first', () => {
+    const soonestExpiringPolicy = {
+      subsidyExpirationDate: dayjs().add(1, 'days').toISOString(),
+      active: true,
+    };
     const policies = {
       expiredPolicies: [{
-        subsidyExpirationDate: dayjs().subtract(1, 'days').toISOString(),
+        subsidyExpirationDate: dayjs().subtract(3, 'days').toISOString(),
         active: false,
       }, {
-        subsidyExpirationDate: dayjs().subtract(30, 'days').toISOString(),
+        subsidyExpirationDate: dayjs().subtract(1, 'days').toISOString(),
         active: false,
       }, {
         subsidyExpirationDate: dayjs().subtract(70, 'days').toISOString(),
@@ -61,18 +65,14 @@ describe('getPolicyExpiringFirst', () => {
       unexpiredPolicies: [{
         subsidyExpirationDate: dayjs().add(3, 'days').toISOString(),
         active: true,
-      }, {
-        subsidyExpirationDate: dayjs().add(1, 'days').toISOString(),
-        active: true,
-      }, {
+      },
+      soonestExpiringPolicy,
+      {
         subsidyExpirationDate: dayjs().add(24, 'days').toISOString(),
         active: true,
       }],
     };
-    const expectedOutput = {
-      subsidyExpirationDate: dayjs().add(1, 'days').toISOString(),
-      active: true,
-    };
-    expect(getPolicyExpiringFirst(policies)).toEqual(expectedOutput);
+
+    expect(getPolicyExpiringFirst(policies)).toEqual(soonestExpiringPolicy);
   });
 });

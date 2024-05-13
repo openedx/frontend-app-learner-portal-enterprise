@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 export const getOfferExpiringFirst = (offers) => {
   if (!offers) {
     return undefined;
@@ -13,7 +15,9 @@ export const getPolicyExpiringFirst = ({ expiredPolicies, unexpiredPolicies }) =
   }
   const hasUnexpiredPolicies = unexpiredPolicies.length > 0;
   if (hasUnexpiredPolicies) {
-    return unexpiredPolicies.sort((a, b) => new Date(a.subsidyExpirationDate) - new Date(b.subsidyExpirationDate))[0];
+    return [...unexpiredPolicies].sort((a, b) => (
+      dayjs(a.subsidyExpirationDate).isAfter(dayjs(b.subsidyExpirationDate)) ? 1 : -1))[0];
   }
-  return expiredPolicies.sort((a, b) => new Date(b.subsidyExpirationDate) - new Date(a.subsidyExpirationDate))[0];
+  return [...expiredPolicies].sort((a, b) => (
+    dayjs(b.subsidyExpirationDate).isAfter(dayjs(a.subsidyExpirationDate)) ? 1 : -1))[0];
 };
