@@ -45,11 +45,11 @@ export default function useHasAvailableSubsidiesOrRequests() {
 
   const hasActiveLicenseOrLicenseRequest = (
     subscriptions.subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
-      || requests.subscriptionLicenses.length > 0
+    || requests.subscriptionLicenses.length > 0
   );
   const hasAssignedCodesOrCodeRequests = (
-    couponCodes.couponCodeAssignments.length > 0
-      || requests.couponCodes.length > 0
+    couponCodes.couponCodeRedemptionCount > 0
+    || requests.couponCodes.length > 0
   );
   const hasAvailableLearnerCreditPolicies = redeemablePolicies.length > 0;
 

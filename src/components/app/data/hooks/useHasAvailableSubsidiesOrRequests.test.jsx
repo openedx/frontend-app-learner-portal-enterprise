@@ -64,6 +64,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     useCouponCodes.mockReturnValue({
       data: {
         couponCodeAssignments: [],
+        couponCodeRedemptionCount: 0,
       },
     });
     useEnterpriseOffers.mockReturnValue({ data: { enterpriseOffers: [] } });
@@ -102,6 +103,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       },
       mockCouponCodes: {
         couponCodeAssignments: [],
+        couponCodeRedemptionCount: 0,
       },
       expectedResult: {
         hasActiveLicenseOrLicenseRequest: true,
@@ -134,6 +136,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       },
       mockCouponCodes: {
         couponCodeAssignments: [],
+        couponCodeRedemptionCount: 0,
       },
       expectedResult: {
         hasActiveLicenseOrLicenseRequest: true,
@@ -163,7 +166,11 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         },
       },
       mockCouponCodes: {
-        couponCodeAssignments: [uuidv4()],
+        couponCodeAssignments: [{
+          code: '23EHKQE2PDOTTHGT',
+          redemptions_remaining: 3,
+        }],
+        couponCodeRedemptionCount: 3,
       },
       expectedResult: {
         hasActiveLicenseOrLicenseRequest: false,
@@ -194,6 +201,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       },
       mockCouponCodes: {
         couponCodeAssignments: [],
+        couponCodeRedemptionCount: 0,
       },
       expectedResult: {
         hasActiveLicenseOrLicenseRequest: false,
@@ -235,6 +243,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       },
       mockCouponCodes: {
         couponCodeAssignments: [],
+        couponCodeRedemptionCount: 0,
       },
       expectedResult: {
         hasActiveLicenseOrLicenseRequest: false,
@@ -298,6 +307,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       },
       mockCouponCodes: {
         couponCodeAssignments: [],
+        couponCodeRedemptionCount: 0,
       },
       expectedResult: {
         hasActiveLicenseOrLicenseRequest: false,
