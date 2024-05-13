@@ -11,12 +11,9 @@ export const getPolicyExpiringFirst = ({ expiredPolicies, unexpiredPolicies }) =
   if (!expiredPolicies || !unexpiredPolicies) {
     return undefined;
   }
-  let policiesToConsiderForExpirationMessaging = expiredPolicies;
   const hasUnexpiredPolicies = unexpiredPolicies.length > 0;
-  const hasExpiredPolicies = unexpiredPolicies.length > 0;
-  if (hasUnexpiredPolicies && hasExpiredPolicies) {
-    policiesToConsiderForExpirationMessaging = unexpiredPolicies;
+  if (hasUnexpiredPolicies) {
+    return unexpiredPolicies.sort((a, b) => new Date(a.subsidyExpirationDate) - new Date(b.subsidyExpirationDate))[0];
   }
-  return policiesToConsiderForExpirationMessaging
-    .sort((a, b) => new Date(a.subsidyExpirationDate) - new Date(b.subsidyExpirationDate))[0];
+  return expiredPolicies.sort((a, b) => new Date(b.subsidyExpirationDate) - new Date(a.subsidyExpirationDate))[0];
 };
