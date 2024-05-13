@@ -2,8 +2,15 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
 
-import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { getAssignmentsByState, transformRedeemablePoliciesData } from '../../utils';
+import {
+  ENTERPRISE_OFFER_STATUS,
+  ENTERPRISE_OFFER_USAGE_TYPE,
+} from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import {
+  filterPoliciesByExpirationAndActive,
+  getAssignmentsByState,
+  transformRedeemablePoliciesData,
+} from '../../utils';
 import { transformEnterpriseOffer } from '../../../../enterprise-user-subsidy/enterprise-offers/data/utils';
 import { fetchPaginatedData } from '../utils';
 
@@ -76,14 +83,19 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
     const learnerContentAssignments = getAssignmentsByState(
       redeemablePolicies?.flatMap(item => item.learnerContentAssignments || []),
     );
+    const { expiredPolicies, unexpiredPolicies } = filterPoliciesByExpirationAndActive(redeemablePolicies);
     return {
       redeemablePolicies,
       learnerContentAssignments,
+      expiredPolicies,
+      unexpiredPolicies,
     };
   } catch (error) {
     logError(error);
     return {
       redeemablePolicies: [],
+      expiredPolicies: [],
+      unexpiredPolicies: [],
       learnerContentAssignments: {
         assignments: [],
         hasAssignments: false,

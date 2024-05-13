@@ -609,3 +609,25 @@ export function getCustomerGroupAssociations(policies) {
 export function isObjEmpty(obj) {
   return Object.keys(obj).length === 0;
 }
+
+/**
+ * returns expired and unexpired policies
+ * @param policies
+ * @returns {{expiredPolicies: *[], unexpiredPolicies: *[]}}
+ */
+export const filterPoliciesByExpirationAndActive = (policies) => {
+  const expiredPolicies = [];
+  const unexpiredPolicies = [];
+  policies.forEach((policy) => {
+    const expiryDate = dayjs(policy.subsidyExpirationDate);
+    if (expiryDate.isAfter(dayjs()) && policy.active) {
+      unexpiredPolicies.push(policy);
+    } else {
+      expiredPolicies.push(policy);
+    }
+  });
+  return {
+    expiredPolicies,
+    unexpiredPolicies,
+  };
+};

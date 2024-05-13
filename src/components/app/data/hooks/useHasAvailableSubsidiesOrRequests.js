@@ -7,8 +7,8 @@ import useEnterpriseOffers from './useEnterpriseOffers';
 import useRedeemablePolicies from './useRedeemablePolicies';
 import useSubscriptions from './useSubscriptions';
 
-function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
-  const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
+function getLearnerCreditSummaryCardData({ enterpriseOffers, expiredPolicies, unexpiredPolicies }) {
+  const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst({ expiredPolicies, unexpiredPolicies });
   const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
   if (!learnerCreditPolicyExpiringFirst && !enterpriseOfferExpiringFirst) {
     return undefined;
@@ -35,13 +35,13 @@ export default function useHasAvailableSubsidiesOrRequests() {
   const { data: subscriptions } = useSubscriptions();
   const { data: { requests } } = useBrowseAndRequest();
   const { data: couponCodes } = useCouponCodes();
-  const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
+  const { data: { expiredPolicies, unexpiredPolicies, redeemablePolicies } } = useRedeemablePolicies();
   const { data: enterpriseOffersData } = useEnterpriseOffers();
-
   const learnerCreditSummaryCardData = useMemo(() => getLearnerCreditSummaryCardData({
     enterpriseOffers: enterpriseOffersData.currentEnterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  }), [enterpriseOffersData.currentEnterpriseOffers, redeemableLearnerCreditPolicies]);
+    expiredPolicies,
+    unexpiredPolicies,
+  }), [enterpriseOffersData.currentEnterpriseOffers, expiredPolicies, unexpiredPolicies]);
 
   const hasActiveLicenseOrLicenseRequest = (
     subscriptions.subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
@@ -51,7 +51,7 @@ export default function useHasAvailableSubsidiesOrRequests() {
     couponCodes.couponCodeAssignments.length > 0
       || requests.couponCodes.length > 0
   );
-  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies.redeemablePolicies.length > 0;
+  const hasAvailableLearnerCreditPolicies = redeemablePolicies.length > 0;
 
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData

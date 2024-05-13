@@ -5,7 +5,10 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { logError } from '@edx/frontend-platform/logging';
 import { fetchEnterpriseOffers, fetchRedeemablePolicies } from '.';
-import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import {
+  ENTERPRISE_OFFER_STATUS,
+  ENTERPRISE_OFFER_USAGE_TYPE,
+} from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { transformEnterpriseOffer } from '../../../../enterprise-user-subsidy/enterprise-offers/data/utils';
 
 const axiosMock = new MockAdapter(axios);
@@ -90,11 +93,13 @@ describe('fetchRedeemablePolicies', () => {
       {
         id: 123,
         subsidyExpirationDate: mockSubsidyExpirationDate,
+        active: true,
       },
       {
         id: 456,
         subsidyExpirationDate: mockSubsidyExpirationDate,
         learnerContentAssignments: [mockContentAssignment],
+        active: true,
       },
     ];
     axiosMock.onGet(POLICY_REDEMPTION_URL).reply(200, redeemablePolicies);
@@ -112,6 +117,8 @@ describe('fetchRedeemablePolicies', () => {
     };
     const expectedRedeemablePolicies = {
       redeemablePolicies: expectedTransformedPolicies,
+      expiredPolicies: [],
+      unexpiredPolicies: expectedTransformedPolicies,
       learnerContentAssignments: {
         acceptedAssignments: [],
         allocatedAssignments: [mockContentAssignmentWithSubsidyExpiration],
@@ -143,6 +150,8 @@ describe('fetchRedeemablePolicies', () => {
     const result = await fetchRedeemablePolicies(mockEnterpriseId, userID);
     expect(result).toEqual({
       redeemablePolicies: [],
+      expiredPolicies: [],
+      unexpiredPolicies: [],
       learnerContentAssignments: {
         assignments: [],
         hasAssignments: false,

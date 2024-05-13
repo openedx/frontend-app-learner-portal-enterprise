@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
 
 describe('getOfferExpiringFirst', () => {
@@ -30,28 +31,48 @@ describe('getOfferExpiringFirst', () => {
 
 describe('getPolicyExpiringFirst', () => {
   it.each([
-    { policies: undefined },
-    { policies: [] },
+    {
+      policies: {
+        expiredPolicies: [],
+        unexpiredPolicies: [],
+      },
+    },
+    {
+      policies: {
+        expiredPolicies: undefined,
+        unexpiredPolicies: undefined,
+      },
+    },
   ])('returns undefined if no policies', ({ policies }) => {
     expect(getPolicyExpiringFirst(policies)).toBeUndefined();
   });
-
-  it('returns undefined if no current policies', () => {
-    const policies = [{ active: false }];
-    expect(getPolicyExpiringFirst(policies)).toBeUndefined();
-  });
-
   it('returns policy expiring first', () => {
-    const policies = [{
-      subsidyExpirationDate: '2022-01-01T00:00:00Z',
+    const soonestExpiringPolicy = {
+      subsidyExpirationDate: dayjs().add(1, 'days').toISOString(),
       active: true,
-    }, {
-      subsidyExpirationDate: '2021-01-01T00:00:00Z',
-      active: true,
-    }, {
-      subsidyExpirationDate: '2020-01-01T00:00:00Z',
-      active: false,
-    }];
-    expect(getPolicyExpiringFirst(policies)).toEqual(policies[1]);
+    };
+    const policies = {
+      expiredPolicies: [{
+        subsidyExpirationDate: dayjs().subtract(3, 'days').toISOString(),
+        active: false,
+      }, {
+        subsidyExpirationDate: dayjs().subtract(1, 'days').toISOString(),
+        active: false,
+      }, {
+        subsidyExpirationDate: dayjs().subtract(70, 'days').toISOString(),
+        active: false,
+      }],
+      unexpiredPolicies: [{
+        subsidyExpirationDate: dayjs().add(3, 'days').toISOString(),
+        active: true,
+      },
+      soonestExpiringPolicy,
+      {
+        subsidyExpirationDate: dayjs().add(24, 'days').toISOString(),
+        active: true,
+      }],
+    };
+
+    expect(getPolicyExpiringFirst(policies)).toEqual(soonestExpiringPolicy);
   });
 });

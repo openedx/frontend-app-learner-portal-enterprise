@@ -55,6 +55,8 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     });
     useRedeemablePolicies.mockReturnValue({
       data: {
+        expiredPolicies: [],
+        unexpiredPolicies: [],
         redeemablePolicies: [],
         learnerContentAssignments: null,
       },
@@ -80,6 +82,8 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     {
       mockEnterpriseOffers: { currentEnterpriseOffers: [] },
       mockRedeemableLearnerCreditPolicies: {
+        expiredPolicies: [],
+        unexpiredPolicies: [],
         redeemablePolicies: [],
         learnerContentAssignments: null,
       },
@@ -110,6 +114,8 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     {
       mockEnterpriseOffers: { currentEnterpriseOffers: [] },
       mockRedeemableLearnerCreditPolicies: {
+        expiredPolicies: [],
+        unexpiredPolicies: [],
         redeemablePolicies: [],
         learnerContentAssignments: null,
       },
@@ -140,6 +146,8 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     {
       mockEnterpriseOffers: { currentEnterpriseOffers: [] },
       mockRedeemableLearnerCreditPolicies: {
+        expiredPolicies: [],
+        unexpiredPolicies: [],
         redeemablePolicies: [],
         learnerContentAssignments: null,
       },
@@ -168,6 +176,8 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     {
       mockEnterpriseOffers: { currentEnterpriseOffers: [] },
       mockRedeemableLearnerCreditPolicies: {
+        expiredPolicies: [],
+        unexpiredPolicies: [],
         redeemablePolicies: [],
         learnerContentAssignments: null,
       },
@@ -207,6 +217,8 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         }],
       },
       mockRedeemableLearnerCreditPolicies: {
+        expiredPolicies: [],
+        unexpiredPolicies: [],
         redeemablePolicies: [],
         learnerContentAssignments: null,
       },
@@ -250,15 +262,28 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         }],
       },
       mockRedeemableLearnerCreditPolicies: {
-        redeemablePolicies: [{
-          active: true,
-          subsidyExpirationDate: mockEndDateTimeOneDayOff,
-        },
-        {
-          active: true,
-          subsidyExpirationDate: mockEndDateTimeTwoDaysOff,
-        }],
         learnerContentAssignments: null,
+        expiredPolicies: [],
+        unexpiredPolicies: [
+          {
+            active: true,
+            subsidyExpirationDate: mockEndDateTimeOneDayOff,
+          },
+          {
+            active: true,
+            subsidyExpirationDate: mockEndDateTimeTwoDaysOff,
+          },
+        ],
+        redeemablePolicies: [
+          {
+            active: true,
+            subsidyExpirationDate: mockEndDateTimeOneDayOff,
+          },
+          {
+            active: true,
+            subsidyExpirationDate: mockEndDateTimeTwoDaysOff,
+          },
+        ],
       },
       mockSubscriptions: {
         subscriptionLicense: undefined,
@@ -286,7 +311,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         },
       },
     },
-  ])('returns true for hasAvailableSubsidyOrRequests', ({
+  ])('returns true for hasAvailableSubsidyOrRequests (%s)', ({
     mockEnterpriseOffers,
     mockRedeemableLearnerCreditPolicies,
     mockSubscriptions,

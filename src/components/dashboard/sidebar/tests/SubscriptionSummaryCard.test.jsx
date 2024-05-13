@@ -6,15 +6,16 @@ import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../../utils/tests';
 import SubscriptionSummaryCard from '../SubscriptionSummaryCard';
 import {
+  LICENSE_REQUESTED_NOTICE,
   SUBSCRIPTION_ACTIVE_BADGE_LABEL,
   SUBSCRIPTION_ACTIVE_BADGE_VARIANT,
   SUBSCRIPTION_ACTIVE_DATE_PREFIX,
   SUBSCRIPTION_EXPIRED_BADGE_LABEL,
   SUBSCRIPTION_EXPIRED_BADGE_VARIANT,
-  SUBSCRIPTION_EXPIRED_DATE_PREFIX, SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL,
+  SUBSCRIPTION_EXPIRED_DATE_PREFIX,
+  SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL,
   SUBSCRIPTION_WARNING_BADGE_LABEL,
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
-  LICENSE_REQUESTED_NOTICE,
 } from '../data/constants';
 import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../../../program-progress/data/constants';
 import { useEnterpriseCustomer, useSubscriptions } from '../../../app/data';
@@ -29,8 +30,9 @@ jest.mock('../../../app/data', () => ({
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const subscriptionPlan = {
-  daysUntilExpiration: 70,
+  daysUntilExpirationIncludingRenewals: 70,
   expirationDate: '2021-10-25',
+  isCurrent: true,
 };
 const licenseRequest = {
   courseEndDate: '2021-10-25',
@@ -42,7 +44,7 @@ describe('<SubscriptionSummaryCard />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useSubscriptions.mockReturnValue({ data: { subscriptionPlan } });
   });
-  test('Active success badge is displayed when daysUntilExpiration > 60', () => {
+  test('Active success badge is displayed when daysUntilExpirationIncludingRenewals > 60', () => {
     renderWithRouter(
       <IntlProvider locale="en">
         <SubscriptionSummaryCard subscriptionPlan={subscriptionPlan} />
@@ -52,10 +54,10 @@ describe('<SubscriptionSummaryCard />', () => {
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_ACTIVE_BADGE_VARIANT}`);
   });
-  test('Expiring warning badge is displayed when 60 >= daysUntilExpiration > 0', () => {
+  test('Expiring warning badge is displayed when 60 >= daysUntilExpirationIncludingRenewals > 0', () => {
     const expiringSoonSubscriptionPlan = {
       ...subscriptionPlan,
-      daysUntilExpiration: 50,
+      daysUntilExpirationIncludingRenewals: 50,
     };
     renderWithRouter(
       <IntlProvider locale="en">
@@ -66,10 +68,11 @@ describe('<SubscriptionSummaryCard />', () => {
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_WARNING_BADGE_VARIANT}`);
   });
-  test('Expired danger badge is displayed when 0 >= daysUntilExpiration and card body indicates expiration', () => {
+  test('Expired danger badge is displayed when 0 <= daysUntilExpirationIncludingRenewals and isCurrent is false and card body indicates expiration', () => {
     const expiredSubscriptionPlan = {
       ...subscriptionPlan,
-      daysUntilExpiration: 0,
+      daysUntilExpirationIncludingRenewals: 0,
+      isCurrent: false,
     };
     renderWithRouter(
       <IntlProvider locale="en">
@@ -81,10 +84,10 @@ describe('<SubscriptionSummaryCard />', () => {
     expect(screen.queryByText('October 25th, 2021')).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_EXPIRED_BADGE_VARIANT}`);
   });
-  test('Expiring soon and modal warning badge is displayed when 60 >= daysUntilExpiration > 0 and programProgressPage=true', () => {
+  test('Expiring soon and modal warning badge is displayed when 60 >= daysUntilExpirationIncludingRenewals > 0 and programProgressPage=true', () => {
     const expiringSoonSubscriptionPlan = {
       ...subscriptionPlan,
-      daysUntilExpiration: 50,
+      daysUntilExpirationIncludingRenewals: 50,
     };
     const courseEndDate = '2023-08-11';
     renderWithRouter(
@@ -111,10 +114,11 @@ describe('<SubscriptionSummaryCard />', () => {
     );
     expect(screen.queryByText(LICENSE_REQUESTED_NOTICE)).toBeTruthy();
   });
-  test('Expired danger badge is displayed when 0 >= daysUntilExpiration and program progress is enabled', () => {
+  test('Expired danger badge is displayed when 0 <= daysUntilExpirationIncludingRenewals, and isCurrent is false and program progress is enabled', () => {
     const expiredSubscriptionPlan = {
       ...subscriptionPlan,
-      daysUntilExpiration: 0,
+      daysUntilExpirationIncludingRenewals: 0,
+      isCurrent: false,
     };
     renderWithRouter(
       <IntlProvider locale="en">

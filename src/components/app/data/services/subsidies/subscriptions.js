@@ -7,6 +7,7 @@ import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { fetchPaginatedData } from '../utils';
+import { hasValidStartExpirationDates } from '../../../../../utils/common';
 
 // Subscriptions
 
@@ -138,17 +139,25 @@ export async function activateOrAutoApplySubscriptionLicense({
   const {
     customerAgreement,
     licensesByStatus,
+    subscriptionLicense,
   } = subscriptionsData;
-  if (!customerAgreement || customerAgreement.netDaysUntilExpiration <= 0) {
+  if (!customerAgreement || !subscriptionLicense?.subscriptionPlan?.isCurrent) {
     return checkLicenseActivationRouteAndRedirectToDashboard();
   }
 
   const isUserLinkedToEnterpriseCustomer = allLinkedEnterpriseCustomerUsers.some(
     (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer?.uuid === enterpriseCustomer.uuid,
   );
-  const hasActivatedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.ACTIVATED].length > 0;
-  const hasRevokedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.REVOKED].length > 0;
-  const subscriptionLicenseToActivate = licensesByStatus[LICENSE_STATUS.ASSIGNED][0];
+  const isCurrentSubscriptionLicenseFilter = (license) => license.subscriptionPlan.isCurrent;
+  const filterLicenseStatus = (licenseStatusType) => licenseStatusType.filter(
+    isCurrentSubscriptionLicenseFilter,
+  ).length > 0;
+
+  const hasActivatedSubscriptionLicense = filterLicenseStatus(licensesByStatus[LICENSE_STATUS.ACTIVATED]);
+  const hasRevokedSubscriptionLicense = filterLicenseStatus(licensesByStatus[LICENSE_STATUS.REVOKED]);
+  const subscriptionLicenseToActivate = licensesByStatus[LICENSE_STATUS.ASSIGNED].filter(
+    isCurrentSubscriptionLicenseFilter,
+  )[0];
 
   // Check if learner already has activated license. If so, return early.
   if (hasActivatedSubscriptionLicense) {
@@ -189,6 +198,7 @@ export async function fetchSubscriptions(enterpriseUUID) {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,
     include_revoked: true,
+    current_plans_only: false,
   });
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
   /**
@@ -225,11 +235,15 @@ export async function fetchSubscriptions(enterpriseUUID) {
     subscriptionsData.subscriptionLicenses = subscriptionLicenses;
     subscriptionsData.showExpirationNotifications = !(customerAgreement?.disableExpirationNotifications);
     subscriptionLicenses.forEach((license) => {
-      const { subscriptionPlan, status } = license;
-      const { isActive, daysUntilExpiration } = subscriptionPlan;
-      const isCurrent = daysUntilExpiration > 0;
+      const licenseCopy = { ...license };
+      const {
+        subscriptionPlan,
+        status,
+      } = license;
+      const { isActive, startDate, expirationDate } = subscriptionPlan;
+      licenseCopy.subscriptionPlan.isCurrent = hasValidStartExpirationDates({ startDate, expirationDate });
       const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
-      if (isUnassignedLicense || !isCurrent || !isActive) {
+      if (isUnassignedLicense || !isActive) {
         return;
       }
       licensesByStatus[license.status].push(license);
