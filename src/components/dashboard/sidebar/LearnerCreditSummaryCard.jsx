@@ -1,9 +1,41 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from '@openedx/paragon';
 import dayjs from 'dayjs';
 import { FormattedDate, FormattedMessage } from '@edx/frontend-platform/i18n';
 import SidebarCard from './SidebarCard';
+import { useEnterpriseCustomer } from '../../app/data';
+
+/**
+ * If the disableExpiryMessagingForLearnerCredit configuration is true, we do not show the expiration badge variant,
+ * otherwise, display all other badge variants
+ * @param disableExpiryMessagingForLearnerCredit
+ * @param status
+ * @param badgeVariant
+ * @returns {React.JSX.Element|null}
+ */
+const conditionallyRenderCardBadge = ({
+  disableExpiryMessagingForLearnerCredit,
+  status,
+  badgeVariant,
+}) => {
+  if (status === 'Expiring' && disableExpiryMessagingForLearnerCredit) {
+    return null;
+  }
+  return (
+    <Badge
+      variant={badgeVariant}
+      className="ml-2"
+      data-testid="learner-credit-status-badge"
+    >
+      <FormattedMessage
+        id="enterprise.dashboard.sidebar.learner.credit.card.badge.active"
+        defaultMessage={status}
+        description="Label for the active badge on the learner credit summary card on the enterprise dashboard sidebar."
+      />
+    </Badge>
+  );
+};
 
 const LearnerCreditSummaryCard = ({
   className,
@@ -12,6 +44,13 @@ const LearnerCreditSummaryCard = ({
   assignmentOnlyLearner,
 }) => {
   const { status, badgeVariant } = statusMetadata;
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+
+  const cardBadge = useMemo(() => conditionallyRenderCardBadge({
+    disableExpiryMessagingForLearnerCredit: enterpriseCustomer.disableExpiryMessagingForLearnerCredit,
+    status,
+    badgeVariant,
+  }), [badgeVariant, enterpriseCustomer.disableExpiryMessagingForLearnerCredit, status]);
 
   return (
     <SidebarCard
@@ -25,17 +64,7 @@ const LearnerCreditSummaryCard = ({
                 description="Title for the learner credit summary card on the enterprise dashboard sidebar."
               />
             </h3>
-            <Badge
-              variant={badgeVariant}
-              className="ml-2"
-              data-testid="learner-credit-status-badge"
-            >
-              <FormattedMessage
-                id="enterprise.dashboard.sidebar.learner.credit.card.badge.active"
-                defaultMessage={status}
-                description="Label for the active badge on the learner credit summary card on the enterprise dashboard sidebar."
-              />
-            </Badge>
+            {cardBadge}
           </div>
         )
       }

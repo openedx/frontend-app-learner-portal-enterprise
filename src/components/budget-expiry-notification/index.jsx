@@ -7,6 +7,7 @@ import {
 } from '@openedx/paragon';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import dayjs from 'dayjs';
 import useExpiry from './data/hooks/useExpiry';
 import { useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests } from '../app/data';
 import { EVENT_NAMES } from './data/constants';
@@ -17,7 +18,11 @@ const BudgetExpiryNotification = () => {
   const [alertIsOpen, alertOpen, alertClose] = useToggle(false);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { learnerCreditSummaryCardData } = useHasAvailableSubsidiesOrRequests();
-  const budget = useMemo(() => ({ end: learnerCreditSummaryCardData?.expirationDate }), [learnerCreditSummaryCardData]);
+  const budget = useMemo(() => ({
+    end: learnerCreditSummaryCardData?.expirationDate,
+    isNonExpiredBudget: dayjs(learnerCreditSummaryCardData?.expirationDate).isAfter(dayjs()),
+  }), [learnerCreditSummaryCardData]);
+
   const {
     alert, modal, dismissModal, dismissAlert,
   } = useExpiry(
@@ -36,6 +41,10 @@ const BudgetExpiryNotification = () => {
       alert,
     };
   }, [modal, alert]);
+
+  if (budget.isNonExpiredBudget && enterpriseCustomer.disableExpiryMessagingForLearnerCredit) {
+    return null;
+  }
 
   const contactEmail = getContactEmail(enterpriseCustomer);
 
