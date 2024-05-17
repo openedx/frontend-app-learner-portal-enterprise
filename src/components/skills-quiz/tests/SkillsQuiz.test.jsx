@@ -37,15 +37,15 @@ const defaultAppState = {
 const SkillsQuizWithContext = ({
   initialAppState = defaultAppState,
 }) => (
-  <SearchData>
-    <SkillsContextProvider>
-      <IntlProvider locale="en">
+  <IntlProvider locale="en">
+    <SearchData>
+      <SkillsContextProvider>
         <AppContext.Provider value={initialAppState}>
           <SkillsQuiz />
         </AppContext.Provider>
-      </IntlProvider>
-    </SkillsContextProvider>
-  </SearchData>
+      </SkillsContextProvider>
+    </SearchData>
+  </IntlProvider>
 );
 
 describe('<SkillsQuiz />', () => {
