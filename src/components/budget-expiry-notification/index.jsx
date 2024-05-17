@@ -42,10 +42,6 @@ const BudgetExpiryNotification = () => {
     };
   }, [modal, alert]);
 
-  if (budget.isNonExpiredBudget && enterpriseCustomer.disableExpiryMessagingForLearnerCredit) {
-    return null;
-  }
-
   const contactEmail = getContactEmail(enterpriseCustomer);
 
   const AlertMessage = alert?.message;
