@@ -7,7 +7,7 @@ import {
 } from '@edx/frontend-platform/i18n';
 import SidebarCard from './SidebarCard';
 import { useEnterpriseCustomer } from '../../app/data';
-import { BUDGET_STATUSES } from '../data';
+import { BUDGET_STATUSES } from '../data/constants';
 
 const badgeStatusMessages = defineMessages({
   active: {
