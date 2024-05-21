@@ -86,28 +86,28 @@ describe('<LearnerCreditSummaryCard />', () => {
 
   it.each([{
     activeStatusMetadata: {
-      status: 'Expiring',
+      status: BUDGET_STATUSES.expiring,
       badgeVariant: 'warning',
     },
     disableExpiryMessagingForLearnerCredit: false,
   },
   {
     activeStatusMetadata: {
-      status: 'Expiring',
+      status: BUDGET_STATUSES.expiring,
       badgeVariant: 'warning',
     },
     disableExpiryMessagingForLearnerCredit: true,
   },
   {
     activeStatusMetadata: {
-      status: 'Expired',
+      status: BUDGET_STATUSES.expired,
       badgeVariant: 'danger',
     },
     disableExpiryMessagingForLearnerCredit: false,
   },
   {
     activeStatusMetadata: {
-      status: 'Expired',
+      status: BUDGET_STATUSES.expired,
       badgeVariant: 'danger',
     },
     disableExpiryMessagingForLearnerCredit: true,
@@ -130,7 +130,7 @@ describe('<LearnerCreditSummaryCard />', () => {
     );
     expect(screen.getByTestId('learner-credit-summary-end-date-text')).toBeInTheDocument();
     expect(screen.getByText(TEST_EXPIRATION_DATE_TEXT, { exact: false })).toBeInTheDocument();
-    if (disableExpiryMessagingForLearnerCredit && activeStatusMetadata.status === 'Expiring') {
+    if (disableExpiryMessagingForLearnerCredit && activeStatusMetadata.status === BUDGET_STATUSES.expiring) {
       expect(screen.queryByText(activeStatusMetadata.status)).not.toBeInTheDocument();
     } else {
       expect(screen.queryByText(activeStatusMetadata.status)).toBeInTheDocument();
