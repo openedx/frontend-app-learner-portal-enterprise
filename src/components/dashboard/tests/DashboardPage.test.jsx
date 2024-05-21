@@ -31,6 +31,7 @@ import {
   useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
+  useEnterpriseFeatures,
   useEnterpriseGroupMemberships,
   useEnterpriseOffers,
   useEnterprisePathwaysList,
@@ -98,20 +99,21 @@ const mockEnterpriseCustomer = enterpriseCustomerFactory({
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-  useSubscriptions: jest.fn(),
-  useCouponCodes: jest.fn(),
-  useEnterpriseOffers: jest.fn(),
-  useRedeemablePolicies: jest.fn(),
-  useEnterpriseProgramsList: jest.fn(),
-  useEnterprisePathwaysList: jest.fn(),
-  useEnterpriseCourseEnrollments: jest.fn(),
-  useCanOnlyViewHighlights: jest.fn(),
-  useBrowseAndRequest: jest.fn(),
-  useIsAssignmentsOnlyLearner: jest.fn(),
-  useHasAvailableSubsidiesOrRequests: jest.fn(),
   useAcademies: jest.fn(),
+  useBrowseAndRequest: jest.fn(),
+  useCanOnlyViewHighlights: jest.fn(),
+  useCouponCodes: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
+  useEnterpriseCustomer: jest.fn(),
+  useEnterpriseFeatures: jest.fn(),
   useEnterpriseGroupMemberships: jest.fn(),
+  useEnterpriseOffers: jest.fn(),
+  useEnterprisePathwaysList: jest.fn(),
+  useEnterpriseProgramsList: jest.fn(),
+  useHasAvailableSubsidiesOrRequests: jest.fn(),
+  useIsAssignmentsOnlyLearner: jest.fn(),
+  useRedeemablePolicies: jest.fn(),
+  useSubscriptions: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -215,6 +217,7 @@ describe('<Dashboard />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAcademies.mockReturnValue({ data: academiesFactory(3) });
+    useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: false } });
     useSubscriptions.mockReturnValue({
       data: {
         subscriptionLicense: undefined,
