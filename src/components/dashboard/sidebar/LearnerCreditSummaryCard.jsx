@@ -18,22 +18,22 @@ const badgeStatusMessages = defineMessages({
   expired: {
     id: 'enterprise.dashboard.sidebar.learner.credit.card.badge.expired',
     defaultMessage: 'Expired',
-    description: 'Label for the active badge on the learner credit summary card on the enterprise dashboard sidebar.',
+    description: 'Label for the expired badge on the learner credit summary card on the enterprise dashboard sidebar.',
   },
   expiring: {
     id: 'enterprise.dashboard.sidebar.learner.credit.card.badge.expiring',
     defaultMessage: 'Expiring',
-    description: 'Label for the active badge on the learner credit summary card on the enterprise dashboard sidebar.',
+    description: 'Label for the expiring badge on the learner credit summary card on the enterprise dashboard sidebar.',
   },
   scheduled: {
     id: 'enterprise.dashboard.sidebar.learner.credit.card.badge.scheduled',
     defaultMessage: 'Scheduled',
-    description: 'Label for the active badge on the learner credit summary card on the enterprise dashboard sidebar.',
+    description: 'Label for the scheduled badge on the learner credit summary card on the enterprise dashboard sidebar.',
   },
   retired: {
     id: 'enterprise.dashboard.sidebar.learner.credit.card.badge.retired',
     defaultMessage: 'Retired',
-    description: 'Label for the active badge on the learner credit summary card on the enterprise dashboard sidebar.',
+    description: 'Label for the active retired on the learner credit summary card on the enterprise dashboard sidebar.',
   },
 });
 
@@ -43,6 +43,7 @@ const badgeStatusMessages = defineMessages({
  * @param disableExpiryMessagingForLearnerCredit
  * @param status
  * @param badgeVariant
+ * @param intl
  * @returns {React.JSX.Element|null}
  */
 const conditionallyRenderCardBadge = ({
