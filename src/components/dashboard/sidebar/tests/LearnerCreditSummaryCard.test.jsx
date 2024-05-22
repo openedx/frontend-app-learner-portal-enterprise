@@ -15,7 +15,7 @@ import { useEnterpriseCustomer } from '../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 const TEST_EXPIRATION_DATE = dayjs().add(10, 'days').toISOString();
-const TEST_EXPIRATION_DATE_TEXT = dayjs().add(10, 'days').format('MMM DD, YYYY');
+const TEST_EXPIRATION_DATE_TEXT = dayjs().add(10, 'days').format('MMM D, YYYY');
 const mockActiveStatusMetadata = {
   status: BUDGET_STATUSES.active,
   badgeVariant: 'success',
