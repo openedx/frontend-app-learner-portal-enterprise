@@ -4,15 +4,18 @@ import {
   getEnterpriseBudgetExpiringModalCookieName,
 } from '../utils';
 import useExpirationMetadata from './useExpirationMetadata';
+import { useEnterpriseCustomer } from '../../../app/data';
 
 const useExpiry = (enterpriseId, budget, modalOpen, modalClose, alertOpen, alertClose) => {
   const [alert, setAlert] = useState(null);
   const [expirationThreshold, setExpirationThreshold] = useState(null);
   const [modal, setModal] = useState(null);
   const { thresholdKey, threshold } = useExpirationMetadata(budget?.end);
+  const { data: { disableExpiryMessagingForLearnerCredit } } = useEnterpriseCustomer();
+  const hasExpiryNotificationsDisabled = budget.isNonExpiredBudget && disableExpiryMessagingForLearnerCredit;
 
   useEffect(() => {
-    if (!budget || thresholdKey === null) {
+    if (!budget || thresholdKey === null || hasExpiryNotificationsDisabled) {
       return;
     }
 
@@ -45,7 +48,7 @@ const useExpiry = (enterpriseId, budget, modalOpen, modalClose, alertOpen, alert
     if (!isAlertDismissed) {
       alertOpen();
     }
-  }, [budget, modalOpen, alertOpen, enterpriseId, thresholdKey, threshold]);
+  }, [budget, modalOpen, alertOpen, enterpriseId, thresholdKey, threshold, hasExpiryNotificationsDisabled]);
 
   const dismissModal = () => {
     const seenCurrentExpirationModalCookieName = getEnterpriseBudgetExpiringModalCookieName({
