@@ -20,25 +20,16 @@ const CourseEnrollmentsEmptyState = () => {
 
   if (enterpriseCustomer.disableSearch) {
     return (
-      <>
-        {enterpriseFeatures.enterpriseGroupsV1 && (
-          <NewGroupAssignmentAlert
-            showAlert={shouldShowNewGroupMembershipAlert}
-            onClose={() => handleAddNewGroupAssignmentToLocalStorage()}
-            enterpriseCustomer={enterpriseCustomer}
-          />
-        )}
-        <p>
-          <FormattedMessage
-            id="enterprise.dashboard.tab.courses.no.enrollments"
-            defaultMessage="You are not enrolled in any courses sponsored by {enterpriseName}. Reach out to your administrator for instructions on how to start learning with edX!"
-            description="Message shown to a learner on enterprise dashboard when there are no enrollments."
-            values={{
-              enterpriseName: enterpriseCustomer.name,
-            }}
-          />
-        </p>
-      </>
+      <p>
+        <FormattedMessage
+          id="enterprise.dashboard.tab.courses.no.enrollments"
+          defaultMessage="You are not enrolled in any courses sponsored by {enterpriseName}. Reach out to your administrator for instructions on how to start learning with edX!"
+          description="Message shown to a learner on enterprise dashboard when there are no enrollments."
+          values={{
+            enterpriseName: enterpriseCustomer.name,
+          }}
+        />
+      </p>
     );
   }
 
@@ -48,6 +39,13 @@ const CourseEnrollmentsEmptyState = () => {
 
   return (
     <>
+      {enterpriseFeatures.enterpriseGroupsV1 && (
+        <NewGroupAssignmentAlert
+          showAlert={shouldShowNewGroupMembershipAlert}
+          onClose={() => handleAddNewGroupAssignmentToLocalStorage()}
+          enterpriseCustomer={enterpriseCustomer}
+        />
+      )}
       <p>
         <FormattedMessage
           id="enterprise.dashboard.tab.courses.default.message"

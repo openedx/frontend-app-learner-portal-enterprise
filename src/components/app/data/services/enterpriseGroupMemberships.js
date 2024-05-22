@@ -11,7 +11,7 @@ export async function fetchEnterpriseAccessPolicies(enterpriseUuid) {
     return results;
   } catch (error) {
     logError(error);
-    return null;
+    return [];
   }
 }
 

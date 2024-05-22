@@ -1,9 +1,71 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from '@openedx/paragon';
 import dayjs from 'dayjs';
-import { FormattedDate, FormattedMessage } from '@edx/frontend-platform/i18n';
+import {
+  defineMessages, FormattedDate, FormattedMessage, useIntl,
+} from '@edx/frontend-platform/i18n';
 import SidebarCard from './SidebarCard';
+import { useEnterpriseCustomer } from '../../app/data';
+import { BUDGET_STATUSES } from '../data/constants';
+
+const badgeStatusMessages = defineMessages({
+  active: {
+    id: 'enterprise.dashboard.sidebar.learner.credit.card.badge.active',
+    defaultMessage: 'Active',
+    description: 'Label for the active badge on the learner credit summary card on the enterprise dashboard sidebar.',
+  },
+  expired: {
+    id: 'enterprise.dashboard.sidebar.learner.credit.card.badge.expired',
+    defaultMessage: 'Expired',
+    description: 'Label for the expired badge on the learner credit summary card on the enterprise dashboard sidebar.',
+  },
+  expiring: {
+    id: 'enterprise.dashboard.sidebar.learner.credit.card.badge.expiring',
+    defaultMessage: 'Expiring',
+    description: 'Label for the expiring badge on the learner credit summary card on the enterprise dashboard sidebar.',
+  },
+  scheduled: {
+    id: 'enterprise.dashboard.sidebar.learner.credit.card.badge.scheduled',
+    defaultMessage: 'Scheduled',
+    description: 'Label for the scheduled badge on the learner credit summary card on the enterprise dashboard sidebar.',
+  },
+  retired: {
+    id: 'enterprise.dashboard.sidebar.learner.credit.card.badge.retired',
+    defaultMessage: 'Retired',
+    description: 'Label for the active retired on the learner credit summary card on the enterprise dashboard sidebar.',
+  },
+});
+
+/**
+ * If the disableExpiryMessagingForLearnerCredit configuration is true, we do not show the expiration badge variant,
+ * otherwise, display all other badge variants
+ * @param disableExpiryMessagingForLearnerCredit
+ * @param status
+ * @param badgeVariant
+ * @param intl
+ * @returns {React.JSX.Element|null}
+ */
+const conditionallyRenderCardBadge = ({
+  disableExpiryMessagingForLearnerCredit,
+  status,
+  badgeVariant,
+  intl,
+}) => {
+  if (status === BUDGET_STATUSES.expiring && disableExpiryMessagingForLearnerCredit) {
+    return null;
+  }
+
+  return (
+    <Badge
+      variant={badgeVariant}
+      className="ml-2"
+      data-testid="learner-credit-status-badge"
+    >
+      {intl.formatMessage(badgeStatusMessages[status.toLowerCase()])}
+    </Badge>
+  );
+};
 
 const LearnerCreditSummaryCard = ({
   className,
@@ -12,6 +74,15 @@ const LearnerCreditSummaryCard = ({
   assignmentOnlyLearner,
 }) => {
   const { status, badgeVariant } = statusMetadata;
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const intl = useIntl();
+
+  const cardBadge = useMemo(() => conditionallyRenderCardBadge({
+    disableExpiryMessagingForLearnerCredit: enterpriseCustomer.disableExpiryMessagingForLearnerCredit,
+    status,
+    badgeVariant,
+    intl,
+  }), [badgeVariant, enterpriseCustomer.disableExpiryMessagingForLearnerCredit, intl, status]);
 
   return (
     <SidebarCard
@@ -25,17 +96,7 @@ const LearnerCreditSummaryCard = ({
                 description="Title for the learner credit summary card on the enterprise dashboard sidebar."
               />
             </h3>
-            <Badge
-              variant={badgeVariant}
-              className="ml-2"
-              data-testid="learner-credit-status-badge"
-            >
-              <FormattedMessage
-                id="enterprise.dashboard.sidebar.learner.credit.card.badge.active"
-                defaultMessage={status}
-                description="Label for the active badge on the learner credit summary card on the enterprise dashboard sidebar."
-              />
-            </Badge>
+            {cardBadge}
           </div>
         )
       }
