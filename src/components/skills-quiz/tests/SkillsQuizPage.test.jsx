@@ -41,15 +41,15 @@ const SkillsQuizPageWithContext = ({
     ENABLE_SKILLS_QUIZ: enableSkillsQuiz,
   });
   return (
-    <SearchData>
-      <SkillsContextProvider>
-        <IntlProvider locale="en">
+    <IntlProvider locale="en">
+      <SearchData>
+        <SkillsContextProvider>
           <AppContext.Provider value={initialAppState}>
             <SkillsQuizPage />
           </AppContext.Provider>
-        </IntlProvider>
-      </SkillsContextProvider>
-    </SearchData>
+        </SkillsContextProvider>
+      </SearchData>
+    </IntlProvider>
   );
 };
 
