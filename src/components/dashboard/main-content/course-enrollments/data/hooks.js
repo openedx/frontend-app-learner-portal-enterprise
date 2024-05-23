@@ -440,7 +440,7 @@ export function useGroupMembershipAssignments() {
   const checkIsGroupAssignmentDismissed = useCallback(() => {
     enterpriseGroupMemberships.forEach(membership => {
       const isDismissedGroupAssignment = global.localStorage.getItem(`${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-${membership.groupUuid}`);
-      if (!isDismissedGroupAssignment) {
+      if (isDismissedGroupAssignment === null) {
         setGroupMembershipsToDismiss(prevState => [...prevState, membership]);
         setShouldShowNewGroupMembershipAlert(true);
       }

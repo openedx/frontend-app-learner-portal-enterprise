@@ -2,17 +2,21 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { Button } from '@openedx/paragon';
 import { Link } from 'react-router-dom';
 
-import {
-  useEnterpriseCustomer,
-  useCanOnlyViewHighlights, useAcademies,
-} from '../../../app/data';
+import { useCanOnlyViewHighlights, useAcademies, useEnterpriseFeatures } from '../../../app/data';
+import { useGroupMembershipAssignments } from './data';
 import CourseRecommendations from '../CourseRecommendations';
 import GoToAcademy from '../../../academies/GoToAcademy';
+import NewGroupAssignmentAlert from './NewGroupAssignmentAlert';
 
 const CourseEnrollmentsEmptyState = () => {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   const { data: academies } = useAcademies();
+  const { data: enterpriseFeatures } = useEnterpriseFeatures();
+  const {
+    shouldShowNewGroupMembershipAlert,
+    handleAddNewGroupAssignmentToLocalStorage,
+    enterpriseCustomer,
+  } = useGroupMembershipAssignments();
 
   if (enterpriseCustomer.disableSearch) {
     return (
@@ -35,6 +39,13 @@ const CourseEnrollmentsEmptyState = () => {
 
   return (
     <>
+      {enterpriseFeatures.enterpriseGroupsV1 && (
+        <NewGroupAssignmentAlert
+          showAlert={shouldShowNewGroupMembershipAlert}
+          onClose={() => handleAddNewGroupAssignmentToLocalStorage()}
+          enterpriseCustomer={enterpriseCustomer}
+        />
+      )}
       <p>
         <FormattedMessage
           id="enterprise.dashboard.tab.courses.default.message"
