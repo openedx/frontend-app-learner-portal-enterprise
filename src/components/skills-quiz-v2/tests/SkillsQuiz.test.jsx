@@ -46,15 +46,15 @@ describe('<SkillsQuizV2 />', () => {
 
   it('renders SkillsQuizV2 component correctly', () => {
     renderWithRouter(
-      <SearchData>
-        <SkillsContextProvider>
-          <IntlProvider locale="en">
+      <IntlProvider locale="en">
+        <SearchData>
+          <SkillsContextProvider>
             <AppContext.Provider value={defaultAppState}>
               <SkillsQuizV2 />
             </AppContext.Provider>
-          </IntlProvider>,
-        </SkillsContextProvider>
-      </SearchData>,
+          </SkillsContextProvider>
+        </SearchData>,
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
 

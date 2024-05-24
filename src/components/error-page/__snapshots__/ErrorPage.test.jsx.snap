@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ErrorPage handles optional subtitle 1`] = `
-Array [
+[
   <header>
     <nav
       className="border-bottom navbar navbar-expand-lg navbar-light bg-white"
@@ -59,7 +59,7 @@ Array [
 `;
 
 exports[`ErrorPage handles optional title 1`] = `
-Array [
+[
   <header>
     <nav
       className="border-bottom navbar navbar-expand-lg navbar-light bg-white"
@@ -117,7 +117,7 @@ Array [
 `;
 
 exports[`ErrorPage properly renders page layout with title and subtitle 1`] = `
-Array [
+[
   <header>
     <nav
       className="border-bottom navbar navbar-expand-lg navbar-light bg-white"
