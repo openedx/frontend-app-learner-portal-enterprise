@@ -1,7 +1,7 @@
 import {
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getConfig } from '@edx/frontend-platform';
@@ -17,12 +17,12 @@ import {
   findEnterpriseOfferForCourse,
   getCourseOrganizationDetails,
   getCoursePrice,
-  getCourseStartDate,
   getCourseTypeConfig,
   getMissingApplicableSubsidyReason,
   getSubsidyToApplyForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
+  transformedCourseMetadata,
 } from './utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -41,6 +41,7 @@ import { SUBSIDY_TYPE } from '../../../constants';
 import {
   useBrowseAndRequest,
   useBrowseAndRequestConfiguration,
+  useCatalogsForSubsidyRequests,
   useCouponCodes,
   useCourseMetadata,
   useCourseRedemptionEligibility,
@@ -49,7 +50,6 @@ import {
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
-  useCatalogsForSubsidyRequests,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CourseContext } from '../CourseContextProvider';
@@ -508,8 +508,9 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
 
 export function useCourseListPrice() {
   const { data: { listPrice } } = useCourseRedemptionEligibility();
+  const resolveListPrice = ({ transformed }) => listPrice || getCoursePrice(transformed);
   return useCourseMetadata({
-    select: ({ transformed }) => listPrice || getCoursePrice(transformed),
+    select: resolveListPrice,
   });
 }
 
@@ -527,23 +528,23 @@ export function useCourseListPrice() {
  */
 export const useUserSubsidyApplicableToCourse = () => {
   const { courseKey } = useParams();
+  const resolvedTransformedEnterpriseCustomerData = ({ transformed }) => ({
+    fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
+    contactEmail: transformed.contactEmail,
+  });
   const {
     data: {
       fallbackAdminUsers,
       contactEmail,
     },
   } = useEnterpriseCustomer({
-    select: ({ transformed }) => ({
-      fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
-      contactEmail: transformed.contactEmail,
-    }),
+    select: resolvedTransformedEnterpriseCustomerData,
   });
   const { data: courseListPrice } = useCourseListPrice();
   const {
     data: {
       customerAgreement,
       subscriptionLicense,
-      subscriptionPlan,
     },
   } = useSubscriptions();
   const {
@@ -574,9 +575,9 @@ export const useUserSubsidyApplicableToCourse = () => {
 
   const isSubscriptionLicenseApplicable = (
     subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
-    && catalogsWithCourse.includes(subscriptionPlan?.enterpriseCatalogUuid)
+    && subscriptionLicense?.subscriptionPlan.isCurrent
+    && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
   );
-
   const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
     applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
     applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy },
@@ -605,7 +606,6 @@ export const useUserSubsidyApplicableToCourse = () => {
       enterpriseOffers,
     });
   }
-
   return useMemo(() => ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
@@ -655,38 +655,24 @@ export function useCanUserRequestSubsidyForCourse() {
   });
 }
 
+/**
+ * Use "minimal" metadata about a specific course run.
+ *
+ * The run is determined by first checking the URL Param "courseRunKey", then falling back to the "active" run.
+ *
+ * @returns {Object} - The minimal metadata object about the course run.
+ */
 export function useMinimalCourseMetadata() {
+  const { courseRunKey } = useParams();
   const { coursePrice, currency } = useCoursePrice();
+  const courseMetadataTransformer = ({ transformed }) => transformedCourseMetadata({
+    transformed,
+    coursePrice,
+    courseRunKey,
+    currency,
+  });
   return useCourseMetadata({
-    select: ({ transformed }) => {
-      const { activeCourseRun } = transformed;
-      const organizationDetails = getCourseOrganizationDetails(transformed);
-      const getDuration = () => {
-        if (!activeCourseRun) {
-          return '-';
-        }
-        let duration = `${activeCourseRun.weeksToComplete} Week`;
-        if (activeCourseRun.weeksToComplete > 1) {
-          duration += 's';
-        }
-        return duration;
-      };
-      const minimalCourseMetadata = {
-        organization: {
-          logoImgUrl: organizationDetails.organizationLogo,
-          name: organizationDetails.organizationName,
-          marketingUrl: organizationDetails.organizationMarketingUrl,
-        },
-        title: transformed.title,
-        startDate: getCourseStartDate({ contentMetadata: transformed, courseRun: activeCourseRun }),
-        duration: getDuration(),
-        priceDetails: {
-          price: coursePrice.list,
-          currency,
-        },
-      };
-      return minimalCourseMetadata;
-    },
+    select: courseMetadataTransformer,
   });
 }
 

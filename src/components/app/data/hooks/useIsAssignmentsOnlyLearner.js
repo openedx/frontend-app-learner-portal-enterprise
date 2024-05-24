@@ -20,7 +20,7 @@ export default function useIsAssignmentsOnlyLearner() {
       },
     },
   } = useBrowseAndRequest();
-  const { data: { couponCodeAssignments } } = useCouponCodes();
+  const { data: { couponCodeRedemptionCount } } = useCouponCodes();
   const { data: { hasCurrentEnterpriseOffers } } = useEnterpriseOffers();
   const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
 
@@ -29,7 +29,7 @@ export default function useIsAssignmentsOnlyLearner() {
     subscriptionLicense,
     licenseRequests,
     couponCodeRequests,
-    couponCodesCount: couponCodeAssignments.length,
+    couponCodesCount: couponCodeRedemptionCount,
     redeemableLearnerCreditPolicies,
     hasCurrentEnterpriseOffers,
   });

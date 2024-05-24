@@ -1,11 +1,12 @@
 import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { getConfig } from '@edx/frontend-platform';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeEnterpriseInviteLoader from '../enterpriseInviteLoader';
 import {
-  extractEnterpriseId, postLinkEnterpriseLearner,
+  extractEnterpriseCustomer, postLinkEnterpriseLearner,
 } from '../../../data';
 import EnterpriseInviteRoute from '../../EnterpriseInviteRoute';
 import { ensureAuthenticatedUser } from '../../data';
@@ -16,7 +17,7 @@ jest.mock('../../data', () => ({
 }));
 jest.mock('../../../data', () => ({
   ...jest.requireActual('../../../data'),
-  extractEnterpriseId: jest.fn(),
+  extractEnterpriseCustomer: jest.fn(),
   postLinkEnterpriseLearner: jest.fn(),
 }));
 jest.mock('@edx/frontend-platform/auth', () => ({
@@ -29,8 +30,8 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   getLoggingService: jest.fn(),
   logError: jest.fn(),
 }));
-jest.mock('@edx/frontend-platform/config', () => ({
-  ...jest.requireActual('@edx/frontend-platform/config'),
+jest.mock('@edx/frontend-platform', () => ({
+  ...jest.requireActual('@edx/frontend-platform'),
   getConfig: jest.fn().mockReturnValue({
     LEARNER_SUPPORT_URL: 'https://test-learner-support-url',
     MARKETING_SITE_BASE_URL: 'https://test-marketing-site-base-url',
@@ -40,9 +41,13 @@ jest.mock('@edx/frontend-platform/config', () => ({
 const mockEnterpriseId = 'test-enterprise-uuid';
 const mockEnterpriseSlug = 'test-enterprise-slug';
 const mockEnterpriseCustomerInviteKey = 'test-enterprise-customer-invite-key';
-extractEnterpriseId.mockResolvedValue(mockEnterpriseId);
+extractEnterpriseCustomer.mockResolvedValue({ uuid: mockEnterpriseId });
 postLinkEnterpriseLearner.mockResolvedValue({
   enterpriseCustomerSlug: mockEnterpriseSlug,
+});
+getConfig.mockReturnValue({
+  LEARNER_SUPPORT_URL: 'https://test-learner-support-url',
+  MARKETING_SITE_BASE_URL: 'https://test-marketing-site-base-url',
 });
 
 const EnterpriseInviteRouteWrapper = () => (

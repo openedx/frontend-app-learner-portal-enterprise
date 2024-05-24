@@ -1,8 +1,14 @@
 import MockDate from 'mockdate';
 
+import dayjs from 'dayjs';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { determineLearnerHasContentAssignmentsOnly, getAvailableCourseRuns } from './utils';
+import {
+  determineLearnerHasContentAssignmentsOnly,
+  filterPoliciesByExpirationAndActive,
+  getAvailableCourseRuns,
+  transformGroupMembership,
+} from './utils';
 import { COURSE_AVAILABILITY_MAP, emptyRedeemableLearnerCreditPolicies } from './constants';
 
 describe('determineLearnerHasContentAssignmentsOnly', () => {
@@ -572,5 +578,104 @@ describe('getAvailableCourseRuns', () => {
     sampleCourseRunData.courseData.courseRuns = undefined;
     expect(getAvailableCourseRuns({ course: sampleCourseRunData.courseData }).length).toEqual(0);
     expect(getAvailableCourseRuns({ course: sampleCourseRunData.courseData })).toEqual([]);
+  });
+});
+
+describe('transformGroupMembership', () => {
+  afterEach(() => {
+    MockDate.reset();
+  });
+  const mockGroupUuid = 'test-group-uuid';
+  const mockGroupMemberships = [
+    {
+      learner_id: 1,
+      pending_learner_id: null,
+      enterprise_group_membership_uuid: mockGroupUuid,
+      member_details: {
+        user_email: 'learner1@test.com',
+      },
+      recent_action: 'Accepted: April 15, 2024',
+      status: 'accepted',
+    },
+    {
+      learner_id: 2,
+      pending_learner_id: null,
+      enterprise_group_membership_uuid: mockGroupUuid,
+      member_details: {
+        user_email: 'learner2@test.com',
+      },
+      recent_action: 'Accepted: April 15, 2024',
+      status: 'accepted',
+    },
+  ];
+  const mockTransformedData = [
+    {
+      learner_id: 1,
+      pending_learner_id: null,
+      enterprise_group_membership_uuid: mockGroupUuid,
+      member_details: {
+        user_email: 'learner1@test.com',
+      },
+      recent_action: 'Accepted: April 15, 2024',
+      status: 'accepted',
+      groupUuid: mockGroupUuid,
+    },
+    {
+      learner_id: 2,
+      pending_learner_id: null,
+      enterprise_group_membership_uuid: mockGroupUuid,
+      member_details: {
+        user_email: 'learner2@test.com',
+      },
+      recent_action: 'Accepted: April 15, 2024',
+      status: 'accepted',
+      groupUuid: mockGroupUuid,
+    },
+  ];
+  it('returns array with transformed group membership data', () => {
+    expect(transformGroupMembership(
+      mockGroupMemberships,
+      mockGroupUuid,
+    )).toEqual(mockTransformedData);
+  });
+});
+
+describe('filterPoliciesByExpirationAndActive', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  it.each([
+    {
+      active: true,
+      subsidyExpirationDate: dayjs().add(10, 'days').toISOString(),
+    },
+    {
+      active: false,
+      subsidyExpirationDate: dayjs().add(10, 'days').toISOString(),
+    },
+    {
+      active: true,
+      subsidyExpirationDate: dayjs().subtract(10, 'days').toISOString(),
+    },
+    {
+      active: false,
+      subsidyExpirationDate: dayjs().subtract(10, 'days').toISOString(),
+    },
+  ])('correctly filters expired and unexpired policies (%s)', ({
+    active,
+    subsidyExpirationDate,
+  }) => {
+    const mockPolicies = [{
+      active,
+      subsidyExpirationDate,
+    }];
+    const filteredPolicies = filterPoliciesByExpirationAndActive(mockPolicies);
+    if (dayjs(subsidyExpirationDate).isAfter(dayjs()) && active) {
+      expect(filteredPolicies.expiredPolicies).toEqual([]);
+      expect(filteredPolicies.unexpiredPolicies).toEqual(mockPolicies);
+    } else {
+      expect(filteredPolicies.expiredPolicies).toEqual(mockPolicies);
+      expect(filteredPolicies.unexpiredPolicies).toEqual([]);
+    }
   });
 });

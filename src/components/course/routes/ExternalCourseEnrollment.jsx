@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   Alert, Button, Col, Container, Hyperlink, Row,
 } from '@openedx/paragon';
@@ -15,10 +16,16 @@ import {
   useExternalEnrollmentFailureReason,
   useIsCourseAssigned,
   useMinimalCourseMetadata,
+  useUserSubsidyApplicableToCourse,
 } from '../data/hooks';
+import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../data/constants';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
 import { features } from '../../../config';
-import { useEnterpriseCustomer } from '../../app/data';
+import {
+  useCourseRedemptionEligibility,
+  useEnterpriseCustomer,
+} from '../../app/data';
+import NotFoundPage from '../../NotFoundPage';
 
 export { default as makeExternalCourseEnrollmentLoader } from './externalCourseEnrollmentLoader';
 
@@ -28,6 +35,9 @@ const ExternalCourseEnrollment = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const isCourseAssigned = useIsCourseAssigned();
   const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
+  const { userSubsidyApplicableToCourse: { subsidyType } } = useUserSubsidyApplicableToCourse();
+  const { data: { redeemabilityPerContentKey } } = useCourseRedemptionEligibility();
+  const { courseRunKey } = useParams();
 
   const externalDashboardQueryParams = new URLSearchParams();
   if (enterpriseCustomer.authOrgId) {
@@ -52,6 +62,20 @@ const ExternalCourseEnrollment = () => {
       containerRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [externalCourseFormSubmissionError, containerRef]);
+
+  // If the course is to be redeemed via learner credit, but the specifically requested course run is not redeemable,
+  // skip straight to the 404 page.
+  //
+  // A run is not redeemable if can_redeem=False, but other situations may lead to canRedeemDataCourseRun === undefined:
+  // * The requested course run key doesn't exist.
+  // * The course run is not "available" according to rules baked into this frontend codebase, including cases where the
+  //   current date is outside the enrollment window of the run.
+  if (subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
+    const canRedeemDataCourseRun = redeemabilityPerContentKey.find(r => r.contentKey === courseRunKey);
+    if (!canRedeemDataCourseRun?.canRedeem) {
+      return <NotFoundPage />;
+    }
+  }
 
   return (
     <div className="fill-vertical-space page-light-bg">
@@ -128,7 +152,7 @@ const ExternalCourseEnrollment = () => {
                     )}
                 </p>
               )}
-              <CourseSummaryCard courseMetadata={minimalCourseMetadata} />
+              <CourseSummaryCard />
               <RegistrationSummaryCard priceDetails={minimalCourseMetadata.priceDetails} />
               <UserEnrollmentForm />
             </Col>

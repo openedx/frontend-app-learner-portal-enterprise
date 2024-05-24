@@ -4,15 +4,15 @@ import { Badge, useToggle } from '@openedx/paragon';
 import { WarningFilled } from '@openedx/paragon/icons';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
-import { SUBSCRIPTION_DAYS_REMAINING_SEVERE, SUBSCRIPTION_EXPIRED } from '../../../config/constants';
+import { SUBSCRIPTION_DAYS_REMAINING_SEVERE } from '../../../config/constants';
 import SidebarCard from './SidebarCard';
 import SubscriptionExpirationWarningModal from '../../program-progress/SubscriptionExpiringWarningModal';
 import dayjs from '../../../utils/dayjs';
 import {
+  LICENSE_REQUESTED_BADGE_VARIANT,
   SUBSCRIPTION_ACTIVE_BADGE_VARIANT,
   SUBSCRIPTION_EXPIRED_BADGE_VARIANT,
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
-  LICENSE_REQUESTED_BADGE_VARIANT,
 } from './data/constants';
 
 const SubscriptionSummaryCard = ({
@@ -26,7 +26,7 @@ const SubscriptionSummaryCard = ({
   const intl = useIntl();
   const badgeVariantAndLabel = useMemo(() => {
     if (subscriptionPlan) {
-      if (subscriptionPlan.daysUntilExpiration <= SUBSCRIPTION_EXPIRED) {
+      if (!subscriptionPlan.isCurrent) {
         // Subscription has expired
         return ({
           variant: SUBSCRIPTION_EXPIRED_BADGE_VARIANT,
@@ -37,7 +37,8 @@ const SubscriptionSummaryCard = ({
           }),
         });
       }
-      if (programProgressPage && subscriptionPlan.daysUntilExpiration <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
+      if (programProgressPage
+        && subscriptionPlan.daysUntilExpirationIncludingRenewals <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
         // Expiration is approaching
         return ({
           variant: SUBSCRIPTION_WARNING_BADGE_VARIANT,
@@ -48,7 +49,8 @@ const SubscriptionSummaryCard = ({
           }),
         });
       }
-      if (!programProgressPage && subscriptionPlan.daysUntilExpiration <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
+      if (!programProgressPage
+        && subscriptionPlan.daysUntilExpirationIncludingRenewals <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
         // Expiration is approaching
         return ({
           variant: SUBSCRIPTION_WARNING_BADGE_VARIANT,
@@ -124,7 +126,7 @@ const SubscriptionSummaryCard = ({
           {
             subscriptionPlan ? (
               <>
-                {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
+                {subscriptionPlan.isCurrent
                   ? intl.formatMessage({
                     id: 'enterprise.dashboard.sidebar.subscription.active.date.prefix',
                     defaultMessage: 'Available until',
@@ -178,7 +180,7 @@ const SubscriptionSummaryCard = ({
       {
         subscriptionPlan ? (
           <>
-            {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
+            {subscriptionPlan.isCurrent
               ? intl.formatMessage({
                 id: 'enterprise.dashboard.sidebar.subscription.active.date.prefix.text',
                 defaultMessage: 'Available until',
@@ -206,8 +208,9 @@ const SubscriptionSummaryCard = ({
 
 SubscriptionSummaryCard.propTypes = {
   subscriptionPlan: PropTypes.shape({
-    daysUntilExpiration: PropTypes.number.isRequired,
+    daysUntilExpirationIncludingRenewals: PropTypes.number.isRequired,
     expirationDate: PropTypes.string.isRequired,
+    isCurrent: PropTypes.bool.isRequired,
   }),
   licenseRequest: PropTypes.shape({}),
   className: PropTypes.string,

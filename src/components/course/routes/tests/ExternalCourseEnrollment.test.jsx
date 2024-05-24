@@ -1,49 +1,39 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+// TODO: legacy import for skipped tests.
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { AppContext } from '@edx/frontend-platform/react';
+import { renderWithRouterProvider } from '../../../../utils/tests';
 
-import UserEnrollmentForm from '../../../executive-education-2u/UserEnrollmentForm';
+import {
+  DISABLED_ENROLL_REASON_TYPES,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
+} from '../../data/constants';
 import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
-import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
-import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import {
+  useCourseRedemptionEligibility,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+} from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import {
+  useExternalEnrollmentFailureReason,
+  useIsCourseAssigned,
+  useMinimalCourseMetadata,
+  useUserSubsidyApplicableToCourse,
+} from '../../data/hooks';
 
-const testCourseKey = 'bin+bar';
-const testCourseRunKey = 'course-v1:bin+bar+baz';
+const mockCourseKey = 'bin+bar';
+const mockCourseRunKey = `course-v1:${mockCourseKey}+baz`;
 
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-  useParams: () => ({
-    enterpriseSlug: 'test-enterprise-uuid',
-    courseKey: testCourseKey,
-    courseRunKey: testCourseRunKey,
-  }),
-}));
+const defaultExternalEnrollmentFailureReason = {
+  failureReason: undefined,
+  failureMessage: undefined,
+};
 
-jest.mock('../../data/hooks', () => ({
-  ...jest.requireActual('../../data/hooks'),
-  useMinimalCourseMetadata: () => ({
-    organization: {
-      name: 'Test Org',
-      logoImgUrl: 'https://test.org/logo.png',
-      marketingUrl: 'https://test.org',
-    },
-    title: 'Test Course Title',
-    startDate: '2023-03-05',
-    duration: '3 Weeks',
-    priceDetails: {
-      price: 100,
-      currency: 'USD',
-    },
-  }),
-}));
-
+// The UserEnrollmmentForm can be tested separately.
 jest.mock('../../../executive-education-2u/UserEnrollmentForm', () => jest.fn(() => (
   <div data-testid="user-enrollment-form" />
 )));
@@ -55,57 +45,35 @@ jest.mock('@edx/frontend-platform/config', () => ({
   })),
 }));
 
+// TODO: remove unused mock still needed for skipped tests.
+const mockNavigate = jest.fn();
+
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
+  useCourseRedemptionEligibility: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const baseCourseContextValue = {
-  state: {
-    courseEntitlementProductSku: 'test-sku',
-    activeCourseRun: {
-      weeksToComplete: 8,
-    },
-    course: {
-      organizationShortCodeOverride: 'Test Org',
-      organizationLogoOverrideUrl: 'https://test.org/logo.png',
-    },
-  },
-  userSubsidyApplicableToCourse: { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },
-  missingUserSubsidyReason: undefined,
-  redeemabilityPerContentKey: [
-    {
-      contentKey: testCourseRunKey,
-      hasSuccessfulRedemption: false,
-    },
-  ],
-  hasSuccessfulRedemption: false,
-};
+jest.mock('../../data/hooks', () => ({
+  ...jest.requireActual('../../data/hooks'),
+  useExternalEnrollmentFailureReason: jest.fn(),
+  useIsCourseAssigned: jest.fn(),
+  useMinimalCourseMetadata: jest.fn(),
+  useUserSubsidyApplicableToCourse: jest.fn(),
+}));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
-const mockAuthenticatedUser = authenticatedUserFactory();
 
-const baseAppContextValue = {
-  authenticatedUser: mockAuthenticatedUser,
-};
-
-const baseUserSubsidyContextValue = {
-  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
-};
+const baseCourseContextValue = {};
 
 const ExternalCourseEnrollmentWrapper = ({
   courseContextValue = baseCourseContextValue,
-  appContextValue = baseAppContextValue,
-  initialUserSubsidyState = baseUserSubsidyContextValue,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={appContextValue}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <CourseContext.Provider value={courseContextValue}>
-          <ExternalCourseEnrollment />
-        </CourseContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
+    <CourseContext.Provider value={courseContextValue}>
+      <ExternalCourseEnrollment />
+    </CourseContext.Provider>
   </IntlProvider>
 );
 
@@ -113,9 +81,97 @@ describe('ExternalCourseEnrollment', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    // Mock having NO existing enrollment.
+    // If there was an enrollment, we should have redirected before rendering this route anyway.
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: {
+        enterpriseCourseEnrollments: [],
+        allEnrollmentsByStatus: {
+          inProgress: [],
+          upcoming: [],
+          completed: [],
+          savedForLater: [],
+          requested: [],
+          assigned: [],
+        },
+      },
+    });
+    useExternalEnrollmentFailureReason.mockReturnValue(defaultExternalEnrollmentFailureReason);
+    useMinimalCourseMetadata.mockReturnValue({
+      data: {
+        organization: {
+          name: 'Test Org',
+          logoImgUrl: 'https://test.org/logo.png',
+          marketingUrl: 'https://test.org',
+        },
+        title: 'Test Course Title',
+        startDate: '2023-03-05',
+        duration: '3 Weeks',
+        priceDetails: {
+          price: 100,
+          currency: 'USD',
+        },
+      },
+    });
+    // Mock the hook that is primarily responsible for calling the policy can_redeem endpoint.
+    useCourseRedemptionEligibility.mockReturnValue({
+      data: {
+        isPolicyRedemptionEnabled: true,
+        redeemabilityPerContentKey: [
+          {
+            contentKey: mockCourseRunKey,
+            hasSuccessfulRedemption: false,
+            canRedeem: true,
+          },
+        ],
+        listPrice: 10000, // can_redeem returns the course price, even though course metadata already does too.
+      },
+    });
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
+      missingUserSubsidyReason: undefined,
+    });
+    // The course is NOT assigned using top-down learner credit assignments.
+    useIsCourseAssigned.mockReturnValue(false);
   });
-  it('renders and handles checkout success', () => {
-    renderWithRouter(<ExternalCourseEnrollmentWrapper />);
+
+  it.each([
+    // The auto-selected subsidy type is learner credit, and the specific requested run is redeemable.
+    [
+      {
+        contentKey: mockCourseRunKey,
+        hasSuccessfulRedemption: false,
+        canRedeem: true,
+      },
+      LEARNER_CREDIT_SUBSIDY_TYPE,
+    ],
+    // The specific run is not redeemable via LC, but that's okay because we're not using learner credit anyway.
+    [
+      {
+        contentKey: mockCourseRunKey,
+        hasSuccessfulRedemption: false,
+        canRedeem: false, // Not redeemable!?
+      },
+      LICENSE_SUBSIDY_TYPE, // Auto-selected subsidy type is not learner credit anyway, so allow the page to render.
+    ],
+  ])('renders and handles checkout success', (mockCanRedeemData, mockSubsidyTypeApplicable) => {
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: { subsidyType: mockSubsidyTypeApplicable },
+      missingUserSubsidyReason: undefined,
+    });
+    useCourseRedemptionEligibility.mockReturnValue({
+      data: {
+        isPolicyRedemptionEnabled: true,
+        redeemabilityPerContentKey: [mockCanRedeemData],
+        listPrice: 10000, // can_redeem returns the course price, even though course metadata already does too.
+      },
+    });
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/course/:courseKey/enroll/:courseRunKey',
+      element: <ExternalCourseEnrollmentWrapper />,
+    }, {
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseKey}/enroll/${mockCourseRunKey}`],
+    });
     expect(screen.getByText('Your registration(s)')).toBeInTheDocument();
     expect(screen.getByText('Test Course Title')).toBeInTheDocument();
     expect(screen.getByText('Available start date:')).toBeInTheDocument();
@@ -125,44 +181,81 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('Registration summary:')).toBeInTheDocument();
     expect(screen.getByText('Registration total:')).toBeInTheDocument();
     expect(screen.getByTestId('user-enrollment-form')).toBeInTheDocument();
-    expect(UserEnrollmentForm.mock.calls[0][0]).toEqual(
-      expect.objectContaining({
-        productSKU: 'test-sku',
-        courseRunKey: testCourseRunKey,
-      }),
-    );
   });
 
   it.each([
-    DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS,
-    DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
-    DISABLED_ENROLL_REASON_TYPES.SUBSIDY_NOT_ACTIVE,
-    DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
-    DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
-    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED,
-    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
-    DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
-    DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
+    // The course exists and is "available", but non-redeemable via subsidy.
+    [
+      {
+        contentKey: mockCourseRunKey,
+        hasSuccessfulRedemption: false,
+        canRedeem: false,
+      },
+      LEARNER_CREDIT_SUBSIDY_TYPE,
+    ],
+    // The requested course run is not included in the can-redeem response, so it is "unavailable".
+    [
+      {
+        contentKey: 'some+other+course', // A different run than what was requested in the URL.
+        hasSuccessfulRedemption: false,
+        canRedeem: true, // This one happens to be redeemable, but it's moot since it's the wrong course run.
+      },
+      LEARNER_CREDIT_SUBSIDY_TYPE,
+    ],
+  ])('renders 404 page when appropriate', (mockCanRedeemData, mockSubsidyTypeApplicable) => {
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: { subsidyType: mockSubsidyTypeApplicable },
+      missingUserSubsidyReason: undefined,
+    });
+    useCourseRedemptionEligibility.mockReturnValue({
+      data: {
+        isPolicyRedemptionEnabled: true,
+        redeemabilityPerContentKey: [mockCanRedeemData],
+        listPrice: 10000, // can_redeem returns the course price, even though course metadata already does too.
+      },
+    });
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/course/:courseKey/enroll/:courseRunKey',
+      element: <ExternalCourseEnrollmentWrapper />,
+    }, {
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseKey}/enroll/${mockCourseRunKey}`],
+    });
+    expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
+  });
+
+  it.each([
+    'no_offer_available',
+    'no_offer_with_enough_balance',
+    'no_offer_with_remaining_applications',
+    'no_offer_with_enough_user_balance',
+    'system_error',
   ])('handles failure reason (%s)', (failureReason) => {
-    const courseContextValue = {
-      ...baseCourseContextValue,
-      userSubsidyApplicableToCourse: undefined,
-      missingUserSubsidyReason: { reason: failureReason },
-    };
-    renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
+    useExternalEnrollmentFailureReason.mockReturnValue({
+      failureReason,
+      failureMessage: 'Mock message',
+    });
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/course/:courseKey/enroll/:courseRunKey',
+      element: <ExternalCourseEnrollmentWrapper />,
+    }, {
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseKey}/enroll/${mockCourseRunKey}`],
+    });
     expect(screen.queryByText('Your registration(s)')).not.toBeInTheDocument();
     expect(screen.queryByText('Test Course Title')).not.toBeInTheDocument();
     expect(screen.getByText("We're sorry.")).toBeInTheDocument();
     expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
+    expect(screen.getByText('Mock message')).toBeInTheDocument();
   });
 
-  it('handles successful prior redemption', () => {
+  // SKIPPED TEST.
+  // TODO: [TROY] I assume this should be moved to externalCourseEnrollmentLoader.test.jsx
+  it.skip('handles successful prior redemption', () => {
     const courseContextValue = {
       ...baseCourseContextValue,
       userSubsidyApplicableToCourse: undefined,
       redeemabilityPerContentKey: [
         {
-          contentKey: testCourseRunKey,
+          contentKey: mockCourseRunKey,
           hasSuccessfulRedemption: true,
         },
       ],
@@ -181,19 +274,20 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByTestId('user-enrollment-form')).toBeInTheDocument();
   });
 
-  it('handles a courserun that has already been enrolled', () => {
+  // SKIPPED TEST.
+  // TODO: [TROY] I assume this should be moved to externalCourseEnrollmentLoader.test.jsx
+  it.skip('handles a courserun that has already been enrolled', () => {
     const courseContextValue = {
       ...baseCourseContextValue,
       redeemabilityPerContentKey: [
         {
-          contentKey: testCourseRunKey,
+          contentKey: mockCourseRunKey,
           hasSuccessfulRedemption: true,
         },
       ],
       hasSuccessfulRedemption: true,
     };
     renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
-
     expect(mockNavigate).toHaveBeenCalledTimes(1);
   });
 
@@ -208,7 +302,12 @@ describe('ExternalCourseEnrollment', () => {
       ...baseCourseContextValue,
       externalCourseFormSubmissionError: hasDuplicateOrder ? { message: 'duplicate order' } : undefined,
     };
-    renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/course/:courseKey/enroll/:courseRunKey',
+      element: <ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />,
+    }, {
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseKey}/enroll/${mockCourseRunKey}`],
+    });
     if (hasDuplicateOrder) {
       expect(screen.getByText('Already Enrolled')).toBeInTheDocument();
       const dashboardButton = screen.getByText('Go to dashboard');

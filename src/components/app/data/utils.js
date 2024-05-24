@@ -489,6 +489,8 @@ export function getCatalogsForSubsidyRequests({
     return catalogs;
   }
   if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE && customerAgreement) {
+    // availableSubscriptionCatalogs only contains the unique catalogs
+    // across all subscription plans for an enterprise customer
     const catalogsFromSubscriptions = customerAgreement.availableSubscriptionCatalogs;
     catalogs.push(...catalogsFromSubscriptions);
   }
@@ -496,6 +498,7 @@ export function getCatalogsForSubsidyRequests({
     const catalogsFromCoupons = couponsOverview
       .filter(coupon => !!coupon.available)
       .map(coupon => coupon.enterpriseCatalogUuid);
+    // catalogs from coupons may be duplicative, so pushing a Set of catalogs is necessary here
     catalogs.push(...new Set(catalogsFromCoupons));
   }
   return catalogs;
@@ -572,3 +575,59 @@ export function findHighestLevelEntitlementSku(entitlements) {
   }
   return findHighestLevelSkuByEntityModeType(entitlements, entitlement => entitlement.mode);
 }
+
+/**
+ * Transforms a learner's group membership into a shape that will be used for the
+ * display of NewGroupAssignmentAlert when they are added to a new group.
+ *
+ * @param {Array} groupMemberships - Array of groupMemberships to be transformed.
+ * @param {String} groupUuid - UUID of the group.
+ * @returns {Array} Returns the transformed array of group memberships.
+ */
+export function transformGroupMembership(groupMemberships, groupUuid) {
+  return groupMemberships.map(groupMembership => ({
+    ...groupMembership,
+    groupUuid,
+  }));
+}
+
+/**
+ * Gets array of group UUIDs.
+ *
+ * @param {Array} policies - Array of policies to be transformed.
+ * @returns {Array} Returns the transformed array of policies.
+ */
+export function getCustomerGroupAssociations(policies) {
+  return policies.flatMap(policy => policy.groupAssociations);
+}
+
+/**
+ * check if an object is empty
+ * @param {Object} obj
+ * @returns {boolean}
+ */
+export function isObjEmpty(obj) {
+  return Object.keys(obj).length === 0;
+}
+
+/**
+ * returns expired and unexpired policies
+ * @param policies
+ * @returns {{expiredPolicies: *[], unexpiredPolicies: *[]}}
+ */
+export const filterPoliciesByExpirationAndActive = (policies) => {
+  const expiredPolicies = [];
+  const unexpiredPolicies = [];
+  policies.forEach((policy) => {
+    const expiryDate = dayjs(policy.subsidyExpirationDate);
+    if (expiryDate.isAfter(dayjs()) && policy.active) {
+      unexpiredPolicies.push(policy);
+    } else {
+      expiredPolicies.push(policy);
+    }
+  });
+  return {
+    expiredPolicies,
+    unexpiredPolicies,
+  };
+};

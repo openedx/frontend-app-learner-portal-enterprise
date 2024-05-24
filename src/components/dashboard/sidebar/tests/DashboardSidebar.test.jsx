@@ -106,6 +106,7 @@ describe('<DashboardSidebar />', () => {
     useCouponCodes.mockReturnValue({
       data: {
         couponCodeAssignments: [],
+        couponCodeRedemptionCount: 0,
       },
     });
     useEnterpriseOffers.mockReturnValue({
@@ -136,7 +137,8 @@ describe('<DashboardSidebar />', () => {
   test('Coupon codes summary card is displayed when coupon codes are available', () => {
     useCouponCodes.mockReturnValue({
       data: {
-        couponCodeAssignments: [{ id: 3 }],
+        couponCodeAssignments: [{ code: '322DXUX3G2RJXLHF', redemptionsRemaining: 3 }],
+        couponCodeRedemptionCount: 3,
       },
     });
     useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
@@ -242,7 +244,8 @@ describe('<DashboardSidebar />', () => {
   test('Enterprise offers summary card is displayed when enterprise has active offers and has coupon codes', () => {
     useCouponCodes.mockReturnValue({
       data: {
-        couponCodeAssignments: [{ id: 3 }],
+        couponCodeAssignments: [{ code: '322DXUX3G2RJXLHF', redemptionsRemaining: 3 }],
+        couponCodeRedemptionCount: 3,
       },
     });
     useEnterpriseOffers.mockReturnValue({

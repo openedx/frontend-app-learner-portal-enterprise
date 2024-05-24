@@ -3,6 +3,7 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { fetchPaginatedData } from '../utils';
 import { hasValidStartExpirationDates } from '../../../../../utils/common';
+import { findCouponCodeRedemptionCount } from '../../../../enterprise-user-subsidy/coupons';
 
 // Coupon Codes
 
@@ -68,8 +69,10 @@ export async function fetchCouponCodes(enterpriseUuid) {
     fetchCouponsOverview(enterpriseUuid),
     fetchCouponCodeAssignments(enterpriseUuid),
   ]);
+  const couponCodeRedemptionCount = findCouponCodeRedemptionCount(results[1]);
   return {
     couponsOverview: results[0],
     couponCodeAssignments: results[1],
+    couponCodeRedemptionCount,
   };
 }

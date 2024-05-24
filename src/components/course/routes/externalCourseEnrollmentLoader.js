@@ -1,7 +1,7 @@
 import { generatePath, redirect } from 'react-router-dom';
 
 import {
-  extractEnterpriseId,
+  extractEnterpriseCustomer,
   getLateRedemptionBufferDays,
   queryCanRedeem,
   queryCourseMetadata,
@@ -24,7 +24,7 @@ export default function makeExternalCourseEnrollmentLoader(queryClient) {
       courseKey,
       courseRunKey,
     } = params;
-    const enterpriseId = await extractEnterpriseId({
+    const enterpriseCustomer = await extractEnterpriseCustomer({
       queryClient,
       authenticatedUser,
       enterpriseSlug,
@@ -38,12 +38,12 @@ export default function makeExternalCourseEnrollmentLoader(queryClient) {
         return;
       }
       const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-        enterpriseUuid: enterpriseId,
+        enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: authenticatedUser.userId,
       }));
       const isEnrollableBufferDays = getLateRedemptionBufferDays(redeemableLearnerCreditPolicies.redeemablePolicies);
       const canRedeem = await queryClient.ensureQueryData(
-        queryCanRedeem(enterpriseId, courseMetadata, isEnrollableBufferDays),
+        queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, isEnrollableBufferDays),
       );
       const hasSuccessfulRedemption = !!canRedeem.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption;
       if (hasSuccessfulRedemption) {

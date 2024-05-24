@@ -7,14 +7,29 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import DashboardMainContent from './DashboardMainContent';
 import { queryClient, renderWithRouter } from '../../../utils/tests';
 import { features } from '../../../config';
-import { useCanOnlyViewHighlights, useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../app/data';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import {
+  useCanOnlyViewHighlights,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+  useAcademies,
+  useEnterpriseGroupMemberships,
+  useEnterpriseFeatures,
+} from '../../app/data';
+import {
+  authenticatedUserFactory,
+  enterpriseCustomerFactory,
+  academiesFactory,
+  groupMembershipFactories,
+} from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
+  useAcademies: jest.fn(),
   useCanOnlyViewHighlights: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
+  useEnterpriseCustomer: jest.fn(),
+  useEnterpriseFeatures: jest.fn(),
+  useEnterpriseGroupMemberships: jest.fn(),
 }));
 
 jest.mock('../../../config', () => ({
@@ -41,7 +56,12 @@ describe('DashboardMainContent', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useAcademies.mockReturnValue({ data: academiesFactory(3) });
     useCanOnlyViewHighlights.mockReturnValue({ data: false });
+    useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: false } });
+    useEnterpriseGroupMemberships.mockReturnValue({
+      data: groupMembershipFactories(),
+    });
     useEnterpriseCourseEnrollments.mockReturnValue({
       data: {
         allEnrollmentsByStatus: {

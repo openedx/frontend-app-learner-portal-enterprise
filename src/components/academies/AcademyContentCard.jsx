@@ -8,13 +8,14 @@ import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
-import { LEARNING_TYPE_COURSE, LEARNING_TYPE_EXECUTIVE_EDUCATION, LEARNING_TYPE_PATHWAY } from '@edx/frontend-enterprise-catalog-search/data/constants';
+import { LEARNING_TYPE_COURSE, LEARNING_TYPE_EXECUTIVE_EDUCATION } from '@edx/frontend-enterprise-catalog-search/data/constants';
 import SearchCourseCard from '../search/SearchCourseCard';
-import SearchPathwayCard from '../pathway/SearchPathwayCard';
+import { useEnterpriseCustomer } from '../app/data';
 
 const AcademyContentCard = ({
   courseIndex, academyUUID, academyTitle, academyURL, tags,
 }) => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [isAlgoliaLoading, setIsAlgoliaLoading] = useState(true);
   const [courses, setCourses] = useState([]);
   const [showAllExecEdCourses, setShowAllExecEdCourses] = useState(false);
@@ -24,50 +25,30 @@ const AcademyContentCard = ({
   const intl = useIntl();
   const ocmCourses = [];
   const execEdCourses = [];
-  const pathways = [];
   const maxCoursesToShow = 4;
 
   useEffect(
     () => {
-      function contentIntersect(academyContent, tagContent) {
-        const intersect = [];
-        tagContent.forEach((content) => {
-          if (academyContent.some(o => o.aggregation_key === content.aggregation_key)) {
-            intersect.push(content);
-          }
-        });
-        return intersect;
-      }
       async function fetchCourses() {
         setIsAlgoliaLoading(true);
-
-        const { hits: academyHits, nbHits: nbAcademyHits } = await courseIndex.search('', {
-          filters: `(content_type:course OR content_type:learnerpathway) AND academy_uuids:${academyUUID}`, // eslint-disable-line object-shorthand
+        const searchFacetFilters = selectedTag ? [
+          ['content_type:course', 'content_type:learnerpathway'],
+          `academy_uuids:${academyUUID}`,
+          `enterprise_customer_uuids:${enterpriseCustomer.uuid}`,
+          `academy_tags:${selectedTag}`,
+        ] : [
+          ['content_type:course', 'content_type:learnerpathway'],
+          `academy_uuids:${academyUUID}`,
+          `enterprise_customer_uuids:${enterpriseCustomer.uuid}`,
+        ];
+        const { hits, nbHits } = await courseIndex.search('', {
+          facetFilters: searchFacetFilters,
           hitsPerPage: 100,
           page: 0,
         });
-        let tagHits;
-        let nbTagHits;
-        if (selectedTag) {
-          const response = await courseIndex.search('', {
-            facetFilters: [['content_type:course', 'content_type:learnerpathway'], `academy_tags:${selectedTag}`],
-          });
-          ({ hits: tagHits, nbHits: nbTagHits } = response);
-        }
-
-        if (nbAcademyHits > 0) {
-          let allHits;
-          const academyHitsCamelCased = camelCaseObject(academyHits);
-          if (nbTagHits > 0) {
-            const tagHitsCamelCased = camelCaseObject(tagHits);
-            allHits = contentIntersect(academyHitsCamelCased, tagHitsCamelCased);
-          } else if (nbTagHits === 0) {
-            allHits = [];
-          } else {
-            allHits = academyHitsCamelCased;
-          }
-
-          setCourses(allHits);
+        if (nbHits > 0) {
+          const hitsCamelCased = camelCaseObject(hits);
+          setCourses(hitsCamelCased);
           setIsAlgoliaLoading(false);
         } else {
           setIsAlgoliaLoading(false);
@@ -75,7 +56,7 @@ const AcademyContentCard = ({
       }
       fetchCourses();
     },
-    [courseIndex, academyUUID, selectedTag],
+    [courseIndex, academyUUID, selectedTag, enterpriseCustomer],
   );
 
   courses.forEach(course => {
@@ -83,8 +64,6 @@ const AcademyContentCard = ({
       ocmCourses.push(course);
     } else if (course.learningType === LEARNING_TYPE_EXECUTIVE_EDUCATION) {
       execEdCourses.push(course);
-    } else if (course.learningType === LEARNING_TYPE_PATHWAY) {
-      pathways.push(course);
     }
   });
 
@@ -109,6 +88,27 @@ const AcademyContentCard = ({
     }
     return showAllOcmCourses;
   };
+
+  const toggleButtonText = (showMoreBtnEnabled, contentType, title, contentLength) => {
+    let defaultMessage;
+
+    if (showMoreBtnEnabled) {
+      defaultMessage = title === 'Self-paced courses'
+        ? '< Show less {title}'
+        : '< Show less {title} courses';
+    } else {
+      defaultMessage = title === 'Self-paced courses'
+        ? 'Show more {title} ({contentLength}) >'
+        : 'Show more {title} courses ({contentLength}) >';
+    }
+
+    return intl.formatMessage({
+      id: 'academy.detail.page.show.more.toggle.button.text',
+      defaultMessage,
+      description: 'Text for the show more/show less toggle button on academy detail page.',
+    }, { title, contentLength });
+  };
+
   const renderableContent = ({
     content,
     contentLength,
@@ -125,16 +125,16 @@ const AcademyContentCard = ({
 
     return (
       <div className={additionalClass}>
-        <div className="d-flex flex-row align-items-center justify-content-between">
-          <h3 data-testid={titleTestId}>{title}</h3>
-          {contentType !== LEARNING_TYPE_PATHWAY && contentLength > 4 && (
+        <div className="d-flex flex-row align-items-center justify-content-between mt-5">
+          <h3 data-testid={titleTestId} className="font-weight-normal">{title}</h3>
+          {contentLength > 4 && (
             <Button
               className=""
               variant="link"
               size="xl"
               onClick={toggleShowMore(contentType)}
             >
-              {showMoreButton(contentType) ? '< Show Less' : `Show More (${contentLength}) >`}
+              { toggleButtonText(showMoreButton(contentType), contentType, title, contentLength) }
             </Button>
           )}
         </div>
@@ -143,26 +143,17 @@ const AcademyContentCard = ({
           xs: 12, md: 6, lg: 4, xl: 3,
         }}
         >
-          {contentType !== LEARNING_TYPE_PATHWAY
-            ? content?.map(course => (
-              <SearchCourseCard
-                key={`academy-course-${uuidv4()}`}
-                data-testid="academy-course-card"
-                hit={course}
-                parentRoute={{
-                  label: academyTitle,
-                  to: academyURL,
-                }}
-              />
-            ))
-            : content?.map(pathway => (
-              <SearchPathwayCard
-                key={`academy-pathway-${uuidv4()}`}
-                data-testid="academy-pathways-card"
-                hit={pathway}
-                isAcademyPathway
-              />
-            ))}
+          {content?.map(course => (
+            <SearchCourseCard
+              key={`academy-course-${uuidv4()}`}
+              data-testid="academy-course-card"
+              hit={course}
+              parentRoute={{
+                label: academyTitle,
+                to: academyURL,
+              }}
+            />
+          ))}
         </CardGrid>
       </div>
     );
@@ -175,7 +166,7 @@ const AcademyContentCard = ({
   };
   return (
     <>
-      <div className="academy-tags mb-3">
+      <div className="academy-tags">
         {tags.map(tag => (
           <Button
             className="academy-tag"
@@ -205,7 +196,7 @@ const AcademyContentCard = ({
       {
         isAlgoliaLoading ? (
           <div className="d-flex justify-content-center align-items-center">
-            <Spinner animation="border" className="mie-3" screenReaderText="loading" />
+            <Spinner animation="border" className="mie-3 m-3" screenReaderText="loading" />
           </div>
         ) : (
           <>
@@ -244,24 +235,6 @@ const AcademyContentCard = ({
               additionalClass: 'academy-ocm-courses-container',
               titleTestId: 'academy-ocm-courses-title',
               subtitleTestId: 'academy-ocm-courses-subtitle',
-            })}
-            {renderableContent({
-              content: pathways,
-              contentLength: pathways?.length,
-              contentType: LEARNING_TYPE_PATHWAY,
-              title: intl.formatMessage({
-                id: 'academy.detail.page.pathways.section.title',
-                defaultMessage: 'Pathways',
-                description: 'Title for the pathways section on the academy detail page.',
-              }),
-              subtitle: intl.formatMessage({
-                id: 'academy.detail.page.pathways.section.subtitle',
-                defaultMessage: 'Not sure where to start? Try one of our recommended learning tracks.',
-                description: 'Subtitle for the pathways section on the academy detail page.',
-              }),
-              additionalClass: 'academy-pathways-container',
-              titleTestId: 'academy-pathway-title',
-              subtitleTestId: 'academy-pathway-subtitle',
             })}
           </>
         )

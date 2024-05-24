@@ -13,17 +13,18 @@ import {
 import {
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
-  getSubsidyToApplyForCourse,
-  getLinkToCourse,
-  pathContainsCourseTypeSlug,
+  getCouponCodesDisabledEnrollmentReasonType,
   getCourseStartDate,
+  getLinkToCourse,
+  getMissingApplicableSubsidyReason,
   getMissingSubsidyReasonActions,
   getSubscriptionDisabledEnrollmentReasonType,
+  getSubsidyToApplyForCourse,
   isActiveSubscriptionLicense,
-  processCourseSubjects,
   isCurrentCoupon,
-  getCouponCodesDisabledEnrollmentReasonType,
-  getMissingApplicableSubsidyReason,
+  pathContainsCourseTypeSlug,
+  processCourseSubjects,
+  transformedCourseMetadata,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform', () => ({
@@ -39,7 +40,6 @@ jest.mock('@edx/frontend-platform', () => ({
       'executive-education-2u': {
         pathSlug: 'executive-education-2u',
         usesEntitlementListPrice: true,
-        usesAdditionalMetadata: true,
       },
     },
   }),
@@ -298,9 +298,11 @@ describe('findEnterpriseOfferForCourse', () => {
 describe('getSubsidyToApplyForCourse', () => {
   const mockApplicableSubscriptionLicense = {
     uuid: 'license-uuid',
-    startDate: '2023-08-11',
-    expirationDate: '2024-08-11',
     status: 'activated',
+    subscriptionPlan: {
+      startDate: '2023-08-11',
+      expirationDate: '2024-08-11',
+    },
   };
 
   const mockApplicableCouponCode = {
@@ -334,8 +336,8 @@ describe('getSubsidyToApplyForCourse', () => {
     expect(subsidyToApply).toEqual({
       subsidyType: LICENSE_SUBSIDY_TYPE,
       subsidyId: mockApplicableSubscriptionLicense.uuid,
-      startDate: mockApplicableSubscriptionLicense.startDate,
-      expirationDate: mockApplicableSubscriptionLicense.expirationDate,
+      startDate: mockApplicableSubscriptionLicense.subscriptionPlan.startDate,
+      expirationDate: mockApplicableSubscriptionLicense.subscriptionPlan.expirationDate,
       status: mockApplicableSubscriptionLicense.status,
       discountType: 'percentage',
       discountValue: 100,
@@ -434,39 +436,9 @@ describe('getLinkToCourse', () => {
 });
 
 describe('getCourseStartDate tests', () => {
-  it('Validate additionalMetadata gets priority in course start date calculation', async () => {
-    const mockAdditionalMetadataStartDate = '2023-06-10T12:00:00Z';
-    const startDate = getCourseStartDate({
-      contentMetadata: {
-        additionalMetadata: {
-          startDate: mockAdditionalMetadataStartDate,
-        },
-        courseType: 'executive-education-2u',
-      },
-      courseRun: {
-        start: '2022-03-08T12:00:00Z',
-      },
-    });
-    expect(startDate).toMatch(mockAdditionalMetadataStartDate);
-  });
-
-  it('Validate active course run\'s start date is used when additionalMetadata is null.', async () => {
-    const mockCourseRuStartDate = '2022-03-08T12:00:00Z';
-    const startDate = getCourseStartDate({
-      contentMetadata: {
-        additionalMetadata: null,
-        courseType: 'executive-education-2u',
-      },
-      courseRun: {
-        start: mockCourseRuStartDate,
-      },
-    });
-    expect(startDate).toMatch(mockCourseRuStartDate);
-  });
-
   it('Validate getCourseDate handles empty data for course run and course metadata.', async () => {
     const startDate = getCourseStartDate(
-      { contentMetadata: null, courseRun: null },
+      { courseRun: null },
     );
     expect(startDate).toBe(undefined);
   });
@@ -577,50 +549,69 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
 
   it.each([
     {
-      netDaysUntilExpiration: -17,
+      subscriptionLicense: {
+        subscriptionPlan: {
+          isCurrent: false,
+        },
+      },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      netDaysUntilExpiration: -17,
+      subscriptionLicense: {
+        subscriptionPlan: {
+          isCurrent: false,
+        },
+      },
       hasEnterpriseAdminUsers: false,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      netDaysUntilExpiration: -17,
+      subscriptionLicense: {
+        subscriptionPlan: {
+          isCurrent: false,
+        },
+      },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
       catalogsWithCourse: ['fake-catalog-uuid'],
     },
     {
-      netDaysUntilExpiration: 1,
+      subscriptionLicense: {
+        subscriptionPlan: {
+          isCurrent: true,
+        },
+      },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      netDaysUntilExpiration: 10,
+      subscriptionLicense: {
+        subscriptionPlan: {
+          isCurrent: true,
+        },
+      },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: [mockCatalogUuid],
     },
   ])('handles expired subscription: %s', ({
-    netDaysUntilExpiration,
+    subscriptionLicense,
     hasEnterpriseAdminUsers,
     expectedReasonType,
     catalogsWithCourse,
   }) => {
     const customerAgreement = {
-      netDaysUntilExpiration,
       availableSubscriptionCatalogs: [],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
       customerAgreement,
       catalogsWithCourse,
-      subscriptionLicense: undefined,
+      subscriptionLicense,
       hasEnterpriseAdminUsers,
     });
     expect(reasonType).toEqual(expectedReasonType);
@@ -682,6 +673,7 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
         status: 'revoked',
         subscriptionPlan: {
           enterpriseCatalogUuid: mockCatalogUuid,
+          isCurrent: true,
         },
       },
       hasEnterpriseAdminUsers: true,
@@ -693,6 +685,7 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
         status: 'activated',
         subscriptionPlan: {
           enterpriseCatalogUuid: mockCatalogUuid,
+          isCurrent: true,
         },
       },
       hasEnterpriseAdminUsers: true,
@@ -720,21 +713,37 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
 
   it.each([
     {
+      subscriptionLicense: {
+        subscriptionPlan: {
+          isCurrent: true,
+        },
+      },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
+      subscriptionLicense: {
+        subscriptionPlan: {
+          isCurrent: true,
+        },
+      },
       hasEnterpriseAdminUsers: false,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
+      subscriptionLicense: {
+        subscriptionPlan: {
+          isCurrent: true,
+        },
+      },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: ['fake-catalog-uuid'],
     },
   ])('handles no subscription license with remaining seats: %s', ({
+    subscriptionLicense,
     hasEnterpriseAdminUsers,
     expectedReasonType,
     catalogsWithCourse,
@@ -746,7 +755,7 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
       customerAgreement,
       catalogsWithCourse,
-      subscriptionLicense: undefined,
+      subscriptionLicense,
       hasEnterpriseAdminUsers,
     });
     expect(reasonType).toEqual(expectedReasonType);
@@ -939,7 +948,10 @@ describe('getMissingApplicableSubsidyReason', () => {
     enterpriseOffers: [],
   };
   it('returns NO_SUBSIDY_NO_ADMINS if there are no admins', () => {
-    const result = getMissingApplicableSubsidyReason({ ...baseMockData, enterpriseAdminUsers: [] });
+    const result = getMissingApplicableSubsidyReason({
+      ...baseMockData,
+      enterpriseAdminUsers: [],
+    });
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS);
   });
 
@@ -976,10 +988,12 @@ describe('getMissingApplicableSubsidyReason', () => {
   it('returns SUBSCRIPTION_EXPIRED if there is an expired subscription', () => {
     const mockData = {
       ...baseMockData,
-      catalogsWithCourse: ['test-catalog-uuid'],
-      customerAgreement: {
-        netDaysUntilExpiration: -17,
+      subscriptionLicense: {
+        subscriptionPlan: {
+          isCurrent: false,
+        },
       },
+      catalogsWithCourse: ['test-catalog-uuid'],
     };
     const result = getMissingApplicableSubsidyReason(mockData);
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED);
@@ -999,5 +1013,184 @@ describe('getMissingApplicableSubsidyReason', () => {
     };
     const result = getMissingApplicableSubsidyReason(mockData);
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED);
+  });
+});
+
+describe('transformedCourseMetadata', () => {
+  const mockOrgName = 'Fake Org Name';
+  const mockLogoImageUrl = 'https://fake-logo.url';
+  const mockOrgMarketingUrl = 'https://fake-mktg.url';
+  const mockWeeksToComplete = 8;
+  const mockListPrice = 100;
+  const mockCurrency = 'USD';
+  const mockCourseTitle = 'Test Course Title';
+  const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
+  const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
+  const mockActiveCourseRunKey = 'course-v2:edX+DemoX+Demo_Course';
+  const mockActiveCourseRunStartDate = '2024-04-20T12:00:00Z';
+  const mockActiveCourseRunWeeksToComplete = 16;
+
+  const transformed = {
+    organization: {
+      name: mockOrgName,
+      logoImgUrl: mockLogoImageUrl,
+      marketingUrl: mockOrgMarketingUrl,
+    },
+    title: mockCourseTitle,
+    startDate: mockCourseRunStartDate,
+    duration: `${mockWeeksToComplete} Weeks`,
+    priceDetails: {
+      price: mockListPrice,
+      currency: mockCurrency,
+    },
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: mockWeeksToComplete,
+      start: mockCourseRunStartDate,
+    }],
+    owners: [{
+      name: mockOrgName,
+      marketingUrl: mockOrgMarketingUrl,
+      logoImageUrl: mockLogoImageUrl,
+    }],
+    activeCourseRun: {
+      key: mockActiveCourseRunKey,
+      weeksToComplete: mockActiveCourseRunWeeksToComplete,
+      start: mockActiveCourseRunStartDate,
+    },
+  };
+  const coursePrice = {
+    list: mockListPrice,
+  };
+  const expectedValue = {
+    duration: '8 Weeks',
+    organization: {
+      logoImgUrl: 'https://fake-logo.url',
+      marketingUrl: 'https://fake-mktg.url',
+      name: 'Fake Org Name',
+    },
+    priceDetails: {
+      currency: 'USD',
+      price: 100,
+    },
+    startDate: '2023-04-20T12:00:00Z',
+    title: 'Test Course Title',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns the minimal course metadata with typical values, happy path', () => {
+    const minimalCourseMetadata = transformedCourseMetadata({
+      transformed,
+      coursePrice,
+      courseRunKey: mockCourseRunKey,
+      currency: mockCurrency,
+    });
+    expect(minimalCourseMetadata).toEqual(expectedValue);
+  });
+  it('fallsback to activeCourseRun if no course run key matches', () => {
+    const minimalCourseMetadata = transformedCourseMetadata({
+      transformed,
+      coursePrice,
+      courseRunKey: mockActiveCourseRunKey,
+      currency: mockCurrency,
+    });
+    const updatedExpectedValue = {
+      ...expectedValue,
+      startDate: mockActiveCourseRunStartDate,
+      duration: '16 Weeks',
+    };
+    expect(minimalCourseMetadata).toEqual(updatedExpectedValue);
+  });
+  it.each([
+    {
+      organizationShortCodeOverride: null,
+      organizationLogoOverrideUrl: null,
+      owners: [{
+        name: mockOrgName,
+        marketingUrl: mockOrgMarketingUrl,
+        logoImageUrl: mockLogoImageUrl,
+        uuid: 'test-uuid',
+        key: 'test-key',
+      }],
+      organization: {
+        logoImgUrl: 'https://fake-logo.url',
+        marketingUrl: 'https://fake-mktg.url',
+        name: 'Fake Org Name',
+      },
+    },
+    {
+      organizationShortCodeOverride: 'test-short-code-override',
+      organizationLogoOverrideUrl: 'test-logo-override',
+      owners: [{
+        name: mockOrgName,
+        marketingUrl: mockOrgMarketingUrl,
+        logoImageUrl: mockLogoImageUrl,
+        uuid: 'test-uuid',
+        key: 'test-key',
+      }],
+      organization: {
+        logoImgUrl: 'test-logo-override',
+        marketingUrl: 'https://fake-mktg.url',
+        name: 'test-short-code-override',
+      },
+    },
+  ])('handles organizations correctly when values are %s', ({
+    organizationShortCodeOverride,
+    organizationLogoOverrideUrl,
+    owners,
+    organization,
+  }) => {
+    const updatedTransformedData = {
+      ...transformed,
+      organizationLogoOverrideUrl,
+      organizationShortCodeOverride,
+      owners,
+    };
+    const minimalCourseMetadata = transformedCourseMetadata({
+      transformed: updatedTransformedData,
+      coursePrice,
+      courseRunKey: mockCourseRunKey,
+      currency: mockCurrency,
+    });
+    expect(minimalCourseMetadata.organization).toEqual(organization);
+  });
+  it.each([{
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: mockWeeksToComplete,
+      start: mockCourseRunStartDate,
+    }],
+    duration: '8 Weeks',
+  },
+  {
+    courseRuns: [{
+      key: mockCourseRunKey,
+      weeksToComplete: 1,
+      start: mockCourseRunStartDate,
+    }],
+    duration: '1 Week',
+  },
+  {
+    courseRuns: [],
+    duration: '-',
+  },
+  ])('handles duration correctly when values are %s', ({
+    courseRuns,
+    duration,
+  }) => {
+    const updatedTransformed = { ...transformed, courseRuns };
+    if (courseRuns.length === 0) {
+      updatedTransformed.activeCourseRun = null;
+    }
+    const minimalCourseMetadata = transformedCourseMetadata({
+      transformed: updatedTransformed,
+      coursePrice,
+      courseRunKey: mockCourseRunKey,
+      currency: mockCurrency,
+    });
+    expect(minimalCourseMetadata.duration).toEqual(duration);
   });
 });

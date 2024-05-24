@@ -47,10 +47,12 @@ const useDashboardTabs = () => {
 
   // Creates prefetch logic based on loadable-components, "component splitting" capability expose to Tabs component
   const prefetchTabs = useCallback(() => {
-    // Preload/prefetch "My Career" tab.
-    MyCareerTab.preload();
-    if (learnerCurrentJobID) {
-      queryClient.prefetchQuery(queryLearnerSkillLevels(learnerCurrentJobID));
+    if (features.FEATURE_ENABLE_MY_CAREER) {
+      // Preload/prefetch "My Career" tab.
+      MyCareerTab.preload();
+      if (learnerCurrentJobID) {
+        queryClient.prefetchQuery(queryLearnerSkillLevels(learnerCurrentJobID));
+      }
     }
   }, [learnerCurrentJobID, queryClient]);
 

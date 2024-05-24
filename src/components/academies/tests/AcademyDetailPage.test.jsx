@@ -12,6 +12,7 @@ import { renderWithRouter } from '../../../utils/tests';
 import AcademyDetailPage from '../AcademyDetailPage';
 import { useAcademyDetails, useEnterpriseCustomer } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useAcademyPathwayData } from '../data/hooks';
 
 // config
 const APP_CONFIG = {
@@ -57,6 +58,15 @@ const ALOGLIA_MOCK_DATA = {
   nbHits: 2,
 };
 
+const mockPathwayResponse = [
+  {
+    title: 'Pathway Title',
+    overview: 'Pathway Overview',
+    pathwayUuid: '9d7c7c42-682d-4fa4-a133-2913e939f771',
+  },
+  false,
+  null,
+];
 // endpoints
 
 jest.mock('react-router-dom', () => ({
@@ -105,6 +115,10 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useAcademyDetails: jest.fn(),
 }));
+jest.mock('../data/hooks', () => ({
+  ...jest.requireActual('../data/hooks'),
+  useAcademyPathwayData: jest.fn(),
+}));
 
 const AcademyDetailPageWrapper = () => (
   <IntlProvider locale="en">
@@ -119,13 +133,14 @@ describe('<AcademyDetailPage />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAcademyDetails.mockReturnValue({ data: ACADEMY_MOCK_DATA });
+    useAcademyPathwayData.mockReturnValue(mockPathwayResponse);
   });
   it('renders academy detail page', async () => {
     renderWithRouter(<AcademyDetailPageWrapper />);
 
-    const headingElement = await screen.findByRole('heading', { level: 2 });
-    expect(headingElement.textContent).toBe(ACADEMY_MOCK_DATA.title);
-    expect(screen.getByTestId('academy-description')).toHaveTextContent(ACADEMY_MOCK_DATA.longDescription);
+    const headingElement = await screen.getByTestId('academy-all-courses-title');
+    const expectedHeadingElement = `All ${ACADEMY_MOCK_DATA.title} Academy Courses`;
+    expect(headingElement.textContent).toBe(expectedHeadingElement);
     const academyTags = screen.getAllByTestId('academy-tag').map((tag) => tag.textContent);
     expect(academyTags).toEqual(['wowwww', 'boooo']);
     expect(screen.getByTestId('academy-exec-ed-courses-title')).toHaveTextContent('Executive Education');

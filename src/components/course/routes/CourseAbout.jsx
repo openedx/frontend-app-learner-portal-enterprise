@@ -11,6 +11,7 @@ import {
   useCanOnlyViewHighlights,
   useEnterpriseCustomer,
   useIsAssignmentsOnlyLearner,
+  usePassLearnerCsodParams,
 } from '../../app/data';
 
 const CourseAbout = () => {
@@ -23,6 +24,7 @@ const CourseAbout = () => {
     && !enterpriseCustomer.disableSearch
     && !isAssignmentOnlyLearner
   );
+  usePassLearnerCsodParams();
 
   return (
     <>

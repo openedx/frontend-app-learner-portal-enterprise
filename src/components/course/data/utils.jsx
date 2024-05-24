@@ -25,11 +25,7 @@ import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import {
-  COURSE_MODES_MAP,
-  findHighestLevelEntitlementSku,
-  findHighestLevelSkuByEntityModeType,
-} from '../../app/data';
+import { COURSE_MODES_MAP, findHighestLevelEntitlementSku, findHighestLevelSkuByEntityModeType } from '../../app/data';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -405,7 +401,8 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
   subscriptionLicense,
   hasEnterpriseAdminUsers,
 }) => {
-  const hasExpiredSubscriptionLicense = customerAgreement?.netDaysUntilExpiration <= 0;
+  if (!subscriptionLicense) { return undefined; }
+  const hasExpiredSubscriptionLicense = !subscriptionLicense.subscriptionPlan.isCurrent;
   if (hasExpiredSubscriptionLicense) {
     return parseReasonTypeBasedOnEnterpriseAdmins({
       hasEnterpriseAdminUsers,
@@ -584,7 +581,6 @@ export const getMissingApplicableSubsidyReason = ({
   let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
   let userMessage;
   const hasEnterpriseAdminUsers = !!enterpriseAdminUsers?.length > 0;
-
   // If there are admin users, change `reasonType` to use the
   // `DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY` message.
   if (hasEnterpriseAdminUsers) {
@@ -628,7 +624,6 @@ export const getMissingApplicableSubsidyReason = ({
   if (subscriptionsDisabledEnrollmentReasonType) {
     reasonType = subscriptionsDisabledEnrollmentReasonType;
   }
-
   if (!containsContentItems) {
     reasonType = DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG;
   }
@@ -654,8 +649,8 @@ export const getSubsidyToApplyForCourse = ({
       subsidyType: LICENSE_SUBSIDY_TYPE,
       discountType: 'percentage',
       discountValue: 100,
-      startDate: applicableSubscriptionLicense.startDate,
-      expirationDate: applicableSubscriptionLicense.expirationDate,
+      startDate: applicableSubscriptionLicense.subscriptionPlan.startDate,
+      expirationDate: applicableSubscriptionLicense.subscriptionPlan.expirationDate,
       status: applicableSubscriptionLicense.status,
       subsidyId: applicableSubscriptionLicense.uuid,
     };
@@ -877,28 +872,17 @@ export const getCourseOrganizationDetails = (courseData) => {
 };
 
 /**
- * Determines the start date for the the course run, pulling the appropriate date
- * from either `contentMetadata.additionalMetadata.startDate` or `courseRun.start`
- * based on the course type configuration.
+ * Determines the start date for the the course run, pulling ONLY from the metadata of the run.
+ *
+ * Historically, for some course types we would derive certain fields from `contentMetadata.additionalMetadata`, but now
+ * that additionalMetadata is being phased out we only read from course run metadata.
  *
  * @param {Object} args
- * @param {Object} args.contentMetadata
  * @param {Object} args.courseRun
  *
  * @returns {string|undefined} Formatted date if a start date was found; otherwise, undefined.
  */
-export const getCourseStartDate = ({ contentMetadata, courseRun }) => {
-  let startDate;
-  const courseTypeConfig = contentMetadata && getCourseTypeConfig(contentMetadata);
-
-  if (courseTypeConfig?.usesAdditionalMetadata && contentMetadata?.additionalMetadata) {
-    startDate = contentMetadata.additionalMetadata.startDate;
-  } else {
-    startDate = courseRun?.start;
-  }
-
-  return startDate;
-};
+export const getCourseStartDate = ({ courseRun }) => courseRun?.start;
 
 export function processCourseSubjects(course) {
   const config = getConfig();
@@ -912,4 +896,37 @@ export function processCourseSubjects(course) {
       url: `${config.MARKETING_SITE_BASE_URL}/course/subject/${course.subjects[0].slug}`,
     },
   };
+}
+
+export function transformedCourseMetadata({
+  transformed, coursePrice, currency, courseRunKey,
+}) {
+  const { activeCourseRun, courseRuns } = transformed;
+  const courseRun = courseRuns.find(run => run.key === courseRunKey) || activeCourseRun;
+  const organizationDetails = getCourseOrganizationDetails(transformed);
+  const getDuration = () => {
+    if (!courseRun) {
+      return '-';
+    }
+    let duration = `${courseRun.weeksToComplete} Week`;
+    if (courseRun.weeksToComplete > 1) {
+      duration += 's';
+    }
+    return duration;
+  };
+  const minimalCourseMetadata = {
+    organization: {
+      logoImgUrl: organizationDetails.organizationLogo,
+      name: organizationDetails.organizationName,
+      marketingUrl: organizationDetails.organizationMarketingUrl,
+    },
+    title: transformed.title,
+    startDate: getCourseStartDate({ courseRun }),
+    duration: getDuration(),
+    priceDetails: {
+      price: coursePrice.list,
+      currency,
+    },
+  };
+  return minimalCourseMetadata;
 }

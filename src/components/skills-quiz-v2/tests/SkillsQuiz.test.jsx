@@ -53,7 +53,7 @@ describe('<SkillsQuizV2 />', () => {
               <SkillsQuizV2 />
             </AppContext.Provider>
           </SkillsContextProvider>
-        </SearchData>,
+        </SearchData>
       </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );

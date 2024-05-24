@@ -9,7 +9,7 @@ import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
 import * as service from './service';
-import { COURSE_STATUSES } from './constants';
+import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT } from './constants';
 import CourseService from '../../../../course/data/service';
 import {
   createEnrollWithCouponCodeUrl,
@@ -27,6 +27,7 @@ import {
   transformCourseEnrollment,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
+  useEnterpriseGroupMemberships,
 } from '../../../../app/data';
 import {
   sortedEnrollmentsByEnrollmentDate,
@@ -419,3 +420,53 @@ export const useUpdateCourseEnrollmentStatus = ({ enterpriseCustomer }) => {
 
   return updateCourseEnrollmentStatus;
 };
+
+/**
+ * - Parses a list of group memberships and checks if learner has acknowledged group assignment.
+ * - Provides helper functions to handle adding the group uuid to local storage
+ * when user dismisses the alert.
+ *
+ * @returns {Object} - Returns an object with the following properties:
+ * - showNewGroupMembershipAlert: Boolean indicating whether to display the new group membership alert.
+ * - handleAcknowledgeGroupMembership: Function to handle dismissal of new group membership assignment
+ * from the dashboard and adds group membership uuid to local storage.
+ * - enterpriseCustomer: Object with customer name to display in alert.
+ */
+export function useGroupMembershipAssignments() {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: enterpriseGroupMemberships } = useEnterpriseGroupMemberships();
+  const [shouldShowNewGroupMembershipAlert, setShouldShowNewGroupMembershipAlert] = useState(false);
+  const [groupMembershipsToDismiss, setGroupMembershipsToDismiss] = useState([]);
+  const checkIsGroupAssignmentDismissed = useCallback(() => {
+    enterpriseGroupMemberships.forEach(membership => {
+      const isDismissedGroupAssignment = global.localStorage.getItem(`${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-${membership.groupUuid}`);
+      if (isDismissedGroupAssignment === null) {
+        setGroupMembershipsToDismiss(prevState => [...prevState, membership]);
+        setShouldShowNewGroupMembershipAlert(true);
+      }
+    });
+  }, [enterpriseGroupMemberships]);
+
+  const handleAddNewGroupAssignmentToLocalStorage = () => {
+    groupMembershipsToDismiss.forEach(groupMembership => {
+      global.localStorage.setItem(`${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-${groupMembership.groupUuid}`, true);
+    });
+    setGroupMembershipsToDismiss([]);
+    setShouldShowNewGroupMembershipAlert(false);
+    checkIsGroupAssignmentDismissed();
+  };
+
+  /**
+   * Parses the enterprise group memberships and checks if they have already been
+   * acknowledged (dismissed) by the learner.
+   */
+  useEffect(() => {
+    checkIsGroupAssignmentDismissed();
+  }, [checkIsGroupAssignmentDismissed]);
+
+  return {
+    shouldShowNewGroupMembershipAlert,
+    handleAddNewGroupAssignmentToLocalStorage,
+    enterpriseCustomer,
+  };
+}
