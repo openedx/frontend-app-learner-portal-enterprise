@@ -49,13 +49,6 @@ describe('fetchEnterpriseAccessPolicies', () => {
   });
 });
 
-describe('fetchEnterpriseCatalogContentMetadata', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    axiosMock.reset();
-  });
-});
-
 describe('fetchEnterpriseGroupMemberships', () => {
   beforeEach(() => {
     jest.clearAllMocks();
