@@ -57,6 +57,15 @@ const enterprise = createQueryKeys('enterprise', {
           },
         },
       },
+      academy: {
+        queryKey: null,
+        contextQueries: {
+          detail: (academyUUID) => ({
+            queryKey: [academyUUID],
+            queryFn: async ({ queryKey }) => fetchAcademiesDetail(academyUUID, queryKey[2]),
+          }),
+        },
+      },
       contentHighlights: {
         queryKey: null,
         contextQueries: {

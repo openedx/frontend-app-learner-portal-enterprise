@@ -187,15 +187,17 @@ export function queryAcademiesList(enterpriseUuid) {
  * Helper function to assist querying with React Query package
  *
  * queries
- * .content
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
  * .academy
  * ._ctx.detail(academyUUID)
  * @returns {Types.QueryOptions}
  */
-export function queryAcademiesDetail(academyUUID) {
+export function queryAcademiesDetail(academyUUID, enterpriseUUID) {
   return queries
-    .content
-    .academy
+    .enterprise
+    .enterpriseCustomer(enterpriseUUID)
+    ._ctx.academy
     ._ctx.detail(academyUUID);
 }
 

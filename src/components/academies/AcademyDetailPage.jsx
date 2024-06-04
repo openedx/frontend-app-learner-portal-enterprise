@@ -21,7 +21,7 @@ const AcademyDetailPage = () => {
   const { academyUUID } = useParams();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: academy } = useAcademyDetails();
-  const academyURL = `/${enterpriseCustomer.slug}/academy/${academyUUID}`;
+  const academyURL = `/${enterpriseCustomer.slug}/academy/${academyUUID}/?${enterpriseCustomer.uuid}`;
   const intl = useIntl();
 
   // init algolia index

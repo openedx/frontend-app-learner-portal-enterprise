@@ -22,9 +22,13 @@ export async function fetchAcademies(enterpriseUUID, options = {}) {
   }
 }
 
-export async function fetchAcademiesDetail(academyUUID) {
+export async function fetchAcademiesDetail(academyUUID, enterpriseUUID, options = {}) {
+  const queryParams = new URLSearchParams({
+    enterprise_customer: enterpriseUUID,
+    ...options,
+  });
   const { ENTERPRISE_CATALOG_API_BASE_URL } = getConfig();
-  const url = `${ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies/${academyUUID}/`;
+  const url = `${ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies/${academyUUID}/?${queryParams.toString()}`;
   try {
     const result = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(result.data);
