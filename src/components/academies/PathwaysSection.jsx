@@ -1,4 +1,4 @@
-import { Container, useToggle } from '@openedx/paragon';
+import { Button, Container, useToggle } from '@openedx/paragon';
 import React from 'react';
 import PropTypes from 'prop-types';
 import DOMPurify from 'dompurify';
@@ -17,18 +17,18 @@ const PathwaysSection = ({ pathwayData }) => {
         isOpen={isLearnerPathwayModalOpen}
         onClose={onClose}
       />
-      <Container className="pathway-section mb-5">
-        <Container size="lg" className="inner-container pr-0">
+      <Container className="pathway-section mb-5.5">
+        <Container size="lg" className="pr-0">
           <div className="row">
             <div className="col">
-              <p className="eyebrow">
+              <p className="eyebrow mt-4.5 mb-0">
                 <FormattedMessage
                   id="academy.detail.page.pathway.section.heading"
                   defaultMessage="Pathway"
                   description="Heading for the pathway section on the academy detail page"
                 />
               </p>
-              <h1 className="pathway-title">{pathwayData.title}</h1>
+              <h1 className="pathway-title mb-4.5">{pathwayData.title}</h1>
               <div
                 // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{
@@ -37,17 +37,17 @@ const PathwaysSection = ({ pathwayData }) => {
                     { USE_PROFILES: { html: true } },
                   ),
                 }}
-                className="pathway-description"
+                className="pathway-description mb-4.5"
               />
             </div>
             <div className="col d-flex justify-content-center align-items-center">
-              <button className="launch-btn" type="button" onClick={handleCardClick}>
+              <Button variant="inverse-brand" className="explore-btn" onClick={handleCardClick}>
                 <FormattedMessage
                   id="academy.detail.page.pathway.section.launch.button"
-                  defaultMessage="Launch Pathway"
+                  defaultMessage="Explore Pathway"
                   description="Button to launch the pathway"
                 />
-              </button>
+              </Button>
             </div>
           </div>
         </Container>

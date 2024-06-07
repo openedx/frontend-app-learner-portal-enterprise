@@ -126,10 +126,9 @@ const AcademyContentCard = ({
     return (
       <div className={additionalClass}>
         <div className="d-flex flex-row align-items-center justify-content-between mt-5">
-          <h3 data-testid={titleTestId} className="font-weight-normal">{title}</h3>
+          <h3 data-testid={titleTestId} className="font-weight-normal m-0">{title}</h3>
           {contentLength > 4 && (
             <Button
-              className=""
               variant="link"
               size="xl"
               onClick={toggleShowMore(contentType)}
@@ -138,7 +137,7 @@ const AcademyContentCard = ({
             </Button>
           )}
         </div>
-        <p data-testid={subtitleTestId}>{subtitle}</p>
+        <p data-testid={subtitleTestId} className="mt-3">{subtitle}</p>
         <CardGrid columnSizes={{
           xs: 12, md: 6, lg: 4, xl: 3,
         }}

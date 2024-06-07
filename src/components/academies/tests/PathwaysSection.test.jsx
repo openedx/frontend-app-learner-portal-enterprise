@@ -37,7 +37,7 @@ describe('PathwaysSection', () => {
         <PathwaysSection pathwayData={pathwayData} />
       </IntlProvider>,
     );
-    expect(screen.getByRole('button', { name: 'Launch Pathway' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Explore Pathway' })).toBeInTheDocument();
   });
 
   it('opens the learner pathway modal when launch button is clicked', () => {
@@ -46,7 +46,7 @@ describe('PathwaysSection', () => {
         <PathwaysSection pathwayData={pathwayData} />
       </IntlProvider>,
     );
-    const launchButton = screen.getByRole('button', { name: 'Launch Pathway' });
+    const launchButton = screen.getByRole('button', { name: 'Explore Pathway' });
     fireEvent.click(launchButton);
     expect(screen.getByText('Ai for Leaders')).toBeInTheDocument();
   });
