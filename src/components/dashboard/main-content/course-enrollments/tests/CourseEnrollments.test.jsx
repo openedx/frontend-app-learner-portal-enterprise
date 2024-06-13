@@ -127,7 +127,7 @@ jest.mock('../data/utils', () => ({
 }));
 
 const mockAcknowledgeAssignments = jest.fn();
-const mockHandleAddNewGroupToLocalStorage = jest.fn();
+const mockDismissGroupAssociationAlert = jest.fn();
 
 describe('Course enrollments', () => {
   beforeEach(() => {
@@ -150,9 +150,9 @@ describe('Course enrollments', () => {
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
     sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentData]);
     useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: false } });
-    hooks.useGroupMembershipAssignments.mockReturnValue({
-      shouldShowNewGroupMembershipAlert: true,
-      handleAddNewGroupAssignmentToLocalStorage: mockHandleAddNewGroupToLocalStorage,
+    hooks.useGroupAssociationsAlert.mockReturnValue({
+      showNewGroupAssociationAlert: true,
+      dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
       enterpriseCustomer: {
         name: 'test-enterprise-customer',
       },
@@ -237,12 +237,12 @@ describe('Course enrollments', () => {
   });
 
   it(
-    'renders NewGroupAssignmentAlert when shouldShowNewGroupMembershipAlert is true',
+    'renders NewGroupAssignmentAlert when showNewGroupAssociationAlert is true',
     async () => {
       useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: true } });
-      hooks.useGroupMembershipAssignments.mockReturnValue({
-        shouldShowNewGroupMembershipAlert: true,
-        handleAddNewGroupAssignmentToLocalStorage: mockHandleAddNewGroupToLocalStorage,
+      hooks.useGroupAssociationsAlert.mockReturnValue({
+        showNewGroupAssociationAlert: true,
+        dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
         enterpriseCustomer: {
           name: 'test-enterprise-customer',
         },
@@ -251,23 +251,23 @@ describe('Course enrollments', () => {
       const dismissButton = screen.getAllByRole('button', { name: 'Dismiss' })[0];
       userEvent.click(dismissButton);
       expect(await screen.findByText('You have new courses to browse')).toBeInTheDocument();
-      expect(mockHandleAddNewGroupToLocalStorage).toHaveBeenCalledTimes(1);
+      expect(mockDismissGroupAssociationAlert).toHaveBeenCalledTimes(1);
     },
   );
 
   it(
-    'does not render NewGroupAssignmentAlert when shouldShowNewGroupMembershipAlert is false',
+    'does not render NewGroupAssignmentAlert when showNewGroupAssociationAlert is false',
     async () => {
-      hooks.useGroupMembershipAssignments.mockReturnValue({
-        shouldShowNewGroupMembershipAlert: false,
-        handleAddNewGroupAssignmentToLocalStorage: mockHandleAddNewGroupToLocalStorage,
+      hooks.useGroupAssociationsAlert.mockReturnValue({
+        showNewGroupAssociationAlert: false,
+        dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
         enterpriseCustomer: {
           name: 'test-enterprise-customer',
         },
       });
       renderWithRouter(<CourseEnrollmentsWrapper />);
       expect(screen.queryByText('You have new courses to browse')).not.toBeInTheDocument();
-      expect(mockHandleAddNewGroupToLocalStorage).not.toHaveBeenCalled();
+      expect(mockDismissGroupAssociationAlert).not.toHaveBeenCalled();
     },
   );
 

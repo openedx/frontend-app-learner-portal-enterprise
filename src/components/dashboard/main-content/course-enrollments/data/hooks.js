@@ -9,7 +9,7 @@ import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
 import * as service from './service';
-import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT } from './constants';
+import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
 import CourseService from '../../../../course/data/service';
 import {
   createEnrollWithCouponCodeUrl,
@@ -27,7 +27,7 @@ import {
   transformCourseEnrollment,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
-  useEnterpriseGroupMemberships,
+  useRedeemablePolicies,
 } from '../../../../app/data';
 import {
   sortedEnrollmentsByEnrollmentDate,
@@ -422,51 +422,47 @@ export const useUpdateCourseEnrollmentStatus = ({ enterpriseCustomer }) => {
 };
 
 /**
- * - Parses a list of group memberships and checks if learner has acknowledged group assignment.
- * - Provides helper functions to handle adding the group uuid to local storage
+ * - Parses a list of redeemable policies and checks if learner has acknowledged the new group.
+ * - Provides a helper function to handle adding the group uuid to local storage
  * when user dismisses the alert.
  *
  * @returns {Object} - Returns an object with the following properties:
- * - showNewGroupMembershipAlert: Boolean indicating whether to display the new group membership alert.
- * - handleAcknowledgeGroupMembership: Function to handle dismissal of new group membership assignment
- * from the dashboard and adds group membership uuid to local storage.
+ * - showNewGroupAlert: Boolean indicating whether to display the new group alert.
+ * - handleAcknowledgeGroup: Function to handle dismissal of new group assignment
+ * from the dashboard and adds group uuid to local storage.
  * - enterpriseCustomer: Object with customer name to display in alert.
  */
-export function useGroupMembershipAssignments() {
+export function useGroupAssociationsAlert() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: enterpriseGroupMemberships } = useEnterpriseGroupMemberships();
-  const [shouldShowNewGroupMembershipAlert, setShouldShowNewGroupMembershipAlert] = useState(false);
-  const [groupMembershipsToDismiss, setGroupMembershipsToDismiss] = useState([]);
-  const checkIsGroupAssignmentDismissed = useCallback(() => {
-    enterpriseGroupMemberships.forEach(membership => {
-      const isDismissedGroupAssignment = global.localStorage.getItem(`${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-${membership.groupUuid}`);
-      if (isDismissedGroupAssignment === null) {
-        setGroupMembershipsToDismiss(prevState => [...prevState, membership]);
-        setShouldShowNewGroupMembershipAlert(true);
-      }
-    });
-  }, [enterpriseGroupMemberships]);
+  const { data: { redeemablePolicies } } = useRedeemablePolicies();
+  const [showNewGroupAssociationAlert, setShowNewGroupAssociationAlert] = useState(false);
+  const [groupAssociationUUIDs, setGroupAssociationUUIDs] = useState([]);
 
-  const handleAddNewGroupAssignmentToLocalStorage = () => {
-    groupMembershipsToDismiss.forEach(groupMembership => {
-      global.localStorage.setItem(`${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-${groupMembership.groupUuid}`, true);
+  const dismissGroupAssociationAlert = () => {
+    groupAssociationUUIDs.forEach(groupAssociationUUID => {
+      global.localStorage.setItem(`${HAS_USER_DISMISSED_NEW_GROUP_ALERT}-${groupAssociationUUID}`, true);
     });
-    setGroupMembershipsToDismiss([]);
-    setShouldShowNewGroupMembershipAlert(false);
-    checkIsGroupAssignmentDismissed();
+    setGroupAssociationUUIDs([]);
+    setShowNewGroupAssociationAlert(false);
   };
 
-  /**
-   * Parses the enterprise group memberships and checks if they have already been
-   * acknowledged (dismissed) by the learner.
-   */
   useEffect(() => {
-    checkIsGroupAssignmentDismissed();
-  }, [checkIsGroupAssignmentDismissed]);
+    const newGroupAssociationUUIDs = [];
+    redeemablePolicies.forEach(policy => {
+      // Getting the first index because each policy only has 1 group association
+      const groupAssociationUUID = policy.groupAssociations[0];
+      const isGroupDismissed = global.localStorage.getItem(`${HAS_USER_DISMISSED_NEW_GROUP_ALERT}-${groupAssociationUUID}`);
+      if (groupAssociationUUID && !isGroupDismissed) {
+        setShowNewGroupAssociationAlert(true);
+        newGroupAssociationUUIDs.push(groupAssociationUUID);
+      }
+    });
+    setGroupAssociationUUIDs(prevUUIDs => [...prevUUIDs, ...newGroupAssociationUUIDs]);
+  }, [redeemablePolicies]);
 
   return {
-    shouldShowNewGroupMembershipAlert,
-    handleAddNewGroupAssignmentToLocalStorage,
+    showNewGroupAssociationAlert,
+    dismissGroupAssociationAlert,
     enterpriseCustomer,
   };
 }
