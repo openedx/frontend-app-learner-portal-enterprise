@@ -191,7 +191,7 @@ describe('ExternalCourseEnrollment', () => {
         hasSuccessfulRedemption: false,
         canRedeem: false,
       },
-      LEARNER_CREDIT_SUBSIDY_TYPE,
+      { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },
     ],
     // The requested course run is not included in the can-redeem response, so it is "unavailable".
     [
@@ -200,11 +200,20 @@ describe('ExternalCourseEnrollment', () => {
         hasSuccessfulRedemption: false,
         canRedeem: true, // This one happens to be redeemable, but it's moot since it's the wrong course run.
       },
-      LEARNER_CREDIT_SUBSIDY_TYPE,
+      { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },
     ],
-  ])('renders 404 page when appropriate', (mockCanRedeemData, mockSubsidyTypeApplicable) => {
+    // There are absolutely no subsidy types applicable to the course.
+    [
+      {
+        contentKey: 'some+other+course', // A different run than what was requested in the URL.
+        hasSuccessfulRedemption: false,
+        canRedeem: false,
+      },
+      undefined,
+    ],
+  ])('renders 404 page when appropriate', (mockCanRedeemData, mockUserSubsidyApplicableToCourse) => {
     useUserSubsidyApplicableToCourse.mockReturnValue({
-      userSubsidyApplicableToCourse: { subsidyType: mockSubsidyTypeApplicable },
+      userSubsidyApplicableToCourse: mockUserSubsidyApplicableToCourse,
       missingUserSubsidyReason: undefined,
     });
     useCourseRedemptionEligibility.mockReturnValue({
