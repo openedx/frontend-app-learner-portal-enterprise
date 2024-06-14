@@ -7,7 +7,7 @@
     "extends @edx/browserslist-config"
   ],
   "dependencies": {
-    "@edx/brand": "npm:@openedx/brand-openedx@1.2.2",
+    "@edx/brand": "npm:@openedx/brand-openedx@1.2.3",
     "@edx/frontend-component-footer": "13.0.2",
     "@edx/frontend-enterprise-catalog-search": "10.3.0",
     "@edx/frontend-enterprise-hotjar": "6.0.0",
