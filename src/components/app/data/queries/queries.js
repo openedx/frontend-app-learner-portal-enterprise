@@ -15,20 +15,6 @@ export function queryUserEntitlements() {
 /**
  * Helper function to assist querying with React Query package
  *
- * @param {*} enterpriseUuid
- * @param {*} userEmail
- * @returns {Types.QueryOptions}
- */
-export function queryEnterpriseGroupMemberships(enterpriseUuid, learnerEmail) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.enterpriseGroupMemberships(learnerEmail);
-}
-
-/**
- * Helper function to assist querying with React Query package
- *
  * queries.user.notices
  * @returns {Types.QueryOptions}
  */

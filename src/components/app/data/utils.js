@@ -592,16 +592,6 @@ export function transformGroupMembership(groupMemberships, groupUuid) {
 }
 
 /**
- * Gets array of group UUIDs.
- *
- * @param {Array} policies - Array of policies to be transformed.
- * @returns {Array} Returns the transformed array of policies.
- */
-export function getCustomerGroupAssociations(policies) {
-  return policies.flatMap(policy => policy.groupAssociations);
-}
-
-/**
  * check if an object is empty
  * @param {Object} obj
  * @returns {boolean}

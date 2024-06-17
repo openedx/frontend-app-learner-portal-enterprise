@@ -7,7 +7,7 @@ import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import CourseSection from './CourseSection';
 import CourseAssignmentAlert from './CourseAssignmentAlert';
 import { features } from '../../../../config';
-import { useCourseEnrollmentsBySection, useContentAssignments, useGroupMembershipAssignments } from './data';
+import { useCourseEnrollmentsBySection, useContentAssignments, useGroupAssociationsAlert } from './data';
 import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { useEnterpriseCourseEnrollments, useEnterpriseFeatures } from '../../../app/data';
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
@@ -89,10 +89,10 @@ const CourseEnrollments = ({ children }) => {
   } = useSaveForLaterAlerts();
 
   const {
-    shouldShowNewGroupMembershipAlert,
-    handleAddNewGroupAssignmentToLocalStorage,
+    showNewGroupAssociationAlert,
+    dismissGroupAssociationAlert,
     enterpriseCustomer,
-  } = useGroupMembershipAssignments();
+  } = useGroupAssociationsAlert();
 
   // If there are no enrollments or assignments, render the children. This
   // allows the parent component to customize what gets displayed as empty
@@ -105,8 +105,8 @@ const CourseEnrollments = ({ children }) => {
     <>
       {enterpriseFeatures.enterpriseGroupsV1 && (
         <NewGroupAssignmentAlert
-          showAlert={shouldShowNewGroupMembershipAlert}
-          onClose={() => handleAddNewGroupAssignmentToLocalStorage()}
+          showAlert={showNewGroupAssociationAlert}
+          onClose={dismissGroupAssociationAlert}
           enterpriseCustomer={enterpriseCustomer}
         />
       )}

@@ -28,7 +28,6 @@ import {
   fetchCourseRecommendations,
   checkTransactionStatus,
   fetchPathwayProgressDetails,
-  fetchEnterpriseGroupMemberships,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -100,10 +99,6 @@ const enterprise = createQueryKeys('enterprise', {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchEnterpriseCourseEnrollments(queryKey[2]),
       },
-      enterpriseGroupMemberships: (learnerEmail) => ({
-        queryKey: [learnerEmail],
-        queryFn: async ({ queryKey }) => fetchEnterpriseGroupMemberships(queryKey[2], learnerEmail),
-      }),
       programs: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchLearnerProgramsList(queryKey[2]),
