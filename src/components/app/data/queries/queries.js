@@ -256,6 +256,25 @@ export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBuffe
 
 /**
  * Helper function to assist querying with React Query package
+ *
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.course
+ * ._ctx.canRedeem(availableCourseRunKeys)
+ * @returns {Types.QueryOptions}
+ */
+export function queryCanUpgradeWithLearnerCredit(enterpriseUuid, courseRunKey) {
+  console.log(enterpriseUuid, courseRunKey);
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course(courseRunKey)
+    ._ctx.canUpgradeWithLearnerCredit;
+}
+
+/**
+ * Helper function to assist querying with React Query package
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)

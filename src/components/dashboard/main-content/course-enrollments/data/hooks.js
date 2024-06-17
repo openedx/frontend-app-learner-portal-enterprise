@@ -14,7 +14,6 @@ import CourseService from '../../../../course/data/service';
 import {
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
-  findCouponCodeForCourse,
   findHighestLevelSeatSku,
   getSubsidyToApplyForCourse,
 } from '../../../../course/data/utils';
@@ -26,8 +25,10 @@ import {
   queryRedeemablePolicies,
   transformCourseEnrollment,
   useEnterpriseCourseEnrollments,
-  useEnterpriseCustomer,
   useRedeemablePolicies,
+  useEnterpriseCustomer,
+  useEnterpriseCustomerContainsContent,
+  useIsCourseRunUpgradable,
 } from '../../../../app/data';
 import {
   sortedEnrollmentsByEnrollmentDate,
@@ -122,15 +123,18 @@ export const useCourseUpgradeData = ({
   courseRunKey,
   enterpriseId,
   subscriptionLicense,
-  couponCodes,
+  couponSubsidy,
   location,
 }) => {
   const [licenseUpgradeUrl, setLicenseUpgradeUrl] = useState();
   const [couponUpgradeUrl, setCouponUpgradeUrl] = useState();
+  const [learnerCreditUpgradeUrl, setLearnerCreditUpgradeUrl] = useState();
   const [subsidyForCourse, setSubsidyForCourse] = useState();
   const [courseRunPrice, setCourseRunPrice] = useState();
-
   const [isLoading, setIsLoading] = useState(true);
+
+  const { data: { containsContentItems } } = useEnterpriseCustomerContainsContent([courseRunKey]);
+  const { data: canRedeemMetadata } = useIsCourseRunUpgradable([courseRunKey]);
 
   useEffect(() => {
     const courseService = new CourseService({
@@ -143,16 +147,9 @@ export const useCourseUpgradeData = ({
       setIsLoading(true);
 
       try {
-        const containsContentResponse = await courseService.fetchEnterpriseCustomerContainsContent([courseRunKey]);
-        const { containsContentItems, catalogList } = camelCaseObject(containsContentResponse.data);
-
-        // Don't do anything if the course is not part of the enterprise's catalog
-        if (!containsContentItems) {
-          return;
-        }
-
         if (subscriptionLicense) {
           // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
+          // TODO: Refactor to use react query
           const fetchUserLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy(courseRunKey);
           const licenseSubsidy = camelCaseObject(fetchUserLicenseSubsidyResponse.data);
           if (licenseSubsidy) {
@@ -169,8 +166,8 @@ export const useCourseUpgradeData = ({
           }
         }
 
-        const couponSubsidy = findCouponCodeForCourse(couponCodes, catalogList);
         if (couponSubsidy) {
+          // TODO: Refactor to use react query
           const fetchCourseRunResponse = await courseService.fetchCourseRun(courseRunKey);
           const courseRunDetails = camelCaseObject(fetchCourseRunResponse.data);
           const sku = findHighestLevelSeatSku(courseRunDetails.seats);
@@ -191,14 +188,33 @@ export const useCourseUpgradeData = ({
       }
     };
 
+    // Don't do anything if the course is not part of the enterprise's catalog
+    if (!containsContentItems) {
+      setIsLoading(false);
+      return;
+    }
+
     fetchData();
-  }, [courseRunKey, enterpriseId, subscriptionLicense, location, couponCodes]);
+
+    // Currently can only check against canRedeemMetadata for one key at a time
+    if (canRedeemMetadata.length !== 0) {
+      if (canRedeemMetadata[0].canRedeem) {
+        setSubsidyForCourse(canRedeemMetadata[0].redeemableSubsidyAccessPolicy);
+        setCourseRunPrice(canRedeemMetadata[0].listPrice);
+        // TODO: Set learner credit redeemable URL
+        setLearnerCreditUpgradeUrl(canRedeemMetadata[0].redeemableSubsidyAccessPolicy.policyRedemptionUrl);
+      }
+    }
+  }, [
+    courseRunKey, enterpriseId, subscriptionLicense, location, containsContentItems, couponSubsidy, canRedeemMetadata,
+  ]);
 
   return {
     isLoading,
     subsidyForCourse,
     licenseUpgradeUrl,
     couponUpgradeUrl,
+    learnerCreditUpgradeUrl,
     courseRunPrice,
   };
 };
