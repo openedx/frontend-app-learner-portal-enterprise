@@ -35,7 +35,7 @@ const ExternalCourseEnrollment = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const isCourseAssigned = useIsCourseAssigned();
   const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
-  const { userSubsidyApplicableToCourse: { subsidyType } } = useUserSubsidyApplicableToCourse();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
   const { data: { redeemabilityPerContentKey } } = useCourseRedemptionEligibility();
   const { courseRunKey } = useParams();
 
@@ -63,6 +63,11 @@ const ExternalCourseEnrollment = () => {
     }
   }, [externalCourseFormSubmissionError, containerRef]);
 
+  // If there are absolutely no subsidy types applicable for this course, then throw a 404.
+  if (!userSubsidyApplicableToCourse) {
+    return <NotFoundPage />;
+  }
+
   // If the course is to be redeemed via learner credit, but the specifically requested course run is not redeemable,
   // skip straight to the 404 page.
   //
@@ -70,7 +75,7 @@ const ExternalCourseEnrollment = () => {
   // * The requested course run key doesn't exist.
   // * The course run is not "available" according to rules baked into this frontend codebase, including cases where the
   //   current date is outside the enrollment window of the run.
-  if (subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
+  if (userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
     const canRedeemDataCourseRun = redeemabilityPerContentKey.find(r => r.contentKey === courseRunKey);
     if (!canRedeemDataCourseRun?.canRedeem) {
       return <NotFoundPage />;
