@@ -29,7 +29,7 @@
     "core-js": "3.7.0",
     "dayjs": "1.11.10",
     "dompurify": "2.3.6",
-    "email-prop-type": "1.1.7",
+    "email-prop-type": "3.0.1",
     "formik": "2.2.9",
     "history": "4.10.1",
     "iso-639-1": "2.1.4",
