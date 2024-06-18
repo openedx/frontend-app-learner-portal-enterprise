@@ -5,6 +5,7 @@ import camelCase from 'lodash.camelcase';
 import dayjs from 'dayjs';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 import { queryClient } from '../../../../../../utils/tests';
 import {
@@ -23,9 +24,12 @@ import {
   emptyRedeemableLearnerCreditPolicies,
   transformCourseEnrollment,
   transformLearnerContentAssignment,
+  useCanUpgradeWithLearnerCredit, useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
+  useEnterpriseCustomerContainsContent,
   useRedeemablePolicies,
+  useSubscriptions,
 } from '../../../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 
@@ -40,6 +44,10 @@ jest.mock('../../../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
   useRedeemablePolicies: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useCouponCodes: jest.fn(),
+  useCanUpgradeWithLearnerCredit: jest.fn(),
+  useEnterpriseCustomerContainsContent: jest.fn(),
 }));
 
 const mockCourseService = {
@@ -65,9 +73,11 @@ const mockAppContextValue = {
 
 const wrapper = ({ children }) => (
   <QueryClientProvider client={queryClient()}>
-    <AppContext.Provider value={mockAppContextValue}>
-      {children}
-    </AppContext.Provider>
+    <MemoryRouter>
+      <AppContext.Provider value={mockAppContextValue}>
+        {children}
+      </AppContext.Provider>
+    </MemoryRouter>
   </QueryClientProvider>
 );
 
@@ -170,91 +180,86 @@ describe('useCourseEnrollments', () => {
 
   describe('useCourseUpgradeData', () => {
     const courseRunKey = 'course-run-key';
-    const enterpriseId = 'uuid';
+    const enterpriseId = mockEnterpriseCustomer.uuid;
     const subscriptionLicense = { uuid: 'license-uuid' };
-    const location = { search: '' };
+    const location = { pathname: '/', search: '' };
     const basicArgs = {
       courseRunKey,
-      enterpriseId,
-      subscriptionLicense,
-      couponCodes: [],
-      location,
     };
-
+    beforeEach(() => {
+      jest.clearAllMocks();
+      useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+      useSubscriptions.mockReturnValue({
+        data: { subscriptionLicense: null },
+      });
+      useCanUpgradeWithLearnerCredit.mockReturnValue({
+        data: { applicableSubsidyAccessPolicy: null },
+      });
+      useEnterpriseCustomerContainsContent.mockReturnValue({
+        data: {
+          containsContentItems: false,
+          catalogList: [],
+        },
+      });
+      useCouponCodes.mockReturnValue({
+        data: {
+          applicableCouponCode: null,
+        },
+      });
+    });
     afterEach(() => jest.clearAllMocks());
 
-    it('should return undefined for upgrade urls if the course is not part of the enterprise catalog', async () => {
-      mockCourseService.fetchEnterpriseCustomerContainsContent.mockResolvedValueOnce(
-        { data: { contains_content_items: false } },
-      );
+    it('should return undefined for upgrade urls if the course is not part of the enterprise catalog', () => {
+      useEnterpriseCustomerContainsContent.mockReturnValue({
+        data: {
+          containsContentItems: false,
+          catalogList: [],
+        },
+      });
 
-      const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(basicArgs));
-
-      expect(result.current.isLoading).toEqual(true);
-
-      await waitForNextUpdate();
-
-      expect(mockCourseService.fetchEnterpriseCustomerContainsContent).toHaveBeenCalledWith([courseRunKey]);
-      expect(mockCourseService.fetchUserLicenseSubsidy).not.toHaveBeenCalled();
+      const { result } = renderHook(() => useCourseUpgradeData(basicArgs), { wrapper });
 
       expect(result.current.licenseUpgradeUrl).toBeUndefined();
       expect(result.current.couponUpgradeUrl).toBeUndefined();
       expect(result.current.courseRunPrice).toBeUndefined();
+      expect(result.current.learnerCreditUpgradeUrl).toBeUndefined();
       expect(result.current.isLoading).toEqual(false);
     });
 
     describe('upgradeable via license', () => {
-      it('should return a license upgrade url', async () => {
-        mockCourseService.fetchEnterpriseCustomerContainsContent.mockResolvedValueOnce(
-          { data: { contains_content_items: true } },
-        );
-        mockCourseService.fetchUserLicenseSubsidy.mockResolvedValueOnce({
+      it('should return a license upgrade url', () => {
+        useEnterpriseCustomerContainsContent.mockReturnValue({
           data: {
-            subsidy_id: 'subsidy-id',
+            containsContentItems: true,
+            catalogList: [],
           },
         });
 
-        const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(basicArgs));
+        useSubscriptions.mockReturnValue({
+          data: {
+            subscriptionLicense: {
+              uuid: 'license-uuid',
+              subscriptionPlan: {
+                startDate: dayjs().subtract(10, 'days').toISOString(),
+                expirationDate: dayjs().add(10, 'days').toISOString(),
+              },
+              status: 'activated',
+            },
+          },
+        });
 
-        expect(result.current.isLoading).toEqual(true);
+        const { result } = renderHook(() => useCourseUpgradeData(basicArgs), { wrapper });
 
-        await waitForNextUpdate();
-
-        expect(mockCourseService.fetchEnterpriseCustomerContainsContent).toHaveBeenCalledWith([courseRunKey]);
-        expect(mockCourseService.fetchUserLicenseSubsidy).toHaveBeenCalledWith(courseRunKey);
-
+        expect(result.current.isLoading).toEqual(false);
         expect(result.current.licenseUpgradeUrl).toEqual(createEnrollWithLicenseUrl({
           courseRunKey,
           enterpriseId,
           licenseUUID: subscriptionLicense.uuid,
           location,
         }));
+        expect(result.current.learnerCreditUpgradeUrl).toBeUndefined();
         expect(result.current.couponUpgradeUrl).toBeUndefined();
         expect(result.current.courseRunPrice).toBeUndefined();
-        expect(result.current.isLoading).toEqual(false);
-      });
-
-      it('should return undefined for licenseUpgradeUrl upgrade url if fetchUserLicenseSubsidy returned undefined', async () => {
-        mockCourseService.fetchEnterpriseCustomerContainsContent.mockResolvedValueOnce(
-          { data: { contains_content_items: true } },
-        );
-        mockCourseService.fetchUserLicenseSubsidy.mockResolvedValueOnce({
-          data: undefined,
-        });
-
-        const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(basicArgs));
-
-        expect(result.current.isLoading).toEqual(true);
-
-        await waitForNextUpdate();
-
-        expect(mockCourseService.fetchEnterpriseCustomerContainsContent).toHaveBeenCalledWith([courseRunKey]);
-        expect(mockCourseService.fetchUserLicenseSubsidy).toHaveBeenCalledWith(courseRunKey);
-
-        expect(result.current.upgradeUrl).toBeUndefined();
-        expect(result.current.couponUpgradeUrl).toBeUndefined();
-        expect(result.current.courseRunPrice).toBeUndefined();
-        expect(result.current.isLoading).toEqual(false);
       });
     });
 
@@ -267,9 +272,15 @@ describe('useCourseEnrollments', () => {
       };
 
       it('should return a coupon upgrade url', async () => {
-        mockCourseService.fetchEnterpriseCustomerContainsContent.mockResolvedValueOnce(
-          { data: { contains_content_items: true, catalog_list: [mockCouponCode.catalog] } },
-        );
+        useEnterpriseCustomerContainsContent.mockReturnValue({
+          data: {
+            containsContentItems: true,
+            catalogList: [mockCouponCode.catalog],
+          },
+        });
+        useCouponCodes.mockReturnValue({
+          data: { applicableCouponCode: mockCouponCode },
+        });
         const sku = 'ABCDEF';
         const coursePrice = '149.00';
 
@@ -293,21 +304,11 @@ describe('useCourseEnrollments', () => {
           },
         );
 
-        const args = {
-          ...basicArgs,
-          subscriptionLicense: undefined,
-          couponCodes: [mockCouponCode],
-        };
-
-        const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(args));
+        const { result } = renderHook(() => useCourseUpgradeData(basicArgs), { wrapper });
 
         expect(result.current.isLoading).toEqual(true);
 
-        await waitForNextUpdate();
-
-        expect(mockCourseService.fetchEnterpriseCustomerContainsContent).toHaveBeenCalledWith([courseRunKey]);
-        expect(mockCourseService.fetchUserLicenseSubsidy).not.toHaveBeenCalled();
-        expect(mockCourseService.fetchCourseRun).toHaveBeenCalledWith(courseRunKey);
+        await waitFor(() => expect(mockCourseService.fetchCourseRun).toHaveBeenCalledWith(courseRunKey));
         expect(result.current.licenseUpgradeUrl).toBeUndefined();
         expect(result.current.couponUpgradeUrl).toEqual(createEnrollWithCouponCodeUrl({
           courseRunKey,
@@ -315,27 +316,35 @@ describe('useCourseEnrollments', () => {
           code: mockCouponCode.code,
           location,
         }));
+        expect(result.current.learnerCreditUpgradeUrl).toBeUndefined();
         expect(result.current.courseRunPrice).toEqual(coursePrice);
         expect(result.current.isLoading).toEqual(false);
       });
-    });
 
-    it('should handle errors', async () => {
-      const error = Error('Uh oh');
-      mockCourseService.fetchEnterpriseCustomerContainsContent.mockRejectedValueOnce(error);
+      it('should handle errors', async () => {
+        const error = Error('Uh oh');
+        mockCourseService.fetchCourseRun.mockRejectedValueOnce(error);
+        useEnterpriseCustomerContainsContent.mockReturnValue({
+          data: {
+            containsContentItems: true,
+            catalogList: [mockCouponCode.catalog],
+          },
+        });
+        useCouponCodes.mockReturnValue({
+          data: { applicableCouponCode: mockCouponCode },
+        });
+        const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(basicArgs), { wrapper });
 
-      const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(basicArgs));
+        expect(result.current.isLoading).toEqual(true);
 
-      expect(result.current.isLoading).toEqual(true);
+        await waitForNextUpdate();
 
-      await waitForNextUpdate();
-
-      expect(mockCourseService.fetchEnterpriseCustomerContainsContent).toHaveBeenCalledWith([courseRunKey]);
-      expect(mockCourseService.fetchUserLicenseSubsidy).not.toHaveBeenCalled();
-
-      expect(result.current.upgradeUrl).toBeUndefined();
-      expect(result.current.isLoading).toEqual(false);
-      expect(logger.logError).toHaveBeenCalledWith(error);
+        expect(result.current.licenseUpgradeUrl).toBeUndefined();
+        expect(result.current.couponUpgradeUrl).toBeUndefined();
+        expect(result.current.learnerCreditUpgradeUrl).toBeUndefined();
+        expect(result.current.isLoading).toEqual(false);
+        expect(logger.logError).toHaveBeenCalledWith(error);
+      });
     });
   });
 });

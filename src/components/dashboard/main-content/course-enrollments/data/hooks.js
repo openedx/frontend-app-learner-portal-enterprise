@@ -146,12 +146,6 @@ export const useCourseUpgradeData = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const courseService = new CourseService({
-      enterpriseUuid: enterpriseId,
-      courseKey: null,
-      courseRunKey,
-    });
-
     // Don't do anything if the course is not part of the enterprise's catalog
     if (!containsContentItems) {
       setIsLoading(false);
@@ -162,19 +156,14 @@ export const useCourseUpgradeData = ({
       setIsLoading(true);
 
       try {
-        if (applicableSubscriptionLicense) {
-          setSubsidyForCourse(getSubsidyToApplyForCourse({ applicableSubscriptionLicense }));
-          setLicenseUpgradeUrl(createEnrollWithLicenseUrl({
-            courseRunKey,
-            enterpriseId,
-            licenseUUID: applicableSubscriptionLicense.uuid,
-            location,
-          }));
-          return;
-        }
-
         if (applicableCouponCode) {
           // TODO: Refactor to use react query
+          const courseService = new CourseService({
+            enterpriseUuid: enterpriseId,
+            courseKey: null,
+            courseRunKey,
+          });
+
           const fetchCourseRunResponse = await courseService.fetchCourseRun(courseRunKey);
           const courseRunDetails = camelCaseObject(fetchCourseRunResponse.data);
           const sku = findHighestLevelSeatSku(courseRunDetails.seats);
@@ -195,13 +184,28 @@ export const useCourseUpgradeData = ({
       }
     };
 
-    fetchData();
+    if (applicableSubscriptionLicense) {
+      setSubsidyForCourse(getSubsidyToApplyForCourse({ applicableSubscriptionLicense }));
+      setLicenseUpgradeUrl(createEnrollWithLicenseUrl({
+        courseRunKey,
+        enterpriseId,
+        licenseUUID: applicableSubscriptionLicense.uuid,
+        location,
+      }));
+      setIsLoading(false);
+      return;
+    }
+
+    if (applicableCouponCode) {
+      fetchData();
+    }
 
     // Learner credit audit -> upgrade URL generation
     if (applicableSubsidyAccessPolicy?.canRedeem) {
       setSubsidyForCourse(getSubsidyToApplyForCourse({ applicableSubsidyAccessPolicy }));
       setCourseRunPrice(applicableSubsidyAccessPolicy.listPrice);
       setLearnerCreditUpgradeUrl(applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy.policyRedemptionUrl);
+      setIsLoading(false);
     }
   }, [
     courseRunKey,

@@ -75,6 +75,7 @@ jest.mock('../../../app/data', () => ({
   useCouponCodes: jest.fn(),
   useBrowseAndRequest: jest.fn(),
   useCatalogsForSubsidyRequests: jest.fn(),
+  getSubsidyToApplyForCourse: jest.fn(),
 }));
 
 const oldGlobalLocation = global.location;
@@ -97,7 +98,6 @@ jest.mock('@tanstack/react-query', () => ({
 jest.mock('../utils', () => ({
   ...jest.requireActual('../utils'),
   getCourseRunPrice: jest.fn(),
-  getSubsidyToApplyForCourse: jest.fn(),
   findCouponCodeForCourse: jest.fn(),
   findEnterpriseOfferForCourse: jest.fn(),
   getCourseTypeConfig: jest.fn(),

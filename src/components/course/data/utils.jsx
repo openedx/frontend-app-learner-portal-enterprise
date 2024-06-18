@@ -114,6 +114,12 @@ export function getProgramIcon(type) {
 
 export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);
 
+/**
+ *
+ * @param couponCodes
+ * @param catalogList
+ * @returns {*}
+ */
 export function findCouponCodeForCourse(couponCodes, catalogList = []) {
   return couponCodes.find((couponCode) => catalogList?.includes(couponCode.catalog) && hasValidStartExpirationDates({
     startDate: couponCode.couponStartDate,
