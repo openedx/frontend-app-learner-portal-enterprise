@@ -15,7 +15,7 @@ import {
 import { UpgradeableCourseEnrollmentContextProvider } from './UpgradeableCourseEnrollmentContextProvider';
 import { COURSE_STATUSES, COURSE_MODES } from '../../../../constants';
 import { COURSE_SECTION_TITLES } from '../../data/constants';
-import { useEnterpriseCustomer } from '../../../app/data';
+import { useEnterpriseCustomer, useIsCourseRunUpgradable } from '../../../app/data';
 
 const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.upcoming]: UpcomingCourseCard,

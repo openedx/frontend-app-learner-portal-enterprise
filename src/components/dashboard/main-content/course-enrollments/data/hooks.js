@@ -8,16 +8,17 @@ import { logError } from '@edx/frontend-platform/logging';
 import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
+import { useLocation } from 'react-router-dom';
 import * as service from './service';
 import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
 import CourseService from '../../../../course/data/service';
 import {
   createEnrollWithCouponCodeUrl,
-  createEnrollWithLicenseUrl,
+  createEnrollWithLicenseUrl, findCouponCodeForCourse,
   findHighestLevelSeatSku,
   getSubsidyToApplyForCourse,
-} from '../../../../course/data/utils';
-import { getHasUnacknowledgedAssignments } from '../../../data/utils';
+} from '../../../../course/data';
+import { getHasUnacknowledgedAssignments } from '../../../data';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
   groupCourseEnrollmentsByStatus,
@@ -29,6 +30,8 @@ import {
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useIsCourseRunUpgradable,
+  useSubscriptions,
+  useCouponCodes,
 } from '../../../../app/data';
 import {
   sortedEnrollmentsByEnrollmentDate,
@@ -121,20 +124,25 @@ export const useCourseEnrollments = ({
  */
 export const useCourseUpgradeData = ({
   courseRunKey,
-  enterpriseId,
-  subscriptionLicense,
-  couponSubsidy,
-  location,
 }) => {
+  const location = useLocation();
+
+  const { data: { uuid: enterpriseId } } = useEnterpriseCustomer();
+  const { data: { applicableSubsidyAccessPolicy } } = useIsCourseRunUpgradable([courseRunKey]);
+  const { data: { subscriptionLicense: applicableSubscriptionLicense } } = useSubscriptions();
+  const { data: { catalogList, containsContentItems } } = useEnterpriseCustomerContainsContent([courseRunKey]);
+  const { data: { applicableCouponCode } } = useCouponCodes({
+    select: (data) => ({
+      applicableCouponCode: findCouponCodeForCourse(data.couponCodeAssignments, catalogList),
+    }),
+  });
+
   const [licenseUpgradeUrl, setLicenseUpgradeUrl] = useState();
   const [couponUpgradeUrl, setCouponUpgradeUrl] = useState();
   const [learnerCreditUpgradeUrl, setLearnerCreditUpgradeUrl] = useState();
   const [subsidyForCourse, setSubsidyForCourse] = useState();
   const [courseRunPrice, setCourseRunPrice] = useState();
   const [isLoading, setIsLoading] = useState(true);
-
-  const { data: { containsContentItems } } = useEnterpriseCustomerContainsContent([courseRunKey]);
-  const { data: canRedeemMetadata } = useIsCourseRunUpgradable([courseRunKey]);
 
   useEffect(() => {
     const courseService = new CourseService({
@@ -143,42 +151,40 @@ export const useCourseUpgradeData = ({
       courseRunKey,
     });
 
+    // Don't do anything if the course is not part of the enterprise's catalog
+    if (!containsContentItems) {
+      setIsLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       setIsLoading(true);
 
       try {
-        if (subscriptionLicense) {
-          // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
-          // TODO: Refactor to use react query
-          const fetchUserLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy(courseRunKey);
-          const licenseSubsidy = camelCaseObject(fetchUserLicenseSubsidyResponse.data);
-          if (licenseSubsidy) {
-            const url = createEnrollWithLicenseUrl({
-              courseRunKey,
-              enterpriseId,
-              licenseUUID: subscriptionLicense.uuid,
-              location,
-            });
-
-            setSubsidyForCourse({ getSubsidyToApplyForCourse: licenseSubsidy });
-            setLicenseUpgradeUrl(url);
-            return;
-          }
+        if (applicableSubscriptionLicense) {
+          setSubsidyForCourse(getSubsidyToApplyForCourse({ applicableSubscriptionLicense }));
+          setLicenseUpgradeUrl(createEnrollWithLicenseUrl({
+            courseRunKey,
+            enterpriseId,
+            licenseUUID: applicableSubscriptionLicense.uuid,
+            location,
+          }));
+          return;
         }
 
-        if (couponSubsidy) {
+        if (applicableCouponCode) {
           // TODO: Refactor to use react query
           const fetchCourseRunResponse = await courseService.fetchCourseRun(courseRunKey);
           const courseRunDetails = camelCaseObject(fetchCourseRunResponse.data);
           const sku = findHighestLevelSeatSku(courseRunDetails.seats);
-          const url = createEnrollWithCouponCodeUrl({
+
+          setSubsidyForCourse(getSubsidyToApplyForCourse({ applicableCouponCode }));
+          setCouponUpgradeUrl(createEnrollWithCouponCodeUrl({
             courseRunKey,
             sku,
-            code: couponSubsidy.code,
+            code: applicableCouponCode.code,
             location,
-          });
-          setSubsidyForCourse(getSubsidyToApplyForCourse({ applicableCouponCode: couponSubsidy }));
-          setCouponUpgradeUrl(url);
+          }));
           setCourseRunPrice(courseRunDetails.firstEnrollablePaidSeatPrice);
         }
       } catch (error) {
@@ -188,25 +194,22 @@ export const useCourseUpgradeData = ({
       }
     };
 
-    // Don't do anything if the course is not part of the enterprise's catalog
-    if (!containsContentItems) {
-      setIsLoading(false);
-      return;
-    }
-
     fetchData();
 
-    // Currently can only check against canRedeemMetadata for one key at a time
-    if (canRedeemMetadata.length !== 0) {
-      if (canRedeemMetadata[0].canRedeem) {
-        setSubsidyForCourse(canRedeemMetadata[0].redeemableSubsidyAccessPolicy);
-        setCourseRunPrice(canRedeemMetadata[0].listPrice);
-        // TODO: Set learner credit redeemable URL
-        setLearnerCreditUpgradeUrl(canRedeemMetadata[0].redeemableSubsidyAccessPolicy.policyRedemptionUrl);
-      }
+    // Learner credit audit -> upgrade URL generation
+    if (applicableSubsidyAccessPolicy?.canRedeem) {
+      setSubsidyForCourse(getSubsidyToApplyForCourse({ applicableSubsidyAccessPolicy }));
+      setCourseRunPrice(applicableSubsidyAccessPolicy.listPrice);
+      setLearnerCreditUpgradeUrl(applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy.policyRedemptionUrl);
     }
   }, [
-    courseRunKey, enterpriseId, subscriptionLicense, location, containsContentItems, couponSubsidy, canRedeemMetadata,
+    courseRunKey,
+    enterpriseId,
+    location,
+    containsContentItems,
+    applicableSubsidyAccessPolicy,
+    applicableSubscriptionLicense,
+    applicableCouponCode,
   ]);
 
   return {
