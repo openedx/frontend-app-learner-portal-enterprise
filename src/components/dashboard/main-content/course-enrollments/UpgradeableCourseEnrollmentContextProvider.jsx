@@ -2,7 +2,7 @@ import React, {
   createContext, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
-import { useCourseUpgradeData } from './data';
+import { useCourseUpgradeData } from './data/hooks';
 
 export const UpgradeableCourseEnrollmentContext = createContext({ isLoading: false, upgradeUrl: undefined });
 

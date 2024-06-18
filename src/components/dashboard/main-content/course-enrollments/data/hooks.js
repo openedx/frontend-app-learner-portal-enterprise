@@ -14,11 +14,12 @@ import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants
 import CourseService from '../../../../course/data/service';
 import {
   createEnrollWithCouponCodeUrl,
-  createEnrollWithLicenseUrl, findCouponCodeForCourse,
+  createEnrollWithLicenseUrl,
+  findCouponCodeForCourse,
   findHighestLevelSeatSku,
   getSubsidyToApplyForCourse,
-} from '../../../../course/data';
-import { getHasUnacknowledgedAssignments } from '../../../data';
+} from '../../../../course/data/utils';
+import { getHasUnacknowledgedAssignments } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
   groupCourseEnrollmentsByStatus,
