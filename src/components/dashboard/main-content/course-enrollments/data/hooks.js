@@ -30,7 +30,7 @@ import {
   useRedeemablePolicies,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
-  useIsCourseRunUpgradable,
+  useCanUpgradeWithLearnerCredit,
   useSubscriptions,
   useCouponCodes,
 } from '../../../../app/data';
@@ -129,7 +129,7 @@ export const useCourseUpgradeData = ({
   const location = useLocation();
 
   const { data: { uuid: enterpriseId } } = useEnterpriseCustomer();
-  const { data: { applicableSubsidyAccessPolicy } } = useIsCourseRunUpgradable([courseRunKey]);
+  const { data: { applicableSubsidyAccessPolicy } } = useCanUpgradeWithLearnerCredit([courseRunKey]);
   const { data: { subscriptionLicense: applicableSubscriptionLicense } } = useSubscriptions();
   const { data: { catalogList, containsContentItems } } = useEnterpriseCustomerContainsContent([courseRunKey]);
   const { data: { applicableCouponCode } } = useCouponCodes({

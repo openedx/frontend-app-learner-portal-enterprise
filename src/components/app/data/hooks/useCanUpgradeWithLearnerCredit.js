@@ -13,7 +13,7 @@ export function isPolicyRedemptionEnabled({ canRedeemData }) {
  * Determines whether the given content identifier is contained within the enterprise customer's catalogs.
  * @returns {Types.UseQueryResult}
  */
-export default function useIsCourseRunUpgradable(courseRunKeys, queryOptions = {}) {
+export default function useCanUpgradeWithLearnerCredit(courseRunKeys, queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { select, ...queryOptionsRest } = queryOptions;
   return useQuery({

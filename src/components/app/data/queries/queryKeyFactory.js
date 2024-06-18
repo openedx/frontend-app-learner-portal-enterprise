@@ -85,10 +85,6 @@ const enterprise = createQueryKeys('enterprise', {
             queryKey: [availableCourseRunKeys],
             queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
           }),
-          canUpgradeWithLearnerCredit: {
-            queryKey: null,
-            queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], queryKey[4]),
-          },
           recommendations: (searchCatalogs) => ({
             queryKey: [searchCatalogs],
             queryFn: async ({ queryKey }) => fetchCourseRecommendations(queryKey[2], queryKey[4], searchCatalogs),
