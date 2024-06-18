@@ -237,7 +237,7 @@ export function queryCanRedeemContextQueryKey(enterpriseUuid, courseKey) {
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.course
+ * ._ctx.course(courseMetadata.key)
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
  */
@@ -260,7 +260,7 @@ export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBuffe
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.course
+ * ._ctx.course(null)
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
  */

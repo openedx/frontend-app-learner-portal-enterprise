@@ -32,16 +32,11 @@ import {
   getCourseTypeConfig,
   getMissingApplicableSubsidyReason,
   getSubscriptionDisabledEnrollmentReasonType,
-  getSubsidyToApplyForCourse,
   transformedCourseMetadata,
 } from '../utils';
 import {
-  COUPON_CODE_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
   DISABLED_ENROLL_USER_MESSAGES,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
   REASON_USER_MESSAGES,
 } from '../constants';
 import { mockSubscriptionLicense } from '../../tests/constants';
@@ -50,6 +45,7 @@ import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants'
 import { SUBSIDY_TYPE } from '../../../../constants';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import {
+  getSubsidyToApplyForCourse,
   useBrowseAndRequest,
   useCatalogsForSubsidyRequests,
   useCouponCodes,
@@ -60,6 +56,10 @@ import {
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
 } from '../../../app/data';
 import { CourseContext } from '../../CourseContextProvider';
 

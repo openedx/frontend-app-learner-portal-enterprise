@@ -33,3 +33,8 @@ export const COURSE_MODES_MAP = {
   HONOR: 'honor',
   PAID_EXECUTIVE_EDUCATION: 'paid-executive-education',
 };
+
+export const LICENSE_SUBSIDY_TYPE = 'license';
+export const COUPON_CODE_SUBSIDY_TYPE = 'couponCode';
+export const ENTERPRISE_OFFER_SUBSIDY_TYPE = 'enterpriseOffer';
+export const LEARNER_CREDIT_SUBSIDY_TYPE = 'learnerCredit';

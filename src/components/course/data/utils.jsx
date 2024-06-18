@@ -6,15 +6,11 @@ import isNil from 'lodash.isnil';
 import dayjs from '../../../utils/dayjs';
 
 import {
-  COUPON_CODE_SUBSIDY_TYPE,
   COURSE_PACING_MAP,
   DISABLED_ENROLL_REASON_TYPES,
   DISABLED_ENROLL_USER_MESSAGES,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   ENROLLMENT_FAILED_QUERY_PARAM,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
 } from './constants';
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
 import ProfessionalSvgIcon from '../../../assets/icons/professional.svg';
@@ -636,68 +632,6 @@ export const getMissingApplicableSubsidyReason = ({
       contactEmail,
     }),
   };
-};
-
-export const getSubsidyToApplyForCourse = ({
-  applicableSubscriptionLicense = undefined,
-  applicableCouponCode = undefined,
-  applicableEnterpriseOffer = undefined,
-  applicableSubsidyAccessPolicy = undefined,
-}) => {
-  if (applicableSubscriptionLicense) {
-    return {
-      subsidyType: LICENSE_SUBSIDY_TYPE,
-      discountType: 'percentage',
-      discountValue: 100,
-      startDate: applicableSubscriptionLicense.subscriptionPlan.startDate,
-      expirationDate: applicableSubscriptionLicense.subscriptionPlan.expirationDate,
-      status: applicableSubscriptionLicense.status,
-      subsidyId: applicableSubscriptionLicense.uuid,
-    };
-  }
-
-  if (applicableCouponCode) {
-    return {
-      discountType: applicableCouponCode.usageType,
-      discountValue: applicableCouponCode.benefitValue,
-      startDate: applicableCouponCode.couponStartDate,
-      endDate: applicableCouponCode.couponEndDate,
-      code: applicableCouponCode.code,
-      subsidyType: COUPON_CODE_SUBSIDY_TYPE,
-    };
-  }
-
-  if (applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled) {
-    const { redeemableSubsidyAccessPolicy } = applicableSubsidyAccessPolicy;
-    return {
-      discountType: 'percentage',
-      discountValue: 100,
-      subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-      perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
-      perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
-      policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
-    };
-  }
-
-  if (applicableEnterpriseOffer) {
-    return {
-      discountType: applicableEnterpriseOffer.usageType.toLowerCase(),
-      discountValue: applicableEnterpriseOffer.discountValue,
-      startDate: applicableEnterpriseOffer.startDatetime,
-      endDate: applicableEnterpriseOffer.endDatetime,
-      offerType: applicableEnterpriseOffer.offerType,
-      subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
-      maxUserDiscount: applicableEnterpriseOffer.maxUserDiscount,
-      maxUserApplications: applicableEnterpriseOffer.maxUserApplications,
-      remainingBalance: applicableEnterpriseOffer.remainingBalance,
-      remainingBalanceForUser: applicableEnterpriseOffer.remainingBalanceForUser,
-      remainingApplications: applicableEnterpriseOffer.remainingApplications,
-      remainingApplicationsForUser: applicableEnterpriseOffer.remainingApplicationsForUser,
-      isCurrent: applicableEnterpriseOffer.isCurrent,
-    };
-  }
-
-  return undefined;
 };
 
 export const createEnrollFailureUrl = ({ courseRunKey, location }) => {

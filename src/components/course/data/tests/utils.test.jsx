@@ -5,10 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { getConfig } from '@edx/frontend-platform';
 import {
-  COUPON_CODE_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
 } from '../constants';
 import {
   findCouponCodeForCourse,
@@ -19,13 +16,18 @@ import {
   getMissingApplicableSubsidyReason,
   getMissingSubsidyReasonActions,
   getSubscriptionDisabledEnrollmentReasonType,
-  getSubsidyToApplyForCourse,
   isActiveSubscriptionLicense,
   isCurrentCoupon,
   pathContainsCourseTypeSlug,
   processCourseSubjects,
   transformedCourseMetadata,
 } from '../utils';
+import {
+  getSubsidyToApplyForCourse,
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
+} from '../../../app/data';
 
 jest.mock('@edx/frontend-platform', () => ({
   ensureConfig: jest.fn(),

@@ -10,14 +10,15 @@ export function isPolicyRedemptionEnabled({ canRedeemData }) {
 }
 
 /**
- * Determines whether the given content identifier is contained within the enterprise customer's catalogs.
+ * Determines whether the given courseRunKey is redeemable with their learner credit policies
+ * Returns the first redeemableSubsidyAccessPolicy
  * @returns {Types.UseQueryResult}
  */
-export default function useCanUpgradeWithLearnerCredit(courseRunKeys, queryOptions = {}) {
+export default function useCanUpgradeWithLearnerCredit(courseRunKey, queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { select, ...queryOptionsRest } = queryOptions;
   return useQuery({
-    ...queryCanUpgradeWithLearnerCredit(enterpriseCustomer.uuid, courseRunKeys),
+    ...queryCanUpgradeWithLearnerCredit(enterpriseCustomer.uuid, courseRunKey),
     ...queryOptionsRest,
     select: (data) => {
       if (data.length === 0) {

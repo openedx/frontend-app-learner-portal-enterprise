@@ -4,7 +4,7 @@ import { screen, render } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import EnrollModal, { MODAL_TEXTS } from '../EnrollModal';
-import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from '../data/constants';
+import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from '../../app/data';
 
 jest.mock('../data/hooks', () => ({
   useTrackSearchConversionClickHandler: jest.fn(),

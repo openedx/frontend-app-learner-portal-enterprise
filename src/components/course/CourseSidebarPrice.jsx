@@ -3,14 +3,18 @@ import classNames from 'classnames';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import { numberWithPrecision } from './data/utils';
-import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from './data/constants';
 import {
   useCanUserRequestSubsidyForCourse,
   useCoursePrice,
   useIsCourseAssigned,
   useUserSubsidyApplicableToCourse,
 } from './data';
-import { useEnterpriseCustomer } from '../app/data';
+import {
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  useEnterpriseCustomer,
+} from '../app/data';
 
 const CourseSidebarPrice = () => {
   const intl = useIntl();
