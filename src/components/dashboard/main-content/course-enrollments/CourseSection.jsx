@@ -12,7 +12,6 @@ import {
   AssignedCourseCard,
 } from './course-cards';
 
-import { UpgradeableCourseEnrollmentContextProvider } from './UpgradeableCourseEnrollmentContextProvider';
 import { COURSE_STATUSES, COURSE_MODES } from '../../../../constants';
 import { COURSE_SECTION_TITLES } from '../../data/constants';
 import { useEnterpriseCustomer } from '../../../app/data';
@@ -65,6 +64,7 @@ const CourseSection = ({
     notifications,
     courseRunStatus,
     isRevoked,
+    mode,
     ...rest
   }) => {
     const courseRunProps = { courseRunStatus };
@@ -72,6 +72,7 @@ const CourseSection = ({
       case COURSE_STATUSES.inProgress:
         courseRunProps.linkToCertificate = linkToCertificate;
         courseRunProps.notifications = notifications;
+        courseRunProps.canUpgradeToVerifiedEnrollment = [COURSE_MODES.AUDIT, COURSE_MODES.HONOR].includes(mode);
         break;
       case COURSE_STATUSES.savedForLater:
         courseRunProps.isRevoked = isRevoked;
@@ -102,20 +103,6 @@ const CourseSection = ({
 
   const renderCourseCards = () => courseRuns.map(courseRun => {
     const Component = CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
-    const isAuditOrHonorEnrollment = [COURSE_MODES.AUDIT, COURSE_MODES.HONOR].includes(courseRun.mode);
-    if (isAuditOrHonorEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
-      // if the enrollment is in audit mode and is in progress, it might be able to get
-      // upgraded, so we want to wrap it in <UpgradeableCourseEnrollmentContextProvider />
-      // in order to check if it can be upgraded.
-      return (
-        <UpgradeableCourseEnrollmentContextProvider
-          courseEnrollment={courseRun}
-          key={courseRun.courseRunId}
-        >
-          <Component {...getCourseRunProps(courseRun)} />
-        </UpgradeableCourseEnrollmentContextProvider>
-      );
-    }
     return (
       <Component
         {...getCourseRunProps(courseRun)}

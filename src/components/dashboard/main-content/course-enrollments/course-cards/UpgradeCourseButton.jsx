@@ -1,11 +1,11 @@
-import React, { useContext, useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import EnrollModal from '../../../../course/EnrollModal';
-import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
 import { useCouponCodes, useEnterpriseCustomer } from '../../../../app/data';
+import { useCourseUpgradeData } from '../data';
 
 /**
  * Button for upgrading a course via coupon code (possibly offer later on).
@@ -14,6 +14,7 @@ const UpgradeCourseButton = ({
   className,
   title,
   variant,
+  courseRunKey,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -23,7 +24,7 @@ const UpgradeCourseButton = ({
     subsidyForCourse,
     couponUpgradeUrl,
     courseRunPrice,
-  } = useContext(UpgradeableCourseEnrollmentContext);
+  } = useCourseUpgradeData({ courseRunKey });
 
   const handleClick = () => {
     setIsModalOpen(true);
@@ -68,6 +69,7 @@ UpgradeCourseButton.propTypes = {
   className: PropTypes.string,
   variant: PropTypes.string,
   title: PropTypes.string.isRequired,
+  courseRunKey: PropTypes.string.isRequired,
 };
 
 UpgradeCourseButton.defaultProps = {

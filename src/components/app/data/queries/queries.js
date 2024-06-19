@@ -106,6 +106,24 @@ export function queryCourseMetadata(courseKey, courseRunKey) {
 }
 
 /**
+ * Helper function to assist querying with React Query package
+ *
+ * queries
+ * .content
+ * .course(null)
+ * ._ctx.metadata(courseRunKey)
+ * ._ctx.courseRun
+ * * @returns {Types.QueryOptions}
+ */
+export function queryCourseRunMetadata(courseRunKey) {
+  return queries
+    .content
+    .course(null)
+    ._ctx.metadata(courseRunKey)
+    ._ctx.courseRun;
+}
+
+/**
  * Helper function to assist with generating the query.
  * @param {string} courseKey
  * @returns {Types.QueryOptions}

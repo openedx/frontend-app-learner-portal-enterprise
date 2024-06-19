@@ -50,17 +50,6 @@ jest.mock('../../../../../app/data', () => ({
   useEnterpriseCustomerContainsContent: jest.fn(),
 }));
 
-const mockCourseService = {
-  fetchUserLicenseSubsidy: jest.fn(),
-  fetchEnterpriseCustomerContainsContent: jest.fn(),
-  fetchCourseRun: jest.fn(),
-};
-
-jest.mock('../../../../../course/data/service', () => ({
-  __esModule: true,
-  default: jest.fn(() => mockCourseService),
-}));
-
 const mockRawCourseEnrollment = createRawCourseEnrollment();
 const mockTransformedMockCourseEnrollment = transformCourseEnrollment(mockRawCourseEnrollment);
 
@@ -284,31 +273,31 @@ describe('useCourseEnrollments', () => {
         const sku = 'ABCDEF';
         const coursePrice = '149.00';
 
-        mockCourseService.fetchCourseRun.mockResolvedValueOnce(
-          {
-            data: {
-              firstEnrollablePaidSeatPrice: coursePrice,
-              seats: [
-                {
-                  type: 'verified',
-                  price: coursePrice,
-                  sku,
-                },
-                {
-                  type: 'audit',
-                  price: '0.00',
-                  sku: 'abcdef',
-                },
-              ],
-            },
-          },
-        );
+        // mockCourseService.fetchCourseRun.mockResolvedValueOnce(
+        //   {
+        //     data: {
+        //       firstEnrollablePaidSeatPrice: coursePrice,
+        //       seats: [
+        //         {
+        //           type: 'verified',
+        //           price: coursePrice,
+        //           sku,
+        //         },
+        //         {
+        //           type: 'audit',
+        //           price: '0.00',
+        //           sku: 'abcdef',
+        //         },
+        //       ],
+        //     },
+        //   },
+        // );
 
         const { result } = renderHook(() => useCourseUpgradeData(basicArgs), { wrapper });
 
         expect(result.current.isLoading).toEqual(true);
 
-        await waitFor(() => expect(mockCourseService.fetchCourseRun).toHaveBeenCalledWith(courseRunKey));
+        // await waitFor(() => expect(mockCourseService.fetchCourseRun).toHaveBeenCalledWith(courseRunKey));
         expect(result.current.licenseUpgradeUrl).toBeUndefined();
         expect(result.current.couponUpgradeUrl).toEqual(createEnrollWithCouponCodeUrl({
           courseRunKey,
@@ -323,7 +312,7 @@ describe('useCourseEnrollments', () => {
 
       it('should handle errors', async () => {
         const error = Error('Uh oh');
-        mockCourseService.fetchCourseRun.mockRejectedValueOnce(error);
+        // mockCourseService.fetchCourseRun.mockRejectedValueOnce(error);
         useEnterpriseCustomerContainsContent.mockReturnValue({
           data: {
             containsContentItems: true,

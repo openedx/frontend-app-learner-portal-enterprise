@@ -28,6 +28,7 @@ import {
   fetchCourseRecommendations,
   checkTransactionStatus,
   fetchPathwayProgressDetails,
+  fetchCourseRun,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -204,6 +205,12 @@ const content = createQueryKeys('content', {
       metadata: (courseRunKey) => ({
         queryKey: [courseRunKey],
         queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], queryKey[4]),
+        contextQueries: {
+          courseRun: {
+            queryKey: null,
+            queryFn: async ({ queryKey }) => fetchCourseRun(queryKey[4]),
+          },
+        },
       }),
       reviews: {
         queryKey: null,

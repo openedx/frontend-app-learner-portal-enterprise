@@ -5,7 +5,6 @@ import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { UpgradeableCourseEnrollmentContext } from '../../UpgradeableCourseEnrollmentContextProvider';
 import { InProgressCourseCard } from '../InProgressCourseCard';
 import { useCouponCodes, useEnterpriseCustomer } from '../../../../../app/data';
 import { queryClient } from '../../../../../../utils/tests';
@@ -38,19 +37,11 @@ jest.mock('../../../../../app/data', () => ({
 
 const InProgressCourseCardWrapper = ({
   appContextValue = defaultAppContextValue,
-  upgradeableCourseEnrollmentContextValue = {
-    isLoading: false,
-    licenseUpgradeUrl: undefined,
-    couponUpgradeUrl: undefined,
-    courseRunPrice: 100,
-  },
   ...rest
 }) => (
   <QueryClientProvider client={queryClient()}>
     <AppContext.Provider value={appContextValue}>
-      <UpgradeableCourseEnrollmentContext.Provider value={upgradeableCourseEnrollmentContextValue}>
-        <InProgressCourseCard {...rest} />
-      </UpgradeableCourseEnrollmentContext.Provider>
+      <InProgressCourseCard {...rest} />
     </AppContext.Provider>
   </QueryClientProvider>
 );

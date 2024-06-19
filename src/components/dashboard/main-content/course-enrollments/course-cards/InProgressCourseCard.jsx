@@ -11,10 +11,9 @@ import ContinueLearningButton from './ContinueLearningButton';
 
 import Notification from './Notification';
 
-import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
 import UpgradeCourseButton from './UpgradeCourseButton';
 import { useEnterpriseCustomer } from '../../../../app/data';
-import { useUpdateCourseEnrollmentStatus } from '../data';
+import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
 
 export const InProgressCourseCard = ({
   linkToCourse,
@@ -25,13 +24,15 @@ export const InProgressCourseCard = ({
   startDate,
   mode,
   resumeCourseRunUrl,
+  canUpgradeToVerifiedEnrollment,
   ...rest
 }) => {
+  // TODO: Import learnerCreditUpgradeUrl field
   const {
     isLoading: isLoadingUpgradeUrl,
     licenseUpgradeUrl,
     couponUpgradeUrl,
-  } = useContext(UpgradeableCourseEnrollmentContext);
+  } = useCourseUpgradeData({ courseRunKey: courseRunId, canUpgradeToVerifiedEnrollment });
   const navigate = useNavigate();
 
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
@@ -53,7 +54,7 @@ export const InProgressCourseCard = ({
         startDate={startDate}
         resumeCourseRunUrl={resumeCourseRunUrl}
       />
-      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} />}
+      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} courseRunKey={courseRunId} />}
     </>
   );
 
@@ -192,6 +193,7 @@ InProgressCourseCard.propTypes = {
   startDate: PropTypes.string,
   mode: PropTypes.string,
   resumeCourseRunUrl: PropTypes.string,
+  canUpgradeToVerifiedEnrollment: PropTypes.bool.isRequired,
 };
 
 InProgressCourseCard.defaultProps = {
