@@ -24,7 +24,7 @@ const UpgradeCourseButton = ({
     subsidyForCourse,
     couponUpgradeUrl,
     courseRunPrice,
-  } = useCourseUpgradeData({ courseRunKey });
+  } = useCourseUpgradeData({ courseRunKey, canUpgradeToVerifiedEnrollment: true });
 
   const handleClick = () => {
     setIsModalOpen(true);

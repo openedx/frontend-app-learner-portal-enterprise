@@ -122,19 +122,20 @@ export const useCourseEnrollments = ({
  *
  * @param {object} args Arguments.
  * @param {String} args.courseRunKey id of the course run
- *
+ * @param {Boolean} args.canUpgradeToVerifiedEnrollment whether the course run is eligible to be upgraded,
+ * default: false
  * @returns {Object} {
  *     licenseUpgradeUrl: undefined,
  *     couponUpgradeUrl: undefined,
  *     learnerCreditUpgradeUrl: undefined,
  *     subsidyForCourse: undefined,
  *     courseRunPrice: undefined,
- *     isLoading: true,
+ *     isLoading: false,
  *     }
  */
 export const useCourseUpgradeData = ({
   courseRunKey,
-  canUpgradeToVerifiedEnrollment,
+  canUpgradeToVerifiedEnrollment = false,
 }) => {
   const defaultReturn = {
     licenseUpgradeUrl: undefined,
@@ -146,15 +147,15 @@ export const useCourseUpgradeData = ({
   };
   const location = useLocation();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: { catalogList, containsContentItems } } = useEnterpriseCustomerContainsContent([courseRunKey]);
+  const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
   const { data: { subscriptionLicense: applicableSubscriptionLicense } } = useSubscriptions(
-    { enabled: !!canUpgradeToVerifiedEnrollment },
+    { enabled: !customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment },
   );
   const { data: couponCodesMetadata } = useCouponCodes({
     select: (data) => ({
-      applicableCouponCode: findCouponCodeForCourse(data.couponCodeAssignments, catalogList),
+      applicableCouponCode: findCouponCodeForCourse(data.couponCodeAssignments, customerContainsContent?.catalogList),
     }),
-    enabled: !!canUpgradeToVerifiedEnrollment,
+    enabled: !applicableSubscriptionLicense,
   });
   const { data: courseRunDetails } = useCourseRunMetadata(courseRunKey, {
     select: (data) => ({
@@ -162,16 +163,16 @@ export const useCourseUpgradeData = ({
       sku: findHighestLevelSeatSku(data.seats),
       code: data.code,
     }),
-    enabled: !!canUpgradeToVerifiedEnrollment,
+    enabled: !couponCodesMetadata,
   });
   const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(
     [courseRunKey],
     {
-      enabled: !!canUpgradeToVerifiedEnrollment,
+      enabled: !couponCodesMetadata.applicableCouponCode,
     },
   );
 
-  if (!containsContentItems || !canUpgradeToVerifiedEnrollment) {
+  if (!customerContainsContent?.containsContentItems || !canUpgradeToVerifiedEnrollment) {
     return {
       ...defaultReturn,
       isLoading: false,
@@ -208,13 +209,13 @@ export const useCourseUpgradeData = ({
     };
   }
 
-  if (learnerCreditMetadata?.applicableSubsidyAccessPolicy) {
+  if (learnerCreditMetadata.applicableSubsidyAccessPolicy?.canRedeem) {
     // do logic here return early
     const { applicableSubsidyAccessPolicy } = learnerCreditMetadata;
     return {
       ...defaultReturn,
       subsidyForCourse: getSubsidyToApplyForCourse({ applicableSubsidyAccessPolicy }),
-      learnerCreditUpgradeUrl: applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy.policyRedemptionUrl,
+      learnerCreditUpgradeUrl: applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
       isLoading: false,
     };
   }
