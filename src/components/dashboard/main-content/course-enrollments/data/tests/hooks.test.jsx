@@ -321,6 +321,70 @@ describe('useCourseEnrollments', () => {
         expect(result.current.isLoading).toEqual(false);
       });
     });
+
+    describe('upgrade via learner credit', () => {
+      const mockCourseRunKey = 'course-v1:edX+DemoX+T2024';
+      const mockCanUpgradeWithLearnerCredit = {
+        contentKey: mockCourseRunKey,
+        listPrice: 1,
+        redemptions: [],
+        hasSuccessfulRedemption: false,
+        redeemableSubsidyAccessPolicy: {
+          uuid: 'test-access-policy-uuid',
+          policyRedemptionUrl: 'https://enterprise-access.stage.edx.org/api/v1/policy-redemption/8c4a92c7-3578-407d-9ba1-9127c4e4cc0b/redeem/',
+          isLateRedemptionAllowed: false,
+          policyType: 'PerLearnerSpendCreditAccessPolicy',
+          enterpriseCustomerUuid: mockEnterpriseCustomer.uuid,
+          displayName: 'Learner driven plan --- Open Courses',
+          description: 'Initial Policy Display Name: Learner driven plan --- Open Courses, Initial Policy Value: $10,000, Initial Subsidy Value: $260,000',
+          active: true,
+          retired: false,
+          catalogUuid: 'test-catalog-uuid',
+          subsidyUuid: 'test-subsidy-uuid',
+          accessMethod: 'direct',
+          spendLimit: 1000000,
+          lateRedemptionAllowedUntil: null,
+          perLearnerEnrollmentLimit: null,
+          perLearnerSpendLimit: null,
+          assignmentConfiguration: null,
+        },
+        canRedeem: true,
+        reasons: [],
+        isPolicyRedemptionEnabled: true,
+      };
+      beforeEach(() => {
+        jest.clearAllMocks();
+        useCanUpgradeWithLearnerCredit.mockReturnValue({
+          data: { applicableSubsidyAccessPolicy: mockCanUpgradeWithLearnerCredit },
+        });
+      });
+      it('should return a learner credit upgrade url', async () => {
+        useEnterpriseCustomerContainsContent.mockReturnValue({
+          data: {
+            containsContentItems: true,
+            catalogList: [],
+          },
+        });
+        useCouponCodes.mockReturnValue({
+          data: { applicableCouponCode: null },
+        });
+
+        const { result } = renderHook(() => useCourseUpgradeData({
+          ...basicArgs,
+          canUpgradeToVerifiedEnrollment: true,
+        }), { wrapper });
+
+        expect(result.current.isLoading).toEqual(false);
+
+        expect(result.current.licenseUpgradeUrl).toBeUndefined();
+        expect(result.current.couponUpgradeUrl).toBeUndefined();
+        expect(result.current.learnerCreditUpgradeUrl).toEqual(
+          mockCanUpgradeWithLearnerCredit.redeemableSubsidyAccessPolicy.policyRedemptionUrl,
+        );
+        expect(result.current.courseRunPrice).toBeUndefined();
+        expect(result.current.isLoading).toEqual(false);
+      });
+    });
   });
 });
 

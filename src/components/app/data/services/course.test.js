@@ -3,7 +3,7 @@ import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { logError } from '@edx/frontend-platform/logging';
-import { fetchCanRedeem, fetchCourseMetadata } from './course';
+import { fetchCanRedeem, fetchCourseMetadata, fetchCourseRunMetadata } from './course';
 import { findHighestLevelEntitlementSku, getActiveCourseRun } from '../utils';
 import { getErrorResponseStatusCode } from '../../../../utils/common';
 
@@ -13,6 +13,7 @@ getAuthenticatedHttpClient.mockReturnValue(axios);
 const mockEnterpriseId = 'test-enterprise-uuid';
 const mockCourseKey = 'edX+DemoX';
 const mockCourseKeyTwo = 'edX+DemoZ';
+const mockCourseRunKey = 'course-v1:edX+DemoX+2024_Q2';
 const APP_CONFIG = {
   ENTERPRISE_CATALOG_API_BASE_URL: 'http://localhost:18160',
   ENTERPRISE_ACCESS_BASE_URL: 'http://localhost:18270',
@@ -68,6 +69,59 @@ describe('fetchCourseMetadata', () => {
     getErrorResponseStatusCode.mockReturnValue(httpStatusCode);
     axiosMock.onGet(CONTENT_METADATA_URL).reply(httpStatusCode, {});
     const result = await fetchCourseMetadata(courseMetadata);
+    if (httpStatusCode === 404) {
+      expect(result).toBeNull();
+    } else {
+      expect(logError).toHaveBeenCalledTimes(1);
+      expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
+      expect(result).toEqual(null);
+    }
+  });
+});
+
+describe('fetchCourseRunMetadata', () => {
+  const COURSE_RUN_METADATA = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/course_runs/${mockCourseRunKey}`;
+  const courseRunMetadata = {
+    key: mockCourseRunKey,
+    title: 'edX Demonstration Course',
+    seats: [{
+      type: 'audit',
+      price: '0.00',
+      currency: 'USD',
+      upgradeDeadline: null,
+      upgradeDeadlineOverride: null,
+      creditProvider: null,
+      creditHours: null,
+      sku: 'ABCDEFG',
+      bulkSku: null,
+    }],
+    start: '2023-05-23T10:00:00Z',
+    end: '2050-02-01T10:00:00Z',
+    status: 'published',
+    isEnrollable: true,
+    isMarketable: true,
+    availability: 'Current',
+    uuid: 'test-uuid',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('returns course run metadata', async () => {
+    axiosMock.onGet(COURSE_RUN_METADATA).reply(200, courseRunMetadata);
+    const result = await fetchCourseRunMetadata(mockCourseRunKey);
+    const expectedResult = {
+      ...courseRunMetadata,
+    };
+    expect(result).toEqual(expectedResult);
+  });
+
+  it.each([404, 500])('catches error and returns null (%s)', async (httpStatusCode) => {
+    getErrorResponseStatusCode.mockReturnValue(httpStatusCode);
+    axiosMock.onGet(COURSE_RUN_METADATA).reply(httpStatusCode, {});
+    const result = await fetchCourseRunMetadata(COURSE_RUN_METADATA);
     if (httpStatusCode === 404) {
       expect(result).toBeNull();
     } else {

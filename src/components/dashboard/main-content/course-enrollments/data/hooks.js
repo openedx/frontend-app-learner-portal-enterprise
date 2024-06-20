@@ -31,7 +31,8 @@ import {
   useCanUpgradeWithLearnerCredit,
   useSubscriptions,
   useCouponCodes,
-  getSubsidyToApplyForCourse, useCourseRunMetadata,
+  getSubsidyToApplyForCourse,
+  useCourseRunMetadata,
 } from '../../../../app/data';
 import {
   sortedEnrollmentsByEnrollmentDate,
@@ -143,14 +144,14 @@ export const useCourseUpgradeData = ({
   const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
 
   const { data: { subscriptionLicense: applicableSubscriptionLicense } } = useSubscriptions(
-    { enabled: !!customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment },
+    { enabled: customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment },
   );
 
   const { data: couponCodesMetadata } = useCouponCodes({
     select: (data) => ({
       applicableCouponCode: findCouponCodeForCourse(data.couponCodeAssignments, customerContainsContent?.catalogList),
     }),
-    enabled: !!applicableSubscriptionLicense && canUpgradeToVerifiedEnrollment,
+    enabled: !applicableSubscriptionLicense && canUpgradeToVerifiedEnrollment,
   });
   const { data: courseRunDetails } = useCourseRunMetadata(courseRunKey, {
     select: (data) => ({
@@ -158,14 +159,14 @@ export const useCourseUpgradeData = ({
       sku: findHighestLevelSeatSku(data.seats),
       code: data.code,
     }),
-    enabled: !!couponCodesMetadata && canUpgradeToVerifiedEnrollment,
+    enabled: !couponCodesMetadata.applicableCouponCode && canUpgradeToVerifiedEnrollment,
   });
   // TODO: Remove authenticatedUser?.administrator flag when rolling out
   const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(
     [courseRunKey],
     {
-      enabled: !!authenticatedUser?.administrator
-        && !!couponCodesMetadata.applicableCouponCode && canUpgradeToVerifiedEnrollment,
+      enabled: authenticatedUser?.administrator
+        && !couponCodesMetadata?.applicableCouponCode && canUpgradeToVerifiedEnrollment,
     },
   );
 
