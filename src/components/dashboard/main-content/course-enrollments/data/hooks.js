@@ -9,7 +9,6 @@ import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
 import { useLocation } from 'react-router-dom';
-import { getConfig } from '@edx/frontend-platform';
 import * as service from './service';
 import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
 import {
@@ -139,8 +138,7 @@ export const useCourseUpgradeData = ({
   canUpgradeToVerifiedEnrollment = false,
 }) => {
   const location = useLocation();
-  const isFeatureEnabled = getConfig().FEATURE_ENABLE_LEARNER_CREDIT_AUDIT_UPGRADE;
-
+  const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
 
@@ -162,10 +160,12 @@ export const useCourseUpgradeData = ({
     }),
     enabled: !!couponCodesMetadata && canUpgradeToVerifiedEnrollment,
   });
+  // TODO: Remove authenticatedUser?.administrator flag when rolling out
   const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(
     [courseRunKey],
     {
-      enabled: !!isFeatureEnabled && !!couponCodesMetadata.applicableCouponCode && canUpgradeToVerifiedEnrollment,
+      enabled: !!authenticatedUser?.administrator
+        && !!couponCodesMetadata.applicableCouponCode && canUpgradeToVerifiedEnrollment,
     },
   );
 
