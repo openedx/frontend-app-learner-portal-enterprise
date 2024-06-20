@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useNavigate } from 'react-router-dom';
@@ -34,7 +34,6 @@ export const InProgressCourseCard = ({
     couponUpgradeUrl,
   } = useCourseUpgradeData({ courseRunKey: courseRunId, canUpgradeToVerifiedEnrollment });
   const navigate = useNavigate();
-
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
   const shouldShowUpgradeButton = !!couponUpgradeUrl;
 

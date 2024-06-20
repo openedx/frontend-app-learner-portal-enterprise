@@ -137,14 +137,6 @@ export const useCourseUpgradeData = ({
   courseRunKey,
   canUpgradeToVerifiedEnrollment = false,
 }) => {
-  const defaultReturn = {
-    licenseUpgradeUrl: undefined,
-    couponUpgradeUrl: undefined,
-    learnerCreditUpgradeUrl: undefined,
-    subsidyForCourse: undefined,
-    courseRunPrice: undefined,
-    isLoading: true,
-  };
   const location = useLocation();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
@@ -172,58 +164,80 @@ export const useCourseUpgradeData = ({
     },
   );
 
-  if (!customerContainsContent?.containsContentItems || !canUpgradeToVerifiedEnrollment) {
+  return useMemo(() => {
+    const defaultReturn = {
+      licenseUpgradeUrl: undefined,
+      couponUpgradeUrl: undefined,
+      learnerCreditUpgradeUrl: undefined,
+      subsidyForCourse: undefined,
+      courseRunPrice: undefined,
+      isLoading: true,
+    };
+
+    if (!customerContainsContent?.containsContentItems || !canUpgradeToVerifiedEnrollment) {
+      return {
+        ...defaultReturn,
+        isLoading: false,
+      };
+    }
+
+    if (applicableSubscriptionLicense) {
+      return {
+        ...defaultReturn,
+        subsidyForCourse: getSubsidyToApplyForCourse({ applicableSubscriptionLicense }),
+        licenseUpgradeUrl: createEnrollWithLicenseUrl({
+          courseRunKey,
+          enterpriseId: enterpriseCustomer.uuid,
+          licenseUUID: applicableSubscriptionLicense.uuid,
+          location,
+        }),
+        isLoading: false,
+      };
+    }
+
+    if (couponCodesMetadata?.applicableCouponCode) {
+      const { applicableCouponCode } = couponCodesMetadata;
+      return {
+        ...defaultReturn,
+        subsidyForCourse: getSubsidyToApplyForCourse({ applicableCouponCode }),
+        couponUpgradeUrl: createEnrollWithCouponCodeUrl({
+          courseRunKey,
+          sku: courseRunDetails.sku,
+          code: applicableCouponCode.code,
+          location,
+        }),
+        courseRunPrice: courseRunDetails.firstEnrollablePaidSeatPrice,
+        isLoading: false,
+      };
+    }
+
+    if (learnerCreditMetadata.applicableSubsidyAccessPolicy?.canRedeem) {
+      // do logic here return early
+      const { applicableSubsidyAccessPolicy } = learnerCreditMetadata;
+      return {
+        ...defaultReturn,
+        subsidyForCourse: getSubsidyToApplyForCourse({ applicableSubsidyAccessPolicy }),
+        learnerCreditUpgradeUrl: applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+        isLoading: false,
+      };
+    }
+
     return {
       ...defaultReturn,
       isLoading: false,
     };
-  }
-
-  if (applicableSubscriptionLicense) {
-    return {
-      ...defaultReturn,
-      subsidyForCourse: getSubsidyToApplyForCourse({ applicableSubscriptionLicense }),
-      licenseUpgradeUrl: createEnrollWithLicenseUrl({
-        courseRunKey,
-        enterpriseId: enterpriseCustomer.uuid,
-        licenseUUID: applicableSubscriptionLicense.uuid,
-        location,
-      }),
-      isLoading: false,
-    };
-  }
-
-  if (couponCodesMetadata?.applicableCouponCode) {
-    const { applicableCouponCode } = couponCodesMetadata;
-    return {
-      ...defaultReturn,
-      subsidyForCourse: getSubsidyToApplyForCourse({ applicableCouponCode }),
-      couponUpgradeUrl: createEnrollWithCouponCodeUrl({
-        courseRunKey,
-        sku: courseRunDetails.sku,
-        code: applicableCouponCode.code,
-        location,
-      }),
-      courseRunPrice: courseRunDetails.firstEnrollablePaidSeatPrice,
-      isLoading: false,
-    };
-  }
-
-  if (learnerCreditMetadata.applicableSubsidyAccessPolicy?.canRedeem) {
-    // do logic here return early
-    const { applicableSubsidyAccessPolicy } = learnerCreditMetadata;
-    return {
-      ...defaultReturn,
-      subsidyForCourse: getSubsidyToApplyForCourse({ applicableSubsidyAccessPolicy }),
-      learnerCreditUpgradeUrl: applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
-      isLoading: false,
-    };
-  }
-
-  return {
-    ...defaultReturn,
-    isLoading: false,
-  };
+  }, [
+    applicableSubscriptionLicense,
+    canUpgradeToVerifiedEnrollment,
+    couponCodesMetadata,
+    courseRunDetails?.firstEnrollablePaidSeatPrice,
+    courseRunDetails?.sku,
+    courseRunKey,
+    customerContainsContent?.containsContentItems,
+    enterpriseCustomer.uuid,
+    learnerCreditMetadata,
+    location,
+  ]);
 };
 
 export function useAcknowledgeContentAssignments({

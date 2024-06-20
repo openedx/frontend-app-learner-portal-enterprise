@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { Bubble, Collapsible } from '@openedx/paragon';
+import { Bubble, Collapsible, Skeleton } from '@openedx/paragon';
 
 import {
   InProgressCourseCard,
@@ -15,6 +15,7 @@ import {
 import { COURSE_STATUSES, COURSE_MODES } from '../../../../constants';
 import { COURSE_SECTION_TITLES } from '../../data/constants';
 import { useEnterpriseCustomer } from '../../../app/data';
+import DelayedFallbackContainer from '../../../DelayedFallback/DelayedFallbackContainer';
 
 const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.upcoming]: UpcomingCourseCard,
@@ -125,7 +126,17 @@ const CourseSection = ({
         defaultOpen
       >
         {getFormattedOptionalSubtitle()}
-        {renderCourseCards()}
+        <Suspense fallback={(
+          <DelayedFallbackContainer>
+            <>
+              <div className="sr-only">Loading...</div>
+              {courseRuns.map(() => <Skeleton height={200} className="dashboard-course-card py-3 mb-2" />)}
+            </>
+          </DelayedFallbackContainer>
+        )}
+        >
+          {renderCourseCards()}
+        </Suspense>
       </Collapsible>
     </div>
   );
