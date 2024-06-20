@@ -63,7 +63,7 @@ const CourseAssignmentAlert = ({
       onClose={onClose}
       closeLabel={isAcknowledgingAssignments
         ? intl.formatMessage({
-          id: 'enterprise.dashboard.course.assignment.alert.dismiss.button',
+          id: 'enterprise.dashboard.course.assignment.alert.dismissing.button',
           defaultMessage: 'Dismissing...',
           description: 'Dismiss button label for while the course assignments alert when assignments are actively being acknowledged',
         })

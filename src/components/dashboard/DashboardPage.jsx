@@ -82,7 +82,7 @@ const DashboardPage = () => {
         className="mt-3"
         dismissible
         closeLabel={intl.formatMessage({
-          id: 'enterprise.dashboard.course.assignment.alert.dismiss.button',
+          id: 'enterprise.dashboard.course.assignment.alert.dismiss.button.label',
           defaultMessage: 'Dismiss',
           description: 'Dismiss button label for the course assignment alert',
         })}

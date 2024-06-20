@@ -9,7 +9,7 @@ export default function useContentDiscoveryNavLink(mainMenuLinkClassName) {
     return (
       <NavLink to={`/${enterpriseCustomer.slug}/academies/${academies[0].uuid}`} className={mainMenuLinkClassName}>
         <FormattedMessage
-          id="site.header.nav.search.title"
+          id="enterprise.dashboard.nav.academy.title"
           defaultMessage="Go to Academy"
           description="Go to academy link in site header navigation."
         />
@@ -19,7 +19,7 @@ export default function useContentDiscoveryNavLink(mainMenuLinkClassName) {
   return (
     <NavLink to={`/${enterpriseCustomer.slug}/search`} className={mainMenuLinkClassName}>
       <FormattedMessage
-        id="site.header.nav.search.title"
+        id="enterprise.dashboard.nav.find.course.title"
         defaultMessage="Find a Course"
         description="Find a course link in site header navigation."
       />
