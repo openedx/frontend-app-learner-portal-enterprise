@@ -9,10 +9,16 @@ import { InProgressCourseCard } from '../InProgressCourseCard';
 import { useCouponCodes, useEnterpriseCustomer } from '../../../../../app/data';
 import { queryClient } from '../../../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
+import { useCourseUpgradeData } from '../../data';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+jest.mock('../../data', () => ({
+  ...jest.requireActual('../../data'),
+  useCourseUpgradeData: jest.fn(),
 }));
 
 const basicProps = {
@@ -22,6 +28,7 @@ const basicProps = {
   courseRunId: 'my+course+key',
   notifications: [],
   mode: 'verified',
+  canUpgradeToVerifiedEnrollment: false,
 };
 
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -57,6 +64,14 @@ describe('<InProgressCourseCard />', () => {
         couponCodeAssignments: [],
       },
     });
+    useCourseUpgradeData.mockReturnValue({
+      licenseUpgradeUrl: undefined,
+      couponUpgradeUrl: undefined,
+      learnerCreditUpgradeUrl: undefined,
+      subsidyForCourse: undefined,
+      courseRunPrice: undefined,
+      isLoading: true,
+    });
   });
 
   it('should not render upgrade course button if there is no couponUpgradeUrl', () => {
@@ -65,12 +80,18 @@ describe('<InProgressCourseCard />', () => {
   });
 
   it('should render upgrade course button if there is a couponUpgradeUrl', () => {
+    useCourseUpgradeData.mockReturnValue({
+      licenseUpgradeUrl: undefined,
+      couponUpgradeUrl: 'coupon-upgrade-url',
+      courseRunPrice: 100,
+      learnerCreditUpgradeUrl: undefined,
+      subsidyForCourse: undefined,
+      isLoading: false,
+    });
     renderWithRouter(<InProgressCourseCardWrapper
       {...basicProps}
       upgradeableCourseEnrollmentContextValue={
         {
-          isLoading: false,
-          licenseUpgradeUrl: undefined,
           couponUpgradeUrl: 'coupon-upgrade-url',
           courseRunPrice: 100,
         }

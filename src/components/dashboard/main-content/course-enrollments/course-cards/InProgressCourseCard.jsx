@@ -33,6 +33,7 @@ export const InProgressCourseCard = ({
     licenseUpgradeUrl,
     couponUpgradeUrl,
   } = useCourseUpgradeData({ courseRunKey: courseRunId, canUpgradeToVerifiedEnrollment });
+
   const navigate = useNavigate();
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
   const shouldShowUpgradeButton = !!couponUpgradeUrl;

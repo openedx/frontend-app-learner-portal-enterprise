@@ -7,7 +7,8 @@ import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 import { useLocation } from 'react-router-dom';
 
-import { renderWithRouter } from '../../../../../utils/tests';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient, renderWithRouter } from '../../../../../utils/tests';
 import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
 
 import { COURSE_SECTION_TITLES } from '../../../data/constants';
@@ -16,11 +17,16 @@ import { MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL } from '../course-cards/move-to-
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
 import { COURSE_STATUSES } from '../data/constants';
-import * as hooks from '../data/hooks';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { useEnterpriseCourseEnrollments, useEnterpriseCustomer, useEnterpriseFeatures } from '../../../../app/data';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
+import {
+  useContentAssignments,
+  useCourseEnrollments,
+  useCourseEnrollmentsBySection,
+  useCourseUpgradeData, useGroupAssociationsAlert,
+} from '../data/hooks';
 
 jest.mock('@edx/frontend-enterprise-utils');
 
@@ -33,7 +39,14 @@ jest.mock('../../../data/utils', () => ({
 }));
 
 jest.mock('../data/service');
-jest.mock('../data/hooks');
+jest.mock('../data/hooks', () => ({
+  ...jest.requireActual('../data/hooks'),
+  useCourseUpgradeData: jest.fn(),
+  useContentAssignments: jest.fn(),
+  useCourseEnrollmentsBySection: jest.fn(),
+  useCourseEnrollments: jest.fn(),
+  useGroupAssociationsAlert: jest.fn(),
+}));
 jest.mock('../../../../../config', () => ({
   features: {
     FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT: true,
@@ -76,33 +89,6 @@ const assignmentData = {
   state: 'cancelled',
 };
 
-hooks.useCourseEnrollments.mockReturnValue({
-  courseEnrollmentsByStatus: {
-    inProgress: [inProgCourseRun],
-    upcoming: [upcomingCourseRun],
-    completed: [completedCourseRun],
-    assigned: [cancelledAssignedCourseRun],
-    savedForLater: [savedForLaterCourseRun],
-    requested: [transformedLicenseRequest],
-  },
-  updateCourseEnrollmentStatus: jest.fn(),
-});
-
-hooks.useContentAssignments.mockReturnValue({
-  assignments: [],
-  showCanceledAssignmentsAlert: false,
-  showExpiredAssignmentsAlert: false,
-  handleOnCloseCancelAlert: jest.fn(),
-  handleOnCloseExpiredAlert: jest.fn(),
-});
-
-hooks.useCourseEnrollmentsBySection.mockReturnValue({
-  hasCourseEnrollments: true,
-  currentCourseEnrollments: [inProgCourseRun],
-  completedCourseEnrollments: [completedCourseRun],
-  savedForLaterCourseEnrollments: [savedForLaterCourseRun],
-});
-
 jest.mock('../../../../app/data', () => ({
   ...jest.requireActual('../../../../app/data'),
   useEnterpriseCourseEnrollments: jest.fn(),
@@ -114,11 +100,13 @@ const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const CourseEnrollmentsWrapper = () => (
-  <IntlProvider locale="en">
-    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-      <CourseEnrollments />
-    </AppContext.Provider>
-  </IntlProvider>
+  <QueryClientProvider client={queryClient()}>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+        <CourseEnrollments />
+      </AppContext.Provider>
+    </IntlProvider>
+  </QueryClientProvider>
 );
 
 jest.mock('../data/utils', () => ({
@@ -150,12 +138,45 @@ describe('Course enrollments', () => {
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
     sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentData]);
     useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: false } });
-    hooks.useGroupAssociationsAlert.mockReturnValue({
+    useGroupAssociationsAlert.mockReturnValue({
       showNewGroupAssociationAlert: true,
       dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
       enterpriseCustomer: {
         name: 'test-enterprise-customer',
       },
+    });
+    useCourseEnrollmentsBySection.mockReturnValue({
+      hasCourseEnrollments: true,
+      currentCourseEnrollments: [inProgCourseRun],
+      completedCourseEnrollments: [completedCourseRun],
+      savedForLaterCourseEnrollments: [savedForLaterCourseRun],
+    });
+
+    useContentAssignments.mockReturnValue({
+      assignments: [],
+      showCanceledAssignmentsAlert: false,
+      showExpiredAssignmentsAlert: false,
+      handleOnCloseCancelAlert: jest.fn(),
+      handleOnCloseExpiredAlert: jest.fn(),
+    });
+    useCourseEnrollments.mockReturnValue({
+      courseEnrollmentsByStatus: {
+        inProgress: [inProgCourseRun],
+        upcoming: [upcomingCourseRun],
+        completed: [completedCourseRun],
+        assigned: [cancelledAssignedCourseRun],
+        savedForLater: [savedForLaterCourseRun],
+        requested: [transformedLicenseRequest],
+      },
+      updateCourseEnrollmentStatus: jest.fn(),
+    });
+    useCourseUpgradeData.mockReturnValue({
+      licenseUpgradeUrl: undefined,
+      couponUpgradeUrl: undefined,
+      learnerCreditUpgradeUrl: undefined,
+      subsidyForCourse: undefined,
+      courseRunPrice: undefined,
+      isLoading: false,
     });
   });
 
@@ -183,7 +204,7 @@ describe('Course enrollments', () => {
       mode: 'verified',
     };
 
-    hooks.useContentAssignments.mockReturnValue({
+    useContentAssignments.mockReturnValue({
       assignments: [mockAssignment],
       showCanceledAssignmentsAlert: true,
       showExpiredAssignmentsAlert: false,
@@ -217,7 +238,7 @@ describe('Course enrollments', () => {
       startDate: dayjs().subtract(30, 'day').toISOString(),
       mode: 'verified',
     };
-    hooks.useContentAssignments.mockReturnValue({
+    useContentAssignments.mockReturnValue({
       assignments: [mockAssignment],
       showCanceledAssignmentsAlert: false,
       showExpiredAssignmentsAlert: true,
@@ -240,7 +261,7 @@ describe('Course enrollments', () => {
     'renders NewGroupAssignmentAlert when showNewGroupAssociationAlert is true',
     async () => {
       useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: true } });
-      hooks.useGroupAssociationsAlert.mockReturnValue({
+      useGroupAssociationsAlert.mockReturnValue({
         showNewGroupAssociationAlert: true,
         dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
         enterpriseCustomer: {
@@ -258,7 +279,7 @@ describe('Course enrollments', () => {
   it(
     'does not render NewGroupAssignmentAlert when showNewGroupAssociationAlert is false',
     async () => {
-      hooks.useGroupAssociationsAlert.mockReturnValue({
+      useGroupAssociationsAlert.mockReturnValue({
         showNewGroupAssociationAlert: false,
         dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
         enterpriseCustomer: {
@@ -307,7 +328,7 @@ describe('Course enrollments', () => {
   });
 
   it('renders in progress, upcoming, and requested course enrollments in the same section', async () => {
-    hooks.useCourseEnrollmentsBySection.mockReturnValueOnce({
+    useCourseEnrollmentsBySection.mockReturnValueOnce({
       hasCourseEnrollments: true,
       currentCourseEnrollments: [inProgCourseRun, upcomingCourseRun, transformedLicenseRequest],
       completedCourseEnrollments: [completedCourseRun],
@@ -339,7 +360,7 @@ describe('Course enrollments', () => {
       title: 'third enrollment',
       created: now.add(1, 's').toISOString(),
     };
-    hooks.useCourseEnrollments.mockReturnValueOnce({
+    useCourseEnrollments.mockReturnValueOnce({
       courseEnrollmentsByStatus: {
         inProgress: [mockSecondEnrollment],
         upcoming: [mockThirdEnrollment, mockFirstEnrollment],
@@ -348,7 +369,7 @@ describe('Course enrollments', () => {
         requested: [],
       },
     });
-    hooks.useCourseEnrollmentsBySection.mockReturnValueOnce({
+    useCourseEnrollmentsBySection.mockReturnValueOnce({
       hasCourseEnrollments: true,
       currentCourseEnrollments: [mockFirstEnrollment, mockSecondEnrollment, mockThirdEnrollment],
       completedCourseEnrollments: [],

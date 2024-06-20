@@ -2,6 +2,7 @@ import { Suspense, useState } from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { Bubble, Collapsible, Skeleton } from '@openedx/paragon';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   InProgressCourseCard,
@@ -130,7 +131,7 @@ const CourseSection = ({
           <DelayedFallbackContainer>
             <>
               <div className="sr-only">Loading...</div>
-              {courseRuns.map(() => <Skeleton height={200} className="dashboard-course-card py-3 mb-2" />)}
+              {courseRuns.map(() => <Skeleton key={uuidv4()} height={200} className="dashboard-course-card py-3 mb-2" />)}
             </>
           </DelayedFallbackContainer>
         )}

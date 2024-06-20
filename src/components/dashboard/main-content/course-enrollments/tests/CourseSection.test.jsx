@@ -5,7 +5,7 @@ import * as frontendEnterpriseUtils from '@edx/frontend-enterprise-utils';
 import userEvent from '@testing-library/user-event';
 import CourseSection from '../CourseSection';
 import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
-import { COURSE_MODES, COURSE_STATUSES } from '../../../../../constants';
+import { COURSE_STATUSES } from '../../../../../constants';
 import { useEnterpriseCustomer } from '../../../../app/data';
 import { enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
 
@@ -18,10 +18,6 @@ jest.mock('../course-cards', () => ({
   SavedForLaterCourseCard: () => '<SavedForLaterCourseCard />',
   RequestedCourseCard: () => '<RequestedCourseCard />',
   AssignedCourseCard: () => '<AssignedCourseCard />',
-}));
-jest.mock('../UpgradeableCourseEnrollmentContextProvider', () => ({
-  __esModule: true,
-  UpgradeableCourseEnrollmentContextProvider: () => '<UpgradeableCourseEnrollmentContextProvider />',
 }));
 
 jest.mock('../../../../app/data', () => ({
@@ -77,41 +73,5 @@ describe('<CourseSection />', () => {
     );
 
     expect(screen.getByText(CARD_COMPONENT_BY_COURSE_STATUS[courseStatus]));
-  });
-
-  it.each([
-    {
-      status: COURSE_STATUSES.inProgress,
-      mode: COURSE_MODES.AUDIT,
-      isUpgradeable: true,
-    },
-    {
-      status: COURSE_STATUSES.completed,
-      mode: COURSE_MODES.AUDIT,
-      isUpgradeable: false,
-    },
-    {
-      status: COURSE_STATUSES.inProgress,
-      mode: COURSE_MODES.VERIFIED,
-      isUpgradeable: false,
-    },
-  ])('should wrap Card with <UpgradeableCourseEnrollmentContextProvider /> if course is in progress and in audit mode', ({
-    status, mode, isUpgradeable,
-  }) => {
-    render(
-      <CourseSection
-        title="title"
-        courseRuns={[
-          createCourseEnrollmentWithStatus({ status, mode }),
-        ]}
-      />,
-    );
-
-    const wrapper = screen.queryByText('<UpgradeableCourseEnrollmentContextProvider />');
-    if (isUpgradeable) {
-      expect(wrapper).toBeInTheDocument();
-    } else {
-      expect(wrapper).not.toBeInTheDocument();
-    }
   });
 });
