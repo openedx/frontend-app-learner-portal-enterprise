@@ -9,6 +9,7 @@ import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
 import { useLocation } from 'react-router-dom';
+import { getConfig } from '@edx/frontend-platform';
 import * as service from './service';
 import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
 import {
@@ -138,16 +139,20 @@ export const useCourseUpgradeData = ({
   canUpgradeToVerifiedEnrollment = false,
 }) => {
   const location = useLocation();
+  const isFeatureEnabled = getConfig().FEATURE_ENABLE_LEARNER_CREDIT_AUDIT_UPGRADE;
+
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
+
   const { data: { subscriptionLicense: applicableSubscriptionLicense } } = useSubscriptions(
-    { enabled: !customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment },
+    { enabled: !!customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment },
   );
+
   const { data: couponCodesMetadata } = useCouponCodes({
     select: (data) => ({
       applicableCouponCode: findCouponCodeForCourse(data.couponCodeAssignments, customerContainsContent?.catalogList),
     }),
-    enabled: !applicableSubscriptionLicense,
+    enabled: !!applicableSubscriptionLicense && canUpgradeToVerifiedEnrollment,
   });
   const { data: courseRunDetails } = useCourseRunMetadata(courseRunKey, {
     select: (data) => ({
@@ -155,12 +160,12 @@ export const useCourseUpgradeData = ({
       sku: findHighestLevelSeatSku(data.seats),
       code: data.code,
     }),
-    enabled: !couponCodesMetadata,
+    enabled: !!couponCodesMetadata && canUpgradeToVerifiedEnrollment,
   });
   const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(
     [courseRunKey],
     {
-      enabled: !couponCodesMetadata.applicableCouponCode,
+      enabled: !!isFeatureEnabled && !!couponCodesMetadata.applicableCouponCode && canUpgradeToVerifiedEnrollment,
     },
   );
 
@@ -211,7 +216,7 @@ export const useCourseUpgradeData = ({
       };
     }
 
-    if (learnerCreditMetadata.applicableSubsidyAccessPolicy?.canRedeem) {
+    if (learnerCreditMetadata?.applicableSubsidyAccessPolicy?.canRedeem) {
       // do logic here return early
       const { applicableSubsidyAccessPolicy } = learnerCreditMetadata;
       return {
