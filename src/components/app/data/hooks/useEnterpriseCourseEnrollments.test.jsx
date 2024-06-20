@@ -167,6 +167,7 @@ describe('useEnterpriseCourseEnrollments', () => {
       enrollBy: mockContentAssignment.earliestPossibleExpiration.date,
       isCanceledAssignment: false,
       isExpiredAssignment: false,
+      isExpiringAssignment: false,
       assignmentConfiguration: mockContentAssignment.assignmentConfiguration,
       uuid: mockContentAssignment.uuid,
       learnerAcknowledged: mockContentAssignment.learnerAcknowledged,

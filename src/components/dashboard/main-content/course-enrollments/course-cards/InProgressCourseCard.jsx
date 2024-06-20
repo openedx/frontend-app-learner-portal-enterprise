@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useNavigate } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { FormattedMessage, defineMessages } from '@edx/frontend-platform/i18n';
 
 import dayjs from '../../../../../utils/dayjs';
-import BaseCourseCard from './BaseCourseCard';
+import BaseCourseCard, { getScreenReaderText } from './BaseCourseCard';
 import { MarkCompleteModal } from './mark-complete-modal';
 import ContinueLearningButton from './ContinueLearningButton';
 
@@ -14,7 +15,15 @@ import Notification from './Notification';
 import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
 import UpgradeCourseButton from './UpgradeCourseButton';
 import { useEnterpriseCustomer } from '../../../../app/data';
-import { useUpdateCourseEnrollmentStatus } from '../data';
+import { COURSE_STATUSES, useUpdateCourseEnrollmentStatus } from '../data';
+
+const messages = defineMessages({
+  saveCourseForLater: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.save_for_later',
+    defaultMessage: 'Save course for later <s>for {courseTitle}</s>',
+    description: 'Text for the save course for later button in the course card dropdown menu',
+  },
+});
 
 export const InProgressCourseCard = ({
   linkToCourse,
@@ -79,16 +88,19 @@ export const InProgressCourseCard = ({
           sendEnterpriseTrackEvent(
             enterpriseCustomer.uuid,
             'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.modal.opened',
-            {
-              course_run_id: courseRunId,
-            },
+            { course_run_id: courseRunId },
           );
         },
         children: (
-          <>
-            Save course for later
-            <span className="sr-only">for {title}</span>
-          </>
+          <div role="menuitem">
+            <FormattedMessage
+              {...messages.saveCourseForLater}
+              values={{
+                s: getScreenReaderText,
+                courseTitle: title,
+              }}
+            />
+          </div>
         ),
       }];
     }
@@ -100,9 +112,7 @@ export const InProgressCourseCard = ({
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.modal.closed',
-      {
-        course_run_id: courseRunId,
-      },
+      { course_run_id: courseRunId },
     );
   };
 
@@ -110,9 +120,7 @@ export const InProgressCourseCard = ({
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.saved',
-      {
-        course_run_id: courseRunId,
-      },
+      { course_run_id: courseRunId },
     );
     setIsMarkCompleteModalOpen(false);
     resetModalState();
@@ -155,7 +163,7 @@ export const InProgressCourseCard = ({
 
   return (
     <BaseCourseCard
-      type="in_progress"
+      type={COURSE_STATUSES.inProgress}
       buttons={renderButtons()}
       dropdownMenuItems={getDropdownMenuItems()}
       title={title}

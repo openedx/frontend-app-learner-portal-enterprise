@@ -81,11 +81,6 @@ const DashboardPage = () => {
         onClose={handleSubscriptionLicenseActivationAlertClose}
         className="mt-3"
         dismissible
-        closeLabel={intl.formatMessage({
-          id: 'enterprise.dashboard.course.assignment.alert.dismiss.button.label',
-          defaultMessage: 'Dismiss',
-          description: 'Dismiss button label for the course assignment alert',
-        })}
       >
         <FormattedMessage
           id="enterprise.dashboard.tab.courses.license.activated"

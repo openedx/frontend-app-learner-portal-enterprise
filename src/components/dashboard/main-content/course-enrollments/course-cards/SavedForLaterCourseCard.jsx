@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { FormattedMessage, defineMessages } from '@edx/frontend-platform/i18n';
 
-import BaseCourseCard from './BaseCourseCard';
+import BaseCourseCard, { getScreenReaderText } from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
 import { MoveToInProgressModal } from './move-to-in-progress-modal';
 
@@ -11,6 +12,14 @@ import { isCourseEnded } from '../../../../../utils/common';
 import { COURSE_STATUSES } from '../data/constants';
 import { useEnterpriseCustomer } from '../../../../app/data';
 import { useUpdateCourseEnrollmentStatus } from '../data';
+
+const messages = defineMessages({
+  unsaveCourseForLater: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.unsave_for_later',
+    defaultMessage: 'Move to In Progress <s>for {courseTitle}</s>',
+    description: 'Text for the unsave course for later button in the course card dropdown menu',
+  },
+});
 
 const SavedForLaterCourseCard = (props) => {
   const {
@@ -81,15 +90,18 @@ const SavedForLaterCourseCard = (props) => {
           sendEnterpriseTrackEvent(
             enterpriseCustomer.uuid,
             'edx.ui.enterprise.learner_portal.dashboard.course.move_to_in_progress.modal.opened',
-            {
-              course_run_id: courseRunId,
-            },
+            { course_run_id: courseRunId },
           );
         },
         children: (
           <div role="menuitem">
-            Move to In Progress
-            <span className="sr-only">for {title}</span>
+            <FormattedMessage
+              {...messages.unsaveCourseForLater}
+              values={{
+                s: getScreenReaderText,
+                courseTitle: title,
+              }}
+            />
           </div>
         ),
       },

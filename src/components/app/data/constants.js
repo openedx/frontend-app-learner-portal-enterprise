@@ -33,3 +33,5 @@ export const COURSE_MODES_MAP = {
   HONOR: 'honor',
   PAID_EXECUTIVE_EDUCATION: 'paid-executive-education',
 };
+
+export const ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS = 10;
