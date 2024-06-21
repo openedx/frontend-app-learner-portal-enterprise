@@ -27,7 +27,7 @@ export const InProgressCourseCard = ({
   mode,
   ...rest
 }) => {
-  // TODO: Import learnerCreditUpgradeUrl field
+  // TODO: Destructure learnerCreditUpgradeUrl field here
   const {
     licenseUpgradeUrl,
     couponUpgradeUrl,

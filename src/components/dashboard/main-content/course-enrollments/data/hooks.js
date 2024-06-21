@@ -132,7 +132,6 @@ export const useCourseEnrollments = ({
  *     learnerCreditUpgradeUrl: undefined,
  *     subsidyForCourse: undefined,
  *     courseRunPrice: undefined,
- *     isLoading: false,
  *     }
  */
 export const useCourseUpgradeData = ({
@@ -222,7 +221,6 @@ export const useCourseUpgradeData = ({
 
     // Construct and return learner credit based upgrade url
     if (learnerCreditMetadata?.applicableSubsidyAccessPolicy?.canRedeem) {
-      // do logic here return early
       const { applicableSubsidyAccessPolicy } = learnerCreditMetadata;
       return {
         ...defaultReturn,

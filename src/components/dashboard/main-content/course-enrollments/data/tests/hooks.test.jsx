@@ -206,10 +206,12 @@ describe('useCourseEnrollments', () => {
       });
     });
 
-    it('should return undefined for upgrade urls if the course is not part of the enterprise catalog', () => {
+    it.each([
+      true,
+      false])('should return undefined for upgrade urls if the course is and isn\'t part of the subsidies but no subsides exist', (containsContentItems) => {
       useEnterpriseCustomerContainsContent.mockReturnValue({
         data: {
-          containsContentItems: false,
+          containsContentItems,
           catalogList: [],
         },
       });
