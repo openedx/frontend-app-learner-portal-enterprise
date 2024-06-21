@@ -33,6 +33,7 @@ import {
   useCouponCodes,
   getSubsidyToApplyForCourse,
   useCourseRunMetadata,
+  COURSE_MODES_MAP,
 } from '../../../../app/data';
 import {
   sortedEnrollmentsByEnrollmentDate,
@@ -123,7 +124,7 @@ export const useCourseEnrollments = ({
  *
  * @param {object} args Arguments.
  * @param {String} args.courseRunKey id of the course run
- * @param {Boolean} args.canUpgradeToVerifiedEnrollment whether the course run is eligible to be upgraded,
+ * @param {String} args.mode The mode of the course. Used as a gating mechanism for upgradability
  * default: false
  * @returns {Object} {
  *     licenseUpgradeUrl: undefined,
@@ -136,23 +137,35 @@ export const useCourseEnrollments = ({
  */
 export const useCourseUpgradeData = ({
   courseRunKey,
-  canUpgradeToVerifiedEnrollment = false,
+  mode,
 }) => {
   const location = useLocation();
+  // We determine whether the course mode is such that it can be upgraded
+  const canUpgradeToVerifiedEnrollment = [COURSE_MODES_MAP.AUDIT, COURSE_MODES_MAP.HONOR].includes(mode);
   const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
 
+  // TODO: Remove authenticatedUser?.administrator flag when rolling out
+  // Metadata required to allow upgrade via applicable learner credit
+  const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(
+    [courseRunKey],
+    { enabled: authenticatedUser?.administrator && canUpgradeToVerifiedEnrollment },
+  );
+
+  // Metadata required to allow upgrade via applicable subscription license
   const { data: { subscriptionLicense: applicableSubscriptionLicense } } = useSubscriptions(
     { enabled: customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment },
   );
 
+  // Metadata required to allow upgrade via applicable coupon codes
   const { data: couponCodesMetadata } = useCouponCodes({
     select: (data) => ({
       applicableCouponCode: findCouponCodeForCourse(data.couponCodeAssignments, customerContainsContent?.catalogList),
     }),
-    enabled: !applicableSubscriptionLicense && canUpgradeToVerifiedEnrollment,
+    enabled: canUpgradeToVerifiedEnrollment,
   });
+  // If coupon codes are not eligible, there is no need to make this call
   const { data: courseRunDetails } = useCourseRunMetadata(courseRunKey, {
     select: (data) => ({
       ...data,
@@ -161,14 +174,6 @@ export const useCourseUpgradeData = ({
     }),
     enabled: !couponCodesMetadata.applicableCouponCode && canUpgradeToVerifiedEnrollment,
   });
-  // TODO: Remove authenticatedUser?.administrator flag when rolling out
-  const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(
-    [courseRunKey],
-    {
-      enabled: authenticatedUser?.administrator
-        && !couponCodesMetadata?.applicableCouponCode && canUpgradeToVerifiedEnrollment,
-    },
-  );
 
   return useMemo(() => {
     const defaultReturn = {
@@ -177,16 +182,15 @@ export const useCourseUpgradeData = ({
       learnerCreditUpgradeUrl: undefined,
       subsidyForCourse: undefined,
       courseRunPrice: undefined,
-      isLoading: true,
     };
 
+    // Exit early if the content to upgrade is not contained in the customers content or
+    // if they are unable to upgrade due to their course mode
     if (!customerContainsContent?.containsContentItems || !canUpgradeToVerifiedEnrollment) {
-      return {
-        ...defaultReturn,
-        isLoading: false,
-      };
+      return defaultReturn;
     }
 
+    // Construct and return subscription based upgrade url
     if (applicableSubscriptionLicense) {
       return {
         ...defaultReturn,
@@ -197,10 +201,10 @@ export const useCourseUpgradeData = ({
           licenseUUID: applicableSubscriptionLicense.uuid,
           location,
         }),
-        isLoading: false,
       };
     }
 
+    // Construct and return coupon code based upgrade url
     if (couponCodesMetadata?.applicableCouponCode) {
       const { applicableCouponCode } = couponCodesMetadata;
       return {
@@ -213,10 +217,10 @@ export const useCourseUpgradeData = ({
           location,
         }),
         courseRunPrice: courseRunDetails.firstEnrollablePaidSeatPrice,
-        isLoading: false,
       };
     }
 
+    // Construct and return learner credit based upgrade url
     if (learnerCreditMetadata?.applicableSubsidyAccessPolicy?.canRedeem) {
       // do logic here return early
       const { applicableSubsidyAccessPolicy } = learnerCreditMetadata;
@@ -224,14 +228,11 @@ export const useCourseUpgradeData = ({
         ...defaultReturn,
         subsidyForCourse: getSubsidyToApplyForCourse({ applicableSubsidyAccessPolicy }),
         learnerCreditUpgradeUrl: applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
-        isLoading: false,
       };
     }
 
-    return {
-      ...defaultReturn,
-      isLoading: false,
-    };
+    // If none is applicable, return with defaultReturn values
+    return defaultReturn;
   }, [
     applicableSubscriptionLicense,
     canUpgradeToVerifiedEnrollment,

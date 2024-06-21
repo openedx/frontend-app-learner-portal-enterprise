@@ -1,5 +1,4 @@
 import { COURSE_STATUSES } from '../data/constants';
-import { COURSE_MODES } from '../../../../../constants';
 
 /**
  * Generate an enrollment with given status.
@@ -20,7 +19,6 @@ const createCourseEnrollmentWithStatus = ({ status = COURSE_STATUSES.inProgress,
     isRevoked: false,
     mode,
     isCancelledAssignment,
-    canUpgradeToVerifiedEnrollment: [COURSE_MODES.AUDIT, COURSE_MODES.HONOR].includes(mode),
   });
 };
 

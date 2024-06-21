@@ -34,7 +34,7 @@ import {
   useEnterpriseCustomerContainsContent,
   useRedeemablePolicies,
   useSubscriptions,
-  useCourseRunMetadata,
+  useCourseRunMetadata, COURSE_MODES_MAP,
 } from '../../../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 
@@ -180,7 +180,6 @@ describe('useCourseEnrollments', () => {
     const location = { pathname: '/', search: '' };
     const basicArgs = {
       courseRunKey,
-      canUpgradeToVerifiedEnrollment: false,
     };
     beforeEach(() => {
       jest.clearAllMocks();
@@ -221,7 +220,6 @@ describe('useCourseEnrollments', () => {
       expect(result.current.couponUpgradeUrl).toBeUndefined();
       expect(result.current.courseRunPrice).toBeUndefined();
       expect(result.current.learnerCreditUpgradeUrl).toBeUndefined();
-      expect(result.current.isLoading).toEqual(false);
     });
 
     describe('upgradeable via license', () => {
@@ -248,10 +246,9 @@ describe('useCourseEnrollments', () => {
 
         const { result } = renderHook(() => useCourseUpgradeData({
           ...basicArgs,
-          canUpgradeToVerifiedEnrollment: true,
+          mode: COURSE_MODES_MAP.AUDIT,
         }), { wrapper });
 
-        expect(result.current.isLoading).toEqual(false);
         expect(result.current.licenseUpgradeUrl).toEqual(createEnrollWithLicenseUrl({
           courseRunKey,
           enterpriseId,
@@ -289,12 +286,12 @@ describe('useCourseEnrollments', () => {
             firstEnrollablePaidSeatPrice: coursePrice,
             sku: findHighestLevelSeatSku([
               {
-                type: 'verified',
+                type: COURSE_MODES_MAP.VERIFIED,
                 price: coursePrice,
                 sku,
               },
               {
-                type: 'audit',
+                type: COURSE_MODES_MAP.AUDIT,
                 price: '0.00',
                 sku: 'abcdef',
               },
@@ -304,10 +301,8 @@ describe('useCourseEnrollments', () => {
 
         const { result } = renderHook(() => useCourseUpgradeData({
           ...basicArgs,
-          canUpgradeToVerifiedEnrollment: true,
+          mode: COURSE_MODES_MAP.AUDIT,
         }), { wrapper });
-
-        expect(result.current.isLoading).toEqual(false);
 
         expect(result.current.licenseUpgradeUrl).toBeUndefined();
         expect(result.current.couponUpgradeUrl).toEqual(createEnrollWithCouponCodeUrl({
@@ -318,7 +313,6 @@ describe('useCourseEnrollments', () => {
         }));
         expect(result.current.learnerCreditUpgradeUrl).toBeUndefined();
         expect(result.current.courseRunPrice).toEqual(coursePrice);
-        expect(result.current.isLoading).toEqual(false);
       });
     });
 
@@ -371,10 +365,8 @@ describe('useCourseEnrollments', () => {
 
         const { result } = renderHook(() => useCourseUpgradeData({
           ...basicArgs,
-          canUpgradeToVerifiedEnrollment: true,
+          mode: COURSE_MODES_MAP.AUDIT,
         }), { wrapper });
-
-        expect(result.current.isLoading).toEqual(false);
 
         expect(result.current.licenseUpgradeUrl).toBeUndefined();
         expect(result.current.couponUpgradeUrl).toBeUndefined();
@@ -382,7 +374,6 @@ describe('useCourseEnrollments', () => {
           mockCanUpgradeWithLearnerCredit.redeemableSubsidyAccessPolicy.policyRedemptionUrl,
         );
         expect(result.current.courseRunPrice).toBeUndefined();
-        expect(result.current.isLoading).toEqual(false);
       });
     });
   });

@@ -6,7 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { InProgressCourseCard } from '../InProgressCourseCard';
-import { useCouponCodes, useEnterpriseCustomer } from '../../../../../app/data';
+import { COURSE_MODES_MAP, useCouponCodes, useEnterpriseCustomer } from '../../../../../app/data';
 import { queryClient } from '../../../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 import { useCourseUpgradeData } from '../../data';
@@ -27,8 +27,7 @@ const basicProps = {
   linkToCourse: 'https://edx.org',
   courseRunId: 'my+course+key',
   notifications: [],
-  mode: 'verified',
-  canUpgradeToVerifiedEnrollment: false,
+  mode: COURSE_MODES_MAP.VERIFIED,
 };
 
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -70,7 +69,6 @@ describe('<InProgressCourseCard />', () => {
       learnerCreditUpgradeUrl: undefined,
       subsidyForCourse: undefined,
       courseRunPrice: undefined,
-      isLoading: true,
     });
   });
 
@@ -86,7 +84,6 @@ describe('<InProgressCourseCard />', () => {
       courseRunPrice: 100,
       learnerCreditUpgradeUrl: undefined,
       subsidyForCourse: undefined,
-      isLoading: false,
     });
     renderWithRouter(<InProgressCourseCardWrapper
       {...basicProps}

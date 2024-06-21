@@ -12,8 +12,8 @@ import { Info, InfoOutline, MoreVert } from '@openedx/paragon/icons';
 import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
-import { COURSE_PACING, COURSE_STATUSES, EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
-import { useEnterpriseCustomer } from '../../../../app/data';
+import { COURSE_PACING, COURSE_STATUSES } from '../../../../../constants';
+import { EXECUTIVE_EDUCATION_COURSE_MODES, useEnterpriseCustomer } from '../../../../app/data';
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.inProgress]: {

@@ -6,6 +6,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import { fetchCanRedeem, fetchCourseMetadata, fetchCourseRunMetadata } from './course';
 import { findHighestLevelEntitlementSku, getActiveCourseRun } from '../utils';
 import { getErrorResponseStatusCode } from '../../../../utils/common';
+import { COURSE_MODES_MAP } from '../constants';
 
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
@@ -85,7 +86,7 @@ describe('fetchCourseRunMetadata', () => {
     key: mockCourseRunKey,
     title: 'edX Demonstration Course',
     seats: [{
-      type: 'audit',
+      type: COURSE_MODES_MAP.AUDIT,
       price: '0.00',
       currency: 'USD',
       upgradeDeadline: null,

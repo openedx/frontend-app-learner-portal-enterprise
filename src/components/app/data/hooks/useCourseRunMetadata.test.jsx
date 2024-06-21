@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../../../../utils/tests';
 import { fetchCourseRunMetadata } from '../services';
 import { useCourseRunMetadata } from './index';
+import { COURSE_MODES_MAP } from '../constants';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('../services', () => ({
@@ -11,7 +12,7 @@ jest.mock('../services', () => ({
 }));
 const mockCourseRunMetadata = {
   seats: [{
-    type: 'audit',
+    type: COURSE_MODES_MAP.AUDIT,
     price: '0.00',
     currency: 'USD',
     upgradeDeadline: null,

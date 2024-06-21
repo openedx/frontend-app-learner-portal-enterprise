@@ -14,6 +14,7 @@ import Notification from './Notification';
 import UpgradeCourseButton from './UpgradeCourseButton';
 import { useEnterpriseCustomer } from '../../../../app/data';
 import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
+import { COURSE_STATUSES } from '../../../../../constants';
 
 export const InProgressCourseCard = ({
   linkToCourse,
@@ -22,18 +23,15 @@ export const InProgressCourseCard = ({
   notifications,
   courseRunStatus,
   startDate,
-  mode,
   resumeCourseRunUrl,
-  canUpgradeToVerifiedEnrollment,
+  mode,
   ...rest
 }) => {
   // TODO: Import learnerCreditUpgradeUrl field
   const {
-    isLoading: isLoadingUpgradeUrl,
     licenseUpgradeUrl,
     couponUpgradeUrl,
-  } = useCourseUpgradeData({ courseRunKey: courseRunId, canUpgradeToVerifiedEnrollment });
-
+  } = useCourseUpgradeData({ courseRunKey: courseRunId, mode });
   const navigate = useNavigate();
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
   const shouldShowUpgradeButton = !!couponUpgradeUrl;
@@ -54,7 +52,7 @@ export const InProgressCourseCard = ({
         startDate={startDate}
         resumeCourseRunUrl={resumeCourseRunUrl}
       />
-      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} courseRunKey={courseRunId} />}
+      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} courseRunKey={courseRunId} mode={mode} />}
     </>
   );
 
@@ -156,13 +154,12 @@ export const InProgressCourseCard = ({
 
   return (
     <BaseCourseCard
-      type="in_progress"
+      type={COURSE_STATUSES.inProgress}
       buttons={renderButtons()}
       dropdownMenuItems={getDropdownMenuItems()}
       title={title}
       linkToCourse={licenseUpgradeUrl ?? linkToCourse}
       courseRunId={courseRunId}
-      isLoading={isLoadingUpgradeUrl}
       mode={mode}
       startDate={startDate}
       {...rest}
@@ -193,7 +190,6 @@ InProgressCourseCard.propTypes = {
   startDate: PropTypes.string,
   mode: PropTypes.string,
   resumeCourseRunUrl: PropTypes.string,
-  canUpgradeToVerifiedEnrollment: PropTypes.bool.isRequired,
 };
 
 InProgressCourseCard.defaultProps = {

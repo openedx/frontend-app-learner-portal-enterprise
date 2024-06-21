@@ -18,7 +18,12 @@ import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complet
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
 import { COURSE_STATUSES } from '../data/constants';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { useEnterpriseCourseEnrollments, useEnterpriseCustomer, useEnterpriseFeatures } from '../../../../app/data';
+import {
+  COURSE_MODES_MAP,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+  useEnterpriseFeatures,
+} from '../../../../app/data';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
 import {
@@ -201,7 +206,7 @@ describe('Course enrollments', () => {
       isExpiredAssignment: false,
       endDate: dayjs().add(1, 'day').toISOString(),
       startDate: dayjs().subtract(1, 'day').toISOString(),
-      mode: 'verified',
+      mode: COURSE_MODES_MAP.VERIFIED,
     };
 
     useContentAssignments.mockReturnValue({
@@ -236,7 +241,7 @@ describe('Course enrollments', () => {
       isExpiredAssignment: true,
       endDate: dayjs().subtract(1, 'day').toISOString(),
       startDate: dayjs().subtract(30, 'day').toISOString(),
-      mode: 'verified',
+      mode: COURSE_MODES_MAP.VERIFIED,
     };
     useContentAssignments.mockReturnValue({
       assignments: [mockAssignment],

@@ -9,6 +9,7 @@ import { PROGRAM_TYPE_MAP } from '../../../program/data/constants';
 import MicroMastersProgramDetailsSvgIcon from '../../../../assets/icons/micromasters-program-details.svg';
 import ProfCertProgramDetailsSvgIcon from '../../../../assets/icons/professional-certificate-program-details.svg';
 import XSeriesProgramDetailsSvgIcon from '../../../../assets/icons/xseries-program-details.svg';
+import { COURSE_MODES_MAP } from '../../../app/data';
 
 describe('getProgramIcon', () => {
   it('returns logo when program type is micromasters', () => {
@@ -86,7 +87,7 @@ const enrolledCourses = {
           status: 'published',
           seats: [
             {
-              type: 'verified',
+              type: COURSE_MODES_MAP.VERIFIED,
               price: '149.00',
               currency: 'USD',
               upgrade_deadline: '2022-04-06T06:36:26.667883Z',
@@ -97,7 +98,7 @@ const enrolledCourses = {
               bulk_sku: 'A5B6DBE',
             },
             {
-              type: 'audit',
+              type: COURSE_MODES_MAP.AUDIT,
               price: '0.00',
               currency: 'USD',
               upgrade_deadline: null,

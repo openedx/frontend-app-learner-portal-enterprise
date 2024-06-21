@@ -15,6 +15,7 @@ const UpgradeCourseButton = ({
   title,
   variant,
   courseRunKey,
+  mode,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -24,7 +25,7 @@ const UpgradeCourseButton = ({
     subsidyForCourse,
     couponUpgradeUrl,
     courseRunPrice,
-  } = useCourseUpgradeData({ courseRunKey, canUpgradeToVerifiedEnrollment: true });
+  } = useCourseUpgradeData({ courseRunKey, mode });
 
   const handleClick = () => {
     setIsModalOpen(true);
@@ -70,6 +71,7 @@ UpgradeCourseButton.propTypes = {
   variant: PropTypes.string,
   title: PropTypes.string.isRequired,
   courseRunKey: PropTypes.string.isRequired,
+  mode: PropTypes.string.isRequired,
 };
 
 UpgradeCourseButton.defaultProps = {
