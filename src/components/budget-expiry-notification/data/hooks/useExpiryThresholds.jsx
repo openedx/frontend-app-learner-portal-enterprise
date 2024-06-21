@@ -94,7 +94,7 @@ const useExpiryThresholds = () => {
       alertTemplate: {
         title: intl.formatMessage(
           {
-            id: 'enterprise.budget.expiry.notification.alert.title',
+            id: 'enterprise.budget.expiry.reminder.notification.alert.title',
             defaultMessage: 'Reminder: Your organization’s plan expires {date}',
             description: 'Title for the alert when learning credit is expiring.',
           },
@@ -117,7 +117,7 @@ const useExpiryThresholds = () => {
       modalTemplate: {
         title: intl.formatMessage(
           {
-            id: 'enterprise.budget.expiry.notification.modal.title',
+            id: 'enterprise.budget.expiry.reminder.notification.modal.title',
             defaultMessage: 'Reminder: Your learning credit is expiring',
             description: 'Title for the modal when learning credit is expiring.',
           },
