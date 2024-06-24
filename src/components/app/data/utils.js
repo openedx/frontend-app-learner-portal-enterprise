@@ -3,10 +3,10 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { getBrandColorsFromCSSVariables } from '../../../utils/common';
+import { getBrandColorsFromCSSVariables, isTodayWithinDateThreshold } from '../../../utils/common';
 import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
-import { COURSE_AVAILABILITY_MAP, COURSE_MODES_MAP } from './constants';
+import { COURSE_AVAILABILITY_MAP, COURSE_MODES_MAP, ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS } from './constants';
 import { features } from '../../../config';
 
 /**
@@ -379,6 +379,10 @@ export const transformLearnerContentAssignment = (learnerContentAssignment, ente
     enrollBy: assignmentEnrollByDeadline,
     isCanceledAssignment,
     isExpiredAssignment,
+    isExpiringAssignment: isTodayWithinDateThreshold({
+      date: assignmentEnrollByDeadline,
+      days: ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
+    }),
     assignmentConfiguration: learnerContentAssignment.assignmentConfiguration,
     uuid: learnerContentAssignment.uuid,
     learnerAcknowledged: learnerContentAssignment.learnerAcknowledged,

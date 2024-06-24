@@ -128,6 +128,7 @@ jest.mock('../data/utils', () => ({
 
 const mockAcknowledgeAssignments = jest.fn();
 const mockDismissGroupAssociationAlert = jest.fn();
+const mockHandleAcknowledgeExpiringAssignments = jest.fn();
 
 describe('Course enrollments', () => {
   beforeEach(() => {
@@ -178,6 +179,7 @@ describe('Course enrollments', () => {
       notifications: [],
       isCanceledAssignment: true,
       isExpiredAssignment: false,
+      isExpiringAssignment: false,
       endDate: dayjs().add(1, 'day').toISOString(),
       startDate: dayjs().subtract(1, 'day').toISOString(),
       mode: 'verified',
@@ -213,6 +215,7 @@ describe('Course enrollments', () => {
       notifications: [],
       isCanceledAssignment: false,
       isExpiredAssignment: true,
+      isExpiringAssignment: false,
       endDate: dayjs().subtract(1, 'day').toISOString(),
       startDate: dayjs().subtract(30, 'day').toISOString(),
       mode: 'verified',
@@ -236,40 +239,70 @@ describe('Course enrollments', () => {
     expect(mockAcknowledgeAssignments).toHaveBeenCalledWith({ assignmentState: ASSIGNMENT_TYPES.EXPIRED });
   });
 
-  it(
-    'renders NewGroupAssignmentAlert when showNewGroupAssociationAlert is true',
-    async () => {
-      useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: true } });
-      hooks.useGroupAssociationsAlert.mockReturnValue({
-        showNewGroupAssociationAlert: true,
-        dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
-        enterpriseCustomer: {
-          name: 'test-enterprise-customer',
-        },
-      });
-      renderWithRouter(<CourseEnrollmentsWrapper />);
-      const dismissButton = screen.getAllByRole('button', { name: 'Dismiss' })[0];
-      userEvent.click(dismissButton);
-      expect(await screen.findByText('You have new courses to browse')).toBeInTheDocument();
-      expect(mockDismissGroupAssociationAlert).toHaveBeenCalledTimes(1);
-    },
-  );
+  it('renders dismissible alert for expiring assignments and renders expiring assignment cards', async () => {
+    const mockCourseKey = 'test-courseKey';
+    const mockAssignment = {
+      state: ASSIGNMENT_TYPES.ALLOCATED,
+      courseRunId: mockCourseKey,
+      courseRunStatus: COURSE_STATUSES.assigned,
+      title: 'test-title',
+      linkToCourse: `/test-enterprise/course/${mockCourseKey}`,
+      notifications: [],
+      isCanceledAssignment: false,
+      isExpiredAssignment: false,
+      isExpiringAssignment: true,
+      endDate: dayjs().subtract(1, 'day').toISOString(),
+      startDate: dayjs().subtract(30, 'day').toISOString(),
+      mode: 'verified',
+    };
+    hooks.useContentAssignments.mockReturnValue({
+      assignments: [mockAssignment],
+      showCanceledAssignmentsAlert: false,
+      showExpiredAssignmentsAlert: false,
+      showExpiringAssignmentsAlert: true,
+      handleAcknowledgeExpiringAssignments: mockHandleAcknowledgeExpiringAssignments,
+    });
+    renderWithRouter(<CourseEnrollmentsWrapper />);
+    // Verify expiring assignment card is visible initially
+    expect(screen.getByText(mockAssignment.title)).toBeInTheDocument();
+    // Verify expiring alert is visible initially
+    expect(screen.getByText('Enrollment deadlines approaching')).toBeInTheDocument();
+    // Handles dismiss behavior
+    const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
+    userEvent.click(dismissButton);
+    await waitFor(() => {
+      expect(mockHandleAcknowledgeExpiringAssignments).toHaveBeenCalledTimes(1);
+    });
+  });
 
-  it(
-    'does not render NewGroupAssignmentAlert when showNewGroupAssociationAlert is false',
-    async () => {
-      hooks.useGroupAssociationsAlert.mockReturnValue({
-        showNewGroupAssociationAlert: false,
-        dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
-        enterpriseCustomer: {
-          name: 'test-enterprise-customer',
-        },
-      });
-      renderWithRouter(<CourseEnrollmentsWrapper />);
-      expect(screen.queryByText('You have new courses to browse')).not.toBeInTheDocument();
-      expect(mockDismissGroupAssociationAlert).not.toHaveBeenCalled();
-    },
-  );
+  it('renders NewGroupAssignmentAlert when showNewGroupAssociationAlert is true', async () => {
+    useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: true } });
+    hooks.useGroupAssociationsAlert.mockReturnValue({
+      showNewGroupAssociationAlert: true,
+      dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
+      enterpriseCustomer: {
+        name: 'test-enterprise-customer',
+      },
+    });
+    renderWithRouter(<CourseEnrollmentsWrapper />);
+    const dismissButton = screen.getAllByRole('button', { name: 'Dismiss' })[0];
+    userEvent.click(dismissButton);
+    expect(await screen.findByText('You have new courses to browse')).toBeInTheDocument();
+    expect(mockDismissGroupAssociationAlert).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not render NewGroupAssignmentAlert when showNewGroupAssociationAlert is false', async () => {
+    hooks.useGroupAssociationsAlert.mockReturnValue({
+      showNewGroupAssociationAlert: false,
+      dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
+      enterpriseCustomer: {
+        name: 'test-enterprise-customer',
+      },
+    });
+    renderWithRouter(<CourseEnrollmentsWrapper />);
+    expect(screen.queryByText('You have new courses to browse')).not.toBeInTheDocument();
+    expect(mockDismissGroupAssociationAlert).not.toHaveBeenCalled();
+  });
 
   it('generates course status update on move to in progress action', async () => {
     useLocation.mockReturnValue({

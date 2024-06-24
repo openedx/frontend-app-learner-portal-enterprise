@@ -18,7 +18,7 @@ import {
   findHighestLevelSeatSku,
   getSubsidyToApplyForCourse,
 } from '../../../../course/data/utils';
-import { getHasUnacknowledgedAssignments } from '../../../data/utils';
+import { getExpiringAssignmentsAcknowledgementState, getHasUnacknowledgedAssignments } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
   groupCourseEnrollmentsByStatus,
@@ -33,6 +33,7 @@ import {
   sortedEnrollmentsByEnrollmentDate,
   sortAssignmentsByAssignmentStatus,
 } from './utils';
+import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../data/constants';
 
 export const useCourseEnrollments = ({
   enterpriseUUID,
@@ -260,9 +261,19 @@ export function useContentAssignments() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: { allEnrollmentsByStatus } } = useEnterpriseCourseEnrollments();
   const [assignments, setAssignments] = useState([]);
+  const [showExpiringAssignmentsAlert, setShowExpiringAssignmentsAlert] = useState(false);
   const [showCanceledAssignmentsAlert, setShowCanceledAssignmentsAlert] = useState(false);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
   const [isAcknowledgingAssignments, setIsAcknowledgingAssignments] = useState(false);
+
+  const handleAcknowledgeExpiringAssignments = useCallback(() => {
+    const { expiringAssignments } = getExpiringAssignmentsAcknowledgementState(assignments);
+    global.localStorage.setItem(
+      ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY,
+      JSON.stringify(expiringAssignments.map(assignment => assignment.uuid)),
+    );
+    setShowExpiringAssignmentsAlert(false);
+  }, [assignments]);
 
   const {
     mutateAsync,
@@ -326,6 +337,10 @@ export function useContentAssignments() {
     const sortedAssignmentsForDisplay = sortAssignmentsByAssignmentStatus(assignmentsForDisplay);
     setAssignments(sortedAssignmentsForDisplay);
 
+    // Determine whether there are expiring assignments. If so, display alert.
+    const { hasUnacknowledgedExpiringAssignments } = getExpiringAssignmentsAcknowledgementState(assignmentsForDisplay);
+    setShowExpiringAssignmentsAlert(hasUnacknowledgedExpiringAssignments);
+
     // Determine whether there are unacknowledged canceled assignments. If so, display alert.
     const hasUnacknowledgedCanceledAssignments = getHasUnacknowledgedAssignments(canceledAssignments);
     setShowCanceledAssignmentsAlert(hasUnacknowledgedCanceledAssignments);
@@ -339,6 +354,8 @@ export function useContentAssignments() {
     assignments,
     showCanceledAssignmentsAlert,
     showExpiredAssignmentsAlert,
+    showExpiringAssignmentsAlert,
+    handleAcknowledgeExpiringAssignments,
     handleAcknowledgeAssignments,
     isAcknowledgingAssignments,
   };

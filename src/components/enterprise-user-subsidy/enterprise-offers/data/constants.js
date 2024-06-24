@@ -37,6 +37,7 @@ export const ASSIGNMENT_TYPES = {
   CANCELED: 'cancelled',
   EXPIRED: 'expired',
   ERRORED: 'errored',
+  EXPIRING: 'expiring',
 };
 export const POLICY_TYPES = {
   ASSIGNED_CREDIT: 'AssignedLearnerCreditAccessPolicy',

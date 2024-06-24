@@ -2,8 +2,9 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 import { UpgradeableCourseEnrollmentContext } from '../../UpgradeableCourseEnrollmentContextProvider';
 import { InProgressCourseCard } from '../InProgressCourseCard';
@@ -16,7 +17,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-const basicProps = {
+const baseProps = {
   courseRunStatus: 'in_progress',
   title: 'edX Demonstration Course',
   linkToCourse: 'https://edx.org',
@@ -47,11 +48,13 @@ const InProgressCourseCardWrapper = ({
   ...rest
 }) => (
   <QueryClientProvider client={queryClient()}>
-    <AppContext.Provider value={appContextValue}>
-      <UpgradeableCourseEnrollmentContext.Provider value={upgradeableCourseEnrollmentContextValue}>
-        <InProgressCourseCard {...rest} />
-      </UpgradeableCourseEnrollmentContext.Provider>
-    </AppContext.Provider>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={appContextValue}>
+        <UpgradeableCourseEnrollmentContext.Provider value={upgradeableCourseEnrollmentContextValue}>
+          <InProgressCourseCard {...rest} />
+        </UpgradeableCourseEnrollmentContext.Provider>
+      </AppContext.Provider>
+    </IntlProvider>
   </QueryClientProvider>
 );
 
@@ -69,13 +72,13 @@ describe('<InProgressCourseCard />', () => {
   });
 
   it('should not render upgrade course button if there is no couponUpgradeUrl', () => {
-    renderWithRouter(<InProgressCourseCardWrapper {...basicProps} />);
+    renderWithRouter(<InProgressCourseCardWrapper {...baseProps} />);
     expect(screen.queryByTestId('upgrade-course-button')).not.toBeInTheDocument();
   });
 
   it('should render upgrade course button if there is a couponUpgradeUrl', () => {
     renderWithRouter(<InProgressCourseCardWrapper
-      {...basicProps}
+      {...baseProps}
       upgradeableCourseEnrollmentContextValue={
         {
           isLoading: false,

@@ -1,38 +1,103 @@
 import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import {
-  Badge, Col, Dropdown, Icon, IconButton, OverlayTrigger, Row, Skeleton, Tooltip,
+  Badge, Col, Dropdown, Icon, IconButton, IconButtonWithTooltip, Row, Skeleton, Hyperlink, Stack,
 } from '@openedx/paragon';
+import {
+  Info,
+  InfoOutline,
+  MoreVert,
+  Warning,
+} from '@openedx/paragon/icons';
 import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
+import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { Info, InfoOutline, MoreVert } from '@openedx/paragon/icons';
 
 import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
 import { COURSE_PACING, COURSE_STATUSES, EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
-import { useEnterpriseCustomer } from '../../../../app/data';
+import { ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS, useEnterpriseCustomer } from '../../../../app/data';
+import { isTodayWithinDateThreshold } from '../../../../../utils/common';
+
+const messages = defineMessages({
+  statusBadgeLabelInProgress: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.status_badge_label.in_progress',
+    defaultMessage: 'In Progress',
+    description: 'The label for the status badge for courses that are in-progress',
+  },
+  statusBadgeLabelUpcoming: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.status_badge_label.upcoming',
+    defaultMessage: 'Upcoming',
+    description: 'The label for the status badge for courses that are upcoming',
+  },
+  statusBadgeLabelRequested: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.status_badge_label.requested',
+    defaultMessage: 'Requested',
+    description: 'The label for the status badge for courses that are requested',
+  },
+  statusBadgeLabelAssigned: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.status_badge_label.assigned',
+    defaultMessage: 'Assigned',
+    description: 'The label for the status badge for courses that are assigned',
+  },
+  emailSettings: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.email_settings',
+    defaultMessage: 'Email settings <s>for {courseTitle}</s>',
+    description: 'The label for the email settings option in the course card dropdown',
+  },
+  unenroll: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.unenroll',
+    defaultMessage: 'Unenroll <s>from {courseTitle}</s>',
+    description: 'The label for the unenroll option in the course card dropdown',
+  },
+  requestedCourseHelpText: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.requested.help_text',
+    defaultMessage: 'Please allow 5-10 business days for review. If approved, you will receive an email to get started.',
+    description: 'Help text for requested courses',
+  },
+  enrollByDateWarning: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.enroll_by_date_warning',
+    defaultMessage: 'Enroll by {enrollByDate}',
+    description: 'Warning message for enrollment deadline approaching',
+  },
+  enrollByDateWarningTooltipAlt: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.enroll_by_date_warning.tooltip_alt',
+    defaultMessage: 'Learn more about enrollment deadline for {courseTitle}',
+    description: 'Tooltip alt text for enrollment deadline approaching',
+  },
+  enrollByDateWarningTooltipContent: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.enroll_by_date_warning.tooltip_content',
+    defaultMessage: 'Enrollment deadline approaching',
+    description: 'Tooltip content for enrollment deadline approaching',
+  },
+});
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.inProgress]: {
     variant: 'success',
-    children: 'In Progress',
+    children: <FormattedMessage {...messages.statusBadgeLabelInProgress} />,
   },
   [COURSE_STATUSES.upcoming]: {
     variant: 'primary',
-    children: 'Upcoming',
+    children: <FormattedMessage {...messages.statusBadgeLabelUpcoming} />,
   },
   [COURSE_STATUSES.requested]: {
     variant: 'secondary',
-    children: 'Requested',
+    children: <FormattedMessage {...messages.statusBadgeLabelRequested} />,
   },
   [COURSE_STATUSES.assigned]: {
     variant: 'info',
-    children: 'Assigned',
+    children: <FormattedMessage {...messages.statusBadgeLabelAssigned} />,
   },
 };
+
+export const getScreenReaderText = (str) => (
+  <span className="sr-only">{str}</span>
+);
 
 const BaseCourseCard = ({
   hasEmailsEnabled: defaultHasEmailsEnabled,
@@ -48,10 +113,10 @@ const BaseCourseCard = ({
   type,
   microMastersTitle,
   orgName,
-  courseRunStatus,
   children,
   buttons,
   linkToCourse,
+  externalCourseLink,
   linkToCertificate,
   miscText,
   isCourseAssigned,
@@ -60,6 +125,7 @@ const BaseCourseCard = ({
   isLoading,
   hasViewCertificateLink,
 }) => {
+  const intl = useIntl();
   const { config, authenticatedUser } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [hasEmailsEnabled, setHasEmailsEnabled] = useState(defaultHasEmailsEnabled);
@@ -71,6 +137,8 @@ const BaseCourseCard = ({
     open: false,
     options: {},
   });
+
+  const CourseTitleComponent = externalCourseLink ? Hyperlink : Link;
 
   const handleUnenrollButtonClick = () => {
     setUnenrollModal((prevState) => ({
@@ -110,8 +178,13 @@ const BaseCourseCard = ({
         onClick: handleEmailSettingsButtonClick,
         children: (
           <div role="menuitem">
-            Email settings
-            <span className="sr-only">for {title}</span>
+            <FormattedMessage
+              {...messages.emailSettings}
+              values={{
+                s: getScreenReaderText,
+                courseTitle: title,
+              }}
+            />
           </div>
         ),
       });
@@ -123,8 +196,13 @@ const BaseCourseCard = ({
         onClick: handleUnenrollButtonClick,
         children: (
           <div role="menuitem">
-            Unenroll
-            <span className="sr-only">from {title}</span>
+            <FormattedMessage
+              {...messages.unenroll}
+              values={{
+                s: getScreenReaderText,
+                courseTitle: title,
+              }}
+            />
           </div>
         ),
       });
@@ -143,7 +221,6 @@ const BaseCourseCard = ({
       message += isCourseEnded ? 'was ' : 'is ';
       message += `${pacing}-paced. `;
     }
-
     return message;
   };
 
@@ -199,106 +276,105 @@ const BaseCourseCard = ({
 
   const renderSettingsDropdown = (menuItems) => {
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
-    const execEdClass = isExecutiveEducation2UCourse ? 'text-light-100' : '';
-    if (menuItems && menuItems.length > 0) {
-      return (
-        <div className="ml-auto">
-          <Dropdown>
-            <Dropdown.Toggle
-              as={IconButton}
-              src={MoreVert}
-              iconAs={Icon}
-              alt={`course settings for ${title}`}
-              id="course-enrollment-card-settings-dropdown-toggle"
-              iconClassNames={execEdClass}
-            />
-            <Dropdown.Menu>
-              {menuItems.map(menuItem => (
-                <Dropdown.Item
-                  key={menuItem.key}
-                  as={menuItem.type}
-                  onClick={menuItem.onClick}
-                >
-                  {menuItem.children}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-        </div>
-      );
+    const execEdClass = isExecutiveEducation2UCourse ? 'text-light-100' : undefined;
+
+    if (!menuItems?.length) {
+      return null;
     }
-    return null;
+
+    return (
+      <div className="ml-auto">
+        <Dropdown>
+          <Dropdown.Toggle
+            as={IconButton}
+            src={MoreVert}
+            iconAs={Icon}
+            alt={`course settings for ${title}`}
+            id={`course-enrollment-card-settings-dropdown-toggle-${courseRunId}`}
+            iconClassNames={execEdClass}
+          />
+          <Dropdown.Menu>
+            {menuItems.map(menuItem => (
+              <Dropdown.Item
+                key={menuItem.key}
+                as={menuItem.type}
+                onClick={menuItem.onClick}
+              >
+                {menuItem.children}
+              </Dropdown.Item>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
+    );
   };
 
   const renderEmailSettingsModal = () => {
-    if (hasEmailsEnabled !== null) {
-      return (
-        <EmailSettingsModal
-          {...emailSettingsModal.options}
-          courseRunId={courseRunId}
-          onClose={handleEmailSettingsModalOnClose}
-          open={emailSettingsModal.open}
-        />
-      );
+    if (!hasEmailsEnabled) {
+      return null;
     }
-    return null;
+    return (
+      <EmailSettingsModal
+        {...emailSettingsModal.options}
+        courseRunId={courseRunId}
+        onClose={handleEmailSettingsModalOnClose}
+        open={emailSettingsModal.open}
+      />
+    );
   };
 
   const renderAdditionalInfoOutline = () => {
-    if (type === COURSE_STATUSES.requested) {
-      return (
-        <small className="mt-2">
-          Please allow 5-10 business days for review.
-          If approved, you will receive an email to get started.
-        </small>
-      );
+    if (type !== COURSE_STATUSES.requested) {
+      return null;
     }
-    return null;
+    return (
+      <small className="mt-2">
+        <FormattedMessage {...messages.requestedCourseHelpText} />
+      </small>
+    );
   };
 
   const renderMicroMastersTitle = () => {
-    if (microMastersTitle) {
-      return (
-        <p className="font-weight-bold w-75 mb-2">
-          {microMastersTitle}
-        </p>
-      );
+    if (!microMastersTitle) {
+      return null;
     }
-    return null;
+    return (
+      <p className="font-weight-bold w-75 mb-2">
+        {microMastersTitle}
+      </p>
+    );
   };
 
   const renderOrganizationName = () => {
+    if (!orgName) {
+      return null;
+    }
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
     const courseTypeLabel = isExecutiveEducation2UCourse ? 'Executive Education' : 'Course';
     const tooltipText = isExecutiveEducation2UCourse
       ? 'Executive Education courses are instructor-led, cohort-based, and follow a set schedule.'
       : 'Courses are on-demand, self-paced, and include asynchronous online discussion.';
 
-    if (orgName) {
-      return (
-        <p className={classNames('mb-2 font-weight-light d-flex align-items-center small', { 'text-light-300': isExecutiveEducation2UCourse })}>
+    return (
+      <Stack direction="horizontal" gap={1} className="align-items-center font-weight-light small mb-2">
+        <p className={classNames('mb-0', { 'text-light-300': isExecutiveEducation2UCourse })}>
           {orgName} &bull; {courseTypeLabel}
-          <OverlayTrigger
-            trigger={['hover', 'focus']}
-            placement="top"
-            overlay={(
-              <Tooltip variant="light" id={`tooltip-${Math.random()}`}>
-                {tooltipText}
-              </Tooltip>
-            )}
-          >
-            <Icon src={InfoOutline} size="xs" className="ml-2" />
-          </OverlayTrigger>
         </p>
-      );
-    }
-    return null;
+        <IconButtonWithTooltip
+          placement="top"
+          tooltipContent={tooltipText}
+          iconAs={Icon}
+          src={InfoOutline}
+          size="inline"
+          alt="More information about course type"
+        />
+      </Stack>
+    );
   };
 
   const renderStartDate = () => {
     const formattedStartDate = startDate ? dayjs(startDate).format('MMMM Do, YYYY') : null;
     const isCourseStarted = dayjs(startDate) <= dayjs();
-
     if (formattedStartDate && !isCourseStarted) {
       return <span className="font-weight-light">Starts {formattedStartDate}</span>;
     }
@@ -308,7 +384,6 @@ const BaseCourseCard = ({
   const renderEndDate = () => {
     const formattedEndDate = endDate ? dayjs(endDate).format('MMMM Do, YYYY') : null;
     const isCourseStarted = dayjs(startDate).isBefore(dayjs());
-
     if (formattedEndDate && isCourseStarted && type !== COURSE_STATUSES.completed) {
       return <span className="font-weight-light">Ends {formattedEndDate}</span>;
     }
@@ -316,12 +391,34 @@ const BaseCourseCard = ({
   };
 
   const renderEnrollByDate = () => {
-    const formattedEnrollByDate = enrollBy ? dayjs(enrollBy).format('MMMM Do, YYYY') : null;
-
-    if (formattedEnrollByDate && courseRunStatus === COURSE_STATUSES.assigned) {
-      return <span className="font-weight-light">Enroll by {formattedEnrollByDate}</span>;
+    if (!enrollBy || type !== COURSE_STATUSES.assigned) {
+      return null;
     }
-    return null;
+    const isEnrollByExpiringSoon = isTodayWithinDateThreshold({
+      days: ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
+      date: enrollBy,
+    });
+    const enrollByDate = dayjs(enrollBy);
+    const isEnrollByDateMidnight = enrollByDate.hour() === 0 && enrollByDate.minute() === 0;
+    const baseFormatStr = 'MMMM Do, YYYY';
+    const enrollByDateFormat = isEnrollByDateMidnight ? baseFormatStr : `h:mma ${baseFormatStr}`;
+    const formattedEnrollByDate = enrollByDate.format(enrollByDateFormat);
+    return (
+      <Stack direction="horizontal" gap={1} className="d-inline-flex align-items-center font-weight-light">
+        <FormattedMessage {...messages.enrollByDateWarning} values={{ enrollByDate: formattedEnrollByDate }} />
+        {isEnrollByExpiringSoon && (
+          <IconButtonWithTooltip
+            tooltipPlacement="right"
+            tooltipContent={intl.formatMessage(messages.enrollByDateWarningTooltipContent)}
+            iconAs={Icon}
+            src={Warning}
+            size="inline"
+            variant="warning"
+            alt={intl.formatMessage(messages.enrollByDateWarningTooltipAlt, { courseTitle: title })}
+          />
+        )}
+      </Stack>
+    );
   };
 
   const renderCourseInfoOutline = () => {
@@ -345,7 +442,7 @@ const BaseCourseCard = ({
     }
 
     return (
-      <p className="mt-2 mb-4 small">
+      <div className="mt-2 mb-4 small">
         {dateFields.map((dateField, index) => {
           const isLastDateField = index === dateFields.length - 1;
           return (
@@ -355,47 +452,47 @@ const BaseCourseCard = ({
             </span>
           );
         })}
-      </p>
+      </div>
     );
   };
 
   const renderChildren = () => {
     if (children) {
       return (
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             {children}
-          </div>
-        </div>
+          </Col>
+        </Row>
       );
     }
     return null;
   };
 
   const renderButtons = () => {
-    if (buttons) {
-      return (
-        <div className="row">
-          <div className="col mt-2">
-            {buttons}
-          </div>
-        </div>
-      );
+    if (!buttons) {
+      return null;
     }
-    return null;
+    return (
+      <Row>
+        <Col className="mt-2">
+          {buttons}
+        </Col>
+      </Row>
+    );
   };
 
   const renderViewCertificateText = () => {
-    if (linkToCertificate) {
-      return (
-        <small className="mt-2 mb-0">
-          View your certificate on
-          {' '}
-          <a href={`${config.LMS_BASE_URL}/u/${authenticatedUser.username}`}>your profile →</a>
-        </small>
-      );
+    if (!linkToCertificate) {
+      return null;
     }
-    return null;
+    return (
+      <small className="mt-2 mb-0">
+        View your certificate on
+        {' '}
+        <a href={`${config.LMS_BASE_URL}/u/${authenticatedUser.username}`}>your profile →</a>
+      </small>
+    );
   };
 
   const renderMiscText = () => {
@@ -414,13 +511,11 @@ const BaseCourseCard = ({
   };
 
   const renderBadge = () => {
-    const badgeProps = (isCourseAssigned)
-      ? BADGE_PROPS_BY_COURSE_STATUS.assigned
-      : BADGE_PROPS_BY_COURSE_STATUS[type];
-    if (badgeProps) {
-      return <Badge className="mt-1" {...badgeProps} />;
+    const badgeProps = (isCourseAssigned) ? BADGE_PROPS_BY_COURSE_STATUS.assigned : BADGE_PROPS_BY_COURSE_STATUS[type];
+    if (!badgeProps) {
+      return null;
     }
-    return null;
+    return <Badge className="mt-1" {...badgeProps} />;
   };
 
   const renderAssignmentAlert = () => {
@@ -455,12 +550,18 @@ const BaseCourseCard = ({
             <div className="d-flex">
               <div className="flex-grow-1 mr-4 mb-3">
                 {renderMicroMastersTitle()}
-                <div className="d-flex align-items-start justify-content-between mb-1">
-                  <h4 className="course-title mb-0 mr-2">
-                    <a className={`h3 ${isExecutiveEducation2UCourse && 'text-white'}`} href={linkToCourse}>{title}</a>
+                <Stack gap={2} direction="horizontal" className="align-items-start justify-content-between mb-1">
+                  <h4 className="course-title mb-0">
+                    <CourseTitleComponent
+                      className={classNames('h3', { 'text-white': isExecutiveEducation2UCourse })}
+                      destination={externalCourseLink ? linkToCourse : null}
+                      to={!externalCourseLink ? linkToCourse : null}
+                    >
+                      {title}
+                    </CourseTitleComponent>
                   </h4>
                   {renderBadge()}
-                </div>
+                </Stack>
                 {renderOrganizationName()}
               </div>
               {renderSettingsDropdown(dropdownMenuItems)}
@@ -475,8 +576,13 @@ const BaseCourseCard = ({
                 {hasViewCertificateLink && renderViewCertificateText()}
               </Col>
             </Row>
-            { (isCanceledAssignment || isExpiredAssignment) && (
-              <Row className={classNames({ 'mt-4 assignment-alert-row': isExecutiveEducation2UCourse }, { 'mt-2 pl-2': !isExecutiveEducation2UCourse })}>
+            {(isCanceledAssignment || isExpiredAssignment) && (
+              <Row
+                className={classNames({
+                  'mt-4 assignment-alert-row': isExecutiveEducation2UCourse,
+                  'mt-2 pl-2': !isExecutiveEducation2UCourse,
+                })}
+              >
                 {renderAssignmentAlert()}
               </Row>
             )}
@@ -492,6 +598,7 @@ BaseCourseCard.propTypes = {
   type: PropTypes.oneOf(Object.values(COURSE_STATUSES)).isRequired,
   title: PropTypes.string.isRequired,
   linkToCourse: PropTypes.string.isRequired,
+  externalCourseLink: PropTypes.bool,
   courseRunId: PropTypes.string.isRequired,
   mode: PropTypes.string.isRequired,
   hasViewCertificateLink: PropTypes.bool,
@@ -514,7 +621,6 @@ BaseCourseCard.propTypes = {
   isLoading: PropTypes.bool,
   miscText: PropTypes.node,
   enrollBy: PropTypes.string,
-  courseRunStatus: PropTypes.string,
   isCourseAssigned: PropTypes.bool,
   isCanceledAssignment: PropTypes.bool,
   isExpiredAssignment: PropTypes.bool,
@@ -536,10 +642,10 @@ BaseCourseCard.defaultProps = {
   isLoading: false,
   miscText: null,
   enrollBy: null,
-  courseRunStatus: null,
   isCourseAssigned: false,
   isCanceledAssignment: false,
   isExpiredAssignment: false,
+  externalCourseLink: true,
 };
 
 export default BaseCourseCard;

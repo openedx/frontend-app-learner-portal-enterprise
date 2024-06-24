@@ -32,3 +32,5 @@ export const BUDGET_STATUSES = {
 
 export const EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY = ({ uuid }) => (`hasSeenSubscriptionLicenseExpiredModal-${uuid}`);
 export const EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY = ({ uuid, threshold }) => (`${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${threshold}-${uuid}`);
+
+export const ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY = 'enterprise.learner-portal.assignment-expiration-alert.dismissed.assignment.uuids';
