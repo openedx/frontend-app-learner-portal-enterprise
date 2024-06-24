@@ -16,11 +16,11 @@ import {
   createEnrollWithLicenseUrl,
   findCouponCodeForCourse,
   findHighestLevelSeatSku,
-  getSubsidyToApplyForCourse,
 } from '../../../../course/data/utils';
 import { getHasUnacknowledgedAssignments } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
+  getSubsidyToApplyForCourse,
   groupCourseEnrollmentsByStatus,
   queryEnterpriseCourseEnrollments,
   queryRedeemablePolicies,

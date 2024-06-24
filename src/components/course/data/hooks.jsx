@@ -19,7 +19,6 @@ import {
   getCoursePrice,
   getCourseTypeConfig,
   getMissingApplicableSubsidyReason,
-  getSubsidyToApplyForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
   transformedCourseMetadata,
@@ -39,6 +38,7 @@ import { canUserRequestSubsidyForCourse, getExternalCourseEnrollmentUrl } from '
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 import { SUBSIDY_TYPE } from '../../../constants';
 import {
+  getSubsidyToApplyForCourse,
   useBrowseAndRequest,
   useBrowseAndRequestConfiguration,
   useCatalogsForSubsidyRequests,
@@ -188,7 +188,7 @@ export function useCoursePacingType(courseRun) {
  * @param {Object} args.userSubsidyApplicableToCourse User subsidy
  * @param {Object} args.listPrice List price for course
  *
- * @returns {useCoursePriceForUserSubsidyResult} The course price and currency.
+ * @returns {useCoursePriceForUserSubsidyResult } The course price and currency.
  */
 export const useCoursePriceForUserSubsidy = ({
   userSubsidyApplicableToCourse,
