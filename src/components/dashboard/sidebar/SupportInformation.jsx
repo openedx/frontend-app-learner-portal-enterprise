@@ -13,16 +13,16 @@ const SupportInformation = ({ className }) => {
   const intl = useIntl();
   const email = getContactEmail(enterpriseCustomer);
 
-  const hasCareerEngagementNetworkMessaging = (
-    enterpriseCustomer.enableCareerEngagementNetworkOnLearnerPortal && enterpriseCustomer.careerEngagementNetworkMessage
+  const hasLearnerPortalSidebarMessaging = (
+    enterpriseCustomer.enableLearnerPortalSidebarMessage && enterpriseCustomer.learnerPortalSidebarContent
   );
 
   return (
     <>
-      {hasCareerEngagementNetworkMessaging && (
+      {hasLearnerPortalSidebarMessaging && (
         <SidebarBlock>
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: enterpriseCustomer.careerEngagementNetworkMessage }} />
+          <div dangerouslySetInnerHTML={{ __html: enterpriseCustomer.learnerPortalSidebarContent }} />
         </SidebarBlock>
       )}
       <SidebarBlock
