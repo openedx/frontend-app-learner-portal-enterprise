@@ -8,6 +8,15 @@ import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import { COURSE_AVAILABILITY_MAP, COURSE_MODES_MAP } from './constants';
 import { features } from '../../../config';
+import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
+} from '../../course/data/constants';
+import {
+  CouponCodeSubsidyToApplyForCourse, LearnerContentAssignment, SubscriptionSubsidyToApplyForCourse, SubsidyAccessPolicy,
+} from './types';
 
 /**
  * Check if system maintenance alert is open, based on configuration.
@@ -71,7 +80,7 @@ export function determineLearnerHasContentAssignmentsOnly({
     POLICY_TYPES.PER_LEARNER_CREDIT,
     POLICY_TYPES.PER_ENROLLMENT_CREDIT,
   ];
-  const hasAutoAppliedLearnerCreditPolicies = !!redeemableLearnerCreditPolicies.redeemablePolicies.filter(
+  const hasAutoAppliedLearnerCreditPolicies = redeemableLearnerCreditPolicies.redeemablePolicies.filter(
     policy => autoAppliedPolicyTypes.includes(policy.policyType),
   ).length > 0;
   const hasAllocatedOrAcceptedAssignments = !!(
@@ -147,13 +156,13 @@ export function determineEnterpriseCustomerUserForDisplay({
 *  hasAcceptedAssignments: Boolean,
 * }}
 */
-export function getAssignmentsByState(assignments = []) {
-  const allocatedAssignments = [];
-  const acceptedAssignments = [];
-  const canceledAssignments = [];
-  const expiredAssignments = [];
-  const erroredAssignments = [];
-  const assignmentsForDisplay = [];
+export function getAssignmentsByState(assignments: LearnerContentAssignment[] = []) {
+  const allocatedAssignments: LearnerContentAssignment[] = [];
+  const acceptedAssignments: LearnerContentAssignment[] = [];
+  const canceledAssignments: LearnerContentAssignment[] = [];
+  const expiredAssignments: LearnerContentAssignment[] = [];
+  const erroredAssignments: LearnerContentAssignment[] = [];
+  const assignmentsForDisplay: LearnerContentAssignment[] = [];
 
   assignments.forEach((assignment) => {
     switch (assignment.state) {
@@ -161,7 +170,7 @@ export function getAssignmentsByState(assignments = []) {
         allocatedAssignments.push(assignment);
         break;
       case ASSIGNMENT_TYPES.ACCEPTED:
-        acceptedAssignments.push(assignment);
+        acceptedAssignments.push();
         break;
       case ASSIGNMENT_TYPES.CANCELED:
         canceledAssignments.push(assignment);
@@ -256,7 +265,7 @@ export function transformEnterpriseCustomer(enterpriseCustomer) {
  * @param {object[]} [policies] - Array of policy objects containing learner assignments.
  * @returns {object} - Returns modified policies data with subsidy expiration dates attached to assignments.
  */
-export function transformRedeemablePoliciesData(policies = []) {
+export function transformRedeemablePoliciesData(policies: SubsidyAccessPolicy[] = []) {
   return policies.map((policy) => {
     const assignmentsWithSubsidyExpiration = policy.learnerContentAssignments?.map(assignment => ({
       ...assignment,
@@ -484,7 +493,7 @@ export function getCatalogsForSubsidyRequests({
   customerAgreement,
   couponsOverview,
 }) {
-  const catalogs = [];
+  const catalogs: string[] = [];
   if (!browseAndRequestConfiguration?.subsidyRequestsEnabled) {
     return catalogs;
   }
@@ -495,7 +504,7 @@ export function getCatalogsForSubsidyRequests({
     catalogs.push(...catalogsFromSubscriptions);
   }
   if (browseAndRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
-    const catalogsFromCoupons = couponsOverview
+    const catalogsFromCoupons: string[] = couponsOverview
       .filter(coupon => !!coupon.available)
       .map(coupon => coupon.enterpriseCatalogUuid);
     // catalogs from coupons may be duplicative, so pushing a Set of catalogs is necessary here
@@ -605,9 +614,9 @@ export function isObjEmpty(obj) {
  * @param policies
  * @returns {{expiredPolicies: *[], unexpiredPolicies: *[]}}
  */
-export const filterPoliciesByExpirationAndActive = (policies) => {
-  const expiredPolicies = [];
-  const unexpiredPolicies = [];
+export const filterPoliciesByExpirationAndActive = (policies: SubsidyAccessPolicy[]) => {
+  const expiredPolicies: SubsidyAccessPolicy[] = [];
+  const unexpiredPolicies: SubsidyAccessPolicy[] = [];
   policies.forEach((policy) => {
     const expiryDate = dayjs(policy.subsidyExpirationDate);
     if (expiryDate.isAfter(dayjs()) && policy.active) {
@@ -620,4 +629,66 @@ export const filterPoliciesByExpirationAndActive = (policies) => {
     expiredPolicies,
     unexpiredPolicies,
   };
+};
+
+export const getSubsidyToApplyForCourse = ({
+  applicableSubscriptionLicense = undefined,
+  applicableCouponCode = undefined,
+  applicableEnterpriseOffer = undefined,
+  applicableSubsidyAccessPolicy = undefined,
+}): SubscriptionSubsidyToApplyForCourse | CouponCodeSubsidyToApplyForCourse | undefined => {
+  if (applicableSubscriptionLicense) {
+    return {
+      subsidyType: LICENSE_SUBSIDY_TYPE,
+      discountType: 'percentage',
+      discountValue: 100,
+      startDate: applicableSubscriptionLicense.subscriptionPlan.startDate,
+      expirationDate: applicableSubscriptionLicense.subscriptionPlan.expirationDate,
+      status: applicableSubscriptionLicense.status,
+      subsidyId: applicableSubscriptionLicense.uuid,
+    };
+  }
+
+  if (applicableCouponCode) {
+    return {
+      discountType: applicableCouponCode.usageType,
+      discountValue: applicableCouponCode.benefitValue,
+      startDate: applicableCouponCode.couponStartDate,
+      endDate: applicableCouponCode.couponEndDate,
+      code: applicableCouponCode.code,
+      subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+    };
+  }
+
+  if (applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled) {
+    const { redeemableSubsidyAccessPolicy } = applicableSubsidyAccessPolicy;
+    return {
+      discountType: 'percentage',
+      discountValue: 100,
+      subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+      perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
+      perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
+      policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+    };
+  }
+
+  if (applicableEnterpriseOffer) {
+    return {
+      discountType: applicableEnterpriseOffer.usageType.toLowerCase(),
+      discountValue: applicableEnterpriseOffer.discountValue,
+      startDate: applicableEnterpriseOffer.startDatetime,
+      endDate: applicableEnterpriseOffer.endDatetime,
+      offerType: applicableEnterpriseOffer.offerType,
+      subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+      maxUserDiscount: applicableEnterpriseOffer.maxUserDiscount,
+      maxUserApplications: applicableEnterpriseOffer.maxUserApplications,
+      remainingBalance: applicableEnterpriseOffer.remainingBalance,
+      remainingBalanceForUser: applicableEnterpriseOffer.remainingBalanceForUser,
+      remainingApplications: applicableEnterpriseOffer.remainingApplications,
+      remainingApplicationsForUser: applicableEnterpriseOffer.remainingApplicationsForUser,
+      isCurrent: applicableEnterpriseOffer.isCurrent,
+    };
+  }
+
+  return undefined;
 };

@@ -638,68 +638,6 @@ export const getMissingApplicableSubsidyReason = ({
   };
 };
 
-export const getSubsidyToApplyForCourse = ({
-  applicableSubscriptionLicense = undefined,
-  applicableCouponCode = undefined,
-  applicableEnterpriseOffer = undefined,
-  applicableSubsidyAccessPolicy = undefined,
-}) => {
-  if (applicableSubscriptionLicense) {
-    return {
-      subsidyType: LICENSE_SUBSIDY_TYPE,
-      discountType: 'percentage',
-      discountValue: 100,
-      startDate: applicableSubscriptionLicense.subscriptionPlan.startDate,
-      expirationDate: applicableSubscriptionLicense.subscriptionPlan.expirationDate,
-      status: applicableSubscriptionLicense.status,
-      subsidyId: applicableSubscriptionLicense.uuid,
-    };
-  }
-
-  if (applicableCouponCode) {
-    return {
-      discountType: applicableCouponCode.usageType,
-      discountValue: applicableCouponCode.benefitValue,
-      startDate: applicableCouponCode.couponStartDate,
-      endDate: applicableCouponCode.couponEndDate,
-      code: applicableCouponCode.code,
-      subsidyType: COUPON_CODE_SUBSIDY_TYPE,
-    };
-  }
-
-  if (applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled) {
-    const { redeemableSubsidyAccessPolicy } = applicableSubsidyAccessPolicy;
-    return {
-      discountType: 'percentage',
-      discountValue: 100,
-      subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-      perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
-      perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
-      policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
-    };
-  }
-
-  if (applicableEnterpriseOffer) {
-    return {
-      discountType: applicableEnterpriseOffer.usageType.toLowerCase(),
-      discountValue: applicableEnterpriseOffer.discountValue,
-      startDate: applicableEnterpriseOffer.startDatetime,
-      endDate: applicableEnterpriseOffer.endDatetime,
-      offerType: applicableEnterpriseOffer.offerType,
-      subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
-      maxUserDiscount: applicableEnterpriseOffer.maxUserDiscount,
-      maxUserApplications: applicableEnterpriseOffer.maxUserApplications,
-      remainingBalance: applicableEnterpriseOffer.remainingBalance,
-      remainingBalanceForUser: applicableEnterpriseOffer.remainingBalanceForUser,
-      remainingApplications: applicableEnterpriseOffer.remainingApplications,
-      remainingApplicationsForUser: applicableEnterpriseOffer.remainingApplicationsForUser,
-      isCurrent: applicableEnterpriseOffer.isCurrent,
-    };
-  }
-
-  return undefined;
-};
-
 export const createEnrollFailureUrl = ({ courseRunKey, location }) => {
   const baseQueryParams = new URLSearchParams(location.search);
   baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
