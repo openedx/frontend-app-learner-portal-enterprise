@@ -170,7 +170,7 @@ export function getAssignmentsByState(assignments: LearnerContentAssignment[] = 
         allocatedAssignments.push(assignment);
         break;
       case ASSIGNMENT_TYPES.ACCEPTED:
-        acceptedAssignments.push();
+        acceptedAssignments.push(assignment);
         break;
       case ASSIGNMENT_TYPES.CANCELED:
         canceledAssignments.push(assignment);
