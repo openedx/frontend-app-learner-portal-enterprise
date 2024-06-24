@@ -11,14 +11,14 @@ const alertMessagingByVariant = {
   [ASSIGNMENT_TYPES.CANCELED]: {
     heading: (
       <FormattedMessage
-        id="enterprise.dashboard.course.assignment.cancelled.alert.heading"
+        id="enterprise.dashboard.course.assignment.canceled.alert.heading"
         defaultMessage="Course assignment canceled"
         description="Heading for the alert that appears when a course assignment is canceled."
       />
     ),
     text: (
       <FormattedMessage
-        id="enterprise.dashboard.course.assignment.cancelled.alert.text"
+        id="enterprise.dashboard.course.assignment.canceled.alert.text"
         defaultMessage="Your learning administrator canceled one or more course assignments below."
         description="Text for the alert that appears when a course assignment is canceled."
       />
@@ -89,7 +89,7 @@ const CourseAssignmentAlert = ({
       <FormattedMessage
         id="enterprise.dashboard.course.assignment.alert.contact.admin.button"
         defaultMessage="Contact administrator"
-        description="Conatact adminstrator button label for the course enrollemnt assignment alert"
+        description="Contact adminstrator button label for the course enrollemnt assignment alert"
       />
     </Button>,
   ] : [];
