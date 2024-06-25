@@ -75,6 +75,8 @@ const CourseEnrollments = ({ children }) => {
     assignments,
     showCanceledAssignmentsAlert,
     showExpiredAssignmentsAlert,
+    showExpiringAssignmentsAlert,
+    handleAcknowledgeExpiringAssignments,
     handleAcknowledgeAssignments,
     isAcknowledgingAssignments,
   } = useContentAssignments(allEnrollmentsByStatus.assigned);
@@ -110,6 +112,24 @@ const CourseEnrollments = ({ children }) => {
           enterpriseCustomer={enterpriseCustomer}
         />
       )}
+      {shouldShowMarkSavedForLaterCourseSuccess && (
+        <CourseEnrollmentsAlert variant="success" onClose={() => setShouldShowMarkSavedForLaterCourseSuccess(false)}>
+          <FormattedMessage
+            id="enterprise.dashboard.course.enrollment.saved.for.later.alert.text"
+            defaultMessage="Your course was saved for later."
+            description="Message when a course is saved for later."
+          />
+        </CourseEnrollmentsAlert>
+      )}
+      {shouldShowMoveToInProgressCourseSuccess && (
+        <CourseEnrollmentsAlert variant="success" onClose={() => setShouldShowMoveToInProgressCourseSuccess(false)}>
+          <FormattedMessage
+            id="enterprise.dashboard.course.enrollment.moved.to.progress.alert.text"
+            defaultMessage="Your course was moved to In Progress."
+            description="Message when a course is moved to In Progress."
+          />
+        </CourseEnrollmentsAlert>
+      )}
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
         <>
           <CourseAssignmentAlert
@@ -128,24 +148,11 @@ const CourseEnrollments = ({ children }) => {
             })}
             isAcknowledgingAssignments={isAcknowledgingAssignments}
           />
-          {shouldShowMarkSavedForLaterCourseSuccess && (
-            <CourseEnrollmentsAlert variant="success" onClose={() => setShouldShowMarkSavedForLaterCourseSuccess(false)}>
-              <FormattedMessage
-                id="enterprise.dashboard.course.enrollment.saved.for.later.alert.text"
-                defaultMessage="Your course was saved for later."
-                description="Message when a course is saved for later."
-              />
-            </CourseEnrollmentsAlert>
-          )}
-          {shouldShowMoveToInProgressCourseSuccess && (
-            <CourseEnrollmentsAlert variant="success" onClose={() => setShouldShowMoveToInProgressCourseSuccess(false)}>
-              <FormattedMessage
-                id="enterprise.dashboard.course.enrollment.moved.to.progress.alert.text"
-                defaultMessage="Your course was moved to In Progress."
-                description="Message when a course is moved to In Progress."
-              />
-            </CourseEnrollmentsAlert>
-          )}
+          <CourseAssignmentAlert
+            showAlert={showExpiringAssignmentsAlert}
+            variant={ASSIGNMENT_TYPES.EXPIRING}
+            onClose={handleAcknowledgeExpiringAssignments}
+          />
           <CourseSection
             title={isFirstVisit ? intl.formatMessage({
               id: 'enterprise.dashboard.course.enrollments.assigned.section.title.for.first.visit',

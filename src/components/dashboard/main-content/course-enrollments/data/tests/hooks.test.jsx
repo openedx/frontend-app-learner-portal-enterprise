@@ -25,6 +25,7 @@ import {
 } from '../../../../../course/data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
+  ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
   emptyRedeemableLearnerCreditPolicies,
   transformCourseEnrollment,
   transformLearnerContentAssignment,
@@ -37,6 +38,7 @@ import {
   useCourseRunMetadata, COURSE_MODES_MAP,
 } from '../../../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
+import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../../data/constants';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
@@ -383,7 +385,7 @@ describe('useCourseEnrollments', () => {
 
 describe('useContentAssignments', () => {
   const mockRedeemableLearnerCreditPolicies = emptyRedeemableLearnerCreditPolicies;
-  const mockSubsidyExpirationDateStr = dayjs().add(1, 'd').toISOString();
+  const mockSubsidyExpirationDateStr = dayjs().add(ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS + 1, 'days').toISOString();
   const mockAssignmentConfigurationId = 'test-assignment-configuration-id';
   const mockAssignment = {
     contentKey: 'edX+DemoX',
@@ -424,6 +426,15 @@ describe('useContentAssignments', () => {
     uuid: 'test-assignment-uuid-4',
     state: ASSIGNMENT_TYPES.ACCEPTED,
   };
+  const mockExpiringAssignment = {
+    ...mockAssignment,
+    uuid: 'test-assignment-uuid-5',
+    state: ASSIGNMENT_TYPES.ALLOCATED,
+    earliestPossibleExpiration: {
+      ...mockAssignment.earliestPossibleExpiration,
+      date: dayjs().add(ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS - 1, 'days').toISOString(),
+    },
+  };
   const mockPoliciesWithAssignments = {
     ...mockRedeemableLearnerCreditPolicies,
     learnerContentAssignments: {
@@ -457,6 +468,7 @@ describe('useContentAssignments', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
@@ -606,6 +618,61 @@ describe('useContentAssignments', () => {
         .filter((assignment) => assignment.isExpiredAssignment)
         .map((assignment) => assignment.uuid),
     });
+  });
+
+  it('should handle dismissal / acknowledgement of expiring assignments', async () => {
+    const mockPoliciesWithExpiringAssignments = {
+      ...mockPoliciesWithAssignments,
+      learnerContentAssignments: {
+        ...mockPoliciesWithAssignments.learnerContentAssignments,
+        assignmentsForDisplay: [
+          ...mockPoliciesWithAssignments.learnerContentAssignments.assignmentsForDisplay,
+          mockExpiringAssignment,
+        ],
+      },
+    };
+    mockUseEnterpriseCourseEnrollments(mockPoliciesWithExpiringAssignments);
+    const { result } = renderHook(() => useContentAssignments(), { wrapper });
+    const expectedAssignments = [
+      {
+        uuid: mockExpiringAssignment.uuid,
+        courseRunStatus: COURSE_STATUSES.assigned,
+        enrollBy: mockExpiringAssignment.earliestPossibleExpiration.date,
+        title: mockExpiringAssignment.contentTitle,
+        isCanceledAssignment: false,
+        isExpiredAssignment: false,
+        isExpiringAssignment: true,
+        assignmentConfiguration: mockExpiringAssignment.assignmentConfiguration,
+      },
+      {
+        uuid: mockAllocatedAssignment.uuid,
+        courseRunStatus: COURSE_STATUSES.assigned,
+        enrollBy: mockAllocatedAssignment.earliestPossibleExpiration.date,
+        title: mockAllocatedAssignment.contentTitle,
+        isCanceledAssignment: false,
+        isExpiredAssignment: false,
+        isExpiringAssignment: false,
+        assignmentConfiguration: mockAllocatedAssignment.assignmentConfiguration,
+      },
+    ];
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        assignments: expectedAssignments.map((assignment) => expect.objectContaining(assignment)),
+        showExpiringAssignmentsAlert: true,
+        handleAcknowledgeExpiringAssignments: expect.any(Function),
+      }),
+    );
+    expect(global.localStorage.getItem(ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY)).toBeNull();
+
+    // Dismiss the expiring assignments alert and verify that localStorage is correctly updated.
+    act(() => {
+      result.current.handleAcknowledgeExpiringAssignments();
+    });
+    const acknowledgedExpiringAssignments = JSON.parse(
+      global.localStorage.getItem(ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY),
+    );
+    expect(acknowledgedExpiringAssignments).toEqual([mockExpiringAssignment.uuid]);
+    expect(result.current.showExpiringAssignmentsAlert).toBe(false);
   });
 });
 

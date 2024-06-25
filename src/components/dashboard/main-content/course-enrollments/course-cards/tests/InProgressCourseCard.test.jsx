@@ -2,8 +2,9 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 import { InProgressCourseCard } from '../InProgressCourseCard';
 import { COURSE_MODES_MAP, useCouponCodes, useEnterpriseCustomer } from '../../../../../app/data';
@@ -21,7 +22,7 @@ jest.mock('../../data', () => ({
   useCourseUpgradeData: jest.fn(),
 }));
 
-const basicProps = {
+const baseProps = {
   courseRunStatus: 'in_progress',
   title: 'edX Demonstration Course',
   linkToCourse: 'https://edx.org',
@@ -46,9 +47,11 @@ const InProgressCourseCardWrapper = ({
   ...rest
 }) => (
   <QueryClientProvider client={queryClient()}>
-    <AppContext.Provider value={appContextValue}>
-      <InProgressCourseCard {...rest} />
-    </AppContext.Provider>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={appContextValue}>
+        <InProgressCourseCard {...rest} />
+      </AppContext.Provider>
+    </IntlProvider>
   </QueryClientProvider>
 );
 
@@ -73,7 +76,7 @@ describe('<InProgressCourseCard />', () => {
   });
 
   it('should not render upgrade course button if there is no couponUpgradeUrl', () => {
-    renderWithRouter(<InProgressCourseCardWrapper {...basicProps} />);
+    renderWithRouter(<InProgressCourseCardWrapper {...baseProps} />);
     expect(screen.queryByTestId('upgrade-course-button')).not.toBeInTheDocument();
   });
 
@@ -86,7 +89,7 @@ describe('<InProgressCourseCard />', () => {
       subsidyForCourse: undefined,
     });
     renderWithRouter(<InProgressCourseCardWrapper
-      {...basicProps}
+      {...baseProps}
       upgradeableCourseEnrollmentContextValue={
         {
           couponUpgradeUrl: 'coupon-upgrade-url',

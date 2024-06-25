@@ -150,3 +150,18 @@ export function getBrandColorsFromCSSVariables() {
     dark: getComputedStylePropertyCSSVariable('--pgn-color-dark'),
   };
 }
+
+/**
+ * Helper function utilizing dayjs's 'isBetween' function to determine
+ * if the date passed is between today and an offset amount of days
+ *
+ * @param date
+ * @param days
+ * @returns {boolean}
+ */
+export function isTodayWithinDateThreshold({ date, days }) {
+  const dateToCheck = dayjs(date);
+  const today = dayjs();
+  const offsetDays = dateToCheck.subtract(days, 'days');
+  return today.isBetween(offsetDays, dateToCheck);
+}

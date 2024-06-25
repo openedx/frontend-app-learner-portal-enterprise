@@ -1,4 +1,5 @@
 import React from 'react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -10,20 +11,26 @@ jest.mock('../../../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn().mockReturnValue({ data: { uuid: 123 } }),
 }));
 
-const basicProps = {
+const baseProps = {
   title: 'edX Demonstration Course',
   linkToCourse: 'https://edx.org',
   courseRunStatus: 'upcoming',
   courseRunId: 'my+course+key',
   courseKey: 'my+course+key',
   notifications: [],
-  mode: 'executive-education',
+  mode: 'verified-audit',
 };
+
+const AssignedCourseCardWrapper = (props) => (
+  <IntlProvider locale="en">
+    <AssignedCourseCard {...props} />
+  </IntlProvider>
+);
 
 describe('<AssignedCourseCard />', () => {
   it('should render enroll button and other related content', () => {
-    renderWithRouter(<AssignedCourseCard {...basicProps} />);
+    renderWithRouter(<AssignedCourseCardWrapper {...baseProps} />);
     expect(screen.getByText('Assigned')).toBeInTheDocument();
-    expect(screen.getByText('Enroll')).toBeInTheDocument();
+    expect(screen.getByText('Go to enrollment')).toBeInTheDocument();
   });
 });

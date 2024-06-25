@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { Button } from '@openedx/paragon';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import BaseCourseCard from './BaseCourseCard';
 import { COURSE_STATUSES } from '../data';
@@ -29,7 +30,11 @@ const AssignedCourseCard = (props) => {
       // background) should be using the brand variant.
       variant="inverse-brand"
     >
-      Enroll
+      <FormattedMessage
+        id="enterprise.learner-portal.dashboard.courses.assignments.assignment.go-to-enrollment"
+        defaultMessage="Go to enrollment"
+        description="Button text for assigned course card to go to course about page to continue with enrollment"
+      />
     </Button>
   );
 
@@ -39,6 +44,7 @@ const AssignedCourseCard = (props) => {
       type={COURSE_STATUSES.assigned}
       hasViewCertificateLink={false}
       canUnenroll={false}
+      externalCourseLink={false}
       {...props}
     />
   );

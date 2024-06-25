@@ -50,3 +50,5 @@ export const LICENSE_SUBSIDY_TYPE = 'license';
 export const COUPON_CODE_SUBSIDY_TYPE = 'couponCode';
 export const ENTERPRISE_OFFER_SUBSIDY_TYPE = 'enterpriseOffer';
 export const LEARNER_CREDIT_SUBSIDY_TYPE = 'learnerCredit';
+
+export const ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS = 10;
