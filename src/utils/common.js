@@ -99,6 +99,7 @@ export const getContactEmail = (config) => {
  * @returns {number} The status code (e.g., 404)
  */
 export function getErrorResponseStatusCode(error) {
+  console.log(error.customAttributes, error.response);
   return error.customAttributes?.httpErrorStatus || error.response?.status;
 }
 

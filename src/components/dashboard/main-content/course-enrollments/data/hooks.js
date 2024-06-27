@@ -20,25 +20,22 @@ import {
 import { getExpiringAssignmentsAcknowledgementState, getHasUnacknowledgedAssignments } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
+  COURSE_MODES_MAP,
+  getSubsidyToApplyForCourse,
   groupCourseEnrollmentsByStatus,
   queryEnterpriseCourseEnrollments,
   queryRedeemablePolicies,
   transformCourseEnrollment,
+  useCanUpgradeWithLearnerCredit,
+  useCouponCodes,
+  useCourseRunMetadata,
   useEnterpriseCourseEnrollments,
-  useRedeemablePolicies,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
-  useCanUpgradeWithLearnerCredit,
+  useRedeemablePolicies,
   useSubscriptions,
-  useCouponCodes,
-  getSubsidyToApplyForCourse,
-  useCourseRunMetadata,
-  COURSE_MODES_MAP,
 } from '../../../../app/data';
-import {
-  sortedEnrollmentsByEnrollmentDate,
-  sortAssignmentsByAssignmentStatus,
-} from './utils';
+import { sortAssignmentsByAssignmentStatus, sortedEnrollmentsByEnrollmentDate } from './utils';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../data/constants';
 
 export const useCourseEnrollments = ({
@@ -146,7 +143,7 @@ export const useCourseUpgradeData = ({
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
 
-  // TODO: Remove authenticatedUser?.administrator flag when rolling out
+  // TODO: Remove authenticatedUser?.administrator flag when rolling out ENT-9135
   // Metadata required to allow upgrade via applicable learner credit
   const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(
     [courseRunKey],

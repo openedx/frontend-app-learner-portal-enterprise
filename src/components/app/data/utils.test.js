@@ -13,7 +13,9 @@ import {
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_AVAILABILITY_MAP,
-  emptyRedeemableLearnerCreditPolicies, ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE,
+  emptyRedeemableLearnerCreditPolicies,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
 } from './constants';
 

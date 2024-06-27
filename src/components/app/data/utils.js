@@ -8,12 +8,12 @@ import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
   ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
 } from './constants';
 import { features } from '../../../config';
 
@@ -680,7 +680,7 @@ export const getSubsidyToApplyForCourse = ({
     };
   }
 
-  if (applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled) {
+  if (applicableSubsidyAccessPolicy?.isPolicyRedemptionEnabled) {
     const { redeemableSubsidyAccessPolicy } = applicableSubsidyAccessPolicy;
     return {
       discountType: 'percentage',
