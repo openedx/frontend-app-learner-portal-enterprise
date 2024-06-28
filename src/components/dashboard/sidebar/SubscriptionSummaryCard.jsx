@@ -16,7 +16,7 @@ import {
 } from './data/constants';
 
 const SubscriptionSummaryCard = ({
-  subscriptionPlan, licenseRequest, className, courseEndDate, programProgressPage,
+  subscriptionPlan, showExpirationNotifications, licenseRequest, className, courseEndDate, programProgressPage,
 }) => {
   const [
     isSubscriptionExpiringWarningModalOpen,
@@ -26,8 +26,8 @@ const SubscriptionSummaryCard = ({
   const intl = useIntl();
   const badgeVariantAndLabel = useMemo(() => {
     if (subscriptionPlan) {
-      if (!subscriptionPlan.isCurrent) {
-        // Subscription has expired
+      if (!subscriptionPlan?.isCurrent) {
+        // Subscription has expired program progress page agnostic
         return ({
           variant: SUBSCRIPTION_EXPIRED_BADGE_VARIANT,
           label: intl.formatMessage({
@@ -37,21 +37,21 @@ const SubscriptionSummaryCard = ({
           }),
         });
       }
-      if (programProgressPage
+
+      if (showExpirationNotifications
         && subscriptionPlan.daysUntilExpirationIncludingRenewals <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
-        // Expiration is approaching
-        return ({
-          variant: SUBSCRIPTION_WARNING_BADGE_VARIANT,
-          label: intl.formatMessage({
-            id: 'enterprise.dashboard.sidebar.subscription.expiring.soon.badge.label',
-            defaultMessage: 'Expiring Soon',
-            description: 'Subscription expiring soon badge label on the enterprise dashboard sidebar.',
-          }),
-        });
-      }
-      if (!programProgressPage
-        && subscriptionPlan.daysUntilExpirationIncludingRenewals <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
-        // Expiration is approaching
+        if (programProgressPage) {
+          // Expiration is approaching program progress page
+          return ({
+            variant: SUBSCRIPTION_WARNING_BADGE_VARIANT,
+            label: intl.formatMessage({
+              id: 'enterprise.dashboard.sidebar.subscription.expiring.soon.badge.label',
+              defaultMessage: 'Expiring Soon',
+              description: 'Subscription expiring soon badge label on the enterprise dashboard sidebar.',
+            }),
+          });
+        }
+        // Expiration is approaching non program progress page
         return ({
           variant: SUBSCRIPTION_WARNING_BADGE_VARIANT,
           label: intl.formatMessage({
@@ -62,6 +62,7 @@ const SubscriptionSummaryCard = ({
         });
       }
 
+      // Return active badge variant program progress page agnostic
       return ({
         variant: SUBSCRIPTION_ACTIVE_BADGE_VARIANT,
         label: intl.formatMessage({
@@ -84,72 +85,108 @@ const SubscriptionSummaryCard = ({
     }
 
     return null;
-  }, [subscriptionPlan, licenseRequest, intl, programProgressPage]);
+  }, [subscriptionPlan, licenseRequest, showExpirationNotifications, intl, programProgressPage]);
 
-  if (!(subscriptionPlan || licenseRequest)) {
+  const subscriptionExpirationDate = useMemo(() => {
+    if (!showExpirationNotifications) {
+      return null;
+    }
+    if (!subscriptionPlan) {
+      return (
+        <span>
+          <FormattedMessage
+            id="enterprise.dashboard.sidebar.license.requested.notice"
+            defaultMessage="Awaiting approval."
+            description="License request awaiting approval notice on the enterprise dashboard sidebar."
+          />
+        </span>
+      );
+    }
+    const subscriptionDate = dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY');
+    let subscriptionDateLabel;
+    if (subscriptionPlan.isCurrent) {
+      subscriptionDateLabel = intl.formatMessage({
+        id: 'enterprise.dashboard.sidebar.subscription.active.date.prefix.text',
+        defaultMessage: 'Available until',
+        description: 'Subscription active date prefix on the enterprise dashboard sidebar.',
+      });
+    } else {
+      subscriptionDateLabel = intl.formatMessage({
+        id: 'enterprise.dashboard.sidebar.subscription.expired.date.prefix',
+        defaultMessage: 'Expired on',
+        description: 'Subscription expired date prefix on the enterprise dashboard sidebar.',
+      });
+    }
+    return (
+      <>
+        {subscriptionDateLabel}
+        {' '}
+        <span
+          className="font-weight-bold"
+        >
+          {subscriptionDate}
+        </span>
+      </>
+    );
+  }, [intl, showExpirationNotifications, subscriptionPlan]);
+
+  const programProgressSubscriptionExpirationWarningModal = useMemo(() => {
+    if (!showExpirationNotifications && courseEndDate > subscriptionPlan.expirationDate) {
+      return null;
+    }
+    return (
+      <>
+        <SubscriptionExpirationWarningModal
+          isSubscriptionExpiringWarningModalOpen={isSubscriptionExpiringWarningModalOpen}
+          onSubscriptionExpiringWarningModalClose={onSubscriptionExpiringWarningModalClose}
+        />
+        <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />
+      </>
+    );
+  }, [
+    courseEndDate,
+    isSubscriptionExpiringWarningModalOpen,
+    onSubscriptionExpiringWarningModalClose,
+    showExpirationNotifications,
+    subscriptionExpiringWarningModalOpen,
+    subscriptionPlan.expirationDate,
+  ]);
+
+  // Don't render the card summary if there is no subscription plan or license request or
+  // if the disable expiration notifications on the customer agreement is enabled and
+  // the applicable subscription plan is expired.
+  if (!(subscriptionPlan || licenseRequest) || (showExpirationNotifications && !subscriptionPlan.isCurrent)) {
     return null;
   }
 
   if (programProgressPage) {
     return (
-      <>
-        {subscriptionPlan && (
-          <SubscriptionExpirationWarningModal
-            isSubscriptionExpiringWarningModalOpen={isSubscriptionExpiringWarningModalOpen}
-            onSubscriptionExpiringWarningModalClose={onSubscriptionExpiringWarningModalClose}
-          />
-        )}
-        <SidebarCard
-          title={(
-            <div className="d-flex align-items-start justify-content-between">
-              <h3>
-                <FormattedMessage
-                  id="enterprise.dashboard.sidebar.subscription.summary.card.title.text1"
-                  defaultMessage="Subscription Status"
-                  description="Subscription status title on the enterprise dashboard sidebar."
-                />
-              </h3>
-              <div>
-                <Badge
-                  variant={badgeVariantAndLabel.variant}
-                  className="ml-2"
-                  data-testid="subscription-status-badge"
-                >
-                  {badgeVariantAndLabel.label}
-                </Badge>
-                {(subscriptionPlan && courseEndDate > subscriptionPlan.expirationDate) && <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />}
-              </div>
+      <SidebarCard
+        title={(
+          <div className="d-flex align-items-start justify-content-between">
+            <h3>
+              <FormattedMessage
+                id="enterprise.dashboard.sidebar.subscription.summary.card.title.text1"
+                defaultMessage="Subscription Status"
+                description="Subscription status title on the enterprise dashboard sidebar."
+              />
+            </h3>
+            <div>
+              <Badge
+                variant={badgeVariantAndLabel.variant}
+                className="ml-2"
+                data-testid="subscription-status-badge"
+              >
+                {badgeVariantAndLabel.label}
+              </Badge>
+              {programProgressSubscriptionExpirationWarningModal}
             </div>
-          )}
-          cardClassNames={className}
-        >
-          {
-            subscriptionPlan ? (
-              <>
-                {subscriptionPlan.isCurrent
-                  ? intl.formatMessage({
-                    id: 'enterprise.dashboard.sidebar.subscription.active.date.prefix',
-                    defaultMessage: 'Available until',
-                    description: 'Subscription available date prefix on the enterprise dashboard sidebar.',
-                  }) : intl.formatMessage({
-                    id: 'enterprise.dashboard.sidebar.subscription.expired.date.prefix',
-                    defaultMessage: 'Expired on',
-                    description: 'Subscription expired date prefix on the enterprise dashboard sidebar.',
-                  })}
-                {' '}<span className="font-weight-bold">{dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
-              </>
-            ) : (
-              <span>
-                <FormattedMessage
-                  id="enterprise.dashboard.sidebar.license.requested.notice"
-                  defaultMessage="Awaiting approval."
-                  description="License request awaiting approval notice on the enterprise dashboard sidebar."
-                />
-              </span>
-            )
-          }
-        </SidebarCard>
-      </>
+          </div>
+        )}
+        cardClassNames={className}
+      >
+        {subscriptionExpirationDate}
+      </SidebarCard>
     );
   }
 
@@ -177,31 +214,7 @@ const SubscriptionSummaryCard = ({
       )}
       cardClassNames={className}
     >
-      {
-        subscriptionPlan ? (
-          <>
-            {subscriptionPlan.isCurrent
-              ? intl.formatMessage({
-                id: 'enterprise.dashboard.sidebar.subscription.active.date.prefix.text',
-                defaultMessage: 'Available until',
-                description: 'Subscription active date prefix on the enterprise dashboard sidebar.',
-              }) : intl.formatMessage({
-                id: 'enterprise.dashboard.sidebar.subscription.expired.date.prefix',
-                defaultMessage: 'Expired on',
-                description: 'Subscription expired date prefix on the enterprise dashboard sidebar.',
-              })}
-            {' '}<span className="font-weight-bold">{dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
-          </>
-        ) : (
-          <span>
-            <FormattedMessage
-              id="enterprise.dashboard.sidebar.license.requested.notice"
-              defaultMessage="Awaiting approval."
-              description="License request awaiting approval notice on the enterprise dashboard sidebar."
-            />
-          </span>
-        )
-      }
+      {subscriptionExpirationDate}
     </SidebarCard>
   );
 };
@@ -212,6 +225,7 @@ SubscriptionSummaryCard.propTypes = {
     expirationDate: PropTypes.string.isRequired,
     isCurrent: PropTypes.bool.isRequired,
   }),
+  showExpirationNotifications: PropTypes.bool,
   licenseRequest: PropTypes.shape({}),
   className: PropTypes.string,
   courseEndDate: PropTypes.string,
@@ -223,6 +237,7 @@ SubscriptionSummaryCard.defaultProps = {
   programProgressPage: false,
   courseEndDate: undefined,
   subscriptionPlan: undefined,
+  showExpirationNotifications: true,
   licenseRequest: undefined,
 };
 

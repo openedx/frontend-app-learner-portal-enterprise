@@ -5,6 +5,7 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import { Button } from '@openedx/paragon';
 import classNames from 'classnames';
+import CardSection from '@openedx/paragon/src/Card/CardSection';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import LearnerCreditSummaryCard from './LearnerCreditSummaryCard';
@@ -22,6 +23,36 @@ import {
 import { COURSE_STATUSES } from '../../../constants';
 import { getStatusMetadata } from '../data/utils';
 import useExpirationMetadata from '../../budget-expiry-notification/data/hooks/useExpirationMetadata';
+
+const SearchCoursesCta = ({ ctaButtonVariant, showSearchCoursesCta, isProgramProgressPage }) => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { disableSearch } = enterpriseCustomer;
+  if (disableSearch && !showSearchCoursesCta && !isProgramProgressPage) {
+    return null;
+  }
+  return (
+    <CardSection className="pt-0">
+      <Button
+        as={Link}
+        to={`/${enterpriseCustomer.slug}/search`}
+        variant={ctaButtonVariant}
+        block
+      >
+        <FormattedMessage
+          id="enterprise.dashboard.sidebar.subsidy.find.course.button"
+          defaultMessage="Find a course"
+          description="Button text for the find a course button on the enterprise dashboard sidebar."
+        />
+      </Button>
+    </CardSection>
+  );
+};
+
+SearchCoursesCta.propTypes = {
+  ctaButtonVariant: PropTypes.string.isRequired,
+  showSearchCoursesCta: PropTypes.bool.isRequired,
+  isProgramProgressPage: PropTypes.bool.isRequired,
+};
 
 const SubsidiesSummary = ({
   className,
@@ -67,26 +98,17 @@ const SubsidiesSummary = ({
     return hasCourseEnrollments ? 'primary' : 'outline-primary';
   }, [allEnrollmentsByStatus]);
 
-  if (!hasAvailableSubsidyOrRequests) {
+  const hasApplicableLearnerCredit = (
+    enterpriseOffersData.canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies
+  ) && learnerCreditSummaryCardData.expirationDate;
+
+  const hasAnApplicableSummaryCard = (
+    hasApplicableLearnerCredit && hasActiveLicenseOrLicenseRequest && hasAssignedCodesOrCodeRequests
+  );
+
+  if (!hasAvailableSubsidyOrRequests && !hasAnApplicableSummaryCard) {
     return null;
   }
-
-  const searchCoursesCta = (
-    !programProgressPage && !enterpriseCustomer.disableSearch && showSearchCoursesCta && (
-      <Button
-        as={Link}
-        to={`/${enterpriseCustomer.slug}/search`}
-        variant={ctaButtonVariant}
-        block
-      >
-        <FormattedMessage
-          id="enterprise.dashboard.sidebar.subsidy.find.course.button"
-          defaultMessage="Find a course"
-          description="Button text for the find a course button on the enterprise dashboard sidebar."
-        />
-      </Button>
-    )
-  );
 
   return (
     // TODO: Design debt, don't have cards in a card
@@ -98,6 +120,7 @@ const SubsidiesSummary = ({
         {hasActiveLicenseOrLicenseRequest && (
           <SubscriptionSummaryCard
             subscriptionPlan={subscriptions.subscriptionPlan}
+            showExpirationNotifications={subscriptions.showExpirationNotifications}
             licenseRequest={requests.subscriptionLicenses[0]}
             courseEndDate={courseEndDate}
             programProgressPage={programProgressPage}
@@ -113,8 +136,7 @@ const SubsidiesSummary = ({
             className="border-0 shadow-none"
           />
         )}
-        {(enterpriseOffersData.canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies)
-          && learnerCreditSummaryCardData?.expirationDate && (
+        {hasApplicableLearnerCredit && (
           <LearnerCreditSummaryCard
             className="border-0 shadow-none"
             expirationDate={learnerCreditSummaryCardData.expirationDate}
@@ -123,13 +145,12 @@ const SubsidiesSummary = ({
           />
         )}
       </div>
-      {(searchCoursesCta && !isAssignmentOnlyLearner) && (
-        <SidebarCard
-          cardClassNames="border-0 shadow-none"
-          cardSectionClassNames="pt-0"
-        >
-          {searchCoursesCta}
-        </SidebarCard>
+      {!isAssignmentOnlyLearner && (
+        <SearchCoursesCta
+          ctaButtonVariant={ctaButtonVariant}
+          isProgramProgressPage={programProgressPage}
+          showSearchCoursesCta={showSearchCoursesCta}
+        />
       )}
     </SidebarCard>
   );

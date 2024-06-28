@@ -52,17 +52,28 @@ const conditionallyRenderCardBadge = ({
   badgeVariant,
   intl,
 }) => {
+  let renderedBadge;
+
+  // If the disable learner credit expiration messaging is enabled, default to an active badge
   if (status === BUDGET_STATUSES.expiring && disableExpiryMessagingForLearnerCredit) {
-    return null;
+    renderedBadge = {
+      badgeVariant: 'success',
+      badgeLabel: BUDGET_STATUSES.active,
+    };
+  } else {
+    renderedBadge = {
+      badgeVariant,
+      badgeLabel: status,
+    };
   }
 
   return (
     <Badge
-      variant={badgeVariant}
+      variant={renderedBadge.badgeVariant}
       className="ml-2"
       data-testid="learner-credit-status-badge"
     >
-      {intl.formatMessage(badgeStatusMessages[status.toLowerCase()])}
+      {intl.formatMessage(badgeStatusMessages[renderedBadge.badgeLabel.toLowerCase()])}
     </Badge>
   );
 };
@@ -73,16 +84,24 @@ const LearnerCreditSummaryCard = ({
   statusMetadata,
   assignmentOnlyLearner,
 }) => {
-  const { status, badgeVariant } = statusMetadata;
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const intl = useIntl();
+  const { status, badgeVariant } = statusMetadata;
+  const { data: { disableExpiryMessagingForLearnerCredit } } = useEnterpriseCustomer();
+  const formattedExpirationDate = dayjs(expirationDate).format('MMM D, YYYY');
+  const isBudgetExpired = dayjs(expirationDate).isBefore(dayjs()) && status === BUDGET_STATUSES.expired;
 
   const cardBadge = useMemo(() => conditionallyRenderCardBadge({
-    disableExpiryMessagingForLearnerCredit: enterpriseCustomer.disableExpiryMessagingForLearnerCredit,
+    disableExpiryMessagingForLearnerCredit,
     status,
     badgeVariant,
     intl,
-  }), [badgeVariant, enterpriseCustomer.disableExpiryMessagingForLearnerCredit, intl, status]);
+  }), [badgeVariant, disableExpiryMessagingForLearnerCredit, intl, status]);
+
+  // Validates that the flag to disable expiry messaging is enabled, whether the learner credit expiration is
+  // truly expired by a date calculation and the status is set to expired
+  if (disableExpiryMessagingForLearnerCredit && isBudgetExpired) {
+    return null;
+  }
 
   return (
     <SidebarCard
@@ -118,7 +137,7 @@ const LearnerCreditSummaryCard = ({
         )}
       </p>
 
-      {expirationDate && (
+      {(expirationDate && !disableExpiryMessagingForLearnerCredit) && (
         <p className="mb-0" data-testid="learner-credit-summary-end-date-text">
           <FormattedMessage
             id="enterprise.dashboard.sidebar.learner.credit.card.subsidy.expiration.date"
@@ -128,7 +147,7 @@ const LearnerCreditSummaryCard = ({
               subsidyExpiryDate: (
                 <b>
                   <FormattedDate
-                    value={dayjs(expirationDate).format('MMM D, YYYY')}
+                    value={formattedExpirationDate}
                     year="numeric"
                     month="short"
                     day="numeric"
