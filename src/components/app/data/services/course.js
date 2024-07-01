@@ -3,10 +3,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
-import {
-  findHighestLevelEntitlementSku,
-  getActiveCourseRun,
-} from '../utils';
+import { findHighestLevelEntitlementSku, getActiveCourseRun } from '../utils';
 
 /**
  * TODO
@@ -40,6 +37,19 @@ export async function fetchCourseMetadata(courseKey, courseRunKey) {
       );
     }
     return transformedData;
+  } catch (error) {
+    if (getErrorResponseStatusCode(error) !== 404) {
+      logError(error);
+    }
+    return null;
+  }
+}
+
+export async function fetchCourseRunMetadata(courseRunKey) {
+  const courseRunMetadataUrl = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/course_runs/${courseRunKey}`;
+  try {
+    const response = await getAuthenticatedHttpClient().get(courseRunMetadataUrl);
+    return camelCaseObject(response.data);
   } catch (error) {
     if (getErrorResponseStatusCode(error) !== 404) {
       logError(error);

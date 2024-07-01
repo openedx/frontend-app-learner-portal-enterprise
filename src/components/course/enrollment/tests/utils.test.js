@@ -1,7 +1,10 @@
-import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../../data/constants';
 import { enrollButtonTypes } from '../constants';
-
 import { determineEnrollmentType, canUserRequestSubsidyForCourse } from '../utils';
+import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
+} from '../../../app/data';
 
 const {
   TO_COURSEWARE_PAGE,

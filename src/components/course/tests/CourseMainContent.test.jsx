@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseMainContent from '../CourseMainContent';
-import { useCourseMetadata } from '../../app/data';
+import { COURSE_MODES_MAP, useCourseMetadata } from '../../app/data';
 import { TEST_OWNER } from './data/constants';
 import { COURSE_PACING_MAP } from '../data';
 
@@ -45,7 +45,7 @@ const mockCourseRun = {
   start: '2020-09-09T04:00:00Z',
   availability: 'Current',
   courseUuid: 'Foo',
-  type: 'verified',
+  type: COURSE_MODES_MAP.VERIFIED,
   hasOfacRestrictions: true,
 };
 

@@ -4,13 +4,15 @@ import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseSidebarPrice from '../CourseSidebarPrice';
 import {
-  LICENSE_SUBSIDY_TYPE,
-  COUPON_CODE_SUBSIDY_TYPE,
   SUBSIDY_DISCOUNT_TYPE_MAP,
+} from '../data/constants';
+import {
+  useEnterpriseCustomer,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   LEARNER_CREDIT_SUBSIDY_TYPE,
-} from '../data/constants';
-import { useEnterpriseCustomer } from '../../app/data';
+  LICENSE_SUBSIDY_TYPE,
+  COUPON_CODE_SUBSIDY_TYPE,
+} from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import {
   useCanUserRequestSubsidyForCourse,

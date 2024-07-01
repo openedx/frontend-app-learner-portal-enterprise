@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useNavigate } from 'react-router-dom';
@@ -12,10 +12,10 @@ import ContinueLearningButton from './ContinueLearningButton';
 
 import Notification from './Notification';
 
-import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
 import UpgradeCourseButton from './UpgradeCourseButton';
 import { useEnterpriseCustomer } from '../../../../app/data';
-import { COURSE_STATUSES, useUpdateCourseEnrollmentStatus } from '../data';
+import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
+import { COURSE_STATUSES } from '../../../../../constants';
 
 const messages = defineMessages({
   saveCourseForLater: {
@@ -32,17 +32,16 @@ export const InProgressCourseCard = ({
   notifications,
   courseRunStatus,
   startDate,
-  mode,
   resumeCourseRunUrl,
+  mode,
   ...rest
 }) => {
+  // TODO: Destructure learnerCreditUpgradeUrl field here
   const {
-    isLoading: isLoadingUpgradeUrl,
     licenseUpgradeUrl,
     couponUpgradeUrl,
-  } = useContext(UpgradeableCourseEnrollmentContext);
+  } = useCourseUpgradeData({ courseRunKey: courseRunId, mode });
   const navigate = useNavigate();
-
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
   const shouldShowUpgradeButton = !!couponUpgradeUrl;
 
@@ -62,7 +61,7 @@ export const InProgressCourseCard = ({
         startDate={startDate}
         resumeCourseRunUrl={resumeCourseRunUrl}
       />
-      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} />}
+      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} courseRunKey={courseRunId} mode={mode} />}
     </>
   );
 
@@ -169,7 +168,6 @@ export const InProgressCourseCard = ({
       title={title}
       linkToCourse={licenseUpgradeUrl ?? linkToCourse}
       courseRunId={courseRunId}
-      isLoading={isLoadingUpgradeUrl}
       mode={mode}
       startDate={startDate}
       {...rest}

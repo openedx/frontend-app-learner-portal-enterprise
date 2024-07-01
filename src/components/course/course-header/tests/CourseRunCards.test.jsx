@@ -3,13 +3,14 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import CourseRunCards from '../CourseRunCards';
-import { LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../../data/constants';
 import { authenticatedUserFactory } from '../../../app/data/services/data/__factories__';
 import {
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomerContainsContent,
   useUserEntitlements,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
 } from '../../../app/data';
 import { useUserSubsidyApplicableToCourse } from '../../data';
 import { renderWithRouterProvider } from '../../../../utils/tests';

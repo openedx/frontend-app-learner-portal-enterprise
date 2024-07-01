@@ -1,10 +1,10 @@
 import { enrollButtonTypes } from './constants';
+import { pathContainsCourseTypeSlug } from '../data/utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
-} from '../data/constants';
-import { pathContainsCourseTypeSlug } from '../data/utils';
+} from '../../app/data';
 
 const {
   ENROLL_DISABLED,

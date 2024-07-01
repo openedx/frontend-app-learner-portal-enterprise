@@ -3,13 +3,13 @@ import { CardGrid } from '@openedx/paragon';
 
 import CourseRunCard from './CourseRunCard';
 import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
-import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../data/constants';
 import { useUserSubsidyApplicableToCourse } from '../data';
 import {
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomerContainsContent,
   useUserEntitlements,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
 } from '../../app/data';
 
 /**

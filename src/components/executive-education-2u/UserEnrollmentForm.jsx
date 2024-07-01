@@ -18,9 +18,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { checkoutExecutiveEducation2U, isDuplicateExternalCourseOrder, toISOStringWithoutMilliseconds } from './data';
 import { useStatefulEnroll } from '../stateful-enroll/data';
-import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
 import {
+  LEARNER_CREDIT_SUBSIDY_TYPE,
   queryCanRedeemContextQueryKey,
   queryEnterpriseCourseEnrollments,
   queryRedeemablePolicies,

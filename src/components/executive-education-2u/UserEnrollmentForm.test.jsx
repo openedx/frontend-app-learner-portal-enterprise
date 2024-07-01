@@ -16,10 +16,15 @@ import UserEnrollmentForm from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { CourseContext } from '../course/CourseContextProvider';
-import { useCourseMetadata, useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../app/data';
+import {
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  useCourseMetadata,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+} from '../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
 import { renderWithRouter } from '../../utils/tests';
-import { LEARNER_CREDIT_SUBSIDY_TYPE, useUserSubsidyApplicableToCourse } from '../course/data';
+import { useUserSubsidyApplicableToCourse } from '../course/data';
 
 const termsLabelText = "I agree to GetSmarter's Terms and Conditions for Students";
 const termsAndConsitionCTA = 'Terms and Conditions';

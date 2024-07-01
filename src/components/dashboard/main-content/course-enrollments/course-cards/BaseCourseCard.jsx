@@ -19,8 +19,8 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
-import { COURSE_PACING, COURSE_STATUSES, EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
-import { ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS, useEnterpriseCustomer } from '../../../../app/data';
+import { COURSE_PACING, COURSE_STATUSES } from '../../../../../constants';
+import { ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS, EXECUTIVE_EDUCATION_COURSE_MODES, useEnterpriseCustomer } from '../../../../app/data';
 import { isTodayWithinDateThreshold } from '../../../../../utils/common';
 
 const messages = defineMessages({

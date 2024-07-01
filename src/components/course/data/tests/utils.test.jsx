@@ -5,10 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { getConfig } from '@edx/frontend-platform';
 import {
-  COUPON_CODE_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
 } from '../constants';
 import {
   findCouponCodeForCourse,
@@ -19,7 +16,6 @@ import {
   getMissingApplicableSubsidyReason,
   getMissingSubsidyReasonActions,
   getSubscriptionDisabledEnrollmentReasonType,
-  getSubsidyToApplyForCourse,
   isActiveSubscriptionLicense,
   isCurrentCoupon,
   pathContainsCourseTypeSlug,
@@ -292,104 +288,6 @@ describe('findEnterpriseOfferForCourse', () => {
       coursePrice,
     });
     expect(result).toEqual(offerRemainingApplicationsNoBalance);
-  });
-});
-
-describe('getSubsidyToApplyForCourse', () => {
-  const mockApplicableSubscriptionLicense = {
-    uuid: 'license-uuid',
-    status: 'activated',
-    subscriptionPlan: {
-      startDate: '2023-08-11',
-      expirationDate: '2024-08-11',
-    },
-  };
-
-  const mockApplicableCouponCode = {
-    uuid: 'coupon-code-uuid',
-    usageType: 'percentage',
-    benefitValue: 100,
-    couponStartDate: '2023-08-11',
-    couponEndDate: '2024-08-11',
-    code: 'xyz',
-  };
-
-  const mockApplicableEnterpriseOffer = {
-    id: 1,
-    usageType: 'Percentage',
-    discountValue: 100,
-    startDatetime: '2023-08-11',
-    endDatetime: '2024-08-11',
-  };
-
-  it('returns applicableSubscriptionLicense over learner credit', () => {
-    const subsidyToApply = getSubsidyToApplyForCourse({
-      applicableSubscriptionLicense: mockApplicableSubscriptionLicense,
-      applicableCouponCode: mockApplicableCouponCode,
-      applicableEnterpriseOffer: mockApplicableEnterpriseOffer,
-      applicableSubsidyAccessPolicy: {
-        isPolicyRedemptionEnabled: true,
-        redeemableSubsidyAccessPolicy: {},
-      },
-    });
-
-    expect(subsidyToApply).toEqual({
-      subsidyType: LICENSE_SUBSIDY_TYPE,
-      subsidyId: mockApplicableSubscriptionLicense.uuid,
-      startDate: mockApplicableSubscriptionLicense.subscriptionPlan.startDate,
-      expirationDate: mockApplicableSubscriptionLicense.subscriptionPlan.expirationDate,
-      status: mockApplicableSubscriptionLicense.status,
-      discountType: 'percentage',
-      discountValue: 100,
-    });
-  });
-
-  it('returns applicableCouponCode if there is no applicableSubscriptionLicense', () => {
-    const subsidyToApply = getSubsidyToApplyForCourse({
-      applicableSubscriptionLicense: undefined,
-      applicableCouponCode: mockApplicableCouponCode,
-      applicableEnterpriseOffer: mockApplicableEnterpriseOffer,
-    });
-
-    expect(subsidyToApply).toEqual({
-      discountType: mockApplicableCouponCode.usageType,
-      discountValue: mockApplicableCouponCode.benefitValue,
-      startDate: mockApplicableCouponCode.couponStartDate,
-      endDate: mockApplicableCouponCode.couponEndDate,
-      code: mockApplicableCouponCode.code,
-      subsidyType: COUPON_CODE_SUBSIDY_TYPE,
-    });
-  });
-
-  it('returns applicableEnterpriseOffer if there is no applicableSubscriptionLicense or applicableCouponCode', () => {
-    const subsidyToApply = getSubsidyToApplyForCourse({
-      applicableSubscriptionLicense: undefined,
-      applicableCouponCode: undefined,
-      applicableEnterpriseOffer: mockApplicableEnterpriseOffer,
-      applicableSubsidyAccessPolicy: {},
-    });
-
-    expect(subsidyToApply).toEqual({
-      discountType: mockApplicableEnterpriseOffer.usageType.toLowerCase(),
-      discountValue: mockApplicableEnterpriseOffer.discountValue,
-      startDate: mockApplicableEnterpriseOffer.startDatetime,
-      endDate: mockApplicableEnterpriseOffer.endDatetime,
-      subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
-    });
-  });
-
-  it('returns null if there are no applicable subsidies', () => {
-    const subsidyToApply = getSubsidyToApplyForCourse({
-      applicableSubscriptionLicense: undefined,
-      applicableCouponCode: undefined,
-      applicableEnterpriseOffer: undefined,
-      applicableSubsidyAccessPolicy: {
-        isPolicyRedemptionEnabled: false,
-        redeemableSubsidyAccessPolicy: undefined,
-      },
-    });
-
-    expect(subsidyToApply).toBeUndefined();
   });
 });
 

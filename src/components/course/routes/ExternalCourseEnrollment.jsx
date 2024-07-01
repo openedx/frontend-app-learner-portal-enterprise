@@ -18,12 +18,12 @@ import {
   useMinimalCourseMetadata,
   useUserSubsidyApplicableToCourse,
 } from '../data/hooks';
-import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../data/constants';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
 import { features } from '../../../config';
 import {
   useCourseRedemptionEligibility,
   useEnterpriseCustomer,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
 } from '../../app/data';
 import NotFoundPage from '../../NotFoundPage';
 

@@ -7,6 +7,7 @@ import XSeriesProgramDetailsSvgIcon from '../../../assets/icons/xseries-program-
 import progCertMicroMaster from '../images/program-certificate-micromasters.gif';
 import progCertProfessionalCert from '../images/program-certificate-professional-certificate.gif';
 import progCertXSeries from '../images/program-certificate-xseries.gif';
+import { COURSE_MODES_MAP } from '../../app/data';
 
 export function getProgramIcon(type) {
   switch (type) {
@@ -148,7 +149,8 @@ export function getCertificatePriceString(run) {
   if ('seats' in run && run.seats.length) {
     // eslint-disable-next-line consistent-return
     const upgradeableSeats = run.seats.filter((seat) => {
-      const upgradeableSeatTypes = ['verified', 'professional', 'no-id-professional', 'credit'];
+      const { VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL } = COURSE_MODES_MAP;
+      const upgradeableSeatTypes = [VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, 'credit'];
       return upgradeableSeatTypes.indexOf(seat.type) >= 0;
     });
     if (upgradeableSeats.length > 0) {

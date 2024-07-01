@@ -4,8 +4,7 @@ import { Button, Hyperlink } from '@openedx/paragon';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import dayjs from 'dayjs';
-import { EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
-import { useEnterpriseCustomer } from '../../../../app/data';
+import { EXECUTIVE_EDUCATION_COURSE_MODES, useEnterpriseCustomer } from '../../../../app/data';
 /**
  * A 'Continue Learning' button with parameters.
  *
