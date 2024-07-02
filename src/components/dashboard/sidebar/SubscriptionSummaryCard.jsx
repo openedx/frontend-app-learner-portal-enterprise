@@ -4,8 +4,9 @@ import { Badge, useToggle } from '@openedx/paragon';
 import { WarningFilled } from '@openedx/paragon/icons';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
+import CardHeader from '@openedx/paragon/src/Card/CardHeader';
+import CardSection from '@openedx/paragon/src/Card/CardSection';
 import { SUBSCRIPTION_DAYS_REMAINING_SEVERE } from '../../../config/constants';
-import SidebarCard from './SidebarCard';
 import SubscriptionExpirationWarningModal from '../../program-progress/SubscriptionExpiringWarningModal';
 import dayjs from '../../../utils/dayjs';
 import {
@@ -16,7 +17,7 @@ import {
 } from './data/constants';
 
 const SubscriptionSummaryCard = ({
-  subscriptionPlan, showExpirationNotifications, licenseRequest, className, courseEndDate, programProgressPage,
+  subscriptionPlan, showExpirationNotifications, licenseRequest, courseEndDate, programProgressPage,
 }) => {
   const [
     isSubscriptionExpiringWarningModalOpen,
@@ -93,13 +94,16 @@ const SubscriptionSummaryCard = ({
     }
     if (!subscriptionPlan) {
       return (
-        <span>
-          <FormattedMessage
-            id="enterprise.dashboard.sidebar.license.requested.notice"
-            defaultMessage="Awaiting approval."
-            description="License request awaiting approval notice on the enterprise dashboard sidebar."
-          />
-        </span>
+        <CardSection>
+          <span>
+            <FormattedMessage
+              id="enterprise.dashboard.sidebar.license.requested.notice"
+              defaultMessage="Awaiting approval."
+              description="License request awaiting approval notice on the enterprise dashboard sidebar."
+            />
+          </span>
+        </CardSection>
+
       );
     }
     const subscriptionDate = dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY');
@@ -118,7 +122,7 @@ const SubscriptionSummaryCard = ({
       });
     }
     return (
-      <>
+      <CardSection>
         {subscriptionDateLabel}
         {' '}
         <span
@@ -126,7 +130,7 @@ const SubscriptionSummaryCard = ({
         >
           {subscriptionDate}
         </span>
-      </>
+      </CardSection>
     );
   }, [intl, showExpirationNotifications, subscriptionPlan]);
 
@@ -155,22 +159,53 @@ const SubscriptionSummaryCard = ({
   // Don't render the card summary if there is no subscription plan or license request or
   // if the disable expiration notifications on the customer agreement is enabled and
   // the applicable subscription plan is expired.
-  if (!(subscriptionPlan || licenseRequest) || (showExpirationNotifications && !subscriptionPlan.isCurrent)) {
+  if (!(subscriptionPlan || licenseRequest) || !(showExpirationNotifications || subscriptionPlan.isCurrent)) {
     return null;
   }
 
   if (programProgressPage) {
     return (
-      <SidebarCard
+      <>
+        <CardHeader
+          title={(
+            <div className="d-flex align-items-start justify-content-between">
+              <h3>
+                <FormattedMessage
+                  id="enterprise.dashboard.sidebar.subscription.summary.card.title.text1"
+                  defaultMessage="Subscription Status"
+                  description="Subscription status title on the enterprise dashboard sidebar."
+                />
+              </h3>
+              <div>
+                <Badge
+                  variant={badgeVariantAndLabel.variant}
+                  className="ml-2"
+                  data-testid="subscription-status-badge"
+                >
+                  {badgeVariantAndLabel.label}
+                </Badge>
+                {programProgressSubscriptionExpirationWarningModal}
+              </div>
+            </div>
+          )}
+        />
+        {subscriptionExpirationDate}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <CardHeader
         title={(
           <div className="d-flex align-items-start justify-content-between">
-            <h3>
+            <div>
               <FormattedMessage
-                id="enterprise.dashboard.sidebar.subscription.summary.card.title.text1"
+                id="enterprise.dashboard.sidebar.subscription.summary.card.title.text2"
                 defaultMessage="Subscription Status"
-                description="Subscription status title on the enterprise dashboard sidebar."
+                description="Subscription status summary card title on the enterprise dashboard sidebar."
               />
-            </h3>
+            </div>
             <div>
               <Badge
                 variant={badgeVariantAndLabel.variant}
@@ -179,43 +214,12 @@ const SubscriptionSummaryCard = ({
               >
                 {badgeVariantAndLabel.label}
               </Badge>
-              {programProgressSubscriptionExpirationWarningModal}
             </div>
           </div>
         )}
-        cardClassNames={className}
-      >
-        {subscriptionExpirationDate}
-      </SidebarCard>
-    );
-  }
-
-  return (
-    <SidebarCard
-      title={(
-        <div className="d-flex align-items-start justify-content-between">
-          <div>
-            <FormattedMessage
-              id="enterprise.dashboard.sidebar.subscription.summary.card.title.text2"
-              defaultMessage="Subscription Status"
-              description="Subscription status summary card title on the enterprise dashboard sidebar."
-            />
-          </div>
-          <div>
-            <Badge
-              variant={badgeVariantAndLabel.variant}
-              className="ml-2"
-              data-testid="subscription-status-badge"
-            >
-              {badgeVariantAndLabel.label}
-            </Badge>
-          </div>
-        </div>
-      )}
-      cardClassNames={className}
-    >
+      />
       {subscriptionExpirationDate}
-    </SidebarCard>
+    </>
   );
 };
 
@@ -227,13 +231,11 @@ SubscriptionSummaryCard.propTypes = {
   }),
   showExpirationNotifications: PropTypes.bool,
   licenseRequest: PropTypes.shape({}),
-  className: PropTypes.string,
   courseEndDate: PropTypes.string,
   programProgressPage: PropTypes.bool,
 };
 
 SubscriptionSummaryCard.defaultProps = {
-  className: undefined,
   programProgressPage: false,
   courseEndDate: undefined,
   subscriptionPlan: undefined,

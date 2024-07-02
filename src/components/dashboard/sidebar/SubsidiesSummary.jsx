@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import PropTypes from 'prop-types';
-import { Button } from '@openedx/paragon';
+import { Button, Card } from '@openedx/paragon';
 import classNames from 'classnames';
 import CardSection from '@openedx/paragon/src/Card/CardSection';
+import dayjs from 'dayjs';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import LearnerCreditSummaryCard from './LearnerCreditSummaryCard';
-import SidebarCard from './SidebarCard';
 import {
   useBrowseAndRequest,
   useCouponCodes,
@@ -24,17 +24,22 @@ import { COURSE_STATUSES } from '../../../constants';
 import { getStatusMetadata } from '../data/utils';
 import useExpirationMetadata from '../../budget-expiry-notification/data/hooks/useExpirationMetadata';
 
-const SearchCoursesCta = ({ ctaButtonVariant, showSearchCoursesCta, isProgramProgressPage }) => {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { disableSearch } = enterpriseCustomer;
+const SearchCoursesCta = ({
+  ctaButtonVariant,
+  showSearchCoursesCta,
+  isProgramProgressPage,
+  disableSearch,
+  slug,
+  className,
+}) => {
   if (disableSearch && !showSearchCoursesCta && !isProgramProgressPage) {
     return null;
   }
   return (
-    <CardSection className="pt-0">
+    <CardSection className={className}>
       <Button
         as={Link}
-        to={`/${enterpriseCustomer.slug}/search`}
+        to={`/${slug}/search`}
         variant={ctaButtonVariant}
         block
       >
@@ -52,6 +57,13 @@ SearchCoursesCta.propTypes = {
   ctaButtonVariant: PropTypes.string.isRequired,
   showSearchCoursesCta: PropTypes.bool.isRequired,
   isProgramProgressPage: PropTypes.bool.isRequired,
+  disableSearch: PropTypes.bool.isRequired,
+  slug: PropTypes.string.isRequired,
+  className: PropTypes.string,
+};
+
+SearchCoursesCta.defaultProps = {
+  className: undefined,
 };
 
 const SubsidiesSummary = ({
@@ -61,9 +73,8 @@ const SubsidiesSummary = ({
   courseEndDate,
   programProgressPage,
 }) => {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: { allEnrollmentsByStatus } } = useEnterpriseCourseEnrollments();
-
+  const { data: { disableExpiryMessagingForLearnerCredit, disableSearch, slug } } = useEnterpriseCustomer();
   const { data: subscriptions } = useSubscriptions();
   const { data: couponCodes } = useCouponCodes();
   const { data: enterpriseOffersData } = useEnterpriseOffers();
@@ -100,21 +111,64 @@ const SubsidiesSummary = ({
 
   const hasApplicableLearnerCredit = (
     enterpriseOffersData.canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies
-  ) && learnerCreditSummaryCardData.expirationDate;
+  ) && !!learnerCreditSummaryCardData.expirationDate;
 
-  const hasAnApplicableSummaryCard = (
-    hasApplicableLearnerCredit && hasActiveLicenseOrLicenseRequest && hasAssignedCodesOrCodeRequests
-  );
+  // Used to determine className for search course CTA
+  // Since the disable expiration notifications for subscriptions and learner credit
+  // hides expiration, we must account for the padding on the SearchCourseCTA.
+  const searchCourseCTAClassNames = useMemo(() => {
+    // Since there are no disable expiration flags for codes,
+    // we check if they are not rendered only if one of the flags are enabled
+    if (!hasAssignedCodesOrCodeRequests && (
+      disableExpiryMessagingForLearnerCredit || !subscriptions.showExpirationNotifications
+    )) {
+      // If notifications for both learner credit and subscriptions are disabled, and they are both expired
+      // We do not return a class name
+      if (
+        hasApplicableLearnerCredit && hasActiveLicenseOrLicenseRequest
+          && !subscriptions.showExpirationNotifications
+          && !subscriptions?.subscriptionPlan.isCurrent
+          && disableExpiryMessagingForLearnerCredit
+          && dayjs(learnerCreditSummaryCardData?.expirationDate).isBefore(dayjs())
+      ) {
+        return undefined;
+      }
+      // If notifications are enabled for one type of subsidy but not the other and they are expired
+      // We also render undefined
+      if (
+        hasActiveLicenseOrLicenseRequest && !hasApplicableLearnerCredit
+          && !subscriptions?.showExpirationNotifications
+          && !subscriptions?.subscriptionPlan.isCurrent
+      ) {
+        return undefined;
+      }
+      if (
+        hasApplicableLearnerCredit && !hasActiveLicenseOrLicenseRequest
+          && disableExpiryMessagingForLearnerCredit
+          && dayjs(learnerCreditSummaryCardData?.expirationDate).isBefore(dayjs())
+      ) {
+        return undefined;
+      }
+    }
+    // Otherwise, we render the default CSS value
+    return 'pt-0';
+  }, [
+    disableExpiryMessagingForLearnerCredit,
+    hasActiveLicenseOrLicenseRequest,
+    hasApplicableLearnerCredit,
+    hasAssignedCodesOrCodeRequests,
+    learnerCreditSummaryCardData?.expirationDate,
+    subscriptions.showExpirationNotifications,
+    subscriptions?.subscriptionPlan.isCurrent,
+  ]);
 
-  if (!hasAvailableSubsidyOrRequests && !hasAnApplicableSummaryCard) {
+  if (!hasAvailableSubsidyOrRequests) {
     return null;
   }
 
   return (
-    // TODO: Design debt, don't have cards in a card
-    <SidebarCard
-      cardSectionClassNames="border-0 shadow-none p-0"
-      cardClassNames={classNames('mb-5', { 'col-8 border-0 shadow-none': programProgressPage })}
+    <Card
+      className={classNames('mb-5', { 'col-8 border-0 shadow-none': programProgressPage })}
     >
       <div className={className} data-testid="subsidies-summary">
         {hasActiveLicenseOrLicenseRequest && (
@@ -124,7 +178,6 @@ const SubsidiesSummary = ({
             licenseRequest={requests.subscriptionLicenses[0]}
             courseEndDate={courseEndDate}
             programProgressPage={programProgressPage}
-            className="border-0 shadow-none"
           />
         )}
         {hasAssignedCodesOrCodeRequests && (
@@ -138,7 +191,6 @@ const SubsidiesSummary = ({
         )}
         {hasApplicableLearnerCredit && (
           <LearnerCreditSummaryCard
-            className="border-0 shadow-none"
             expirationDate={learnerCreditSummaryCardData.expirationDate}
             assignmentOnlyLearner={isAssignmentOnlyLearner}
             statusMetadata={learnerCreditStatusMetadata}
@@ -150,9 +202,12 @@ const SubsidiesSummary = ({
           ctaButtonVariant={ctaButtonVariant}
           isProgramProgressPage={programProgressPage}
           showSearchCoursesCta={showSearchCoursesCta}
+          disableSearch={disableSearch}
+          slug={slug}
+          className={searchCourseCTAClassNames}
         />
       )}
-    </SidebarCard>
+    </Card>
   );
 };
 

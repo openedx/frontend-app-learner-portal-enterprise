@@ -4,15 +4,13 @@ import { Badge, useToggle } from '@openedx/paragon';
 import { WarningFilled } from '@openedx/paragon/icons';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
-import SidebarCard from './SidebarCard';
+import CardHeader from '@openedx/paragon/src/Card/CardHeader';
+import CardSection from '@openedx/paragon/src/Card/CardSection';
 import CouponCodesWarningModal from '../../program-progress/CouponCodesWarningModal';
-import {
-  COUPON_CODES_AVAILABLE_BADGE_VARIANT,
-  COUPON_CODES_REQUESTED_BADGE_VARIANT,
-} from './data/constants';
+import { COUPON_CODES_AVAILABLE_BADGE_VARIANT, COUPON_CODES_REQUESTED_BADGE_VARIANT } from './data/constants';
 
 const CouponCodesSummaryCard = ({
-  couponCodesCount, couponCodeRequestsCount, className, totalCoursesEligibleForCertificate, programProgressPage,
+  couponCodesCount, couponCodeRequestsCount, totalCoursesEligibleForCertificate, programProgressPage,
 }) => {
   const [
     isCouponCodeWarningModalOpen,
@@ -58,7 +56,7 @@ const CouponCodesSummaryCard = ({
           onCouponCodeWarningModalClose={onCouponCodeWarningModalClose}
           couponCodesCount={couponCodesCount}
         />
-        <SidebarCard
+        <CardHeader
           title={(
             <div className="d-flex align-items-start justify-content-between">
               <h3>
@@ -76,8 +74,8 @@ const CouponCodesSummaryCard = ({
               )}
             </div>
           )}
-          cardClassNames={className}
-        >
+        />
+        <CardSection>
           <p className="m-0">
             <h3 className="float-left"> {couponCodesCount > 0 ? couponCodesCount : 0}</h3>{' '}
             <span className="ml-2">
@@ -88,44 +86,46 @@ const CouponCodesSummaryCard = ({
               />
             </span>
           </p>
-        </SidebarCard>
+        </CardSection>
       </>
     );
   }
 
   return (
-    <SidebarCard
-      title={(
-        <div className="d-flex align-items-start justify-content-between">
-          <div>{`${intl.formatMessage({
-            id: 'enterprise.dashboard.sidebar.coupon.codes.summary.title',
-            defaultMessage: 'Enrollment Codes',
-            description: 'Title for the coupon codes summary on the enterprise dashboard sidebar.',
-          })}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}
+    <>
+      <CardHeader
+        title={(
+          <div className="d-flex align-items-start justify-content-between">
+            <div>{`${intl.formatMessage({
+              id: 'enterprise.dashboard.sidebar.coupon.codes.summary.title',
+              defaultMessage: 'Enrollment Codes',
+              description: 'Title for the coupon codes summary on the enterprise dashboard sidebar.',
+            })}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}
+            </div>
+            <div>
+              {badgeVariantAndLabel && (
+                <Badge
+                  variant={badgeVariantAndLabel.variant}
+                  className="ml-2"
+                  data-testid="subscription-status-badge"
+                >
+                  {badgeVariantAndLabel.label}
+                </Badge>
+              )}
+            </div>
           </div>
-          <div>
-            {badgeVariantAndLabel && (
-              <Badge
-                variant={badgeVariantAndLabel.variant}
-                className="ml-2"
-                data-testid="subscription-status-badge"
-              >
-                {badgeVariantAndLabel.label}
-              </Badge>
-            )}
-          </div>
-        </div>
-      )}
-      cardClassNames={className}
-    >
-      <p className="m-0">
-        <FormattedMessage
-          id="enterprise.dashboard.sidebar.coupon-codes.summary.notice"
-          defaultMessage="Use codes to enroll in courses from your catalog."
-          description="Notice for the enrollment coupon codes on the enterprise dashboard sidebar."
-        />
-      </p>
-    </SidebarCard>
+        )}
+      />
+      <CardSection>
+        <p className="m-0">
+          <FormattedMessage
+            id="enterprise.dashboard.sidebar.coupon-codes.summary.notice"
+            defaultMessage="Use codes to enroll in courses from your catalog."
+            description="Notice for the enrollment coupon codes on the enterprise dashboard sidebar."
+          />
+        </p>
+      </CardSection>
+    </>
   );
 };
 
@@ -133,7 +133,6 @@ CouponCodesSummaryCard.propTypes = {
   couponCodesCount: PropTypes.number,
   totalCoursesEligibleForCertificate: PropTypes.number,
   couponCodeRequestsCount: PropTypes.number,
-  className: PropTypes.string,
   programProgressPage: PropTypes.bool,
 };
 
@@ -141,7 +140,6 @@ CouponCodesSummaryCard.defaultProps = {
   couponCodesCount: 0,
   totalCoursesEligibleForCertificate: 0,
   couponCodeRequestsCount: 0,
-  className: undefined,
   programProgressPage: false,
 };
 

@@ -5,7 +5,8 @@ import dayjs from 'dayjs';
 import {
   defineMessages, FormattedDate, FormattedMessage, useIntl,
 } from '@edx/frontend-platform/i18n';
-import SidebarCard from './SidebarCard';
+import CardHeader from '@openedx/paragon/src/Card/CardHeader';
+import CardSection from '@openedx/paragon/src/Card/CardSection';
 import { useEnterpriseCustomer } from '../../app/data';
 import { BUDGET_STATUSES } from '../data/constants';
 
@@ -79,7 +80,6 @@ const conditionallyRenderCardBadge = ({
 };
 
 const LearnerCreditSummaryCard = ({
-  className,
   expirationDate,
   statusMetadata,
   assignmentOnlyLearner,
@@ -104,61 +104,63 @@ const LearnerCreditSummaryCard = ({
   }
 
   return (
-    <SidebarCard
-      title={
-        (
-          <div className="d-flex align-items-center justify-content-between">
-            <h3 className="m-0">
-              <FormattedMessage
-                id="enterprise.dashboard.sidebar.learner.credit.card.title"
-                defaultMessage="Learner Credit"
-                description="Title for the learner credit summary card on the enterprise dashboard sidebar."
-              />
-            </h3>
-            {cardBadge}
-          </div>
-        )
-      }
-      cardClassNames={className}
-    >
-      <p data-testid="learner-credit-summary-text">
-        {assignmentOnlyLearner ? (
-          <FormattedMessage
-            id="enterprise.dashboard.sidebar.learner.credit.card.assignment.only.description"
-            defaultMessage="Your organization will assign courses to learners. Please contact your administrator if you are interested in taking a course."
-            description="Description for the learner credit summary card on the enterprise dashboard sidebar when learner has assignment."
-          />
-        ) : (
-          <FormattedMessage
-            id="enterprise.dashboard.sidebar.learner.credit.card.description"
-            defaultMessage="Apply your organization's learner credit balance to enroll into courses with no out of pocket cost."
-            description="Description for the learner credit summary card on the enterprise dashboard sidebar when learner has no assignment."
-          />
-        )}
-      </p>
-
-      {(expirationDate && !disableExpiryMessagingForLearnerCredit) && (
-        <p className="mb-0" data-testid="learner-credit-summary-end-date-text">
-          <FormattedMessage
-            id="enterprise.dashboard.sidebar.learner.credit.card.subsidy.expiration.date"
-            defaultMessage="Available until {subsidyExpiryDate}"
-            description="Subsidy expiration date for the learner credit summary card on the enterprise dashboard sidebar."
-            values={{
-              subsidyExpiryDate: (
-                <b>
-                  <FormattedDate
-                    value={formattedExpirationDate}
-                    year="numeric"
-                    month="short"
-                    day="numeric"
-                  />
-                </b>
-              ),
-            }}
-          />
+    <>
+      <CardHeader
+        title={
+          (
+            <div className="d-flex align-items-center justify-content-between">
+              <h3 className="m-0">
+                <FormattedMessage
+                  id="enterprise.dashboard.sidebar.learner.credit.card.title"
+                  defaultMessage="Learner Credit"
+                  description="Title for the learner credit summary card on the enterprise dashboard sidebar."
+                />
+              </h3>
+              {cardBadge}
+            </div>
+          )
+        }
+      />
+      <CardSection>
+        <p data-testid="learner-credit-summary-text">
+          {assignmentOnlyLearner ? (
+            <FormattedMessage
+              id="enterprise.dashboard.sidebar.learner.credit.card.assignment.only.description"
+              defaultMessage="Your organization will assign courses to learners. Please contact your administrator if you are interested in taking a course."
+              description="Description for the learner credit summary card on the enterprise dashboard sidebar when learner has assignment."
+            />
+          ) : (
+            <FormattedMessage
+              id="enterprise.dashboard.sidebar.learner.credit.card.description"
+              defaultMessage="Apply your organization's learner credit balance to enroll into courses with no out of pocket cost."
+              description="Description for the learner credit summary card on the enterprise dashboard sidebar when learner has no assignment."
+            />
+          )}
         </p>
-      )}
-    </SidebarCard>
+
+        {(expirationDate && !disableExpiryMessagingForLearnerCredit) && (
+          <p className="mb-0" data-testid="learner-credit-summary-end-date-text">
+            <FormattedMessage
+              id="enterprise.dashboard.sidebar.learner.credit.card.subsidy.expiration.date"
+              defaultMessage="Available until {subsidyExpiryDate}"
+              description="Subsidy expiration date for the learner credit summary card on the enterprise dashboard sidebar."
+              values={{
+                subsidyExpiryDate: (
+                  <b>
+                    <FormattedDate
+                      value={formattedExpirationDate}
+                      year="numeric"
+                      month="short"
+                      day="numeric"
+                    />
+                  </b>
+                ),
+              }}
+            />
+          </p>
+        )}
+      </CardSection>
+    </>
   );
 };
 
@@ -170,12 +172,7 @@ LearnerCreditSummaryCard.propTypes = {
     term: PropTypes.string,
     date: PropTypes.string,
   }).isRequired,
-  className: PropTypes.string,
   assignmentOnlyLearner: PropTypes.bool.isRequired,
-};
-
-LearnerCreditSummaryCard.defaultProps = {
-  className: undefined,
 };
 
 export default LearnerCreditSummaryCard;
