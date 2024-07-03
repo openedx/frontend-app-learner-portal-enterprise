@@ -27,10 +27,10 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseOffers,
+  useHasAvailableSubsidiesOrRequests,
   useIsAssignmentsOnlyLearner,
   useRedeemablePolicies,
   useSubscriptions,
-  useHasAvailableSubsidiesOrRequests,
 } from '../../../app/data';
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
@@ -363,6 +363,7 @@ describe('<DashboardSidebar />', () => {
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
     expect(catalogAccessButton).toBeFalsy();
   });
+
   test('Need help sidebar block is always rendered', () => {
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.queryByText(NEED_HELP_BLOCK_TITLE)).toBeTruthy();
@@ -376,5 +377,136 @@ describe('<DashboardSidebar />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: { ...mockEnterpriseCustomer, contactEmail: null } });
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText('contact your organization\'s edX administrator').closest('a')).toHaveAttribute('href', `mailto:${mockEnterpriseCustomer.adminUsers.map(u => u.email)}`);
+  });
+  test.each([
+    // className returned pt-0
+    {
+      useHasAvailableSubsidiesOrRequestsValues: {
+        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasAvailableLearnerCreditPolicies: true,
+        mockHasAssignedCodesOrCodeRequests: true,
+        mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
+      },
+      disableExpiryMessagingForLearnerCredit: true,
+      showExpirationNotifications: false,
+      subscriptionPlanMetadata: {
+        daysUntilExpiration: -10,
+        expirationDate: dayjs().subtract(10, 'days').toISOString(),
+        isCurrent: false,
+      },
+    },
+    // className undefined, both disable expiration flags enabled, dates are expired
+    {
+      useHasAvailableSubsidiesOrRequestsValues: {
+        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasAvailableLearnerCreditPolicies: true,
+        mockHasAssignedCodesOrCodeRequests: false,
+        mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
+      },
+      disableExpiryMessagingForLearnerCredit: true,
+      showExpirationNotifications: false,
+      subscriptionPlanMetadata: {
+        daysUntilExpiration: -10,
+        expirationDate: dayjs().subtract(10, 'days').toISOString(),
+        isCurrent: false,
+      },
+    },
+    // className undefined, learner credit disable expiration flags enabled, dates are expired
+    {
+      useHasAvailableSubsidiesOrRequestsValues: {
+        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasAvailableLearnerCreditPolicies: true,
+        mockHasAssignedCodesOrCodeRequests: false,
+        mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
+      },
+      disableExpiryMessagingForLearnerCredit: true,
+      showExpirationNotifications: true,
+      subscriptionPlanMetadata: {
+        daysUntilExpiration: -10,
+        expirationDate: dayjs().subtract(10, 'days').toISOString(),
+        isCurrent: false,
+      },
+    },
+    // className undefined, subscription disable expiration flag enabled, dates are expired
+    {
+      useHasAvailableSubsidiesOrRequestsValues: {
+        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasAvailableLearnerCreditPolicies: true,
+        mockHasAssignedCodesOrCodeRequests: false,
+        mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
+      },
+      disableExpiryMessagingForLearnerCredit: false,
+      showExpirationNotifications: false,
+      subscriptionPlanMetadata: {
+        daysUntilExpiration: -10,
+        expirationDate: dayjs().subtract(10, 'days').toISOString(),
+        isCurrent: false,
+      },
+    },
+    // className undefined, active learner credit plan with disabled subscription, dates are expired
+    {
+      useHasAvailableSubsidiesOrRequestsValues: {
+        mockHasActiveLicenseOrLicenseRequest: false,
+        mockHasAvailableLearnerCreditPolicies: true,
+        mockHasAssignedCodesOrCodeRequests: false,
+        mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
+      },
+      disableExpiryMessagingForLearnerCredit: true,
+      showExpirationNotifications: false,
+      subscriptionPlanMetadata: {
+        daysUntilExpiration: -10,
+        expirationDate: dayjs().subtract(10, 'days').toISOString(),
+        isCurrent: false,
+      },
+    },
+    // className undefined, active subscription with disabled learner credit plan, dates are expired
+    {
+      useHasAvailableSubsidiesOrRequestsValues: {
+        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasAvailableLearnerCreditPolicies: false,
+        mockHasAssignedCodesOrCodeRequests: false,
+        mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
+      },
+      disableExpiryMessagingForLearnerCredit: true,
+      showExpirationNotifications: false,
+      subscriptionPlanMetadata: {
+        daysUntilExpiration: -10,
+        expirationDate: dayjs().subtract(10, 'days').toISOString(),
+        isCurrent: false,
+      },
+    },
+  ])('Find a course button is rendered with the correct classname when expiration flags for subscriptions and learner credit are enabled (%s)', ({
+    useHasAvailableSubsidiesOrRequestsValues,
+    disableExpiryMessagingForLearnerCredit,
+    showExpirationNotifications,
+    subscriptionPlanMetadata,
+  }) => {
+    useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
+      ...useHasAvailableSubsidiesOrRequestsValues,
+    }));
+    useEnterpriseCustomer.mockReturnValue({
+      data: enterpriseCustomerFactory({
+        disable_expiry_messaging_for_learner_credit: disableExpiryMessagingForLearnerCredit,
+      }),
+    });
+    useSubscriptions.mockReturnValue({
+      data: {
+        subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
+        subscriptionPlan: subscriptionPlanMetadata,
+        showExpirationNotifications,
+      },
+    });
+    const { mockHasAssignedCodesOrCodeRequests } = useHasAvailableSubsidiesOrRequestsValues;
+    renderWithRouter(<DashboardSidebarWithContext />);
+    const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
+    const doesHaveClassname = screen.getByTestId('subsidies-summary').nextElementSibling.classList.contains('pt-0');
+    expect(catalogAccessButton).toBeTruthy();
+    if (
+      mockHasAssignedCodesOrCodeRequests || showExpirationNotifications === disableExpiryMessagingForLearnerCredit
+    ) {
+      expect(doesHaveClassname).toBeTruthy();
+    } else {
+      expect(doesHaveClassname).toBeFalsy();
+    }
   });
 });
