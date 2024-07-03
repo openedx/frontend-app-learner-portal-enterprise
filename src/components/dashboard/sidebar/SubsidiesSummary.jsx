@@ -32,7 +32,7 @@ const SearchCoursesCta = ({
   slug,
   className,
 }) => {
-  if (disableSearch && !showSearchCoursesCta && !isProgramProgressPage) {
+  if (disableSearch || !showSearchCoursesCta || isProgramProgressPage) {
     return null;
   }
   return (
@@ -86,6 +86,9 @@ const SubsidiesSummary = ({
     hasActiveLicenseOrLicenseRequest,
     learnerCreditSummaryCardData,
   } = useHasAvailableSubsidiesOrRequests();
+  const hasApplicableLearnerCredit = (
+    enterpriseOffersData.canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies
+  ) && !!learnerCreditSummaryCardData.expirationDate;
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const { isPlanApproachingExpiry } = useExpirationMetadata(
     learnerCreditSummaryCardData?.expirationDate,
@@ -109,10 +112,6 @@ const SubsidiesSummary = ({
     return hasCourseEnrollments ? 'primary' : 'outline-primary';
   }, [allEnrollmentsByStatus]);
 
-  const hasApplicableLearnerCredit = (
-    enterpriseOffersData.canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies
-  ) && !!learnerCreditSummaryCardData.expirationDate;
-
   // Used to determine className for search course CTA
   // Since the disable expiration notifications for subscriptions and learner credit
   // hides expiration, we must account for the padding on the SearchCourseCTA.
@@ -127,7 +126,7 @@ const SubsidiesSummary = ({
       if (
         hasApplicableLearnerCredit && hasActiveLicenseOrLicenseRequest
           && !subscriptions.showExpirationNotifications
-          && !subscriptions?.subscriptionPlan.isCurrent
+          && !subscriptions?.subscriptionPlan?.isCurrent
           && disableExpiryMessagingForLearnerCredit
           && dayjs(learnerCreditSummaryCardData?.expirationDate).isBefore(dayjs())
       ) {
@@ -138,7 +137,7 @@ const SubsidiesSummary = ({
       if (
         hasActiveLicenseOrLicenseRequest && !hasApplicableLearnerCredit
           && !subscriptions?.showExpirationNotifications
-          && !subscriptions?.subscriptionPlan.isCurrent
+          && !subscriptions?.subscriptionPlan?.isCurrent
       ) {
         return undefined;
       }
@@ -159,7 +158,7 @@ const SubsidiesSummary = ({
     hasAssignedCodesOrCodeRequests,
     learnerCreditSummaryCardData?.expirationDate,
     subscriptions.showExpirationNotifications,
-    subscriptions?.subscriptionPlan.isCurrent,
+    subscriptions?.subscriptionPlan?.isCurrent,
   ]);
 
   if (!hasAvailableSubsidyOrRequests) {

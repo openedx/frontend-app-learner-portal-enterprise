@@ -47,7 +47,7 @@ const badgeStatusMessages = defineMessages({
  * @param intl
  * @returns {React.JSX.Element|null}
  */
-const conditionallyRenderCardBadge = ({
+const getRenderedBadge = ({
   disableExpiryMessagingForLearnerCredit,
   status,
   badgeVariant,
@@ -90,7 +90,7 @@ const LearnerCreditSummaryCard = ({
   const formattedExpirationDate = dayjs(expirationDate).format('MMM D, YYYY');
   const isBudgetExpired = dayjs(expirationDate).isBefore(dayjs()) && status === BUDGET_STATUSES.expired;
 
-  const cardBadge = useMemo(() => conditionallyRenderCardBadge({
+  const cardBadge = useMemo(() => getRenderedBadge({
     disableExpiryMessagingForLearnerCredit,
     status,
     badgeVariant,

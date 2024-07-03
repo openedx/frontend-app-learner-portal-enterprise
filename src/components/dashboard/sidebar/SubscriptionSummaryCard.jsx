@@ -89,9 +89,6 @@ const SubscriptionSummaryCard = ({
   }, [subscriptionPlan, licenseRequest, showExpirationNotifications, intl, programProgressPage]);
 
   const subscriptionExpirationDate = useMemo(() => {
-    if (!showExpirationNotifications) {
-      return null;
-    }
     if (!subscriptionPlan) {
       return (
         <CardSection>
@@ -106,7 +103,10 @@ const SubscriptionSummaryCard = ({
 
       );
     }
-    const subscriptionDate = dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY');
+    if (!showExpirationNotifications) {
+      return null;
+    }
+    const subscriptionDate = dayjs(subscriptionPlan?.expirationDate).format('MMMM Do, YYYY');
     let subscriptionDateLabel;
     if (subscriptionPlan.isCurrent) {
       subscriptionDateLabel = intl.formatMessage({
@@ -135,7 +135,7 @@ const SubscriptionSummaryCard = ({
   }, [intl, showExpirationNotifications, subscriptionPlan]);
 
   const programProgressSubscriptionExpirationWarningModal = useMemo(() => {
-    if (!showExpirationNotifications && courseEndDate > subscriptionPlan.expirationDate) {
+    if (!showExpirationNotifications && !(courseEndDate > subscriptionPlan?.expirationDate)) {
       return null;
     }
     return (
@@ -153,7 +153,7 @@ const SubscriptionSummaryCard = ({
     onSubscriptionExpiringWarningModalClose,
     showExpirationNotifications,
     subscriptionExpiringWarningModalOpen,
-    subscriptionPlan.expirationDate,
+    subscriptionPlan?.expirationDate,
   ]);
 
   // Don't render the card summary if there is no subscription plan or license request or
