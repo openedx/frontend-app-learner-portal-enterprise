@@ -7,7 +7,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import dayjs from '../../../utils/dayjs';
 import ProgramProgressCourses from '../ProgramProgressCourses';
 import { NotCurrentlyAvailable } from '../data/constants';
-import { useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests } from '../../app/data';
+import { COURSE_MODES_MAP, useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
@@ -208,7 +208,7 @@ describe('<ProgramProgressCourses />', () => {
               certificate_url: null,
               seats: [
                 {
-                  type: 'verified',
+                  type: COURSE_MODES_MAP.VERIFIED,
                   price: '149.00',
                   currency: 'USD',
                   upgradeDeadline: '2022-04-06T06:36:26.667883Z',
@@ -216,7 +216,7 @@ describe('<ProgramProgressCourses />', () => {
                   bulk_sku: 'A5B6DBE',
                 },
                 {
-                  type: 'audit',
+                  type: COURSE_MODES_MAP.AUDIT,
                   price: '0.00',
                   currency: 'USD',
                   sku: '68EFFFF',

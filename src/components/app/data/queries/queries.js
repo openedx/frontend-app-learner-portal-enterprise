@@ -15,20 +15,6 @@ export function queryUserEntitlements() {
 /**
  * Helper function to assist querying with React Query package
  *
- * @param {*} enterpriseUuid
- * @param {*} userEmail
- * @returns {Types.QueryOptions}
- */
-export function queryEnterpriseGroupMemberships(enterpriseUuid, learnerEmail) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.enterpriseGroupMemberships(learnerEmail);
-}
-
-/**
- * Helper function to assist querying with React Query package
- *
  * queries.user.notices
  * @returns {Types.QueryOptions}
  */
@@ -120,6 +106,24 @@ export function queryCourseMetadata(courseKey, courseRunKey) {
 }
 
 /**
+ * Helper function to assist querying with React Query package
+ *
+ * queries
+ * .content
+ * .course(null)
+ * ._ctx.metadata(courseRunKey)
+ * ._ctx.courseRun
+ * * @returns {Types.QueryOptions}
+ */
+export function queryCourseRunMetadata(courseRunKey) {
+  return queries
+    .content
+    .course(null)
+    ._ctx.metadata(courseRunKey)
+    ._ctx.courseRun;
+}
+
+/**
  * Helper function to assist with generating the query.
  * @param {string} courseKey
  * @returns {Types.QueryOptions}
@@ -187,15 +191,17 @@ export function queryAcademiesList(enterpriseUuid) {
  * Helper function to assist querying with React Query package
  *
  * queries
- * .content
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
  * .academy
  * ._ctx.detail(academyUUID)
  * @returns {Types.QueryOptions}
  */
-export function queryAcademiesDetail(academyUUID) {
+export function queryAcademiesDetail(academyUUID, enterpriseUUID) {
   return queries
-    .content
-    .academy
+    .enterprise
+    .enterpriseCustomer(enterpriseUUID)
+    ._ctx.academy
     ._ctx.detail(academyUUID);
 }
 
@@ -249,7 +255,7 @@ export function queryCanRedeemContextQueryKey(enterpriseUuid, courseKey) {
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.course
+ * ._ctx.course(courseMetadata.key)
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
  */
@@ -264,6 +270,24 @@ export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBuffe
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.course(courseMetadata.key)
     ._ctx.canRedeem(availableCourseRunKeys);
+}
+
+/**
+ * Helper function to assist querying with React Query package
+ *
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.course(null)
+ * ._ctx.canRedeem(availableCourseRunKeys)
+ * @returns {Types.QueryOptions}
+ */
+export function queryCanUpgradeWithLearnerCredit(enterpriseUuid, courseRunKeys) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course(null)
+    ._ctx.canRedeem(courseRunKeys);
 }
 
 /**

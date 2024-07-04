@@ -8,31 +8,35 @@ import { logError } from '@edx/frontend-platform/logging';
 import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
+import { useLocation } from 'react-router-dom';
 import * as service from './service';
-import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT } from './constants';
-import CourseService from '../../../../course/data/service';
+import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
 import {
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
   findCouponCodeForCourse,
   findHighestLevelSeatSku,
-  getSubsidyToApplyForCourse,
 } from '../../../../course/data/utils';
-import { getHasUnacknowledgedAssignments } from '../../../data/utils';
+import { getExpiringAssignmentsAcknowledgementState, getHasUnacknowledgedAssignments } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
+  COURSE_MODES_MAP,
+  getSubsidyToApplyForCourse,
   groupCourseEnrollmentsByStatus,
   queryEnterpriseCourseEnrollments,
   queryRedeemablePolicies,
   transformCourseEnrollment,
+  useCanUpgradeWithLearnerCredit,
+  useCouponCodes,
+  useCourseRunMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
-  useEnterpriseGroupMemberships,
+  useEnterpriseCustomerContainsContent,
+  useRedeemablePolicies,
+  useSubscriptions,
 } from '../../../../app/data';
-import {
-  sortedEnrollmentsByEnrollmentDate,
-  sortAssignmentsByAssignmentStatus,
-} from './utils';
+import { sortAssignmentsByAssignmentStatus, sortedEnrollmentsByEnrollmentDate } from './utils';
+import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../data/constants';
 
 export const useCourseEnrollments = ({
   enterpriseUUID,
@@ -110,97 +114,133 @@ export const useCourseEnrollments = ({
 
 /**
  * Return data for upgrading a course using the user's subsidies
+ * Based on the applicable subsidy, the upgrade URL, applicable subsidy metadata and toggled loading state
+ * will return in the following prioritization order:
+ *  - Subscriptions
+ *  - Coupon codes
+ *  - Learner Credit Subsidy
+ *
  * @param {object} args Arguments.
  * @param {String} args.courseRunKey id of the course run
- * @param {String} args.enterpriseId UUID of the enterprise
- * @param {Object} args.subscriptionLicense the user's subscription license
- * @param {Object} args.location location object from useLocation()
- *
- * @returns {Object} { isLoading, licenseUpgradeUrl, couponUpgradeUrl, upgradeUrl }
+ * @param {String} args.mode The mode of the course. Used as a gating mechanism for upgradability
+ * default: false
+ * @returns {Object} {
+ *     licenseUpgradeUrl: undefined,
+ *     couponUpgradeUrl: undefined,
+ *     learnerCreditUpgradeUrl: undefined,
+ *     subsidyForCourse: undefined,
+ *     courseRunPrice: undefined,
+ *     }
  */
 export const useCourseUpgradeData = ({
   courseRunKey,
-  enterpriseId,
-  subscriptionLicense,
-  couponCodes,
-  location,
+  mode,
 }) => {
-  const [licenseUpgradeUrl, setLicenseUpgradeUrl] = useState();
-  const [couponUpgradeUrl, setCouponUpgradeUrl] = useState();
-  const [subsidyForCourse, setSubsidyForCourse] = useState();
-  const [courseRunPrice, setCourseRunPrice] = useState();
+  const location = useLocation();
+  // We determine whether the course mode is such that it can be upgraded
+  const canUpgradeToVerifiedEnrollment = [COURSE_MODES_MAP.AUDIT, COURSE_MODES_MAP.HONOR].includes(mode);
+  const { authenticatedUser } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
 
-  const [isLoading, setIsLoading] = useState(true);
+  // TODO: Remove authenticatedUser?.administrator flag when rolling out ENT-9135
+  // Metadata required to allow upgrade via applicable learner credit
+  const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(
+    [courseRunKey],
+    { enabled: authenticatedUser?.administrator && canUpgradeToVerifiedEnrollment },
+  );
 
-  useEffect(() => {
-    const courseService = new CourseService({
-      enterpriseUuid: enterpriseId,
-      courseKey: null,
-      courseRunKey,
-    });
+  // Metadata required to allow upgrade via applicable subscription license
+  const { data: { subscriptionLicense: applicableSubscriptionLicense } } = useSubscriptions(
+    { enabled: customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment },
+  );
 
-    const fetchData = async () => {
-      setIsLoading(true);
+  // Metadata required to allow upgrade via applicable coupon codes
+  const { data: couponCodesMetadata } = useCouponCodes({
+    select: (data) => ({
+      applicableCouponCode: findCouponCodeForCourse(data.couponCodeAssignments, customerContainsContent?.catalogList),
+    }),
+    enabled: canUpgradeToVerifiedEnrollment,
+  });
+  // If coupon codes are not eligible, there is no need to make this call
+  const { data: courseRunDetails } = useCourseRunMetadata(courseRunKey, {
+    select: (data) => ({
+      ...data,
+      sku: findHighestLevelSeatSku(data.seats),
+      code: data.code,
+    }),
+    enabled: !couponCodesMetadata.applicableCouponCode && canUpgradeToVerifiedEnrollment,
+  });
 
-      try {
-        const containsContentResponse = await courseService.fetchEnterpriseCustomerContainsContent([courseRunKey]);
-        const { containsContentItems, catalogList } = camelCaseObject(containsContentResponse.data);
-
-        // Don't do anything if the course is not part of the enterprise's catalog
-        if (!containsContentItems) {
-          return;
-        }
-
-        if (subscriptionLicense) {
-          // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
-          const fetchUserLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy(courseRunKey);
-          const licenseSubsidy = camelCaseObject(fetchUserLicenseSubsidyResponse.data);
-          if (licenseSubsidy) {
-            const url = createEnrollWithLicenseUrl({
-              courseRunKey,
-              enterpriseId,
-              licenseUUID: subscriptionLicense.uuid,
-              location,
-            });
-
-            setSubsidyForCourse({ getSubsidyToApplyForCourse: licenseSubsidy });
-            setLicenseUpgradeUrl(url);
-            return;
-          }
-        }
-
-        const couponSubsidy = findCouponCodeForCourse(couponCodes, catalogList);
-        if (couponSubsidy) {
-          const fetchCourseRunResponse = await courseService.fetchCourseRun(courseRunKey);
-          const courseRunDetails = camelCaseObject(fetchCourseRunResponse.data);
-          const sku = findHighestLevelSeatSku(courseRunDetails.seats);
-          const url = createEnrollWithCouponCodeUrl({
-            courseRunKey,
-            sku,
-            code: couponSubsidy.code,
-            location,
-          });
-          setSubsidyForCourse(getSubsidyToApplyForCourse({ applicableCouponCode: couponSubsidy }));
-          setCouponUpgradeUrl(url);
-          setCourseRunPrice(courseRunDetails.firstEnrollablePaidSeatPrice);
-        }
-      } catch (error) {
-        logError(error);
-      } finally {
-        setIsLoading(false);
-      }
+  return useMemo(() => {
+    const defaultReturn = {
+      licenseUpgradeUrl: undefined,
+      couponUpgradeUrl: undefined,
+      learnerCreditUpgradeUrl: undefined,
+      subsidyForCourse: undefined,
+      courseRunPrice: undefined,
     };
 
-    fetchData();
-  }, [courseRunKey, enterpriseId, subscriptionLicense, location, couponCodes]);
+    // Exit early if the content to upgrade is not contained in the customers content or
+    // if they are unable to upgrade due to their course mode
+    if (!customerContainsContent?.containsContentItems || !canUpgradeToVerifiedEnrollment) {
+      return defaultReturn;
+    }
 
-  return {
-    isLoading,
-    subsidyForCourse,
-    licenseUpgradeUrl,
-    couponUpgradeUrl,
-    courseRunPrice,
-  };
+    // Construct and return subscription based upgrade url
+    if (applicableSubscriptionLicense) {
+      return {
+        ...defaultReturn,
+        subsidyForCourse: getSubsidyToApplyForCourse({ applicableSubscriptionLicense }),
+        licenseUpgradeUrl: createEnrollWithLicenseUrl({
+          courseRunKey,
+          enterpriseId: enterpriseCustomer.uuid,
+          licenseUUID: applicableSubscriptionLicense.uuid,
+          location,
+        }),
+      };
+    }
+
+    // Construct and return coupon code based upgrade url
+    if (couponCodesMetadata?.applicableCouponCode) {
+      const { applicableCouponCode } = couponCodesMetadata;
+      return {
+        ...defaultReturn,
+        subsidyForCourse: getSubsidyToApplyForCourse({ applicableCouponCode }),
+        couponUpgradeUrl: createEnrollWithCouponCodeUrl({
+          courseRunKey,
+          sku: courseRunDetails.sku,
+          code: applicableCouponCode.code,
+          location,
+        }),
+        courseRunPrice: courseRunDetails.firstEnrollablePaidSeatPrice,
+      };
+    }
+
+    // Construct and return learner credit based upgrade url
+    if (learnerCreditMetadata?.applicableSubsidyAccessPolicy?.canRedeem) {
+      const { applicableSubsidyAccessPolicy } = learnerCreditMetadata;
+      return {
+        ...defaultReturn,
+        subsidyForCourse: getSubsidyToApplyForCourse({ applicableSubsidyAccessPolicy }),
+        learnerCreditUpgradeUrl: applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+      };
+    }
+
+    // If none is applicable, return with defaultReturn values
+    return defaultReturn;
+  }, [
+    applicableSubscriptionLicense,
+    canUpgradeToVerifiedEnrollment,
+    couponCodesMetadata,
+    courseRunDetails?.firstEnrollablePaidSeatPrice,
+    courseRunDetails?.sku,
+    courseRunKey,
+    customerContainsContent?.containsContentItems,
+    enterpriseCustomer.uuid,
+    learnerCreditMetadata,
+    location,
+  ]);
 };
 
 export function useAcknowledgeContentAssignments({
@@ -260,9 +300,19 @@ export function useContentAssignments() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: { allEnrollmentsByStatus } } = useEnterpriseCourseEnrollments();
   const [assignments, setAssignments] = useState([]);
+  const [showExpiringAssignmentsAlert, setShowExpiringAssignmentsAlert] = useState(false);
   const [showCanceledAssignmentsAlert, setShowCanceledAssignmentsAlert] = useState(false);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
   const [isAcknowledgingAssignments, setIsAcknowledgingAssignments] = useState(false);
+
+  const handleAcknowledgeExpiringAssignments = useCallback(() => {
+    const { expiringAssignments } = getExpiringAssignmentsAcknowledgementState(assignments);
+    global.localStorage.setItem(
+      ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY,
+      JSON.stringify(expiringAssignments.map(assignment => assignment.uuid)),
+    );
+    setShowExpiringAssignmentsAlert(false);
+  }, [assignments]);
 
   const {
     mutateAsync,
@@ -326,6 +376,10 @@ export function useContentAssignments() {
     const sortedAssignmentsForDisplay = sortAssignmentsByAssignmentStatus(assignmentsForDisplay);
     setAssignments(sortedAssignmentsForDisplay);
 
+    // Determine whether there are expiring assignments. If so, display alert.
+    const { hasUnacknowledgedExpiringAssignments } = getExpiringAssignmentsAcknowledgementState(assignmentsForDisplay);
+    setShowExpiringAssignmentsAlert(hasUnacknowledgedExpiringAssignments);
+
     // Determine whether there are unacknowledged canceled assignments. If so, display alert.
     const hasUnacknowledgedCanceledAssignments = getHasUnacknowledgedAssignments(canceledAssignments);
     setShowCanceledAssignmentsAlert(hasUnacknowledgedCanceledAssignments);
@@ -339,6 +393,8 @@ export function useContentAssignments() {
     assignments,
     showCanceledAssignmentsAlert,
     showExpiredAssignmentsAlert,
+    showExpiringAssignmentsAlert,
+    handleAcknowledgeExpiringAssignments,
     handleAcknowledgeAssignments,
     isAcknowledgingAssignments,
   };
@@ -422,51 +478,47 @@ export const useUpdateCourseEnrollmentStatus = ({ enterpriseCustomer }) => {
 };
 
 /**
- * - Parses a list of group memberships and checks if learner has acknowledged group assignment.
- * - Provides helper functions to handle adding the group uuid to local storage
+ * - Parses a list of redeemable policies and checks if learner has acknowledged the new group.
+ * - Provides a helper function to handle adding the group uuid to local storage
  * when user dismisses the alert.
  *
  * @returns {Object} - Returns an object with the following properties:
- * - showNewGroupMembershipAlert: Boolean indicating whether to display the new group membership alert.
- * - handleAcknowledgeGroupMembership: Function to handle dismissal of new group membership assignment
- * from the dashboard and adds group membership uuid to local storage.
+ * - showNewGroupAlert: Boolean indicating whether to display the new group alert.
+ * - handleAcknowledgeGroup: Function to handle dismissal of new group assignment
+ * from the dashboard and adds group uuid to local storage.
  * - enterpriseCustomer: Object with customer name to display in alert.
  */
-export function useGroupMembershipAssignments() {
+export function useGroupAssociationsAlert() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: enterpriseGroupMemberships } = useEnterpriseGroupMemberships();
-  const [shouldShowNewGroupMembershipAlert, setShouldShowNewGroupMembershipAlert] = useState(false);
-  const [groupMembershipsToDismiss, setGroupMembershipsToDismiss] = useState([]);
-  const checkIsGroupAssignmentDismissed = useCallback(() => {
-    enterpriseGroupMemberships.forEach(membership => {
-      const isDismissedGroupAssignment = global.localStorage.getItem(`${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-${membership.groupUuid}`);
-      if (isDismissedGroupAssignment === null) {
-        setGroupMembershipsToDismiss(prevState => [...prevState, membership]);
-        setShouldShowNewGroupMembershipAlert(true);
-      }
-    });
-  }, [enterpriseGroupMemberships]);
+  const { data: { redeemablePolicies } } = useRedeemablePolicies();
+  const [showNewGroupAssociationAlert, setShowNewGroupAssociationAlert] = useState(false);
+  const [groupAssociationUUIDs, setGroupAssociationUUIDs] = useState([]);
 
-  const handleAddNewGroupAssignmentToLocalStorage = () => {
-    groupMembershipsToDismiss.forEach(groupMembership => {
-      global.localStorage.setItem(`${HAS_USER_DISMISSED_NEW_GROUP_ASSIGNMENT_ALERT}-${groupMembership.groupUuid}`, true);
+  const dismissGroupAssociationAlert = () => {
+    groupAssociationUUIDs.forEach(groupAssociationUUID => {
+      global.localStorage.setItem(`${HAS_USER_DISMISSED_NEW_GROUP_ALERT}-${groupAssociationUUID}`, true);
     });
-    setGroupMembershipsToDismiss([]);
-    setShouldShowNewGroupMembershipAlert(false);
-    checkIsGroupAssignmentDismissed();
+    setGroupAssociationUUIDs([]);
+    setShowNewGroupAssociationAlert(false);
   };
 
-  /**
-   * Parses the enterprise group memberships and checks if they have already been
-   * acknowledged (dismissed) by the learner.
-   */
   useEffect(() => {
-    checkIsGroupAssignmentDismissed();
-  }, [checkIsGroupAssignmentDismissed]);
+    const newGroupAssociationUUIDs = [];
+    redeemablePolicies.forEach(policy => {
+      // Getting the first index because each policy only has 1 group association
+      const groupAssociationUUID = policy.groupAssociations[0];
+      const isGroupDismissed = global.localStorage.getItem(`${HAS_USER_DISMISSED_NEW_GROUP_ALERT}-${groupAssociationUUID}`);
+      if (groupAssociationUUID && !isGroupDismissed) {
+        setShowNewGroupAssociationAlert(true);
+        newGroupAssociationUUIDs.push(groupAssociationUUID);
+      }
+    });
+    setGroupAssociationUUIDs(prevUUIDs => [...prevUUIDs, ...newGroupAssociationUUIDs]);
+  }, [redeemablePolicies]);
 
   return {
-    shouldShowNewGroupMembershipAlert,
-    handleAddNewGroupAssignmentToLocalStorage,
+    showNewGroupAssociationAlert,
+    dismissGroupAssociationAlert,
     enterpriseCustomer,
   };
 }

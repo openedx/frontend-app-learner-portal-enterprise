@@ -1,9 +1,12 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { AppContext } from '@edx/frontend-platform/react';
 import { useParams } from 'react-router-dom';
 import { queryClient } from '../../../../utils/tests';
 import { fetchAcademiesDetail } from '../services';
 import useAcademyDetails from './useAcademyDetails';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
+import useEnterpriseCustomer from './useEnterpriseCustomer';
 
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
@@ -13,6 +16,11 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(),
 }));
+jest.mock('./useEnterpriseCustomer');
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
+
 const mockAcademyDetailsData = {
   uuid: 'academy-uuid',
   title: 'My Awesome Academy',
@@ -36,12 +44,15 @@ const mockAcademyDetailsData = {
 describe('useAcademiesDetails', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+        {children}
+      </AppContext.Provider>
     </QueryClientProvider>
   );
   beforeEach(() => {
     jest.clearAllMocks();
-    useParams.mockReturnValue({ academyUUID: 'academy-uuid' });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useParams.mockReturnValue({ academyUUID: 'academy-uuid', enterpriseUUID: mockEnterpriseCustomer.uuid });
     fetchAcademiesDetail.mockResolvedValue(mockAcademyDetailsData);
   });
   it('should handle resolved value correctly', async () => {

@@ -40,14 +40,10 @@
     font-size: 22px;
     color: white;
     font-family: 'Roboto Mono';
-    line-height: 36px;
-    margin: 0px;
   }
 
   .pathway-title {
     color: white;
-    margin-bottom: 2rem;
-
     opacity: 1;
     font-family: Inter;
     font-size: 60px;
@@ -61,21 +57,12 @@
     color: white;
   }
 
-  .launch-btn {
-    font-size: 32px;
-    font-weight: bold;
-    color: #002B2B;
-    background-color: #82E0C1;
-    font-family: Inter;
-    border: none;
-    width: Hug (298px);
-    height: Fixed (77px);
+  .explore-btn {
+    width: 300px;
+    height: 77px;
+    font-size: 22px;
+    font-weight: 400;
     padding: 10px 16px 10px 16px;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: #55cca4;
-    }
   }
 }
 

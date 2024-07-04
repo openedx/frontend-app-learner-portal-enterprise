@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { Suspense, useState } from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { Bubble, Collapsible } from '@openedx/paragon';
+import { Bubble, Collapsible, Skeleton } from '@openedx/paragon';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   InProgressCourseCard,
@@ -12,10 +13,10 @@ import {
   AssignedCourseCard,
 } from './course-cards';
 
-import { UpgradeableCourseEnrollmentContextProvider } from './UpgradeableCourseEnrollmentContextProvider';
-import { COURSE_STATUSES, COURSE_MODES } from '../../../../constants';
+import { COURSE_STATUSES } from '../../../../constants';
 import { COURSE_SECTION_TITLES } from '../../data/constants';
-import { useEnterpriseCustomer } from '../../../app/data';
+import { COURSE_MODES_MAP, useEnterpriseCustomer } from '../../../app/data';
+import DelayedFallbackContainer from '../../../DelayedFallback/DelayedFallbackContainer';
 
 const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.upcoming]: UpcomingCourseCard,
@@ -102,18 +103,23 @@ const CourseSection = ({
 
   const renderCourseCards = () => courseRuns.map(courseRun => {
     const Component = CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
-    const isAuditOrHonorEnrollment = [COURSE_MODES.AUDIT, COURSE_MODES.HONOR].includes(courseRun.mode);
+    const isAuditOrHonorEnrollment = [COURSE_MODES_MAP.AUDIT, COURSE_MODES_MAP.HONOR].includes(courseRun.mode);
     if (isAuditOrHonorEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
-      // if the enrollment is in audit mode and is in progress, it might be able to get
-      // upgraded, so we want to wrap it in <UpgradeableCourseEnrollmentContextProvider />
-      // in order to check if it can be upgraded.
       return (
-        <UpgradeableCourseEnrollmentContextProvider
-          courseEnrollment={courseRun}
-          key={courseRun.courseRunId}
+        <Suspense fallback={(
+          <DelayedFallbackContainer>
+            <>
+              <div className="sr-only">Loading...</div>
+              <Skeleton key={uuidv4()} height={200} className="dashboard-course-card py-3 mb-2" />
+            </>
+          </DelayedFallbackContainer>
+        )}
         >
-          <Component {...getCourseRunProps(courseRun)} />
-        </UpgradeableCourseEnrollmentContextProvider>
+          <Component
+            {...getCourseRunProps(courseRun)}
+            key={courseRun.courseRunId}
+          />
+        </Suspense>
       );
     }
     return (
@@ -155,7 +161,7 @@ CourseSection.propTypes = {
       date: PropTypes.string.isRequired,
     })).isRequired,
     microMastersTitle: PropTypes.string,
-    mode: PropTypes.oneOf(Object.values(COURSE_MODES)),
+    mode: PropTypes.oneOf(Object.values(COURSE_MODES_MAP)),
     startDate: PropTypes.string,
     endDate: PropTypes.string,
     linkToCertificate: PropTypes.string,

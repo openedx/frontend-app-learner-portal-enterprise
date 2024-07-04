@@ -3,7 +3,7 @@ import { Button } from '@openedx/paragon';
 import { Link } from 'react-router-dom';
 
 import { useCanOnlyViewHighlights, useAcademies, useEnterpriseFeatures } from '../../../app/data';
-import { useGroupMembershipAssignments } from './data';
+import { useGroupAssociationsAlert } from './data';
 import CourseRecommendations from '../CourseRecommendations';
 import GoToAcademy from '../../../academies/GoToAcademy';
 import NewGroupAssignmentAlert from './NewGroupAssignmentAlert';
@@ -13,10 +13,10 @@ const CourseEnrollmentsEmptyState = () => {
   const { data: academies } = useAcademies();
   const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const {
-    shouldShowNewGroupMembershipAlert,
-    handleAddNewGroupAssignmentToLocalStorage,
+    showNewGroupAssociationAlert,
+    dismissGroupAssociationAlert,
     enterpriseCustomer,
-  } = useGroupMembershipAssignments();
+  } = useGroupAssociationsAlert();
 
   if (enterpriseCustomer.disableSearch) {
     return (
@@ -41,8 +41,8 @@ const CourseEnrollmentsEmptyState = () => {
     <>
       {enterpriseFeatures.enterpriseGroupsV1 && (
         <NewGroupAssignmentAlert
-          showAlert={shouldShowNewGroupMembershipAlert}
-          onClose={() => handleAddNewGroupAssignmentToLocalStorage()}
+          showAlert={showNewGroupAssociationAlert}
+          onClose={dismissGroupAssociationAlert}
           enterpriseCustomer={enterpriseCustomer}
         />
       )}

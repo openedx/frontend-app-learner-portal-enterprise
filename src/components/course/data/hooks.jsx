@@ -19,19 +19,16 @@ import {
   getCoursePrice,
   getCourseTypeConfig,
   getMissingApplicableSubsidyReason,
-  getSubsidyToApplyForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
   transformedCourseMetadata,
 } from './utils';
 import {
-  COUPON_CODE_SUBSIDY_TYPE,
   COURSE_PACING_MAP,
   CURRENCY_USD,
   DISABLED_ENROLL_REASON_TYPES,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   ENROLLMENT_FAILED_QUERY_PARAM,
-  LICENSE_SUBSIDY_TYPE,
   SUBSIDY_DISCOUNT_TYPE_MAP,
 } from './constants';
 import { EVENTS, pushEvent } from '../../../utils/optimizely';
@@ -39,6 +36,7 @@ import { canUserRequestSubsidyForCourse, getExternalCourseEnrollmentUrl } from '
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 import { SUBSIDY_TYPE } from '../../../constants';
 import {
+  getSubsidyToApplyForCourse,
   useBrowseAndRequest,
   useBrowseAndRequestConfiguration,
   useCatalogsForSubsidyRequests,
@@ -50,6 +48,8 @@ import {
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
+  COUPON_CODE_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CourseContext } from '../CourseContextProvider';

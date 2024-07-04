@@ -1,20 +1,29 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useNavigate } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { FormattedMessage, defineMessages } from '@edx/frontend-platform/i18n';
 
 import dayjs from '../../../../../utils/dayjs';
-import BaseCourseCard from './BaseCourseCard';
+import BaseCourseCard, { getScreenReaderText } from './BaseCourseCard';
 import { MarkCompleteModal } from './mark-complete-modal';
 import ContinueLearningButton from './ContinueLearningButton';
 
 import Notification from './Notification';
 
-import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
 import UpgradeCourseButton from './UpgradeCourseButton';
 import { useEnterpriseCustomer } from '../../../../app/data';
-import { useUpdateCourseEnrollmentStatus } from '../data';
+import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
+import { COURSE_STATUSES } from '../../../../../constants';
+
+const messages = defineMessages({
+  saveCourseForLater: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.save_for_later',
+    defaultMessage: 'Save course for later <s>for {courseTitle}</s>',
+    description: 'Text for the save course for later button in the course card dropdown menu',
+  },
+});
 
 export const InProgressCourseCard = ({
   linkToCourse,
@@ -23,17 +32,16 @@ export const InProgressCourseCard = ({
   notifications,
   courseRunStatus,
   startDate,
-  mode,
   resumeCourseRunUrl,
+  mode,
   ...rest
 }) => {
+  // TODO: Destructure learnerCreditUpgradeUrl field here
   const {
-    isLoading: isLoadingUpgradeUrl,
     licenseUpgradeUrl,
     couponUpgradeUrl,
-  } = useContext(UpgradeableCourseEnrollmentContext);
+  } = useCourseUpgradeData({ courseRunKey: courseRunId, mode });
   const navigate = useNavigate();
-
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
   const shouldShowUpgradeButton = !!couponUpgradeUrl;
 
@@ -53,7 +61,7 @@ export const InProgressCourseCard = ({
         startDate={startDate}
         resumeCourseRunUrl={resumeCourseRunUrl}
       />
-      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} />}
+      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} courseRunKey={courseRunId} mode={mode} />}
     </>
   );
 
@@ -79,16 +87,19 @@ export const InProgressCourseCard = ({
           sendEnterpriseTrackEvent(
             enterpriseCustomer.uuid,
             'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.modal.opened',
-            {
-              course_run_id: courseRunId,
-            },
+            { course_run_id: courseRunId },
           );
         },
         children: (
-          <>
-            Save course for later
-            <span className="sr-only">for {title}</span>
-          </>
+          <div role="menuitem">
+            <FormattedMessage
+              {...messages.saveCourseForLater}
+              values={{
+                s: getScreenReaderText,
+                courseTitle: title,
+              }}
+            />
+          </div>
         ),
       }];
     }
@@ -100,9 +111,7 @@ export const InProgressCourseCard = ({
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.modal.closed',
-      {
-        course_run_id: courseRunId,
-      },
+      { course_run_id: courseRunId },
     );
   };
 
@@ -110,9 +119,7 @@ export const InProgressCourseCard = ({
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.saved',
-      {
-        course_run_id: courseRunId,
-      },
+      { course_run_id: courseRunId },
     );
     setIsMarkCompleteModalOpen(false);
     resetModalState();
@@ -155,13 +162,12 @@ export const InProgressCourseCard = ({
 
   return (
     <BaseCourseCard
-      type="in_progress"
+      type={COURSE_STATUSES.inProgress}
       buttons={renderButtons()}
       dropdownMenuItems={getDropdownMenuItems()}
       title={title}
       linkToCourse={licenseUpgradeUrl ?? linkToCourse}
       courseRunId={courseRunId}
-      isLoading={isLoadingUpgradeUrl}
       mode={mode}
       startDate={startDate}
       {...rest}

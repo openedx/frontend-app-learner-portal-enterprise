@@ -75,7 +75,10 @@ const mockAcademyListResponse = {
   ],
 };
 describe('fetchAcademiesDetail', () => {
-  const ACADEMIES_DETAIL_URL = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies/${mockAcademyUUID}/`;
+  const queryParams = new URLSearchParams({
+    enterprise_customer: mockEnterpriseId,
+  });
+  const ACADEMIES_DETAIL_URL = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies/${mockAcademyUUID}/?${queryParams.toString()}`;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -84,13 +87,13 @@ describe('fetchAcademiesDetail', () => {
 
   it('returns the api call with a 200', async () => {
     axiosMock.onGet(ACADEMIES_DETAIL_URL).reply(200, mockAcademyDetailResponse);
-    const result = await fetchAcademiesDetail(mockAcademyUUID);
+    const result = await fetchAcademiesDetail(mockAcademyUUID, mockEnterpriseId);
     expect(result).toEqual(camelCaseObject(mockAcademyDetailResponse));
   });
   it('returns the api call with a 404 and logs an error', async () => {
     axiosMock.onGet(ACADEMIES_DETAIL_URL).reply(404, {});
 
-    const result = await fetchAcademiesDetail(mockAcademyUUID);
+    const result = await fetchAcademiesDetail(mockAcademyUUID, mockEnterpriseId);
     expect(logError).toHaveBeenCalledTimes(1);
     expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
     expect(result).toEqual(null);
@@ -123,7 +126,7 @@ describe('fetchAcademies', () => {
   it('returns the api call with a 404 and logs an error', async () => {
     axiosMock.onGet(ACADEMIES_LIST_URL).reply(404, {});
 
-    const result = await fetchAcademiesDetail(mockAcademyUUID);
+    const result = await fetchAcademiesDetail(mockAcademyUUID, mockEnterpriseId);
     expect(logError).toHaveBeenCalledTimes(1);
     expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
     expect(result).toEqual(null);

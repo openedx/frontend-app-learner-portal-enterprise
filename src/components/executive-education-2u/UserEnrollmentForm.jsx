@@ -18,9 +18,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { checkoutExecutiveEducation2U, isDuplicateExternalCourseOrder, toISOStringWithoutMilliseconds } from './data';
 import { useStatefulEnroll } from '../stateful-enroll/data';
-import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
 import {
+  LEARNER_CREDIT_SUBSIDY_TYPE,
   queryCanRedeemContextQueryKey,
   queryEnterpriseCourseEnrollments,
   queryRedeemablePolicies,
@@ -355,8 +355,19 @@ const UserEnrollmentForm = ({ className }) => {
                           <span aria-hidden>
                             <FormattedMessage
                               id="executive.education.external.course.enrollment.page.data.sharing.consent.label"
-                              defaultMessage="I have read and accepted GetSmarter's data sharing consent."
+                              defaultMessage="I have read and accepted GetSmarter's <a>data sharing consent.</a>"
                               description="Data sharing consent label for the executive education course enrollment page. And here GetSmarter is brand name"
+                              values={{
+                                // eslint-disable-next-line react/no-unstable-nested-components
+                                a: (chunks) => (
+                                  <Hyperlink
+                                    destination={config.GETSMARTER_PRIVACY_POLICY_URL}
+                                    target="_blank"
+                                  >
+                                    {chunks}
+                                  </Hyperlink>
+                                ),
+                              }}
                             />
                           </span>
                         </div>

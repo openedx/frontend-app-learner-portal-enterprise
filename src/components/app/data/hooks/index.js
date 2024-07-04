@@ -40,5 +40,6 @@ export { default as useLearnerPathwayProgressData } from './useLearnerPathwayPro
 export { default as useHasAvailableSubsidiesOrRequests } from './useHasAvailableSubsidiesOrRequests';
 export { default as useAcademies } from './useAcademies';
 export { default as useAcademyDetails } from './useAcademyDetails';
-export { default as useEnterpriseGroupMemberships } from './useEnterpriseGroupMemberships';
 export { default as usePassLearnerCsodParams } from './usePassLearnerCsodParams';
+export { default as useCanUpgradeWithLearnerCredit } from './useCanUpgradeWithLearnerCredit';
+export { default as useCourseRunMetadata } from './useCourseRunMetadata';

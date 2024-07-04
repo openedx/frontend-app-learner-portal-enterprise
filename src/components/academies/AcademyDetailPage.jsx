@@ -21,7 +21,7 @@ const AcademyDetailPage = () => {
   const { academyUUID } = useParams();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: academy } = useAcademyDetails();
-  const academyURL = `/${enterpriseCustomer.slug}/academy/${academyUUID}`;
+  const academyURL = `/${enterpriseCustomer.slug}/academy/${academyUUID}/?${enterpriseCustomer.uuid}`;
   const intl = useIntl();
 
   // init algolia index
@@ -68,7 +68,7 @@ const AcademyDetailPage = () => {
           />
         </div>
         <div>
-          <h1 data-testid="academy-title" className="mb-4 mt-3 font-italic text-left academy-title">
+          <h1 data-testid="academy-title" className="my-4.5 font-italic text-left academy-title">
             <FormattedMessage
               id="academy.detail.page.academy.title"
               defaultMessage="{academyTitle} Academy"
@@ -79,7 +79,7 @@ const AcademyDetailPage = () => {
           {!isObjEmpty(pathway) && (
             <>
               <div>
-                <h3 data-testid="academy-instruction-header">
+                <h3 data-testid="academy-instruction-header" className="mb-3">
                   <FormattedMessage
                     id="academy.detail.page.instruction.header"
                     defaultMessage="Follow a recommended pathway - or select individual courses"
@@ -94,7 +94,7 @@ const AcademyDetailPage = () => {
                   />
                 </p>
               </div>
-              <div data-testid="academies-jump-link" className="mb-4 text-right mr-5">
+              <div data-testid="academies-jump-link" className="mb-4.5 text-right mr-5">
                 <Link to="#academy-all-courses">
                   <FormattedMessage
                     id="academy.detail.page.view.all.courses.link"
@@ -111,7 +111,7 @@ const AcademyDetailPage = () => {
       </Container>
       {!isObjEmpty(pathway) && <PathwaysSection pathwayData={pathway} />}
       <Container size="lg">
-        <h3 id="academy-all-courses" data-testid="academy-all-courses-title">
+        <h3 id="academy-all-courses" data-testid="academy-all-courses-title" className="h3 mb-3">
           <FormattedMessage
             id="academy.detail.page.all.courses.title"
             defaultMessage="All {academyTitle} Academy Courses"

@@ -20,7 +20,14 @@ export function sortAssignmentsByAssignmentStatus(assignments) {
   const sortedAssignments = assignmentsCopy.sort((a, b) => {
     const isAssignmentACanceledOrExpired = ['cancelled', 'expired'].includes(a.state) ? 1 : 0;
     const isAssignmentBCanceledOrExpired = ['cancelled', 'expired'].includes(b.state) ? 1 : 0;
-    return isAssignmentACanceledOrExpired - isAssignmentBCanceledOrExpired;
+    if (isAssignmentACanceledOrExpired && !isAssignmentBCanceledOrExpired) {
+      return 1; // a should come after b (expired/canceled assignments come last)
+    }
+    if (!isAssignmentACanceledOrExpired && isAssignmentBCanceledOrExpired) {
+      return -1; // b should come after a (expired/canceled assignments come last)
+    }
+    // If both assignments are not canceled or expired, sort by enroll-by date in ascending order
+    return dayjs(a.enrollBy).diff(dayjs(b.enrollBy));
   });
   return sortedAssignments;
 }

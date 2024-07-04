@@ -295,7 +295,7 @@ describe('<DeprecatedCourseRunCard />', () => {
         courseRunId: COURSE_ID,
         isEnrollmentActive: true,
         isRevoked: false,
-        mode: 'audit',
+        mode: COURSE_MODES_MAP.AUDIT,
       }],
     });
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();

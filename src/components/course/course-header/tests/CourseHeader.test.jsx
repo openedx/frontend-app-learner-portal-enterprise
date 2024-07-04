@@ -10,6 +10,7 @@ import CourseHeader from '../CourseHeader';
 import { COURSE_PACING_MAP } from '../../data/constants';
 import { TEST_OWNER } from '../../tests/data/constants';
 import {
+  COURSE_MODES_MAP,
   useCourseMetadata,
   useCourseRedemptionEligibility,
   useCourseReviews,
@@ -115,7 +116,7 @@ const mockEnterpriseCourseEnrollment = {
   isRevoked: false,
   courseRunId: 'test-course-run-key',
   linkToCourse: 'http://course.url',
-  mode: 'verified',
+  mode: COURSE_MODES_MAP.VERIFIED,
 };
 const mockAuthenticatedUser = authenticatedUserFactory();
 const CourseHeaderWrapper = () => (

@@ -3,10 +3,18 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { getBrandColorsFromCSSVariables } from '../../../utils/common';
+import { getBrandColorsFromCSSVariables, isTodayWithinDateThreshold } from '../../../utils/common';
 import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
-import { COURSE_AVAILABILITY_MAP, COURSE_MODES_MAP } from './constants';
+import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  COURSE_AVAILABILITY_MAP,
+  COURSE_MODES_MAP,
+  ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
+} from './constants';
 import { features } from '../../../config';
 
 /**
@@ -379,6 +387,10 @@ export const transformLearnerContentAssignment = (learnerContentAssignment, ente
     enrollBy: assignmentEnrollByDeadline,
     isCanceledAssignment,
     isExpiredAssignment,
+    isExpiringAssignment: isTodayWithinDateThreshold({
+      date: assignmentEnrollByDeadline,
+      days: ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
+    }),
     assignmentConfiguration: learnerContentAssignment.assignmentConfiguration,
     uuid: learnerContentAssignment.uuid,
     learnerAcknowledged: learnerContentAssignment.learnerAcknowledged,
@@ -592,16 +604,6 @@ export function transformGroupMembership(groupMemberships, groupUuid) {
 }
 
 /**
- * Gets array of group UUIDs.
- *
- * @param {Array} policies - Array of policies to be transformed.
- * @returns {Array} Returns the transformed array of policies.
- */
-export function getCustomerGroupAssociations(policies) {
-  return policies.flatMap(policy => policy.groupAssociations);
-}
-
-/**
  * check if an object is empty
  * @param {Object} obj
  * @returns {boolean}
@@ -630,4 +632,83 @@ export const filterPoliciesByExpirationAndActive = (policies) => {
     expiredPolicies,
     unexpiredPolicies,
   };
+};
+
+/* eslint-disable max-len */
+/**
+ * Returns a formatted object based on the subsidy or subsides passed
+ *
+ * Prioritization for enrollment is as follows:
+ *  - Subscriptions
+ *  - Coupons
+ *  - Learner Credit
+ *  - Offers
+ *
+ * @param applicableSubscriptionLicense
+ * @param applicableCouponCode
+ * @param applicableEnterpriseOffer
+ * @param applicableSubsidyAccessPolicy
+ * @returns {{perLearnerSpendLimit: (number|null|Number|*), policyRedemptionUrl: (string|string|*), discountType: string, discountValue: number, subsidyType: string, perLearnerEnrollmentLimit: (null|*)}|{subsidyId, discountType: string, discountValue: number, startDate, subsidyType: string, expirationDate, status}|undefined|{maxUserApplications: (null|*), endDate: (string|*), subsidyType: string, offerType: *, isCurrent, remainingApplications: (number|null|*), remainingApplicationsForUser: (number|null|*), discountType: string, remainingBalance, remainingBalanceForUser, discountValue, startDate: (string|*), maxUserDiscount}|{code, endDate: (string|*), discountType: (string|*), discountValue: (number|*), startDate: (string|*), subsidyType: string}}
+ */
+/* eslint-enable max-len */
+export const getSubsidyToApplyForCourse = ({
+  applicableSubscriptionLicense = undefined,
+  applicableCouponCode = undefined,
+  applicableEnterpriseOffer = undefined,
+  applicableSubsidyAccessPolicy = undefined,
+}) => {
+  if (applicableSubscriptionLicense) {
+    return {
+      subsidyType: LICENSE_SUBSIDY_TYPE,
+      discountType: 'percentage',
+      discountValue: 100,
+      startDate: applicableSubscriptionLicense.subscriptionPlan.startDate,
+      expirationDate: applicableSubscriptionLicense.subscriptionPlan.expirationDate,
+      status: applicableSubscriptionLicense.status,
+      subsidyId: applicableSubscriptionLicense.uuid,
+    };
+  }
+
+  if (applicableCouponCode) {
+    return {
+      discountType: applicableCouponCode.usageType,
+      discountValue: applicableCouponCode.benefitValue,
+      startDate: applicableCouponCode.couponStartDate,
+      endDate: applicableCouponCode.couponEndDate,
+      code: applicableCouponCode.code,
+      subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+    };
+  }
+
+  if (applicableSubsidyAccessPolicy?.isPolicyRedemptionEnabled) {
+    const { redeemableSubsidyAccessPolicy } = applicableSubsidyAccessPolicy;
+    return {
+      discountType: 'percentage',
+      discountValue: 100,
+      subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+      perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
+      perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
+      policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+    };
+  }
+
+  if (applicableEnterpriseOffer) {
+    return {
+      discountType: applicableEnterpriseOffer.usageType.toLowerCase(),
+      discountValue: applicableEnterpriseOffer.discountValue,
+      startDate: applicableEnterpriseOffer.startDatetime,
+      endDate: applicableEnterpriseOffer.endDatetime,
+      offerType: applicableEnterpriseOffer.offerType,
+      subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+      maxUserDiscount: applicableEnterpriseOffer.maxUserDiscount,
+      maxUserApplications: applicableEnterpriseOffer.maxUserApplications,
+      remainingBalance: applicableEnterpriseOffer.remainingBalance,
+      remainingBalanceForUser: applicableEnterpriseOffer.remainingBalanceForUser,
+      remainingApplications: applicableEnterpriseOffer.remainingApplications,
+      remainingApplicationsForUser: applicableEnterpriseOffer.remainingApplicationsForUser,
+      isCurrent: applicableEnterpriseOffer.isCurrent,
+    };
+  }
+
+  return undefined;
 };

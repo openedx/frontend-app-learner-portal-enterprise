@@ -1,34 +1,34 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory';
 
 import {
-  fetchCourseMetadata,
-  fetchUserEntitlements,
-  fetchCanRedeem,
-  fetchEnterpriseLearnerData,
-  fetchEnterpriseCourseEnrollments,
+  checkTransactionStatus,
+  fetchAcademies,
+  fetchAcademiesDetail,
   fetchBrowseAndRequestConfiguration,
-  fetchLicenseRequests,
-  fetchRedeemablePolicies,
-  fetchSubscriptions,
-  fetchCouponCodes,
-  fetchEnterpriseOffers,
-  fetchEnterpriseCuration,
+  fetchCanRedeem,
   fetchContentHighlights,
   fetchCouponCodeRequests,
-  fetchNotices,
-  fetchLearnerProgramsList,
-  fetchInProgressPathways,
-  fetchLearnerSkillLevels,
-  fetchAcademies,
-  fetchProgramDetails,
-  fetchLearnerProgramProgressDetail,
-  fetchEnterpriseCustomerContainsContent,
-  fetchAcademiesDetail,
-  fetchCourseReviews,
+  fetchCouponCodes,
+  fetchCourseMetadata,
   fetchCourseRecommendations,
-  checkTransactionStatus,
+  fetchCourseReviews,
+  fetchCourseRunMetadata,
+  fetchEnterpriseCourseEnrollments,
+  fetchEnterpriseCuration,
+  fetchEnterpriseCustomerContainsContent,
+  fetchEnterpriseLearnerData,
+  fetchEnterpriseOffers,
+  fetchInProgressPathways,
+  fetchLearnerProgramProgressDetail,
+  fetchLearnerProgramsList,
+  fetchLearnerSkillLevels,
+  fetchLicenseRequests,
+  fetchNotices,
   fetchPathwayProgressDetails,
-  fetchEnterpriseGroupMemberships,
+  fetchProgramDetails,
+  fetchRedeemablePolicies,
+  fetchSubscriptions,
+  fetchUserEntitlements,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -51,12 +51,24 @@ const enterprise = createQueryKeys('enterprise', {
       academies: {
         queryKey: null,
         contextQueries: {
+          // queryAcademiesList
           list: {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchAcademies(queryKey[2]),
           },
         },
       },
+      academy: {
+        queryKey: null,
+        contextQueries: {
+          // queryAcademiesDetail
+          detail: (academyUUID) => ({
+            queryKey: [academyUUID],
+            queryFn: async ({ queryKey }) => fetchAcademiesDetail(academyUUID, queryKey[2]),
+          }),
+        },
+      },
+      // queryContentHighlightsConfiguration
       contentHighlights: {
         queryKey: null,
         contextQueries: {
@@ -64,6 +76,7 @@ const enterprise = createQueryKeys('enterprise', {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchEnterpriseCuration(queryKey[2]),
           },
+          // queryContentHighlightSets
           highlightSets: {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchContentHighlights(queryKey[2]),
@@ -73,6 +86,7 @@ const enterprise = createQueryKeys('enterprise', {
       course: (courseKey) => ({
         queryKey: [courseKey],
         contextQueries: {
+          // queryCanRedeem, queryCanUpgradeWithLearnerCredit
           canRedeem: (availableCourseRunKeys) => ({
             queryKey: [availableCourseRunKeys],
             queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
@@ -91,14 +105,11 @@ const enterprise = createQueryKeys('enterprise', {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchEnterpriseCourseEnrollments(queryKey[2]),
       },
-      enterpriseGroupMemberships: (learnerEmail) => ({
-        queryKey: [learnerEmail],
-        queryFn: async ({ queryKey }) => fetchEnterpriseGroupMemberships(queryKey[2], learnerEmail),
-      }),
       programs: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchLearnerProgramsList(queryKey[2]),
         contextQueries: {
+          // queryEnterpriseProgram
           detail: (programUUID) => ({
             queryKey: [programUUID],
             queryFn: async ({ queryKey }) => fetchProgramDetails(queryKey[2], programUUID),
@@ -115,6 +126,7 @@ const enterprise = createQueryKeys('enterprise', {
           browseAndRequest: {
             queryKey: null,
             contextQueries: {
+              // queryBrowseAndRequestConfiguration
               configuration: {
                 queryKey: null,
                 queryFn: async ({ queryKey }) => fetchBrowseAndRequestConfiguration(queryKey[2]),
@@ -122,10 +134,12 @@ const enterprise = createQueryKeys('enterprise', {
               requests: (userEmail, state = SUBSIDY_REQUEST_STATE.REQUESTED) => ({
                 queryKey: [userEmail, state],
                 contextQueries: {
+                  // queryLicenseRequests
                   licenseRequests: {
                     queryKey: null,
                     queryFn: async ({ queryKey }) => fetchLicenseRequests(queryKey[2], queryKey[6], queryKey[7]),
                   },
+                  // queryCouponCodeRequests
                   couponCodeRequests: {
                     queryKey: null,
                     queryFn: async ({ queryKey }) => fetchCouponCodeRequests(queryKey[2], queryKey[5], queryKey[7]),
@@ -134,10 +148,12 @@ const enterprise = createQueryKeys('enterprise', {
               }),
             },
           },
+          // queryCouponCodes
           couponCodes: {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchCouponCodes(queryKey[2]),
           },
+          // queryEnterpriseLearnerOffers
           enterpriseOffers: {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchEnterpriseOffers(queryKey[2]),
@@ -145,16 +161,19 @@ const enterprise = createQueryKeys('enterprise', {
           policy: {
             queryKey: null,
             contextQueries: {
+              // queryRedeemablePolicies
               redeemablePolicies: (lmsUserId) => ({
                 queryKey: [lmsUserId],
                 queryFn: async ({ queryKey }) => fetchRedeemablePolicies(queryKey[2], lmsUserId),
               }),
+              // queryPolicyTransaction
               transaction: (transaction) => ({
                 queryKey: [transaction],
                 queryFn: async () => checkTransactionStatus(transaction),
               }),
             },
           },
+          // querySubscriptions
           subscriptions: {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchSubscriptions(queryKey[2]),
@@ -200,6 +219,12 @@ const content = createQueryKeys('content', {
       metadata: (courseRunKey) => ({
         queryKey: [courseRunKey],
         queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], queryKey[4]),
+        contextQueries: {
+          courseRun: {
+            queryKey: null,
+            queryFn: async ({ queryKey }) => fetchCourseRunMetadata(queryKey[4]),
+          },
+        },
       }),
       reviews: {
         queryKey: null,
@@ -210,6 +235,7 @@ const content = createQueryKeys('content', {
   pathway: (pathwayUUID) => ({
     queryKey: [pathwayUUID],
     contextQueries: {
+      // queryLearnerPathwayProgressData
       progress: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchPathwayProgressDetails(queryKey[2]),
@@ -219,6 +245,7 @@ const content = createQueryKeys('content', {
   program: (programUUID) => ({
     queryKey: [programUUID],
     contextQueries: {
+      // queryLearnerProgramProgressData
       progress: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchLearnerProgramProgressDetail(queryKey[2]),

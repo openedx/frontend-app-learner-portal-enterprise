@@ -32,7 +32,6 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseFeatures,
-  useEnterpriseGroupMemberships,
   useEnterpriseOffers,
   useEnterprisePathwaysList,
   useEnterpriseProgramsList,
@@ -45,7 +44,6 @@ import {
   academiesFactory,
   authenticatedUserFactory,
   enterpriseCustomerFactory,
-  groupMembershipFactories,
 } from '../../app/data/services/data/__factories__';
 
 const dummyProgramData = {
@@ -106,7 +104,6 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCourseEnrollments: jest.fn(),
   useEnterpriseCustomer: jest.fn(),
   useEnterpriseFeatures: jest.fn(),
-  useEnterpriseGroupMemberships: jest.fn(),
   useEnterpriseOffers: jest.fn(),
   useEnterprisePathwaysList: jest.fn(),
   useEnterpriseProgramsList: jest.fn(),
@@ -141,11 +138,13 @@ const defaultRedeemablePoliciesState = {
     learnerContentAssignments: [
       { state: 'allocated' },
     ],
+    groupAssociations: ['test-group-association'],
   },
   {
     learnerContentAssignments: [
       { state: 'cancelled' },
     ],
+    groupAssociations: ['test-group-association-1'],
   }],
   learnerContentAssignments: {
     ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
@@ -266,9 +265,6 @@ describe('<Dashboard />', () => {
     useHasAvailableSubsidiesOrRequests.mockReturnValue(
       useMockHasAvailableSubsidyOrRequests(mockUseActiveSubsidyOrRequestsData),
     );
-    useEnterpriseGroupMemberships.mockReturnValue({
-      data: groupMembershipFactories(),
-    });
   });
 
   it('renders user first name if available', () => {
