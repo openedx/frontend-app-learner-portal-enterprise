@@ -10,6 +10,7 @@ import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import LearnerCreditSummaryCard from './LearnerCreditSummaryCard';
 import SidebarCard from './SidebarCard';
 import {
+  useAcademies,
   useBrowseAndRequest,
   useCouponCodes,
   useEnterpriseCourseEnrollments,
@@ -48,7 +49,7 @@ const SubsidiesSummary = ({
   const { isPlanApproachingExpiry } = useExpirationMetadata(
     learnerCreditSummaryCardData?.expirationDate,
   );
-
+  const { data: academies } = useAcademies();
   const learnerCreditStatusMetadata = getStatusMetadata({
     isPlanApproachingExpiry,
     endDateStr: learnerCreditSummaryCardData?.expirationDate,
@@ -71,19 +72,33 @@ const SubsidiesSummary = ({
     return null;
   }
 
+  const isOneAcademy = enterpriseCustomer?.enableOneAcademy;
   const searchCoursesCta = (
     !programProgressPage && !enterpriseCustomer.disableSearch && showSearchCoursesCta && (
       <Button
         as={Link}
-        to={`/${enterpriseCustomer.slug}/search`}
+        to={(isOneAcademy && academies?.[0]?.uuid)
+          ? `/${enterpriseCustomer.slug}/academies/${academies[0].uuid}`
+          : `/${enterpriseCustomer.slug}/search`}
         variant={ctaButtonVariant}
         block
       >
-        <FormattedMessage
-          id="enterprise.dashboard.sidebar.subsidy.find.course.button"
-          defaultMessage="Find a course"
-          description="Button text for the find a course button on the enterprise dashboard sidebar."
-        />
+        {
+          isOneAcademy ? (
+            <FormattedMessage
+              id="enterprise.dashboard.sidebar.subsidy.go.to.academy.button"
+              defaultMessage="Go to Academy"
+              description="Button text for the go to academy button on the enterprise dashboard sidebar."
+            />
+          )
+            : (
+              <FormattedMessage
+                id="enterprise.dashboard.sidebar.subsidy.find.course.button"
+                defaultMessage="Find a course"
+                description="Button text for the find a course button on the enterprise dashboard sidebar."
+              />
+            )
+        }
       </Button>
     )
   );
