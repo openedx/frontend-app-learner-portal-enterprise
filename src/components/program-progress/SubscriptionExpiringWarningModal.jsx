@@ -37,7 +37,7 @@ const SubscriptionExpirationWarningModal = ({
         If you plan to complete the program, please {renderContactText()} to ensure your subscription access is renewed.
       </p>
       <i>
-        Access expires: {dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}.
+        Access expires: {dayjs(subscriptionPlan?.expirationDate).format('MMMM Do, YYYY')}.
       </i>
     </>
   );

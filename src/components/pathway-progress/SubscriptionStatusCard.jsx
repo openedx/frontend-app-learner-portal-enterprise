@@ -1,4 +1,4 @@
-import { Card, Badge } from '@openedx/paragon';
+import { Badge, Card } from '@openedx/paragon';
 
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import dayjs from '../../utils/dayjs';
@@ -50,7 +50,7 @@ const SubscriptionStatusCard = () => {
                 values={{
                   expiryDate: (
                     <span className="font-weight-bold">
-                      {dayjs(expirationDate).format('MMMM Do, YYYY')}
+                      {dayjs(expirationDate).format('MMM D, YYYY')}
                     </span>
                   ),
                 }}

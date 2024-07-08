@@ -14,6 +14,7 @@ export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
 export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
 export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your subscription is expiring';
 
+// TODO: Still requires internationalization refactor
 const SubscriptionExpirationModal = () => {
   const {
     config,
@@ -104,7 +105,7 @@ const SubscriptionExpirationModal = () => {
         If you think this is an error or need help, {renderContactText()}.
       </p>
       <i>
-        Access expires on {dayjs(expirationDate).format('MMMM Do, YYYY')}.
+        Access expires on {dayjs(expirationDate).format('MMM D, YYYY')}.
       </i>
     </>
   );
@@ -123,7 +124,7 @@ const SubscriptionExpirationModal = () => {
         If you think this is an error or need help, {renderContactText()}.
       </p>
       <i>
-        Access expired on {dayjs(expirationDate).format('MMMM Do, YYYY')}.
+        Access expired on {dayjs(expirationDate).format('MMM D, YYYY')}.
       </i>
     </>
   );

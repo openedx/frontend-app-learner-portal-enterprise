@@ -6,11 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import dayjs from 'dayjs';
 import SubscriptionStatusCard from '../SubscriptionStatusCard';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
-import {
-  useEnterpriseCustomer,
-  useHasAvailableSubsidiesOrRequests,
-  useSubscriptions,
-} from '../../app/data';
+import { useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests, useSubscriptions } from '../../app/data';
 
 const mockAuthenticatedUser = authenticatedUserFactory();
 
@@ -65,12 +61,12 @@ describe('SubscriptionStatusCard', () => {
     useSubscriptions.mockReturnValue({ data: { subscriptionPlan: mockExpiredSubscriptionPlan } });
     render(<SubscriptionStatusCardWrapper />);
     expect(screen.getByText('Available until')).toBeInTheDocument();
-    expect(screen.getByText(dayjs(mockExpiredSubscriptionPlan.expirationDate).format('MMMM Do, YYYY')));
+    expect(screen.getByText(dayjs(mockExpiredSubscriptionPlan.expirationDate).format('MMM D, YYYY')));
   });
 
   it('does not render expiry date when subscription is not active', () => {
     useSubscriptions.mockReturnValue({ data: { subscriptionPlan: mockExpiredSubscriptionPlan } });
     render(<SubscriptionStatusCardWrapper />);
-    expect(screen.queryByText(dayjs(mockExpiredSubscriptionPlan.expirationDate).format('MMMM Do, YYYY'))).toBeNull();
+    expect(screen.queryByText(dayjs(mockExpiredSubscriptionPlan.expirationDate).format('MMM D, YYYY'))).toBeNull();
   });
 });

@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Badge, useToggle } from '@openedx/paragon';
+import {
+  Badge, Card, Stack, useToggle,
+} from '@openedx/paragon';
 import { WarningFilled } from '@openedx/paragon/icons';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
-import CardHeader from '@openedx/paragon/src/Card/CardHeader';
-import CardSection from '@openedx/paragon/src/Card/CardSection';
 import CouponCodesWarningModal from '../../program-progress/CouponCodesWarningModal';
 import { COUPON_CODES_AVAILABLE_BADGE_VARIANT, COUPON_CODES_REQUESTED_BADGE_VARIANT } from './data/constants';
 
@@ -56,9 +56,9 @@ const CouponCodesSummaryCard = ({
           onCouponCodeWarningModalClose={onCouponCodeWarningModalClose}
           couponCodesCount={couponCodesCount}
         />
-        <CardHeader
+        <Card.Header
           title={(
-            <div className="d-flex align-items-start justify-content-between">
+            <Stack direction="horizontal" className="align-items-start justify-content-between">
               <h3>
                 <FormattedMessage
                   id="enterprise.dashboard.sidebar.coupon.codes.summary.remaining.codes"
@@ -68,14 +68,13 @@ const CouponCodesSummaryCard = ({
               </h3>
               {totalCoursesEligibleForCertificate > couponCodesCount && (
                 <WarningFilled
-                  className="ml-2"
                   onClick={() => { couponCodeWarningModalOpen(); }}
                 />
               )}
-            </div>
+            </Stack>
           )}
         />
-        <CardSection>
+        <Card.Section>
           <p className="m-0">
             <h3 className="float-left"> {couponCodesCount > 0 ? couponCodesCount : 0}</h3>{' '}
             <span className="ml-2">
@@ -86,37 +85,38 @@ const CouponCodesSummaryCard = ({
               />
             </span>
           </p>
-        </CardSection>
+        </Card.Section>
       </>
     );
   }
 
   return (
     <>
-      <CardHeader
+      <Card.Header
         title={(
-          <div className="d-flex align-items-start justify-content-between">
-            <div>{`${intl.formatMessage({
-              id: 'enterprise.dashboard.sidebar.coupon.codes.summary.title',
-              defaultMessage: 'Enrollment Codes',
-              description: 'Title for the coupon codes summary on the enterprise dashboard sidebar.',
-            })}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}
-            </div>
-            <div>
-              {badgeVariantAndLabel && (
-                <Badge
-                  variant={badgeVariantAndLabel.variant}
-                  className="ml-2"
-                  data-testid="subscription-status-badge"
-                >
-                  {badgeVariantAndLabel.label}
-                </Badge>
-              )}
-            </div>
-          </div>
+          <Stack direction="horizontal" className="align-items-start justify-content-between">
+            <h3 className="m-0">
+              <FormattedMessage
+                id="enterprise.dashboard.sidebar.coupon.codes.summary.title"
+                defaultMessage="Enrollment Codes{couponCodesCount}"
+                description="Title for the coupon codes summary on the enterprise dashboard sidebar."
+                values={{
+                  couponCodesCount: couponCodesCount ? `: ${couponCodesCount}` : null,
+                }}
+              />
+            </h3>
+            {badgeVariantAndLabel && (
+              <Badge
+                variant={badgeVariantAndLabel.variant}
+                data-testid="subscription-status-badge"
+              >
+                {badgeVariantAndLabel.label}
+              </Badge>
+            )}
+          </Stack>
         )}
       />
-      <CardSection>
+      <Card.Section>
         <p className="m-0">
           <FormattedMessage
             id="enterprise.dashboard.sidebar.coupon-codes.summary.notice"
@@ -124,7 +124,7 @@ const CouponCodesSummaryCard = ({
             description="Notice for the enrollment coupon codes on the enterprise dashboard sidebar."
           />
         </p>
-      </CardSection>
+      </Card.Section>
     </>
   );
 };

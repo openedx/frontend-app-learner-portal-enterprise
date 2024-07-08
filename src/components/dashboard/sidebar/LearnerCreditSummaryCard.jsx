@@ -1,12 +1,10 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge } from '@openedx/paragon';
+import { Badge, Card, Stack } from '@openedx/paragon';
 import dayjs from 'dayjs';
 import {
   defineMessages, FormattedDate, FormattedMessage, useIntl,
 } from '@edx/frontend-platform/i18n';
-import CardHeader from '@openedx/paragon/src/Card/CardHeader';
-import CardSection from '@openedx/paragon/src/Card/CardSection';
 import { useEnterpriseCustomer } from '../../app/data';
 import { BUDGET_STATUSES } from '../data/constants';
 
@@ -47,22 +45,22 @@ const badgeStatusMessages = defineMessages({
  * @param intl
  * @returns {React.JSX.Element|null}
  */
-const getRenderedBadge = ({
+const getStatusBadge = ({
   disableExpiryMessagingForLearnerCredit,
   status,
   badgeVariant,
   intl,
 }) => {
-  let renderedBadge;
+  let statusBadge;
 
   // If the disable learner credit expiration messaging is enabled, default to an active badge
   if (status === BUDGET_STATUSES.expiring && disableExpiryMessagingForLearnerCredit) {
-    renderedBadge = {
+    statusBadge = {
       badgeVariant: 'success',
       badgeLabel: BUDGET_STATUSES.active,
     };
   } else {
-    renderedBadge = {
+    statusBadge = {
       badgeVariant,
       badgeLabel: status,
     };
@@ -70,11 +68,10 @@ const getRenderedBadge = ({
 
   return (
     <Badge
-      variant={renderedBadge.badgeVariant}
-      className="ml-2"
+      variant={statusBadge.badgeVariant}
       data-testid="learner-credit-status-badge"
     >
-      {intl.formatMessage(badgeStatusMessages[renderedBadge.badgeLabel.toLowerCase()])}
+      {intl.formatMessage(badgeStatusMessages[statusBadge.badgeLabel.toLowerCase()])}
     </Badge>
   );
 };
@@ -87,15 +84,14 @@ const LearnerCreditSummaryCard = ({
   const intl = useIntl();
   const { status, badgeVariant } = statusMetadata;
   const { data: { disableExpiryMessagingForLearnerCredit } } = useEnterpriseCustomer();
-  const formattedExpirationDate = dayjs(expirationDate).format('MMM D, YYYY');
   const isBudgetExpired = dayjs(expirationDate).isBefore(dayjs()) && status === BUDGET_STATUSES.expired;
 
-  const cardBadge = useMemo(() => getRenderedBadge({
+  const cardBadge = getStatusBadge({
     disableExpiryMessagingForLearnerCredit,
     status,
     badgeVariant,
     intl,
-  }), [badgeVariant, disableExpiryMessagingForLearnerCredit, intl, status]);
+  });
 
   // Validates that the flag to disable expiry messaging is enabled, whether the learner credit expiration is
   // truly expired by a date calculation and the status is set to expired
@@ -105,10 +101,10 @@ const LearnerCreditSummaryCard = ({
 
   return (
     <>
-      <CardHeader
+      <Card.Header
         title={
           (
-            <div className="d-flex align-items-center justify-content-between">
+            <Stack direction="horizontal" className="align-items-center justify-content-between">
               <h3 className="m-0">
                 <FormattedMessage
                   id="enterprise.dashboard.sidebar.learner.credit.card.title"
@@ -117,11 +113,11 @@ const LearnerCreditSummaryCard = ({
                 />
               </h3>
               {cardBadge}
-            </div>
+            </Stack>
           )
         }
       />
-      <CardSection>
+      <Card.Section>
         <p data-testid="learner-credit-summary-text">
           {assignmentOnlyLearner ? (
             <FormattedMessage
@@ -140,26 +136,46 @@ const LearnerCreditSummaryCard = ({
 
         {(expirationDate && !disableExpiryMessagingForLearnerCredit) && (
           <p className="mb-0" data-testid="learner-credit-summary-end-date-text">
-            <FormattedMessage
-              id="enterprise.dashboard.sidebar.learner.credit.card.subsidy.expiration.date"
-              defaultMessage="Available until {subsidyExpiryDate}"
-              description="Subsidy expiration date for the learner credit summary card on the enterprise dashboard sidebar."
-              values={{
-                subsidyExpiryDate: (
-                  <b>
-                    <FormattedDate
-                      value={formattedExpirationDate}
-                      year="numeric"
-                      month="short"
-                      day="numeric"
-                    />
-                  </b>
-                ),
-              }}
-            />
+            {isBudgetExpired ? (
+              <FormattedMessage
+                id="enterprise.dashboard.sidebar.learner.credit.card.subsidy.expired.date"
+                defaultMessage="Expired on {subsidyExpiryDate}"
+                description="Subsidy expired date for the learner credit summary card on the enterprise dashboard sidebar."
+                values={{
+                  subsidyExpiryDate: (
+                    <b>
+                      <FormattedDate
+                        value={expirationDate}
+                        year="numeric"
+                        month="short"
+                        day="numeric"
+                      />
+                    </b>
+                  ),
+                }}
+              />
+            ) : (
+              <FormattedMessage
+                id="enterprise.dashboard.sidebar.learner.credit.card.subsidy.expiration.date"
+                defaultMessage="Available until {subsidyExpiryDate}"
+                description="Subsidy expiration date for the learner credit summary card on the enterprise dashboard sidebar."
+                values={{
+                  subsidyExpiryDate: (
+                    <b>
+                      <FormattedDate
+                        value={expirationDate}
+                        year="numeric"
+                        month="short"
+                        day="numeric"
+                      />
+                    </b>
+                  ),
+                }}
+              />
+            )}
           </p>
         )}
-      </CardSection>
+      </Card.Section>
     </>
   );
 };

@@ -18,13 +18,14 @@ import {
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
 } from '../data/constants';
 import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../../../program-progress/data/constants';
-import { useEnterpriseCustomer, useSubscriptions } from '../../../app/data';
+import { useBrowseAndRequest, useEnterpriseCustomer, useSubscriptions } from '../../../app/data';
 import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
   useSubscriptions: jest.fn(),
+  useBrowseAndRequest: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -34,20 +35,30 @@ const subscriptionPlan = {
   expirationDate: '2021-10-25',
   isCurrent: true,
 };
+
+const subscriptions = {
+  subscriptionPlan,
+  showExpirationNotifications: true,
+};
 const licenseRequest = {
   courseEndDate: '2021-10-25',
+};
+
+const requests = {
+  subscriptionLicenses: [licenseRequest],
 };
 
 describe('<SubscriptionSummaryCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useSubscriptions.mockReturnValue({ data: { subscriptionPlan } });
+    useSubscriptions.mockReturnValue({ data: subscriptions });
+    useBrowseAndRequest.mockReturnValue({ data: { requests } });
   });
   test('Active success badge is displayed when daysUntilExpirationIncludingRenewals > 60', () => {
     renderWithRouter(
       <IntlProvider locale="en">
-        <SubscriptionSummaryCard subscriptionPlan={subscriptionPlan} />
+        <SubscriptionSummaryCard />
       </IntlProvider>,
     );
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_BADGE_LABEL)).toBeTruthy();
@@ -59,9 +70,15 @@ describe('<SubscriptionSummaryCard />', () => {
       ...subscriptionPlan,
       daysUntilExpirationIncludingRenewals: 50,
     };
+
+    const updatedSubscriptions = {
+      subscriptionPlan: expiringSoonSubscriptionPlan,
+      showExpirationNotifications: true,
+    };
+    useSubscriptions.mockReturnValue({ data: updatedSubscriptions });
     renderWithRouter(
       <IntlProvider locale="en">
-        <SubscriptionSummaryCard subscriptionPlan={expiringSoonSubscriptionPlan} />
+        <SubscriptionSummaryCard />
       </IntlProvider>,
     );
     expect(screen.queryByText(SUBSCRIPTION_WARNING_BADGE_LABEL)).toBeTruthy();
@@ -74,14 +91,19 @@ describe('<SubscriptionSummaryCard />', () => {
       daysUntilExpirationIncludingRenewals: 0,
       isCurrent: false,
     };
+    const updatedSubscriptions = {
+      subscriptionPlan: expiredSubscriptionPlan,
+      showExpirationNotifications: true,
+    };
+    useSubscriptions.mockReturnValue({ data: updatedSubscriptions });
     renderWithRouter(
       <IntlProvider locale="en">
-        <SubscriptionSummaryCard subscriptionPlan={expiredSubscriptionPlan} />
+        <SubscriptionSummaryCard />
       </IntlProvider>,
     );
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_BADGE_LABEL)).toBeTruthy();
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_DATE_PREFIX, { exact: false })).toBeTruthy();
-    expect(screen.queryByText('October 25th, 2021')).toBeTruthy();
+    expect(screen.queryByText('Oct 25, 2021')).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_EXPIRED_BADGE_VARIANT}`);
   });
   test('Expiring soon and modal warning badge is displayed when 60 >= daysUntilExpirationIncludingRenewals > 0 and programProgressPage=true', () => {
@@ -89,11 +111,15 @@ describe('<SubscriptionSummaryCard />', () => {
       ...subscriptionPlan,
       daysUntilExpirationIncludingRenewals: 50,
     };
+    const updatedSubscriptions = {
+      subscriptionPlan: expiringSoonSubscriptionPlan,
+      showExpirationNotifications: true,
+    };
     const courseEndDate = '2023-08-11';
+    useSubscriptions.mockReturnValue({ data: updatedSubscriptions });
     renderWithRouter(
       <IntlProvider locale="en">
         <SubscriptionSummaryCard
-          subscriptionPlan={expiringSoonSubscriptionPlan}
           courseEndDate={courseEndDate}
           programProgressPage
         />
@@ -107,9 +133,15 @@ describe('<SubscriptionSummaryCard />', () => {
     expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
   });
   test('License requested notice is displayed when license request active', () => {
+    const noSubscriptionPlan = {
+      subscriptionPlan: null,
+      showExpirationNotifications: true,
+    };
+    useSubscriptions.mockReturnValue({ data: noSubscriptionPlan });
+
     renderWithRouter(
       <IntlProvider locale="en">
-        <SubscriptionSummaryCard licenseRequest={licenseRequest} programProgressPage />
+        <SubscriptionSummaryCard programProgressPage />
       </IntlProvider>,
     );
     expect(screen.queryByText(LICENSE_REQUESTED_NOTICE)).toBeTruthy();
@@ -120,17 +152,21 @@ describe('<SubscriptionSummaryCard />', () => {
       daysUntilExpirationIncludingRenewals: 0,
       isCurrent: false,
     };
+    const updatedSubscriptions = {
+      subscriptionPlan: expiredSubscriptionPlan,
+      showExpirationNotifications: true,
+    };
+    useSubscriptions.mockReturnValue({ data: updatedSubscriptions });
     renderWithRouter(
       <IntlProvider locale="en">
         <SubscriptionSummaryCard
-          subscriptionPlan={expiredSubscriptionPlan}
           programProgressPage
         />
       </IntlProvider>,
     );
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_BADGE_LABEL)).toBeTruthy();
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_DATE_PREFIX, { exact: false })).toBeTruthy();
-    expect(screen.queryByText('October 25th, 2021')).toBeTruthy();
+    expect(screen.queryByText('Oct 25, 2021')).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_EXPIRED_BADGE_VARIANT}`);
   });
 });
