@@ -5,7 +5,6 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import { Button, Card } from '@openedx/paragon';
 import classNames from 'classnames';
-import CardSection from '@openedx/paragon/src/Card/CardSection';
 import dayjs from 'dayjs';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
@@ -29,28 +28,42 @@ const SearchCoursesCta = ({
   ctaButtonVariant,
   showSearchCoursesCta,
   isProgramProgressPage,
-  disableSearch,
-  slug,
   className,
 }) => {
-  if (disableSearch || !showSearchCoursesCta || isProgramProgressPage) {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: academies } = useAcademies();
+  const isOneAcademy = enterpriseCustomer?.enableOneAcademy;
+
+  if (enterpriseCustomer.disableSearch || !showSearchCoursesCta || isProgramProgressPage) {
     return null;
   }
+
+  const ctaLinkDestination = isOneAcademy && academies[0]?.uuid ? `academies/${academies[0]?.uuid}` : 'search';
+
   return (
-    <CardSection className={className}>
+    <Card.Section className={className}>
       <Button
         as={Link}
-        to={`/${slug}/search`}
+        to={`/${enterpriseCustomer.slug}/${ctaLinkDestination}`}
         variant={ctaButtonVariant}
         block
       >
-        <FormattedMessage
-          id="enterprise.dashboard.sidebar.subsidy.find.course.button"
-          defaultMessage="Find a course"
-          description="Button text for the find a course button on the enterprise dashboard sidebar."
-        />
+        {isOneAcademy ? (
+          <FormattedMessage
+            id="enterprise.dashboard.sidebar.subsidy.go.to.academy.button"
+            defaultMessage="Go to Academy"
+            description="Button text for the go to academy button on the enterprise dashboard sidebar."
+          />
+        )
+          : (
+            <FormattedMessage
+              id="enterprise.dashboard.sidebar.subsidy.find.course.button"
+              defaultMessage="Find a course"
+              description="Button text for the find a course button on the enterprise dashboard sidebar."
+            />
+          )}
       </Button>
-    </CardSection>
+    </Card.Section>
   );
 };
 
@@ -58,8 +71,6 @@ SearchCoursesCta.propTypes = {
   ctaButtonVariant: PropTypes.string.isRequired,
   showSearchCoursesCta: PropTypes.bool.isRequired,
   isProgramProgressPage: PropTypes.bool.isRequired,
-  disableSearch: PropTypes.bool.isRequired,
-  slug: PropTypes.string.isRequired,
   className: PropTypes.string,
 };
 
@@ -75,7 +86,7 @@ const SubsidiesSummary = ({
   programProgressPage,
 }) => {
   const { data: { allEnrollmentsByStatus } } = useEnterpriseCourseEnrollments();
-  const { data: { disableExpiryMessagingForLearnerCredit, disableSearch, slug } } = useEnterpriseCustomer();
+  const { data: { disableExpiryMessagingForLearnerCredit } } = useEnterpriseCustomer();
   const { data: subscriptions } = useSubscriptions();
   const { data: couponCodes } = useCouponCodes();
   const { data: enterpriseOffersData } = useEnterpriseOffers();
@@ -94,7 +105,6 @@ const SubsidiesSummary = ({
   const { isPlanApproachingExpiry } = useExpirationMetadata(
     learnerCreditSummaryCardData?.expirationDate,
   );
-  const { data: academies } = useAcademies();
   const learnerCreditStatusMetadata = getStatusMetadata({
     isPlanApproachingExpiry,
     endDateStr: learnerCreditSummaryCardData?.expirationDate,
@@ -166,37 +176,6 @@ const SubsidiesSummary = ({
     return null;
   }
 
-  const isOneAcademy = enterpriseCustomer?.enableOneAcademy;
-  const searchCoursesCta = (
-    !programProgressPage && !enterpriseCustomer.disableSearch && showSearchCoursesCta && (
-      <Button
-        as={Link}
-        to={(isOneAcademy && academies?.[0]?.uuid)
-          ? `/${enterpriseCustomer.slug}/academies/${academies[0].uuid}`
-          : `/${enterpriseCustomer.slug}/search`}
-        variant={ctaButtonVariant}
-        block
-      >
-        {
-          isOneAcademy ? (
-            <FormattedMessage
-              id="enterprise.dashboard.sidebar.subsidy.go.to.academy.button"
-              defaultMessage="Go to Academy"
-              description="Button text for the go to academy button on the enterprise dashboard sidebar."
-            />
-          )
-            : (
-              <FormattedMessage
-                id="enterprise.dashboard.sidebar.subsidy.find.course.button"
-                defaultMessage="Find a course"
-                description="Button text for the find a course button on the enterprise dashboard sidebar."
-              />
-            )
-        }
-      </Button>
-    )
-  );
-
   return (
     <Card
       className={classNames('mb-5', { 'col-8 border-0 shadow-none': programProgressPage })}
@@ -233,8 +212,6 @@ const SubsidiesSummary = ({
           ctaButtonVariant={ctaButtonVariant}
           isProgramProgressPage={programProgressPage}
           showSearchCoursesCta={showSearchCoursesCta}
-          disableSearch={disableSearch}
-          slug={slug}
           className={searchCourseCTAClassNames}
         />
       )}
