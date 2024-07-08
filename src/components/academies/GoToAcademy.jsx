@@ -14,7 +14,7 @@ const GoToAcademy = () => {
       <p>
         <FormattedMessage
           id="enterprise.dashboard.tab.courses.go.to.academy.message"
-          defaultMessage="Getting started with edX is easy. Simply find a course from your Academy, request enrollment, and get started on your learning journey."
+          defaultMessage="Getting started with edX is easy. Simply find a course from your Academy and get started on your learning journey."
           description="Default message shown to a learner on enterprise dashboard."
         />
       </p>

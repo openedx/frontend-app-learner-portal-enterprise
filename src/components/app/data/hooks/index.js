@@ -41,3 +41,5 @@ export { default as useHasAvailableSubsidiesOrRequests } from './useHasAvailable
 export { default as useAcademies } from './useAcademies';
 export { default as useAcademyDetails } from './useAcademyDetails';
 export { default as usePassLearnerCsodParams } from './usePassLearnerCsodParams';
+export { default as useCanUpgradeWithLearnerCredit } from './useCanUpgradeWithLearnerCredit';
+export { default as useCourseRunMetadata } from './useCourseRunMetadata';

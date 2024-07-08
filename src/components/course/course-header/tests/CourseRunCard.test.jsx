@@ -16,9 +16,9 @@ import {
   useEnterpriseCustomerContainsContent,
   useEnterpriseOffers,
   useSubscriptions,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
 } from '../../../app/data';
 import {
-  LEARNER_CREDIT_SUBSIDY_TYPE,
   useCanUserRequestSubsidyForCourse,
   useUserSubsidyApplicableToCourse,
 } from '../../data';

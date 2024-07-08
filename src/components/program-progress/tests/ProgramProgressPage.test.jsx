@@ -4,7 +4,7 @@ import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { ProgramProgressPage } from '../index';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { authenticatedUserFactory, enterpriseCustomerFactory, academiesFactory } from '../../app/data/services/data/__factories__';
 import {
   useBrowseAndRequest,
   useCouponCodes,
@@ -16,6 +16,7 @@ import {
   useRedeemablePolicies,
   useSubscriptions,
   useHasAvailableSubsidiesOrRequests,
+  useAcademies,
 } from '../../app/data';
 
 jest.mock('../../app/data', () => ({
@@ -30,6 +31,7 @@ jest.mock('../../app/data', () => ({
   useBrowseAndRequest: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
   useHasAvailableSubsidiesOrRequests: jest.fn(),
+  useAcademies: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -159,6 +161,7 @@ describe('<ProgramProgressPage />', () => {
       },
     });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
+    useAcademies.mockReturnValue({ data: academiesFactory(3) });
   });
   it('renders error page', () => {
     useLearnerProgramProgressData.mockReturnValue({

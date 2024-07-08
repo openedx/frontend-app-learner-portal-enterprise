@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Modal, Spinner } from '@openedx/paragon';
 
-import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from './data/constants';
 import { ENTERPRISE_OFFER_TYPE } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from '../app/data';
 
 export const createUseCouponCodeText = couponCodesCount => `You are about to redeem 1 enrollment code from your ${couponCodesCount} remaining codes.`;
 

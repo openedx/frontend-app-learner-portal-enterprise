@@ -6,7 +6,7 @@ import { PreviewExpand } from '../preview-expand';
 import CourseSidebar from './CourseSidebar';
 import CreatedBy from './CreatedBy';
 import VerifiedCertPitch from './VerifiedCertPitch';
-import { useCourseMetadata } from '../app/data';
+import { COURSE_MODES_MAP, useCourseMetadata } from '../app/data';
 
 function formatSponsorTextList(sponsors) {
   const names = sponsors.map(sponsor => sponsor.name);
@@ -178,7 +178,7 @@ const CourseMainContent = () => {
         </PreviewExpand>
       )}
       <CreatedBy />
-      {courseMetadata.activeCourseRun.type?.includes('verified') && (
+      {courseMetadata.activeCourseRun.type?.includes(COURSE_MODES_MAP.VERIFIED) && (
         <VerifiedCertPitch />
       )}
       {courseMetadata.learnerTestimonials && (

@@ -6,15 +6,20 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 
-import { UpgradeableCourseEnrollmentContext } from '../../UpgradeableCourseEnrollmentContextProvider';
 import { InProgressCourseCard } from '../InProgressCourseCard';
-import { useCouponCodes, useEnterpriseCustomer } from '../../../../../app/data';
+import { COURSE_MODES_MAP, useCouponCodes, useEnterpriseCustomer } from '../../../../../app/data';
 import { queryClient } from '../../../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
+import { useCourseUpgradeData } from '../../data';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+jest.mock('../../data', () => ({
+  ...jest.requireActual('../../data'),
+  useCourseUpgradeData: jest.fn(),
 }));
 
 const baseProps = {
@@ -23,7 +28,7 @@ const baseProps = {
   linkToCourse: 'https://edx.org',
   courseRunId: 'my+course+key',
   notifications: [],
-  mode: 'verified',
+  mode: COURSE_MODES_MAP.VERIFIED,
 };
 
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -39,20 +44,12 @@ jest.mock('../../../../../app/data', () => ({
 
 const InProgressCourseCardWrapper = ({
   appContextValue = defaultAppContextValue,
-  upgradeableCourseEnrollmentContextValue = {
-    isLoading: false,
-    licenseUpgradeUrl: undefined,
-    couponUpgradeUrl: undefined,
-    courseRunPrice: 100,
-  },
   ...rest
 }) => (
   <QueryClientProvider client={queryClient()}>
     <IntlProvider locale="en">
       <AppContext.Provider value={appContextValue}>
-        <UpgradeableCourseEnrollmentContext.Provider value={upgradeableCourseEnrollmentContextValue}>
-          <InProgressCourseCard {...rest} />
-        </UpgradeableCourseEnrollmentContext.Provider>
+        <InProgressCourseCard {...rest} />
       </AppContext.Provider>
     </IntlProvider>
   </QueryClientProvider>
@@ -69,6 +66,13 @@ describe('<InProgressCourseCard />', () => {
         couponCodeAssignments: [],
       },
     });
+    useCourseUpgradeData.mockReturnValue({
+      licenseUpgradeUrl: undefined,
+      couponUpgradeUrl: undefined,
+      learnerCreditUpgradeUrl: undefined,
+      subsidyForCourse: undefined,
+      courseRunPrice: undefined,
+    });
   });
 
   it('should not render upgrade course button if there is no couponUpgradeUrl', () => {
@@ -77,12 +81,17 @@ describe('<InProgressCourseCard />', () => {
   });
 
   it('should render upgrade course button if there is a couponUpgradeUrl', () => {
+    useCourseUpgradeData.mockReturnValue({
+      licenseUpgradeUrl: undefined,
+      couponUpgradeUrl: 'coupon-upgrade-url',
+      courseRunPrice: 100,
+      learnerCreditUpgradeUrl: undefined,
+      subsidyForCourse: undefined,
+    });
     renderWithRouter(<InProgressCourseCardWrapper
       {...baseProps}
       upgradeableCourseEnrollmentContextValue={
         {
-          isLoading: false,
-          licenseUpgradeUrl: undefined,
           couponUpgradeUrl: 'coupon-upgrade-url',
           courseRunPrice: 100,
         }
