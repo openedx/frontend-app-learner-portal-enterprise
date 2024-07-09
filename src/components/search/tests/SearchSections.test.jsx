@@ -15,6 +15,7 @@ import { EVENTS, pushEvent } from '../../../utils/optimizely';
 import { useDefaultSearchFilters, useEnterpriseFeatures, useEnterpriseCustomer } from '../../app/data';
 import { useAlgoliaSearch } from '../../../utils/hooks';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import SearchVideo from '../SearchVideo';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -51,6 +52,10 @@ const searchContext2 = {
 };
 const searchContext3 = {
   refinements: { showAll: 1, content_type: ['learnerpathway'] },
+  dispatch: () => null,
+};
+const searchContext4 = {
+  refinements: { showAll: 1, content_type: ['video'] },
   dispatch: () => null,
 };
 
@@ -94,6 +99,14 @@ describe('<Search />', () => {
     );
     expect(screen.getByText('Courses (2 results)')).toBeInTheDocument();
   });
+  test('renders the video section with the correct title', () => {
+    renderWithRouter(
+      <SearchWrapper>
+        <SearchVideo filter={mockFilter} />
+      </SearchWrapper>,
+    );
+    expect(screen.getByText('Videos (2 results)')).toBeInTheDocument();
+  });
 
   test('renders the program section with the correct title', () => {
     renderWithRouter(
@@ -120,6 +133,14 @@ describe('<Search />', () => {
       </SearchWrapper>,
     );
     expect(screen.getByText('Courses (2 results)')).toBeInTheDocument();
+  });
+  test('renders the video search component with the correct title', () => {
+    renderWithRouter(
+      <SearchWrapper searchContext={searchContext4}>
+        <Search />
+      </SearchWrapper>,
+    );
+    expect(screen.getByText('Videos (2 results)')).toBeInTheDocument();
   });
 
   test('renders the program search component with the correct title', () => {

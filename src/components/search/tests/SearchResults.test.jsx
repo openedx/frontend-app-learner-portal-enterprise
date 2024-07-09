@@ -16,6 +16,9 @@ import {
   CONTENT_TYPE_COURSE,
   CONTENT_TYPE_PROGRAM,
   PATHWAY_TITLE, CONTENT_TYPE_PATHWAY, NUM_RESULTS_PATHWAY,
+  CONTENT_TYPE_VIDEO,
+  VIDEO_TITLE,
+  NUM_RESULTS_VIDEO,
 } from '../constants';
 import { TEST_IMAGE_URL } from './constants';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
@@ -27,6 +30,7 @@ import {
 import SearchPathwayCard from '../../pathway/SearchPathwayCard';
 import { getNoResultsMessage, getSearchErrorMessage } from '../../utils/search';
 import { useEnterpriseCustomer } from '../../app/data';
+import SearchVideoCard from '../SearchVideoCard';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -83,6 +87,7 @@ const SearchResultsWithContext = (props) => (
 );
 
 const TEST_COURSE_KEY = 'test-course-key';
+const TEST_VIDEO_KEY = 'test-video-key';
 const TEST_TITLE = 'Test Title';
 const TEST_CARD_IMG_URL = 'http://fake.image';
 const TEST_PARTNER = {
@@ -103,6 +108,22 @@ const SEARCH_RESULT_COURSES = {
       aggregation_key: 'course:edX+DemoX',
     },
 
+  ],
+};
+const SEARCH_RESULT_VIDEOS = {
+  nbHits: 1,
+  hits: [
+    {
+      key: TEST_VIDEO_KEY,
+      title: TEST_TITLE,
+      aggregation_key: 'some_key',
+      content_type: 'video',
+      course_run_key: 'some_key',
+      image_url: TEST_CARD_IMG_URL,
+      logo_image_urls: [TEST_IMAGE_URL],
+      org: 'test-org',
+      duration: '3:16',
+    },
   ],
 };
 
@@ -145,6 +166,17 @@ const propsForCourseResults = {
   title: COURSE_TITLE,
   contentType: CONTENT_TYPE_COURSE,
 };
+const propsForVideoResults = {
+  searchResults: SEARCH_RESULT_VIDEOS,
+  isSearchStalled: false,
+  error: undefined,
+  searchState: {
+    page: 1,
+  },
+  hitComponent: SearchVideoCard,
+  title: VIDEO_TITLE,
+  contentType: CONTENT_TYPE_VIDEO,
+};
 
 const propsForProgramResults = {
   ...propsForCourseResults,
@@ -172,6 +204,16 @@ const propsForError = {
   contentType: CONTENT_TYPE_COURSE,
   title: COURSE_TITLE,
 };
+const propsForVideosError = {
+  searchResults: undefined,
+  isSearchStalled: false,
+  error: {
+    body: 'Test Error String',
+  },
+  hitComponent: SearchVideoCard,
+  contentType: CONTENT_TYPE_VIDEO,
+  title: VIDEO_TITLE,
+};
 
 const propsForNoResults = {
   searchResults: {
@@ -187,6 +229,20 @@ const propsForNoResults = {
   title: COURSE_TITLE,
   contentType: CONTENT_TYPE_COURSE,
 };
+const propsForNoVideoResults = {
+  searchResults: {
+    nbHits: 0,
+    hits: [],
+  },
+  isSearchStalled: false,
+  error: undefined,
+  searchState: {
+    page: 1,
+  },
+  hitComponent: SearchVideoCard,
+  title: VIDEO_TITLE,
+  contentType: CONTENT_TYPE_VIDEO,
+};
 
 describe('<SearchResults />', () => {
   beforeEach(() => {
@@ -199,6 +255,15 @@ describe('<SearchResults />', () => {
     );
     expect(screen.getByText(COURSE_TITLE, { exact: false })).toBeInTheDocument();
     SEARCH_RESULT_COURSES.hits.forEach((hit) => {
+      expect(screen.getByText(hit.title)).toBeInTheDocument();
+    });
+  });
+  test('renders correct results for videos', () => {
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForVideoResults} />,
+    );
+    expect(screen.getByText(VIDEO_TITLE, { exact: false })).toBeInTheDocument();
+    SEARCH_RESULT_VIDEOS.hits.forEach((hit) => {
       expect(screen.getByText(hit.title)).toBeInTheDocument();
     });
   });
@@ -232,6 +297,15 @@ describe('<SearchResults />', () => {
     const skeletonCards = screen.queryAllByTestId('skeleton-card');
     expect(skeletonCards).toHaveLength(NUM_RESULTS_COURSE);
   });
+  test('renders loading component for videos correctly when search is stalled', () => {
+    const propsForLoadingVideos = { ...propsForVideoResults, isSearchStalled: true };
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForLoadingVideos} />,
+    );
+    // assert correct number of loading skeleton cards
+    const skeletonCards = screen.queryAllByTestId('skeleton-card');
+    expect(skeletonCards).toHaveLength(NUM_RESULTS_VIDEO);
+  });
 
   test('renders loading component for programs correctly when search is stalled', () => {
     const propsForLoadingProgram = {
@@ -263,6 +337,14 @@ describe('<SearchResults />', () => {
     const searchErrorMessage = getSearchErrorMessage(COURSE_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForError} />,
+    );
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageContent, 'i'))).toBeTruthy();
+  });
+  test('renders an alert in case of an error for videos', () => {
+    const searchErrorMessage = getSearchErrorMessage(VIDEO_TITLE);
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForVideosError} />,
     );
     expect(screen.getByText(new RegExp(searchErrorMessage.messageTitle, 'i'))).toBeTruthy();
     expect(screen.getByText(new RegExp(searchErrorMessage.messageContent, 'i'))).toBeTruthy();
@@ -302,6 +384,16 @@ describe('<SearchResults />', () => {
     const noResultsMessage = getNoResultsMessage(COURSE_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForNoResults} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
+      expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
+    });
+  });
+  test('renders an alert in case of no results for videos', async () => {
+    const noResultsMessage = getNoResultsMessage(VIDEO_TITLE);
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForNoVideoResults} />,
     );
     await waitFor(() => {
       expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
