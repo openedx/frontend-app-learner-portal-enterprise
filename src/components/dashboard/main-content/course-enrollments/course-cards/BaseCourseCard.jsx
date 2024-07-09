@@ -2,31 +2,42 @@ import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
-  Badge, Col, Dropdown, Icon, IconButton, IconButtonWithTooltip, Row, Skeleton, Hyperlink, Stack,
+  Badge,
+  Col,
+  Dropdown,
+  Hyperlink,
+  Icon,
+  IconButton,
+  IconButtonWithTooltip,
+  Row,
+  Skeleton,
+  Stack,
 } from '@openedx/paragon';
 import {
-  Info,
-  InfoOutline,
-  MoreVert,
-  Warning,
+  Info, InfoOutline, MoreVert, Warning,
 } from '@openedx/paragon/icons';
 import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
-import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platform/i18n';
+import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
+import { getConfig } from '@edx/frontend-platform';
 import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
 import { COURSE_PACING, COURSE_STATUSES } from '../../../../../constants';
-import { ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS, EXECUTIVE_EDUCATION_COURSE_MODES, useEnterpriseCustomer } from '../../../../app/data';
-import { isTodayWithinDateThreshold } from '../../../../../utils/common';
+import {
+  ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
+  EXECUTIVE_EDUCATION_COURSE_MODES,
+  useEnterpriseCustomer,
+} from '../../../../app/data';
+import { isCourseEnded, isTodayWithinDateThreshold } from '../../../../../utils/common';
 
 const messages = defineMessages({
   statusBadgeLabelInProgress: {
     id: 'enterprise.learner_portal.dashboard.enrollments.course.status_badge_label.in_progress',
-    defaultMessage: 'In Progress',
+    defaultMessage: 'In progress',
     description: 'The label for the status badge for courses that are in-progress',
   },
   statusBadgeLabelUpcoming: {
@@ -74,6 +85,16 @@ const messages = defineMessages({
     defaultMessage: 'Enrollment deadline approaching',
     description: 'Tooltip content for enrollment deadline approaching',
   },
+  courseMiscText: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text',
+    defaultMessage: '{courseMiscText}',
+    description: 'The label for the course miscellaneous text',
+  },
+  courseMiscTextPacing: {
+    id: 'enterprise.learner_portal.dashbboard.enrollments.course.misc_text.pacing',
+    defaultMessage: '{pacing}-paced',
+    description: 'The label for the course miscellaneous text pacing',
+  },
 });
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
@@ -99,6 +120,16 @@ export const getScreenReaderText = (str) => (
   <span className="sr-only">{str}</span>
 );
 
+const MiscTextContainer = ({ children }) => (
+  <small className="mb-0 mt-2">
+    {children}
+  </small>
+);
+
+MiscTextContainer.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
 const BaseCourseCard = ({
   hasEmailsEnabled: defaultHasEmailsEnabled,
   title,
@@ -114,6 +145,7 @@ const BaseCourseCard = ({
   microMastersTitle,
   orgName,
   children,
+  courseInfoOutline,
   buttons,
   linkToCourse,
   externalCourseLink,
@@ -127,6 +159,7 @@ const BaseCourseCard = ({
 }) => {
   const intl = useIntl();
   const { config, authenticatedUser } = useContext(AppContext);
+  const { LEARNER_SUPPORT_SELF_PACED_COURSE_MODE_URL } = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [hasEmailsEnabled, setHasEmailsEnabled] = useState(defaultHasEmailsEnabled);
   const [emailSettingsModal, setEmailSettingsModal] = useState({
@@ -214,13 +247,9 @@ const BaseCourseCard = ({
   };
 
   const getCourseMiscText = () => {
-    const isCourseEnded = dayjs(endDate).isAfter();
     let message = '';
-    if (pacing) {
-      message += 'This course ';
-      message += isCourseEnded ? 'was ' : 'is ';
-      message += `${pacing}-paced. `;
-    }
+    message += 'This course ';
+    message += isCourseEnded(endDate) ? 'was ' : 'is ';
     return message;
   };
 
@@ -422,6 +451,12 @@ const BaseCourseCard = ({
   };
 
   const renderCourseInfoOutline = () => {
+    if (courseInfoOutline) {
+      return (
+        <> { courseInfoOutline } </>
+      );
+    }
+
     const renderedStartDate = renderStartDate();
     const renderedEndDate = renderEndDate();
     const renderedEnrollByDate = renderEnrollByDate();
@@ -503,10 +538,24 @@ const BaseCourseCard = ({
     if (!courseMiscText) {
       return null;
     }
+
+    if (pacing === COURSE_PACING.SELF) {
+      return (
+        <MiscTextContainer>
+          <span>
+            {intl.formatMessage(messages.courseMiscText, { courseMiscText })}
+            <Hyperlink destination={LEARNER_SUPPORT_SELF_PACED_COURSE_MODE_URL}>
+              {intl.formatMessage(messages.courseMiscTextPacing, { pacing })}
+            </Hyperlink>
+            .
+          </span>
+        </MiscTextContainer>
+      );
+    }
     return (
-      <small className="mb-0 mt-2">
-        {courseMiscText}
-      </small>
+      <MiscTextContainer>
+        {`${intl.formatMessage(messages.courseMiscText, { courseMiscText })}${intl.formatMessage(messages.courseMiscTextPacing, { pacing })}`}.
+      </MiscTextContainer>
     );
   };
 
@@ -603,6 +652,7 @@ BaseCourseCard.propTypes = {
   mode: PropTypes.string.isRequired,
   hasViewCertificateLink: PropTypes.bool,
   buttons: PropTypes.element,
+  courseInfoOutline: PropTypes.element,
   children: PropTypes.node,
   startDate: PropTypes.string,
   endDate: PropTypes.string,
@@ -636,6 +686,7 @@ BaseCourseCard.defaultProps = {
   orgName: null,
   pacing: null,
   buttons: null,
+  courseInfoOutline: null,
   linkToCertificate: null,
   hasViewCertificateLink: true,
   dropdownMenuItems: null,

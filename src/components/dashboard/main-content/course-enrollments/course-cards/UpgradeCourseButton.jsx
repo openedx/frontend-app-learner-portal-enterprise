@@ -50,7 +50,7 @@ const UpgradeCourseButton = ({
         onClick={handleClick}
         data-testid="upgrade-course-button"
       >
-        Upgrade
+        Upgrade for free
         <span className="sr-only">for {title}</span>
       </Button>
       <EnrollModal

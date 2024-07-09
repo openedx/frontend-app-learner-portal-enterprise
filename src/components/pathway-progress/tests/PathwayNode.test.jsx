@@ -1,8 +1,6 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import {
-  screen, render,
-} from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
@@ -43,7 +41,7 @@ describe('<PathwayNode />', () => {
     );
 
     expect(screen.getByText(pathwayNodeExtractedData.title)).toBeInTheDocument();
-    expect(screen.getByText('In Progress')).toBeInTheDocument();
+    expect(screen.getByText('In progress')).toBeInTheDocument();
     expect(screen.getByText('Resume Course')).toBeInTheDocument();
     const cardImageNode = getByAltText(pathwayNodeExtractedData.title);
     expect(cardImageNode).toHaveAttribute('src', pathwayNodeExtractedData.cardImage);

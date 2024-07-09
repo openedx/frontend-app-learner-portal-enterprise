@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useNavigate } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { FormattedMessage, defineMessages } from '@edx/frontend-platform/i18n';
+import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
+import { Stack } from '@openedx/paragon';
 import dayjs from '../../../../../utils/dayjs';
 import BaseCourseCard, { getScreenReaderText } from './BaseCourseCard';
 import { MarkCompleteModal } from './mark-complete-modal';
@@ -23,6 +24,26 @@ const messages = defineMessages({
     defaultMessage: 'Save course for later <s>for {courseTitle}</s>',
     description: 'Text for the save course for later button in the course card dropdown menu',
   },
+  upgradeCourseOriginalPrice: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.upgrade_course_original_price',
+    defaultMessage: 'Original price:',
+    description: 'Text for the course info outline upgrade original price in the course card dropdown menu',
+  },
+  upgradeCoursePriceStrikethrough: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.upgrade_course_price_strikethrough',
+    defaultMessage: '{courseRunPrice} USD',
+    description: 'Text for the course info outline price strikethrough in the course card dropdown menu',
+  },
+  upgradeCourseFree: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.upgrade_course_free',
+    defaultMessage: 'FREE',
+    description: 'Text for the course info outline upgrade "FREE" text in the course card dropdown menu',
+  },
+  upgradeCourseCoveredByOrganization: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.upgrade_course_covered_by_organization',
+    defaultMessage: 'Covered by your organization',
+    description: 'Text for the course info outline upgrade covered by organization in the course card dropdown menu',
+  },
 });
 
 export const InProgressCourseCard = ({
@@ -40,18 +61,27 @@ export const InProgressCourseCard = ({
   const {
     licenseUpgradeUrl,
     couponUpgradeUrl,
+    courseRunPrice,
   } = useCourseUpgradeData({ courseRunKey: courseRunId, mode });
   const navigate = useNavigate();
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
   const shouldShowUpgradeButton = !!couponUpgradeUrl;
-
+  const intl = useIntl();
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
   const { courseCards } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
 
   const renderButtons = () => (
-    <>
+    <Stack direction="horizontal" gap={1}>
+      {shouldShowUpgradeButton && (
+        <UpgradeCourseButton
+          variant="brand"
+          title={title}
+          courseRunKey={courseRunId}
+          mode={mode}
+        />
+      )}
       <ContinueLearningButton
         className={shouldShowUpgradeButton ? 'btn-primary' : undefined}
         linkToCourse={licenseUpgradeUrl ?? linkToCourse}
@@ -61,9 +91,28 @@ export const InProgressCourseCard = ({
         startDate={startDate}
         resumeCourseRunUrl={resumeCourseRunUrl}
       />
-      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} courseRunKey={courseRunId} mode={mode} />}
-    </>
+    </Stack>
   );
+
+  const renderCourseInfoOutline = () => {
+    if (!shouldShowUpgradeButton || !enterpriseCustomer.hideCourseOriginalPrice) {
+      return null;
+    }
+    return (
+      <Stack className="small my-2.5">
+        <div>
+          <span>
+            <b>{intl.formatMessage(messages.upgradeCourseOriginalPrice)}</b>&nbsp;
+            <s>${intl.formatMessage(messages.upgradeCoursePriceStrikethrough, { courseRunPrice: courseRunPrice || '0.00' })}</s>&nbsp;
+            <span className="text-brand font-weight-bold">
+              {intl.formatMessage(messages.upgradeCourseFree)}
+            </span>
+          </span>
+        </div>
+        <div className="x-small">{intl.formatMessage(messages.upgradeCourseCoveredByOrganization)}</div>
+      </Stack>
+    );
+  };
 
   const filteredNotifications = notifications.filter((notification) => {
     const now = dayjs();
@@ -170,6 +219,7 @@ export const InProgressCourseCard = ({
       courseRunId={courseRunId}
       mode={mode}
       startDate={startDate}
+      courseInfoOutline={renderCourseInfoOutline()}
       {...rest}
     >
       {renderNotifications()}
