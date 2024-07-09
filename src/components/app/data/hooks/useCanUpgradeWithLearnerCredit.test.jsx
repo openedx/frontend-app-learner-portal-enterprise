@@ -48,32 +48,33 @@ const mockCanRedeemData = [{
   reasons: [],
 }];
 
+const Wrapper = ({ children }) => (
+  <QueryClientProvider client={queryClient()}>
+    {children}
+  </QueryClientProvider>
+);
+
 describe('useCanUpgradeWithLearnerCredit', () => {
-  const Wrapper = ({ children }) => (
-    <QueryClientProvider client={queryClient()}>
-      {children}
-    </QueryClientProvider>
-  );
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     fetchCanRedeem.mockResolvedValue(mockCanRedeemData);
   });
-  it('should handle resolved value correctly', async () => {
-    const {
-      result,
-      waitForNextUpdate,
-    } = renderHook(() => useCanUpgradeWithLearnerCredit(mockCourseRunKey), { wrapper: Wrapper });
-    await waitForNextUpdate();
 
+  it('should handle resolved value correctly', async () => {
+    const { result, waitForNextUpdate } = renderHook(
+      () => useCanUpgradeWithLearnerCredit(mockCourseRunKey),
+      { wrapper: Wrapper },
+    );
+    await waitForNextUpdate();
     expect(result.current).toEqual(
       expect.objectContaining({
         data: {
           applicableSubsidyAccessPolicy: {
-            ...mockCanRedeemData[0],
-            listPrice: mockCanRedeemData[0].listPrice.usd,
+            ...mockCanRedeemData[0].redeemableSubsidyAccessPolicy,
             isPolicyRedemptionEnabled: true,
           },
+          listPrice: mockCanRedeemData[0].listPrice.usd,
         },
         isLoading: false,
         isFetching: false,

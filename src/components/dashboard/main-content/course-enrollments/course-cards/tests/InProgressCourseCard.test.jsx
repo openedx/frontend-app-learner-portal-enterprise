@@ -7,7 +7,12 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 
 import { InProgressCourseCard } from '../InProgressCourseCard';
-import { COURSE_MODES_MAP, useCouponCodes, useEnterpriseCustomer } from '../../../../../app/data';
+import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  COURSE_MODES_MAP,
+  useCouponCodes,
+  useEnterpriseCustomer,
+} from '../../../../../app/data';
 import { queryClient } from '../../../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 import { useCourseUpgradeData } from '../../data';
@@ -64,40 +69,39 @@ describe('<InProgressCourseCard />', () => {
     useCouponCodes.mockReturnValue({
       data: {
         couponCodeAssignments: [],
+        couponCodeRedemptionCount: 0,
       },
     });
     useCourseUpgradeData.mockReturnValue({
-      licenseUpgradeUrl: undefined,
-      couponUpgradeUrl: undefined,
-      learnerCreditUpgradeUrl: undefined,
-      subsidyForCourse: undefined,
-      courseRunPrice: undefined,
+      subsidyForCourse: null,
+      courseRunPrice: null,
+      hasUpgradeAndConfirm: false,
     });
   });
 
-  it('should not render upgrade course button if there is no couponUpgradeUrl', () => {
+  it('should not render upgrade course button when hasUpgradeAndConfirm=false', () => {
     renderWithRouter(<InProgressCourseCardWrapper {...baseProps} />);
     expect(screen.queryByTestId('upgrade-course-button')).not.toBeInTheDocument();
   });
 
-  it('should render upgrade course button if there is a couponUpgradeUrl', () => {
-    useCourseUpgradeData.mockReturnValue({
-      licenseUpgradeUrl: undefined,
-      couponUpgradeUrl: 'coupon-upgrade-url',
-      courseRunPrice: 100,
-      learnerCreditUpgradeUrl: undefined,
-      subsidyForCourse: undefined,
+  it('should render upgrade course button when hasUpgradeAndConfirm=true', () => {
+    useCouponCodes.mockReturnValue({
+      data: {
+        couponCodeAssignments: [{
+          code: 'abc123',
+        }],
+        couponCodeRedemptionCount: 1,
+      },
     });
-    renderWithRouter(<InProgressCourseCardWrapper
-      {...baseProps}
-      upgradeableCourseEnrollmentContextValue={
-        {
-          couponUpgradeUrl: 'coupon-upgrade-url',
-          courseRunPrice: 100,
-        }
-      }
-    />);
-
+    useCourseUpgradeData.mockReturnValue({
+      courseRunPrice: 100,
+      subsidyForCourse: {
+        subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+        redemptionUrl: 'coupon-upgrade-url',
+      },
+      hasUpgradeAndConfirm: true,
+    });
+    renderWithRouter(<InProgressCourseCardWrapper {...baseProps} />);
     expect(screen.getByTestId('upgrade-course-button')).toBeInTheDocument();
   });
 });

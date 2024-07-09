@@ -81,7 +81,7 @@ describe('fetchCourseMetadata', () => {
 });
 
 describe('fetchCourseRunMetadata', () => {
-  const COURSE_RUN_METADATA = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/course_runs/${mockCourseRunKey}`;
+  const COURSE_RUN_METADATA = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/course_runs/${mockCourseRunKey}/`;
   const courseRunMetadata = {
     key: mockCourseRunKey,
     title: 'edX Demonstration Course',

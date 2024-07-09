@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
@@ -20,7 +21,10 @@ import {
 import { getExpiringAssignmentsAcknowledgementState, getHasUnacknowledgedAssignments } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
+  COUPON_CODE_SUBSIDY_TYPE,
   COURSE_MODES_MAP,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
   getSubsidyToApplyForCourse,
   groupCourseEnrollmentsByStatus,
   queryEnterpriseCourseEnrollments,
@@ -125,112 +129,123 @@ export const useCourseEnrollments = ({
  * @param {String} args.mode The mode of the course. Used as a gating mechanism for upgradability
  * default: false
  * @returns {Object} {
- *     licenseUpgradeUrl: undefined,
- *     couponUpgradeUrl: undefined,
- *     learnerCreditUpgradeUrl: undefined,
  *     subsidyForCourse: undefined,
  *     courseRunPrice: undefined,
- *     }
+ *     hasUpgradeAndConfirm: false,
+ * }
  */
 export const useCourseUpgradeData = ({
   courseRunKey,
   mode,
 }) => {
   const location = useLocation();
-  // We determine whether the course mode is such that it can be upgraded
+  // Determine whether the course mode is such that it can be upgraded
   const canUpgradeToVerifiedEnrollment = [COURSE_MODES_MAP.AUDIT, COURSE_MODES_MAP.HONOR].includes(mode);
   const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
+  const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey], {
+    enabled: canUpgradeToVerifiedEnrollment,
+  });
 
-  // TODO: Remove authenticatedUser?.administrator flag when rolling out ENT-9135
+  // TODO: Remove `isLearnerCreditUpgradeEnabled` flag when rolling out ENT-9135
   // Metadata required to allow upgrade via applicable learner credit
-  const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(
-    [courseRunKey],
-    { enabled: authenticatedUser?.administrator && canUpgradeToVerifiedEnrollment },
-  );
+  const isLearnerCreditUpgradeEnabled = authenticatedUser.administrator || hasFeatureFlagEnabled('LEARNER_CREDIT_AUDIT_UPGRADE');
+  const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(courseRunKey, {
+    enabled: isLearnerCreditUpgradeEnabled && canUpgradeToVerifiedEnrollment,
+  });
 
   // Metadata required to allow upgrade via applicable subscription license
-  const { data: { subscriptionLicense: applicableSubscriptionLicense } } = useSubscriptions(
-    { enabled: customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment },
-  );
+  const { data: subscriptions } = useSubscriptions({
+    enabled: !!customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment,
+  });
 
-  // Metadata required to allow upgrade via applicable coupon codes
+  // Metadata required to allow upgrade via applicable coupon code
   const { data: couponCodesMetadata } = useCouponCodes({
     select: (data) => ({
       applicableCouponCode: findCouponCodeForCourse(data.couponCodeAssignments, customerContainsContent?.catalogList),
     }),
-    enabled: canUpgradeToVerifiedEnrollment,
+    enabled: !!customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment,
   });
-  // If coupon codes are not eligible, there is no need to make this call
+
+  // If coupon codes are not eligible, there is no need to make an API call to get the course run product SKU
   const { data: courseRunDetails } = useCourseRunMetadata(courseRunKey, {
     select: (data) => ({
       ...data,
       sku: findHighestLevelSeatSku(data.seats),
-      code: data.code,
     }),
-    enabled: !couponCodesMetadata.applicableCouponCode && canUpgradeToVerifiedEnrollment,
+    enabled: !couponCodesMetadata?.applicableCouponCode && canUpgradeToVerifiedEnrollment,
   });
 
   return useMemo(() => {
     const defaultReturn = {
-      licenseUpgradeUrl: undefined,
-      couponUpgradeUrl: undefined,
-      learnerCreditUpgradeUrl: undefined,
-      subsidyForCourse: undefined,
-      courseRunPrice: undefined,
+      subsidyForCourse: null,
+      courseRunPrice: null,
+      hasUpgradeAndConfirm: false,
     };
 
-    // Exit early if the content to upgrade is not contained in the customers content or
-    // if they are unable to upgrade due to their course mode
-    if (!customerContainsContent?.containsContentItems || !canUpgradeToVerifiedEnrollment) {
+    // Return early if the user is unable to upgrade to their course mode OR the content
+    // to upgrade is not contained in the customer's content catalog(s).
+    if (!(canUpgradeToVerifiedEnrollment || customerContainsContent?.containsContentItems)) {
+      return defaultReturn;
+    }
+
+    // Determine applicable subsidy, if any, based on priority order of subsidy types.
+    const applicableSubsidy = getSubsidyToApplyForCourse({
+      applicableSubscriptionLicense: subscriptions?.subscriptionLicense,
+      applicableCouponCode: couponCodesMetadata?.applicableCouponCode,
+      applicableSubsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy,
+    });
+
+    // No applicable subsidy found, return early.
+    if (!applicableSubsidy) {
       return defaultReturn;
     }
 
     // Construct and return subscription based upgrade url
-    if (applicableSubscriptionLicense) {
+    if (applicableSubsidy.subsidyType === LICENSE_SUBSIDY_TYPE) {
+      applicableSubsidy.redemptionUrl = createEnrollWithLicenseUrl({
+        courseRunKey,
+        enterpriseId: enterpriseCustomer.uuid,
+        licenseUUID: subscriptions.subscriptionLicense.uuid,
+        location,
+      });
       return {
         ...defaultReturn,
-        subsidyForCourse: getSubsidyToApplyForCourse({ applicableSubscriptionLicense }),
-        licenseUpgradeUrl: createEnrollWithLicenseUrl({
-          courseRunKey,
-          enterpriseId: enterpriseCustomer.uuid,
-          licenseUUID: applicableSubscriptionLicense.uuid,
-          location,
-        }),
+        subsidyForCourse: applicableSubsidy,
       };
     }
 
     // Construct and return coupon code based upgrade url
-    if (couponCodesMetadata?.applicableCouponCode) {
-      const { applicableCouponCode } = couponCodesMetadata;
+    if (applicableSubsidy.subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
+      applicableSubsidy.redemptionUrl = createEnrollWithCouponCodeUrl({
+        courseRunKey,
+        sku: courseRunDetails.sku,
+        code: applicableSubsidy.code,
+        location,
+      });
       return {
         ...defaultReturn,
-        subsidyForCourse: getSubsidyToApplyForCourse({ applicableCouponCode }),
-        couponUpgradeUrl: createEnrollWithCouponCodeUrl({
-          courseRunKey,
-          sku: courseRunDetails.sku,
-          code: applicableCouponCode.code,
-          location,
-        }),
+        subsidyForCourse: applicableSubsidy,
         courseRunPrice: courseRunDetails.firstEnrollablePaidSeatPrice,
+        hasUpgradeAndConfirm: true,
       };
     }
 
     // Construct and return learner credit based upgrade url
-    if (learnerCreditMetadata?.applicableSubsidyAccessPolicy?.canRedeem) {
-      const { applicableSubsidyAccessPolicy } = learnerCreditMetadata;
+    if (applicableSubsidy.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
+      applicableSubsidy.redemptionUrl = learnerCreditMetadata.applicableSubsidyAccessPolicy.policyRedemptionUrl;
       return {
         ...defaultReturn,
-        subsidyForCourse: getSubsidyToApplyForCourse({ applicableSubsidyAccessPolicy }),
-        learnerCreditUpgradeUrl: applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+        subsidyForCourse: applicableSubsidy,
+        courseRunPrice: learnerCreditMetadata.listPrice,
+        hasUpgradeAndConfirm: true,
       };
     }
 
-    // If none is applicable, return with defaultReturn values
+    // If no subsidy type is applicable, return with default values
     return defaultReturn;
   }, [
-    applicableSubscriptionLicense,
+    subscriptions?.subscriptionLicense,
     canUpgradeToVerifiedEnrollment,
     couponCodesMetadata,
     courseRunDetails?.firstEnrollablePaidSeatPrice,
