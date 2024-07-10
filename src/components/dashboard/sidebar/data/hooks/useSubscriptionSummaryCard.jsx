@@ -10,7 +10,7 @@ import {
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
 } from '../constants';
 import { SUBSCRIPTION_DAYS_REMAINING_SEVERE } from '../../../../../config/constants';
-import { il8nFormatTimestamp } from '../../../../../utils/common';
+import { i18nFormatTimestamp } from '../../../../../utils/common';
 import SubscriptionExpirationWarningModal from '../../../../program-progress/SubscriptionExpiringWarningModal';
 
 const getBadgeVariantAndLabel = ({
@@ -78,7 +78,7 @@ const getSubscriptionExpirationDate = ({ intl, subscriptions, messages }) => {
     return null;
   }
 
-  const formattedDate = il8nFormatTimestamp({
+  const formattedDate = i18nFormatTimestamp({
     intl,
     timestamp: subscriptionPlan.expirationDate,
   });
@@ -110,7 +110,9 @@ const getProgramProgressSubscriptionExpirationWarningModal = ({
   courseEndDate,
 }) => {
   const { subscriptionPlan, showExpirationNotifications } = subscriptions;
-  if (!showExpirationNotifications && !(courseEndDate > subscriptionPlan?.expirationDate)) {
+  if (
+    !subscriptionPlan || !(showExpirationNotifications || courseEndDate > subscriptionPlan?.expirationDate)
+  ) {
     return null;
   }
   return (

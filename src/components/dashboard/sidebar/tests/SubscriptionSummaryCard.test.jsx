@@ -141,7 +141,7 @@ describe('<SubscriptionSummaryCard />', () => {
 
     renderWithRouter(
       <IntlProvider locale="en">
-        <SubscriptionSummaryCard programProgressPage />
+        <SubscriptionSummaryCard programProgressPage courseEndDate={licenseRequest.courseEndDate} />
       </IntlProvider>,
     );
     expect(screen.queryByText(LICENSE_REQUESTED_NOTICE)).toBeTruthy();

@@ -1,13 +1,14 @@
 import { Badge, Card } from '@openedx/paragon';
 
-import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import dayjs from '../../utils/dayjs';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { useHasAvailableSubsidiesOrRequests, useSubscriptions } from '../app/data';
+import { i18nFormatTimestamp } from '../../utils/common';
 
 const SubscriptionStatusCard = () => {
   const { hasActiveLicenseOrLicenseRequest } = useHasAvailableSubsidiesOrRequests();
   const { data: { subscriptionPlan } } = useSubscriptions();
   const expirationDate = subscriptionPlan?.expirationDate;
+  const intl = useIntl();
 
   return (
     <div className="row-cols-3 subscription-status-card">
@@ -50,7 +51,7 @@ const SubscriptionStatusCard = () => {
                 values={{
                   expiryDate: (
                     <span className="font-weight-bold">
-                      {dayjs(expirationDate).format('MMM D, YYYY')}
+                      {i18nFormatTimestamp({ intl, timestamp: expirationDate })}
                     </span>
                   ),
                 }}

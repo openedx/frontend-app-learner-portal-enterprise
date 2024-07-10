@@ -2,11 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge, Card, Stack } from '@openedx/paragon';
 import dayjs from 'dayjs';
-import {
-  defineMessages, FormattedDate, FormattedMessage, useIntl,
-} from '@edx/frontend-platform/i18n';
+import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { useEnterpriseCustomer } from '../../app/data';
 import { BUDGET_STATUSES } from '../data/constants';
+import { i18nFormatTimestamp } from '../../../utils/common';
 
 const badgeStatusMessages = defineMessages({
   active: {
@@ -134,7 +133,7 @@ const LearnerCreditSummaryCard = ({
           )}
         </p>
 
-        {(expirationDate && !disableExpiryMessagingForLearnerCredit) && (
+        {!disableExpiryMessagingForLearnerCredit && (
           <p className="mb-0" data-testid="learner-credit-summary-end-date-text">
             {isBudgetExpired ? (
               <FormattedMessage
@@ -143,14 +142,7 @@ const LearnerCreditSummaryCard = ({
                 description="Subsidy expired date for the learner credit summary card on the enterprise dashboard sidebar."
                 values={{
                   subsidyExpiryDate: (
-                    <b>
-                      <FormattedDate
-                        value={expirationDate}
-                        year="numeric"
-                        month="short"
-                        day="numeric"
-                      />
-                    </b>
+                    <b>{i18nFormatTimestamp({ intl, timestamp: expirationDate })}</b>
                   ),
                 }}
               />
@@ -161,14 +153,7 @@ const LearnerCreditSummaryCard = ({
                 description="Subsidy expiration date for the learner credit summary card on the enterprise dashboard sidebar."
                 values={{
                   subsidyExpiryDate: (
-                    <b>
-                      <FormattedDate
-                        value={expirationDate}
-                        year="numeric"
-                        month="short"
-                        day="numeric"
-                      />
-                    </b>
+                    <b>{i18nFormatTimestamp({ intl, timestamp: expirationDate })}</b>
                   ),
                 }}
               />

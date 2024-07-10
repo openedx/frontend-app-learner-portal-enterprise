@@ -184,7 +184,7 @@ export function isTodayWithinDateThreshold({ date, days }) {
  * @param formatOpts
  * @returns {String}
  */
-export function il8nFormatTimestamp({ intl, timestamp, formatOpts = {} }) {
+export function i18nFormatTimestamp({ intl, timestamp, formatOpts = {} }) {
   return intl.formatDate(timestamp, {
     year: 'numeric',
     month: 'short',
