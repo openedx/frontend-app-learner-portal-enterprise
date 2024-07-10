@@ -2,11 +2,12 @@ import React, { useContext } from 'react';
 import { MailtoLink, Modal } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import { useIntl } from '@edx/frontend-platform/i18n';
 import dayjs from '../../utils/dayjs';
 
 import { SUBSCRIPTION_DAYS_REMAINING_EXCEPTIONAL, SUBSCRIPTION_DAYS_REMAINING_SEVERE } from '../../config/constants';
 
-import { getContactEmail } from '../../utils/common';
+import { getContactEmail, i18nFormatTimestamp } from '../../utils/common';
 import { useEnterpriseCustomer, useSubscriptions } from '../app/data';
 import { EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY, EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY } from './data';
 
@@ -14,14 +15,15 @@ export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
 export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
 export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your subscription is expiring';
 
+// TODO: Still requires internationalization refactor
 const SubscriptionExpirationModal = () => {
   const {
     config,
     authenticatedUser: { username },
   } = useContext(AppContext);
 
+  const intl = useIntl();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-
   const { data: subscriptions } = useSubscriptions();
   const { subscriptionPlan, subscriptionLicense } = subscriptions;
   const {
@@ -104,7 +106,7 @@ const SubscriptionExpirationModal = () => {
         If you think this is an error or need help, {renderContactText()}.
       </p>
       <i>
-        Access expires on {dayjs(expirationDate).format('MMMM Do, YYYY')}.
+        Access expires on {i18nFormatTimestamp({ intl, timestamp: expirationDate })}.
       </i>
     </>
   );
@@ -123,7 +125,7 @@ const SubscriptionExpirationModal = () => {
         If you think this is an error or need help, {renderContactText()}.
       </p>
       <i>
-        Access expired on {dayjs(expirationDate).format('MMMM Do, YYYY')}.
+        Access expired on {dayjs(expirationDate).format('MMM D, YYYY')}.
       </i>
     </>
   );

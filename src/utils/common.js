@@ -165,3 +165,30 @@ export function isTodayWithinDateThreshold({ date, days }) {
   const offsetDays = dateToCheck.subtract(days, 'days');
   return today.isBetween(offsetDays, dateToCheck);
 }
+
+/**
+ * Returns a formatted date in the following format:
+ *
+ * Passed Date: 2024-07-18T16:00:00Z
+ *
+ * Formatted Date: July 18, 2024
+ *
+ * The following parameters can be overridden to modify the date:
+ *  - year
+ *  - month
+ *  - day
+ *
+ *  See {@link https://formatjs.io/docs/react-intl/api/#formatdate} for information
+ * @param intl
+ * @param timestamp
+ * @param formatOpts
+ * @returns {String}
+ */
+export function i18nFormatTimestamp({ intl, timestamp, formatOpts = {} }) {
+  return intl.formatDate(timestamp, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    ...formatOpts,
+  });
+}

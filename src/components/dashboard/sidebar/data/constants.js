@@ -24,7 +24,7 @@ export const SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL = 'Expiring Soon';
 // SubscriptionSummaryCard badge variants
 export const SUBSCRIPTION_ACTIVE_BADGE_VARIANT = 'success';
 export const SUBSCRIPTION_WARNING_BADGE_VARIANT = 'warning';
-export const SUBSCRIPTION_EXPIRED_BADGE_VARIANT = 'danger';
+export const SUBSCRIPTION_EXPIRED_BADGE_VARIANT = 'light';
 export const LICENSE_REQUESTED_BADGE_VARIANT = 'warning';
 // SubscriptionSummaryCard expiration date prefixes
 export const SUBSCRIPTION_ACTIVE_DATE_PREFIX = 'Available until';

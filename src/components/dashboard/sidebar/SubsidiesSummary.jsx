@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import PropTypes from 'prop-types';
-import { Button } from '@openedx/paragon';
+import { Button, Card } from '@openedx/paragon';
 import classNames from 'classnames';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import LearnerCreditSummaryCard from './LearnerCreditSummaryCard';
-import SidebarCard from './SidebarCard';
 import {
   useAcademies,
   useBrowseAndRequest,
@@ -18,11 +17,58 @@ import {
   useEnterpriseOffers,
   useHasAvailableSubsidiesOrRequests,
   useIsAssignmentsOnlyLearner,
-  useSubscriptions,
 } from '../../app/data';
 import { COURSE_STATUSES } from '../../../constants';
 import { getStatusMetadata } from '../data/utils';
 import useExpirationMetadata from '../../budget-expiry-notification/data/hooks/useExpirationMetadata';
+
+const SearchCoursesCta = ({
+  ctaButtonVariant,
+  showSearchCoursesCta,
+  isProgramProgressPage,
+}) => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: academies } = useAcademies();
+  const isOneAcademy = enterpriseCustomer?.enableOneAcademy;
+
+  if (enterpriseCustomer.disableSearch || !showSearchCoursesCta || isProgramProgressPage) {
+    return null;
+  }
+
+  const ctaLinkDestination = isOneAcademy && academies[0]?.uuid ? `academies/${academies[0]?.uuid}` : 'search';
+
+  return (
+    <Card.Section>
+      <Button
+        as={Link}
+        to={`/${enterpriseCustomer.slug}/${ctaLinkDestination}`}
+        variant={ctaButtonVariant}
+        block
+      >
+        {isOneAcademy ? (
+          <FormattedMessage
+            id="enterprise.dashboard.sidebar.subsidy.go.to.academy.button"
+            defaultMessage="Go to Academy"
+            description="Button text for the go to academy button on the enterprise dashboard sidebar."
+          />
+        )
+          : (
+            <FormattedMessage
+              id="enterprise.dashboard.sidebar.subsidy.find.course.button"
+              defaultMessage="Find a course"
+              description="Button text for the find a course button on the enterprise dashboard sidebar."
+            />
+          )}
+      </Button>
+    </Card.Section>
+  );
+};
+
+SearchCoursesCta.propTypes = {
+  ctaButtonVariant: PropTypes.string.isRequired,
+  showSearchCoursesCta: PropTypes.bool.isRequired,
+  isProgramProgressPage: PropTypes.bool.isRequired,
+};
 
 const SubsidiesSummary = ({
   className,
@@ -31,10 +77,7 @@ const SubsidiesSummary = ({
   courseEndDate,
   programProgressPage,
 }) => {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: { allEnrollmentsByStatus } } = useEnterpriseCourseEnrollments();
-
-  const { data: subscriptions } = useSubscriptions();
   const { data: couponCodes } = useCouponCodes();
   const { data: enterpriseOffersData } = useEnterpriseOffers();
   const { data: { requests } } = useBrowseAndRequest();
@@ -45,11 +88,13 @@ const SubsidiesSummary = ({
     hasActiveLicenseOrLicenseRequest,
     learnerCreditSummaryCardData,
   } = useHasAvailableSubsidiesOrRequests();
+  const hasApplicableLearnerCredit = (
+    enterpriseOffersData.canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies
+  ) && !!learnerCreditSummaryCardData.expirationDate;
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const { isPlanApproachingExpiry } = useExpirationMetadata(
     learnerCreditSummaryCardData?.expirationDate,
   );
-  const { data: academies } = useAcademies();
   const learnerCreditStatusMetadata = getStatusMetadata({
     isPlanApproachingExpiry,
     endDateStr: learnerCreditSummaryCardData?.expirationDate,
@@ -72,51 +117,15 @@ const SubsidiesSummary = ({
     return null;
   }
 
-  const isOneAcademy = enterpriseCustomer?.enableOneAcademy;
-  const searchCoursesCta = (
-    !programProgressPage && !enterpriseCustomer.disableSearch && showSearchCoursesCta && (
-      <Button
-        as={Link}
-        to={(isOneAcademy && academies?.[0]?.uuid)
-          ? `/${enterpriseCustomer.slug}/academies/${academies[0].uuid}`
-          : `/${enterpriseCustomer.slug}/search`}
-        variant={ctaButtonVariant}
-        block
-      >
-        {
-          isOneAcademy ? (
-            <FormattedMessage
-              id="enterprise.dashboard.sidebar.subsidy.go.to.academy.button"
-              defaultMessage="Go to Academy"
-              description="Button text for the go to academy button on the enterprise dashboard sidebar."
-            />
-          )
-            : (
-              <FormattedMessage
-                id="enterprise.dashboard.sidebar.subsidy.find.course.button"
-                defaultMessage="Find a course"
-                description="Button text for the find a course button on the enterprise dashboard sidebar."
-              />
-            )
-        }
-      </Button>
-    )
-  );
-
   return (
-    // TODO: Design debt, don't have cards in a card
-    <SidebarCard
-      cardSectionClassNames="border-0 shadow-none p-0"
-      cardClassNames={classNames('mb-5', { 'col-8 border-0 shadow-none': programProgressPage })}
+    <Card
+      className={classNames('mb-5', { 'col-8 border-0 shadow-none': programProgressPage })}
     >
       <div className={className} data-testid="subsidies-summary">
         {hasActiveLicenseOrLicenseRequest && (
           <SubscriptionSummaryCard
-            subscriptionPlan={subscriptions.subscriptionPlan}
-            licenseRequest={requests.subscriptionLicenses[0]}
             courseEndDate={courseEndDate}
             programProgressPage={programProgressPage}
-            className="border-0 shadow-none"
           />
         )}
         {hasAssignedCodesOrCodeRequests && (
@@ -125,28 +134,24 @@ const SubsidiesSummary = ({
             couponCodeRequestsCount={requests.couponCodes.length}
             totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
             programProgressPage={programProgressPage}
-            className="border-0 shadow-none"
           />
         )}
-        {(enterpriseOffersData.canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies)
-          && learnerCreditSummaryCardData?.expirationDate && (
+        {hasApplicableLearnerCredit && (
           <LearnerCreditSummaryCard
-            className="border-0 shadow-none"
             expirationDate={learnerCreditSummaryCardData.expirationDate}
             assignmentOnlyLearner={isAssignmentOnlyLearner}
             statusMetadata={learnerCreditStatusMetadata}
           />
         )}
       </div>
-      {(searchCoursesCta && !isAssignmentOnlyLearner) && (
-        <SidebarCard
-          cardClassNames="border-0 shadow-none"
-          cardSectionClassNames="pt-0"
-        >
-          {searchCoursesCta}
-        </SidebarCard>
+      {!isAssignmentOnlyLearner && (
+        <SearchCoursesCta
+          ctaButtonVariant={ctaButtonVariant}
+          isProgramProgressPage={programProgressPage}
+          showSearchCoursesCta={showSearchCoursesCta}
+        />
       )}
-    </SidebarCard>
+    </Card>
   );
 };
 
