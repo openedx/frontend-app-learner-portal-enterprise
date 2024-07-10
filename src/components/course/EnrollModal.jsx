@@ -51,6 +51,7 @@ export const MODAL_TEXTS = {
   HAS_LEARNER_CREDIT: {
     Body: () => (
       <>
+        {/* TODO: i18n */}
         <p>This course is covered by your organization, which allows you to upgrade for free.</p>
         <p>By upgrading, you will get:</p>
         <ul className="list-unstyled">
