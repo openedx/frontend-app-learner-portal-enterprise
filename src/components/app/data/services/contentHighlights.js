@@ -2,7 +2,7 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
 
-import MAX_HIGHLIGHT_SETS from '../constants';
+import { MAX_HIGHLIGHT_SETS } from '../constants';
 import { fetchPaginatedData } from './utils';
 
 /**
