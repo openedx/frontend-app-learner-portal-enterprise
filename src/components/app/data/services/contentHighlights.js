@@ -37,6 +37,7 @@ export async function fetchEnterpriseCuration(enterpriseUUID, options = {}) {
 export async function fetchContentHighlights(enterpriseUUID, options = {}) {
   const queryParams = new URLSearchParams({
     enterprise_customer: enterpriseUUID,
+    page_size: 12,
     ...options,
   });
   const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/highlight-sets/?${queryParams.toString()}`;
