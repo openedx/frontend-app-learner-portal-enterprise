@@ -41,6 +41,7 @@ import {
 } from '../../../../app/data';
 import { sortAssignmentsByAssignmentStatus, sortedEnrollmentsByEnrollmentDate } from './utils';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../data/constants';
+import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 
 export const useCourseEnrollments = ({
   enterpriseUUID,
@@ -155,25 +156,32 @@ export const useCourseUpgradeData = ({
   });
 
   // Metadata required to allow upgrade via applicable subscription license
-  const { data: subscriptions } = useSubscriptions({
+  const { data: subscriptionLicense } = useSubscriptions({
+    select: (data) => {
+      const license = data?.subscriptionLicense;
+      const isLicenseActivated = !!license?.status === LICENSE_STATUS.ACTIVATED;
+      const isSubscriptionPlanCurrent = !!license?.subscriptionPlan.isCurrent;
+      if (!isLicenseActivated || !isSubscriptionPlanCurrent) {
+        return null;
+      }
+      return license;
+    },
     enabled: !!customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment,
   });
 
   // Metadata required to allow upgrade via applicable coupon code
-  const { data: couponCodesMetadata } = useCouponCodes({
-    select: (data) => ({
-      applicableCouponCode: findCouponCodeForCourse(data.couponCodeAssignments, customerContainsContent?.catalogList),
-    }),
+  const { data: applicableCouponCode } = useCouponCodes({
+    select: (data) => findCouponCodeForCourse(data.couponCodeAssignments, customerContainsContent?.catalogList),
     enabled: !!customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment,
   });
 
-  // If coupon codes are not eligible, there is no need to make an API call to get the course run product SKU
+  // If coupon codes are eligible, retrieve the course run's product SKU metadata from API
   const { data: courseRunDetails } = useCourseRunMetadata(courseRunKey, {
     select: (data) => ({
       ...data,
       sku: findHighestLevelSeatSku(data.seats),
     }),
-    enabled: !couponCodesMetadata?.applicableCouponCode && canUpgradeToVerifiedEnrollment,
+    enabled: !!applicableCouponCode && canUpgradeToVerifiedEnrollment,
   });
 
   return useMemo(() => {
@@ -185,14 +193,14 @@ export const useCourseUpgradeData = ({
 
     // Return early if the user is unable to upgrade to their course mode OR the content
     // to upgrade is not contained in the customer's content catalog(s).
-    if (!(canUpgradeToVerifiedEnrollment || customerContainsContent?.containsContentItems)) {
+    if (!canUpgradeToVerifiedEnrollment || !customerContainsContent?.containsContentItems) {
       return defaultReturn;
     }
 
     // Determine applicable subsidy, if any, based on priority order of subsidy types.
     const applicableSubsidy = getSubsidyToApplyForCourse({
-      applicableSubscriptionLicense: subscriptions?.subscriptionLicense,
-      applicableCouponCode: couponCodesMetadata?.applicableCouponCode,
+      applicableSubscriptionLicense: subscriptionLicense,
+      applicableCouponCode,
       applicableSubsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy,
     });
 
@@ -206,7 +214,7 @@ export const useCourseUpgradeData = ({
       applicableSubsidy.redemptionUrl = createEnrollWithLicenseUrl({
         courseRunKey,
         enterpriseId: enterpriseCustomer.uuid,
-        licenseUUID: subscriptions.subscriptionLicense.uuid,
+        licenseUUID: subscriptionLicense.uuid,
         location,
       });
       return {
@@ -219,14 +227,14 @@ export const useCourseUpgradeData = ({
     if (applicableSubsidy.subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
       applicableSubsidy.redemptionUrl = createEnrollWithCouponCodeUrl({
         courseRunKey,
-        sku: courseRunDetails.sku,
+        sku: courseRunDetails?.sku,
         code: applicableSubsidy.code,
         location,
       });
       return {
         ...defaultReturn,
         subsidyForCourse: applicableSubsidy,
-        courseRunPrice: courseRunDetails.firstEnrollablePaidSeatPrice,
+        courseRunPrice: courseRunDetails?.firstEnrollablePaidSeatPrice,
         hasUpgradeAndConfirm: true,
       };
     }
@@ -245,9 +253,9 @@ export const useCourseUpgradeData = ({
     // If no subsidy type is applicable, return with default values
     return defaultReturn;
   }, [
-    subscriptions?.subscriptionLicense,
+    subscriptionLicense,
     canUpgradeToVerifiedEnrollment,
-    couponCodesMetadata,
+    applicableCouponCode,
     courseRunDetails?.firstEnrollablePaidSeatPrice,
     courseRunDetails?.sku,
     courseRunKey,

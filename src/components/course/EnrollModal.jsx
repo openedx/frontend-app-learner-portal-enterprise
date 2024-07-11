@@ -4,17 +4,95 @@ import {
   ActionRow, AlertModal, Button, Icon, Spinner, Stack,
 } from '@openedx/paragon';
 import { Check } from '@openedx/paragon/icons';
+import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platform/i18n';
+import { v4 as uuidv4 } from 'uuid';
 
 import { ENTERPRISE_OFFER_TYPE } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../app/data';
 
-export const createUseCouponCodeText = couponCodesCount => `You are about to redeem 1 enrollment code from your ${couponCodesCount} remaining codes.`;
+const messages = defineMessages({
+  enrollModalConfirmCta: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.enroll.text',
+    defaultMessage: 'Enroll',
+    description: 'Text for the enroll button in the confirmation modal',
+  },
+  upgradeModalConfirmCta: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text',
+    defaultMessage: 'Confirm upgrade',
+    description: 'Text for the upgrade button in the confirmation modal',
+  },
+  modalCancelCta: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.cancel.text',
+    defaultMessage: 'Cancel',
+    description: 'Text for the cancel button in the confirmation modal',
+  },
+  couponCodeModalTitle: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.titles.coupon-code',
+    defaultMessage: 'Use enrollment code for this course?',
+    description: 'Title for the confirmation modal when using a coupon code',
+  },
+  enterpriseOfferModalTitle: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.titles.enterprise-offer',
+    defaultMessage: 'Use learner credit for this course?', // refers to *legacy* learner credit
+    description: 'Title for the confirmation modal when using an enterprise offer',
+  },
+  learnerCreditModalTitle: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.titles.learner-credit',
+    defaultMessage: 'Upgrade for free',
+    description: 'Title for the confirmation modal when using a learner credit',
+  },
+  couponCodesUsage: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.text.coupon-codes-usage',
+    defaultMessage: 'You are about to redeem an enrollment code from your {couponCodesCount} remaining codes.',
+    description: 'Text for the confirmation modal when using a coupon code',
+  },
+  enterpriseOfferUsageWithPrice: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.text.enterprise-offer-usage.with-price',
+    defaultMessage: 'You are about to redeem {courseRunPrice} from your learner credit. This action cannot be reversed.',
+    description: 'Text for the confirmation modal when using an enterprise offer with a price',
+  },
+  enterpriseOfferUsageWithoutPrice: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.text.enterprise-offer-usage.without-price',
+    defaultMessage: 'You are about to redeem 1 learner credit. This action cannot be reversed.',
+    description: 'Text for the confirmation modal when using an enterprise offer with a limit',
+  },
+  upgradeCoveredByOrg: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.text.upgrade-covered-by-org',
+    defaultMessage: 'This course is covered by your organization, which allows you to upgrade for free.',
+    description: 'Text for the confirmation modal when upgrading is covered by the organization',
+  },
+  upgradeBenefitsPrefix: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.list-items.prefix',
+    defaultMessage: 'By upgrading, you will get:',
+    description: 'Prefix for the list of benefits of upgrading',
+  },
+  upgradeBenefitsUnlimitedAccess: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.list-items.unlimited-access',
+    defaultMessage: 'Unlimited access to course materials',
+    description: 'List item for the benefits of upgrading, including unlimited access.',
+  },
+  upgradeBenefitsFeedbackAndGradedAssignments: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.list-items.feedback-graded-assignments',
+    defaultMessage: 'Feedback and graded assignments',
+    description: 'List item for the benefits of upgrading, including feedback.',
+  },
+  upgradeBenefitsShareableCertificate: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.list-items.shareable-certificate',
+    defaultMessage: 'Shareable certificate upon completion',
+    description: 'List item for the benefits of upgrading, including a shareable certificate.',
+  },
+  confirmationCtaLoading: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.loading',
+    defaultMessage: 'Loading...',
+    description: 'Text for the confirmation button in the modal when loading',
+  },
+});
 
-export const createUseEnterpriseOfferText = (offer, courseRunPrice) => {
-  if (offer.offerType === ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT) {
-    return 'You are about to redeem 1 learner credit. This action cannot be reversed.';
+export const createUseEnterpriseOfferText = (offerType, courseRunPrice) => {
+  if (offerType !== ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT && courseRunPrice) {
+    return messages.enterpriseOfferUsageWithPrice;
   }
-  return `You are about to redeem $${courseRunPrice} from your learner credit. This action cannot be reversed.`;
+  return messages.enterpriseOfferUsageWithoutPrice;
 };
 
 const UpgradeConfirmationModalListItem = ({
@@ -39,75 +117,90 @@ UpgradeConfirmationModalListItem.defaultProps = {
 
 export const MODAL_TEXTS = {
   HAS_COUPON_CODE: {
-    body: (couponCodesCount) => createUseCouponCodeText(couponCodesCount),
-    button: 'Enroll',
-    title: 'Use 1 enrollment code for this course?',
+    body: messages.couponCodesUsage,
+    button: messages.enrollModalConfirmCta,
+    title: messages.couponCodeModalTitle,
   },
   HAS_ENTERPRISE_OFFER: {
-    body: (offer, courseRunPrice) => createUseEnterpriseOfferText(offer, courseRunPrice),
-    button: 'Enroll',
-    title: 'Use learner credit for this course?', // refers to *legacy* learner credit
+    body: createUseEnterpriseOfferText,
+    button: messages.enrollModalConfirmCta,
+    title: messages.enterpriseOfferModalTitle,
   },
   HAS_LEARNER_CREDIT: {
-    Body: () => (
-      <>
-        {/* TODO: i18n */}
-        <p>This course is covered by your organization, which allows you to upgrade for free.</p>
-        <p>By upgrading, you will get:</p>
-        <ul className="list-unstyled">
-          <Stack gap={1}>
-            <UpgradeConfirmationModalListItem>
-              Unlimited access to course materials
-            </UpgradeConfirmationModalListItem>
-            <UpgradeConfirmationModalListItem>
-              Feedback and graded assignments
-            </UpgradeConfirmationModalListItem>
-            <UpgradeConfirmationModalListItem>
-              Shareable certifcate upon completion
-            </UpgradeConfirmationModalListItem>
-          </Stack>
-        </ul>
-      </>
-    ),
+    Body: () => {
+      const listItems = [
+        <FormattedMessage {...messages.upgradeBenefitsUnlimitedAccess} />,
+        <FormattedMessage {...messages.upgradeBenefitsFeedbackAndGradedAssignments} />,
+        <FormattedMessage {...messages.upgradeBenefitsShareableCertificate} />,
+      ];
+      return (
+        <>
+          <p><FormattedMessage {...messages.upgradeCoveredByOrg} /></p>
+          <p><FormattedMessage {...messages.upgradeBenefitsPrefix} /></p>
+          <ul className="list-unstyled">
+            <Stack gap={1}>
+              {listItems.map((listItem) => (
+                <UpgradeConfirmationModalListItem key={uuidv4()}>
+                  {listItem}
+                </UpgradeConfirmationModalListItem>
+              ))}
+            </Stack>
+          </ul>
+        </>
+      );
+    },
     // TODO: button text should be stateful to account for async loading
-    button: 'Confirm upgrade',
-    title: 'Upgrade for free',
+    button: messages.upgradeModalConfirmCta,
+    title: messages.learnerCreditModalTitle,
   },
 };
 
-const getModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, courseRunPrice }) => {
-  const { HAS_COUPON_CODE, HAS_ENTERPRISE_OFFER, HAS_LEARNER_CREDIT } = MODAL_TEXTS;
+const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, courseRunPrice }) => {
+  const intl = useIntl();
+  const {
+    HAS_COUPON_CODE,
+    HAS_ENTERPRISE_OFFER,
+    HAS_LEARNER_CREDIT,
+  } = MODAL_TEXTS;
   const { subsidyType } = userSubsidyApplicableToCourse || {};
 
   if (subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
     return {
       paymentRequiredForCourse: false,
-      buttonText: HAS_COUPON_CODE.button,
-      enrollText: HAS_COUPON_CODE.body(couponCodesCount),
-      titleText: HAS_COUPON_CODE.title,
+      buttonText: intl.formatMessage(HAS_COUPON_CODE.button),
+      enrollText: intl.formatMessage(HAS_COUPON_CODE.body, { couponCodesCount }),
+      titleText: intl.formatMessage(HAS_COUPON_CODE.title),
     };
   }
 
   if (subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
     return {
       paymentRequiredForCourse: false,
-      buttonText: HAS_ENTERPRISE_OFFER.button,
-      enrollText: HAS_ENTERPRISE_OFFER.body(userSubsidyApplicableToCourse, courseRunPrice),
-      titleText: HAS_ENTERPRISE_OFFER.title,
+      buttonText: intl.formatMessage(HAS_ENTERPRISE_OFFER.button),
+      enrollText: intl.formatMessage(
+        HAS_ENTERPRISE_OFFER.body(userSubsidyApplicableToCourse.offerType, courseRunPrice),
+        { courseRunPrice: `$${courseRunPrice}` },
+      ),
+      titleText: intl.formatMessage(HAS_ENTERPRISE_OFFER.title),
     };
   }
 
   if (subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
     return {
       paymentRequiredForCourse: false,
-      buttonText: HAS_LEARNER_CREDIT.button,
-      enrollText: <HAS_LEARNER_CREDIT.Body />, // TODO: determine whether this pattern/convention still makes sense
-      titleText: HAS_LEARNER_CREDIT.title,
+      buttonText: intl.formatMessage(HAS_LEARNER_CREDIT.button),
+      enrollText: <HAS_LEARNER_CREDIT.Body />,
+      titleText: intl.formatMessage(HAS_LEARNER_CREDIT.title),
     };
   }
 
   // Otherwise, given subsidy type is not supported for the enroll/upgrade modal
-  return { paymentRequiredForCourse: true };
+  return {
+    paymentRequiredForCourse: true,
+    buttonText: null,
+    enrollText: null,
+    titleText: null,
+  };
 };
 
 const EnrollModal = ({
@@ -119,14 +212,15 @@ const EnrollModal = ({
   couponCodesCount,
   onEnroll,
 }) => {
+  const intl = useIntl();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleEnroll = async (e) => {
+  const handleEnroll = async () => {
     if (!onEnroll) {
       return;
     }
     setIsLoading(true);
-    await onEnroll(e);
+    onEnroll();
     setIsLoading(false);
   };
 
@@ -140,7 +234,7 @@ const EnrollModal = ({
     titleText,
     enrollText,
     buttonText,
-  } = getModalTexts({
+  } = useModalTexts({
     userSubsidyApplicableToCourse,
     couponCodesCount,
     courseRunPrice,
@@ -155,7 +249,7 @@ const EnrollModal = ({
   return (
     <AlertModal
       isOpen={isModalOpen}
-      closeLabel="Cancel"
+      closeLabel={intl.formatMessage(messages.modalCancelCta)}
       title={titleText}
       footerNode={(
         <ActionRow>
@@ -163,7 +257,7 @@ const EnrollModal = ({
             variant="tertiary"
             onClick={dismissModal}
           >
-            Cancel
+            <FormattedMessage {...messages.modalCancelCta} />
           </Button>
           {/* FIXME: the following Button should be using StatefulButton from @openedx/paragon */}
           <Button
@@ -171,7 +265,15 @@ const EnrollModal = ({
             href={userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE ? undefined : enrollmentUrl}
             onClick={handleEnroll}
           >
-            {isLoading && <Spinner animation="border" className="mr-2" variant="light" size="sm" screenReaderText="Loading" />}
+            {isLoading && (
+              <Spinner
+                animation="border"
+                className="mr-2"
+                variant="light"
+                size="sm"
+                screenReaderText={intl.formatMessage(messages.confirmationCtaLoading)}
+              />
+            )}
             {buttonText}
           </Button>
         </ActionRow>
