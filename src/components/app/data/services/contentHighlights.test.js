@@ -3,6 +3,7 @@ import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { fetchContentHighlights, fetchEnterpriseCuration } from './contentHighlights';
+import { MAX_HIGHLIGHT_SETS } from '../constants';
 
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
@@ -60,6 +61,7 @@ describe('fetchEnterpriseCuration', () => {
 describe('fetchContentHighlights', () => {
   const queryParams = new URLSearchParams({
     enterprise_customer: mockEnterpriseId,
+    page_size: MAX_HIGHLIGHT_SETS,
   });
   const HIGHLIGHT_SETS_URL = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/highlight-sets/?${queryParams.toString()}`;
 
@@ -75,6 +77,7 @@ describe('fetchContentHighlights', () => {
         { uuid: 'test-highlight-set-uuid-2' },
       ],
     };
+    console.log('mockUrl ', HIGHLIGHT_SETS_URL);
     axiosMock.onGet(HIGHLIGHT_SETS_URL).reply(200, mockResponse);
     const result = await fetchContentHighlights(mockEnterpriseId);
     expect(result).toEqual(mockResponse.results);
