@@ -1,15 +1,23 @@
 import React from 'react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, render } from '@testing-library/react';
-
 import userEvent from '@testing-library/user-event';
+
 import EnrollModal, { MODAL_TEXTS } from '../EnrollModal';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from '../../app/data';
+import { ENTERPRISE_OFFER_TYPE } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 jest.mock('../data/hooks', () => ({
   useTrackSearchConversionClickHandler: jest.fn(),
   useOptimizelyEnrollmentClickHandler: jest.fn(),
 }));
+
+const EnrollModalWrapper = (props) => (
+  <IntlProvider locale="en">
+    <EnrollModal {...props} />
+  </IntlProvider>
+);
 
 describe('<EnrollModal />', () => {
   const basicProps = {
@@ -22,7 +30,7 @@ describe('<EnrollModal />', () => {
   };
 
   it('does not render when user has no applicable subsidy', () => {
-    const { container } = render(<EnrollModal {...basicProps} />);
+    const { container } = render(<EnrollModalWrapper {...basicProps} />);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -34,12 +42,10 @@ describe('<EnrollModal />', () => {
       },
       couponCodesCount: 5,
     };
-    render(
-      <EnrollModal {...props} />,
-    );
-    expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.title)).toBeInTheDocument();
-    expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.body(props.couponCodesCount))).toBeInTheDocument();
-    expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.button)).toBeInTheDocument();
+    render(<EnrollModalWrapper {...props} />);
+    expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.title.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.body.defaultMessage.replace('{couponCodesCount}', props.couponCodesCount))).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.button.defaultMessage)).toBeInTheDocument();
   });
 
   it('displays the correct texts when there is an enterprise offer', () => {
@@ -47,26 +53,22 @@ describe('<EnrollModal />', () => {
       ...basicProps,
       userSubsidyApplicableToCourse: {
         subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+        offerType: ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT,
       },
     };
-    render(
-      <EnrollModal {...props} />,
-    );
-    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.title)).toBeInTheDocument();
+    render(<EnrollModalWrapper {...props} />);
+    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.title.defaultMessage)).toBeInTheDocument();
     expect(
-      screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(
-        props.userSubsidyApplicableToCourse,
-        props.courseRunPrice,
-      )),
+      screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT).defaultMessage),
     ).toBeInTheDocument();
-    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.button)).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.button.defaultMessage)).toBeInTheDocument();
   });
 
   it('calls onEnroll when enrollmentUrl is clicked', () => {
     const mockHandleEnroll = jest.fn();
 
     render(
-      <EnrollModal
+      <EnrollModalWrapper
         {...basicProps}
         onEnroll={mockHandleEnroll}
         userSubsidyApplicableToCourse={{
@@ -75,7 +77,7 @@ describe('<EnrollModal />', () => {
         couponCodesCount={5}
       />,
     );
-    const enrollButton = screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.button);
+    const enrollButton = screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.button.defaultMessage);
     userEvent.click(enrollButton);
 
     expect(mockHandleEnroll).toHaveBeenCalled();

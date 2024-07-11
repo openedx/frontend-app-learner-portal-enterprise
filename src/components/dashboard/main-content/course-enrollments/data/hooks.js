@@ -154,6 +154,7 @@ export const useCourseUpgradeData = ({
   const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(courseRunKey, {
     enabled: isLearnerCreditUpgradeEnabled && canUpgradeToVerifiedEnrollment,
   });
+  console.log('learnerCreditMetadata!!!', learnerCreditMetadata);
 
   // Metadata required to allow upgrade via applicable subscription license
   const { data: subscriptionLicense } = useSubscriptions({

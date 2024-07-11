@@ -29,7 +29,8 @@ import {
   emptyRedeemableLearnerCreditPolicies,
   transformCourseEnrollment,
   transformLearnerContentAssignment,
-  useCanUpgradeWithLearnerCredit, useCouponCodes,
+  useCanUpgradeWithLearnerCredit,
+  useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
@@ -39,6 +40,7 @@ import {
 } from '../../../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../../data/constants';
+import { LICENSE_STATUS } from '../../../../../enterprise-user-subsidy/data/constants';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
@@ -179,7 +181,16 @@ describe('useCourseEnrollments', () => {
 describe('useCourseUpgradeData', () => {
   const courseRunKey = 'course-run-key';
   const enterpriseId = mockEnterpriseCustomer.uuid;
-  const subscriptionLicense = { uuid: 'license-uuid' };
+  const subscriptionLicense = {
+    uuid: 'license-uuid',
+    status: LICENSE_STATUS.ACTIVATED,
+    subscriptionPlan: {
+      uuid: 'subscription-plan-uuid',
+      startDate: dayjs().subtract(10, 'days').toISOString(),
+      endDate: dayjs().add(10, 'days').toISOString(),
+      isCurrent: true,
+    },
+  };
   const location = { pathname: '/', search: '' };
   const basicArgs = {
     courseRunKey,
@@ -187,11 +198,12 @@ describe('useCourseUpgradeData', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useSubscriptions.mockReturnValue({
-      data: { subscriptionLicense: null },
-    });
+    useSubscriptions.mockReturnValue({ data: null });
     useCanUpgradeWithLearnerCredit.mockReturnValue({
-      data: { applicableSubsidyAccessPolicy: null },
+      data: {
+        applicableSubsidyAccessPolicy: null,
+        listPrice: null,
+      },
     });
     useEnterpriseCustomerContainsContent.mockReturnValue({
       data: {
@@ -199,14 +211,8 @@ describe('useCourseUpgradeData', () => {
         catalogList: [],
       },
     });
-    useCouponCodes.mockReturnValue({
-      data: {
-        applicableCouponCode: null,
-      },
-    });
-    useCourseRunMetadata.mockReturnValue({
-      data: null,
-    });
+    useCouponCodes.mockReturnValue({ data: null });
+    useCourseRunMetadata.mockReturnValue({ data: null });
   });
 
   it.each([
@@ -239,19 +245,7 @@ describe('useCourseUpgradeData', () => {
           catalogList: [],
         },
       });
-
-      useSubscriptions.mockReturnValue({
-        data: {
-          subscriptionLicense: {
-            uuid: 'license-uuid',
-            subscriptionPlan: {
-              startDate: dayjs().subtract(10, 'days').toISOString(),
-              expirationDate: dayjs().add(10, 'days').toISOString(),
-            },
-            status: 'activated',
-          },
-        },
-      });
+      useSubscriptions.mockReturnValue({ data: subscriptionLicense });
 
       const { result } = renderHook(() => useCourseUpgradeData({
         ...basicArgs,
@@ -289,9 +283,7 @@ describe('useCourseUpgradeData', () => {
           catalogList: [mockCouponCode.catalog],
         },
       });
-      useCouponCodes.mockReturnValue({
-        data: { applicableCouponCode: mockCouponCode },
-      });
+      useCouponCodes.mockReturnValue({ data: mockCouponCode });
       const sku = 'ABCDEF';
       const coursePrice = '149.00';
       useCourseRunMetadata.mockReturnValue({
@@ -373,7 +365,10 @@ describe('useCourseUpgradeData', () => {
       jest.clearAllMocks();
       useCanUpgradeWithLearnerCredit.mockReturnValue({
         data: {
-          applicableSubsidyAccessPolicy: mockCanUpgradeWithLearnerCredit,
+          applicableSubsidyAccessPolicy: {
+            ...mockCanUpgradeWithLearnerCredit.redeemableSubsidyAccessPolicy,
+            isPolicyRedemptionEnabled: true,
+          },
           listPrice: mockCanUpgradeWithLearnerCredit.listPrice.usd,
         },
       });
@@ -385,10 +380,6 @@ describe('useCourseUpgradeData', () => {
           catalogList: [mockCanUpgradeWithLearnerCredit.redeemableSubsidyAccessPolicy.catalogUuid],
         },
       });
-      useCouponCodes.mockReturnValue({
-        data: { applicableCouponCode: null },
-      });
-
       const { result } = renderHook(() => useCourseUpgradeData({
         ...basicArgs,
         mode: COURSE_MODES_MAP.AUDIT,

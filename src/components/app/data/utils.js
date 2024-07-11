@@ -657,6 +657,12 @@ export const getSubsidyToApplyForCourse = ({
   applicableEnterpriseOffer = undefined,
   applicableSubsidyAccessPolicy = undefined,
 }) => {
+  console.log('getSubsidyToApplyForCourse!!!', {
+    applicableSubscriptionLicense,
+    applicableCouponCode,
+    applicableEnterpriseOffer,
+  });
+
   if (applicableSubscriptionLicense) {
     return {
       subsidyType: LICENSE_SUBSIDY_TYPE,

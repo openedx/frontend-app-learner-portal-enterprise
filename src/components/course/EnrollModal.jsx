@@ -53,7 +53,7 @@ const messages = defineMessages({
   },
   enterpriseOfferUsageWithoutPrice: {
     id: 'enterprise.learner_portal.enroll-upgrade-modal.text.enterprise-offer-usage.without-price',
-    defaultMessage: 'You are about to redeem 1 learner credit. This action cannot be reversed.',
+    defaultMessage: 'You are about to redeem your learner credit for this course. This action cannot be reversed.',
     description: 'Text for the confirmation modal when using an enterprise offer with a limit',
   },
   upgradeCoveredByOrg: {
