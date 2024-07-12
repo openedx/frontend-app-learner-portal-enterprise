@@ -1,6 +1,8 @@
 import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import capitalize from 'lodash.capitalize';
+
 import {
   Badge,
   Col,
@@ -85,15 +87,25 @@ const messages = defineMessages({
     defaultMessage: 'Enrollment deadline approaching',
     description: 'Tooltip content for enrollment deadline approaching',
   },
-  courseMiscText: {
-    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text',
-    defaultMessage: '{courseMiscText}',
-    description: 'The label for the course miscellaneous text',
-  },
-  courseMiscTextPacing: {
-    id: 'enterprise.learner_portal.dashbboard.enrollments.course.misc_text.pacing',
-    defaultMessage: '{pacing}-paced',
+  wasSelf: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.was.self_pacing',
+    defaultMessage: 'This course was <a>self-paced</a>.',
     description: 'The label for the course miscellaneous text pacing',
+  },
+  wasInstructor: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.was.instructor_pacing',
+    defaultMessage: 'This course was instructor-paced.',
+    description: 'The label for the course miscellaneous text instructor pacing',
+  },
+  isSelf: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.is.self_pacing',
+    defaultMessage: 'This course is <a>self-paced</a>.',
+    description: 'The label for the course miscellaneous text pacing',
+  },
+  isInstructor: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.is.instructor_pacing',
+    defaultMessage: 'This course is instructor-paced.',
+    description: 'The label for the course miscellaneous text instructor pacing',
   },
 });
 
@@ -247,10 +259,14 @@ const BaseCourseCard = ({
   };
 
   const getCourseMiscText = () => {
-    let message = '';
-    message += 'This course ';
-    message += isCourseEnded(endDate) ? 'was ' : 'is ';
-    return message;
+    if (!pacing || !COURSE_PACING[pacing.toUpperCase()]) {
+      return null;
+    }
+    const courseHasEnded = isCourseEnded(endDate);
+    if (courseHasEnded) {
+      return messages[`was${capitalize(pacing)}`];
+    }
+    return messages[`is${capitalize(pacing)}`];
   };
 
   const resetModals = () => {
@@ -396,6 +412,7 @@ const BaseCourseCard = ({
           src={InfoOutline}
           size="inline"
           alt="More information about course type"
+          invertColors={isExecutiveEducation2UCourse}
         />
       </Stack>
     );
@@ -542,19 +559,23 @@ const BaseCourseCard = ({
     if (pacing === COURSE_PACING.SELF) {
       return (
         <MiscTextContainer>
-          <span>
-            {intl.formatMessage(messages.courseMiscText, { courseMiscText })}
-            <Hyperlink destination={LEARNER_SUPPORT_SELF_PACED_COURSE_MODE_URL}>
-              {intl.formatMessage(messages.courseMiscTextPacing, { pacing })}
-            </Hyperlink>
-            .
-          </span>
+          {intl.formatMessage(courseMiscText, {
+            // eslint-disable-next-line react/no-unstable-nested-components
+            a: (chunks) => (
+              <Hyperlink
+                className={classNames('text-underline', { 'text-light-200': EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode) })}
+                destination={LEARNER_SUPPORT_SELF_PACED_COURSE_MODE_URL}
+              >
+                {chunks}
+              </Hyperlink>
+            ),
+          })}
         </MiscTextContainer>
       );
     }
     return (
       <MiscTextContainer>
-        {`${intl.formatMessage(messages.courseMiscText, { courseMiscText })}${intl.formatMessage(messages.courseMiscTextPacing, { pacing })}`}.
+        {intl.formatMessage(courseMiscText)}
       </MiscTextContainer>
     );
   };
@@ -584,7 +605,7 @@ const BaseCourseCard = ({
   return (
     <div className={classNames(
       'dashboard-course-card py-3 border-bottom mb-2',
-      { 'exec-ed-course-card rounded-lg p-3 text-light-100': isExecutiveEducation2UCourse },
+      { 'exec-ed-course-card rounded-lg p-3 text-light-200': isExecutiveEducation2UCourse },
       { 'mb-3': (isCanceledAssignment || isExpiredAssignment) },
     )}
     >
@@ -619,7 +640,7 @@ const BaseCourseCard = ({
             {renderButtons()}
             {renderChildren()}
             <Row className="course-misc-text">
-              <Col className={`${isExecutiveEducation2UCourse ? 'text-light-300' : 'text-gray'}`}>
+              <Col className={`${isExecutiveEducation2UCourse ? 'text-light-200' : 'text-gray'}`}>
                 {renderMiscText()}
                 {renderAdditionalInfoOutline()}
                 {hasViewCertificateLink && renderViewCertificateText()}

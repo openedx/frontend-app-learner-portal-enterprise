@@ -169,9 +169,8 @@ export const useCourseUpgradeData = ({
       sku: findHighestLevelSeatSku(data.seats),
       code: data.code,
     }),
-    enabled: !couponCodesMetadata.applicableCouponCode && canUpgradeToVerifiedEnrollment,
+    enabled: couponCodesMetadata.applicableCouponCode && canUpgradeToVerifiedEnrollment,
   });
-
   return useMemo(() => {
     const defaultReturn = {
       licenseUpgradeUrl: undefined,

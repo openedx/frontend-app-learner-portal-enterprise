@@ -49,6 +49,11 @@
 }
 
 .pgn__card-logo-cap {
-  object-fit: scale-down !important; 
+  object-fit: scale-down !important;
   object-position: center center !important;
+}
+
+// Custom CSS utilities
+.text-underline {
+  text-decoration: underline;
 }

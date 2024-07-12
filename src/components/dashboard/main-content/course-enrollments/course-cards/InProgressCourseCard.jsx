@@ -12,11 +12,10 @@ import { MarkCompleteModal } from './mark-complete-modal';
 import ContinueLearningButton from './ContinueLearningButton';
 
 import Notification from './Notification';
-
-import UpgradeCourseButton from './UpgradeCourseButton';
-import { useEnterpriseCustomer } from '../../../../app/data';
+import { EXECUTIVE_EDUCATION_COURSE_MODES, useEnterpriseCustomer } from '../../../../app/data';
 import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
 import { COURSE_STATUSES } from '../../../../../constants';
+import UpgradeCourseButton from './UpgradeCourseButton';
 
 const messages = defineMessages({
   saveCourseForLater: {
@@ -71,19 +70,21 @@ export const InProgressCourseCard = ({
   const { courseCards } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
-
+  const isExecutiveEducation = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
   const renderButtons = () => (
+
     <Stack direction="horizontal" gap={1}>
       {shouldShowUpgradeButton && (
         <UpgradeCourseButton
-          variant="brand"
+          variant={isExecutiveEducation ? 'inverse-brand' : 'brand'}
           title={title}
           courseRunKey={courseRunId}
           mode={mode}
         />
       )}
+
       <ContinueLearningButton
-        className={shouldShowUpgradeButton ? 'btn-primary' : undefined}
+        className={shouldShowUpgradeButton ? 'outline-primary' : undefined}
         linkToCourse={licenseUpgradeUrl ?? linkToCourse}
         title={title}
         courseRunId={courseRunId}
@@ -95,25 +96,26 @@ export const InProgressCourseCard = ({
   );
 
   const renderCourseInfoOutline = () => {
-    if (!shouldShowUpgradeButton || !enterpriseCustomer.hideCourseOriginalPrice) {
+    if (!shouldShowUpgradeButton || enterpriseCustomer.hideCourseOriginalPrice || !courseRunPrice) {
       return null;
     }
     return (
       <Stack className="small my-2.5">
-        <div>
-          <span>
-            <b>{intl.formatMessage(messages.upgradeCourseOriginalPrice)}</b>&nbsp;
-            <s>${intl.formatMessage(messages.upgradeCoursePriceStrikethrough, { courseRunPrice: courseRunPrice || '0.00' })}</s>&nbsp;
-            <span className="text-brand font-weight-bold">
-              {intl.formatMessage(messages.upgradeCourseFree)}
+        {!enterpriseCustomer.hideCourseOriginalPrice && (
+          <div>
+            <span>
+              <b>{intl.formatMessage(messages.upgradeCourseOriginalPrice)}</b>&nbsp;
+              <s>${intl.formatMessage(messages.upgradeCoursePriceStrikethrough, { courseRunPrice })}</s>&nbsp;
+              <span className="text-brand font-weight-bold">
+                {intl.formatMessage(messages.upgradeCourseFree)}
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
+        )}
         <div className="x-small">{intl.formatMessage(messages.upgradeCourseCoveredByOrganization)}</div>
       </Stack>
     );
   };
-
   const filteredNotifications = notifications.filter((notification) => {
     const now = dayjs();
     if (dayjs(notification.date).isBetween(now, dayjs(now).add('1', 'w'))) {
