@@ -77,7 +77,6 @@ describe('fetchContentHighlights', () => {
         { uuid: 'test-highlight-set-uuid-2' },
       ],
     };
-    console.log('mockUrl ', HIGHLIGHT_SETS_URL);
     axiosMock.onGet(HIGHLIGHT_SETS_URL).reply(200, mockResponse);
     const result = await fetchContentHighlights(mockEnterpriseId);
     expect(result).toEqual(mockResponse.results);

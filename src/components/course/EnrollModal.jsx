@@ -8,7 +8,12 @@ import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platfor
 import { v4 as uuidv4 } from 'uuid';
 
 import { ENTERPRISE_OFFER_TYPE } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../app/data';
+import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  useEnterpriseCustomer,
+} from '../app/data';
 
 export const messages = defineMessages({
   enrollModalConfirmCta: {
@@ -88,8 +93,9 @@ export const messages = defineMessages({
   },
 });
 
-export const createUseEnterpriseOfferText = (offerType, courseRunPrice) => {
-  if (offerType !== ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT && courseRunPrice) {
+export const createUseEnterpriseOfferText = ({ offerType, courseRunPrice, hideCourseOriginalPrice }) => {
+  const isOfferTypeEnrollmentsLimit = offerType === ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT;
+  if (!isOfferTypeEnrollmentsLimit && courseRunPrice && !hideCourseOriginalPrice) {
     return messages.enterpriseOfferUsageWithPrice;
   }
   return messages.enterpriseOfferUsageWithoutPrice;
@@ -156,6 +162,7 @@ export const MODAL_TEXTS = {
 };
 
 const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, courseRunPrice }) => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const intl = useIntl();
   const {
     HAS_COUPON_CODE,
@@ -178,7 +185,11 @@ const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, course
       paymentRequiredForCourse: false,
       buttonText: intl.formatMessage(HAS_ENTERPRISE_OFFER.button),
       enrollText: intl.formatMessage(
-        HAS_ENTERPRISE_OFFER.body(userSubsidyApplicableToCourse.offerType, courseRunPrice),
+        HAS_ENTERPRISE_OFFER.body({
+          offerType: userSubsidyApplicableToCourse.offerType,
+          courseRunPrice,
+          hideCourseOriginalPrice: enterpriseCustomer.hideCourseOriginalPrice,
+        }),
         { courseRunPrice: `$${courseRunPrice}` },
       ),
       titleText: intl.formatMessage(HAS_ENTERPRISE_OFFER.title),
@@ -242,7 +253,7 @@ const EnrollModal = ({
 
   // Check whether the modal should be rendered (i.e., do not show modal if user has no applicable subsidy)
   // as payment would be required for the learner to enroll in the course.
-  if (paymentRequiredForCourse) {
+  if (paymentRequiredForCourse || !userSubsidyApplicableToCourse) {
     return null;
   }
 
