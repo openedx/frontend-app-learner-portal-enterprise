@@ -195,6 +195,7 @@ describe('useCourseUpgradeData', () => {
   const basicArgs = {
     courseRunKey,
   };
+
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
@@ -218,16 +219,14 @@ describe('useCourseUpgradeData', () => {
   it.each([
     true,
     false,
-  ])('should return null for upgrade urls if the course is and isn\'t part of the subsidies but no subsides exist (%s)', (containsContentItems) => {
+  ])("should return null for upgrade urls if the course isn't contained by the subsidies' catalogs (%s)", (containsContentItems) => {
     useEnterpriseCustomerContainsContent.mockReturnValue({
       data: {
         containsContentItems,
         catalogList: [],
       },
     });
-
     const { result } = renderHook(() => useCourseUpgradeData(basicArgs), { wrapper });
-
     expect(result.current).toEqual(
       expect.objectContaining({
         courseRunPrice: null,
@@ -238,27 +237,67 @@ describe('useCourseUpgradeData', () => {
   });
 
   describe('upgrade via license', () => {
-    it('should return a license upgrade url', () => {
+    it.each([
+      {
+        subscriptionLicenseStatus: LICENSE_STATUS.ACTIVATED,
+        isSubscriptionPlanCurrent: true,
+      },
+      {
+        subscriptionLicenseStatus: LICENSE_STATUS.ACTIVATED,
+        isSubscriptionPlanCurrent: false,
+      },
+      {
+        subscriptionLicenseStatus: LICENSE_STATUS.REVOKED,
+        isSubscriptionPlanCurrent: true,
+      },
+    ])('should return a license upgrade url (%s)', ({
+      subscriptionLicenseStatus,
+      isSubscriptionPlanCurrent,
+    }) => {
+      const mockSubscriptionLicense = {
+        ...subscriptionLicense,
+        status: subscriptionLicenseStatus,
+        subscriptionPlan: {
+          ...subscriptionLicense.subscriptionPlan,
+          isCurrent: isSubscriptionPlanCurrent,
+        },
+      };
       useEnterpriseCustomerContainsContent.mockReturnValue({
         data: {
           containsContentItems: true,
           catalogList: [],
         },
       });
-      useSubscriptions.mockReturnValue({ data: subscriptionLicense });
+      useSubscriptions.mockReturnValue({ data: mockSubscriptionLicense });
 
       const { result } = renderHook(() => useCourseUpgradeData({
         ...basicArgs,
         mode: COURSE_MODES_MAP.AUDIT,
       }), { wrapper });
 
+      // Assert the custom `select` transform function was passed and works as expected
+      expect(useSubscriptions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          select: expect.any(Function),
+          enabled: true,
+        }),
+      );
+      const useSubscriptionsSelectFn = useSubscriptions.mock.calls[0][0].select;
+      const selectTransformResult = useSubscriptionsSelectFn({ subscriptionLicense: mockSubscriptionLicense });
+      if (subscriptionLicenseStatus === LICENSE_STATUS.ACTIVATED && isSubscriptionPlanCurrent) {
+        expect(selectTransformResult).toEqual(mockSubscriptionLicense);
+      } else {
+        expect(selectTransformResult).toBeNull();
+      }
+
+      // Assert expected output
       expect(result.current).toEqual(
         expect.objectContaining({
           subsidyForCourse: expect.objectContaining({
             redemptionUrl: createEnrollWithLicenseUrl({
               courseRunKey,
               enterpriseId,
-              licenseUUID: subscriptionLicense.uuid,
+              licenseUUID: mockSubscriptionLicense.uuid,
               location,
             }),
           }),
@@ -309,6 +348,43 @@ describe('useCourseUpgradeData', () => {
         mode: COURSE_MODES_MAP.AUDIT,
       }), { wrapper });
 
+      // Assert the custom `select` transform function was passed to useCouponCodes and works as expected
+      expect(useCouponCodes).toHaveBeenCalledWith(
+        expect.objectContaining({
+          select: expect.any(Function),
+          enabled: true,
+        }),
+      );
+      const useCouponCodesSelectFn = useCouponCodes.mock.calls[0][0].select;
+      const couponCodesSelectTransformResult = useCouponCodesSelectFn({ couponCodeAssignments: [mockCouponCode] });
+      expect(couponCodesSelectTransformResult).toEqual(mockCouponCode);
+
+      // Assert the custom `select` transform function was passed to useCourseRunMetadata and works as expected
+      expect(useCourseRunMetadata).toHaveBeenCalledWith(
+        courseRunKey,
+        expect.objectContaining({
+          select: expect.any(Function),
+          enabled: true,
+        }),
+      );
+      const useCourseRunMetadataSelectFn = useCourseRunMetadata.mock.calls[0][1].select;
+      const mockSKU = 'ABCDEF';
+      const mockCourseRun = {
+        key: courseRunKey,
+        seats: [{
+          type: COURSE_MODES_MAP.VERIFIED,
+          sku: mockSKU,
+        }],
+      };
+      const courseRunMetadataSelectTransformResult = useCourseRunMetadataSelectFn(mockCourseRun);
+      expect(courseRunMetadataSelectTransformResult).toEqual(
+        expect.objectContaining({
+          ...mockCourseRun,
+          sku: mockSKU,
+        }),
+      );
+
+      // Assert expected output
       expect(result.current).toEqual(
         expect.objectContaining({
           subsidyForCourse: expect.objectContaining({

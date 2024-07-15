@@ -31,6 +31,9 @@ function useLinkToCourse({
   subsidyForCourse,
 }) {
   let url = linkToCourse;
+  // For subscription upgrades, there is no upgrade confirmation required by the user
+  // so we can directly redirect the user to the upgrade path when the `subsidyForCourse`
+  // is a subscription license.
   if (subsidyForCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
     url = subsidyForCourse.redemptionUrl;
   }

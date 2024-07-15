@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ENTERPRISE_OFFER_TYPE } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../app/data';
 
-const messages = defineMessages({
+export const messages = defineMessages({
   enrollModalConfirmCta: {
     id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.enroll.text',
     defaultMessage: 'Enroll',
