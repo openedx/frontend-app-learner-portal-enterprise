@@ -42,7 +42,7 @@ const baseProps = {
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseCustomerWithoutPrice = enterpriseCustomerFactory({
-  hide_original_course_price: true,
+  hide_course_original_price: true,
 });
 
 describe('<EnrollModal />', () => {
