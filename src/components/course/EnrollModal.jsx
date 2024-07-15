@@ -8,16 +8,12 @@ import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platfor
 import { v4 as uuidv4 } from 'uuid';
 
 import { ENTERPRISE_OFFER_TYPE } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
-<<<<<<< HEAD
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   useEnterpriseCustomer,
 } from '../app/data';
-=======
-import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../app/data';
->>>>>>> master
 
 export const messages = defineMessages({
   enrollModalConfirmCta: {
@@ -166,10 +162,7 @@ export const MODAL_TEXTS = {
 };
 
 const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, courseRunPrice }) => {
-<<<<<<< HEAD
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-=======
->>>>>>> master
   const intl = useIntl();
   const {
     HAS_COUPON_CODE,
@@ -192,15 +185,11 @@ const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, course
       paymentRequiredForCourse: false,
       buttonText: intl.formatMessage(HAS_ENTERPRISE_OFFER.button),
       enrollText: intl.formatMessage(
-<<<<<<< HEAD
         HAS_ENTERPRISE_OFFER.body({
           offerType: userSubsidyApplicableToCourse.offerType,
           courseRunPrice,
           hideCourseOriginalPrice: enterpriseCustomer.hideCourseOriginalPrice,
         }),
-=======
-        HAS_ENTERPRISE_OFFER.body(userSubsidyApplicableToCourse.offerType, courseRunPrice),
->>>>>>> master
         { courseRunPrice: `$${courseRunPrice}` },
       ),
       titleText: intl.formatMessage(HAS_ENTERPRISE_OFFER.title),
