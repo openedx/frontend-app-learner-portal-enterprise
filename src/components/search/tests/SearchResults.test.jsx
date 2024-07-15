@@ -122,7 +122,7 @@ const SEARCH_RESULT_VIDEOS = {
       image_url: TEST_CARD_IMG_URL,
       logo_image_urls: [TEST_IMAGE_URL],
       org: 'test-org',
-      duration: '3:16',
+      duration: 135,
     },
   ],
 };

@@ -42,7 +42,7 @@ const TEST_HIT = {
   image_url: TEST_CARD_IMG_URL,
   logo_image_urls: [TEST_IMAGE_URL],
   org: TEST_ORG,
-  duration: '3:16',
+  duration: 135,
 };
 const defaultProps = {
   hit: TEST_HIT,
