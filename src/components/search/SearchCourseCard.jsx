@@ -16,7 +16,6 @@ const SearchCourseCard = ({
   key, hit, isLoading, parentRoute, ...rest
 }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-
   const eventName = useMemo(
     () => {
       // [tech debt] `key` is not intended to be used as a prop (see warning in tests).
