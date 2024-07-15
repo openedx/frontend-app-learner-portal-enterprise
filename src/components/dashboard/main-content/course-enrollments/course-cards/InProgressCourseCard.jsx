@@ -1,9 +1,10 @@
 import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
 import { useNavigate } from 'react-router-dom';
+import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { FormattedMessage, defineMessages } from '@edx/frontend-platform/i18n';
+import { Stack } from '@openedx/paragon';
 
 import dayjs from '../../../../../utils/dayjs';
 import BaseCourseCard, { getScreenReaderText } from './BaseCourseCard';
@@ -13,7 +14,7 @@ import ContinueLearningButton from './ContinueLearningButton';
 import Notification from './Notification';
 
 import UpgradeCourseButton from './UpgradeCourseButton';
-import { useEnterpriseCustomer } from '../../../../app/data';
+import { LICENSE_SUBSIDY_TYPE, useEnterpriseCustomer } from '../../../../app/data';
 import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
 import { COURSE_STATUSES } from '../../../../../constants';
 
@@ -24,6 +25,20 @@ const messages = defineMessages({
     description: 'Text for the save course for later button in the course card dropdown menu',
   },
 });
+
+function useLinkToCourse({
+  linkToCourse,
+  subsidyForCourse,
+}) {
+  let url = linkToCourse;
+  // For subscription upgrades, there is no upgrade confirmation required by the user
+  // so we can directly redirect the user to the upgrade path when the `subsidyForCourse`
+  // is a subscription license.
+  if (subsidyForCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
+    url = subsidyForCourse.redemptionUrl;
+  }
+  return url;
+}
 
 export const InProgressCourseCard = ({
   linkToCourse,
@@ -36,33 +51,40 @@ export const InProgressCourseCard = ({
   mode,
   ...rest
 }) => {
-  // TODO: Destructure learnerCreditUpgradeUrl field here
-  const {
-    licenseUpgradeUrl,
-    couponUpgradeUrl,
-  } = useCourseUpgradeData({ courseRunKey: courseRunId, mode });
   const navigate = useNavigate();
-  // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
-  const shouldShowUpgradeButton = !!couponUpgradeUrl;
+  const {
+    subsidyForCourse,
+    hasUpgradeAndConfirm,
+  } = useCourseUpgradeData({ courseRunKey: courseRunId, mode });
 
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
   const { courseCards } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
+  const coursewareOrUpgradeLink = useLinkToCourse({
+    linkToCourse,
+    subsidyForCourse,
+  });
 
   const renderButtons = () => (
-    <>
+    <Stack direction="horizontal" gap={1}>
       <ContinueLearningButton
-        className={shouldShowUpgradeButton ? 'btn-primary' : undefined}
-        linkToCourse={licenseUpgradeUrl ?? linkToCourse}
+        variant={hasUpgradeAndConfirm ? 'primary' : undefined}
+        linkToCourse={coursewareOrUpgradeLink}
         title={title}
         courseRunId={courseRunId}
         mode={mode}
         startDate={startDate}
         resumeCourseRunUrl={resumeCourseRunUrl}
       />
-      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} courseRunKey={courseRunId} mode={mode} />}
-    </>
+      {hasUpgradeAndConfirm && (
+        <UpgradeCourseButton
+          title={title}
+          courseRunKey={courseRunId}
+          mode={mode}
+        />
+      )}
+    </Stack>
   );
 
   const filteredNotifications = notifications.filter((notification) => {
@@ -166,7 +188,7 @@ export const InProgressCourseCard = ({
       buttons={renderButtons()}
       dropdownMenuItems={getDropdownMenuItems()}
       title={title}
-      linkToCourse={licenseUpgradeUrl ?? linkToCourse}
+      linkToCourse={coursewareOrUpgradeLink}
       courseRunId={courseRunId}
       mode={mode}
       startDate={startDate}
