@@ -80,26 +80,26 @@ describe('<EnrollModal />', () => {
   it.each([
     {
       offerType: ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT,
-      hideOriginalCoursePrice: false,
+      hideCourseOriginalPrice: false,
       courseRunPrice: 100,
     },
     {
       offerType: ENTERPRISE_OFFER_TYPE.NO_LIMIT,
-      hideOriginalCoursePrice: false,
+      hideCourseOriginalPrice: false,
       courseRunPrice: 100,
     },
     {
       offerType: ENTERPRISE_OFFER_TYPE.NO_LIMIT,
-      hideOriginalCoursePrice: true,
+      hideCourseOriginalPrice: true,
       courseRunPrice: 100,
     },
   ])('displays the correct texts when there is an enterprise offer (%s)', async ({
     offerType,
-    hideOriginalCoursePrice,
+    hideCourseOriginalPrice,
     courseRunPrice,
   }) => {
     useEnterpriseCustomer.mockReturnValue({
-      data: hideOriginalCoursePrice ? mockEnterpriseCustomerWithoutPrice : mockEnterpriseCustomer,
+      data: hideCourseOriginalPrice ? mockEnterpriseCustomerWithoutPrice : mockEnterpriseCustomer,
     });
     const props = {
       ...baseProps,
@@ -114,7 +114,7 @@ describe('<EnrollModal />', () => {
     const expectedBodyMessage = MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body({
       offerType,
       courseRunPrice: props.courseRunPrice,
-      hideOriginalCoursePrice,
+      hideCourseOriginalPrice,
     }).defaultMessage.replace('{courseRunPrice}', `$${props.courseRunPrice}`);
     expect(await screen.findByText(expectedBodyMessage)).toBeInTheDocument();
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.button.defaultMessage)).toBeInTheDocument();
