@@ -93,9 +93,9 @@ export const messages = defineMessages({
   },
 });
 
-export const createUseEnterpriseOfferText = ({ offerType, courseRunPrice, hideOriginalCoursePrice }) => {
+export const createUseEnterpriseOfferText = ({ offerType, courseRunPrice, hideCourseOriginalPrice }) => {
   const isOfferTypeEnrollmentsLimit = offerType === ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT;
-  if (!isOfferTypeEnrollmentsLimit && courseRunPrice && !hideOriginalCoursePrice) {
+  if (!isOfferTypeEnrollmentsLimit && courseRunPrice && !hideCourseOriginalPrice) {
     return messages.enterpriseOfferUsageWithPrice;
   }
   return messages.enterpriseOfferUsageWithoutPrice;
@@ -188,7 +188,7 @@ const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, course
         HAS_ENTERPRISE_OFFER.body({
           offerType: userSubsidyApplicableToCourse.offerType,
           courseRunPrice,
-          hideOriginalCoursePrice: enterpriseCustomer.hideOriginalCoursePrice,
+          hideCourseOriginalPrice: enterpriseCustomer.hideCourseOriginalPrice,
         }),
         { courseRunPrice: `$${courseRunPrice}` },
       ),

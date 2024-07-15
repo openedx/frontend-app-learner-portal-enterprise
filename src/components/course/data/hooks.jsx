@@ -50,6 +50,7 @@ import {
   useSubscriptions,
   COUPON_CODE_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CourseContext } from '../CourseContextProvider';
@@ -579,14 +580,19 @@ export const useUserSubsidyApplicableToCourse = () => {
     && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
   );
   const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
-    applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
-    applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy },
-    applicableCouponCode: findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse),
-    applicableEnterpriseOffer: findEnterpriseOfferForCourse({
-      enterpriseOffers: currentEnterpriseOffers,
-      catalogsWithCourse,
-      coursePrice: courseListPrice,
-    }),
+    // applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
+    // applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy },
+    // applicableCouponCode: findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse),
+    // applicableEnterpriseOffer: findEnterpriseOfferForCourse({
+    //   enterpriseOffers: currentEnterpriseOffers,
+    //   catalogsWithCourse,
+    //   coursePrice: courseListPrice,
+    // }),
+    applicableEnterpriseOffer: {
+      offerType: 'NO_LIMIT',
+      usageType: 'UNLIMITED',
+      subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+    },
   });
   let missingUserSubsidyReason;
   if (!userSubsidyApplicableToCourse) {
