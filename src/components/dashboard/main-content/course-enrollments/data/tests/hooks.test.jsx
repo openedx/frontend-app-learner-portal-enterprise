@@ -185,7 +185,7 @@ describe('useCourseEnrollments', () => {
   });
 });
 
-describe.only('useCourseUpgradeData', () => {
+describe('useCourseUpgradeData', () => {
   const courseRunKey = 'course-run-key';
   const enterpriseId = mockEnterpriseCustomer.uuid;
   const subscriptionLicense = {
