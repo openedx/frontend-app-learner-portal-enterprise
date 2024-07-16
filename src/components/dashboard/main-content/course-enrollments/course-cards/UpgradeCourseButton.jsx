@@ -1,14 +1,32 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@openedx/paragon';
+import { FormattedMessage, defineMessages } from '@edx/frontend-platform/i18n';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import EnrollModal from '../../../../course/EnrollModal';
-import { useCouponCodes, useEnterpriseCustomer } from '../../../../app/data';
+import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  useCouponCodes,
+  useEnterpriseCustomer,
+} from '../../../../app/data';
 import { useCourseUpgradeData } from '../data';
 
+const messages = defineMessages({
+  upgradeButtonText: {
+    id: 'enterprise.dashboard.course_enrollments.course_cards.upgrade_button',
+    defaultMessage: 'Upgrade <s>for {title}</s>',
+    description: 'Text for the confirmation button on the enrollment/upgrade confirmation modal.',
+  },
+});
+
+function getUpgradeButtonScreenReaderText(chunks) {
+  return <span className="sr-only">{chunks}</span>;
+}
+
 /**
- * Button for upgrading a course via coupon code (possibly offer later on).
+ * Button for upgrading a course via coupon code or learner credit.
  */
 const UpgradeCourseButton = ({
   className,
@@ -35,10 +53,17 @@ const UpgradeCourseButton = ({
   };
 
   const handleEnroll = () => {
-    sendEnterpriseTrackEvent(
-      enterpriseCustomer.uuid,
-      'edx.ui.enterprise.learner_portal.course.upgrade_button.to_ecommerce_basket.clicked',
-    );
+    if ([COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE].includes(subsidyForCourse?.subsidyType)) {
+      sendEnterpriseTrackEvent(
+        enterpriseCustomer.uuid,
+        'edx.ui.enterprise.learner_portal.course.upgrade_button.to_ecommerce_basket.clicked',
+      );
+    } else {
+      sendEnterpriseTrackEvent(
+        enterpriseCustomer.uuid,
+        'edx.ui.enterprise.learner_portal.course.upgrade_button.course_enrollment.upgraded',
+      );
+    }
   };
 
   return (
@@ -49,8 +74,13 @@ const UpgradeCourseButton = ({
         onClick={handleClick}
         data-testid="upgrade-course-button"
       >
-        Upgrade
-        <span className="sr-only">for {title}</span>
+        <FormattedMessage
+          {...messages.upgradeButtonText}
+          values={{
+            s: getUpgradeButtonScreenReaderText,
+            title,
+          }}
+        />
       </Button>
       <EnrollModal
         isModalOpen={isModalOpen}
