@@ -401,12 +401,15 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  */
 export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: { activeCourseRun } } = useCourseMetadata();
-  const {
-    algoliaSearchParams,
-  } = useContext(CourseContext);
+  const { data: courseMetadata } = useCourseMetadata();
+  const activeCourseRun = courseMetadata?.activeCourseRun;
+  const { algoliaSearchParams } = useContext(CourseContext) || {};
+
   const handleClick = useCallback(
     (e) => {
+      if (!activeCourseRun) {
+        return;
+      }
       const { queryId, objectId } = algoliaSearchParams;
       // If tracking is on a link with an external href destination, we must intentionally delay the default click
       // behavior to allow enough time for the async analytics event call to resolve.
@@ -427,7 +430,13 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
         },
       );
     },
-    [algoliaSearchParams, href, enterpriseCustomer.uuid, eventName, activeCourseRun.key],
+    [
+      activeCourseRun,
+      algoliaSearchParams,
+      href,
+      enterpriseCustomer.uuid,
+      eventName,
+    ],
   );
 
   return handleClick;

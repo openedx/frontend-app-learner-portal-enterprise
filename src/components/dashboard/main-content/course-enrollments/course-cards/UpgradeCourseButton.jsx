@@ -5,12 +5,7 @@ import { FormattedMessage, defineMessages } from '@edx/frontend-platform/i18n';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import EnrollModal from '../../../../course/EnrollModal';
-import {
-  COUPON_CODE_SUBSIDY_TYPE,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  useCouponCodes,
-  useEnterpriseCustomer,
-} from '../../../../app/data';
+import { useCouponCodes, useEnterpriseCustomer } from '../../../../app/data';
 import { useCourseUpgradeData } from '../data';
 
 const messages = defineMessages({
@@ -36,34 +31,62 @@ const UpgradeCourseButton = ({
   mode,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmationButtonState, setConfirmationButtonState] = useState('default');
 
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: { couponCodeRedemptionCount } } = useCouponCodes();
+
+  const handleRedeem = () => {
+    setConfirmationButtonState('pending');
+    sendEnterpriseTrackEvent(
+      enterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.course.upgrade_button.confirmed',
+    );
+  };
+
+  const handleRedemptionSuccess = async (transaction) => {
+    if (transaction?.state !== 'committed') {
+      return;
+    }
+    setConfirmationButtonState('complete');
+    const { coursewareUrl } = transaction;
+    global.location.assign(coursewareUrl);
+  };
+
+  const handleRedemptionError = () => {
+    setConfirmationButtonState('error');
+  };
+
   const {
     subsidyForCourse,
     courseRunPrice,
-  } = useCourseUpgradeData({ courseRunKey, mode });
+    redeem,
+  } = useCourseUpgradeData({
+    courseRunKey,
+    mode,
+    onRedeem: handleRedeem,
+    onRedeemSuccess: handleRedemptionSuccess,
+    onRedeemError: handleRedemptionError,
+  });
 
   const handleClick = () => {
     setIsModalOpen(true);
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
-      'edx.ui.enterprise.learner_portal.course.upgrade_button.clicked',
+      'edx.ui.enterprise.learner_portal.dashboard.course_enrollment.upgrade_button.clicked',
     );
   };
 
-  const handleEnroll = () => {
-    if ([COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE].includes(subsidyForCourse?.subsidyType)) {
-      sendEnterpriseTrackEvent(
-        enterpriseCustomer.uuid,
-        'edx.ui.enterprise.learner_portal.course.upgrade_button.to_ecommerce_basket.clicked',
-      );
-    } else {
-      sendEnterpriseTrackEvent(
-        enterpriseCustomer.uuid,
-        'edx.ui.enterprise.learner_portal.course.upgrade_button.course_enrollment.upgraded',
-      );
+  const handleEnroll = async (e) => {
+    if (!subsidyForCourse) {
+      return;
     }
+    await redeem(e);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setConfirmationButtonState('default');
   };
 
   return (
@@ -84,7 +107,8 @@ const UpgradeCourseButton = ({
       </Button>
       <EnrollModal
         isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
+        confirmationButtonState={confirmationButtonState}
+        onClose={handleModalClose}
         enrollmentUrl={subsidyForCourse?.redemptionUrl}
         courseRunPrice={courseRunPrice}
         userSubsidyApplicableToCourse={subsidyForCourse}
