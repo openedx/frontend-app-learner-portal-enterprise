@@ -33,7 +33,7 @@ const EnrollModalWrapper = (props) => (
 
 const baseProps = {
   isModalOpen: true,
-  setIsModalOpen: jest.fn(),
+  onClose: jest.fn(),
   enrollmentUrl: 'https://example.com/enroll',
   courseRunPrice: 100,
   userSubsidyApplicableToCourse: undefined,
@@ -73,8 +73,7 @@ describe('<EnrollModal />', () => {
 
     // Close modal
     userEvent.click(screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage }));
-    expect(baseProps.setIsModalOpen).toHaveBeenCalledTimes(1);
-    expect(baseProps.setIsModalOpen).toHaveBeenCalledWith(false);
+    expect(baseProps.onClose).toHaveBeenCalledTimes(1);
   });
 
   it.each([
@@ -121,8 +120,7 @@ describe('<EnrollModal />', () => {
 
     // Close modal
     userEvent.click(screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage }));
-    expect(baseProps.setIsModalOpen).toHaveBeenCalledTimes(1);
-    expect(baseProps.setIsModalOpen).toHaveBeenCalledWith(false);
+    expect(baseProps.onClose).toHaveBeenCalledTimes(1);
   });
 
   it('displays the correct texts when there is learner credit available', async () => {
@@ -145,8 +143,7 @@ describe('<EnrollModal />', () => {
 
     // Close modal
     userEvent.click(screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage }));
-    expect(baseProps.setIsModalOpen).toHaveBeenCalledTimes(1);
-    expect(baseProps.setIsModalOpen).toHaveBeenCalledWith(false);
+    expect(baseProps.onClose).toHaveBeenCalledTimes(1);
   });
 
   it('calls onEnroll when enrollmentUrl is clicked', () => {

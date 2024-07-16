@@ -16,7 +16,9 @@ export default function useCourseMetadata(queryOptions = {}) {
   // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
   // need to replace it with `+` again to be a valid course run key.
   const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
-  const isEnrollableBufferDays = useLateRedemptionBufferDays();
+  const isEnrollableBufferDays = useLateRedemptionBufferDays({
+    enabled: !!courseKey,
+  });
   return useQuery({
     ...queryCourseMetadata(courseKey, courseRunKey),
     enabled: !!courseKey,

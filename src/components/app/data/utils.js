@@ -434,6 +434,9 @@ export function retrieveErrorMessage(error) {
  *  if any policy has late redemption enabled.
  */
 export function getLateRedemptionBufferDays(redeemablePolicies) {
+  if (!redeemablePolicies) {
+    return undefined;
+  }
   const anyPolicyHasLateRedemptionEnabled = redeemablePolicies.some((policy) => (
     // is_late_redemption_enabled=True on the serialized policy represents the fact that late
     // redemption has been temporarily enabled by an operator for the policy. It will toggle

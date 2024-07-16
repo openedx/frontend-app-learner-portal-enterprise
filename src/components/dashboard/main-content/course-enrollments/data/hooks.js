@@ -189,7 +189,9 @@ export const useCourseUpgradeData = ({
     enabled: !!applicableCouponCode && canUpgradeToVerifiedEnrollment,
   });
 
-  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
+  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments({
+    enabled: isLearnerCreditUpgradeEnabled && canUpgradeToVerifiedEnrollment,
+  });
 
   const { redeem: redeemLearnerCredit } = useStatefulEnroll({
     contentKey: courseRunKey,

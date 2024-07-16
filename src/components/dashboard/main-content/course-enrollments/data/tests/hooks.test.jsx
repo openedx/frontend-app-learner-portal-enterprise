@@ -26,6 +26,7 @@ import {
 import { ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
   ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
+  COURSE_MODES_MAP,
   emptyRedeemableLearnerCreditPolicies,
   transformCourseEnrollment,
   transformLearnerContentAssignment,
@@ -36,7 +37,7 @@ import {
   useEnterpriseCustomerContainsContent,
   useRedeemablePolicies,
   useSubscriptions,
-  useCourseRunMetadata, COURSE_MODES_MAP,
+  useCourseRunMetadata,
 } from '../../../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../../data/constants';
@@ -58,6 +59,12 @@ jest.mock('../../../../../app/data', () => ({
   useCanUpgradeWithLearnerCredit: jest.fn(),
   useEnterpriseCustomerContainsContent: jest.fn(),
   useCourseRunMetadata: jest.fn(),
+}));
+
+jest.mock('../../../../../course/data/hooks', () => ({
+  ...jest.requireActual('../../../../../course/data/hooks'),
+  useOptimizelyEnrollmentClickHandler: jest.fn(),
+  useTrackSearchConversionClickHandler: jest.fn(),
 }));
 
 const mockRawCourseEnrollment = createRawCourseEnrollment();
@@ -178,7 +185,7 @@ describe('useCourseEnrollments', () => {
   });
 });
 
-describe('useCourseUpgradeData', () => {
+describe.only('useCourseUpgradeData', () => {
   const courseRunKey = 'course-run-key';
   const enterpriseId = mockEnterpriseCustomer.uuid;
   const subscriptionLicense = {
@@ -214,6 +221,7 @@ describe('useCourseUpgradeData', () => {
     });
     useCouponCodes.mockReturnValue({ data: null });
     useCourseRunMetadata.mockReturnValue({ data: null });
+    useEnterpriseCourseEnrollments.mockReturnValue({ data: null });
   });
 
   it.each([
