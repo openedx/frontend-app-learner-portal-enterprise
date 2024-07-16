@@ -13,10 +13,9 @@ import ContinueLearningButton from './ContinueLearningButton';
 import Notification from './Notification';
 
 import UpgradeCourseButton from './UpgradeCourseButton';
-import { LICENSE_SUBSIDY_TYPE, EXECUTIVE_EDUCATION_COURSE_MODES, useEnterpriseCustomer } from '../../../../app/data';
+import { EXECUTIVE_EDUCATION_COURSE_MODES, LICENSE_SUBSIDY_TYPE, useEnterpriseCustomer } from '../../../../app/data';
 import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
 import { COURSE_STATUSES } from '../../../../../constants';
-import UpgradeCourseButton from './UpgradeCourseButton';
 
 const messages = defineMessages({
   saveCourseForLater: {
@@ -76,7 +75,7 @@ export const InProgressCourseCard = ({
   const {
     subsidyForCourse,
     hasUpgradeAndConfirm,
-          courseRunPrice,
+    courseRunPrice,
   } = useCourseUpgradeData({ courseRunKey: courseRunId, mode });
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
   const { courseCards } = useContext(AppContext);
@@ -84,16 +83,16 @@ export const InProgressCourseCard = ({
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
   const isExecutiveEducation = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
 
- const coursewareOrUpgradeLink = useLinkToCourse({
+  const coursewareOrUpgradeLink = useLinkToCourse({
     linkToCourse,
     subsidyForCourse,
   });
 
   const renderButtons = () => (
     <Stack direction="horizontal" gap={1}>
-     {hasUpgradeAndConfirm && (
+      {hasUpgradeAndConfirm && (
         <UpgradeCourseButton
-      variant={isExecutiveEducation ? 'inverse-brand' : 'brand'}
+          variant={isExecutiveEducation ? 'inverse-brand' : 'brand'}
           title={title}
           courseRunKey={courseRunId}
           mode={mode}
@@ -112,7 +111,7 @@ export const InProgressCourseCard = ({
   );
 
   const renderCourseInfoOutline = () => {
-    if (!shouldShowUpgradeButton || enterpriseCustomer.hideCourseOriginalPrice || !courseRunPrice) {
+    if (!hasUpgradeAndConfirm || enterpriseCustomer.hideCourseOriginalPrice || !courseRunPrice) {
       return null;
     }
     return (
