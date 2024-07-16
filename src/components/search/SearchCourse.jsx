@@ -11,7 +11,6 @@ const SearchCourse = ({ filter }) => {
   const defaultFilter = `content_type:${CONTENT_TYPE_COURSE} AND ${filter}`;
   const config = getConfig();
   const intl = useIntl();
-
   return (
     <Index indexName={config.ALGOLIA_INDEX_NAME} indexId="search-courses">
       <Configure
