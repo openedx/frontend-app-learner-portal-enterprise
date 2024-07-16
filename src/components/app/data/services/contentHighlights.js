@@ -2,6 +2,7 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
 
+import { MAX_HIGHLIGHT_SETS } from '../constants';
 import { fetchPaginatedData } from './utils';
 
 /**
@@ -37,6 +38,7 @@ export async function fetchEnterpriseCuration(enterpriseUUID, options = {}) {
 export async function fetchContentHighlights(enterpriseUUID, options = {}) {
   const queryParams = new URLSearchParams({
     enterprise_customer: enterpriseUUID,
+    page_size: MAX_HIGHLIGHT_SETS,
     ...options,
   });
   const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/highlight-sets/?${queryParams.toString()}`;

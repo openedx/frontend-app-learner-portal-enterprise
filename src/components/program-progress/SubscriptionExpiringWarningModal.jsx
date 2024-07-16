@@ -2,14 +2,17 @@ import PropTypes from 'prop-types';
 import {
   ActionRow, Button, MailtoLink, StandardModal,
 } from '@openedx/paragon';
-import dayjs from '../../utils/dayjs';
+import { useIntl } from '@edx/frontend-platform/i18n';
 import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from './data/constants';
 import { useEnterpriseCustomer, useSubscriptions } from '../app/data';
+import { i18nFormatTimestamp } from '../../utils/common';
 
+// TODO: Internationalization of this component
 const SubscriptionExpirationWarningModal = ({
   isSubscriptionExpiringWarningModalOpen,
   onSubscriptionExpiringWarningModalClose,
 }) => {
+  const intl = useIntl();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: { subscriptionPlan } } = useSubscriptions();
   const renderTitle = () => (
@@ -37,7 +40,7 @@ const SubscriptionExpirationWarningModal = ({
         If you plan to complete the program, please {renderContactText()} to ensure your subscription access is renewed.
       </p>
       <i>
-        Access expires: {dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}.
+        Access expires: {i18nFormatTimestamp({ intl, timestamp: subscriptionPlan.expirationDate })}.
       </i>
     </>
   );

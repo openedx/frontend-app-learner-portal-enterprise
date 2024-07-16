@@ -48,35 +48,50 @@ const mockCanRedeemData = [{
   reasons: [],
 }];
 
+const Wrapper = ({ children }) => (
+  <QueryClientProvider client={queryClient()}>
+    {children}
+  </QueryClientProvider>
+);
+
 describe('useCanUpgradeWithLearnerCredit', () => {
-  const Wrapper = ({ children }) => (
-    <QueryClientProvider client={queryClient()}>
-      {children}
-    </QueryClientProvider>
-  );
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     fetchCanRedeem.mockResolvedValue(mockCanRedeemData);
   });
-  it('should handle resolved value correctly', async () => {
-    const {
-      result,
-      waitForNextUpdate,
-    } = renderHook(() => useCanUpgradeWithLearnerCredit(mockCourseRunKey), { wrapper: Wrapper });
-    await waitForNextUpdate();
 
+  it.each([
+    { hasCustomSelect: false },
+    { hasCustomSelect: true },
+  ])('should handle resolved value correctly (%s)', async ({ hasCustomSelect }) => {
+    const queryOptions = {};
+    if (hasCustomSelect) {
+      // mock the custom select transform function to simply return the same transformed data
+      queryOptions.select = jest.fn(data => data.transformed);
+    }
+    const { result, waitForNextUpdate } = renderHook(
+      () => useCanUpgradeWithLearnerCredit(mockCourseRunKey, queryOptions),
+      { wrapper: Wrapper },
+    );
+    await waitForNextUpdate();
+    const expectedTransformedResult = {
+      applicableSubsidyAccessPolicy: {
+        ...mockCanRedeemData[0].redeemableSubsidyAccessPolicy,
+        isPolicyRedemptionEnabled: true,
+      },
+      listPrice: mockCanRedeemData[0].listPrice.usd,
+    };
+    if (hasCustomSelect) {
+      expect(queryOptions.select).toHaveBeenCalledWith({
+        original: mockCanRedeemData,
+        transformed: expectedTransformedResult,
+      });
+    }
     expect(result.current).toEqual(
       expect.objectContaining({
-        data: {
-          applicableSubsidyAccessPolicy: {
-            ...mockCanRedeemData[0],
-            listPrice: mockCanRedeemData[0].listPrice.usd,
-            isPolicyRedemptionEnabled: true,
-          },
-        },
+        data: expectedTransformedResult,
         isLoading: false,
-        isFetching: false,
       }),
     );
   });

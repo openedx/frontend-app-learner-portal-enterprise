@@ -282,12 +282,12 @@ export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBuffe
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
  */
-export function queryCanUpgradeWithLearnerCredit(enterpriseUuid, courseRunKeys) {
+export function queryCanUpgradeWithLearnerCredit(enterpriseUuid, courseRunKey) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.course(null)
-    ._ctx.canRedeem(courseRunKeys);
+    ._ctx.canRedeem([courseRunKey]);
 }
 
 /**

@@ -17,6 +17,7 @@ import { EXECUTIVE_EDUCATION_COURSE_MODES, useEnterpriseCustomer } from '../../.
  * @returns {Function} A functional React component for the continue learning button.
  */
 const ContinueLearningButton = ({
+  variant,
   className,
   linkToCourse,
   title,
@@ -40,7 +41,7 @@ const ContinueLearningButton = ({
   const isCourseStarted = () => dayjs(startDate) <= dayjs();
   const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
   const disabled = !isCourseStarted() ? 'disabled' : undefined;
-  const variant = isExecutiveEducation2UCourse ? 'inverse-outline-primary' : 'outline-primary';
+  const defaultVariant = isExecutiveEducation2UCourse ? 'inverse-outline-primary' : 'outline-primary';
 
   const renderContent = () => {
     // resumeCourseRunUrl indicates that learner has made progress, available only if the learner has started learning.
@@ -58,7 +59,7 @@ const ContinueLearningButton = ({
       destination={linkToCourse}
       className={classNames('btn-xs-block', disabled, className)}
       onClick={onClickHandler}
-      variant={variant}
+      variant={variant || defaultVariant}
     >
       {renderContent()}
       <span className="sr-only">for {title}</span>
@@ -68,6 +69,7 @@ const ContinueLearningButton = ({
 
 ContinueLearningButton.defaultProps = {
   className: undefined,
+  variant: null,
   startDate: null,
   mode: null,
   resumeCourseRunUrl: null,
@@ -75,6 +77,7 @@ ContinueLearningButton.defaultProps = {
 
 ContinueLearningButton.propTypes = {
   className: PropTypes.string,
+  variant: PropTypes.string,
   linkToCourse: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,

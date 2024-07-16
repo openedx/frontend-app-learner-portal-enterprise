@@ -106,19 +106,16 @@ const CourseSection = ({
     const isAuditOrHonorEnrollment = [COURSE_MODES_MAP.AUDIT, COURSE_MODES_MAP.HONOR].includes(courseRun.mode);
     if (isAuditOrHonorEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
       return (
-        <Suspense fallback={(
-          <DelayedFallbackContainer>
-            <>
+        <Suspense
+          key={courseRun.courseRunId}
+          fallback={(
+            <DelayedFallbackContainer className="dashboard-course-card border-bottom py-3 mb-2">
               <div className="sr-only">Loading...</div>
-              <Skeleton key={uuidv4()} height={200} className="dashboard-course-card py-3 mb-2" />
-            </>
-          </DelayedFallbackContainer>
-        )}
+              <Skeleton key={uuidv4()} height={200} />
+            </DelayedFallbackContainer>
+          )}
         >
-          <Component
-            {...getCourseRunProps(courseRun)}
-            key={courseRun.courseRunId}
-          />
+          <Component {...getCourseRunProps(courseRun)} />
         </Suspense>
       );
     }

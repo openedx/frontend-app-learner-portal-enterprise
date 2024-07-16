@@ -3,12 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { queryCanUpgradeWithLearnerCredit } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 
-export function isPolicyRedemptionEnabled({ canRedeemData }) {
-  const hasSuccessfulRedemption = canRedeemData?.hasSuccessfulRedemption;
-  const redeemableSubsidyAccessPolicy = canRedeemData?.redeemableSubsidyAccessPolicy;
-  return hasSuccessfulRedemption || !!redeemableSubsidyAccessPolicy;
-}
-
 /**
  * Determines whether the given courseRunKey is redeemable with their learner credit policies
  * Returns the first redeemableSubsidyAccessPolicy
@@ -21,18 +15,34 @@ export default function useCanUpgradeWithLearnerCredit(courseRunKey, queryOption
     ...queryCanUpgradeWithLearnerCredit(enterpriseCustomer.uuid, courseRunKey),
     ...queryOptionsRest,
     select: (data) => {
-      if (data.length === 0) {
-        return {
-          applicableSubsidyAccessPolicy: null,
-        };
-      }
-      return {
-        applicableSubsidyAccessPolicy: data.flatMap((canRedeemData) => ({
-          ...canRedeemData,
-          listPrice: canRedeemData?.listPrice?.usd,
-          isPolicyRedemptionEnabled: isPolicyRedemptionEnabled({ canRedeemData }),
-        }))[0],
+      // Base transformed data
+      const transformedData = {
+        applicableSubsidyAccessPolicy: null,
+        listPrice: null,
       };
+
+      // Determine whether the course run key is redeemable. If so, update the transformed data with the
+      // applicable subsidy access policy and list price.
+      const redeemableCourseRun = data.filter((canRedeemData) => (
+        canRedeemData.canRedeem && canRedeemData.redeemableSubsidyAccessPolicy
+      ))[0];
+      if (redeemableCourseRun) {
+        const applicableSubsidyAccessPolicy = redeemableCourseRun.redeemableSubsidyAccessPolicy;
+        applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled = true;
+        transformedData.applicableSubsidyAccessPolicy = applicableSubsidyAccessPolicy;
+        transformedData.listPrice = redeemableCourseRun.listPrice.usd;
+      }
+
+      // When custom `select` function is provided in `queryOptions`, call it with original and transformed data.
+      if (select) {
+        return select({
+          original: data,
+          transformed: transformedData,
+        });
+      }
+
+      // Otherwise, return the transformed data.
+      return transformedData;
     },
   });
 }
