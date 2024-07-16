@@ -21,22 +21,22 @@ export const messages = defineMessages({
     description: 'Text for the enroll button in the confirmation modal',
   },
   upgradeModalConfirmCta: {
-    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text',
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text.default',
     defaultMessage: 'Confirm upgrade',
     description: 'Text for the upgrade button in the confirmation modal',
   },
   upgradeModalConfirmCtaPending: {
-    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text',
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text.pending',
     defaultMessage: 'Upgrading...',
     description: 'Text for the upgrade button in the confirmation modal, while an upgrade redemption is in pending.',
   },
   upgradeModalConfirmCtaComplete: {
-    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text',
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text.complete',
     defaultMessage: 'Upgraded',
     description: 'Text for the upgrade button in the confirmation modal, when an upgrade redemption is complete.',
   },
   upgradeModalConfirmCtaError: {
-    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text',
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text.error',
     defaultMessage: 'Try again',
     description: 'Text for the upgrade button in the confirmation modal, when an upgrade redemption is errored.',
   },
