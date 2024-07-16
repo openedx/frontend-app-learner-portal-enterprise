@@ -442,12 +442,19 @@ describe('useTrackSearchConversionClickHandler', () => {
       objectId: 'algolia-object-id',
     },
   };
-  const wrapper = ({ children }) => (
+
+  const WrapperWithIntlProvider = ({ children }) => (
     <IntlProvider locale="en">
+      {children}
+    </IntlProvider>
+  );
+
+  const wrapper = ({ children }) => (
+    <WrapperWithIntlProvider>
       <CourseContext.Provider value={mockCourseState}>
         {children}
       </CourseContext.Provider>
-    </IntlProvider>
+    </WrapperWithIntlProvider>
   );
 
   beforeAll(() => {
@@ -457,7 +464,13 @@ describe('useTrackSearchConversionClickHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useCourseMetadata.mockReturnValue({ data: { activeCourseRun: { key: 'course-run-key' } } });
+    useCourseMetadata.mockReturnValue({
+      data: {
+        activeCourseRun: {
+          key: 'course-run-key',
+        },
+      },
+    });
     getConfig.mockReturnValue({ ALGOLIA_INDEX_NAME: 'test-algolia-index' });
   });
 
@@ -516,6 +529,40 @@ describe('useTrackSearchConversionClickHandler', () => {
         courseKey: 'course-run-key',
       },
     );
+  });
+
+  it('does nothing with missing courseKey', async () => {
+    useCourseMetadata.mockReturnValue({
+      data: null,
+    });
+
+    const { result } = renderHook(
+      () => useTrackSearchConversionClickHandler(basicProps),
+      { wrapper },
+    );
+
+    const outputClickHandler = result.current;
+    outputClickHandler({ preventDefault: mockPreventDefault });
+
+    expect(sendEnterpriseTrackEvent).not.toHaveBeenCalled();
+    expect(global.location.assign).not.toHaveBeenCalled();
+  });
+
+  it('does nothing with missing CourseContext', async () => {
+    useCourseMetadata.mockReturnValue({
+      data: null,
+    });
+
+    const { result } = renderHook(
+      () => useTrackSearchConversionClickHandler(basicProps),
+      { wrapper: WrapperWithIntlProvider },
+    );
+
+    const outputClickHandler = result.current;
+    outputClickHandler({ preventDefault: mockPreventDefault });
+
+    expect(sendEnterpriseTrackEvent).not.toHaveBeenCalled();
+    expect(global.location.assign).not.toHaveBeenCalled();
   });
 });
 
