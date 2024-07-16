@@ -20,5 +20,3 @@ export const COURSE_STATUSES = {
 
 export const GETSMARTER_BASE_URL = 'https://www.getsmarter.com';
 export const HAS_USER_DISMISSED_NEW_GROUP_ALERT = 'has-user-dismissed-group-alert';
-
-export const COURSE_UPGRADE_HYPERLINK_TIMEOUT_MS = 300;

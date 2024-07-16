@@ -5,13 +5,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
-import { hasFeatureFlagEnabled, sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { hasFeatureFlagEnabled, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
 import { useLocation } from 'react-router-dom';
 import * as service from './service';
-import { COURSE_STATUSES, COURSE_UPGRADE_HYPERLINK_TIMEOUT_MS, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
+import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
 import {
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
@@ -207,7 +207,7 @@ export const useCourseUpgradeData = ({
       subsidyForCourse: null,
       courseRunPrice: null,
       hasUpgradeAndConfirm: false,
-      redeem: () => {}, // no-op
+      redeem: null,
     };
 
     // Return early if the user is unable to upgrade to their course mode OR the content
@@ -240,14 +240,11 @@ export const useCourseUpgradeData = ({
         ...defaultReturn,
         subsidyForCourse: applicableSubsidy,
         redeem: async (e) => {
-          e.preventDefault();
-          await new Promise((resolve) => {
-            sendEnterpriseTrackEvent(
-              enterpriseCustomer.uuid,
-              'edx.ui.enterprise.learner_portal.course.upgrade_button.subscription_license.clicked',
-            );
-            setTimeout(resolve, COURSE_UPGRADE_HYPERLINK_TIMEOUT_MS);
-          });
+          e?.preventDefault();
+          await sendEnterpriseTrackEventWithDelay(
+            enterpriseCustomer.uuid,
+            'edx.ui.enterprise.learner_portal.course.upgrade_button.subscription_license.clicked',
+          );
           global.location.assign(applicableSubsidy.redemptionUrl);
         },
       };
@@ -267,14 +264,11 @@ export const useCourseUpgradeData = ({
         courseRunPrice: courseRunDetails?.firstEnrollablePaidSeatPrice,
         hasUpgradeAndConfirm: true,
         redeem: async (e) => {
-          e.preventDefault();
-          await new Promise((resolve) => {
-            sendEnterpriseTrackEvent(
-              enterpriseCustomer.uuid,
-              'edx.ui.enterprise.learner_portal.course.upgrade_button.subscription_license.clicked',
-            );
-            setTimeout(resolve, COURSE_UPGRADE_HYPERLINK_TIMEOUT_MS);
-          });
+          e?.preventDefault();
+          await sendEnterpriseTrackEventWithDelay(
+            enterpriseCustomer.uuid,
+            'edx.ui.enterprise.learner_portal.course.upgrade_button.coupon_code.clicked',
+          );
           global.location.assign(applicableSubsidy.redemptionUrl);
         },
       };

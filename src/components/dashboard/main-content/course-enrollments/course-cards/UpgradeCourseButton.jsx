@@ -78,7 +78,7 @@ const UpgradeCourseButton = ({
   };
 
   const handleEnroll = async (e) => {
-    if (!subsidyForCourse) {
+    if (!subsidyForCourse || !redeem) {
       return;
     }
     await redeem(e);

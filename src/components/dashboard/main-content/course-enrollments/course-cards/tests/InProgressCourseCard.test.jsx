@@ -181,13 +181,18 @@ describe('<InProgressCourseCard />', () => {
       );
 
       // Verify `onRedeemSuccess` sets confirmation CTA as complete & redirects to courseware URL
-      const mockCoursewareUrl = 'https://courseware.url';
-      const mockTransaction = { state: 'committed', coursewareUrl: mockCoursewareUrl };
+      const mockTransaction = { state: 'committed', coursewareUrl: 'https://courseware.url' };
       act((() => {
         useCourseUpgradeDataArgs.onRedeemSuccess(mockTransaction);
       }));
       expect(screen.getByRole('button', { name: messages.upgradeModalConfirmCtaComplete.defaultMessage })).toBeInTheDocument();
-      expect(global.location.assign).toHaveBeenCalledWith(mockCoursewareUrl);
+      expect(global.location.assign).toHaveBeenCalledWith(mockTransaction.coursewareUrl);
+
+      const mockErroredTransaction = { state: 'errored', coursewareUrl: 'https://did.not.visit' };
+      act((() => {
+        useCourseUpgradeDataArgs.onRedeemSuccess(mockErroredTransaction);
+      }));
+      expect(global.location.assign).not.toHaveBeenCalledWith(mockErroredTransaction.coursewareUrl);
 
       // Verify `onRedeemError` sets confirmation CTA as error
       act((() => {
