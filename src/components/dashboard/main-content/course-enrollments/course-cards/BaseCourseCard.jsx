@@ -565,6 +565,7 @@ const BaseCourseCard = ({
               <Hyperlink
                 className={classNames('text-underline', { 'text-light-200': EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode) })}
                 destination={LEARNER_SUPPORT_SELF_PACED_COURSE_MODE_URL}
+                data-testid="self-paced-help-link"
               >
                 {chunks}
               </Hyperlink>

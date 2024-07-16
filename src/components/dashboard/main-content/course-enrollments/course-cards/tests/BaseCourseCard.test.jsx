@@ -14,8 +14,12 @@ import { ToastsContext } from '../../../../../Toasts';
 import { useEnterpriseCustomer } from '../../../../../app/data';
 
 import { queryClient } from '../../../../../../utils/tests';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
+import {
+  authenticatedUserFactory,
+  enterpriseCustomerFactory,
+} from '../../../../../app/data/services/data/__factories__';
 import { COURSE_STATUSES } from '../../data';
+import { isCourseEnded } from '../../../../../../utils/common';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -125,36 +129,84 @@ describe('<BaseCourseCard />', () => {
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
-  it('renders with different startDate values', () => {
-    const today = dayjs().toISOString();
-    const yesterday = dayjs().subtract(1, 'day').toISOString();
-    const tomorrow = dayjs().add(1, 'day').toISOString();
+  it.each([{
+    startDate: dayjs().toISOString(),
+  }, {
+    startDate: dayjs().subtract(1, 'day').toISOString(),
+  }, {
+    startDate: dayjs().add(1, 'day').toISOString(),
+  }])('renders with different startDate values', ({ startDate }) => {
+    const formattedStartDate = dayjs(startDate).format('MMMM Do, YYYY');
+    const isCourseStarted = dayjs(startDate) <= dayjs();
 
-    [today, yesterday, tomorrow].forEach((startDate) => {
-      const formattedStartDate = dayjs(startDate).format('MMMM Do, YYYY');
-      const isCourseStarted = dayjs(startDate) <= dayjs();
+    renderWithRouter(
+      <BaseCourseCardWrapper
+        type={COURSE_STATUSES.inProgress}
+        title="edX Demonstration Course"
+        linkToCourse="https://edx.org"
+        courseRunId="my+course+key"
+        hasEmailsEnabled
+        courseType="executive-education-2u"
+        productSource="2u"
+        mode="executive-education"
+        startDate={startDate}
+        orgName="some_name"
+        pacing="self"
+      />,
+    );
+    if (!isCourseStarted) {
+      expect(screen.getByText(`Starts ${formattedStartDate}`)).toBeInTheDocument();
+    } else {
+      expect(screen.queryByText(`Starts ${formattedStartDate}`)).not.toBeInTheDocument();
+    }
+  });
 
-      renderWithRouter(
-        <BaseCourseCardWrapper
-          type={COURSE_STATUSES.inProgress}
-          title="edX Demonstration Course"
-          linkToCourse="https://edx.org"
-          courseRunId="my+course+key"
-          hasEmailsEnabled
-          courseType="executive-education-2u"
-          productSource="2u"
-          mode="executive-education"
-          startDate={startDate}
-          orgName="some_name"
-          pacing="self"
-        />,
-      );
-      if (!isCourseStarted) {
-        expect(screen.getByText(`Starts ${formattedStartDate}`)).toBeInTheDocument();
-      } else {
-        expect(screen.queryByText(`Starts ${formattedStartDate}`)).not.toBeInTheDocument();
-      }
-    });
+  it.each([{
+    startDate: dayjs().subtract(10, 'days').toISOString(),
+    endDate: dayjs().add(10, 'days').toISOString(),
+    pacing: 'self',
+  }, {
+    startDate: dayjs().subtract(25, 'day').toISOString(),
+    endDate: dayjs().subtract(1, 'days').toISOString(),
+    pacing: 'self',
+  }, {
+    startDate: dayjs().subtract(10, 'days').toISOString(),
+    endDate: dayjs().add(10, 'days').toISOString(),
+    pacing: 'instructor',
+  }, {
+    startDate: dayjs().subtract(25, 'day').toISOString(),
+    endDate: dayjs().subtract(1, 'days').toISOString(),
+    pacing: 'instructor',
+  }])('renders with different tense values for pacing (%s)', ({ pacing, startDate, endDate }) => {
+    const courseHasEnded = isCourseEnded(endDate);
+    renderWithRouter(
+      <BaseCourseCardWrapper
+        type={COURSE_STATUSES.inProgress}
+        title="edX Demonstration Course"
+        linkToCourse="https://edx.org"
+        courseRunId="my+course+key"
+        hasEmailsEnabled
+        courseType="executive-education-2u"
+        productSource="2u"
+        mode="executive-education"
+        startDate={startDate}
+        endDate={endDate}
+        orgName="some_name"
+        pacing={pacing}
+      />,
+    );
+    if (pacing === 'self') {
+      expect(screen.getByTestId('self-paced-help-link')).toBeInTheDocument();
+      expect(screen.getByText('self-paced')).toBeInTheDocument();
+    } else {
+      expect(screen.queryByTestId('self-paced-help-link')).not.toBeInTheDocument();
+      expect(screen.getByText('instructor-paced', { exact: false })).toBeInTheDocument();
+    }
+    if (courseHasEnded) {
+      expect(screen.getByText('This course was', { exact: false })).toBeInTheDocument();
+    } else {
+      expect(screen.getByText('This course is', { exact: false })).toBeInTheDocument();
+    }
   });
 
   it.each([
