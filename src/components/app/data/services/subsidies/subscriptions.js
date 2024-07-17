@@ -139,9 +139,11 @@ export async function activateOrAutoApplySubscriptionLicense({
   const {
     customerAgreement,
     licensesByStatus,
-    subscriptionLicense,
   } = subscriptionsData;
-  if (!customerAgreement || !subscriptionLicense?.subscriptionPlan?.isCurrent) {
+  // If there is no available customer agreement for the current customer,
+  // or if there is no *current* plan available within such a customer agreement,
+  // exit early and redirect to the dashboard.
+  if (!customerAgreement || customerAgreement.netDaysUntilExpiration <= 0) {
     return checkLicenseActivationRouteAndRedirectToDashboard();
   }
 
