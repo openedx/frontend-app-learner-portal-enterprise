@@ -34,6 +34,7 @@ const mockLicenseActivationKey = 'test-license-activation-key';
 const mockSubscriptionPlanUUID = 'test-subscription-plan-uuid';
 const mockCustomerAgreement = {
   uuid: 'test-customer-agreement-uuid',
+  netDaysUntilExpiration: 35,
 };
 const APP_CONFIG = {
   LICENSE_MANAGER_URL: 'http://localhost:18170',
@@ -197,7 +198,13 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
 
   it('returns null with already activated license', async () => {
     const mockLicensesByStatus = {
-      [LICENSE_STATUS.ACTIVATED]: [{ uuid: 'test-license-uuid' }],
+      [LICENSE_STATUS.ACTIVATED]: [
+        {
+          uuid: 'test-license-uuid',
+          status: LICENSE_STATUS.ACTIVATED,
+          subscriptionPlan: { isCurrent: true },
+        },
+      ],
       [LICENSE_STATUS.ASSIGNED]: [],
       [LICENSE_STATUS.REVOKED]: [],
     };
@@ -222,7 +229,13 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     const mockLicensesByStatus = {
       [LICENSE_STATUS.ACTIVATED]: [],
       [LICENSE_STATUS.ASSIGNED]: [],
-      [LICENSE_STATUS.REVOKED]: [{ uuid: 'test-license-uuid' }],
+      [LICENSE_STATUS.REVOKED]: [
+        {
+          uuid: 'test-license-uuid',
+          status: LICENSE_STATUS.REVOKED,
+          subscriptionPlan: { isCurrent: true },
+        },
+      ],
     };
     const mockSubscriptionsData = {
       customerAgreement: mockCustomerAgreement,
@@ -253,6 +266,7 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
       uuid: mockLicenseUUID,
       status: LICENSE_STATUS.ASSIGNED,
       activationKey: mockLicenseActivationKey,
+      subscriptionPlan: { isCurrent: true },
     };
     const mockLicensesByStatus = {
       [LICENSE_STATUS.ACTIVATED]: [],
