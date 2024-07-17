@@ -90,7 +90,7 @@ const SubsidiesSummary = ({
   } = useHasAvailableSubsidiesOrRequests();
   const hasApplicableLearnerCredit = (
     enterpriseOffersData.canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies
-  ) && !!learnerCreditSummaryCardData.expirationDate;
+  ) && !!learnerCreditSummaryCardData?.expirationDate;
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const { isPlanApproachingExpiry } = useExpirationMetadata(
     learnerCreditSummaryCardData?.expirationDate,
