@@ -48,6 +48,7 @@
   --pgn-color-info-500:  #{$info-500};
 }
 
+// TODO: Class override should be a contribution to Paragon if not already
 .pgn__card-logo-cap {
   object-fit: scale-down !important;
   object-position: center center !important;

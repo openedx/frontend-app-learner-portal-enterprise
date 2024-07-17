@@ -41,7 +41,7 @@ const PathwayNode = ({ node }) => {
               </div>
               <div className="col-7">
                 <div className="row">
-                  <h3>{node.title}</h3>&nbsp;
+                  <h3>{node.title}</h3>{' '}
                   {node.status === IN_PROGRESS && (
                     <Badge variant="success">
                       <FormattedMessage

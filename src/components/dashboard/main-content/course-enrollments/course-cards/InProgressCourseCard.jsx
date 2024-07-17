@@ -99,7 +99,7 @@ export const InProgressCourseCard = ({
         />
       )}
       <ContinueLearningButton
-        variant={hasUpgradeAndConfirm ? 'primary' : undefined}
+        variant={hasUpgradeAndConfirm ? 'outline-primary' : undefined}
         linkToCourse={coursewareOrUpgradeLink}
         title={title}
         courseRunId={courseRunId}
@@ -110,23 +110,21 @@ export const InProgressCourseCard = ({
     </Stack>
   );
 
-  const renderCourseInfoOutline = () => {
+  const renderCourseUpgradePrice = () => {
     if (!hasUpgradeAndConfirm || enterpriseCustomer.hideCourseOriginalPrice || !courseRunPrice) {
       return null;
     }
     return (
-      <Stack className="small my-2.5">
-        {!enterpriseCustomer.hideCourseOriginalPrice && (
-          <div>
-            <span>
-              <b>{intl.formatMessage(messages.upgradeCourseOriginalPrice)}</b>&nbsp;
-              <s>${intl.formatMessage(messages.upgradeCoursePriceStrikethrough, { courseRunPrice })}</s>&nbsp;
-              <span className="text-brand font-weight-bold">
-                {intl.formatMessage(messages.upgradeCourseFree)}
-              </span>
+      <Stack className="small mb-1 mt-4">
+        <div>
+          <span>
+            <b>{intl.formatMessage(messages.upgradeCourseOriginalPrice)}</b>{' '}
+            <s>${intl.formatMessage(messages.upgradeCoursePriceStrikethrough, { courseRunPrice })}</s>{' '}
+            <span className="text-brand font-weight-bold text-uppercase">
+              {intl.formatMessage(messages.upgradeCourseFree)}
             </span>
-          </div>
-        )}
+          </span>
+        </div>
         <div className="x-small">{intl.formatMessage(messages.upgradeCourseCoveredByOrganization)}</div>
       </Stack>
     );
@@ -236,7 +234,7 @@ export const InProgressCourseCard = ({
       courseRunId={courseRunId}
       mode={mode}
       startDate={startDate}
-      courseInfoOutline={renderCourseInfoOutline()}
+      courseUpgradePrice={renderCourseUpgradePrice()}
       {...rest}
     >
       {renderNotifications()}

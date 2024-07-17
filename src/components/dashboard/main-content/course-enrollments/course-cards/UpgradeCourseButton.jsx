@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, OverlayTrigger, Tooltip } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -15,7 +15,7 @@ const messages = defineMessages({
   },
   upgradeForFreeButton: {
     id: 'enterprise.learner_portal.dashbboard.enrollments.course.upgrade.button.text',
-    defaultMessage: 'Upgrade for free',
+    defaultMessage: 'Upgrade <s>{title}</s> for free',
     description: 'The label for the course upgrade button text',
   },
 });
@@ -33,7 +33,7 @@ const OverlayTriggerWrapper = ({ courseRunKey, hasCourseRunPrice, children }) =>
   if (!hideCourseOriginalPrice || hasCourseRunPrice) {
     return (
       <div>
-        { children }
+        {children}
       </div>
     );
   }
@@ -90,6 +90,11 @@ const UpgradeCourseButton = ({
       'edx.ui.enterprise.learner_portal.course.upgrade_button.to_ecommerce_basket.clicked',
     );
   };
+
+  const upgradeButtonScreenReaderText = useCallback((chunks) => {
+    (<span className="sr-only">{chunks}</span>);
+  }, []);
+
   return (
     <>
       <OverlayTriggerWrapper courseRunKey={courseRunKey} hasCourseRunPrice={!!courseRunPrice}>
@@ -99,8 +104,10 @@ const UpgradeCourseButton = ({
           onClick={handleClick}
           data-testid="upgrade-course-button"
         >
-          {intl.formatMessage(messages.upgradeForFreeButton)}
-          <span className="sr-only">for {title}</span>
+          {intl.formatMessage(messages.upgradeForFreeButton, {
+            s: upgradeButtonScreenReaderText,
+            title,
+          })}
         </Button>
       </OverlayTriggerWrapper>
       <EnrollModal

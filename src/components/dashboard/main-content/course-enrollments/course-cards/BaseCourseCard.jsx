@@ -1,7 +1,6 @@
 import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import capitalize from 'lodash.capitalize';
 
 import {
   Badge,
@@ -87,24 +86,24 @@ const messages = defineMessages({
     defaultMessage: 'Enrollment deadline approaching',
     description: 'Tooltip content for enrollment deadline approaching',
   },
-  wasSelf: {
+  pacingWasSelf: {
     id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.was.self_pacing',
-    defaultMessage: 'This course was <a>self-paced</a>.',
+    defaultMessage: 'This course was <a>self-paced</a>',
     description: 'The label for the course miscellaneous text pacing',
   },
-  wasInstructor: {
+  pacingWasInstructor: {
     id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.was.instructor_pacing',
-    defaultMessage: 'This course was instructor-paced.',
+    defaultMessage: 'This course was instructor-paced',
     description: 'The label for the course miscellaneous text instructor pacing',
   },
-  isSelf: {
+  pacingIsSelf: {
     id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.is.self_pacing',
-    defaultMessage: 'This course is <a>self-paced</a>.',
+    defaultMessage: 'This course is <a>self-paced</a>',
     description: 'The label for the course miscellaneous text pacing',
   },
-  isInstructor: {
+  pacingIsInstructor: {
     id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.is.instructor_pacing',
-    defaultMessage: 'This course is instructor-paced.',
+    defaultMessage: 'This course is instructor-paced',
     description: 'The label for the course miscellaneous text instructor pacing',
   },
 });
@@ -133,7 +132,7 @@ export const getScreenReaderText = (str) => (
 );
 
 const MiscTextContainer = ({ children }) => (
-  <small className="mb-0 mt-2">
+  <small className="mb-0 mt-4">
     {children}
   </small>
 );
@@ -157,7 +156,7 @@ const BaseCourseCard = ({
   microMastersTitle,
   orgName,
   children,
-  courseInfoOutline,
+  courseUpgradePrice,
   buttons,
   linkToCourse,
   externalCourseLink,
@@ -184,6 +183,17 @@ const BaseCourseCard = ({
   });
 
   const CourseTitleComponent = externalCourseLink ? Hyperlink : Link;
+
+  const getSelfPacedHyperlink = (chunks) => (
+    <Hyperlink
+      className={classNames('text-underline', { 'text-light-200': EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode) })}
+      destination={LEARNER_SUPPORT_SELF_PACED_COURSE_MODE_URL}
+      target="_blank"
+      data-testid="self-paced-help-link"
+    >
+      {chunks}
+    </Hyperlink>
+  );
 
   const handleUnenrollButtonClick = () => {
     setUnenrollModal((prevState) => ({
@@ -259,14 +269,15 @@ const BaseCourseCard = ({
   };
 
   const getCourseMiscText = () => {
-    if (!pacing || !COURSE_PACING[pacing.toUpperCase()]) {
-      return null;
-    }
     const courseHasEnded = isCourseEnded(endDate);
-    if (courseHasEnded) {
-      return messages[`was${capitalize(pacing)}`];
+    switch (pacing) {
+      case COURSE_PACING.SELF:
+        return courseHasEnded ? messages.pacingWasSelf : messages.pacingIsSelf;
+      case COURSE_PACING.INSTRUCTOR:
+        return courseHasEnded ? messages.pacingWasInstructor : messages.pacingIsInstructor;
+      default:
+        return null;
     }
-    return messages[`is${capitalize(pacing)}`];
   };
 
   const resetModals = () => {
@@ -401,7 +412,7 @@ const BaseCourseCard = ({
       : 'Courses are on-demand, self-paced, and include asynchronous online discussion.';
 
     return (
-      <Stack direction="horizontal" gap={1} className="align-items-center font-weight-light small mb-2">
+      <Stack direction="horizontal" gap={1} className="align-items-center font-weight-light small">
         <p className={classNames('mb-0', { 'text-light-300': isExecutiveEducation2UCourse })}>
           {orgName} &bull; {courseTypeLabel}
         </p>
@@ -468,12 +479,6 @@ const BaseCourseCard = ({
   };
 
   const renderCourseInfoOutline = () => {
-    if (courseInfoOutline) {
-      return (
-        <> { courseInfoOutline } </>
-      );
-    }
-
     const renderedStartDate = renderStartDate();
     const renderedEndDate = renderEndDate();
     const renderedEnrollByDate = renderEnrollByDate();
@@ -494,7 +499,7 @@ const BaseCourseCard = ({
     }
 
     return (
-      <div className="mt-2 mb-4 small">
+      <div className="mt-0 mb-3 small">
         {dateFields.map((dateField, index) => {
           const isLastDateField = index === dateFields.length - 1;
           return (
@@ -506,6 +511,13 @@ const BaseCourseCard = ({
         })}
       </div>
     );
+  };
+
+  const renderCourseUpgradePrice = () => {
+    if (courseUpgradePrice) {
+      return <> {courseUpgradePrice} </>;
+    }
+    return null;
   };
 
   const renderChildren = () => {
@@ -560,16 +572,7 @@ const BaseCourseCard = ({
       return (
         <MiscTextContainer>
           {intl.formatMessage(courseMiscText, {
-            // eslint-disable-next-line react/no-unstable-nested-components
-            a: (chunks) => (
-              <Hyperlink
-                className={classNames('text-underline', { 'text-light-200': EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode) })}
-                destination={LEARNER_SUPPORT_SELF_PACED_COURSE_MODE_URL}
-                data-testid="self-paced-help-link"
-              >
-                {chunks}
-              </Hyperlink>
-            ),
+            a: getSelfPacedHyperlink,
           })}
         </MiscTextContainer>
       );
@@ -634,10 +637,11 @@ const BaseCourseCard = ({
                   {renderBadge()}
                 </Stack>
                 {renderOrganizationName()}
+                {renderCourseInfoOutline()}
               </div>
               {renderSettingsDropdown(dropdownMenuItems)}
             </div>
-            {renderCourseInfoOutline()}
+            {renderCourseUpgradePrice()}
             {renderButtons()}
             {renderChildren()}
             <Row className="course-misc-text">
@@ -674,7 +678,7 @@ BaseCourseCard.propTypes = {
   mode: PropTypes.string.isRequired,
   hasViewCertificateLink: PropTypes.bool,
   buttons: PropTypes.element,
-  courseInfoOutline: PropTypes.element,
+  courseUpgradePrice: PropTypes.element,
   children: PropTypes.node,
   startDate: PropTypes.string,
   endDate: PropTypes.string,
@@ -708,7 +712,7 @@ BaseCourseCard.defaultProps = {
   orgName: null,
   pacing: null,
   buttons: null,
-  courseInfoOutline: null,
+  courseUpgradePrice: null,
   linkToCertificate: null,
   hasViewCertificateLink: true,
   dropdownMenuItems: null,
