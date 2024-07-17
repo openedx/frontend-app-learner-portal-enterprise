@@ -8,7 +8,7 @@ import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { fetchPaginatedData } from '../utils';
 import { hasValidStartExpirationDates } from '../../../../../utils/common';
-
+import { querySubscriptions } from '../../queries';
 // Subscriptions
 
 /**
@@ -89,6 +89,8 @@ export async function requestAutoAppliedUserLicense(customerAgreementId) {
 export async function getAutoAppliedSubscriptionLicense({
   enterpriseCustomer,
   customerAgreement,
+  dashboardRedirectPath,
+  queryClient,
 }) {
   // If the feature flag for auto-applied licenses is not enabled, return early.
   if (!features.ENABLE_AUTO_APPLIED_LICENSES) {
@@ -106,7 +108,12 @@ export async function getAutoAppliedSubscriptionLicense({
   }
 
   try {
-    return requestAutoAppliedUserLicense(customerAgreement.uuid);
+    const autoAppliedLicense = await requestAutoAppliedUserLicense(customerAgreement.uuid);
+    Promise.all([
+      queryClient.ensureQueryData(querySubscriptions(enterpriseCustomer.uuid)),
+    ]).then(() => {
+      global.location.assign(dashboardRedirectPath);
+    });
   } catch (error) {
     logError(error);
     return null;
@@ -183,6 +190,8 @@ export async function activateOrAutoApplySubscriptionLicense({
     activatedOrAutoAppliedLicense = await getAutoAppliedSubscriptionLicense({
       enterpriseCustomer,
       customerAgreement,
+      dashboardRedirectPath,
+      queryClient,
     });
   }
   if (activatedOrAutoAppliedLicense) {
