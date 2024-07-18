@@ -122,7 +122,7 @@ export const getScreenReaderText = (str) => (
 );
 
 const MiscTextContainer = ({ children }) => (
-  <small className="mb-0 mt-4">
+  <small>
     {children}
   </small>
 );
@@ -328,7 +328,7 @@ const BaseCourseCard = ({
     }
 
     return (
-      <div className="ml-auto">
+      <div className="ml-auto mt-n1.5">
         <Dropdown>
           <Dropdown.Toggle
             as={IconButton}
@@ -337,6 +337,7 @@ const BaseCourseCard = ({
             alt={`course settings for ${title}`}
             id={`course-enrollment-card-settings-dropdown-toggle-${courseRunId}`}
             iconClassNames={execEdClass}
+            size="inline"
           />
           <Dropdown.Menu>
             {menuItems.map(menuItem => (
@@ -384,13 +385,13 @@ const BaseCourseCard = ({
       return null;
     }
     return (
-      <p className="font-weight-bold w-75 mb-2">
+      <div className="font-weight-bold small mb-1">
         {microMastersTitle}
-      </p>
+      </div>
     );
   };
 
-  const renderOrganizationName = () => {
+  const renderOrgNameAndCourseType = () => {
     if (!orgName) {
       return null;
     }
@@ -488,7 +489,7 @@ const BaseCourseCard = ({
     }
 
     return (
-      <div className="mt-0 mb-3 small">
+      <div className="small">
         {dateFields.map((dateField, index) => {
           const isLastDateField = index === dateFields.length - 1;
           return (
@@ -509,26 +510,13 @@ const BaseCourseCard = ({
     return null;
   };
 
-  const renderChildren = () => {
-    if (children) {
-      return (
-        <Row>
-          <Col>
-            {children}
-          </Col>
-        </Row>
-      );
-    }
-    return null;
-  };
-
   const renderButtons = () => {
     if (!buttons) {
       return null;
     }
     return (
       <Row>
-        <Col className="mt-2">
+        <Col>
           {buttons}
         </Col>
       </Row>
@@ -572,17 +560,21 @@ const BaseCourseCard = ({
     if (!badgeProps) {
       return null;
     }
-    return <Badge className="mt-1" {...badgeProps} />;
+    return <Badge {...badgeProps} />;
   };
 
   const renderAssignmentAlert = () => {
     const alertText = isCanceledAssignment ? 'Your learning administrator canceled this assignment' : 'Deadline to enroll in this course has passed';
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
     return (
-      <div className={classNames('p-2 small d-flex align-items-center', { 'assignment-alert bg-light-300': isExecutiveEducation2UCourse })}>
-        <Icon src={Info} size="sm" className="text-dark mr-2" />
+      <Stack
+        direction="horizontal"
+        gap={1}
+        className={classNames('small align-items-center', { 'assignment-alert bg-light-300': isExecutiveEducation2UCourse })}
+      >
+        <Icon src={Info} size="sm" className="text-dark" />
         <span className="text-dark font-weight-normal">{alertText}</span>
-      </div>
+      </Stack>
     );
   };
 
@@ -591,7 +583,7 @@ const BaseCourseCard = ({
 
   return (
     <div className={classNames(
-      'dashboard-course-card py-3 border-bottom mb-2',
+      'dashboard-course-card py-3 border-bottom',
       { 'exec-ed-course-card rounded-lg p-3 text-light-200': isExecutiveEducation2UCourse },
       { 'mb-3': (isCanceledAssignment || isExpiredAssignment) },
     )}
@@ -603,14 +595,14 @@ const BaseCourseCard = ({
         </>
       )
         : (
-          <>
+          <Stack gap={3}>
             <div className="d-flex">
-              <div className="flex-grow-1 mr-4 mb-3">
-                {renderMicroMastersTitle()}
-                <Stack gap={2} direction="horizontal" className="align-items-start justify-content-between mb-1">
-                  <h4 className="course-title mb-0">
+              <div className="flex-grow-1 mr-4">
+                <Stack gap={2} direction="horizontal" className="align-items-start justify-content-between">
+                  <h4 className="course-title mt-n1 mb-0">
+                    {renderMicroMastersTitle()}
                     <CourseTitleComponent
-                      className={classNames('h3', { 'text-white': isExecutiveEducation2UCourse })}
+                      className={classNames('h3 mb-0', { 'text-white': isExecutiveEducation2UCourse })}
                       destination={externalCourseLink ? linkToCourse : null}
                       to={!externalCourseLink ? linkToCourse : null}
                     >
@@ -619,14 +611,14 @@ const BaseCourseCard = ({
                   </h4>
                   {renderBadge()}
                 </Stack>
-                {renderOrganizationName()}
-                {renderCourseInfoOutline()}
+                {renderOrgNameAndCourseType()}
               </div>
               {renderSettingsDropdown(dropdownMenuItems)}
             </div>
+            {renderCourseInfoOutline()}
             {renderCourseUpgradePrice()}
             {renderButtons()}
-            {renderChildren()}
+            {children}
             <Row className="course-misc-text">
               <Col className={`${isExecutiveEducation2UCourse ? 'text-light-200' : 'text-gray'}`}>
                 {renderMiscText()}
@@ -637,16 +629,17 @@ const BaseCourseCard = ({
             {(isCanceledAssignment || isExpiredAssignment) && (
               <Row
                 className={classNames({
-                  'mt-4 assignment-alert-row': isExecutiveEducation2UCourse,
-                  'mt-2 pl-2': !isExecutiveEducation2UCourse,
+                  'assignment-alert-row': isExecutiveEducation2UCourse,
                 })}
               >
-                {renderAssignmentAlert()}
+                <Col>
+                  {renderAssignmentAlert()}
+                </Col>
               </Row>
             )}
             {renderEmailSettingsModal()}
             {renderUnenrollModal()}
-          </>
+          </Stack>
         )}
     </div>
   );

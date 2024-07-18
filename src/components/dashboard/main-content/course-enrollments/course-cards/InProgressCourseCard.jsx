@@ -115,7 +115,7 @@ export const InProgressCourseCard = ({
       return null;
     }
     return (
-      <Stack className="small mb-1 mt-4">
+      <Stack className="small">
         <div>
           <span>
             <b>{intl.formatMessage(messages.upgradeCourseOriginalPrice)}</b>{' '}
