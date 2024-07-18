@@ -62,6 +62,7 @@ describe('fetchSubscriptions', () => {
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
       isSubscriptionPlanActive: true,
+      isSubscriptionPlanCurrent: true,
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
@@ -69,6 +70,7 @@ describe('fetchSubscriptions', () => {
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
       isSubscriptionPlanActive: false,
+      isSubscriptionPlanCurrent: true,
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
@@ -76,6 +78,7 @@ describe('fetchSubscriptions', () => {
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
       isSubscriptionPlanActive: true,
+      isSubscriptionPlanCurrent: false,
       daysUntilExpiration: 0,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().toISOString(),
@@ -83,6 +86,7 @@ describe('fetchSubscriptions', () => {
     {
       licenseStatus: LICENSE_STATUS.UNASSIGNED,
       isSubscriptionPlanActive: true,
+      isSubscriptionPlanCurrent: true,
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
@@ -90,6 +94,7 @@ describe('fetchSubscriptions', () => {
   ])('returns subscriptions (%s)', async ({
     licenseStatus,
     isSubscriptionPlanActive,
+    isSubscriptionPlanCurrent,
     daysUntilExpiration,
     startDate,
     expirationDate,
@@ -100,6 +105,7 @@ describe('fetchSubscriptions', () => {
       subscriptionPlan: {
         uuid: 'test-subscription-plan-uuid',
         isActive: isSubscriptionPlanActive,
+        isCurrent: isSubscriptionPlanCurrent,
         daysUntilExpiration,
         startDate,
         expirationDate,

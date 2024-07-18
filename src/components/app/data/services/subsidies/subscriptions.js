@@ -7,7 +7,6 @@ import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { fetchPaginatedData } from '../utils';
-import { hasValidStartExpirationDates } from '../../../../../utils/common';
 
 // Subscriptions
 
@@ -237,15 +236,9 @@ export async function fetchSubscriptions(enterpriseUUID) {
     subscriptionsData.subscriptionLicenses = subscriptionLicenses;
     subscriptionsData.showExpirationNotifications = !(customerAgreement?.disableExpirationNotifications);
     subscriptionLicenses.forEach((license) => {
-      const licenseCopy = { ...license };
-      const {
-        subscriptionPlan,
-        status,
-      } = license;
-      const { isActive, startDate, expirationDate } = subscriptionPlan;
-      licenseCopy.subscriptionPlan.isCurrent = hasValidStartExpirationDates({ startDate, expirationDate });
+      const { subscriptionPlan, status } = license;
       const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
-      if (isUnassignedLicense || !isActive) {
+      if (isUnassignedLicense || !subscriptionPlan.isActive) {
         return;
       }
       licensesByStatus[license.status].push(license);
