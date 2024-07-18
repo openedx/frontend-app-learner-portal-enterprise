@@ -195,13 +195,9 @@ describe('<BaseCourseCard />', () => {
         pacing={pacing}
       />,
     );
-    if (pacing === 'self') {
-      expect(screen.getByTestId('self-paced-help-link')).toBeInTheDocument();
-      expect(screen.getByText('self-paced')).toBeInTheDocument();
-    } else {
-      expect(screen.queryByTestId('self-paced-help-link')).not.toBeInTheDocument();
-      expect(screen.getByText('instructor-paced', { exact: false })).toBeInTheDocument();
-    }
+    expect(screen.getByTestId('course-pacing-help-link')).toBeInTheDocument();
+    expect(screen.getByText(`${pacing}-paced`)).toBeInTheDocument();
+
     if (courseHasEnded) {
       expect(screen.getByText('This course was', { exact: false })).toBeInTheDocument();
     } else {

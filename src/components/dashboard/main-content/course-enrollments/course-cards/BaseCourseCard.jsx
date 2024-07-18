@@ -86,25 +86,15 @@ const messages = defineMessages({
     defaultMessage: 'Enrollment deadline approaching',
     description: 'Tooltip content for enrollment deadline approaching',
   },
-  pacingWasSelf: {
-    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.was.self_pacing',
-    defaultMessage: 'This course was <a>self-paced</a>',
-    description: 'The label for the course miscellaneous text pacing',
+  pacingWas: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.pacing_was',
+    defaultMessage: 'This course was <a>{pacing}-paced</a>',
+    description: 'The label for the course miscellaneous past tense text for course mode pacing',
   },
-  pacingWasInstructor: {
-    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.was.instructor_pacing',
-    defaultMessage: 'This course was instructor-paced',
-    description: 'The label for the course miscellaneous text instructor pacing',
-  },
-  pacingIsSelf: {
-    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.is.self_pacing',
-    defaultMessage: 'This course is <a>self-paced</a>',
-    description: 'The label for the course miscellaneous text pacing',
-  },
-  pacingIsInstructor: {
-    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.is.instructor_pacing',
-    defaultMessage: 'This course is instructor-paced',
-    description: 'The label for the course miscellaneous text instructor pacing',
+  pacingIs: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.misc_text.pacing_is',
+    defaultMessage: 'This course is <a>{pacing}-paced</a>',
+    description: 'The label for the course miscellaneous current tense text for course mode pacing',
   },
 });
 
@@ -170,7 +160,7 @@ const BaseCourseCard = ({
 }) => {
   const intl = useIntl();
   const { config, authenticatedUser } = useContext(AppContext);
-  const { LEARNER_SUPPORT_SELF_PACED_COURSE_MODE_URL } = getConfig();
+  const { LEARNER_SUPPORT_PACED_COURSE_MODE_URL } = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [hasEmailsEnabled, setHasEmailsEnabled] = useState(defaultHasEmailsEnabled);
   const [emailSettingsModal, setEmailSettingsModal] = useState({
@@ -184,12 +174,12 @@ const BaseCourseCard = ({
 
   const CourseTitleComponent = externalCourseLink ? Hyperlink : Link;
 
-  const getSelfPacedHyperlink = (chunks) => (
+  const getCoursePaceHyperlink = (chunks) => (
     <Hyperlink
       className={classNames('text-underline', { 'text-light-200': EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode) })}
-      destination={LEARNER_SUPPORT_SELF_PACED_COURSE_MODE_URL}
+      destination={LEARNER_SUPPORT_PACED_COURSE_MODE_URL}
       target="_blank"
-      data-testid="self-paced-help-link"
+      data-testid="course-pacing-help-link"
     >
       {chunks}
     </Hyperlink>
@@ -269,15 +259,14 @@ const BaseCourseCard = ({
   };
 
   const getCourseMiscText = () => {
-    const courseHasEnded = isCourseEnded(endDate);
-    switch (pacing) {
-      case COURSE_PACING.SELF:
-        return courseHasEnded ? messages.pacingWasSelf : messages.pacingIsSelf;
-      case COURSE_PACING.INSTRUCTOR:
-        return courseHasEnded ? messages.pacingWasInstructor : messages.pacingIsInstructor;
-      default:
-        return null;
+    if (!pacing || !COURSE_PACING[pacing.toUpperCase()]) {
+      return null;
     }
+    const courseHasEnded = isCourseEnded(endDate);
+    if (courseHasEnded) {
+      return messages.pacingWas;
+    }
+    return messages.pacingIs;
   };
 
   const resetModals = () => {
@@ -568,18 +557,12 @@ const BaseCourseCard = ({
       return null;
     }
 
-    if (pacing === COURSE_PACING.SELF) {
-      return (
-        <MiscTextContainer>
-          {intl.formatMessage(courseMiscText, {
-            a: getSelfPacedHyperlink,
-          })}
-        </MiscTextContainer>
-      );
-    }
     return (
       <MiscTextContainer>
-        {intl.formatMessage(courseMiscText)}
+        {intl.formatMessage(courseMiscText, {
+          a: getCoursePaceHyperlink,
+          pacing: `${pacing}`,
+        })}
       </MiscTextContainer>
     );
   };
