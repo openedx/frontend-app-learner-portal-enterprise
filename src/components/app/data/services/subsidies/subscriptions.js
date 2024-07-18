@@ -106,17 +106,7 @@ export async function getAutoAppliedSubscriptionLicense({
   }
 
   try {
-    const subscriptionLicense = await requestAutoAppliedUserLicense(customerAgreement.uuid);
-    return {
-      ...subscriptionLicense,
-      subscriptionPlan: {
-        ...subscriptionLicense.subscriptionPlan,
-        isCurrent: hasValidStartExpirationDates({
-          startDate: subscriptionLicense.subscriptionPlan.startDate,
-          expirationDate: subscriptionLicense.subscriptionPlan.expirationDate,
-        }),
-      },
-    };
+    return requestAutoAppliedUserLicense(customerAgreement.uuid);
   } catch (error) {
     logError(error);
     return null;
