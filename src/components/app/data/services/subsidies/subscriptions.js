@@ -252,10 +252,8 @@ export async function fetchSubscriptions(enterpriseUUID) {
         subscriptionPlan,
         status,
       } = licenseCopy;
-      const { isActive, startDate, expirationDate } = subscriptionPlan;
-      licenseCopy.subscriptionPlan.isCurrent = hasValidStartExpirationDates({ startDate, expirationDate });
       const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
-      if (isUnassignedLicense || !isActive) {
+      if (isUnassignedLicense || !subscriptionPlan.isActive) {
         return;
       }
       licensesByStatus[license.status].push(licenseCopy);
