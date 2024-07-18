@@ -106,7 +106,17 @@ export async function getAutoAppliedSubscriptionLicense({
   }
 
   try {
-    return requestAutoAppliedUserLicense(customerAgreement.uuid);
+    const subscriptionLicense = await requestAutoAppliedUserLicense(customerAgreement.uuid);
+    return {
+      ...subscriptionLicense,
+      subscriptionPlan: {
+        ...subscriptionLicense.subscriptionPlan,
+        isCurrent: hasValidStartExpirationDates({
+          startDate: subscriptionLicense.subscriptionPlan.startDate,
+          expirationDate: subscriptionLicense.subscriptionPlan.expirationDate,
+        }),
+      },
+    };
   } catch (error) {
     logError(error);
     return null;
@@ -241,14 +251,14 @@ export async function fetchSubscriptions(enterpriseUUID) {
       const {
         subscriptionPlan,
         status,
-      } = license;
+      } = licenseCopy;
       const { isActive, startDate, expirationDate } = subscriptionPlan;
       licenseCopy.subscriptionPlan.isCurrent = hasValidStartExpirationDates({ startDate, expirationDate });
       const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
       if (isUnassignedLicense || !isActive) {
         return;
       }
-      licensesByStatus[license.status].push(license);
+      licensesByStatus[license.status].push(licenseCopy);
     });
     const applicableSubscriptionLicense = Object.values(licensesByStatus).flat()[0];
     if (applicableSubscriptionLicense) {
