@@ -115,7 +115,7 @@ export const InProgressCourseCard = ({
       return null;
     }
     return (
-      <Stack className="small mb-1 mt-4">
+      <Stack className="small">
         <div>
           <span>
             <b>{intl.formatMessage(messages.upgradeCourseOriginalPrice)}</b>{' '}
@@ -206,7 +206,7 @@ export const InProgressCourseCard = ({
       return null;
     }
     return (
-      <div className="notifications mb-3">
+      <div className="notifications">
         <ul
           className="list-unstyled mb-0"
           aria-label="course due dates"

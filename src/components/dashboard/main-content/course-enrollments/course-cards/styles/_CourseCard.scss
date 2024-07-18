@@ -1,57 +1,39 @@
-.dashboard-course-card {
+.dashboard-course-card-wrapper {
   @extend .position-relative;
-
-  &:first-child {
-    @extend .pt-3;
-  }
 
   &:last-child {
     @extend .border-0;
-    @extend .mb-0;
   }
 
-  &.exec-ed-course-card {
-    p > a[href]:not(.btn) {
-      color: $light-200;
-      text-decoration-color: $light-200;
+  .dashboard-course-card {
+    &.exec-ed-course-card {
+      p > a[href]:not(.btn) {
+        color: $light-200;
+        text-decoration-color: $light-200;
 
-      &:hover {
-         color: $light-500;
+        &:hover {
+          color: $light-500;
+        }
       }
+      background-color: $dark-200;
     }
-    background-color: $dark-200;
-  }
 
-  .notifications {
-    li:last-child {
+    .notifications {
+      li:last-child {
+        .notification {
+          @extend .mb-0;
+        }
+      }
+
       .notification {
-        @extend .mb-0;
+        background: $info-100;
       }
     }
 
-    .notification {
-      background: $info-100;
+    @include media-breakpoint-down(xs) {
+      .btn-xs-block {
+        width: 100%;
+      }
     }
-  }
-
-  @include media-breakpoint-down(xs) {
-    .btn-xs-block {
-      width: 100%;
-    }
-  }
-
-  .course-misc-text {
-    small {
-      display: block;
-    }
-  }
-
-  .assignment-alert-row {
-    margin-bottom: -20px;
-  }
-
-  .assignment-alert {
-    border-radius: 0 0 10px 10px;
-    width: 100%;
   }
 }
