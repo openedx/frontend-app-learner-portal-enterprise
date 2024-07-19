@@ -8,6 +8,7 @@ import ContinueLearningButton from './ContinueLearningButton';
 
 import { isCourseEnded } from '../../../../../utils/common';
 import CertificateImg from './images/edx-verified-mini-cert.png';
+import { EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../app/data';
 
 const CompletedCourseCard = (props) => {
   const { authenticatedUser: { username } } = useContext(AppContext);
@@ -38,7 +39,7 @@ const CompletedCourseCard = (props) => {
       />
     );
   };
-
+  const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
   const renderCertificateInfo = () => (
     props.linkToCertificate ? (
       <div className="d-flex mb-3">
@@ -55,12 +56,14 @@ const CompletedCourseCard = (props) => {
         </div>
       </div>
     ) : (
-      <p className="mb-3 mt-2 small">
-        To earn a certificate,{' '}
-        <a href={props.linkToCourse}>
-          retake this course →
-        </a>
-      </p>
+      !isExecutiveEducation2UCourse && (
+        <p className="mb-3 mt-2 small">
+          To earn a certificate,{' '}
+          <a href={props.linkToCourse}>
+            retake this course →
+          </a>
+        </p>
+      )
     )
   );
 
