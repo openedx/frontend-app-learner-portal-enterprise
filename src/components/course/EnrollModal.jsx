@@ -169,7 +169,6 @@ export const MODAL_TEXTS = {
         </>
       );
     },
-    // TODO: button text should be stateful to account for async loading
     button: {
       default: messages.upgradeModalConfirmCta,
       pending: messages.upgradeModalConfirmCtaPending,
