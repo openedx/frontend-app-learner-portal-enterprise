@@ -87,6 +87,7 @@ export async function ensureEnterpriseAppData({
             return license;
           })
           : [activatedOrAutoAppliedLicense];
+
         queryClient.setQueryData(subscriptionsQuery.queryKey, {
           ...queryClient.getQueryData(subscriptionsQuery.queryKey),
           licensesByStatus: updatedLicensesByStatus,
