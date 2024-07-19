@@ -140,8 +140,10 @@ const CourseSection = ({
         onClose={() => handleCollapsibleToggle(false)}
         defaultOpen
       >
-        {getFormattedOptionalSubtitle()}
-        {renderCourseCards()}
+        <div className="my-n2">
+          {getFormattedOptionalSubtitle()}
+          {renderCourseCards()}
+        </div>
       </Collapsible>
     </div>
   );
