@@ -23,10 +23,10 @@ import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_MODES_MAP,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
   getSubsidyToApplyForCourse,
   groupCourseEnrollmentsByStatus,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
   queryEnterpriseCourseEnrollments,
   queryRedeemablePolicies,
   transformCourseEnrollment,
@@ -183,6 +183,7 @@ export const useCourseUpgradeData = ({
     }),
     enabled: !!applicableCouponCode && canUpgradeToVerifiedEnrollment,
   });
+
   return useMemo(() => {
     const defaultReturn = {
       subsidyForCourse: null,

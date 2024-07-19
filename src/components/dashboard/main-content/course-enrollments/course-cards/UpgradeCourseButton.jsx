@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, OverlayTrigger, Tooltip } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -15,10 +15,12 @@ const messages = defineMessages({
   },
   upgradeForFreeButton: {
     id: 'enterprise.learner_portal.dashbboard.enrollments.course.upgrade.button.text',
-    defaultMessage: 'Upgrade <s>{title}</s> for free',
+    defaultMessage: 'Upgrade<s>{title}</s> for free',
     description: 'The label for the course upgrade button text',
   },
 });
+
+const upgradeButtonScreenReaderText = (chunks) => <span className="sr-only">{chunks}</span>;
 
 const OverlayTriggerWrapper = ({ courseRunKey, hasCourseRunPrice, children }) => {
   const intl = useIntl();
@@ -91,10 +93,6 @@ const UpgradeCourseButton = ({
     );
   };
 
-  const upgradeButtonScreenReaderText = useCallback((chunks) => {
-    (<span className="sr-only">{chunks}</span>);
-  }, []);
-
   return (
     <>
       <OverlayTriggerWrapper courseRunKey={courseRunKey} hasCourseRunPrice={!!courseRunPrice}>
@@ -104,10 +102,14 @@ const UpgradeCourseButton = ({
           onClick={handleClick}
           data-testid="upgrade-course-button"
         >
-          {intl.formatMessage(messages.upgradeForFreeButton, {
-            s: upgradeButtonScreenReaderText,
-            title,
-          })}
+          {/* {DIV IS NECESSARY TO AVOID A CSS STYLING COMPLEXITY
+          WHERE THE TEXT'S WHITESPACE WILL DISAPPEAR, DO NOT REMOVE} */}
+          <div>
+            {intl.formatMessage(messages.upgradeForFreeButton, {
+              s: upgradeButtonScreenReaderText,
+              title,
+            })}
+          </div>
         </Button>
       </OverlayTriggerWrapper>
       <EnrollModal

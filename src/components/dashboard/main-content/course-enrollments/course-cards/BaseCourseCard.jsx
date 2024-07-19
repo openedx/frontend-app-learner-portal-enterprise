@@ -490,7 +490,7 @@ const BaseCourseCard = ({
 
   const renderCourseUpgradePrice = () => {
     if (courseUpgradePrice) {
-      return <> {courseUpgradePrice} </>;
+      return courseUpgradePrice;
     }
     return null;
   };
@@ -521,7 +521,7 @@ const BaseCourseCard = ({
       <div className="small">
         {intl.formatMessage(courseMiscText, {
           a: getCoursePaceHyperlink,
-          pacing: `${pacing}`,
+          pacing,
         })}
       </div>
     );
@@ -565,7 +565,7 @@ const BaseCourseCard = ({
         {isLoading ? (
           <>
             <div className="sr-only">Loading...</div>
-            <Skeleton height={100} />
+            <Skeleton height={200} />
           </>
         )
           : (
