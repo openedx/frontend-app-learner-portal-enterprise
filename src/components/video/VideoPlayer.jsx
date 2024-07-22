@@ -10,9 +10,16 @@ const defaultOptions = {
   fluid: true,
 };
 
-const VideoPlayer = ({ videoURL, onReady }) => {
+const VideoPlayer = ({ videoURL, onReady, customOptions }) => {
   const videoDetails = useMemo(() => {
     const isHLSVideo = videoURL.includes(hlsExtension);
+    const isMp4Video = videoURL.toLowerCase().endsWith('.mp4');
+    if (isMp4Video) {
+      return {
+        ...defaultOptions,
+        sources: [{ src: videoURL, type: 'video/mp4' }],
+      };
+    }
     if (!isHLSVideo) {
       return {
         ...defaultOptions,
@@ -31,8 +38,13 @@ const VideoPlayer = ({ videoURL, onReady }) => {
   }, [videoURL]);
 
   return (
-    <div className="video-player-container">
-      <VideoJS options={videoDetails} onReady={onReady} />
+    <div className={
+      customOptions.showTranscripts && customOptions.transcriptUrls
+        ? 'video-player-container-with-transcript'
+        : 'video-player-container'
+    }
+    >
+      <VideoJS options={videoDetails} onReady={onReady} customOptions={customOptions} />
     </div>
   );
 };
@@ -40,10 +52,20 @@ const VideoPlayer = ({ videoURL, onReady }) => {
 VideoPlayer.propTypes = {
   videoURL: PropTypes.string.isRequired,
   onReady: PropTypes.func,
+  customOptions: PropTypes.shape({
+    showPlaybackMenu: PropTypes.bool,
+    showTranscripts: PropTypes.bool,
+    transcriptUrls: PropTypes.objectOf(PropTypes.string),
+  }),
 };
 
 VideoPlayer.defaultProps = {
   onReady: null,
+  customOptions: {
+    showPlaybackMenu: false,
+    showTranscripts: false,
+    transcriptUrls: undefined,
+  },
 };
 
 export default VideoPlayer;

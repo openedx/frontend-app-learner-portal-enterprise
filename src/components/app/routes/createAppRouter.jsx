@@ -212,6 +212,22 @@ export default function createAppRouter(queryClient) {
               };
             }}
           />
+          <Route
+            path="videos/:videoUUID"
+            lazy={async () => {
+              const { makeVideosLoader, VideoDetailPage } = await import('../../microlearning');
+              return {
+                Component: VideoDetailPage,
+                loader: makeVideosLoader(queryClient),
+              };
+            }}
+            errorElement={(
+              <RouteErrorBoundary
+                showSiteHeader={false}
+                showSiteFooter={false}
+              />
+            )}
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
