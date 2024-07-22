@@ -7,7 +7,6 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import { renderWithRouter } from '../../../utils/tests';
 import VideoDetailPage from '../VideoDetailPage';
-import { features } from '../../../config';
 import { useVideoDetails, useEnterpriseCustomer } from '../../app/data';
 
 const APP_CONFIG = {
@@ -49,10 +48,6 @@ jest.mock('@edx/frontend-platform/config', () => ({
 jest.mock('@edx/frontend-platform/auth');
 getAuthenticatedHttpClient.mockReturnValue(axios);
 
-jest.mock('../../../config', () => ({
-  features: { FEATURE_ENABLE_VIDEO_CATALOG: true },
-}));
-
 const VideoDetailPageWrapper = () => (
   <IntlProvider locale="en">
     <VideoDetailPage />
@@ -79,12 +74,6 @@ describe('VideoDetailPage Tests', () => {
 
   it('renders a not found page when video data is not found', () => {
     useVideoDetails.mockReturnValue({ data: null });
-    renderWithRouter(<VideoDetailPageWrapper />);
-    expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
-  });
-
-  it('renders a not found page when feature flag is turned off', () => {
-    features.FEATURE_ENABLE_VIDEO_CATALOG = false;
     renderWithRouter(<VideoDetailPageWrapper />);
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });

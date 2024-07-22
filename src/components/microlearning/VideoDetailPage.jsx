@@ -10,7 +10,6 @@ import { Sidebar } from '../layout';
 import './styles/VideoDetailPage.scss';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import NotFoundPage from '../NotFoundPage';
-import { features } from '../../config';
 
 const VideoPlayer = loadable(() => import(/* webpackChunkName: "videojs" */ '../video/VideoPlayer'), {
   fallback: (
@@ -51,7 +50,7 @@ const VideoDetailPage = () => {
 
   // Comprehensive error handling will be implemented upon receiving specific error use cases from the UX team
   // and corresponding Figma designs.
-  if (!videoData || !features.FEATURE_ENABLE_VIDEO_CATALOG) {
+  if (!videoData) {
     return (
       <NotFoundPage
         errorHeading={intl.formatMessage({
