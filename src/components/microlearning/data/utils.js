@@ -10,7 +10,7 @@ export const formatDuration = (durationInSeconds) => {
   return `${minutes}:${seconds}`;
 };
 
-export const formatSkills = (skills) => skills?.['list-item'].map(skill => ({
+export const formatSkills = (skills) => skills?.map(skill => ({
   name: skill?.name,
   description: skill?.description,
   category: skill?.category?.name,
@@ -20,7 +20,7 @@ export const formatSkills = (skills) => skills?.['list-item'].map(skill => ({
 export const transformVideoData = (data) => ({
   videoUrl: data?.json_metadata?.download_link,
   courseTitle: data?.parent_content_metadata?.title,
-  videoSummary: data?.summary_transcripts?.['list-item'],
+  videoSummary: data?.summary_transcripts?.[0],
   transcriptUrls: data?.json_metadata?.transcript_urls,
   videoSkills: formatSkills(data?.skills),
   videoDuration: formatDuration(data?.json_metadata?.duration),
