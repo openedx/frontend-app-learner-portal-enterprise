@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 
+import { Hyperlink } from '@openedx/paragon';
+import classNames from 'classnames';
 import BaseCourseCard from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
 
@@ -22,7 +24,7 @@ const CompletedCourseCard = (props) => {
     resumeCourseRunUrl,
   } = props;
   const config = getConfig();
-
+  const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
   const renderButtons = () => {
     if (isCourseEnded(endDate)) {
       return null;
@@ -39,30 +41,39 @@ const CompletedCourseCard = (props) => {
       />
     );
   };
-  const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+
   const renderCertificateInfo = () => (
     props.linkToCertificate ? (
-      <div className="d-flex mb-3">
-        <div className="mr-3 mt-3">
+      <div className="d-flex">
+        <div className="mr-3">
           <img src={CertificateImg} alt="verified certificate preview" />
         </div>
         <div className="d-flex align-items-center">
-          <p className="mb-0 small">
+          <div className="mb-0 small">
             View your certificate on{' '}
-            <a href={`${config.LMS_BASE_URL}/u/${username}`}>
+            <Hyperlink
+              destination={`${config.LMS_BASE_URL}/u/${username}`}
+              target="_blank"
+              className={classNames('text-underline', {
+                'text-light-200': isExecutiveEducation2UCourse,
+              })}
+            >
               your profile →
-            </a>
-          </p>
+            </Hyperlink>
+          </div>
         </div>
       </div>
     ) : (
       !isExecutiveEducation2UCourse && (
-        <p className="mb-3 mt-2 small">
+        <div className="small">
           To earn a certificate,{' '}
-          <a href={props.linkToCourse}>
+          <Hyperlink
+            destination={props.linkToCourse}
+            className="text-underline"
+          >
             retake this course →
-          </a>
-        </p>
+          </Hyperlink>
+        </div>
       )
     )
   );

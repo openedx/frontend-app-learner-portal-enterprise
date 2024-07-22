@@ -41,12 +41,12 @@ const PathwayNode = ({ node }) => {
               </div>
               <div className="col-7">
                 <div className="row">
-                  <h3>{node.title}</h3>&nbsp;
+                  <h3>{node.title}</h3>{' '}
                   {node.status === IN_PROGRESS && (
                     <Badge variant="success">
                       <FormattedMessage
                         id="enterprise.dashboard.pathways.progress.page.pathway.node.in.progress.badge"
-                        defaultMessage="In Progress"
+                        defaultMessage="In progress"
                         description="In progress badge label displayed for a pathway card on the pathway progress page."
                       />
                     </Badge>

@@ -5,6 +5,7 @@ import { Button, Hyperlink } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import dayjs from 'dayjs';
 import { EXECUTIVE_EDUCATION_COURSE_MODES, useEnterpriseCustomer } from '../../../../app/data';
+
 /**
  * A 'Continue Learning' button with parameters.
  *
@@ -40,7 +41,7 @@ const ContinueLearningButton = ({
   const isCourseStarted = () => dayjs(startDate) <= dayjs();
   const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
   const disabled = !isCourseStarted() ? 'disabled' : undefined;
-  const defaultVariant = isExecutiveEducation2UCourse ? 'inverse-primary' : 'outline-primary';
+  const defaultVariant = isExecutiveEducation2UCourse ? 'inverse-outline-primary' : 'outline-primary';
 
   const renderContent = () => {
     // resumeCourseRunUrl indicates that learner has made progress, available only if the learner has started learning.

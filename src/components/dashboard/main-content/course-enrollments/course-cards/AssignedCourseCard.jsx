@@ -45,6 +45,7 @@ const AssignedCourseCard = (props) => {
       hasViewCertificateLink={false}
       canUnenroll={false}
       externalCourseLink={false}
+      isCourseAssigned
       {...props}
     />
   );
