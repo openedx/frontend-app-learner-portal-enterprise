@@ -2,6 +2,8 @@ import React from 'react';
 import { VideoJS } from '..';
 import { renderWithRouter } from '../../../utils/tests';
 
+jest.mock('videojs-vjstranscribe');
+
 const hlsUrl = 'https://test-domain.com/test-prefix/id.m3u8';
 const ytUrl = 'https://www.youtube.com/watch?v=oHg5SJYRHA0';
 

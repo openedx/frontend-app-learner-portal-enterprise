@@ -29,6 +29,7 @@ import {
   fetchRedeemablePolicies,
   fetchSubscriptions,
   fetchUserEntitlements,
+  fetchVideoDetail,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -178,6 +179,16 @@ const enterprise = createQueryKeys('enterprise', {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchSubscriptions(queryKey[2]),
           },
+        },
+      },
+      video: {
+        queryKey: null,
+        contextQueries: {
+          // queryVideoDetail
+          detail: (videoUUID) => ({
+            queryKey: [videoUUID],
+            queryFn: async ({ queryKey }) => fetchVideoDetail(videoUUID, queryKey[2]),
+          }),
         },
       },
     },
