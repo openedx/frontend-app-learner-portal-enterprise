@@ -226,12 +226,12 @@ const EnrollModal = ({
   const intl = useIntl();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleEnroll = async () => {
+  const handleEnroll = async (e) => {
     if (!onEnroll) {
       return;
     }
     setIsLoading(true);
-    onEnroll();
+    onEnroll(e);
     setIsLoading(false);
   };
 

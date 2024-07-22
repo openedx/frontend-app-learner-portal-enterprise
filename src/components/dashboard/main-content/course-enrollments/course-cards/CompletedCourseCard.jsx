@@ -64,7 +64,7 @@ const CompletedCourseCard = (props) => {
         </div>
       </div>
     ) : (
-      <div className="small">
+      !isExecutiveEducation2UCourse && (<div className="small">
         To earn a certificate,{' '}
         <Hyperlink
           destination={props.linkToCourse}
@@ -72,7 +72,7 @@ const CompletedCourseCard = (props) => {
         >
           retake this course →
         </Hyperlink>
-      </div>
+      </div>)
     )
   );
 

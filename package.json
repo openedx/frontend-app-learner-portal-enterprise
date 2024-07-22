@@ -56,6 +56,7 @@
     "universal-cookie": "4.0.4",
     "uuid": "9.0.0",
     "video.js": "8.3.0",
+    "videojs-vjstranscribe": "^1.0.3",
     "videojs-youtube": "3.0.1"
   },
   "devDependencies": {
