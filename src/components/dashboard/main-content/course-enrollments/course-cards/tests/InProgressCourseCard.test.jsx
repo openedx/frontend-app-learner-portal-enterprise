@@ -162,7 +162,7 @@ describe('<InProgressCourseCard />', () => {
     userEvent.click(upgradeCTA);
 
     // Verify upgrade confirmation modal is open
-    expect(screen.getByText(messages.learnerCreditModalTitle.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.learnerCreditModalTitle.defaultMessage, { selector: 'h2' })).toBeInTheDocument();
 
     if (shouldAttemptRedemption) {
       // Proceed with upgrade confirmation
@@ -205,7 +205,7 @@ describe('<InProgressCourseCard />', () => {
       userEvent.click(cancelModalCTA);
 
       // Verify upgrade confirmation modal is no longer open
-      expect(screen.queryByText(messages.learnerCreditModalTitle.defaultMessage)).not.toBeInTheDocument();
+      expect(screen.queryByText(messages.learnerCreditModalTitle.defaultMessage, { selector: 'h2' })).not.toBeInTheDocument();
     }
   });
 });
