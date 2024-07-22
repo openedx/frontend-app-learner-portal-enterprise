@@ -85,28 +85,30 @@ const VideoDetailPage = () => {
             <p className="small align-self-stretch text-justify mb-2">
               {videoData?.videoSummary}
             </p>
-            <div className="d-flex flex-row align-items-center">
-              <h4>
-                <FormattedMessage
-                  id="videoDetailPage.skills.label"
-                  defaultMessage="Skills:"
-                  description="Label for skills on video detail page"
-                />
-              </h4>
-              <div className="ml-2 mb-2.5">
-                {videoData?.videoSkills && (
-                  videoData?.videoSkills.map((skill) => (
-                    <Badge
-                      key={skill.skill_id}
-                      className="p-2 mr-1 mt-2 mr-2 font-weight-normal"
-                      variant="light"
-                    >
-                      {skill.name}
-                    </Badge>
-                  ))
-                )}
+            { videoData?.videoSkills?.length > 0 && (
+              <div className="d-flex flex-row align-items-center">
+                <h4>
+                  <FormattedMessage
+                    id="videoDetailPage.skills.label"
+                    defaultMessage="Skills:"
+                    description="Label for skills on video detail page"
+                  />
+                </h4>
+                <div className="ml-2 mb-2.5">
+                  {(
+                    videoData?.videoSkills.map((skill) => (
+                      <Badge
+                        key={skill.skill_id}
+                        className="p-2 mr-1 mt-2 mr-2 font-weight-normal"
+                        variant="light"
+                      >
+                        {skill.name}
+                      </Badge>
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
           <div className="video-player-wrapper position-relative mw-100 overflow-hidden my-4 mt-2">
             <VideoPlayer videoURL={videoData?.videoUrl} customOptions={customOptions} />
