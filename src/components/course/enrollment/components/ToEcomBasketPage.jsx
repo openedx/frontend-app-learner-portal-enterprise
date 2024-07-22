@@ -44,6 +44,10 @@ const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
     optimizelyHandler(e);
   };
 
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       <EnrollButtonCta
@@ -53,7 +57,7 @@ const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
       />
       <EnrollModal
         isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
+        onClose={handleModalClose}
         enrollmentUrl={enrollmentUrl}
         courseRunPrice={courseRunPrice}
         userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
