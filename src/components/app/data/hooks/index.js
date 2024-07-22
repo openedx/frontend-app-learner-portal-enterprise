@@ -43,3 +43,4 @@ export { default as useAcademyDetails } from './useAcademyDetails';
 export { default as usePassLearnerCsodParams } from './usePassLearnerCsodParams';
 export { default as useCanUpgradeWithLearnerCredit } from './useCanUpgradeWithLearnerCredit';
 export { default as useCourseRunMetadata } from './useCourseRunMetadata';
+export { default as useVideoDetails } from './useVideoDetails';

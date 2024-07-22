@@ -5,12 +5,12 @@ import { Bubble, Collapsible, Skeleton } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
-  InProgressCourseCard,
-  UpcomingCourseCard,
-  CompletedCourseCard,
-  SavedForLaterCourseCard,
-  RequestedCourseCard,
   AssignedCourseCard,
+  CompletedCourseCard,
+  InProgressCourseCard,
+  RequestedCourseCard,
+  SavedForLaterCourseCard,
+  UpcomingCourseCard,
 } from './course-cards';
 
 import { COURSE_STATUSES } from '../../../../constants';
@@ -140,8 +140,10 @@ const CourseSection = ({
         onClose={() => handleCollapsibleToggle(false)}
         defaultOpen
       >
-        {getFormattedOptionalSubtitle()}
-        {renderCourseCards()}
+        <div className="my-n2">
+          {getFormattedOptionalSubtitle()}
+          {renderCourseCards()}
+        </div>
       </Collapsible>
     </div>
   );

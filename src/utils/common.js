@@ -4,7 +4,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { logError } from '@edx/frontend-platform/logging';
 import dayjs from './dayjs';
 
-export const isCourseEnded = endDate => dayjs(endDate) < dayjs();
+export const isCourseEnded = endDate => dayjs(endDate).isBefore(dayjs());
 
 export const createArrayFromValue = (value) => {
   const values = [];
