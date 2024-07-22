@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
-import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
+import { hasFeatureFlagEnabled, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
@@ -42,6 +42,7 @@ import {
 import { sortAssignmentsByAssignmentStatus, sortedEnrollmentsByEnrollmentDate } from './utils';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../data/constants';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
+import { useStatefulEnroll } from '../../../../stateful-enroll/data';
 
 export const useCourseEnrollments = ({
   enterpriseUUID,
@@ -127,8 +128,9 @@ export const useCourseEnrollments = ({
  *
  * @param {object} args Arguments.
  * @param {String} args.courseRunKey id of the course run
- * @param {String} args.mode The mode of the course. Used as a gating mechanism for upgradability
- * default: false
+ * @param {String} args.mode The mode of the course. Used as a gating mechanism for upgrade eligibility.
+ * @param {Function} args.onRedemptionSuccess Callback function to execute on successful redemption.
+ * @param {Function} args.onRedemptionError Callback function to execute on redemption error.
  * @returns {Object} {
  *     subsidyForCourse: undefined,
  *     courseRunPrice: undefined,
@@ -138,6 +140,9 @@ export const useCourseEnrollments = ({
 export const useCourseUpgradeData = ({
   courseRunKey,
   mode,
+  onRedeem,
+  onRedeemSuccess,
+  onRedeemError,
 }) => {
   const location = useLocation();
   // Determine whether the course mode is such that it can be upgraded
@@ -184,11 +189,25 @@ export const useCourseUpgradeData = ({
     enabled: !!applicableCouponCode && canUpgradeToVerifiedEnrollment,
   });
 
+  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments({
+    enabled: isLearnerCreditUpgradeEnabled && canUpgradeToVerifiedEnrollment,
+  });
+
+  const { redeem: redeemLearnerCredit } = useStatefulEnroll({
+    contentKey: courseRunKey,
+    subsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy,
+    onBeginRedeem: onRedeem,
+    onSuccess: onRedeemSuccess,
+    onError: onRedeemError,
+    userEnrollments: enterpriseCourseEnrollments,
+  });
+
   return useMemo(() => {
     const defaultReturn = {
       subsidyForCourse: null,
       courseRunPrice: null,
       hasUpgradeAndConfirm: false,
+      redeem: null,
     };
 
     // Return early if the user is unable to upgrade to their course mode OR the content
@@ -220,6 +239,14 @@ export const useCourseUpgradeData = ({
       return {
         ...defaultReturn,
         subsidyForCourse: applicableSubsidy,
+        redeem: async (e) => {
+          e?.preventDefault();
+          await sendEnterpriseTrackEventWithDelay(
+            enterpriseCustomer.uuid,
+            'edx.ui.enterprise.learner_portal.course.upgrade_button.subscription_license.clicked',
+          );
+          global.location.assign(applicableSubsidy.redemptionUrl);
+        },
       };
     }
 
@@ -236,6 +263,14 @@ export const useCourseUpgradeData = ({
         subsidyForCourse: applicableSubsidy,
         courseRunPrice: courseRunDetails?.firstEnrollablePaidSeatPrice,
         hasUpgradeAndConfirm: true,
+        redeem: async (e) => {
+          e?.preventDefault();
+          await sendEnterpriseTrackEventWithDelay(
+            enterpriseCustomer.uuid,
+            'edx.ui.enterprise.learner_portal.course.upgrade_button.coupon_code.clicked',
+          );
+          global.location.assign(applicableSubsidy.redemptionUrl);
+        },
       };
     }
 
@@ -247,6 +282,9 @@ export const useCourseUpgradeData = ({
         subsidyForCourse: applicableSubsidy,
         courseRunPrice: learnerCreditMetadata.listPrice,
         hasUpgradeAndConfirm: true,
+        redeem: async () => {
+          await redeemLearnerCredit();
+        },
       };
     }
 
@@ -263,6 +301,7 @@ export const useCourseUpgradeData = ({
     enterpriseCustomer.uuid,
     learnerCreditMetadata,
     location,
+    redeemLearnerCredit,
   ]);
 };
 

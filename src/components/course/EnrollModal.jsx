@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  ActionRow, AlertModal, Button, Icon, Spinner, Stack,
+  ActionRow, AlertModal, Button, Icon, Stack, StatefulButton,
 } from '@openedx/paragon';
 import { Check } from '@openedx/paragon/icons';
 import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platform/i18n';
@@ -22,9 +21,24 @@ export const messages = defineMessages({
     description: 'Text for the enroll button in the confirmation modal',
   },
   upgradeModalConfirmCta: {
-    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text',
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text.default',
     defaultMessage: 'Confirm upgrade',
     description: 'Text for the upgrade button in the confirmation modal',
+  },
+  upgradeModalConfirmCtaPending: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text.pending',
+    defaultMessage: 'Upgrading...',
+    description: 'Text for the upgrade button in the confirmation modal, while an upgrade redemption is in pending.',
+  },
+  upgradeModalConfirmCtaComplete: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text.complete',
+    defaultMessage: 'Upgraded',
+    description: 'Text for the upgrade button in the confirmation modal, when an upgrade redemption is complete.',
+  },
+  upgradeModalConfirmCtaError: {
+    id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.upgrade.text.error',
+    defaultMessage: 'Try again',
+    description: 'Text for the upgrade button in the confirmation modal, when an upgrade redemption is errored.',
   },
   modalCancelCta: {
     id: 'enterprise.learner_portal.enroll-upgrade-modal.buttons.cancel.text',
@@ -155,8 +169,12 @@ export const MODAL_TEXTS = {
         </>
       );
     },
-    // TODO: button text should be stateful to account for async loading
-    button: messages.upgradeModalConfirmCta,
+    button: {
+      default: messages.upgradeModalConfirmCta,
+      pending: messages.upgradeModalConfirmCtaPending,
+      complete: messages.upgradeModalConfirmCtaComplete,
+      error: messages.upgradeModalConfirmCtaError,
+    },
     title: messages.learnerCreditModalTitle,
   },
 };
@@ -174,7 +192,9 @@ const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, course
   if (subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
     return {
       paymentRequiredForCourse: false,
-      buttonText: intl.formatMessage(HAS_COUPON_CODE.button),
+      buttonLabels: {
+        default: intl.formatMessage(HAS_COUPON_CODE.button),
+      },
       enrollText: intl.formatMessage(HAS_COUPON_CODE.body, { couponCodesCount }),
       titleText: intl.formatMessage(HAS_COUPON_CODE.title),
     };
@@ -183,7 +203,9 @@ const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, course
   if (subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
     return {
       paymentRequiredForCourse: false,
-      buttonText: intl.formatMessage(HAS_ENTERPRISE_OFFER.button),
+      buttonLabels: {
+        default: intl.formatMessage(HAS_ENTERPRISE_OFFER.button),
+      },
       enrollText: intl.formatMessage(
         HAS_ENTERPRISE_OFFER.body({
           offerType: userSubsidyApplicableToCourse.offerType,
@@ -199,7 +221,12 @@ const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, course
   if (subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
     return {
       paymentRequiredForCourse: false,
-      buttonText: intl.formatMessage(HAS_LEARNER_CREDIT.button),
+      buttonLabels: {
+        default: intl.formatMessage(HAS_LEARNER_CREDIT.button.default),
+        pending: intl.formatMessage(HAS_LEARNER_CREDIT.button.pending),
+        complete: intl.formatMessage(HAS_LEARNER_CREDIT.button.complete),
+        error: intl.formatMessage(HAS_LEARNER_CREDIT.button.error),
+      },
       enrollText: <HAS_LEARNER_CREDIT.Body />,
       titleText: intl.formatMessage(HAS_LEARNER_CREDIT.title),
     };
@@ -208,7 +235,9 @@ const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, course
   // Otherwise, given subsidy type is not supported for the enroll/upgrade modal
   return {
     paymentRequiredForCourse: true,
-    buttonText: null,
+    buttonLabels: {
+      default: null,
+    },
     enrollText: null,
     titleText: null,
   };
@@ -216,7 +245,8 @@ const useModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, course
 
 const EnrollModal = ({
   isModalOpen,
-  setIsModalOpen,
+  confirmationButtonState,
+  onClose,
   enrollmentUrl,
   courseRunPrice,
   userSubsidyApplicableToCourse,
@@ -224,27 +254,16 @@ const EnrollModal = ({
   onEnroll,
 }) => {
   const intl = useIntl();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleEnroll = async (e) => {
-    if (!onEnroll) {
-      return;
-    }
-    setIsLoading(true);
-    onEnroll(e);
-    setIsLoading(false);
-  };
 
   const dismissModal = () => {
-    setIsModalOpen(false);
-    setIsLoading(false);
+    onClose();
   };
 
   const {
     paymentRequiredForCourse,
     titleText,
     enrollText,
-    buttonText,
+    buttonLabels,
   } = useModalTexts({
     userSubsidyApplicableToCourse,
     couponCodesCount,
@@ -256,6 +275,10 @@ const EnrollModal = ({
   if (paymentRequiredForCourse || !userSubsidyApplicableToCourse) {
     return null;
   }
+
+  const confirmationButtonHref = userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE
+    ? undefined
+    : enrollmentUrl;
 
   return (
     <AlertModal
@@ -270,23 +293,12 @@ const EnrollModal = ({
           >
             <FormattedMessage {...messages.modalCancelCta} />
           </Button>
-          {/* FIXME: the following Button should be using StatefulButton from @openedx/paragon */}
-          <Button
-            // TODO: remove no-op behavior for learner credit
-            href={userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE ? undefined : enrollmentUrl}
-            onClick={handleEnroll}
-          >
-            {isLoading && (
-              <Spinner
-                animation="border"
-                className="mr-2"
-                variant="light"
-                size="sm"
-                screenReaderText={intl.formatMessage(messages.confirmationCtaLoading)}
-              />
-            )}
-            {buttonText}
-          </Button>
+          <StatefulButton
+            href={confirmationButtonHref}
+            onClick={onEnroll}
+            state={confirmationButtonState}
+            labels={buttonLabels}
+          />
         </ActionRow>
       )}
       onClose={dismissModal}
@@ -298,7 +310,8 @@ const EnrollModal = ({
 
 EnrollModal.propTypes = {
   isModalOpen: PropTypes.bool.isRequired,
-  setIsModalOpen: PropTypes.func.isRequired,
+  confirmationButtonState: PropTypes.oneOf(['default', 'pending', 'complete', 'error']),
+  onClose: PropTypes.func.isRequired,
   enrollmentUrl: PropTypes.string.isRequired,
   userSubsidyApplicableToCourse: PropTypes.shape({
     subsidyType: PropTypes.oneOf(
@@ -316,6 +329,7 @@ EnrollModal.propTypes = {
 EnrollModal.defaultProps = {
   userSubsidyApplicableToCourse: undefined,
   onEnroll: undefined,
+  confirmationButtonState: 'default',
 };
 
 export default EnrollModal;

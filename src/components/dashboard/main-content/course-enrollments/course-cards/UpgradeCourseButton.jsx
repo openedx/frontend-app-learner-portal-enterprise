@@ -60,7 +60,7 @@ OverlayTriggerWrapper.propTypes = {
 };
 
 /**
- * Button for upgrading a course via coupon code (possibly offer later on).
+ * Button for upgrading a course via coupon code or learner credit.
  */
 const UpgradeCourseButton = ({
   className,
@@ -71,26 +71,62 @@ const UpgradeCourseButton = ({
 }) => {
   const intl = useIntl();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmationButtonState, setConfirmationButtonState] = useState('default');
 
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: { couponCodeRedemptionCount } } = useCouponCodes();
+
+  const handleRedeem = () => {
+    setConfirmationButtonState('pending');
+    sendEnterpriseTrackEvent(
+      enterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.course.upgrade_button.confirmed',
+    );
+  };
+
+  const handleRedemptionSuccess = async (transaction) => {
+    if (transaction?.state !== 'committed') {
+      return;
+    }
+    setConfirmationButtonState('complete');
+    const { coursewareUrl } = transaction;
+    global.location.assign(coursewareUrl);
+  };
+
+  const handleRedemptionError = () => {
+    setConfirmationButtonState('error');
+  };
+
   const {
     subsidyForCourse,
     courseRunPrice,
-  } = useCourseUpgradeData({ courseRunKey, mode });
+    redeem,
+  } = useCourseUpgradeData({
+    courseRunKey,
+    mode,
+    onRedeem: handleRedeem,
+    onRedeemSuccess: handleRedemptionSuccess,
+    onRedeemError: handleRedemptionError,
+  });
 
   const handleClick = () => {
     setIsModalOpen(true);
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
-      'edx.ui.enterprise.learner_portal.course.upgrade_button.clicked',
+      'edx.ui.enterprise.learner_portal.dashboard.course_enrollment.upgrade_button.clicked',
     );
   };
-  const handleEnroll = () => {
-    sendEnterpriseTrackEvent(
-      enterpriseCustomer.uuid,
-      'edx.ui.enterprise.learner_portal.course.upgrade_button.to_ecommerce_basket.clicked',
-    );
+
+  const handleEnroll = async (e) => {
+    if (!subsidyForCourse || !redeem) {
+      return;
+    }
+    await redeem(e);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setConfirmationButtonState('default');
   };
 
   return (
@@ -102,8 +138,9 @@ const UpgradeCourseButton = ({
           onClick={handleClick}
           data-testid="upgrade-course-button"
         >
-          {/* {DIV IS NECESSARY TO AVOID A CSS STYLING COMPLEXITY
-          WHERE THE TEXT'S WHITESPACE WILL DISAPPEAR, DO NOT REMOVE} */}
+          {/* Note: the below `div` wrapping the i18n message below is necessary to avoid a CSS style issue
+          where the screenreader-only text styles causes a lack of space between 2 words; `.sr-only` class name
+          should must not be rendered within a flexbox container. */}
           <div>
             {intl.formatMessage(messages.upgradeForFreeButton, {
               s: upgradeButtonScreenReaderText,
@@ -114,8 +151,9 @@ const UpgradeCourseButton = ({
       </OverlayTriggerWrapper>
       <EnrollModal
         isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        enrollmentUrl={subsidyForCourse.redemptionUrl}
+        confirmationButtonState={confirmationButtonState}
+        onClose={handleModalClose}
+        enrollmentUrl={subsidyForCourse?.redemptionUrl}
         courseRunPrice={courseRunPrice}
         userSubsidyApplicableToCourse={subsidyForCourse}
         couponCodesCount={couponCodeRedemptionCount}

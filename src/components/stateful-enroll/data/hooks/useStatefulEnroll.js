@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
@@ -48,7 +48,7 @@ const useStatefulEnroll = ({
   });
   const { authenticatedUser } = useContext(AppContext);
 
-  const handleSuccess = async (newTransaction) => {
+  const handleSuccess = useCallback(async (newTransaction) => {
     setTransaction(newTransaction);
     if (newTransaction.state === 'committed') {
       if (onSuccess) {
@@ -57,13 +57,13 @@ const useStatefulEnroll = ({
         await onSuccess(newTransaction);
       }
     }
-  };
+  }, [onSuccess, optimizelyHandler, searchHandler]);
 
-  const handleError = (error) => {
+  const handleError = useCallback((error) => {
     if (onError) {
       onError(error);
     }
-  };
+  }, [onError]);
 
   useQuery({
     ...queryPolicyTransaction(enterpriseCustomer.uuid, transaction),
@@ -75,7 +75,7 @@ const useStatefulEnroll = ({
     onError: handleError,
   });
 
-  const redeem = ({ metadata } = {}) => {
+  const redeem = useCallback(({ metadata } = {}) => {
     if (!subsidyAccessPolicy) {
       logError('`redeem` was called but no subsidy access policy was given.');
       return;
@@ -96,7 +96,14 @@ const useStatefulEnroll = ({
       }
     };
     makeRedemption();
-  };
+  }, [
+    authenticatedUser.userId,
+    contentKey,
+    redemptionMutation,
+    subsidyAccessPolicy,
+    handleSuccess,
+    handleError,
+  ]);
 
   return {
     redeem,
