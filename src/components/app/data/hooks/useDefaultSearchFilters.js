@@ -14,7 +14,6 @@ export default function useDefaultSearchFilters() {
   const showAllRefinement = refinements[SHOW_ALL_NAME];
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const videoSearchQuery = features.FEATURE_ENABLE_VIDEO_CATALOG ? '' : ' AND (NOT content_type:video)';
-
   const searchCatalogs = useSearchCatalogs();
   useEffect(() => {
     // default to showing all catalogs if there are no confined search catalogs
@@ -39,6 +38,5 @@ export default function useDefaultSearchFilters() {
     },
     [enterpriseCustomer.uuid, searchCatalogs, showAllRefinement, videoSearchQuery],
   );
-
   return filters;
 }

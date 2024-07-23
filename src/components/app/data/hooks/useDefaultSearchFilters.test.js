@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catalog-search';
-import React from 'react';
 import { SearchContext, SHOW_ALL_NAME } from '@edx/frontend-enterprise-catalog-search';
+import React from 'react';
 import useDefaultSearchFilters from './useDefaultSearchFilters';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
@@ -9,6 +9,13 @@ import { enterpriseCustomerFactory } from '../services/data/__factories__';
 
 jest.mock('./useEnterpriseCustomer', () => jest.fn());
 jest.mock('./useSearchCatalogs', () => jest.fn());
+
+jest.mock('../../../../config', () => ({
+  ...jest.requireActual('../../../../config'),
+  features: {
+    FEATURE_ENABLE_VIDEO_CATALOG: false,
+  },
+}));
 
 jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-catalog-search'),
@@ -49,7 +56,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND (NOT content_type:video)`);
     expect(mockDispatch).toHaveBeenCalled();
   });
 
@@ -59,7 +66,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND (NOT content_type:video)`);
   });
 
   // TODO: Fix this test
@@ -73,7 +80,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs));
+    expect(result.current).toEqual(`${frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs)} AND (NOT content_type:video)`);
   });
 
   it('should return aggregated catalog string if searchCatalogs.length === 0', () => {
@@ -82,6 +89,6 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND (NOT content_type:video)`);
   });
 });
