@@ -13,7 +13,6 @@ export default function useDefaultSearchFilters() {
   const { refinements, dispatch } = useContext(SearchContext);
   const showAllRefinement = refinements[SHOW_ALL_NAME];
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const videoSearchQuery = features.FEATURE_ENABLE_VIDEO_CATALOG ? '' : ' AND (NOT content_type:video)';
   const searchCatalogs = useSearchCatalogs();
   useEffect(() => {
     // default to showing all catalogs if there are no confined search catalogs
@@ -24,6 +23,9 @@ export default function useDefaultSearchFilters() {
 
   const filters = useMemo(
     () => {
+      // FIXME: Remove this line and related usage when video content metadata updated to
+      // identical data-structure as similar algolia search objects, ex. COURSES
+      const videoSearchQuery = features.FEATURE_ENABLE_VIDEO_CATALOG ? '' : ' AND (NOT content_type:video)';
       // Show all enterprise catalogs
       if (showAllRefinement) {
         return `enterprise_customer_uuids:${enterpriseCustomer.uuid}${videoSearchQuery}`;
@@ -36,7 +38,7 @@ export default function useDefaultSearchFilters() {
       // If the learner is not confined to certain catalogs, scope to all of enterprise's catalogs
       return `enterprise_customer_uuids:${enterpriseCustomer.uuid}${videoSearchQuery}`;
     },
-    [enterpriseCustomer.uuid, searchCatalogs, showAllRefinement, videoSearchQuery],
+    [enterpriseCustomer.uuid, searchCatalogs, showAllRefinement],
   );
   return filters;
 }
