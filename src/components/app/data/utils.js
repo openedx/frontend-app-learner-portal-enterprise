@@ -438,10 +438,10 @@ export function getLateEnrollmentBufferDays(redeemablePolicies) {
     return undefined;
   }
   const anyPolicyHasLateRedemptionEnabled = redeemablePolicies.some((policy) => (
-    // is_late_redemption_enabled=True on the serialized policy represents the fact that late
+    // is_late_redemption_allowed=True on the serialized policy represents the fact that late
     // redemption has been temporarily enabled by an operator for the policy. It will toggle
     // itself back to False after a finite period of time.
-    policy.isLateRedemptionEnabled
+    policy.isLateRedemptionAllowed
   ));
   return anyPolicyHasLateRedemptionEnabled ? LATE_ENROLLMENTS_BUFFER_DAYS : undefined;
 }
