@@ -4,11 +4,11 @@ import dayjs from 'dayjs';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { queryClient } from '../../../../utils/tests';
 import { fetchCourseMetadata } from '../services';
-import useLateRedemptionBufferDays from './useLateRedemptionBufferDays';
+import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import useCourseMetadata from './useCourseMetadata';
 
 jest.mock('./useEnterpriseCustomer');
-jest.mock('./useLateRedemptionBufferDays');
+jest.mock('./useLateEnrollmentBufferDays');
 
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
@@ -41,7 +41,7 @@ describe('useCourseMetadata', () => {
     jest.clearAllMocks();
     fetchCourseMetadata.mockResolvedValue(mockCourseMetadata);
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
-    useLateRedemptionBufferDays.mockReturnValue(undefined);
+    useLateEnrollmentBufferDays.mockReturnValue(undefined);
     useSearchParams.mockReturnValue([new URLSearchParams({ course_run_key: 'course-v1:edX+DemoX+T2024' })]);
   });
   it('should handle resolved value correctly with no select function passed', async () => {

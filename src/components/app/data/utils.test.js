@@ -619,8 +619,9 @@ describe('getAvailableCourseRuns', () => {
     MockDate.set('2023-07-05T00:00:00Z');
     expect(getAvailableCourseRuns({ course: sampleCourseRunDataWithRecentRuns.courseData }))
       .toEqual(sampleCourseRunDataWithRecentRuns.courseData.courseRuns.slice(0, 1));
-    expect(getAvailableCourseRuns({ course: sampleCourseRunDataWithRecentRuns.courseData, isEnrollableBufferDays: 60 }))
-      .toEqual(sampleCourseRunDataWithRecentRuns.courseData.courseRuns.slice(0, 3));
+    expect(getAvailableCourseRuns(
+      { course: sampleCourseRunDataWithRecentRuns.courseData, lateEnrollmentBufferDays: 60 },
+    )).toEqual(sampleCourseRunDataWithRecentRuns.courseData.courseRuns.slice(0, 3));
   });
   it('returns empty array if course runs are not available', () => {
     sampleCourseRunData.courseData.courseRuns = [];

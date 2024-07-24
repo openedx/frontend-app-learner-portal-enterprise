@@ -259,10 +259,10 @@ export function queryCanRedeemContextQueryKey(enterpriseUuid, courseKey) {
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
  */
-export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBufferDays) {
+export function queryCanRedeem(enterpriseUuid, courseMetadata, lateEnrollmentBufferDays) {
   const availableCourseRuns = getAvailableCourseRuns({
     course: courseMetadata,
-    isEnrollableBufferDays,
+    lateEnrollmentBufferDays,
   });
   const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
   return queries

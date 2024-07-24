@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import useCourseMetadata from './useCourseMetadata';
 import { queryCanRedeem } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
-import useLateRedemptionBufferDays from './useLateRedemptionBufferDays';
+import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 
 export function transformCourseRedemptionEligibility({
   courseMetadata,
@@ -45,10 +45,10 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
   const { select, ...queryOptionsRest } = queryOptions;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
-  const isEnrollableBufferDays = useLateRedemptionBufferDays();
+  const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
 
   return useQuery({
-    ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, isEnrollableBufferDays),
+    ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
     enabled: !!courseMetadata,
     select: (data) => {
       const transformedData = transformCourseRedemptionEligibility({

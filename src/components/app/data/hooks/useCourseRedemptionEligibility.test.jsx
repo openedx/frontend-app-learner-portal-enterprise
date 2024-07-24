@@ -7,12 +7,12 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
 import { fetchCanRedeem } from '../services';
 import useCourseMetadata from './useCourseMetadata';
-import { useCourseRedemptionEligibility, useLateRedemptionBufferDays } from './index';
+import { useCourseRedemptionEligibility, useLateEnrollmentBufferDays } from './index';
 import { transformCourseRedemptionEligibility } from './useCourseRedemptionEligibility';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useCourseMetadata');
-jest.mock('./useLateRedemptionBufferDays');
+jest.mock('./useLateEnrollmentBufferDays');
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
   fetchCanRedeem: jest.fn().mockResolvedValue(null),
@@ -86,7 +86,7 @@ describe('useCourseRedemptionEligibility', () => {
     fetchCanRedeem.mockResolvedValue(mockCanRedeemData);
     useParams.mockReturnValue({ courseRunKey: mockCourseRunKey });
     useCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
-    useLateRedemptionBufferDays.mockReturnValue(undefined);
+    useLateEnrollmentBufferDays.mockReturnValue(undefined);
   });
   it('should handle resolved value correctly', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
