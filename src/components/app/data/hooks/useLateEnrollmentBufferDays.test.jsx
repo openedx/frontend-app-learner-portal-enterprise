@@ -23,12 +23,13 @@ const redeemablePolicies = [
   {
     id: 123,
     subsidyExpirationDate: mockSubsidyExpirationDate,
+    isLateRedemptionAllowed: false,
   },
   {
     id: 456,
     subsidyExpirationDate: mockSubsidyExpirationDate,
     learnerContentAssignments: [mockContentAssignment],
-    isLateRedemptionEnabled: true,
+    isLateRedemptionAllowed: true, // all it takes is one redeemable policy to turn on the late redemption feature.
   },
 ];
 const expectedTransformedPolicies = redeemablePolicies.map((policy) => ({
@@ -82,15 +83,18 @@ describe('useLateEnrollmentBufferDays', () => {
     expect(result.current).toEqual(LATE_ENROLLMENTS_BUFFER_DAYS);
   });
   it('should return undefined if no late redemption is enabled', async () => {
+    // Copy of redeemablePolicies but no policies have late redemption allowed.
     const updatedRedeemablePolicies = [
       {
         id: 123,
         subsidyExpirationDate: mockSubsidyExpirationDate,
+        isLateRedemptionAllowed: false,
       },
       {
         id: 456,
         subsidyExpirationDate: mockSubsidyExpirationDate,
         learnerContentAssignments: [mockContentAssignment],
+        isLateRedemptionAllowed: false,
       },
     ];
     const updatedExpectedTransformedPolicies = updatedRedeemablePolicies.map((policy) => ({
