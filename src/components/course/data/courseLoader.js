@@ -7,7 +7,7 @@ import {
   queryEnterpriseCourseEnrollments,
   extractEnterpriseCustomer,
   queryRedeemablePolicies,
-  getLateRedemptionBufferDays,
+  getLateEnrollmentBufferDays,
   querySubscriptions,
   queryLicenseRequests,
   queryCouponCodeRequests,
@@ -77,9 +77,11 @@ export default function makeCourseLoader(queryClient) {
           enterpriseUuid: enterpriseCustomer.uuid,
           lmsUserId: authenticatedUser.userId,
         }));
-        const isEnrollableBufferDays = getLateRedemptionBufferDays(redeemableLearnerCreditPolicies.redeemablePolicies);
+        const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
+          redeemableLearnerCreditPolicies.redeemablePolicies,
+        );
         return queryClient.ensureQueryData(
-          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, isEnrollableBufferDays),
+          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
         );
       }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
