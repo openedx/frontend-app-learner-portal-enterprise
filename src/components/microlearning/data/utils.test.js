@@ -24,6 +24,8 @@ describe('Microlearning utils tests', () => {
     },
     parent_content_metadata: {
       title: 'Course Title',
+      logo_image_urls: ['http://example.com/logo.png'],
+      parent_content_key: 'course-key',
     },
     summary_transcripts: [
       'Transcript 1', 'Transcript 2',
@@ -78,6 +80,8 @@ describe('Microlearning utils tests', () => {
         },
       ],
       videoDuration: '2:03',
+      institutionLogo: 'http://example.com/logo.png',
+      courseKey: 'course-key',
     });
   });
 

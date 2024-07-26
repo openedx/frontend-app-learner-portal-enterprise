@@ -38,8 +38,9 @@ const mockVideoDetailResponse = {
       },
       duration: 135.98,
     },
+    title: 'Needs-Driven Innovation',
     parent_content_metadata: {
-      title: 'Needs-Driven Innovation ',
+      title: 'Demo Course Run Title',
     },
     summary_transcripts: {
       listItem: 'Needs-Driven Innovation focuses on identifying...',
