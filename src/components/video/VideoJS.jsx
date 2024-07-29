@@ -81,7 +81,6 @@ const VideoJS = ({ options, onReady, customOptions }) => {
       playerRef.current = videojs(videoElement, transformedPlayerOptions, () => {
         const textTracks = Object.entries(transcriptsData.textTracks);
         textTracks.forEach(([lang, webVttFileUrl]) => {
-          console.log('Adding remote text track', lang, webVttFileUrl);
           playerRef.current.addRemoteTextTrack({
             kind: 'subtitles',
             src: webVttFileUrl,
