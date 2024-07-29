@@ -13,7 +13,7 @@ window.videojs = videojs;
 require('videojs-vjstranscribe');
 
 function useTranscripts({ player, customOptions }) {
-  const shouldUseTranscripts = customOptions?.showTranscripts && customOptions?.transcriptUrls
+  const shouldUseTranscripts = customOptions?.showTranscripts && customOptions?.transcriptUrls;
   const [isLoading, setIsLoading] = useState(shouldUseTranscripts);
   const [textTracks, setTextTracks] = useState([]);
   const [transcriptUrl, setTranscriptUrl] = useState(null);

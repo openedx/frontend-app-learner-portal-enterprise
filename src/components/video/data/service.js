@@ -1,7 +1,7 @@
 import { logError } from '@edx/frontend-platform/logging';
 import { convertToWebVtt, createWebVttFile } from './utils';
 
-const fetchAndAddTranscripts = async (transcriptUrls, player) => {
+const fetchAndAddTranscripts = async (transcriptUrls) => {
   const data = {};
   const transcriptPromises = Object.entries(transcriptUrls).map(([lang, url]) => fetch(url)
     .then(response => {
@@ -24,6 +24,7 @@ const fetchAndAddTranscripts = async (transcriptUrls, player) => {
     return data;
   } catch (error) {
     logError(`Error fetching or processing transcripts: ${error}`);
+    return data;
   }
 };
 
