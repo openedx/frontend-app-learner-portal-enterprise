@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { logError } from '@edx/frontend-platform/logging';
 
 import 'videojs-youtube';
 import videojs from 'video.js';
@@ -27,7 +28,7 @@ function useTranscripts({ player, customOptions }) {
           // We are only catering to English transcripts for now as we don't have the option to change
           // the transcript language yet.
           if (result.en) {
-            setTranscriptUrl(result.en); 
+            setTranscriptUrl(result.en);
           }
         } catch (error) {
           logError(`Error fetching transcripts for player: ${error}`);
@@ -37,7 +38,7 @@ function useTranscripts({ player, customOptions }) {
       }
     };
     fetchFn();
-  }, []);
+  }, [customOptions.transcriptUrls, player, shouldUseTranscripts]);
 
   return {
     textTracks,
@@ -56,13 +57,13 @@ const VideoJS = ({ options, onReady, customOptions }) => {
   });
 
   useEffect(() => {
+    if (transcriptsData.isLoading) {
+      // While async transcripts data is loading, don't initialize the player
+      return;
+    }
+
     // Make sure Video.js player is only initialized once
     if (!playerRef.current) {
-      if (transcriptsData.isLoading) {
-        // while async transcripts data is loading, don't initialize the player
-        return;
-      }
-      
       // The Video.js player needs to be _inside_ the component el for React 18 Strict Mode.
       const videoElement = document.createElement('video-js');
 
@@ -77,7 +78,7 @@ const VideoJS = ({ options, onReady, customOptions }) => {
           },
         },
       };
-      
+
       playerRef.current = videojs(videoElement, transformedPlayerOptions, () => {
         const textTracks = Object.entries(transcriptsData.textTracks);
         textTracks.forEach(([lang, webVttFileUrl]) => {
@@ -88,7 +89,7 @@ const VideoJS = ({ options, onReady, customOptions }) => {
             label: lang,
           }, false);
         });
-        
+
         if (onReady) {
           onReady(playerRef.current);
         }
@@ -105,12 +106,13 @@ const VideoJS = ({ options, onReady, customOptions }) => {
 
   // Dispose the Video.js player when the functional component unmounts
   useEffect(() => {
-    return () => {
+    const cleanup = () => {
       if (playerRef.current && !playerRef.current.isDisposed()) {
         playerRef.current.dispose();
         playerRef.current = null;
       }
     };
+    return cleanup;
   }, []);
 
   return (
