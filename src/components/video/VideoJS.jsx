@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import 'videojs-youtube';
@@ -11,59 +11,115 @@ window.videojs = videojs;
 // eslint-disable-next-line import/no-extraneous-dependencies
 require('videojs-vjstranscribe');
 
+function useTranscripts({ player, customOptions }) {
+  const shouldUseTranscripts = customOptions?.showTranscripts && customOptions?.transcriptUrls
+  const [isLoading, setIsLoading] = useState(shouldUseTranscripts);
+  const [textTracks, setTextTracks] = useState([]);
+  const [transcriptUrl, setTranscriptUrl] = useState(null);
+
+  useEffect(() => {
+    const fetchFn = async () => {
+      setIsLoading(true);
+      if (shouldUseTranscripts) {
+        try {
+          const result = await fetchAndAddTranscripts(customOptions.transcriptUrls, player);
+          setTextTracks(result);
+          // We are only catering to English transcripts for now as we don't have the option to change
+          // the transcript language yet.
+          if (result.en) {
+            setTranscriptUrl(result.en); 
+          }
+        } catch (error) {
+          logError(`Error fetching transcripts for player: ${error}`);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    fetchFn();
+  }, []);
+
+  return {
+    textTracks,
+    transcriptUrl,
+    isLoading,
+  };
+}
+
 const VideoJS = ({ options, onReady, customOptions }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
 
+  const transcriptsData = useTranscripts({
+    player: playerRef.current,
+    customOptions,
+  });
+
   useEffect(() => {
     // Make sure Video.js player is only initialized once
     if (!playerRef.current) {
+      if (transcriptsData.isLoading) {
+        // while async transcripts data is loading, don't initialize the player
+        return;
+      }
+      
       // The Video.js player needs to be _inside_ the component el for React 18 Strict Mode.
       const videoElement = document.createElement('video-js');
 
       videoElement.classList.add('vjs-big-play-centered');
       videoRef.current.appendChild(videoElement);
 
-      // eslint-disable-next-line no-multi-assign
-      const player = playerRef.current = videojs(videoElement, options, () => {
+      const transformedPlayerOptions = {
+        ...options,
+        plugins: {
+          vjstranscribe: {
+            urls: transcriptsData.transcriptUrl ? [transcriptsData.transcriptUrl] : [],
+          },
+        },
+      };
+      
+      playerRef.current = videojs(videoElement, transformedPlayerOptions, () => {
+        const textTracks = Object.entries(transcriptsData.textTracks);
+        textTracks.forEach(([lang, webVttFileUrl]) => {
+          console.log('Adding remote text track', lang, webVttFileUrl);
+          playerRef.current.addRemoteTextTrack({
+            kind: 'subtitles',
+            src: webVttFileUrl,
+            srclang: lang,
+            label: lang,
+          }, false);
+        });
+        
         if (onReady) {
-          onReady(player);
+          onReady(playerRef.current);
         }
       });
 
       if (customOptions?.showPlaybackMenu) {
-        player.playbackRates(PLAYBACK_RATES);
-      }
-
-      if (customOptions?.showTranscripts && customOptions?.transcriptUrls) {
-        fetchAndAddTranscripts(customOptions?.transcriptUrls, player);
+        playerRef.current.playbackRates(PLAYBACK_RATES);
       }
     } else {
-      const player = playerRef.current;
-
-      player.autoplay(options.autoplay);
-      player.src(options.sources);
+      playerRef.current.autoplay(options.autoplay);
+      playerRef.current.src(options.sources);
     }
-  }, [onReady, options, videoRef, customOptions]);
+  }, [onReady, options, customOptions, transcriptsData]);
 
   // Dispose the Video.js player when the functional component unmounts
   useEffect(() => {
-    const player = playerRef.current;
-
     return () => {
-      if (player && !player.isDisposed()) {
-        player.dispose();
+      if (playerRef.current && !playerRef.current.isDisposed()) {
+        playerRef.current.dispose();
         playerRef.current = null;
       }
     };
-  }, [playerRef]);
+  }, []);
 
   return (
     <>
       <div data-vjs-player className="video-js-wrapper">
         <div ref={videoRef} />
       </div>
-      { customOptions?.showTranscripts && <div id="vjs-transcribe" className="transcript-container" />}
+      {customOptions?.showTranscripts && <div id="vjs-transcribe" className="transcript-container" />}
     </>
   );
 };

@@ -2,6 +2,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import { convertToWebVtt, createWebVttFile } from './utils';
 
 const fetchAndAddTranscripts = async (transcriptUrls, player) => {
+  const data = {};
   const transcriptPromises = Object.entries(transcriptUrls).map(([lang, url]) => fetch(url)
     .then(response => {
       if (!response.ok) {
@@ -12,30 +13,17 @@ const fetchAndAddTranscripts = async (transcriptUrls, player) => {
     .then(transcriptData => {
       const webVttData = convertToWebVtt(transcriptData);
       const webVttFileUrl = createWebVttFile(webVttData);
-
-      player.addRemoteTextTrack({
-        kind: 'subtitles',
-        src: webVttFileUrl,
-        srclang: lang,
-        label: lang,
-      }, false);
-
-      // We are only catering to English transcripts for now as we don't have the option to change
-      // the transcript language yet.
-      if (lang === 'en') {
-        player.vjstranscribe({
-          urls: [webVttFileUrl],
-        });
-      }
+      data[lang] = webVttFileUrl;
     })
     .catch(error => {
-      logError(`Error fetching or processing transcript for ${lang}:`, error);
+      logError(`Error fetching or processing transcript for ${lang}: ${error}`);
     }));
 
   try {
     await Promise.all(transcriptPromises);
+    return data;
   } catch (error) {
-    logError('Error fetching or processing transcripts:', error);
+    logError(`Error fetching or processing transcripts: ${error}`);
   }
 };
 

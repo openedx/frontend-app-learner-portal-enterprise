@@ -8,6 +8,7 @@ const defaultOptions = {
   controls: true,
   responsive: true,
   fluid: true,
+  muted: true,
 };
 
 const VideoPlayer = ({ videoURL, onReady, customOptions }) => {
