@@ -4,8 +4,14 @@ import PropTypes from 'prop-types';
 import 'videojs-youtube';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import { PLAYBACK_RATES } from './data/constants';
+import { fetchAndAddTranscripts } from './data/service';
 
-const VideoJS = ({ options, onReady }) => {
+window.videojs = videojs;
+// eslint-disable-next-line import/no-extraneous-dependencies
+require('videojs-vjstranscribe');
+
+const VideoJS = ({ options, onReady, customOptions }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
 
@@ -24,13 +30,21 @@ const VideoJS = ({ options, onReady }) => {
           onReady(player);
         }
       });
+
+      if (customOptions?.showPlaybackMenu) {
+        player.playbackRates(PLAYBACK_RATES);
+      }
+
+      if (customOptions?.showTranscripts && customOptions?.transcriptUrls) {
+        fetchAndAddTranscripts(customOptions?.transcriptUrls, player);
+      }
     } else {
       const player = playerRef.current;
 
       player.autoplay(options.autoplay);
       player.src(options.sources);
     }
-  }, [onReady, options, videoRef]);
+  }, [onReady, options, videoRef, customOptions]);
 
   // Dispose the Video.js player when the functional component unmounts
   useEffect(() => {
@@ -45,9 +59,12 @@ const VideoJS = ({ options, onReady }) => {
   }, [playerRef]);
 
   return (
-    <div data-vjs-player className="video-js-wrapper">
-      <div ref={videoRef} />
-    </div>
+    <>
+      <div data-vjs-player className="video-js-wrapper">
+        <div ref={videoRef} />
+      </div>
+      { customOptions?.showTranscripts && <div id="vjs-transcribe" className="transcript-container" />}
+    </>
   );
 };
 
@@ -63,6 +80,11 @@ VideoJS.propTypes = {
     })),
   }).isRequired,
   onReady: PropTypes.func,
+  customOptions: PropTypes.shape({
+    showPlaybackMenu: PropTypes.bool,
+    showTranscripts: PropTypes.bool,
+    transcriptUrls: PropTypes.objectOf(PropTypes.string),
+  }).isRequired,
 };
 
 VideoJS.defaultProps = {

@@ -533,6 +533,8 @@ describe('getAvailableCourseRuns', () => {
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
           isMarketable: true,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
           isEnrollable: true,
           enrollmentStart: '2023-07-01T00:00:00Z',
           enrollmentEnd: '2023-08-01T00:00:00Z',
@@ -543,29 +545,72 @@ describe('getAvailableCourseRuns', () => {
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
           isMarketable: true,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: false,
+          enrollmentStart: '2023-06-01T00:00:00Z',
+          enrollmentEnd: '2023-07-01T00:00:00Z',
+        },
+        // Run with recently closed enrollment, but is not marketable because the course became unpublished. This should
+        // still be redeemable under late enrollment.
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course3',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: false,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: false,
+          enrollmentStart: '2023-06-01T00:00:00Z',
+          enrollmentEnd: '2023-07-01T00:00:00Z',
+        },
+        // Run with recently closed enrollment, but is not really not marketable.
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course4',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: false,
+          seats: [],
+          marketingUrl: undefined,
           isEnrollable: false,
           enrollmentStart: '2023-06-01T00:00:00Z',
           enrollmentEnd: '2023-07-01T00:00:00Z',
         },
         // Run with long-ago closed enrollment, but somehow still "Starting Soon".  This is very edge-casey.
         {
-          key: 'course-v1:edX+DemoX+Demo_Course3',
+          key: 'course-v1:edX+DemoX+Demo_Course5',
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
           isMarketable: true,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
           isEnrollable: false,
           enrollmentStart: '2023-01-01T00:00:00Z',
           enrollmentEnd: '2023-02-01T00:00:00Z',
         },
         // Run with long-ago closed enrollment, and now running.
         {
-          key: 'course-v1:edX+DemoX+Demo_Course4',
+          key: 'course-v1:edX+DemoX+Demo_Course6',
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.CURRENT,
           isMarketable: true,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
           isEnrollable: false,
           enrollmentStart: '2023-01-01T00:00:00Z',
           enrollmentEnd: '2023-02-01T00:00:00Z',
+        },
+        // Run with the enrollment window still in the future.
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course7',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: true,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: false, // enrollment hasn't officially opened yet.
+          enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+          enrollmentEnd: '2023-08-01T00:00:00Z',
         },
       ],
     },
@@ -574,8 +619,9 @@ describe('getAvailableCourseRuns', () => {
     MockDate.set('2023-07-05T00:00:00Z');
     expect(getAvailableCourseRuns({ course: sampleCourseRunDataWithRecentRuns.courseData }))
       .toEqual(sampleCourseRunDataWithRecentRuns.courseData.courseRuns.slice(0, 1));
-    expect(getAvailableCourseRuns({ course: sampleCourseRunDataWithRecentRuns.courseData, isEnrollableBufferDays: 60 }))
-      .toEqual(sampleCourseRunDataWithRecentRuns.courseData.courseRuns.slice(0, 2));
+    expect(getAvailableCourseRuns(
+      { course: sampleCourseRunDataWithRecentRuns.courseData, lateEnrollmentBufferDays: 60 },
+    )).toEqual(sampleCourseRunDataWithRecentRuns.courseData.courseRuns.slice(0, 3));
   });
   it('returns empty array if course runs are not available', () => {
     sampleCourseRunData.courseData.courseRuns = [];

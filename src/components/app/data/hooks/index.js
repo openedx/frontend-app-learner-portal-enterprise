@@ -33,7 +33,7 @@ export { default as useIsAssignmentsOnlyLearner } from './useIsAssignmentsOnlyLe
 export { default as useNProgressLoader } from './useNProgressLoader';
 export { default as useNotices } from './useNotices';
 export { default as useLearnerSkillLevels } from './useLearnerSkillLevels';
-export { default as useLateRedemptionBufferDays } from './useLateRedemptionBufferDays';
+export { default as useLateEnrollmentBufferDays } from './useLateEnrollmentBufferDays';
 export { default as useProgramDetails } from './useProgramDetails';
 export { default as useLearnerProgramProgressData } from './useLearnerProgramProgressData';
 export { default as useLearnerPathwayProgressData } from './useLearnerPathwayProgressData';
@@ -43,3 +43,4 @@ export { default as useAcademyDetails } from './useAcademyDetails';
 export { default as usePassLearnerCsodParams } from './usePassLearnerCsodParams';
 export { default as useCanUpgradeWithLearnerCredit } from './useCanUpgradeWithLearnerCredit';
 export { default as useCourseRunMetadata } from './useCourseRunMetadata';
+export { default as useVideoDetails } from './useVideoDetails';

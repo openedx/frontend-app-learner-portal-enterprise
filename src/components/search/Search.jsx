@@ -1,17 +1,13 @@
-import {
-  useContext, useEffect,
-} from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useContext, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
-import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { useToggle, Stack } from '@openedx/paragon';
+import { SearchContext, SearchHeader } from '@edx/frontend-enterprise-catalog-search';
+import { Stack, useToggle } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import {
-  NUM_RESULTS_PER_PAGE,
-} from './constants';
+import { NUM_RESULTS_PER_PAGE } from './constants';
 import SearchProgram from './SearchProgram';
 import SearchCourse from './SearchCourse';
 import { ContentHighlights } from './content-highlights';
@@ -25,15 +21,16 @@ import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 import {
-  useIsAssignmentsOnlyLearner,
-  useEnterpriseCustomer,
-  useEnterpriseOffers,
   useCanOnlyViewHighlights,
-  useEnterpriseFeatures,
   useDefaultSearchFilters,
+  useEnterpriseCustomer,
+  useEnterpriseFeatures,
+  useEnterpriseOffers,
+  useIsAssignmentsOnlyLearner,
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
+import SearchVideo from './SearchVideo';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -178,6 +175,8 @@ const Search = () => {
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
             {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
+            {canOnlyViewHighlightSets === false
+            && (features.FEATURE_ENABLE_VIDEO_CATALOG) && <SearchVideo filter={filters} /> }
           </Stack>
         )}
         {/* render a single contentType if the refinement exist and is either a course, program or learnerpathway */}

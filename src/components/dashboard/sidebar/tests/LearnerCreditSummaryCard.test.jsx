@@ -14,13 +14,15 @@ import { BUDGET_STATUSES } from '../../data';
 import { useEnterpriseCustomer } from '../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
-const TEST_EXPIRATION_DATE = dayjs().add(10, 'days').toISOString();
-const TEST_EXPIRATION_DATE_TEXT = dayjs().add(10, 'days').format('MMM D, YYYY');
+const TEST_UPCOMING_EXPIRATION_DATE = dayjs().add(10, 'days').toISOString();
+const TEST_UPCOMING_EXPIRATION_DATE_TEXT = dayjs().add(10, 'days').format('MMM D, YYYY');
+const TEST_EXPIRED_DATE = dayjs().subtract(10, 'days').toISOString();
+const TEST_EXPIRED_DATE_TEXT = dayjs().subtract(10, 'days').format('MMM D, YYYY');
 const mockActiveStatusMetadata = {
   status: BUDGET_STATUSES.active,
   badgeVariant: 'success',
   term: 'Expires',
-  date: TEST_EXPIRATION_DATE,
+  date: TEST_UPCOMING_EXPIRATION_DATE,
 };
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
@@ -46,7 +48,7 @@ describe('<LearnerCreditSummaryCard />', () => {
   it('should render searchCoursesCta', () => {
     render(
       <LearnerCreditSummaryCardWrapper
-        expirationDate={TEST_EXPIRATION_DATE}
+        expirationDate={TEST_UPCOMING_EXPIRATION_DATE}
         statusMetadata={mockActiveStatusMetadata}
         assignmentOnlyLearner
       />,
@@ -57,13 +59,13 @@ describe('<LearnerCreditSummaryCard />', () => {
   it('should render the expiration date passed as prop', () => {
     render(
       <LearnerCreditSummaryCardWrapper
-        expirationDate={TEST_EXPIRATION_DATE}
+        expirationDate={TEST_UPCOMING_EXPIRATION_DATE}
         statusMetadata={mockActiveStatusMetadata}
         assignmentOnlyLearner
       />,
     );
     expect(screen.getByTestId('learner-credit-summary-end-date-text')).toBeInTheDocument();
-    expect(screen.getByText(TEST_EXPIRATION_DATE_TEXT, { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(TEST_UPCOMING_EXPIRATION_DATE_TEXT, { exact: false })).toBeInTheDocument();
   });
 
   it.each([{
@@ -76,7 +78,7 @@ describe('<LearnerCreditSummaryCard />', () => {
   ])('should render summary text based on assignmentOnlyLearner (%p)', ({ assignmentOnlyLearner, summaryText }) => {
     render(
       <LearnerCreditSummaryCardWrapper
-        expirationDate={TEST_EXPIRATION_DATE}
+        expirationDate={TEST_UPCOMING_EXPIRATION_DATE}
         statusMetadata={mockActiveStatusMetadata}
         assignmentOnlyLearner={assignmentOnlyLearner}
       />,
@@ -89,6 +91,10 @@ describe('<LearnerCreditSummaryCard />', () => {
       status: BUDGET_STATUSES.expiring,
       badgeVariant: 'warning',
     },
+    expiration: {
+      date: TEST_UPCOMING_EXPIRATION_DATE,
+      text: TEST_UPCOMING_EXPIRATION_DATE_TEXT,
+    },
     disableExpiryMessagingForLearnerCredit: false,
   },
   {
@@ -96,12 +102,20 @@ describe('<LearnerCreditSummaryCard />', () => {
       status: BUDGET_STATUSES.expiring,
       badgeVariant: 'warning',
     },
+    expiration: {
+      date: TEST_UPCOMING_EXPIRATION_DATE,
+      text: TEST_UPCOMING_EXPIRATION_DATE_TEXT,
+    },
     disableExpiryMessagingForLearnerCredit: true,
   },
   {
     activeStatusMetadata: {
       status: BUDGET_STATUSES.expired,
       badgeVariant: 'danger',
+    },
+    expiration: {
+      date: TEST_EXPIRED_DATE,
+      text: TEST_EXPIRED_DATE_TEXT,
     },
     disableExpiryMessagingForLearnerCredit: false,
   },
@@ -110,9 +124,14 @@ describe('<LearnerCreditSummaryCard />', () => {
       status: BUDGET_STATUSES.expired,
       badgeVariant: 'danger',
     },
+    expiration: {
+      date: TEST_EXPIRED_DATE,
+      text: TEST_EXPIRED_DATE_TEXT,
+    },
     disableExpiryMessagingForLearnerCredit: true,
-  }])('should not display "Expiring" badge if disableExpiryMessagingForLearnerCredit is true', ({
+  }])('should not display "Expiring" badge if disableExpiryMessagingForLearnerCredit is true (%s)', ({
     activeStatusMetadata,
+    expiration,
     disableExpiryMessagingForLearnerCredit,
   }) => {
     useEnterpriseCustomer.mockReturnValue({
@@ -123,17 +142,25 @@ describe('<LearnerCreditSummaryCard />', () => {
     });
     render(
       <LearnerCreditSummaryCardWrapper
-        expirationDate={TEST_EXPIRATION_DATE}
+        expirationDate={expiration.date}
         statusMetadata={activeStatusMetadata}
         assignmentOnlyLearner
       />,
     );
-    expect(screen.getByTestId('learner-credit-summary-end-date-text')).toBeInTheDocument();
-    expect(screen.getByText(TEST_EXPIRATION_DATE_TEXT, { exact: false })).toBeInTheDocument();
-    if (disableExpiryMessagingForLearnerCredit && activeStatusMetadata.status === BUDGET_STATUSES.expiring) {
-      expect(screen.queryByText(activeStatusMetadata.status)).not.toBeInTheDocument();
+    const { status } = activeStatusMetadata;
+    if (disableExpiryMessagingForLearnerCredit && (
+      status === BUDGET_STATUSES.expiring || status === BUDGET_STATUSES.expired
+    )) {
+      expect(screen.queryByText(status)).not.toBeInTheDocument();
+      expect(screen.queryByText(expiration.text, { exact: false })).not.toBeInTheDocument();
+      expect(screen.queryByTestId('learner-credit-summary-end-date-text')).not.toBeInTheDocument();
+      if (activeStatusMetadata.status === BUDGET_STATUSES.expiring) {
+        expect(screen.getByText(BUDGET_STATUSES.active)).toBeInTheDocument();
+      }
     } else {
-      expect(screen.queryByText(activeStatusMetadata.status)).toBeInTheDocument();
+      expect(screen.queryByText(status)).toBeInTheDocument();
+      expect(screen.queryByText(expiration.text, { exact: false })).toBeInTheDocument();
+      expect(screen.queryByTestId('learner-credit-summary-end-date-text')).toBeInTheDocument();
     }
   });
 });

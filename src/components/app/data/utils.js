@@ -3,7 +3,7 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { getBrandColorsFromCSSVariables, isTodayWithinDateThreshold } from '../../../utils/common';
+import { getBrandColorsFromCSSVariables, isDefinedAndNotNull, isTodayWithinDateThreshold } from '../../../utils/common';
 import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import {
@@ -433,15 +433,17 @@ export function retrieveErrorMessage(error) {
  * @returns {number|undefined} - Returns the number of late redemption buffer days
  *  if any policy has late redemption enabled.
  */
-export function getLateRedemptionBufferDays(redeemablePolicies) {
+export function getLateEnrollmentBufferDays(redeemablePolicies) {
+  if (!redeemablePolicies) {
+    return undefined;
+  }
   const anyPolicyHasLateRedemptionEnabled = redeemablePolicies.some((policy) => (
-    // is_late_redemption_enabled=True on the serialized policy represents the fact that late
+    // is_late_redemption_allowed=True on the serialized policy represents the fact that late
     // redemption has been temporarily enabled by an operator for the policy. It will toggle
     // itself back to False after a finite period of time.
-    policy.isLateRedemptionEnabled
+    policy.isLateRedemptionAllowed
   ));
-  const isEnrollableBufferDays = anyPolicyHasLateRedemptionEnabled ? LATE_ENROLLMENTS_BUFFER_DAYS : undefined;
-  return isEnrollableBufferDays;
+  return anyPolicyHasLateRedemptionEnabled ? LATE_ENROLLMENTS_BUFFER_DAYS : undefined;
 }
 
 // See https://2u-internal.atlassian.net/wiki/spaces/WS/pages/8749811/Enroll+button+and+Course+Run+Selector+Logic
@@ -458,37 +460,56 @@ export function isArchived(courseRun) {
 }
 
 /**
- * Returns list of available that are marketable, enrollable, and not archived.
+ * Returns list of available runs that are marketable, enrollable, and not archived.
  *
- * @param {object} course
+ * This function is used by logic that determines which runs should be visible on the course about page.
+ *
+ * @param {object} course - The course containing runs which will be a superset of the returned runs.
+ * @param {number} lateEnrollmentBufferDays - number of days to buffer the enrollment end date, or undefined.
  * @returns List of course runs.
  */
-export function getAvailableCourseRuns({ course, isEnrollableBufferDays }) {
+export function getAvailableCourseRuns({ course, lateEnrollmentBufferDays }) {
   if (!course?.courseRuns) {
     return [];
   }
-  const availableCourseRunsFilter = (courseRun) => {
-    if (!courseRun.isMarketable || isArchived(courseRun)) {
+
+  // These are the standard rules used for determining whether a run is "available".
+  const standardAvailableCourseRunsFilter = (courseRun) => (
+    courseRun.isMarketable && !isArchived(courseRun) && courseRun.isEnrollable
+  );
+
+  // These are more relaxed availability rules when late enrollment is applicable. We still never show archived courses,
+  // but the rules around the following fields are relaxed:
+  //
+  // * courseRun.isEnrollable: This field represents the enrollment window actually stored in the database. However,
+  //   during late enrollment we expand the end date of the enrollment window by lateEnrollmentBufferDays.
+  // * courseRun.isMarketable: This field is True when the run is published, has seats, and has a marketing URL. Since
+  //   late enrollment potentially means enrolling into an unpublished run, we must ignore the run state.
+  const lateEnrollmentAvailableCourseRunsFilter = (courseRun) => {
+    if (
+      isArchived(courseRun)
+      // The next two checks are in lieu of isMarketable which is otherwise overly sensitive to courserun state.
+      || !courseRun.seats?.length
+      || !courseRun.marketingUrl
+    ) {
       return false;
     }
-
-    if (isEnrollableBufferDays === undefined) {
-      return courseRun.isEnrollable;
-    }
-
+    // Finally, check against an expanded enrollment window.
     const today = dayjs();
-    if (courseRun.enrollmentStart && today.isBefore(dayjs(courseRun.enrollmentStart))) {
+    if (!courseRun.enrollmentEnd || (courseRun.enrollmentStart && today.isBefore(dayjs(courseRun.enrollmentStart)))) {
       // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
-      return courseRun.isEnrollable;
+      return standardAvailableCourseRunsFilter(courseRun);
     }
-    if (!courseRun.enrollmentEnd) {
-      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
-      return courseRun.isEnrollable;
-    }
-    const bufferedEnrollDeadline = dayjs(courseRun.enrollmentEnd).add(isEnrollableBufferDays, 'day');
+    const bufferedEnrollDeadline = dayjs(courseRun.enrollmentEnd).add(lateEnrollmentBufferDays, 'day');
     return today.isBefore(bufferedEnrollDeadline);
   };
-  return course.courseRuns.filter(availableCourseRunsFilter);
+
+  // lateEnrollmentBufferDays being set is used as a heuristic to determine if the late enrollment feature is enabled.
+  return course.courseRuns.filter(
+    isDefinedAndNotNull(lateEnrollmentBufferDays)
+      ? lateEnrollmentAvailableCourseRunsFilter
+      : standardAvailableCourseRunsFilter,
+  );
 }
 
 export function getCatalogsForSubsidyRequests({

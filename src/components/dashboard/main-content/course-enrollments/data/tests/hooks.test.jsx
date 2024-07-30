@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import * as logger from '@edx/frontend-platform/logging';
 import { AppContext } from '@edx/frontend-platform/react';
+import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import camelCase from 'lodash.camelcase';
 import dayjs from 'dayjs';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -26,26 +27,37 @@ import {
 import { ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
   ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
+  COURSE_MODES_MAP,
   emptyRedeemableLearnerCreditPolicies,
   transformCourseEnrollment,
   transformLearnerContentAssignment,
-  useCanUpgradeWithLearnerCredit, useCouponCodes,
+  useCanUpgradeWithLearnerCredit,
+  useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useRedeemablePolicies,
   useSubscriptions,
-  useCourseRunMetadata, COURSE_MODES_MAP,
+  useCourseRunMetadata,
 } from '../../../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../../data/constants';
+import { LICENSE_STATUS } from '../../../../../enterprise-user-subsidy/data/constants';
+import { useStatefulEnroll } from '../../../../../stateful-enroll/data';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
   logInfo: jest.fn(),
 }));
-
+jest.mock('@edx/frontend-enterprise-utils', () => ({
+  ...jest.requireActual('@edx/frontend-enterprise-utils'),
+  sendEnterpriseTrackEventWithDelay: jest.fn(),
+}));
+jest.mock('../../../../../stateful-enroll/data', () => ({
+  ...jest.requireActual('../../../../../stateful-enroll/data'),
+  useStatefulEnroll: jest.fn(),
+}));
 jest.mock('../../../../../app/data', () => ({
   ...jest.requireActual('../../../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
@@ -56,6 +68,11 @@ jest.mock('../../../../../app/data', () => ({
   useCanUpgradeWithLearnerCredit: jest.fn(),
   useEnterpriseCustomerContainsContent: jest.fn(),
   useCourseRunMetadata: jest.fn(),
+}));
+jest.mock('../../../../../course/data/hooks', () => ({
+  ...jest.requireActual('../../../../../course/data/hooks'),
+  useOptimizelyEnrollmentClickHandler: jest.fn(),
+  useTrackSearchConversionClickHandler: jest.fn(),
 }));
 
 const mockRawCourseEnrollment = createRawCourseEnrollment();
@@ -81,11 +98,11 @@ const wrapper = ({ children }) => (
 describe('useCourseEnrollments', () => {
   it('should fetch and set course enrollments', async () => {
     service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
-    const basicArgs = {
+    const baseArgs = {
       enterpriseUUID: 'uuid',
       requestedCourseEnrollments: [],
     };
-    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(basicArgs));
+    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(baseArgs));
     await waitForNextUpdate();
     expect(service.fetchEnterpriseCourseEnrollments).toHaveBeenCalled();
     expect(result.current.courseEnrollmentsByStatus).toEqual({
@@ -102,11 +119,11 @@ describe('useCourseEnrollments', () => {
   it('should set fetchError if an error occurs', async () => {
     const error = Error('something went wrong');
     service.fetchEnterpriseCourseEnrollments.mockRejectedValue(error);
-    const basicArgs = {
+    const baseArgs = {
       enterpriseUUID: 'uuid',
       requestedCourseEnrollments: [],
     };
-    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(basicArgs));
+    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(baseArgs));
     await waitForNextUpdate();
     expect(result.current.fetchError).toBe(error);
   });
@@ -114,11 +131,11 @@ describe('useCourseEnrollments', () => {
   describe('updateCourseEnrollmentStatus', () => {
     it('should move a course enrollment to the correct status group', async () => {
       service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
-      const basicArgs = {
+      const baseArgs = {
         enterpriseUUID: 'uuid',
         requestedCourseEnrollments: [],
       };
-      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(basicArgs));
+      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(baseArgs));
       await waitForNextUpdate();
 
       act(() => result.current.updateCourseEnrollmentStatus({
@@ -148,11 +165,11 @@ describe('useCourseEnrollments', () => {
   describe('removeCourseEnrollment', () => {
     it('should remove a course enrollment', async () => {
       service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
-      const basicArgs = {
+      const baseArgs = {
         enterpriseUUID: 'uuid',
         requestedCourseEnrollments: [],
       };
-      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(basicArgs));
+      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(baseArgs));
       await waitForNextUpdate();
 
       expect(result.current.courseEnrollmentsByStatus.inProgress).toHaveLength(1);
@@ -174,211 +191,374 @@ describe('useCourseEnrollments', () => {
       );
     });
   });
+});
 
-  describe('useCourseUpgradeData', () => {
-    const courseRunKey = 'course-run-key';
-    const enterpriseId = mockEnterpriseCustomer.uuid;
-    const subscriptionLicense = { uuid: 'license-uuid' };
-    const location = { pathname: '/', search: '' };
-    const basicArgs = {
-      courseRunKey,
+describe('useCourseUpgradeData', () => {
+  const courseRunKey = 'course-run-key';
+  const enterpriseId = mockEnterpriseCustomer.uuid;
+  const subscriptionLicense = {
+    uuid: 'license-uuid',
+    status: LICENSE_STATUS.ACTIVATED,
+    subscriptionPlan: {
+      uuid: 'subscription-plan-uuid',
+      startDate: dayjs().subtract(10, 'days').toISOString(),
+      endDate: dayjs().add(10, 'days').toISOString(),
+      isCurrent: true,
+    },
+  };
+  const realLocation = global.location;
+  const location = { pathname: '/', search: '' };
+  const baseArgs = {
+    courseRunKey,
+    mode: COURSE_MODES_MAP.AUDIT,
+  };
+  const mockStatefulRedeem = jest.fn();
+
+  beforeAll(() => {
+    delete global.location;
+    global.location = { ...realLocation, assign: jest.fn() };
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useSubscriptions.mockReturnValue({ data: null });
+    useCanUpgradeWithLearnerCredit.mockReturnValue({
+      data: {
+        applicableSubsidyAccessPolicy: null,
+        listPrice: null,
+      },
+    });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        containsContentItems: false,
+        catalogList: [],
+      },
+    });
+    useCouponCodes.mockReturnValue({ data: null });
+    useCourseRunMetadata.mockReturnValue({ data: null });
+    useEnterpriseCourseEnrollments.mockReturnValue({ data: null });
+    useStatefulEnroll.mockReturnValue({
+      redeem: mockStatefulRedeem,
+    });
+  });
+
+  afterAll(() => {
+    global.location = realLocation;
+  });
+
+  it.each([
+    true,
+    false,
+  ])("should return null for upgrade urls if the course isn't contained by the subsidies' catalogs (%s)", (containsContentItems) => {
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        containsContentItems,
+        catalogList: [],
+      },
+    });
+    const { result } = renderHook(() => useCourseUpgradeData(baseArgs), { wrapper });
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        courseRunPrice: null,
+        subsidyForCourse: null,
+        hasUpgradeAndConfirm: false,
+        redeem: null,
+      }),
+    );
+  });
+
+  it('should return default values for non-audit course mode', () => {
+    const { result } = renderHook(() => useCourseUpgradeData({
+      ...baseArgs,
+      mode: COURSE_MODES_MAP.VERIFIED,
+    }), { wrapper });
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        courseRunPrice: null,
+        subsidyForCourse: null,
+        hasUpgradeAndConfirm: false,
+        redeem: null,
+      }),
+    );
+  });
+
+  it('should return default values for audit without applicable subsidy', () => {
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        containsContentItems: true,
+        catalogList: ['test-catalog-uuid'],
+      },
+    });
+    const { result } = renderHook(() => useCourseUpgradeData(baseArgs), { wrapper });
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        courseRunPrice: null,
+        subsidyForCourse: null,
+        hasUpgradeAndConfirm: false,
+        redeem: null,
+      }),
+    );
+  });
+
+  describe('upgrade via license', () => {
+    it.each([
+      {
+        subscriptionLicenseStatus: LICENSE_STATUS.ACTIVATED,
+        isSubscriptionPlanCurrent: true,
+      },
+      {
+        subscriptionLicenseStatus: LICENSE_STATUS.ACTIVATED,
+        isSubscriptionPlanCurrent: false,
+      },
+      {
+        subscriptionLicenseStatus: LICENSE_STATUS.REVOKED,
+        isSubscriptionPlanCurrent: true,
+      },
+    ])('should return a license upgrade url (%s)', async ({
+      subscriptionLicenseStatus,
+      isSubscriptionPlanCurrent,
+    }) => {
+      const mockSubscriptionLicense = {
+        ...subscriptionLicense,
+        status: subscriptionLicenseStatus,
+        subscriptionPlan: {
+          ...subscriptionLicense.subscriptionPlan,
+          isCurrent: isSubscriptionPlanCurrent,
+        },
+      };
+      useEnterpriseCustomerContainsContent.mockReturnValue({
+        data: {
+          containsContentItems: true,
+          catalogList: [],
+        },
+      });
+      useSubscriptions.mockReturnValue({ data: mockSubscriptionLicense });
+
+      const { result } = renderHook(() => useCourseUpgradeData({
+        ...baseArgs,
+        mode: COURSE_MODES_MAP.AUDIT,
+      }), { wrapper });
+
+      // Assert the custom `select` transform function was passed and works as expected
+      expect(useSubscriptions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          select: expect.any(Function),
+          enabled: true,
+        }),
+      );
+      const useSubscriptionsSelectFn = useSubscriptions.mock.calls[0][0].select;
+      const selectTransformResult = useSubscriptionsSelectFn({ subscriptionLicense: mockSubscriptionLicense });
+      if (subscriptionLicenseStatus === LICENSE_STATUS.ACTIVATED && isSubscriptionPlanCurrent) {
+        expect(selectTransformResult).toEqual(mockSubscriptionLicense);
+      } else {
+        expect(selectTransformResult).toBeNull();
+      }
+
+      // Assert expected output
+      const expectedRedemptionUrl = createEnrollWithLicenseUrl({
+        courseRunKey,
+        enterpriseId,
+        licenseUUID: mockSubscriptionLicense.uuid,
+        location,
+      });
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          subsidyForCourse: expect.objectContaining({
+            redemptionUrl: expectedRedemptionUrl,
+          }),
+          hasUpgradeAndConfirm: false,
+          redeem: expect.any(Function),
+        }),
+      );
+      const redeemFn = result.current.redeem;
+      await redeemFn();
+      expect(sendEnterpriseTrackEventWithDelay).toHaveBeenCalledWith(
+        mockEnterpriseCustomer.uuid,
+        'edx.ui.enterprise.learner_portal.course.upgrade_button.subscription_license.clicked',
+      );
+      expect(global.location.assign).toHaveBeenCalledWith(expectedRedemptionUrl);
+    });
+  });
+
+  describe('upgrade via coupon', () => {
+    const mockCouponCode = {
+      code: 'coupon-code',
+      catalog: 'catalog-1',
+      couponStartDate: dayjs().subtract(1, 'w').toISOString(),
+      couponEndDate: dayjs().add(8, 'w').toISOString(),
+    };
+
+    it('should return a coupon upgrade url', async () => {
+      useEnterpriseCustomerContainsContent.mockReturnValue({
+        data: {
+          containsContentItems: true,
+          catalogList: [mockCouponCode.catalog],
+        },
+      });
+      useCouponCodes.mockReturnValue({ data: mockCouponCode });
+      const sku = 'ABCDEF';
+      const coursePrice = '149.00';
+      useCourseRunMetadata.mockReturnValue({
+        data: {
+          firstEnrollablePaidSeatPrice: coursePrice,
+          sku: findHighestLevelSeatSku([
+            {
+              type: COURSE_MODES_MAP.VERIFIED,
+              price: coursePrice,
+              sku,
+            },
+            {
+              type: COURSE_MODES_MAP.AUDIT,
+              price: '0.00',
+              sku: 'abcdef',
+            },
+          ]),
+        },
+      });
+
+      const { result } = renderHook(() => useCourseUpgradeData({
+        ...baseArgs,
+        mode: COURSE_MODES_MAP.AUDIT,
+      }), { wrapper });
+
+      // Assert the custom `select` transform function was passed to useCouponCodes and works as expected
+      expect(useCouponCodes).toHaveBeenCalledWith(
+        expect.objectContaining({
+          select: expect.any(Function),
+          enabled: true,
+        }),
+      );
+      const useCouponCodesSelectFn = useCouponCodes.mock.calls[0][0].select;
+      const couponCodesSelectTransformResult = useCouponCodesSelectFn({ couponCodeAssignments: [mockCouponCode] });
+      expect(couponCodesSelectTransformResult).toEqual(mockCouponCode);
+
+      // Assert the custom `select` transform function was passed to useCourseRunMetadata and works as expected
+      expect(useCourseRunMetadata).toHaveBeenCalledWith(
+        courseRunKey,
+        expect.objectContaining({
+          select: expect.any(Function),
+          enabled: true,
+        }),
+      );
+      const useCourseRunMetadataSelectFn = useCourseRunMetadata.mock.calls[0][1].select;
+      const mockSKU = 'ABCDEF';
+      const mockCourseRun = {
+        key: courseRunKey,
+        seats: [{
+          type: COURSE_MODES_MAP.VERIFIED,
+          sku: mockSKU,
+        }],
+      };
+      const courseRunMetadataSelectTransformResult = useCourseRunMetadataSelectFn(mockCourseRun);
+      expect(courseRunMetadataSelectTransformResult).toEqual(
+        expect.objectContaining({
+          ...mockCourseRun,
+          sku: mockSKU,
+        }),
+      );
+
+      // Assert expected output
+      const expectedRedemptionUrl = createEnrollWithCouponCodeUrl({
+        courseRunKey,
+        sku,
+        code: mockCouponCode.code,
+        location,
+      });
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          subsidyForCourse: expect.objectContaining({
+            redemptionUrl: expectedRedemptionUrl,
+          }),
+          courseRunPrice: coursePrice,
+          hasUpgradeAndConfirm: true,
+          redeem: expect.any(Function),
+        }),
+      );
+      const redeemFn = result.current.redeem;
+      await redeemFn();
+      expect(sendEnterpriseTrackEventWithDelay).toHaveBeenCalledWith(
+        mockEnterpriseCustomer.uuid,
+        'edx.ui.enterprise.learner_portal.course.upgrade_button.coupon_code.clicked',
+      );
+      expect(global.location.assign).toHaveBeenCalledWith(expectedRedemptionUrl);
+    });
+  });
+
+  describe('upgrade via learner credit', () => {
+    const mockCourseRunKey = 'course-v1:edX+DemoX+T2024';
+    const mockRedemptionUrl = 'https://enterprise-access.stage.edx.org/api/v1/policy-redemption/8c4a92c7-3578-407d-9ba1-9127c4e4cc0b/redeem/';
+    const mockCanUpgradeWithLearnerCredit = {
+      contentKey: mockCourseRunKey,
+      listPrice: {
+        usd: 1,
+        usd_cents: 100,
+      },
+      redemptions: [],
+      hasSuccessfulRedemption: false,
+      redeemableSubsidyAccessPolicy: {
+        uuid: 'test-access-policy-uuid',
+        policyRedemptionUrl: mockRedemptionUrl,
+        isLateRedemptionAllowed: false,
+        policyType: 'PerLearnerSpendCreditAccessPolicy',
+        enterpriseCustomerUuid: mockEnterpriseCustomer.uuid,
+        displayName: 'Learner driven plan --- Open Courses',
+        description: 'Initial Policy Display Name: Learner driven plan --- Open Courses, Initial Policy Value: $10,000, Initial Subsidy Value: $260,000',
+        active: true,
+        retired: false,
+        catalogUuid: 'test-catalog-uuid',
+        subsidyUuid: 'test-subsidy-uuid',
+        accessMethod: 'direct',
+        spendLimit: 1000000,
+        lateRedemptionAllowedUntil: null,
+        perLearnerEnrollmentLimit: null,
+        perLearnerSpendLimit: null,
+        assignmentConfiguration: null,
+      },
+      canRedeem: true,
+      reasons: [],
+      isPolicyRedemptionEnabled: true,
+      policyRedemptionUrl: mockRedemptionUrl,
     };
     beforeEach(() => {
       jest.clearAllMocks();
-      useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-      useSubscriptions.mockReturnValue({
-        data: { subscriptionLicense: null },
-      });
       useCanUpgradeWithLearnerCredit.mockReturnValue({
-        data: { applicableSubsidyAccessPolicy: null },
+        data: {
+          applicableSubsidyAccessPolicy: {
+            ...mockCanUpgradeWithLearnerCredit.redeemableSubsidyAccessPolicy,
+            isPolicyRedemptionEnabled: true,
+          },
+          listPrice: mockCanUpgradeWithLearnerCredit.listPrice.usd,
+        },
       });
+    });
+    it('should return a learner credit upgrade url', async () => {
       useEnterpriseCustomerContainsContent.mockReturnValue({
         data: {
-          containsContentItems: false,
-          catalogList: [],
+          containsContentItems: true,
+          catalogList: [mockCanUpgradeWithLearnerCredit.redeemableSubsidyAccessPolicy.catalogUuid],
         },
       });
-      useCouponCodes.mockReturnValue({
-        data: {
-          applicableCouponCode: null,
-        },
-      });
-      useCourseRunMetadata.mockReturnValue({
-        data: null,
-      });
-    });
+      const { result } = renderHook(() => useCourseUpgradeData({
+        ...baseArgs,
+        mode: COURSE_MODES_MAP.AUDIT,
+      }), { wrapper });
 
-    it.each([
-      true,
-      false])('should return undefined for upgrade urls if the course is and isn\'t part of the subsidies but no subsides exist', (containsContentItems) => {
-      useEnterpriseCustomerContainsContent.mockReturnValue({
-        data: {
-          containsContentItems,
-          catalogList: [],
-        },
-      });
-
-      const { result } = renderHook(() => useCourseUpgradeData(basicArgs), { wrapper });
-
-      expect(result.current.licenseUpgradeUrl).toBeUndefined();
-      expect(result.current.couponUpgradeUrl).toBeUndefined();
-      expect(result.current.courseRunPrice).toBeUndefined();
-      expect(result.current.learnerCreditUpgradeUrl).toBeUndefined();
-    });
-
-    describe('upgradeable via license', () => {
-      it('should return a license upgrade url', () => {
-        useEnterpriseCustomerContainsContent.mockReturnValue({
-          data: {
-            containsContentItems: true,
-            catalogList: [],
-          },
-        });
-
-        useSubscriptions.mockReturnValue({
-          data: {
-            subscriptionLicense: {
-              uuid: 'license-uuid',
-              subscriptionPlan: {
-                startDate: dayjs().subtract(10, 'days').toISOString(),
-                expirationDate: dayjs().add(10, 'days').toISOString(),
-              },
-              status: 'activated',
-            },
-          },
-        });
-
-        const { result } = renderHook(() => useCourseUpgradeData({
-          ...basicArgs,
-          mode: COURSE_MODES_MAP.AUDIT,
-        }), { wrapper });
-
-        expect(result.current.licenseUpgradeUrl).toEqual(createEnrollWithLicenseUrl({
-          courseRunKey,
-          enterpriseId,
-          licenseUUID: subscriptionLicense.uuid,
-          location,
-        }));
-        expect(result.current.learnerCreditUpgradeUrl).toBeUndefined();
-        expect(result.current.couponUpgradeUrl).toBeUndefined();
-        expect(result.current.courseRunPrice).toBeUndefined();
-      });
-    });
-
-    describe('upgradeable via coupon', () => {
-      const mockCouponCode = {
-        code: 'coupon-code',
-        catalog: 'catalog-1',
-        couponStartDate: dayjs().subtract(1, 'w').toISOString(),
-        couponEndDate: dayjs().add(8, 'w').toISOString(),
-      };
-
-      it('should return a coupon upgrade url', async () => {
-        useEnterpriseCustomerContainsContent.mockReturnValue({
-          data: {
-            containsContentItems: true,
-            catalogList: [mockCouponCode.catalog],
-          },
-        });
-        useCouponCodes.mockReturnValue({
-          data: { applicableCouponCode: mockCouponCode },
-        });
-        const sku = 'ABCDEF';
-        const coursePrice = '149.00';
-        useCourseRunMetadata.mockReturnValue({
-          data: {
-            firstEnrollablePaidSeatPrice: coursePrice,
-            sku: findHighestLevelSeatSku([
-              {
-                type: COURSE_MODES_MAP.VERIFIED,
-                price: coursePrice,
-                sku,
-              },
-              {
-                type: COURSE_MODES_MAP.AUDIT,
-                price: '0.00',
-                sku: 'abcdef',
-              },
-            ]),
-          },
-        });
-
-        const { result } = renderHook(() => useCourseUpgradeData({
-          ...basicArgs,
-          mode: COURSE_MODES_MAP.AUDIT,
-        }), { wrapper });
-
-        expect(result.current.licenseUpgradeUrl).toBeUndefined();
-        expect(result.current.couponUpgradeUrl).toEqual(createEnrollWithCouponCodeUrl({
-          courseRunKey,
-          sku,
-          code: mockCouponCode.code,
-          location,
-        }));
-        expect(result.current.learnerCreditUpgradeUrl).toBeUndefined();
-        expect(result.current.courseRunPrice).toEqual(coursePrice);
-      });
-    });
-
-    describe('upgrade via learner credit', () => {
-      const mockCourseRunKey = 'course-v1:edX+DemoX+T2024';
-      const mockCanUpgradeWithLearnerCredit = {
-        contentKey: mockCourseRunKey,
-        listPrice: 1,
-        redemptions: [],
-        hasSuccessfulRedemption: false,
-        redeemableSubsidyAccessPolicy: {
-          uuid: 'test-access-policy-uuid',
-          policyRedemptionUrl: 'https://enterprise-access.stage.edx.org/api/v1/policy-redemption/8c4a92c7-3578-407d-9ba1-9127c4e4cc0b/redeem/',
-          isLateRedemptionAllowed: false,
-          policyType: 'PerLearnerSpendCreditAccessPolicy',
-          enterpriseCustomerUuid: mockEnterpriseCustomer.uuid,
-          displayName: 'Learner driven plan --- Open Courses',
-          description: 'Initial Policy Display Name: Learner driven plan --- Open Courses, Initial Policy Value: $10,000, Initial Subsidy Value: $260,000',
-          active: true,
-          retired: false,
-          catalogUuid: 'test-catalog-uuid',
-          subsidyUuid: 'test-subsidy-uuid',
-          accessMethod: 'direct',
-          spendLimit: 1000000,
-          lateRedemptionAllowedUntil: null,
-          perLearnerEnrollmentLimit: null,
-          perLearnerSpendLimit: null,
-          assignmentConfiguration: null,
-        },
-        canRedeem: true,
-        reasons: [],
-        isPolicyRedemptionEnabled: true,
-      };
-      beforeEach(() => {
-        jest.clearAllMocks();
-        useCanUpgradeWithLearnerCredit.mockReturnValue({
-          data: { applicableSubsidyAccessPolicy: mockCanUpgradeWithLearnerCredit },
-        });
-      });
-      it('should return a learner credit upgrade url', async () => {
-        useEnterpriseCustomerContainsContent.mockReturnValue({
-          data: {
-            containsContentItems: true,
-            catalogList: [],
-          },
-        });
-        useCouponCodes.mockReturnValue({
-          data: { applicableCouponCode: null },
-        });
-
-        const { result } = renderHook(() => useCourseUpgradeData({
-          ...basicArgs,
-          mode: COURSE_MODES_MAP.AUDIT,
-        }), { wrapper });
-
-        expect(result.current.licenseUpgradeUrl).toBeUndefined();
-        expect(result.current.couponUpgradeUrl).toBeUndefined();
-        expect(result.current.learnerCreditUpgradeUrl).toEqual(
-          mockCanUpgradeWithLearnerCredit.redeemableSubsidyAccessPolicy.policyRedemptionUrl,
-        );
-        expect(result.current.courseRunPrice).toBeUndefined();
-      });
+      // Assert expected output
+      const expectedRedemptionUrl = mockCanUpgradeWithLearnerCredit.redeemableSubsidyAccessPolicy.policyRedemptionUrl;
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          subsidyForCourse: expect.objectContaining({
+            redemptionUrl: expectedRedemptionUrl,
+          }),
+          courseRunPrice: mockCanUpgradeWithLearnerCredit.listPrice.usd,
+          hasUpgradeAndConfirm: true,
+          redeem: expect.any(Function),
+        }),
+      );
+      const redeemFn = result.current.redeem;
+      await redeemFn();
+      expect(mockStatefulRedeem).toHaveBeenCalled();
     });
   });
 });

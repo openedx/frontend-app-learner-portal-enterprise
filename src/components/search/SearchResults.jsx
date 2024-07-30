@@ -128,7 +128,6 @@ const SearchResults = ({
       </Container>
     );
   }
-
   return (
     <Container size="lg" className={classNames('search-results', className)}>
       <div className="d-flex align-items-center mb-2">

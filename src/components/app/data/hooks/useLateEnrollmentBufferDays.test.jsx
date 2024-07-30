@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { AppContext } from '@edx/frontend-platform/react';
 import { queryClient } from '../../../../utils/tests';
 import { fetchRedeemablePolicies } from '../services';
-import useLateRedemptionBufferDays from './useLateRedemptionBufferDays';
+import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../../config/constants';
@@ -23,12 +23,13 @@ const redeemablePolicies = [
   {
     id: 123,
     subsidyExpirationDate: mockSubsidyExpirationDate,
+    isLateRedemptionAllowed: false,
   },
   {
     id: 456,
     subsidyExpirationDate: mockSubsidyExpirationDate,
     learnerContentAssignments: [mockContentAssignment],
-    isLateRedemptionEnabled: true,
+    isLateRedemptionAllowed: true, // all it takes is one redeemable policy to turn on the late redemption feature.
   },
 ];
 const expectedTransformedPolicies = redeemablePolicies.map((policy) => ({
@@ -63,7 +64,7 @@ const mockRedeemablePolicies = {
 };
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
-describe('useLateRedemptionBufferDays', () => {
+describe('useLateEnrollmentBufferDays', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
       <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
@@ -77,20 +78,23 @@ describe('useLateRedemptionBufferDays', () => {
     fetchRedeemablePolicies.mockResolvedValue(mockRedeemablePolicies);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useLateRedemptionBufferDays(), { wrapper: Wrapper });
+    const { result, waitForNextUpdate } = renderHook(() => useLateEnrollmentBufferDays(), { wrapper: Wrapper });
     await waitForNextUpdate();
     expect(result.current).toEqual(LATE_ENROLLMENTS_BUFFER_DAYS);
   });
   it('should return undefined if no late redemption is enabled', async () => {
+    // Copy of redeemablePolicies but no policies have late redemption allowed.
     const updatedRedeemablePolicies = [
       {
         id: 123,
         subsidyExpirationDate: mockSubsidyExpirationDate,
+        isLateRedemptionAllowed: false,
       },
       {
         id: 456,
         subsidyExpirationDate: mockSubsidyExpirationDate,
         learnerContentAssignments: [mockContentAssignment],
+        isLateRedemptionAllowed: false,
       },
     ];
     const updatedExpectedTransformedPolicies = updatedRedeemablePolicies.map((policy) => ({
@@ -106,7 +110,7 @@ describe('useLateRedemptionBufferDays', () => {
     };
     fetchRedeemablePolicies.mockResolvedValue(updatedMockRedeemablePolicies);
 
-    const { result, waitForNextUpdate } = renderHook(() => useLateRedemptionBufferDays(), { wrapper: Wrapper });
+    const { result, waitForNextUpdate } = renderHook(() => useLateEnrollmentBufferDays(), { wrapper: Wrapper });
     await waitForNextUpdate();
     expect(result.current).toEqual(undefined);
   });

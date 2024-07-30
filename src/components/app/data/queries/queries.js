@@ -259,10 +259,10 @@ export function queryCanRedeemContextQueryKey(enterpriseUuid, courseKey) {
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
  */
-export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBufferDays) {
+export function queryCanRedeem(enterpriseUuid, courseMetadata, lateEnrollmentBufferDays) {
   const availableCourseRuns = getAvailableCourseRuns({
     course: courseMetadata,
-    isEnrollableBufferDays,
+    lateEnrollmentBufferDays,
   });
   const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
   return queries
@@ -282,12 +282,12 @@ export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBuffe
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
  */
-export function queryCanUpgradeWithLearnerCredit(enterpriseUuid, courseRunKeys) {
+export function queryCanUpgradeWithLearnerCredit(enterpriseUuid, courseRunKey) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.course(null)
-    ._ctx.canRedeem(courseRunKeys);
+    ._ctx.canRedeem([courseRunKey]);
 }
 
 /**
@@ -500,4 +500,21 @@ export function queryLearnerPathwayProgressData(pathwayUUID) {
     .content
     .pathway(pathwayUUID)
     ._ctx.progress;
+}
+
+/**
+ * Helper function to assist querying video detail data with the React Query package.
+ *
+ * This function constructs a query to fetch the details of a video for a specific enterprise customer.
+ *
+ * @param {string} videoUUID - The edx video ID of the video to query.
+ * @param {string} enterpriseUUID - The UUID of the enterprise customer.
+ * @returns {Types.QueryOptions} The query options for fetching video detail data.
+ */
+export function queryVideoDetail(videoUUID, enterpriseUUID) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUUID)
+    ._ctx.video
+    ._ctx.detail(videoUUID);
 }

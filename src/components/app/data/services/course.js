@@ -46,7 +46,7 @@ export async function fetchCourseMetadata(courseKey, courseRunKey) {
 }
 
 export async function fetchCourseRunMetadata(courseRunKey) {
-  const courseRunMetadataUrl = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/course_runs/${courseRunKey}`;
+  const courseRunMetadataUrl = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/course_runs/${courseRunKey}/`;
   try {
     const response = await getAuthenticatedHttpClient().get(courseRunMetadataUrl);
     return camelCaseObject(response.data);

@@ -34,6 +34,7 @@ const mockLicenseActivationKey = 'test-license-activation-key';
 const mockSubscriptionPlanUUID = 'test-subscription-plan-uuid';
 const mockCustomerAgreement = {
   uuid: 'test-customer-agreement-uuid',
+  netDaysUntilExpiration: 35,
 };
 const APP_CONFIG = {
   LICENSE_MANAGER_URL: 'http://localhost:18170',
@@ -61,6 +62,7 @@ describe('fetchSubscriptions', () => {
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
       isSubscriptionPlanActive: true,
+      isSubscriptionPlanCurrent: true,
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
@@ -68,6 +70,7 @@ describe('fetchSubscriptions', () => {
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
       isSubscriptionPlanActive: false,
+      isSubscriptionPlanCurrent: true,
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
@@ -75,6 +78,7 @@ describe('fetchSubscriptions', () => {
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
       isSubscriptionPlanActive: true,
+      isSubscriptionPlanCurrent: false,
       daysUntilExpiration: 0,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().toISOString(),
@@ -82,6 +86,7 @@ describe('fetchSubscriptions', () => {
     {
       licenseStatus: LICENSE_STATUS.UNASSIGNED,
       isSubscriptionPlanActive: true,
+      isSubscriptionPlanCurrent: true,
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
@@ -89,6 +94,7 @@ describe('fetchSubscriptions', () => {
   ])('returns subscriptions (%s)', async ({
     licenseStatus,
     isSubscriptionPlanActive,
+    isSubscriptionPlanCurrent,
     daysUntilExpiration,
     startDate,
     expirationDate,
@@ -99,6 +105,7 @@ describe('fetchSubscriptions', () => {
       subscriptionPlan: {
         uuid: 'test-subscription-plan-uuid',
         isActive: isSubscriptionPlanActive,
+        isCurrent: isSubscriptionPlanCurrent,
         daysUntilExpiration,
         startDate,
         expirationDate,
@@ -197,7 +204,13 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
 
   it('returns null with already activated license', async () => {
     const mockLicensesByStatus = {
-      [LICENSE_STATUS.ACTIVATED]: [{ uuid: 'test-license-uuid' }],
+      [LICENSE_STATUS.ACTIVATED]: [
+        {
+          uuid: 'test-license-uuid',
+          status: LICENSE_STATUS.ACTIVATED,
+          subscriptionPlan: { isCurrent: true },
+        },
+      ],
       [LICENSE_STATUS.ASSIGNED]: [],
       [LICENSE_STATUS.REVOKED]: [],
     };
@@ -222,7 +235,13 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     const mockLicensesByStatus = {
       [LICENSE_STATUS.ACTIVATED]: [],
       [LICENSE_STATUS.ASSIGNED]: [],
-      [LICENSE_STATUS.REVOKED]: [{ uuid: 'test-license-uuid' }],
+      [LICENSE_STATUS.REVOKED]: [
+        {
+          uuid: 'test-license-uuid',
+          status: LICENSE_STATUS.REVOKED,
+          subscriptionPlan: { isCurrent: true },
+        },
+      ],
     };
     const mockSubscriptionsData = {
       customerAgreement: mockCustomerAgreement,
@@ -253,6 +272,7 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
       uuid: mockLicenseUUID,
       status: LICENSE_STATUS.ASSIGNED,
       activationKey: mockLicenseActivationKey,
+      subscriptionPlan: { isCurrent: true },
     };
     const mockLicensesByStatus = {
       [LICENSE_STATUS.ACTIVATED]: [],

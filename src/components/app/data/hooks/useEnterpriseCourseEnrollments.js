@@ -19,11 +19,11 @@ export const transformAllEnrollmentsByStatus = ({
   contentAssignments,
 }) => {
   const enrollmentsByStatus = groupCourseEnrollmentsByStatus(enterpriseCourseEnrollments);
-  const licenseRequests = requests.subscriptionLicenses;
-  const couponCodeRequests = requests.couponCodes;
+  const licenseRequests = requests?.subscriptionLicenses || [];
+  const couponCodeRequests = requests.couponCodes || [];
   const subsidyRequests = [].concat(licenseRequests).concat(couponCodeRequests);
   enrollmentsByStatus[COURSE_STATUSES.requested] = subsidyRequests;
-  enrollmentsByStatus[COURSE_STATUSES.assigned] = contentAssignments;
+  enrollmentsByStatus[COURSE_STATUSES.assigned] = contentAssignments || [];
   return enrollmentsByStatus;
 };
 
@@ -32,11 +32,13 @@ export const transformAllEnrollmentsByStatus = ({
  * requests), and content assignments for the active enterprise customer user.
  * @returns {Types.UseQueryResult} The query results.
  */
-export default function useEnterpriseCourseEnrollments() {
+export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
+  const isEnabled = queryOptions.enabled;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: enterpriseCourseEnrollments } = useQuery({
     ...queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
     select: (data) => data.map(transformCourseEnrollment),
+    enabled: isEnabled,
   });
   const { data: { requests } } = useBrowseAndRequest({
     subscriptionLicensesQueryOptions: {
@@ -44,12 +46,14 @@ export default function useEnterpriseCourseEnrollments() {
         subsidyRequest,
         slug: enterpriseCustomer.slug,
       })),
+      enabled: isEnabled,
     },
     couponCodesQueryOptions: {
       select: (data) => data.map((subsidyRequest) => transformSubsidyRequest({
         subsidyRequest,
         slug: enterpriseCustomer.slug,
       })),
+      enabled: isEnabled,
     },
   });
   const { data: contentAssignments } = useRedeemablePolicies({
@@ -67,6 +71,7 @@ export default function useEnterpriseCourseEnrollments() {
       });
       return transformedAssignments;
     },
+    enabled: isEnabled,
   });
 
   const allEnrollmentsByStatus = useMemo(() => transformAllEnrollmentsByStatus({

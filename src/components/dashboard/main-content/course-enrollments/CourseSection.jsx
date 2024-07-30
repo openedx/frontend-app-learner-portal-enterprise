@@ -5,12 +5,12 @@ import { Bubble, Collapsible, Skeleton } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
-  InProgressCourseCard,
-  UpcomingCourseCard,
-  CompletedCourseCard,
-  SavedForLaterCourseCard,
-  RequestedCourseCard,
   AssignedCourseCard,
+  CompletedCourseCard,
+  InProgressCourseCard,
+  RequestedCourseCard,
+  SavedForLaterCourseCard,
+  UpcomingCourseCard,
 } from './course-cards';
 
 import { COURSE_STATUSES } from '../../../../constants';
@@ -106,19 +106,16 @@ const CourseSection = ({
     const isAuditOrHonorEnrollment = [COURSE_MODES_MAP.AUDIT, COURSE_MODES_MAP.HONOR].includes(courseRun.mode);
     if (isAuditOrHonorEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
       return (
-        <Suspense fallback={(
-          <DelayedFallbackContainer>
-            <>
+        <Suspense
+          key={courseRun.courseRunId}
+          fallback={(
+            <DelayedFallbackContainer className="dashboard-course-card border-bottom py-3 mb-2">
               <div className="sr-only">Loading...</div>
-              <Skeleton key={uuidv4()} height={200} className="dashboard-course-card py-3 mb-2" />
-            </>
-          </DelayedFallbackContainer>
-        )}
+              <Skeleton key={uuidv4()} height={200} />
+            </DelayedFallbackContainer>
+          )}
         >
-          <Component
-            {...getCourseRunProps(courseRun)}
-            key={courseRun.courseRunId}
-          />
+          <Component {...getCourseRunProps(courseRun)} />
         </Suspense>
       );
     }
@@ -143,8 +140,10 @@ const CourseSection = ({
         onClose={() => handleCollapsibleToggle(false)}
         defaultOpen
       >
-        {getFormattedOptionalSubtitle()}
-        {renderCourseCards()}
+        <div className="my-n2">
+          {getFormattedOptionalSubtitle()}
+          {renderCourseCards()}
+        </div>
       </Collapsible>
     </div>
   );

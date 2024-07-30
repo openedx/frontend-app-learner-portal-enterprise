@@ -3,7 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 
 import { queryCourseMetadata } from '../queries';
 import { getAvailableCourseRuns } from '../utils';
-import useLateRedemptionBufferDays from './useLateRedemptionBufferDays';
+import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 
 /**
  * Retrieves the course metadata for the given enterprise customer and course key.
@@ -16,15 +16,18 @@ export default function useCourseMetadata(queryOptions = {}) {
   // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
   // need to replace it with `+` again to be a valid course run key.
   const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
-  const isEnrollableBufferDays = useLateRedemptionBufferDays();
+  const lateEnrollmentBufferDays = useLateEnrollmentBufferDays({
+    enabled: !!courseKey,
+  });
   return useQuery({
     ...queryCourseMetadata(courseKey, courseRunKey),
+    enabled: !!courseKey,
     ...queryOptionsRest,
     select: (data) => {
       if (!data) {
         return data;
       }
-      const availableCourseRuns = getAvailableCourseRuns({ course: data, isEnrollableBufferDays });
+      const availableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
       const transformedData = {
         ...data,
         availableCourseRuns,

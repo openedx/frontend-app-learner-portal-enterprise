@@ -7,12 +7,12 @@ import {
 } from '@edx/frontend-enterprise-catalog-search';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
+import { features } from '../../../../config';
 
 export default function useDefaultSearchFilters() {
   const { refinements, dispatch } = useContext(SearchContext);
   const showAllRefinement = refinements[SHOW_ALL_NAME];
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-
   const searchCatalogs = useSearchCatalogs();
   useEffect(() => {
     // default to showing all catalogs if there are no confined search catalogs
@@ -23,20 +23,22 @@ export default function useDefaultSearchFilters() {
 
   const filters = useMemo(
     () => {
+      // FIXME: Remove this line and related usage when video content metadata updated to
+      // identical data-structure as similar algolia search objects, ex. COURSES
+      const videoSearchQuery = features.FEATURE_ENABLE_VIDEO_CATALOG ? '' : ' AND (NOT content_type:video)';
       // Show all enterprise catalogs
       if (showAllRefinement) {
-        return `enterprise_customer_uuids:${enterpriseCustomer.uuid}`;
+        return `enterprise_customer_uuids:${enterpriseCustomer.uuid}${videoSearchQuery}`;
       }
 
       if (searchCatalogs.length > 0) {
-        return getCatalogString(searchCatalogs);
+        return `${getCatalogString(searchCatalogs)}${videoSearchQuery}`;
       }
 
       // If the learner is not confined to certain catalogs, scope to all of enterprise's catalogs
-      return `enterprise_customer_uuids:${enterpriseCustomer.uuid}`;
+      return `enterprise_customer_uuids:${enterpriseCustomer.uuid}${videoSearchQuery}`;
     },
     [enterpriseCustomer.uuid, searchCatalogs, showAllRefinement],
   );
-
   return filters;
 }

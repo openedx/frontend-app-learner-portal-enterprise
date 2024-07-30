@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet';
 import {
-  breakpoints, Container, Row, MediaQuery,
+  breakpoints, Container, MediaQuery, Row,
 } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import ProgramProgressHeader from './ProgramProgressHeader';
@@ -8,8 +8,8 @@ import ProgramProgressSideBar from './ProgramProgressSidebar';
 import ProgramProgressCourses from './ProgramProgressCourses';
 import {
   getCoursesEnrolledInAuditMode,
-  getNotStartedEnrollableCourseRuns,
   getLastEndingCourseDate,
+  getNotStartedEnrollableCourseRuns,
 } from './data/utils';
 import SubsidiesSummary from '../dashboard/sidebar/SubsidiesSummary';
 import { useLearnerProgramProgressData } from '../app/data';
@@ -24,7 +24,6 @@ const ProgramProgressPage = () => {
   if (!hasProgramProgressData) {
     return <NotFoundPage />;
   }
-
   const { courseData } = programProgressData;
   /* eslint-disable no-unsafe-optional-chaining */
   const totalCoursesInProgram = courseData.notStarted?.length
@@ -54,7 +53,6 @@ const ProgramProgressPage = () => {
 
     courseEndDate = getLastEndingCourseDate(subsidyEligibleCourseRuns);
   }
-
   const PROGRAM_TITLE = `${programProgressData.programData.title}`;
   return (
     <>
