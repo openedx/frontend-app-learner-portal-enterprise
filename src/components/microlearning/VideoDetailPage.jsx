@@ -91,11 +91,11 @@ const VideoDetailPage = () => {
               <h2 data-testid="video-title" className="mb-0">
                 {videoData?.courseTitle}
               </h2>
-              <span className="small ml-2 mt-2">
+              <span className="small ml-2 mt-2 text-nowrap">
                 {videoData?.videoDuration && `(${videoData?.videoDuration} minutes)`}
               </span>
             </div>
-            <p className="small align-self-stretch text-justify p-0 mb-0">
+            <p className="small align-self-stretch p-0 mb-0">
               {videoData?.videoSummary}
             </p>
             {videoData?.videoSkills?.length > 0 && (
@@ -123,9 +123,11 @@ const VideoDetailPage = () => {
               </div>
             )}
           </div>
-          <div className="video-player-wrapper position-relative mw-100 overflow-hidden my-4 mt-0">
-            <VideoPlayer videoURL={videoData?.videoUrl} customOptions={customOptions} />
-          </div>
+          { videoData?.videoUrl && (
+            <div className="video-player-wrapper position-relative mw-100 overflow-hidden my-4 mt-2">
+              <VideoPlayer videoURL={videoData?.videoUrl} customOptions={customOptions} />
+            </div>
+          )}
         </article>
         {isDefinedAndNotNull(courseMetadata.activeCourseRun) && (
           <article className="col-12 col-lg-3 pr-0">
