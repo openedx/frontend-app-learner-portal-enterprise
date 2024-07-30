@@ -1,6 +1,6 @@
 import React from 'react';
 import { waitFor } from '@testing-library/react';
-import { VideoPlayer } from '..'; // Assuming VideoPlayer is exported as named export
+import VideoPlayer from '../VideoPlayer';
 import { renderWithRouter } from '../../../utils/tests';
 
 const hlsUrl = 'https://test-domain.com/test-prefix/id.m3u8';
