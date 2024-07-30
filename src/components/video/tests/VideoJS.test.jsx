@@ -25,8 +25,8 @@ const YoutubeVideoOptions = {
   sources: [{ src: ytUrl, type: 'video/youtube' }],
 };
 
-describe('Videon JS component', () => {
-  it('Renders VideoJS components correctly.', () => {
+describe('VideoJS', () => {
+  it('Renders VideoJS components correctly for HLS videos.', () => {
     const { container } = renderWithRouter(<VideoJS options={HLSVideoOptions} />);
     expect(container.querySelector('.video-js-wrapper')).toBeTruthy();
     expect(container.querySelector('.vjs-big-play-centered')).toBeTruthy();

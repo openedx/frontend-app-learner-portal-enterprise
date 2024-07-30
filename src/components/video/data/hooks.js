@@ -29,7 +29,7 @@ export function useTranscripts({ player, customOptions }) {
       }
     };
     fetchFn();
-  }, [customOptions.transcriptUrls, player, shouldUseTranscripts]);
+  }, [customOptions?.transcriptUrls, player, shouldUseTranscripts]);
 
   return {
     textTracks,

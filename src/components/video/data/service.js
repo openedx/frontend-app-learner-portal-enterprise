@@ -4,13 +4,8 @@ import { convertToWebVtt, createWebVttFile } from './utils';
 const fetchAndAddTranscripts = async (transcriptUrls) => {
   const data = {};
   const transcriptPromises = Object.entries(transcriptUrls).map(([lang, url]) => fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        logError(`Failed to fetch transcript for ${lang}`);
-      }
-      return response.json();
-    })
-    .then(transcriptData => {
+    .then(response => response.json())
+    .then((transcriptData) => {
       const webVttData = convertToWebVtt(transcriptData);
       const webVttFileUrl = createWebVttFile(webVttData);
       data[lang] = webVttFileUrl;
