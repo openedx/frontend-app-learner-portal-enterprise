@@ -121,7 +121,6 @@ export const getScreenReaderText = (str) => (
 );
 
 const BaseCourseCard = ({
-  hasEmailsEnabled: defaultHasEmailsEnabled,
   title,
   dropdownMenuItems: customDropdownMenuItem,
   canUnenroll,
@@ -148,7 +147,6 @@ const BaseCourseCard = ({
   const intl = useIntl();
   const { LEARNER_SUPPORT_PACED_COURSE_MODE_URL } = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const [hasEmailsEnabled, setHasEmailsEnabled] = useState(defaultHasEmailsEnabled);
   const [emailSettingsModal, setEmailSettingsModal] = useState({
     open: false,
     options: {},
@@ -189,9 +187,7 @@ const BaseCourseCard = ({
     setEmailSettingsModal((prevState) => ({
       ...prevState,
       open: true,
-      options: {
-        hasEmailsEnabled,
-      },
+      options: {},
     }));
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
@@ -203,7 +199,7 @@ const BaseCourseCard = ({
   const getDropdownMenuItems = () => {
     const firstMenuItems = [];
     const lastMenuItems = [];
-    if (hasEmailsEnabled !== null && !isExecutiveEducation2UCourse) {
+    if (!isExecutiveEducation2UCourse) {
       firstMenuItems.push({
         key: 'email-settings',
         type: 'button',
@@ -267,11 +263,8 @@ const BaseCourseCard = ({
     }));
   };
 
-  const handleEmailSettingsModalOnClose = (newValue) => {
+  const handleEmailSettingsModalOnClose = () => {
     resetModals();
-    if (hasEmailsEnabled !== undefined) {
-      setHasEmailsEnabled(newValue);
-    }
   };
 
   const handleUnenrollModalOnClose = () => {
@@ -341,19 +334,14 @@ const BaseCourseCard = ({
     );
   };
 
-  const renderEmailSettingsModal = () => {
-    if (!hasEmailsEnabled) {
-      return null;
-    }
-    return (
-      <EmailSettingsModal
-        {...emailSettingsModal.options}
-        courseRunId={courseRunId}
-        onClose={handleEmailSettingsModalOnClose}
-        open={emailSettingsModal.open}
-      />
-    );
-  };
+  const renderEmailSettingsModal = () => (
+    <EmailSettingsModal
+      {...emailSettingsModal.options}
+      courseRunId={courseRunId}
+      onClose={handleEmailSettingsModalOnClose}
+      open={emailSettingsModal.open}
+    />
+  );
 
   const renderAdditionalInfoOutline = () => {
     if (type !== COURSE_STATUSES.requested) {
@@ -635,7 +623,6 @@ BaseCourseCard.propTypes = {
   children: PropTypes.node,
   startDate: PropTypes.string,
   endDate: PropTypes.string,
-  hasEmailsEnabled: PropTypes.bool,
   canUnenroll: PropTypes.bool,
   microMastersTitle: PropTypes.string,
   orgName: PropTypes.string,
@@ -659,7 +646,6 @@ BaseCourseCard.defaultProps = {
   children: null,
   startDate: null,
   endDate: null,
-  hasEmailsEnabled: null,
   canUnenroll: null,
   microMastersTitle: null,
   orgName: null,

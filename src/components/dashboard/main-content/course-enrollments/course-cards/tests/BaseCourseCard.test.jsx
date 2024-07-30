@@ -80,7 +80,11 @@ describe('<BaseCourseCard />', () => {
     it('handles email settings modal close/cancel', async () => {
       userEvent.click(screen.getByTestId('modal-footer-btn', { name: 'Close' }));
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        const dialogElement = screen.queryByRole('dialog');
+
+        if (dialogElement) {
+          expect(dialogElement).not.toHaveClass('show');
+        }
       });
     });
   });
@@ -100,16 +104,20 @@ describe('<BaseCourseCard />', () => {
       );
       // open unenroll modal
       userEvent.click(screen.getByLabelText('course settings for edX Demonstration Course'));
-      expect(await screen.findByRole('menuitem')).toBeInTheDocument();
-      userEvent.click(screen.getByRole('menuitem'));
-      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+      const menuItems = await screen.findAllByRole('menuitem');
+      expect(menuItems).toHaveLength(2);
+
+      userEvent.click(menuItems[1]);
       expect(screen.getByText('Unenroll from course?')).toBeInTheDocument();
     });
 
     it('handles unenroll modal close/cancel', async () => {
       userEvent.click(screen.getByRole('button', { name: 'Keep learning' }));
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        const dialogElement = screen.queryByRole('dialog');
+
+        expect(dialogElement).not.toHaveClass('show');
       });
     });
   });
