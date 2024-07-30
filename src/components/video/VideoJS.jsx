@@ -1,63 +1,56 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { logError } from '@edx/frontend-platform/logging';
 
 import 'videojs-youtube';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import { PLAYBACK_RATES } from './data/constants';
-import { fetchAndAddTranscripts } from './data/service';
+import { usePlayerOptions, useTranscripts } from './data';
 
 window.videojs = videojs;
 // eslint-disable-next-line import/no-extraneous-dependencies
 require('videojs-vjstranscribe');
 
-function useTranscripts({ player, customOptions }) {
-  const shouldUseTranscripts = customOptions?.showTranscripts && customOptions?.transcriptUrls;
-  const [isLoading, setIsLoading] = useState(shouldUseTranscripts);
-  const [textTracks, setTextTracks] = useState([]);
-  const [transcriptUrl, setTranscriptUrl] = useState(null);
-
-  useEffect(() => {
-    const fetchFn = async () => {
-      setIsLoading(true);
-      if (shouldUseTranscripts) {
-        try {
-          const result = await fetchAndAddTranscripts(customOptions.transcriptUrls, player);
-          setTextTracks(result);
-          // We are only catering to English transcripts for now as we don't have the option to change
-          // the transcript language yet.
-          if (result.en) {
-            setTranscriptUrl(result.en);
-          }
-        } catch (error) {
-          logError(`Error fetching transcripts for player: ${error}`);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-    fetchFn();
-  }, [customOptions.transcriptUrls, player, shouldUseTranscripts]);
-
-  return {
-    textTracks,
-    transcriptUrl,
-    isLoading,
-  };
-}
-
 const VideoJS = ({ options, onReady, customOptions }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
 
-  const transcriptsData = useTranscripts({
+  const transcripts = useTranscripts({
     player: playerRef.current,
     customOptions,
   });
 
+  const playerOptions = usePlayerOptions({
+    transcripts,
+    options,
+    customOptions,
+  });
+
+  const handlePlayerReady = useCallback(() => {
+    // Add remote text tracks
+    const textTracks = Object.entries(transcripts.textTracks);
+    textTracks.forEach(([lang, webVttFileUrl]) => {
+      playerRef.current.addRemoteTextTrack({
+        kind: 'subtitles',
+        src: webVttFileUrl,
+        srclang: lang,
+        label: lang,
+      }, false);
+    });
+
+    // Set playback rates
+    if (customOptions?.showPlaybackMenu) {
+      playerRef.current.playbackRates(PLAYBACK_RATES);
+    }
+
+    // Callback to parent component, if provided
+    if (onReady) {
+      onReady(playerRef.current);
+    }
+  }, [customOptions?.showPlaybackMenu, onReady, transcripts.textTracks]);
+
   useEffect(() => {
-    if (transcriptsData.isLoading) {
+    if (transcripts.isLoading) {
       // While async transcripts data is loading, don't initialize the player
       return;
     }
@@ -70,39 +63,12 @@ const VideoJS = ({ options, onReady, customOptions }) => {
       videoElement.classList.add('vjs-big-play-centered');
       videoRef.current.appendChild(videoElement);
 
-      const transformedPlayerOptions = {
-        ...options,
-        plugins: {
-          vjstranscribe: {
-            urls: transcriptsData.transcriptUrl ? [transcriptsData.transcriptUrl] : [],
-          },
-        },
-      };
-
-      playerRef.current = videojs(videoElement, transformedPlayerOptions, () => {
-        const textTracks = Object.entries(transcriptsData.textTracks);
-        textTracks.forEach(([lang, webVttFileUrl]) => {
-          playerRef.current.addRemoteTextTrack({
-            kind: 'subtitles',
-            src: webVttFileUrl,
-            srclang: lang,
-            label: lang,
-          }, false);
-        });
-
-        if (onReady) {
-          onReady(playerRef.current);
-        }
-      });
-
-      if (customOptions?.showPlaybackMenu) {
-        playerRef.current.playbackRates(PLAYBACK_RATES);
-      }
+      playerRef.current = videojs(videoElement, playerOptions, handlePlayerReady);
     } else {
-      playerRef.current.autoplay(options.autoplay);
-      playerRef.current.src(options.sources);
+      playerRef.current.autoplay(playerOptions.autoplay);
+      playerRef.current.src(playerOptions.sources);
     }
-  }, [onReady, options, customOptions, transcriptsData]);
+  }, [transcripts.isLoading, playerOptions, handlePlayerReady]);
 
   // Dispose the Video.js player when the functional component unmounts
   useEffect(() => {
