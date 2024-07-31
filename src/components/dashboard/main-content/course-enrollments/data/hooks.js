@@ -22,9 +22,9 @@ import { getExpiringAssignmentsAcknowledgementState, getHasUnacknowledgedAssignm
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
-  COURSE_MODES_MAP,
   getSubsidyToApplyForCourse,
   groupCourseEnrollmentsByStatus,
+  isEnrollmentUpgradeable,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
   queryEnterpriseCourseEnrollments,
@@ -140,13 +140,13 @@ export const useCourseEnrollments = ({
 export const useCourseUpgradeData = ({
   courseRunKey,
   mode,
+  enrollBy,
   onRedeem,
   onRedeemSuccess,
   onRedeemError,
 }) => {
   const location = useLocation();
-  // Determine whether the course mode is such that it can be upgraded
-  const canUpgradeToVerifiedEnrollment = [COURSE_MODES_MAP.AUDIT, COURSE_MODES_MAP.HONOR].includes(mode);
+  const canUpgradeToVerifiedEnrollment = isEnrollmentUpgradeable({ mode, enrollBy });
   const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey], {
@@ -434,8 +434,20 @@ export function useContentAssignments() {
       expiredAssignments,
     } = allEnrollmentsByStatus.assigned;
 
+    const upgradeableAuditEnrollmentCourseKeys = [...allEnrollmentsByStatus.inProgress]
+      .filter(enrollment => isEnrollmentUpgradeable(enrollment))
+      .map((enrollment) => enrollment.courseKey);
+
+    // Filter out any assignments that have a corresponding potentially upgradeable
+    // audit enrollment. Note: all enrollment cards currently assume content key is
+    // a course run id despite the current assignment's content key referring to a
+    // top-level course key.
+    const filteredAssignmentsForDisplay = assignmentsForDisplay.filter((assignment) => (
+      !upgradeableAuditEnrollmentCourseKeys.includes(assignment.courseRunId)
+    ));
+
     // Sort and transform the list of assignments for display.
-    const sortedAssignmentsForDisplay = sortAssignmentsByAssignmentStatus(assignmentsForDisplay);
+    const sortedAssignmentsForDisplay = sortAssignmentsByAssignmentStatus(filteredAssignmentsForDisplay);
     setAssignments(sortedAssignmentsForDisplay);
 
     // Determine whether there are expiring assignments. If so, display alert.
@@ -443,13 +455,19 @@ export function useContentAssignments() {
     setShowExpiringAssignmentsAlert(hasUnacknowledgedExpiringAssignments);
 
     // Determine whether there are unacknowledged canceled assignments. If so, display alert.
-    const hasUnacknowledgedCanceledAssignments = getHasUnacknowledgedAssignments(canceledAssignments);
+    const filteredCanceledAssignments = canceledAssignments.filter((assignment) => (
+      !upgradeableAuditEnrollmentCourseKeys.includes(assignment.courseRunId)
+    ));
+    const hasUnacknowledgedCanceledAssignments = getHasUnacknowledgedAssignments(filteredCanceledAssignments);
     setShowCanceledAssignmentsAlert(hasUnacknowledgedCanceledAssignments);
 
     // Determine whether there are unacknowledged expired assignments. If so, display alert.
-    const hasUnacknowledgedExpiredAssignments = getHasUnacknowledgedAssignments(expiredAssignments);
+    const filteredExpiredAssignments = expiredAssignments.filter((assignment) => (
+      !upgradeableAuditEnrollmentCourseKeys.includes(assignment.courseRunId)
+    ));
+    const hasUnacknowledgedExpiredAssignments = getHasUnacknowledgedAssignments(filteredExpiredAssignments);
     setShowExpiredAssignmentsAlert(hasUnacknowledgedExpiredAssignments);
-  }, [allEnrollmentsByStatus.assigned, enterpriseCustomer.slug]);
+  }, [allEnrollmentsByStatus.assigned, allEnrollmentsByStatus.inProgress, enterpriseCustomer.slug]);
 
   return {
     assignments,

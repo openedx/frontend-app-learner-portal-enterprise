@@ -21,7 +21,7 @@ import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { COURSE_MODES_MAP, findHighestLevelEntitlementSku, findHighestLevelSkuByEntityModeType } from '../../app/data';
+import { findHighestLevelEntitlementSku, findHighestLevelSkuByEntityModeType, isEnrollmentUpgradeable } from '../../app/data';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -320,7 +320,7 @@ export function shouldUpgradeUserEnrollment({
   subscriptionLicense,
   enrollmentUrl,
 }) {
-  const isAuditEnrollment = userEnrollment?.mode === COURSE_MODES_MAP.AUDIT;
+  const isAuditEnrollment = isEnrollmentUpgradeable(userEnrollment);
   return !!(isAuditEnrollment && isActiveSubscriptionLicense(subscriptionLicense) && enrollmentUrl);
 }
 

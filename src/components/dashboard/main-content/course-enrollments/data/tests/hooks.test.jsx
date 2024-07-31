@@ -628,7 +628,8 @@ describe('useContentAssignments', () => {
     },
   };
 
-  function mockUseEnterpriseCourseEnrollments(policies) {
+  function mockUseEnterpriseCourseEnrollments(policies, options = {}) {
+    const otherEnrollmentsByStatus = options.otherEnrollmentsByStatus || {};
     useEnterpriseCourseEnrollments.mockReturnValue({
       data: {
         allEnrollmentsByStatus: {
@@ -641,6 +642,8 @@ describe('useContentAssignments', () => {
                 mockEnterpriseCustomer.slug,
               )),
           },
+          inProgress: [],
+          ...otherEnrollmentsByStatus,
         },
       },
     });
@@ -853,6 +856,79 @@ describe('useContentAssignments', () => {
     );
     expect(acknowledgedExpiringAssignments).toEqual([mockExpiringAssignment.uuid]);
     expect(result.current.showExpiringAssignmentsAlert).toBe(false);
+  });
+
+  it.each([
+    // Audit, no enrollBy date
+    {
+      mode: COURSE_MODES_MAP.AUDIT,
+      enrollBy: undefined,
+      isAssignmentExcluded: true,
+    },
+    // Audit, with elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.AUDIT,
+      enrollBy: dayjs().subtract(1, 'd').toISOString(), // yesterday
+      isAssignmentExcluded: false,
+    },
+    // Audit, with not-yet-elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.AUDIT,
+      enrollBy: dayjs().add(1, 'd').toISOString(), // tomorrow
+      isAssignmentExcluded: true,
+    },
+    // Verified, no enrollBy date
+    {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      enrollBy: undefined,
+      isAssignmentExcluded: false,
+    },
+    // Verified, with elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      enrollBy: dayjs().subtract(1, 'd').toISOString(), // yesterday
+      isAssignmentExcluded: false,
+    },
+    // Verified, with not-yet-elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      enrollBy: dayjs().add(1, 'd').toISOString(), // tomorrow
+      isAssignmentExcluded: false,
+    },
+  ])('should exclude assignments that have an upgradeable in-progress course enrollment (%s)', ({
+    mode,
+    enrollBy,
+    isAssignmentExcluded,
+  }) => {
+    const mockEnrollment = {
+      ...mockTransformedMockCourseEnrollment,
+      mode,
+      enrollBy,
+    };
+    const mockAssignmentForExistingEnrollment = {
+      ...mockAllocatedAssignment,
+      contentKey: mockEnrollment.courseRunKey,
+    };
+    const mockPoliciesWithInProgressEnrollment = {
+      ...mockPoliciesWithAssignments,
+      learnerContentAssignments: {
+        ...mockPoliciesWithAssignments.learnerContentAssignments,
+        assignmentsForDisplay: [
+          mockAssignmentForExistingEnrollment,
+        ],
+      },
+    };
+    mockUseEnterpriseCourseEnrollments(mockPoliciesWithInProgressEnrollment, {
+      otherEnrollmentsByStatus: {
+        inProgress: [mockEnrollment],
+      },
+    });
+    const { result } = renderHook(() => useContentAssignments(), { wrapper });
+    if (isAssignmentExcluded) {
+      expect(result.current.assignments).toHaveLength(0);
+    } else {
+      expect(result.current.assignments).toHaveLength(1);
+    }
   });
 });
 
