@@ -4,7 +4,7 @@ import VideoJS from './VideoJS';
 
 const hlsExtension = '.m3u8';
 const defaultOptions = {
-  autoplay: true,
+  autoplay: false,
   controls: true,
   responsive: true,
   fluid: true,

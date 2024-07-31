@@ -106,8 +106,10 @@ describe('VideoDetailPage Tests', () => {
     expect(screen.getByTestId('video-title')).toHaveTextContent('Test Video');
     expect(screen.getByText('(10:4 minutes)')).toBeInTheDocument();
     expect(screen.getByText('This is a test video summary.')).toBeInTheDocument();
-    expect(screen.getByText('Skill 1')).toBeInTheDocument();
-    expect(screen.getByText('Skill 2')).toBeInTheDocument();
+    // Skills that we are currently retrieving for videos are inaccurate, so we are
+    // temporarily hiding this section.
+    // expect(screen.getByText('Skill 1')).toBeInTheDocument();
+    // expect(screen.getByText('Skill 2')).toBeInTheDocument();
     expect(container.querySelector('.video-player-wrapper')).toBeTruthy();
   });
   it('renders a video detail page when course level type is Intermediate', () => {
