@@ -68,6 +68,7 @@ const UpgradeCourseButton = ({
   variant,
   courseRunKey,
   mode,
+  enrollBy,
 }) => {
   const intl = useIntl();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -104,6 +105,7 @@ const UpgradeCourseButton = ({
   } = useCourseUpgradeData({
     courseRunKey,
     mode,
+    enrollBy,
     onRedeem: handleRedeem,
     onRedeemSuccess: handleRedemptionSuccess,
     onRedeemError: handleRedemptionError,
@@ -169,11 +171,13 @@ UpgradeCourseButton.propTypes = {
   title: PropTypes.string.isRequired,
   courseRunKey: PropTypes.string.isRequired,
   mode: PropTypes.string.isRequired,
+  enrollBy: PropTypes.string,
 };
 
 UpgradeCourseButton.defaultProps = {
   className: undefined,
   variant: 'outline-primary',
+  enrollBy: undefined,
 };
 
 export default UpgradeCourseButton;

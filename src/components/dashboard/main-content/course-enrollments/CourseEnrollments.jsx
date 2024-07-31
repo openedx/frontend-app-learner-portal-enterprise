@@ -79,7 +79,7 @@ const CourseEnrollments = ({ children }) => {
     handleAcknowledgeExpiringAssignments,
     handleAcknowledgeAssignments,
     isAcknowledgingAssignments,
-  } = useContentAssignments(allEnrollmentsByStatus.assigned);
+  } = useContentAssignments();
 
   const isFirstVisit = useIsFirstDashboardVisit();
 

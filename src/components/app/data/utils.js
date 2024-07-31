@@ -733,3 +733,17 @@ export const getSubsidyToApplyForCourse = ({
 
   return undefined;
 };
+
+/**
+ * Determines whether the course enrollment can be upgraded to verified enrollment.
+ *
+ * @param {Object} enrollment Metadata about a course enrollment, containing the course mode and enrollment deadline.
+ * @returns {boolean} Whether the course enrollment can be upgraded to verified enrollment.
+ */
+export function isEnrollmentUpgradeable(enrollment) {
+  // Determine whether the course enrollment can be upgraded to verified enrollment, based
+  // on the course mode and enrollment deadline (if any).
+  const isEnrollByLapsed = enrollment.enrollBy ? dayjs().isAfter(dayjs(enrollment.enrollBy)) : false;
+  const canUpgradeToVerifiedEnrollment = enrollment.mode === COURSE_MODES_MAP.AUDIT && !isEnrollByLapsed;
+  return canUpgradeToVerifiedEnrollment;
+}

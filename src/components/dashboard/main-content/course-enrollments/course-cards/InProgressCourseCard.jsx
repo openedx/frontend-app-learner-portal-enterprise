@@ -66,6 +66,7 @@ export const InProgressCourseCard = ({
   notifications,
   courseRunStatus,
   startDate,
+  enrollBy,
   resumeCourseRunUrl,
   mode,
   ...rest
@@ -76,7 +77,11 @@ export const InProgressCourseCard = ({
     subsidyForCourse,
     hasUpgradeAndConfirm,
     courseRunPrice,
-  } = useCourseUpgradeData({ courseRunKey: courseRunId, mode });
+  } = useCourseUpgradeData({
+    courseRunKey: courseRunId,
+    enrollBy,
+    mode,
+  });
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
   const { courseCards } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -96,6 +101,7 @@ export const InProgressCourseCard = ({
           title={title}
           courseRunKey={courseRunId}
           mode={mode}
+          enrollBy={enrollBy}
         />
       )}
       <ContinueLearningButton
@@ -234,6 +240,7 @@ export const InProgressCourseCard = ({
       courseRunId={courseRunId}
       mode={mode}
       startDate={startDate}
+      enrollBy={enrollBy}
       courseUpgradePrice={renderCourseUpgradePrice()}
       {...rest}
     >
@@ -261,12 +268,14 @@ InProgressCourseCard.propTypes = {
   title: PropTypes.string.isRequired,
   courseRunStatus: PropTypes.string.isRequired,
   startDate: PropTypes.string,
+  enrollBy: PropTypes.string,
   mode: PropTypes.string,
   resumeCourseRunUrl: PropTypes.string,
 };
 
 InProgressCourseCard.defaultProps = {
   startDate: null,
+  enrollBy: null,
   mode: null,
   resumeCourseRunUrl: null,
 };
