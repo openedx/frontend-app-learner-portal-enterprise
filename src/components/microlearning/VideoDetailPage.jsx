@@ -87,19 +87,25 @@ const VideoDetailPage = () => {
       <Row>
         <article className="col-12 col-lg-9">
           <div className="d-flex flex-column align-items-start flex-grow-1 video-container">
-            <div className="d-flex flex-row align-items-center justify-content-between">
-              <h2 data-testid="video-title" className="mb-0">
-                {videoData?.courseTitle}
-              </h2>
-              <span className="small ml-2 mt-2 text-nowrap">
-                {videoData?.videoDuration && `(${videoData?.videoDuration} minutes)`}
-              </span>
-            </div>
+            { videoData?.courseTitle && (
+              <div className="d-flex flex-row align-items-start justify-content-between">
+                <div className="flex-grow-1">
+                  <h2 data-testid="video-title" className="mb-0 text-wrap">
+                    {videoData?.courseTitle}
+                  </h2>
+                </div>
+                <span className="small ml-2 mt-2 text-nowrap">
+                  {videoData?.videoDuration && `(${videoData?.videoDuration} minutes)`}
+                </span>
+              </div>
+            )}
             <p className="small align-self-stretch p-0 mb-0">
               {videoData?.videoSummary}
             </p>
+            {/* Skills that we are currently retrieving for videos are inaccurate, so we are temporarily
+            hiding this section. */}
             {videoData?.videoSkills?.length > 0 && (
-              <div className="d-flex flex-row align-items-center">
+              <div className="d-none flex-row align-items-center">
                 <h4 className="mb-0">
                   <FormattedMessage
                     id="videoDetailPage.skills.label"
