@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
-import { hasFeatureFlagEnabled, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
+import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
@@ -147,17 +147,13 @@ export const useCourseUpgradeData = ({
 }) => {
   const location = useLocation();
   const canUpgradeToVerifiedEnrollment = isEnrollmentUpgradeable({ mode, enrollBy });
-  const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey], {
     enabled: canUpgradeToVerifiedEnrollment,
   });
 
-  // TODO: Remove `isLearnerCreditUpgradeEnabled` flag when rolling out ENT-9135
-  // Metadata required to allow upgrade via applicable learner credit
-  const isLearnerCreditUpgradeEnabled = authenticatedUser.administrator || hasFeatureFlagEnabled('LEARNER_CREDIT_AUDIT_UPGRADE');
   const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(courseRunKey, {
-    enabled: isLearnerCreditUpgradeEnabled && canUpgradeToVerifiedEnrollment,
+    enabled: canUpgradeToVerifiedEnrollment,
   });
 
   // Metadata required to allow upgrade via applicable subscription license
@@ -190,7 +186,7 @@ export const useCourseUpgradeData = ({
   });
 
   const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments({
-    enabled: isLearnerCreditUpgradeEnabled && canUpgradeToVerifiedEnrollment,
+    enabled: canUpgradeToVerifiedEnrollment,
   });
 
   const { redeem: redeemLearnerCredit } = useStatefulEnroll({
