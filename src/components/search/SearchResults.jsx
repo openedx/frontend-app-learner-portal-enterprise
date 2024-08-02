@@ -114,6 +114,7 @@ const SearchResults = ({
       const hits = searchResults?.hits || [];
       return hits.map((hit) => <HitComponent key={uuidv4()} hit={hit} />);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [searchResults?.hits],
   );
 
