@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, StatefulButton } from '@openedx/paragon';
+import {
+  ActionRow, ModalDialog, StatefulButton,
+} from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform';
 
 import MarkCompleteModalContext from './MarkCompleteModalContext';
@@ -73,26 +75,40 @@ const MarkCompleteModal = ({
 
   return (
     <MarkCompleteModalContext.Provider value={contextValue}>
-      <Modal
+      <ModalDialog
         title="Save course for later"
-        body={<ModalBody />}
-        buttons={[
-          <StatefulButton
-            labels={{
-              default: MARK_SAVED_FOR_LATER_DEFAULT_LABEL,
-              pending: MARK_SAVED_FOR_LATER_PENDING_LABEL,
-            }}
-            disabledStates={['pending']}
-            className="confirm-mark-complete-btn btn-brand-primary"
-            state={confirmButtonState}
-            onClick={handleConfirmButtonClick}
-            key="confirm-mark-complete-btn"
-          />,
-        ]}
-        open={isOpen && !confirmSuccessful}
+        isOpen={isOpen && !confirmSuccessful}
         onClose={handleModalOnClose}
-        closeText="Cancel"
-      />
+        hasCloseButton
+        isFullscreenOnMobile
+      >
+        <ModalDialog.Header>
+          <ModalDialog.Title>
+            Save course for later
+          </ModalDialog.Title>
+        </ModalDialog.Header>
+        <ModalDialog.Body>
+          <ModalBody />
+        </ModalDialog.Body>
+        <ModalDialog.Footer>
+          <ActionRow>
+            <ModalDialog.CloseButton variant="tertiary" data-testid="mark-complete-modal-cancel-btn">
+              Cancel
+            </ModalDialog.CloseButton>
+            <StatefulButton
+              labels={{
+                default: MARK_SAVED_FOR_LATER_DEFAULT_LABEL,
+                pending: MARK_SAVED_FOR_LATER_PENDING_LABEL,
+              }}
+              disabledStates={['pending']}
+              className="confirm-mark-complete-btn btn-brand-primary"
+              state={confirmButtonState}
+              onClick={handleConfirmButtonClick}
+              key="confirm-mark-complete-btn"
+            />
+          </ActionRow>
+        </ModalDialog.Footer>
+      </ModalDialog>
     </MarkCompleteModalContext.Provider>
   );
 };
