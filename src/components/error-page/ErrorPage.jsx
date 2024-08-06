@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Col } from '@openedx/paragon';
 import { Helmet } from 'react-helmet';
 
-import SiteFooter from '@edx/frontend-component-footer';
+import FooterSlot from '@openedx/frontend-slot-footer';
 import ErrorPageHeader from './ErrorPageHeader';
 import ErrorPageTitle from './ErrorPageTitle';
 import ErrorPageSubtitle from './ErrorPageSubtitle';
@@ -54,7 +54,7 @@ const ErrorPage = ({
         </Col>
       </ErrorPageContent>
     </main>
-    {showSiteFooter && <SiteFooter />}
+    {showSiteFooter && <FooterSlot />}
   </>
 );
 
