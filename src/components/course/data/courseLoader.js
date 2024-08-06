@@ -1,32 +1,29 @@
 import { generatePath, redirect } from 'react-router-dom';
 
 import {
-  queryUserEntitlements,
-  queryCanRedeem,
-  queryCourseMetadata,
-  queryEnterpriseCourseEnrollments,
-  extractEnterpriseCustomer,
-  queryRedeemablePolicies,
-  getLateEnrollmentBufferDays,
-  querySubscriptions,
-  queryLicenseRequests,
-  queryCouponCodeRequests,
   determineLearnerHasContentAssignmentsOnly,
-  queryEnterpriseLearnerOffers,
-  queryCouponCodes,
-  queryCourseReviews,
-  queryEnterpriseCustomerContainsContent,
-  queryCourseRecommendations,
-  getSearchCatalogs,
+  extractEnterpriseCustomer,
+  filterCourseMetadataByAllocationCourseRun,
   getCatalogsForSubsidyRequests,
+  getLateEnrollmentBufferDays,
+  getSearchCatalogs,
   queryBrowseAndRequestConfiguration,
+  queryCanRedeem,
+  queryCouponCodeRequests,
+  queryCouponCodes,
+  queryCourseMetadata,
+  queryCourseRecommendations,
+  queryCourseReviews,
+  queryEnterpriseCourseEnrollments,
+  queryEnterpriseCustomerContainsContent,
+  queryEnterpriseLearnerOffers,
+  queryLicenseRequests,
+  queryRedeemablePolicies,
+  querySubscriptions,
+  queryUserEntitlements,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import {
-  getCourseTypeConfig,
-  getLinkToCourse,
-  pathContainsCourseTypeSlug,
-} from './utils';
+import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
 
 /**
  * Course loader for the course related page routes.
@@ -80,8 +77,14 @@ export default function makeCourseLoader(queryClient) {
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
           redeemableLearnerCreditPolicies.redeemablePolicies,
         );
+        // TODO: Added for testing purposes, to be removed before merge
+        const parsedCourseMetadata = filterCourseMetadataByAllocationCourseRun({
+          redeemableLearnerCreditPolicies,
+          courseMetadata,
+          courseKey,
+        });
         return queryClient.ensureQueryData(
-          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+          queryCanRedeem(enterpriseCustomer.uuid, parsedCourseMetadata, lateEnrollmentBufferDays),
         );
       }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),

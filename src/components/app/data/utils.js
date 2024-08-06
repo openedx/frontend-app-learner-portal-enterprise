@@ -747,3 +747,32 @@ export function isEnrollmentUpgradeable(enrollment) {
   const canUpgradeToVerifiedEnrollment = enrollment.mode === COURSE_MODES_MAP.AUDIT && !isEnrollByLapsed;
   return canUpgradeToVerifiedEnrollment;
 }
+
+export function filterCourseMetadataByAllocationCourseRun({
+  redeemableLearnerCreditPolicies,
+  courseMetadata,
+  courseKey,
+}) {
+  if (!courseKey) {
+    return courseMetadata;
+  }
+  // TODO: Added for testing purposes, to be removed before merge
+  let allocatedKey = '';
+  const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
+  if (learnerContentAssignments.hasAllocatedAssignments) {
+    // Retrieve assigned course run key for allocated course
+    const allocatedCourseRunKey = learnerContentAssignments.allocatedAssignments.filter(
+      assignment => assignment.contentKey === courseKey,
+    ).map(assignment => assignment.contentKey);
+    // TODO: Added for testing purposes, to be removed before merge
+    if (allocatedCourseRunKey) {
+      allocatedKey = `course-v1:${allocatedCourseRunKey[0]}+2018`;
+      return {
+        ...courseMetadata,
+        courseRuns: courseMetadata.courseRuns.filter(courseRun => courseRun.key === allocatedKey),
+        availableCourseRuns: courseMetadata.courseRuns.filter(courseRun => courseRun.key === allocatedKey),
+      };
+    }
+  }
+  return courseMetadata;
+}
