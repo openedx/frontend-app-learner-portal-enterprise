@@ -756,21 +756,32 @@ export function filterCourseMetadataByAllocationCourseRun({
   if (!courseKey) {
     return courseMetadata;
   }
-  // TODO: Added for testing purposes, to be removed before merge
-  let allocatedKey = '';
   const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
+
+  // TODO: Added for testing purposes, to be removed before merge
+  const testParentContentKey = 'edx+H200';
+  const testContentKey = `course-v1:${testParentContentKey}+2018`;
+
   if (learnerContentAssignments.hasAllocatedAssignments) {
-    // Retrieve assigned course run key for allocated course
-    const allocatedCourseRunKey = learnerContentAssignments.allocatedAssignments.filter(
-      assignment => assignment.contentKey === courseKey,
-    ).map(assignment => assignment.contentKey);
-    // TODO: Added for testing purposes, to be removed before merge
-    if (allocatedCourseRunKey) {
-      allocatedKey = `course-v1:${allocatedCourseRunKey[0]}+2018`;
+    // Retrieve assigned course key for allocated course
+    // To support course run enrollments, we lookup the parentContentKey to
+    // select a single course-run to
+    const allocatedAssignmentKeys = learnerContentAssignments.allocatedAssignments.filter(
+      assignment => assignment.contentKey === courseKey || assignment?.parentContentKey === courseKey,
+    ).map(assignment => ({
+      // TODO: Added for testing purposes, to be removed before merge
+      contentKey: testContentKey || assignment.contentKey,
+      parentContentKey: testParentContentKey || assignment?.parentContentKey,
+    }));
+    if (allocatedAssignmentKeys[0]?.parentContentKey) {
       return {
         ...courseMetadata,
-        courseRuns: courseMetadata.courseRuns.filter(courseRun => courseRun.key === allocatedKey),
-        availableCourseRuns: courseMetadata.courseRuns.filter(courseRun => courseRun.key === allocatedKey),
+        courseRuns: courseMetadata.courseRuns.filter(
+          courseRun => courseRun.key === allocatedAssignmentKeys[0].contentKey,
+        ),
+        availableCourseRuns: courseMetadata.courseRuns.filter(
+          courseRun => courseRun.key === allocatedAssignmentKeys[0].contentKey,
+        ),
       };
     }
   }
