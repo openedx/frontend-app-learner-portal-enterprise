@@ -773,3 +773,25 @@ export function filterCourseMetadataByAllocationCourseRun({
     hasMultipleAssignedCourseRuns: false,
   };
 }
+
+export function transformCourseMetadataByAllocationCourseRun({
+  hasMultipleAssignedCourseRuns,
+  courseMetadata,
+  allocatedCourseRunAssignmentKeys,
+}) {
+  if (!courseMetadata || !hasMultipleAssignedCourseRuns) {
+    return courseMetadata;
+  }
+  if (hasMultipleAssignedCourseRuns && allocatedCourseRunAssignmentKeys.length > 1) {
+    return {
+      ...courseMetadata,
+      courseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+      availableCourseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+    };
+  }
+  return courseMetadata;
+}

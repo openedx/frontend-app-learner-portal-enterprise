@@ -47,11 +47,7 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
-  // const updatedCourseMetadata = filterCourseMetadataByAllocationCourseRun({
-  //   redeemableLearnerCreditPolicies,
-  //   courseMetadata,
-  //   courseKey,
-  // });
+
   return useQuery({
     ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
     enabled: !!courseMetadata,

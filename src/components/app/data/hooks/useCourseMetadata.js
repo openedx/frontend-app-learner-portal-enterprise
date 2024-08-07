@@ -2,7 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import { queryCourseMetadata } from '../queries';
-import { filterCourseMetadataByAllocationCourseRun, getAvailableCourseRuns } from '../utils';
+import {
+  filterCourseMetadataByAllocationCourseRun,
+  getAvailableCourseRuns,
+  transformCourseMetadataByAllocationCourseRun,
+} from '../utils';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import useRedeemablePolicies from './useRedeemablePolicies';
 
@@ -46,19 +50,13 @@ export default function useCourseMetadata(queryOptions = {}) {
         availableCourseRuns,
       };
       // TODO: Test data remove
-      const keys = ['course-v1:edx+H200+2018', 'course-v1:edx+H200+2T2020'];
+      // const keys = ['course-v1:edx+H200+2018', 'course-v1:edx+H200+2T2020'];
       // This logic should appropriately handle multiple course runs being assigned, and return the appropriate metadata
-      if (hasMultipleAssignedCourseRuns) {
-        transformedData = {
-          ...data,
-          courseRuns: data.courseRuns.filter(
-            courseRun => keys.includes(courseRun.key),
-          ),
-          availableCourseRuns: data.courseRuns.filter(
-            courseRun => keys.includes(courseRun.key),
-          ),
-        };
-      }
+      transformedData = transformCourseMetadataByAllocationCourseRun({
+        hasMultipleAssignedCourseRuns,
+        courseMetadata: transformedData,
+        allocatedCourseRunAssignmentKeys,
+      });
       if (select) {
         return select({
           original: data,

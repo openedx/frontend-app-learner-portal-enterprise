@@ -3,6 +3,7 @@ import { generatePath, redirect } from 'react-router-dom';
 import {
   determineLearnerHasContentAssignmentsOnly,
   extractEnterpriseCustomer,
+  filterCourseMetadataByAllocationCourseRun,
   getCatalogsForSubsidyRequests,
   getLateEnrollmentBufferDays,
   getSearchCatalogs,
@@ -20,6 +21,7 @@ import {
   queryRedeemablePolicies,
   querySubscriptions,
   queryUserEntitlements,
+  transformCourseMetadataByAllocationCourseRun,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
@@ -41,7 +43,7 @@ export default function makeCourseLoader(queryClient) {
     const { courseKey, enterpriseSlug } = params;
     // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
     // need to replace it with `+` again to be a valid course run key.
-    const courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
+    let courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
       queryClient,
@@ -60,10 +62,22 @@ export default function makeCourseLoader(queryClient) {
       queryClient.ensureQueryData(queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
       queryClient.ensureQueryData(queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid)),
     ]);
-
+    const redeemableLearnerCreditPoliciesLoader = await queryClient.ensureQueryData(queryRedeemablePolicies({
+      enterpriseUuid: enterpriseCustomer.uuid,
+      lmsUserId: authenticatedUser.userId,
+    }));
+    const {
+      allocatedCourseRunAssignmentKeys,
+      hasAssignedCourseRuns,
+      hasMultipleAssignedCourseRuns,
+    } = filterCourseMetadataByAllocationCourseRun({
+      courseKey,
+      redeemableLearnerCreditPolicies: redeemableLearnerCreditPoliciesLoader,
+    });
+    if (!courseRunKey && hasAssignedCourseRuns) {
+      courseRunKey = hasMultipleAssignedCourseRuns ? null : allocatedCourseRunAssignmentKeys[0];
+    }
     await Promise.all([
-      // TODO: Based on a combination of the existence of a course run based assignment and course run query param,
-      //       what values to pass into queryCourseMetadata
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
@@ -71,21 +85,18 @@ export default function makeCourseLoader(queryClient) {
         if (!courseMetadata) {
           return null;
         }
-        const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-          enterpriseUuid: enterpriseCustomer.uuid,
-          lmsUserId: authenticatedUser.userId,
-        }));
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
-          redeemableLearnerCreditPolicies.redeemablePolicies,
+          redeemableLearnerCreditPoliciesLoader.redeemablePolicies,
         );
-        // TODO: Added for testing purposes, to be removed before merge
-        // const parsedCourseMetadata = filterCourseMetadataByAllocationCourseRun({
-        //   redeemableLearnerCreditPolicies,
-        //   courseMetadata,
-        //   courseKey: courseRunKey ? courseKey : null,
-        // });
+        // TODO: remove test data
+        // const keys = ['course-v1:edx+H200+2018', 'course-v1:edx+H200+2T2020'];
+        const transformedCourseMetadata = transformCourseMetadataByAllocationCourseRun({
+          hasMultipleAssignedCourseRuns,
+          courseMetadata,
+          allocatedCourseRunAssignmentKeys,
+        });
         return queryClient.ensureQueryData(
-          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+          queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
         );
       }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
