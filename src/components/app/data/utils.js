@@ -753,12 +753,10 @@ export function filterCourseMetadataByAllocationCourseRun({
   courseKey,
 }) {
   const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
-
   if (learnerContentAssignments.hasAllocatedAssignments) {
     const allocatedCourseRunAssignmentKeys = learnerContentAssignments.allocatedAssignments.filter(
       (assignment) => assignment?.isAssignedCourseRun && assignment?.parentContentKey === courseKey,
     ).map(assignment => assignment.contentKey);
-
     const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
     const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
     return {
