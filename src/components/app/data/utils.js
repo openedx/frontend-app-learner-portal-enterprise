@@ -750,41 +750,26 @@ export function isEnrollmentUpgradeable(enrollment) {
 
 export function filterCourseMetadataByAllocationCourseRun({
   redeemableLearnerCreditPolicies,
-  courseMetadata,
   courseKey,
 }) {
-  if (!courseKey) {
-    return courseMetadata;
-  }
   const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
 
-  // TODO: Added for testing purposes, to be removed before merge
-  const testParentContentKey = 'edx+H200';
-  const testContentKey = `course-v1:${testParentContentKey}+2018`;
-
   if (learnerContentAssignments.hasAllocatedAssignments) {
-    // Retrieve assigned course key for allocated course
-    // To support course run enrollments, we lookup the parentContentKey to
-    // select a single course-run to
-    const allocatedAssignmentKeys = learnerContentAssignments.allocatedAssignments.filter(
-      assignment => assignment.contentKey === courseKey,
-    ).map(assignment => ({
-      // TODO: Added for testing purposes, to be removed before merge
-      contentKey: testContentKey || assignment.contentKey,
-      isAssignedCourseRun: assignment.isAssignedCourseRun,
-    }));
-    // TODO: Remove ? when `isAssignedCourseRun` serialized from learnerContentAssignments
-    if (learnerContentAssignments?.isAssignedCourseRun) {
-      return {
-        ...courseMetadata,
-        courseRuns: courseMetadata.courseRuns.filter(
-          courseRun => courseRun.key === allocatedAssignmentKeys[0].contentKey,
-        ),
-        availableCourseRuns: courseMetadata.courseRuns.filter(
-          courseRun => courseRun.key === allocatedAssignmentKeys[0].contentKey,
-        ),
-      };
-    }
+    const allocatedCourseRunAssignmentKeys = learnerContentAssignments.allocatedAssignments.filter(
+      (assignment) => assignment?.isAssignedCourseRun && assignment?.parentContentKey === courseKey,
+    ).map(assignment => assignment.contentKey);
+
+    const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
+    const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
+    return {
+      allocatedCourseRunAssignmentKeys,
+      hasAssignedCourseRuns,
+      hasMultipleAssignedCourseRuns,
+    };
   }
-  return courseMetadata;
+  return {
+    allocatedCourseRunAssignmentKeys: [],
+    hasAssignedCourseRuns: false,
+    hasMultipleAssignedCourseRuns: false,
+  };
 }
