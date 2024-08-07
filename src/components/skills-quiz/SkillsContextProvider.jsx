@@ -14,8 +14,8 @@ const reducer = (state, action) => {
       delete nextState.page;
       nextState[action.key] = action.value;
       return nextState;
-  default:
-    return state;
+    default:
+      return state;
   }
 };
 

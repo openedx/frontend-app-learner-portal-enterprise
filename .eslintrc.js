@@ -27,6 +27,7 @@ const config = createConfig('eslint', {
     'template-curly-spacing': 'off',
     'import/prefer-default-export': 'off',
     'no-underscore-dangle': ['error', { allow: ['_ctx', '_def'] }],
+    '@typescript-eslint/no-throw-literal': 'off',
   },
 });
 

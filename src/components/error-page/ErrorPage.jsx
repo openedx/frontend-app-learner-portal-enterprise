@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Col } from '@openedx/paragon';
 import { Helmet } from 'react-helmet';

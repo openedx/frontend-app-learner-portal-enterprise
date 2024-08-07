@@ -1,1 +1,1 @@
-export { default as makeAcademiesLoader } from './academiesLoader';
+export { default as makeAcademiesLoader } from './academyLoader';

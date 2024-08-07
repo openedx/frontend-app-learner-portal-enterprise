@@ -1,4 +1,6 @@
-import { matchPath, Outlet } from 'react-router-dom';
+import {
+  matchPath, Outlet,
+} from 'react-router-dom';
 import { PageWrap } from '@edx/frontend-platform/react';
 
 import RouteErrorBoundary from './components/app/routes/RouteErrorBoundary';
@@ -7,15 +9,21 @@ import Layout from './components/app/Layout';
 import { makeRootLoader } from './components/app/routes/loaders';
 import NotFoundPage from './components/NotFoundPage';
 
-function getRouteLoader(routeLoaderFn, queryClient) {
+/**
+ * Returns the route loader function if a queryClient is available; otherwise, returns null.
+ */
+function getRouteLoader(routeLoaderFn: Types.RouteLoaderFunction, queryClient?: Types.QueryClient) {
   if (!queryClient) {
-    return null;
+    return undefined;
   }
   return routeLoaderFn(queryClient);
 }
 
-function getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes }) {
-  const enterpriseSlugChildRoutes = [
+/**
+ * Returns the routes nested under the enterprise slug prefix.
+ */
+function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
+  const enterpriseSlugChildRoutes: Types.RouteObject[] = [
     {
       index: true,
       lazy: async () => {
@@ -25,12 +33,6 @@ function getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes }) {
           loader: getRouteLoader(makeDashboardLoader, queryClient),
         };
       },
-      errorElement: (
-        <RouteErrorBoundary
-          showSiteHeader={false}
-          showSiteFooter={false}
-        />
-      ),
     },
     {
       path: 'search/:pathwayUUID?',
@@ -41,12 +43,6 @@ function getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes }) {
           loader: getRouteLoader(makeSearchLoader, queryClient),
         };
       },
-      errorElement: (
-        <RouteErrorBoundary
-          showSiteHeader={false}
-          showSiteFooter={false}
-        />
-      ),
     },
     {
       path: 'academies/:academyUUID',
@@ -57,12 +53,6 @@ function getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes }) {
           loader: getRouteLoader(makeAcademiesLoader, queryClient),
         };
       },
-      errorElement: (
-        <RouteErrorBoundary
-          showSiteHeader={false}
-          showSiteFooter={false}
-        />
-      ),
     },
     {
       path: 'pathway/:pathwayUUID/progress',
@@ -73,12 +63,6 @@ function getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes }) {
           loader: getRouteLoader(makePathwayProgressLoader, queryClient),
         };
       },
-      errorElement: (
-        <RouteErrorBoundary
-          showSiteHeader={false}
-          showSiteFooter={false}
-        />
-      ),
     },
     {
       path: 'program/:programUUID',
@@ -114,12 +98,6 @@ function getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes }) {
           Component: SkillsQuizPage,
         };
       },
-      errorElement: (
-        <RouteErrorBoundary
-          showSiteHeader={false}
-          showSiteFooter={false}
-        />
-      ),
     },
     {
       path: ':courseType?/course/:courseKey',
@@ -130,12 +108,6 @@ function getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes }) {
           loader: getRouteLoader(makeCourseLoader, queryClient),
         };
       },
-      errorElement: (
-        <RouteErrorBoundary
-          showSiteHeader={false}
-          showSiteFooter={false}
-        />
-      ),
       children: [
         {
           index: true,
@@ -184,12 +156,6 @@ function getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes }) {
           Component: LicenseActivationRoute,
         };
       },
-      errorElement: (
-        <RouteErrorBoundary
-          showSiteHeader={false}
-          showSiteFooter={false}
-        />
-      ),
     },
     {
       path: 'videos/:videoUUID',
@@ -200,21 +166,26 @@ function getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes }) {
           loader: makeVideosLoader(queryClient),
         };
       },
+    },
+    {
+      path: '*',
+      element: <NotFoundPage />,
+    },
+  ].map((enterpriseSlugRoute: Types.RouteObject) : Types.RouteObject => {
+    if (enterpriseSlugRoute.path === '*') {
+      return enterpriseSlugRoute;
+    }
+    return {
+      ...enterpriseSlugRoute,
       errorElement: (
         <RouteErrorBoundary
           showSiteHeader={false}
           showSiteFooter={false}
         />
       ),
-    },
-  ];
-  if (hasNotFoundRoutes) {
-    enterpriseSlugChildRoutes.push({
-      path: '*',
-      element: <NotFoundPage />,
-    });
-  }
-  const enterpriseSlugRoutes = [
+    };
+  });
+  const enterpriseSlugRoutes: Types.RouteObject[] = [
     {
       path: ':enterpriseSlug?',
       loader: getRouteLoader(makeRootLoader, queryClient),
@@ -225,8 +196,11 @@ function getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes }) {
   return enterpriseSlugRoutes;
 }
 
+/**
+ * Returns other routes that are not nested under the enterprise slug prefix.
+ */
 function getOtherRoutes() {
-  const otherRoutes = [
+  const otherRoutes: Types.RouteObject[] = [
     {
       path: 'invite/:enterpriseCustomerInviteKey',
       lazy: async () => {
@@ -244,23 +218,22 @@ function getOtherRoutes() {
   return otherRoutes;
 }
 
-export function getRoutes({ queryClient, options = {} }) {
-  const {
-    hasNotFoundRoutes = true,
-  } = options;
-  const enterpriseSlugRoutes = getEnterpriseSlugRoutes({ queryClient, hasNotFoundRoutes });
-  const rootChildRoutes = [
-    ...getOtherRoutes(),
+/**
+ * Returns the routes for the application.
+ */
+export function getRoutes(queryClient?: Types.QueryClient) {
+  const enterpriseSlugRoutes = getEnterpriseSlugRoutes(queryClient);
+  const otherRoutes = getOtherRoutes();
+  const rootChildRoutes: Types.RouteObject[] = [
+    ...otherRoutes,
     ...enterpriseSlugRoutes,
-  ];
-  if (hasNotFoundRoutes) {
-    rootChildRoutes.push({
+    {
       path: '*',
       element: <NotFoundPage />,
-    });
-  }
+    },
+  ];
 
-  const routes = [
+  const routes: Types.RouteObject[] = [
     {
       path: '/',
       element: <PageWrap><Root /></PageWrap>,
@@ -273,11 +246,15 @@ export function getRoutes({ queryClient, options = {} }) {
     routes,
     rootChildRoutes,
     enterpriseSlugRoutes,
+    otherRoutes,
   };
 }
 
-export function extractPaths(routes, basePath = '/') {
-  let paths = [];
+/**
+ * Extracts all the (nested) route paths from the given routes.
+ */
+export function extractRoutePaths(routes: Types.RouteObject[], basePath = '/') {
+  let paths: string[] = [];
   routes.forEach((route) => {
     let currentPath = basePath;
 
@@ -291,17 +268,18 @@ export function extractPaths(routes, basePath = '/') {
     }
 
     // Recursively handle nested routes (children)
-    if (route.children?.length > 0) {
-      paths = [...paths, ...extractPaths(route.children, `${currentPath}/`)];
+    if (route.children?.length) {
+      paths = [...paths, ...extractRoutePaths(route.children, `${currentPath}/`)];
     }
   });
-
   return paths;
 }
 
-export function replaceRouteParamsInPath(viewPath, routePaths) {
+/**
+ * Replaces all dynamic route parameters in the view path with '?'.
+ */
+export function replaceRouteParamsInPath(viewPath: string, routePaths: string[]) {
   let viewPathCopy = viewPath;
-  // Replace all dynamic route parameter in the view path with '?'
   routePaths.forEach((routePath) => {
     const matchResult = matchPath(routePath, viewPathCopy);
     if (!matchResult) {

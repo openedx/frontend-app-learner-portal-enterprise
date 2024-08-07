@@ -3,9 +3,9 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../utils/tests';
+import makeVideosLoader from './videoLoader';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import { extractEnterpriseCustomer, queryAcademiesDetail } from '../../app/data';
-import makeAcademiesLoader from './academiesLoader';
+import { extractEnterpriseCustomer, queryVideoDetail } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/routes/data', () => ({
@@ -16,21 +16,20 @@ jest.mock('../../app/routes/data', () => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   extractEnterpriseCustomer: jest.fn(),
-  updateUserActiveEnterprise: jest.fn(),
 }));
 
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseSlug = mockEnterpriseCustomer.slug;
 const mockEnterpriseId = mockEnterpriseCustomer.uuid;
-const mockAcademyUUID = 'test-academy-uuid';
-const mockAcademiesURL = `/${mockEnterpriseSlug}/academies/${mockAcademyUUID}/`;
+const mockVideoUUID = 'test-video-uuid';
+const mockVideosURL = `/${mockEnterpriseSlug}/videos/${mockVideoUUID}/`;
 
 const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue({}),
 };
 
-describe('academiesLoader', () => {
+describe('videosLoader', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     ensureAuthenticatedUser.mockResolvedValue(mockAuthenticatedUser);
@@ -41,12 +40,12 @@ describe('academiesLoader', () => {
     ensureAuthenticatedUser.mockResolvedValue(null);
     renderWithRouterProvider(
       {
-        path: '/:enterpriseSlug/academies/:academyUUID/',
+        path: '/:enterpriseSlug/videos/:videoUUID/',
         element: <div>hello world</div>,
-        loader: makeAcademiesLoader(mockQueryClient),
+        loader: makeVideosLoader(mockQueryClient),
       },
       {
-        initialEntries: [mockAcademiesURL],
+        initialEntries: [mockVideosURL],
       },
     );
 
@@ -55,15 +54,15 @@ describe('academiesLoader', () => {
     expect(mockQueryClient.ensureQueryData).not.toHaveBeenCalled();
   });
 
-  it('ensures the requisite academies data is resolved', async () => {
+  it('ensures the requisite video data is resolved', async () => {
     renderWithRouterProvider(
       {
-        path: '/:enterpriseSlug/academies/:academyUUID/',
+        path: '/:enterpriseSlug/videos/:videoUUID/',
         element: <div>hello world</div>,
-        loader: makeAcademiesLoader(mockQueryClient),
+        loader: makeVideosLoader(mockQueryClient),
       },
       {
-        initialEntries: [mockAcademiesURL],
+        initialEntries: [mockVideosURL],
       },
     );
 
@@ -72,7 +71,7 @@ describe('academiesLoader', () => {
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: queryAcademiesDetail(mockAcademyUUID, mockEnterpriseId).queryKey,
+        queryKey: queryVideoDetail(mockVideoUUID, mockEnterpriseId).queryKey,
         queryFn: expect.any(Function),
       }),
     );

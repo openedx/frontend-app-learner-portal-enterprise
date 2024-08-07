@@ -54,7 +54,7 @@ export const loginRefresh = async () => {
   const loginRefreshUrl = `${config.LMS_BASE_URL}/login_refresh`;
 
   try {
-    return await getAuthenticatedHttpClient().post(loginRefreshUrl);
+    return getAuthenticatedHttpClient().post(loginRefreshUrl);
   } catch (error) {
     const isUserUnauthenticated = error.response?.status === 401;
     if (isUserUnauthenticated) {

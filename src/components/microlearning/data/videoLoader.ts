@@ -2,8 +2,16 @@
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { extractEnterpriseCustomer, queryVideoDetail } from '../../app/data';
 
-export default function makeVideosLoader(queryClient) {
-  return async function videosLoader({ params = {}, request }) {
+type VideoRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+  readonly videoUUID: string;
+  readonly enterpriseSlug: string;
+};
+interface VideoLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+  params: VideoRouteParams;
+}
+
+const makeVideoLoader: Types.MakeRouteLoaderFunction = function makeVideoLoader(queryClient) {
+  return async function videosLoader({ params, request } : VideoLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
 
@@ -23,4 +31,6 @@ export default function makeVideosLoader(queryClient) {
 
     return null;
   };
-}
+};
+
+export default makeVideoLoader;
