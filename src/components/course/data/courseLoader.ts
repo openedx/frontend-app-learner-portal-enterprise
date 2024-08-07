@@ -150,7 +150,7 @@ const makeCourseLoader: Types.MakeRouteLoaderFunction = function makeCourseLoade
 
     // If the course metadata (pre-fetched above) does not exist or is not available in
     // the enterprise's catalog(s), return with empty data.
-    const courseMetadata = queryClient.getQueryData<CourseMetadata | undefined>(
+    const courseMetadata = queryClient.getQueryData<CourseMetadata>(
       queryCourseMetadata(courseKey, courseRunKey).queryKey,
     );
     if (!courseMetadata) {
