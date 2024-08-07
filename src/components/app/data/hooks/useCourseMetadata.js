@@ -19,6 +19,7 @@ export default function useCourseMetadata(queryOptions = {}) {
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays({
     enabled: !!courseKey,
   });
+
   return useQuery({
     ...queryCourseMetadata(courseKey, courseRunKey),
     enabled: !!courseKey,

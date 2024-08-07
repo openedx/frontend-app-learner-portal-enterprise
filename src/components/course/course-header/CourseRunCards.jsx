@@ -5,12 +5,10 @@ import CourseRunCard from './CourseRunCard';
 import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
 import { useUserSubsidyApplicableToCourse } from '../data';
 import {
-  filterCourseMetadataByAllocationCourseRun,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomerContainsContent,
-  useRedeemablePolicies,
   useUserEntitlements,
 } from '../../app/data';
 
@@ -28,18 +26,17 @@ const CourseRunCards = () => {
   const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
   const { data: userEntitlements } = useUserEntitlements();
-  const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
-  const updatedCourseMetadata = filterCourseMetadataByAllocationCourseRun({
-    redeemableLearnerCreditPolicies,
-    courseMetadata,
-    courseKey,
-  });
+  // const updatedCourseMetadata = filterCourseMetadataByAllocationCourseRun({
+  //   redeemableLearnerCreditPolicies,
+  //   courseMetadata,
+  //   courseKey,
+  // });
   return (
     <CardGrid
       columnSizes={{ xs: 12, md: 6, lg: 5 }}
       hasEqualColumnHeights={false}
     >
-      {updatedCourseMetadata.availableCourseRuns.map((courseRun) => {
+      {courseMetadata.availableCourseRuns.map((courseRun) => {
         const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
 
         // Render the newer `CourseRunCard` component when the user's subsidy, if any, is

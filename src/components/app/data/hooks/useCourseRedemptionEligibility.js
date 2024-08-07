@@ -5,8 +5,6 @@ import useCourseMetadata from './useCourseMetadata';
 import { queryCanRedeem } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
-import useRedeemablePolicies from './useRedeemablePolicies';
-import { filterCourseMetadataByAllocationCourseRun } from '../utils';
 
 export function transformCourseRedemptionEligibility({
   courseMetadata,
@@ -44,23 +42,22 @@ export function transformCourseRedemptionEligibility({
  * @returns {Types.UseQueryResult}} The query results for the course redemption eligibility.
  */
 export default function useCourseRedemptionEligibility(queryOptions = {}) {
-  const { courseRunKey, courseKey } = useParams();
+  const { courseRunKey } = useParams();
   const { select, ...queryOptionsRest } = queryOptions;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const { data: courseMetadata } = useCourseMetadata();
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
-  const updatedCourseMetadata = filterCourseMetadataByAllocationCourseRun({
-    redeemableLearnerCreditPolicies,
-    courseMetadata,
-    courseKey,
-  });
+  // const updatedCourseMetadata = filterCourseMetadataByAllocationCourseRun({
+  //   redeemableLearnerCreditPolicies,
+  //   courseMetadata,
+  //   courseKey,
+  // });
   return useQuery({
-    ...queryCanRedeem(enterpriseCustomer.uuid, updatedCourseMetadata, lateEnrollmentBufferDays),
-    enabled: !!updatedCourseMetadata,
+    ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+    enabled: !!courseMetadata,
     select: (data) => {
       const transformedData = transformCourseRedemptionEligibility({
-        courseMetadata: updatedCourseMetadata,
+        courseMetadata,
         canRedeemData: data,
         courseRunKey,
       });

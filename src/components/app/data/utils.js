@@ -767,13 +767,14 @@ export function filterCourseMetadataByAllocationCourseRun({
     // To support course run enrollments, we lookup the parentContentKey to
     // select a single course-run to
     const allocatedAssignmentKeys = learnerContentAssignments.allocatedAssignments.filter(
-      assignment => assignment.contentKey === courseKey || assignment?.parentContentKey === courseKey,
+      assignment => assignment.contentKey === courseKey,
     ).map(assignment => ({
       // TODO: Added for testing purposes, to be removed before merge
       contentKey: testContentKey || assignment.contentKey,
-      parentContentKey: testParentContentKey || assignment?.parentContentKey,
+      isAssignedCourseRun: assignment.isAssignedCourseRun,
     }));
-    if (allocatedAssignmentKeys[0]?.parentContentKey) {
+    // TODO: Remove ? when `isAssignedCourseRun` serialized from learnerContentAssignments
+    if (learnerContentAssignments?.isAssignedCourseRun) {
       return {
         ...courseMetadata,
         courseRuns: courseMetadata.courseRuns.filter(

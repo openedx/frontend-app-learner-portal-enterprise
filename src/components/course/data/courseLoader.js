@@ -3,7 +3,6 @@ import { generatePath, redirect } from 'react-router-dom';
 import {
   determineLearnerHasContentAssignmentsOnly,
   extractEnterpriseCustomer,
-  filterCourseMetadataByAllocationCourseRun,
   getCatalogsForSubsidyRequests,
   getLateEnrollmentBufferDays,
   getSearchCatalogs,
@@ -63,6 +62,8 @@ export default function makeCourseLoader(queryClient) {
     ]);
 
     await Promise.all([
+      // TODO: Based on a combination of the existence of a course run based assignment and course run query param,
+      //       what values to pass into queryCourseMetadata
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
@@ -78,13 +79,13 @@ export default function makeCourseLoader(queryClient) {
           redeemableLearnerCreditPolicies.redeemablePolicies,
         );
         // TODO: Added for testing purposes, to be removed before merge
-        const parsedCourseMetadata = filterCourseMetadataByAllocationCourseRun({
-          redeemableLearnerCreditPolicies,
-          courseMetadata,
-          courseKey,
-        });
+        // const parsedCourseMetadata = filterCourseMetadataByAllocationCourseRun({
+        //   redeemableLearnerCreditPolicies,
+        //   courseMetadata,
+        //   courseKey: courseRunKey ? courseKey : null,
+        // });
         return queryClient.ensureQueryData(
-          queryCanRedeem(enterpriseCustomer.uuid, parsedCourseMetadata, lateEnrollmentBufferDays),
+          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
         );
       }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
