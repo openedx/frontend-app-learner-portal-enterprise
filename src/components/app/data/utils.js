@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { logError } from '@edx/frontend-platform/logging';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
@@ -733,7 +733,158 @@ export const getSubsidyToApplyForCourse = ({
 
   return undefined;
 };
+const test = {
+  uuid: 'df4f42e2-ed44-47bb-a73f-607f926c69af',
+  assignmentConfiguration: 'c40950ce-15d6-46d9-bf1f-62a0988239db',
+  learnerEmail: 'hullah@2u.com',
+  lmsUserId: 5266560,
+  contentKey: 'course-v1:edx+H200+2025',
+  contentTitle: 'Intermediate Happiness',
+  contentQuantity: -100,
+  state: 'allocated',
+  transactionUuid: null,
+  actions: [
+    {
+      created: '2024-08-06T12:11:55.618790Z',
+      modified: '2024-08-06T12:11:55.618821Z',
+      uuid: 'cdd6eb1e-6834-4199-be3d-2ff41e43f9e7',
+      actionType: 'learner_linked',
+      completedAt: '2024-08-06T12:11:55.618262Z',
+      errorReason: null,
+      learnerAcknowledged: null,
+    },
+    {
+      created: '2024-08-06T12:11:55.798956Z',
+      modified: '2024-08-06T12:11:55.798993Z',
+      uuid: '5d5b2650-693d-4eed-a79e-c8805108cbf9',
+      actionType: 'notified',
+      completedAt: '2024-08-06T12:11:55.798321Z',
+      errorReason: null,
+      learnerAcknowledged: null,
+    },
+  ],
+  earliestPossibleExpiration: {
+    date: '2024-11-04T12:11:55.366834Z',
+    reason: 'NINETY_DAYS_PASSED',
+  },
+  contentMetadata: {
+    startDate: '2020-10-01T16:00:00Z',
+    endDate: '2112-10-21T16:00:00Z',
+    enrollByDate: '2112-10-11T23:59:59Z',
+    contentPrice: 1,
+    courseType: 'verified-audit',
+    partners: [
+      {
+        name: 'edX',
+        logoImageUrl: 'https://stage-discovery.edx-cdn.org/organization/logos/4f8cb2c9-589b-4d1e-88c1-b01a02db3a9c-086cef28bdf5.png',
+      },
+    ],
+  },
+  learnerAcknowledged: null,
+  subsidyExpirationDate: '2025-07-17T00:00:00Z',
+};
 
+const test2 = {
+  uuid: 'df4f42e2-ed44-47bb-a73f-607f926c69af',
+  assignmentConfiguration: 'c40950ce-15d6-46d9-bf1f-62a0988239db',
+  learnerEmail: 'hullah@2u.com',
+  lmsUserId: 5266560,
+  contentKey: 'course-v1:edx+H200+2018',
+  contentTitle: 'Intermediate Happiness',
+  contentQuantity: -100,
+  state: 'allocated',
+  transactionUuid: null,
+  actions: [
+    {
+      created: '2024-08-06T12:11:55.618790Z',
+      modified: '2024-08-06T12:11:55.618821Z',
+      uuid: 'cdd6eb1e-6834-4199-be3d-2ff41e43f9e7',
+      actionType: 'learner_linked',
+      completedAt: '2024-08-06T12:11:55.618262Z',
+      errorReason: null,
+      learnerAcknowledged: null,
+    },
+    {
+      created: '2024-08-06T12:11:55.798956Z',
+      modified: '2024-08-06T12:11:55.798993Z',
+      uuid: '5d5b2650-693d-4eed-a79e-c8805108cbf9',
+      actionType: 'notified',
+      completedAt: '2024-08-06T12:11:55.798321Z',
+      errorReason: null,
+      learnerAcknowledged: null,
+    },
+  ],
+  earliestPossibleExpiration: {
+    date: '2023-12-03T12:11:55.366834Z',
+    reason: 'NINETY_DAYS_PASSED',
+  },
+  contentMetadata: {
+    startDate: '2020-10-01T16:00:00Z',
+    endDate: '2112-10-21T16:00:00Z',
+    enrollByDate: '2112-10-11T23:59:59Z',
+    contentPrice: 1,
+    courseType: 'verified-audit',
+    partners: [
+      {
+        name: 'edX',
+        logoImageUrl: 'https://stage-discovery.edx-cdn.org/organization/logos/4f8cb2c9-589b-4d1e-88c1-b01a02db3a9c-086cef28bdf5.png',
+      },
+    ],
+  },
+  learnerAcknowledged: null,
+  subsidyExpirationDate: '2025-07-17T00:00:00Z',
+};
+
+const test3 = {
+  uuid: 'df4f42e2-ed44-47bb-a73f-607f926c69af',
+  assignmentConfiguration: 'c40950ce-15d6-46d9-bf1f-62a0988239db',
+  learnerEmail: 'hullah@2u.com',
+  lmsUserId: 5266560,
+  contentKey: 'course-v1:edx+H200+2T2020',
+  contentTitle: 'Intermediate Happiness',
+  contentQuantity: -100,
+  state: 'allocated',
+  transactionUuid: null,
+  actions: [
+    {
+      created: '2024-08-06T12:11:55.618790Z',
+      modified: '2024-08-06T12:11:55.618821Z',
+      uuid: 'cdd6eb1e-6834-4199-be3d-2ff41e43f9e7',
+      actionType: 'learner_linked',
+      completedAt: '2024-08-06T12:11:55.618262Z',
+      errorReason: null,
+      learnerAcknowledged: null,
+    },
+    {
+      created: '2024-08-06T12:11:55.798956Z',
+      modified: '2024-08-06T12:11:55.798993Z',
+      uuid: '5d5b2650-693d-4eed-a79e-c8805108cbf9',
+      actionType: 'notified',
+      completedAt: '2024-08-06T12:11:55.798321Z',
+      errorReason: null,
+      learnerAcknowledged: null,
+    },
+  ],
+  earliestPossibleExpiration: {
+    date: '2025-01-05T12:11:55.366834Z',
+    reason: 'NINETY_DAYS_PASSED',
+  },
+  contentMetadata: {
+    startDate: '2020-10-01T16:00:00Z',
+    endDate: '2112-10-21T16:00:00Z',
+    enrollByDate: '2112-10-11T23:59:59Z',
+    contentPrice: 1,
+    courseType: 'verified-audit',
+    partners: [
+      {
+        name: 'edX',
+        logoImageUrl: 'https://stage-discovery.edx-cdn.org/organization/logos/4f8cb2c9-589b-4d1e-88c1-b01a02db3a9c-086cef28bdf5.png',
+      },
+    ],
+  },
+  learnerAcknowledged: null,
+  subsidyExpirationDate: '2025-07-17T00:00:00Z',
+};
 /**
  * Determines whether the course enrollment can be upgraded to verified enrollment.
  *
@@ -746,4 +897,95 @@ export function isEnrollmentUpgradeable(enrollment) {
   const isEnrollByLapsed = enrollment.enrollBy ? dayjs().isAfter(dayjs(enrollment.enrollBy)) : false;
   const canUpgradeToVerifiedEnrollment = enrollment.mode === COURSE_MODES_MAP.AUDIT && !isEnrollByLapsed;
   return canUpgradeToVerifiedEnrollment;
+}
+
+export function determineAllocatedCourseRuns({
+  redeemableLearnerCreditPolicies,
+  courseKey,
+}) {
+  const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
+  if (learnerContentAssignments.hasAllocatedAssignments) {
+    let allocatedCourseRunAssignments = learnerContentAssignments.allocatedAssignments.filter(
+      (assignment) => assignment?.isAssignedCourseRun,
+    );
+    if (courseKey) {
+      allocatedCourseRunAssignments = allocatedCourseRunAssignments.filter(
+        (assignment) => assignment?.parentContentKey === courseKey,
+      );
+    }
+    const allocatedCourseRunAssignmentKeys = allocatedCourseRunAssignments.map(assignment => assignment.contentKey);
+    const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
+    const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
+    return {
+      allocatedCourseRunAssignmentKeys: ['course-v1:edx+H200+2018', 'course-v1:edx+H200+2T2020'],
+      allocatedCourseRunAssignments: [test2, test3],
+      hasAssignedCourseRuns: true,
+      hasMultipleAssignedCourseRuns: true,
+    };
+  }
+  return {
+    allocatedCourseRunAssignmentKeys: [],
+    allocatedCourseRunAssignments: [],
+    hasAssignedCourseRuns: false,
+    hasMultipleAssignedCourseRuns: false,
+  };
+}
+
+export function transformCourseMetadataByAllocationCourseRun({
+  hasMultipleAssignedCourseRuns,
+  courseMetadata,
+  allocatedCourseRunAssignmentKeys,
+}) {
+  if (true || hasMultipleAssignedCourseRuns && allocatedCourseRunAssignmentKeys.length > 1) {
+    return {
+      ...courseMetadata,
+      courseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+      availableCourseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+    };
+  }
+  return courseMetadata;
+}
+
+export function getSoonestEarliestPossibleExpirationData({
+  assignmentObjectArray,
+  dateFormat = null,
+}) {
+  if (!Array.isArray(assignmentObjectArray) || !assignmentObjectArray?.length) {
+    logInfo(`[sortedByExpirationDate] ${assignmentObjectArray} is not an array, or an empty array`);
+    return {
+      date: null,
+      reason: null,
+      sortedByExpirationDate: null,
+    };
+  }
+  const assignmentsWithExpiration = assignmentObjectArray.filter(
+    assignment => !!assignment?.earliestPossibleExpiration,
+  );
+  if (!assignmentsWithExpiration?.length) {
+    logInfo(`[sortedByExpirationDate] ${assignmentsWithExpiration} does not contain earliestPossibleExpiration field`);
+    return {
+      date: null,
+      reason: null,
+      sortedExpirationDateData: null,
+    };
+  }
+
+  const sortedByExpirationDate = assignmentsWithExpiration.sort(
+    (a, b) => new Date(a.earliestPossibleExpiration.date) - new Date(b.earliestPossibleExpiration.date),
+  );
+  let { date } = sortedByExpirationDate[0].earliestPossibleExpiration;
+  if (dateFormat) {
+    date = dayjs(date).format(dateFormat);
+  }
+
+  return {
+    date,
+    reason: sortedByExpirationDate[0].earliestPossibleExpiration?.reason,
+    soonestExpirationDateData: sortedByExpirationDate[0],
+    sortedExpirationDateData: sortedByExpirationDate,
+  };
 }

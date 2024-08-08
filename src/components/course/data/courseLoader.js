@@ -1,32 +1,30 @@
 import { generatePath, redirect } from 'react-router-dom';
 
 import {
-  queryUserEntitlements,
-  queryCanRedeem,
-  queryCourseMetadata,
-  queryEnterpriseCourseEnrollments,
-  extractEnterpriseCustomer,
-  queryRedeemablePolicies,
-  getLateEnrollmentBufferDays,
-  querySubscriptions,
-  queryLicenseRequests,
-  queryCouponCodeRequests,
+  determineAllocatedCourseRuns,
   determineLearnerHasContentAssignmentsOnly,
-  queryEnterpriseLearnerOffers,
-  queryCouponCodes,
-  queryCourseReviews,
-  queryEnterpriseCustomerContainsContent,
-  queryCourseRecommendations,
-  getSearchCatalogs,
+  extractEnterpriseCustomer,
   getCatalogsForSubsidyRequests,
+  getLateEnrollmentBufferDays,
+  getSearchCatalogs,
   queryBrowseAndRequestConfiguration,
+  queryCanRedeem,
+  queryCouponCodeRequests,
+  queryCouponCodes,
+  queryCourseMetadata,
+  queryCourseRecommendations,
+  queryCourseReviews,
+  queryEnterpriseCourseEnrollments,
+  queryEnterpriseCustomerContainsContent,
+  queryEnterpriseLearnerOffers,
+  queryLicenseRequests,
+  queryRedeemablePolicies,
+  querySubscriptions,
+  queryUserEntitlements,
+  transformCourseMetadataByAllocationCourseRun,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import {
-  getCourseTypeConfig,
-  getLinkToCourse,
-  pathContainsCourseTypeSlug,
-} from './utils';
+import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
 
 /**
  * Course loader for the course related page routes.
@@ -45,7 +43,7 @@ export default function makeCourseLoader(queryClient) {
     const { courseKey, enterpriseSlug } = params;
     // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
     // need to replace it with `+` again to be a valid course run key.
-    const courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
+    let courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
       queryClient,
@@ -64,7 +62,21 @@ export default function makeCourseLoader(queryClient) {
       queryClient.ensureQueryData(queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
       queryClient.ensureQueryData(queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid)),
     ]);
-
+    const redeemableLearnerCreditPoliciesLoader = await queryClient.ensureQueryData(queryRedeemablePolicies({
+      enterpriseUuid: enterpriseCustomer.uuid,
+      lmsUserId: authenticatedUser.userId,
+    }));
+    const {
+      allocatedCourseRunAssignmentKeys,
+      hasAssignedCourseRuns,
+      hasMultipleAssignedCourseRuns,
+    } = determineAllocatedCourseRuns({
+      courseKey,
+      redeemableLearnerCreditPolicies: redeemableLearnerCreditPoliciesLoader,
+    });
+    if (!courseRunKey && hasAssignedCourseRuns) {
+      courseRunKey = hasMultipleAssignedCourseRuns ? null : allocatedCourseRunAssignmentKeys[0];
+    }
     await Promise.all([
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
@@ -73,15 +85,17 @@ export default function makeCourseLoader(queryClient) {
         if (!courseMetadata) {
           return null;
         }
-        const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-          enterpriseUuid: enterpriseCustomer.uuid,
-          lmsUserId: authenticatedUser.userId,
-        }));
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
-          redeemableLearnerCreditPolicies.redeemablePolicies,
+          redeemableLearnerCreditPoliciesLoader.redeemablePolicies,
         );
+        const keys = ['course-v1:edX+H200+2018', 'course-v1:edX+H200+2T2020'];
+        const transformedCourseMetadata = transformCourseMetadataByAllocationCourseRun({
+          hasMultipleAssignedCourseRuns,
+          courseMetadata,
+          allocatedCourseRunAssignmentKeys: keys,
+        });
         return queryClient.ensureQueryData(
-          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+          queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
         );
       }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
