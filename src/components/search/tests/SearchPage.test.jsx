@@ -15,6 +15,7 @@ jest.mock('../../app/data', () => ({
 
 jest.mock('../utils', () => ({
   getSearchFacetFilters: jest.fn().mockReturnValue([]),
+  hasActivatedAndCurrentSubscription: jest.fn().mockReturnValue(true),
 }));
 
 jest.mock('../Search', () => function () {
