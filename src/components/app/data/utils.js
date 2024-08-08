@@ -748,7 +748,7 @@ export function isEnrollmentUpgradeable(enrollment) {
   return canUpgradeToVerifiedEnrollment;
 }
 
-export function filterCourseMetadataByAllocationCourseRun({
+export function determineAllocatedCourseRuns({
   redeemableLearnerCreditPolicies,
   courseKey,
 }) {
@@ -777,9 +777,6 @@ export function transformCourseMetadataByAllocationCourseRun({
   courseMetadata,
   allocatedCourseRunAssignmentKeys,
 }) {
-  if (!courseMetadata || !hasMultipleAssignedCourseRuns) {
-    return courseMetadata;
-  }
   if (hasMultipleAssignedCourseRuns && allocatedCourseRunAssignmentKeys.length > 1) {
     return {
       ...courseMetadata,

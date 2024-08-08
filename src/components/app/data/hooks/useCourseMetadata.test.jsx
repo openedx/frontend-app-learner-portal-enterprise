@@ -133,8 +133,7 @@ describe('useCourseMetadata', () => {
       }),
     );
   });
-  // TODO: verify test works bc it passes no matter what value I put for the course run key.
-  it('should return available course run corresponding to allocated course run', async () => {
+  it('should return available course run corresponding to allocated course runs', async () => {
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
     useLateEnrollmentBufferDays.mockReturnValue(undefined);
     useSearchParams.mockReturnValue([new URLSearchParams({})]);
@@ -146,6 +145,11 @@ describe('useCourseMetadata', () => {
         key: 'course-v1:edX+DemoX+2018',
       },
     ];
+
+    const mockUnassignedCourseRun = {
+      ...mockCourseMetadata.courseRuns[0],
+      key: 'course-v1:edX+DemoX+3T2024',
+    };
 
     const mockAllocatedAssignments = [{
       parentContentKey: 'edX+DemoX',
@@ -166,7 +170,9 @@ describe('useCourseMetadata', () => {
       hasAllocatedAssignments: mockAllocatedAssignments.length > 0,
     };
 
-    fetchCourseMetadata.mockResolvedValue({ ...mockCourseMetadata, courseRuns: mockCourseRuns });
+    fetchCourseMetadata.mockResolvedValue({
+      ...mockCourseMetadata, courseRuns: [...mockCourseRuns, mockUnassignedCourseRun],
+    });
     useRedeemablePolicies.mockReturnValue({
       data: {
         ...mockBaseRedeemablePolicies,
@@ -185,6 +191,62 @@ describe('useCourseMetadata', () => {
           ...mockCourseMetadata,
           courseRuns: mockCourseRuns,
           availableCourseRuns: mockCourseRuns,
+        },
+        isLoading: false,
+        isFetching: false,
+      }),
+    );
+  });
+  it('should return available course run corresponding to course_run_key with allocated course runs', async () => {
+    useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
+    useLateEnrollmentBufferDays.mockReturnValue(undefined);
+    useSearchParams.mockReturnValue([new URLSearchParams({ course_run_key: 'course-v1:edX+DemoX+2018' })]);
+
+    const mockCourseRun = [{
+      ...mockCourseMetadata.courseRuns[0],
+      key: 'course-v1:edX+DemoX+2018',
+    }];
+
+    const mockAllocatedAssignments = [{
+      parentContentKey: 'edX+DemoX',
+      contentKey: 'course-v1:edX+DemoX+2T2020',
+      isAssignedCourseRun: true,
+    },
+    {
+      parentContentKey: 'edX+DemoX',
+      contentKey: 'course-v1:edX+DemoX+2018',
+      isAssignedCourseRun: true,
+    }, {
+      parentContentKey: null,
+      contentKey: 'edX+DemoX',
+      isAssignedCourseRun: false,
+    }];
+    const mockLearnerContentAssignments = {
+      allocatedAssignments: mockAllocatedAssignments,
+      hasAllocatedAssignments: mockAllocatedAssignments.length > 0,
+    };
+
+    fetchCourseMetadata.mockResolvedValue({
+      ...mockCourseMetadata, courseRuns: mockCourseRun,
+    });
+    useRedeemablePolicies.mockReturnValue({
+      data: {
+        ...mockBaseRedeemablePolicies,
+        learnerContentAssignments: {
+          ...mockBaseRedeemablePolicies.learnerContentAssignments, ...mockLearnerContentAssignments,
+        },
+      },
+    });
+
+    const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        data: {
+          ...mockCourseMetadata,
+          courseRuns: mockCourseRun,
+          availableCourseRuns: mockCourseRun,
         },
         isLoading: false,
         isFetching: false,

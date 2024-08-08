@@ -18,7 +18,6 @@ export function transformCourseRedemptionEligibility({
     r => r.redeemableSubsidyAccessPolicy,
   )?.redeemableSubsidyAccessPolicy;
   const listPrice = redeemabilityForActiveCourseRun?.listPrice?.usd;
-  // TODO: Update to properly handle allocated course run state
   const hasSuccessfulRedemption = courseRunKey
     ? !!canRedeemData.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption
     : canRedeemData.some(r => r.hasSuccessfulRedemption);

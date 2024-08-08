@@ -1,9 +1,9 @@
 import { generatePath, redirect } from 'react-router-dom';
 
 import {
+  determineAllocatedCourseRuns,
   determineLearnerHasContentAssignmentsOnly,
   extractEnterpriseCustomer,
-  filterCourseMetadataByAllocationCourseRun,
   getCatalogsForSubsidyRequests,
   getLateEnrollmentBufferDays,
   getSearchCatalogs,
@@ -70,7 +70,7 @@ export default function makeCourseLoader(queryClient) {
       allocatedCourseRunAssignmentKeys,
       hasAssignedCourseRuns,
       hasMultipleAssignedCourseRuns,
-    } = filterCourseMetadataByAllocationCourseRun({
+    } = determineAllocatedCourseRuns({
       courseKey,
       redeemableLearnerCreditPolicies: redeemableLearnerCreditPoliciesLoader,
     });
@@ -88,8 +88,6 @@ export default function makeCourseLoader(queryClient) {
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
           redeemableLearnerCreditPoliciesLoader.redeemablePolicies,
         );
-        // TODO: remove test data
-        // const keys = ['course-v1:edx+H200+2018', 'course-v1:edx+H200+2T2020'];
         const transformedCourseMetadata = transformCourseMetadataByAllocationCourseRun({
           hasMultipleAssignedCourseRuns,
           courseMetadata,

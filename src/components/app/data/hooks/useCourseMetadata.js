@@ -3,7 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 
 import { queryCourseMetadata } from '../queries';
 import {
-  filterCourseMetadataByAllocationCourseRun,
+  determineAllocatedCourseRuns,
   getAvailableCourseRuns,
   transformCourseMetadataByAllocationCourseRun,
 } from '../utils';
@@ -23,7 +23,7 @@ export default function useCourseMetadata(queryOptions = {}) {
     allocatedCourseRunAssignmentKeys,
     hasAssignedCourseRuns,
     hasMultipleAssignedCourseRuns,
-  } = filterCourseMetadataByAllocationCourseRun({
+  } = determineAllocatedCourseRuns({
     courseKey,
     redeemableLearnerCreditPolicies,
   });
@@ -49,8 +49,6 @@ export default function useCourseMetadata(queryOptions = {}) {
         ...data,
         availableCourseRuns,
       };
-      // TODO: Test data remove
-      // const keys = ['course-v1:edx+H200+2018', 'course-v1:edx+H200+2T2020'];
       // This logic should appropriately handle multiple course runs being assigned, and return the appropriate metadata
       transformedData = transformCourseMetadataByAllocationCourseRun({
         hasMultipleAssignedCourseRuns,
