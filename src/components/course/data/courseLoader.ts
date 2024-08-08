@@ -46,8 +46,8 @@ const makeCourseLoader: Types.MakeRouteLoaderFunction = function makeCourseLoade
   return async function courseLoader({ params, request }: CourseLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-    // User is not authenticated, so we can't do anything in this loader.
-    if (!authenticatedUser) {
+    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
+    if (!authenticatedUser || !queryClient) {
       return null;
     }
 

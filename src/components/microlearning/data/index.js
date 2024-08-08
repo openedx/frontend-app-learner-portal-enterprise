@@ -1,1 +1,1 @@
-export { default as makeVideosLoader } from './videoLoader';
+export { default as makeVideoLoader } from './videoLoader';

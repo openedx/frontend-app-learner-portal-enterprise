@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   matchPath, Outlet,
 } from 'react-router-dom';
@@ -12,7 +13,7 @@ import NotFoundPage from './components/NotFoundPage';
 /**
  * Returns the route loader function if a queryClient is available; otherwise, returns null.
  */
-function getRouteLoader(routeLoaderFn: Types.RouteLoaderFunction, queryClient?: Types.QueryClient) {
+function getRouteLoader(routeLoaderFn: Types.MakeRouteLoaderFunction, queryClient?: Types.QueryClient) {
   if (!queryClient) {
     return undefined;
   }
@@ -160,10 +161,10 @@ function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
     {
       path: 'videos/:videoUUID',
       lazy: async () => {
-        const { makeVideosLoader, VideoDetailPage } = await import('./components/microlearning');
+        const { makeVideoLoader, VideoDetailPage } = await import('./components/microlearning');
         return {
           Component: VideoDetailPage,
-          loader: makeVideosLoader(queryClient),
+          loader: getRouteLoader(makeVideoLoader, queryClient),
         };
       },
     },
@@ -171,7 +172,7 @@ function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
       path: '*',
       element: <NotFoundPage />,
     },
-  ].map((enterpriseSlugRoute: Types.RouteObject) : Types.RouteObject => {
+  ].map((enterpriseSlugRoute) => {
     if (enterpriseSlugRoute.path === '*') {
       return enterpriseSlugRoute;
     }
@@ -251,25 +252,68 @@ export function getRoutes(queryClient?: Types.QueryClient) {
 }
 
 /**
- * Extracts all the (nested) route paths from the given routes.
+ * Traverses a nested route structure, building up route paths based on each route's
+ * configuration and its children, and collects all these paths in an array. The result
+ * is a flattened array of all possible paths in the route structure.
+ *
+ * @example
+ * Input:
+ *
+ * const routes = [
+ *   {
+ *     path: '/:enterpriseSlug?',
+ *     element: <Outlet />, // Outlet renders child route(s)
+ *     loader: [() => {}],
+ *     children: [
+ *       {
+ *         index: true,
+ *         element: <Dashboard />,
+ *       },
+ *       {
+ *         path: 'search',
+ *         element: <Search />,
+ *       },
+ *       {
+ *         path: ':courseType?/course/:courseKey',
+ *         element: <Outlet />,
+ *         children: [
+ *           {
+ *             index: true,
+ *             element: <CourseAbout />,
+ *           },
+ *           {
+ *             path: 'enroll/:courseRunKey',
+ *             element: <CourseEnroll />,
+ *           },
+ *         ],
+ *       },
+ *     ]
+ *   }
+ * ];
+ *
+ * Output:
+ *
+ * [
+ *   '/:enterpriseSlug?',
+ *   '/:enterpriseSlug?/search',
+ *   '/:enterpriseSlug?/:courseType?/course/:courseKey',
+ *   '/:enterpriseSlug?/:courseType?/course/:courseKey/enroll/:courseRunKey',
+ * ]
  */
-export function extractRoutePaths(routes: Types.RouteObject[], basePath = '/') {
+export function flattenRoutePaths(routes: Types.RouteObject[], basePath = '/') {
   let paths: string[] = [];
   routes.forEach((route) => {
-    let currentPath = basePath;
+    // Construct the full path by combining basePath with route.path
+    const fullPath = `${basePath}${(route.path || '')}`;
 
-    // Append the current route's path to the base path
+    // Add the full path to the result if the route has a path
     if (route.path) {
-      currentPath += route.path;
+      paths.push(fullPath);
     }
 
-    if (!route.index) {
-      paths.push(currentPath);
-    }
-
-    // Recursively handle nested routes (children)
-    if (route.children?.length) {
-      paths = [...paths, ...extractRoutePaths(route.children, `${currentPath}/`)];
+    // Recursively process the route's children (if any)
+    if (Array.isArray(route.children)) {
+      paths = paths.concat(flattenRoutePaths(route.children, `${fullPath}/`));
     }
   });
   return paths;

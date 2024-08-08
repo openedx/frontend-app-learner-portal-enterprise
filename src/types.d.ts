@@ -17,7 +17,7 @@ export type QueryKeys = import('@lukemorales/query-key-factory').inferQueryKeySt
 export type RouteParams<Key extends string = string> = import('react-router-dom').Params<Key>;
 export type RouteLoaderFunction = import('react-router-dom').LoaderFunction;
 export type RouteLoaderFunctionArgs = import('react-router-dom').LoaderFunctionArgs;
-export type MakeRouteLoaderFunction = (queryClient: QueryClient) => RouteLoaderFunction | Promise<RouteLoaderFunction>;
+export type MakeRouteLoaderFunction = (queryClient?: QueryClient) => RouteLoaderFunction;
 export type RouteObject = import('react-router-dom').RouteObject;
 
 // Application Data (general)

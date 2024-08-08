@@ -18,7 +18,8 @@ const makeSearchLoader: Types.MakeRouteLoaderFunction = function makeSearchLoade
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
 
-    if (!authenticatedUser) {
+    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
+    if (!authenticatedUser || !queryClient) {
       return null;
     }
 
