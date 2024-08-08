@@ -63,7 +63,7 @@
   },
   "devDependencies": {
     "@edx/browserslist-config": "1.1.1",
-    "@edx/typescript-config": "^1.0.1",
+    "@edx/typescript-config": "1.1.0",
     "@faker-js/faker": "8.4.1",
     "@openedx/frontend-build": "14.0.14",
     "@tanstack/eslint-plugin-query": "4.29.9",
@@ -84,7 +84,8 @@
     "react-test-renderer": "17.0.2",
     "reactifex": "1.1.1",
     "resize-observer-polyfill": "1.5.1",
-    "rosie": "2.1.1"
+    "rosie": "2.1.1",
+    "ts-loader": "^9.5.1"
   },
   "keywords": [],
   "license": "AGPL-3.0",
