@@ -754,19 +754,27 @@ export function determineAllocatedCourseRuns({
 }) {
   const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
   if (learnerContentAssignments.hasAllocatedAssignments) {
-    const allocatedCourseRunAssignmentKeys = learnerContentAssignments.allocatedAssignments.filter(
-      (assignment) => assignment?.isAssignedCourseRun && assignment?.parentContentKey === courseKey,
-    ).map(assignment => assignment.contentKey);
+    let allocatedCourseRunAssignments = learnerContentAssignments.allocatedAssignments.filter(
+      (assignment) => assignment?.isAssignedCourseRun,
+    );
+    if (courseKey) {
+      allocatedCourseRunAssignments = allocatedCourseRunAssignments.filter(
+        (assignment) => assignment?.parentContentKey === courseKey,
+      );
+    }
+    const allocatedCourseRunAssignmentKeys = allocatedCourseRunAssignments.map(assignment => assignment.contentKey);
     const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
     const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
     return {
       allocatedCourseRunAssignmentKeys,
+      allocatedCourseRunAssignments,
       hasAssignedCourseRuns,
       hasMultipleAssignedCourseRuns,
     };
   }
   return {
     allocatedCourseRunAssignmentKeys: [],
+    allocatedCourseRunAssignments: [],
     hasAssignedCourseRuns: false,
     hasMultipleAssignedCourseRuns: false,
   };
