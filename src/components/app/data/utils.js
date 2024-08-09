@@ -747,3 +747,54 @@ export function isEnrollmentUpgradeable(enrollment) {
   const canUpgradeToVerifiedEnrollment = enrollment.mode === COURSE_MODES_MAP.AUDIT && !isEnrollByLapsed;
   return canUpgradeToVerifiedEnrollment;
 }
+
+export function determineAllocatedCourseRuns({
+  redeemableLearnerCreditPolicies,
+  courseKey,
+}) {
+  const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
+  if (learnerContentAssignments.hasAllocatedAssignments) {
+    let allocatedCourseRunAssignments = learnerContentAssignments.allocatedAssignments.filter(
+      (assignment) => assignment?.isAssignedCourseRun,
+    );
+    if (courseKey) {
+      allocatedCourseRunAssignments = allocatedCourseRunAssignments.filter(
+        (assignment) => assignment?.parentContentKey === courseKey,
+      );
+    }
+    const allocatedCourseRunAssignmentKeys = allocatedCourseRunAssignments.map(assignment => assignment.contentKey);
+    const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
+    const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
+    return {
+      allocatedCourseRunAssignmentKeys,
+      allocatedCourseRunAssignments,
+      hasAssignedCourseRuns,
+      hasMultipleAssignedCourseRuns,
+    };
+  }
+  return {
+    allocatedCourseRunAssignmentKeys: [],
+    allocatedCourseRunAssignments: [],
+    hasAssignedCourseRuns: false,
+    hasMultipleAssignedCourseRuns: false,
+  };
+}
+
+export function transformCourseMetadataByAllocationCourseRun({
+  hasMultipleAssignedCourseRuns,
+  courseMetadata,
+  allocatedCourseRunAssignmentKeys,
+}) {
+  if (hasMultipleAssignedCourseRuns && allocatedCourseRunAssignmentKeys.length > 1) {
+    return {
+      ...courseMetadata,
+      courseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+      availableCourseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+    };
+  }
+  return courseMetadata;
+}

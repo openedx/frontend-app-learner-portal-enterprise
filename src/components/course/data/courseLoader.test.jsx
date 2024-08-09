@@ -296,7 +296,7 @@ describe('courseLoader', () => {
         expectedQueryCount = 15;
       }
     } else {
-      expectedQueryCount = 13;
+      expectedQueryCount = 14;
     }
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(expectedQueryCount);
 
