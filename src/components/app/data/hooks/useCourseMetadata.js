@@ -49,12 +49,11 @@ export default function useCourseMetadata(queryOptions = {}) {
         ...data,
         availableCourseRuns,
       };
-      const keys = ['course-v1:edx+H200+2018', 'course-v1:edx+H200+2T2020'];
       // This logic should appropriately handle multiple course runs being assigned, and return the appropriate metadata
       transformedData = transformCourseMetadataByAllocationCourseRun({
         hasMultipleAssignedCourseRuns,
         courseMetadata: transformedData,
-        allocatedCourseRunAssignmentKeys: keys,
+        allocatedCourseRunAssignmentKeys,
       });
       if (select) {
         return select({

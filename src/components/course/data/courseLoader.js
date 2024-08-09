@@ -88,11 +88,10 @@ export default function makeCourseLoader(queryClient) {
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
           redeemableLearnerCreditPoliciesLoader.redeemablePolicies,
         );
-        const keys = ['course-v1:edX+H200+2018', 'course-v1:edX+H200+2T2020'];
         const transformedCourseMetadata = transformCourseMetadataByAllocationCourseRun({
           hasMultipleAssignedCourseRuns,
           courseMetadata,
-          allocatedCourseRunAssignmentKeys: keys,
+          allocatedCourseRunAssignmentKeys,
         });
         return queryClient.ensureQueryData(
           queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),

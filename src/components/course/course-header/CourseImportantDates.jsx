@@ -3,7 +3,7 @@ import {
 } from '@openedx/paragon';
 import { Calendar } from '@openedx/paragon/icons';
 import dayjs from 'dayjs';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 import { DATE_FORMAT } from '../data';
 import {
@@ -43,13 +43,17 @@ const CourseImportantDates = () => {
   const intl = useIntl();
   const {
     allocatedCourseRunAssignments,
+    allocatedCourseRunAssignmentKeys,
     hasAssignedCourseRuns,
   } = determineAllocatedCourseRuns({
     redeemableLearnerCreditPolicies,
     courseKey,
   });
 
-  if (!hasAssignedCourseRuns) {
+  const [searchParams] = useSearchParams();
+  const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
+
+  if (!hasAssignedCourseRuns || !allocatedCourseRunAssignmentKeys.includes(courseRunKey)) {
     return null;
   }
 
@@ -57,10 +61,9 @@ const CourseImportantDates = () => {
     assignmentObjectArray: allocatedCourseRunAssignments,
     dateFormat: `${DATE_FORMAT} h:mm A`,
   });
-
   const soonestExpiringAllocatedAssignmentCourseStartDate = courseMetadata.availableCourseRuns.find(
-    (courseRun) => courseRun.key === soonestExpirationDateData.contentKey,
-  ).start;
+    (courseRun) => courseRun.key === soonestExpirationDateData?.contentKey,
+  )?.start;
 
   const enrollByDate = date;
   const courseStartDate = dayjs(soonestExpiringAllocatedAssignmentCourseStartDate).format(DATE_FORMAT);
