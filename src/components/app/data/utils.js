@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { logError } from '@edx/frontend-platform/logging';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
@@ -746,4 +746,156 @@ export function isEnrollmentUpgradeable(enrollment) {
   const isEnrollByLapsed = enrollment.enrollBy ? dayjs().isAfter(dayjs(enrollment.enrollBy)) : false;
   const canUpgradeToVerifiedEnrollment = enrollment.mode === COURSE_MODES_MAP.AUDIT && !isEnrollByLapsed;
   return canUpgradeToVerifiedEnrollment;
+}
+
+/**
+ * Determines if allocatedAssignments are courseRun based
+ *
+ * @param redeemableLearnerCreditPolicies
+ * @param courseKey
+ * @returns {
+ *   {
+ *     hasAssignedCourseRuns: boolean,
+ *    allocatedCourseRunAssignmentKeys: *,
+ *    allocatedCourseRunAssignments: *,
+ *    hasMultipleAssignedCourseRuns: boolean
+ *   } |
+ *   {
+ *    hasAssignedCourseRuns: boolean,
+ *    allocatedCourseRunAssignmentKeys: *[],
+ *    allocatedCourseRunAssignments: *[],
+ *    hasMultipleAssignedCourseRuns: boolean
+ *   }
+ * }
+ */
+export function determineAllocatedCourseRuns({
+  redeemableLearnerCreditPolicies,
+  courseKey,
+}) {
+  const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
+  if (learnerContentAssignments.hasAllocatedAssignments) {
+    let allocatedCourseRunAssignments = learnerContentAssignments.allocatedAssignments.filter(
+      (assignment) => assignment?.isAssignedCourseRun,
+    );
+    if (courseKey) {
+      allocatedCourseRunAssignments = allocatedCourseRunAssignments.filter(
+        (assignment) => assignment?.parentContentKey === courseKey,
+      );
+    }
+    const allocatedCourseRunAssignmentKeys = allocatedCourseRunAssignments.map(assignment => assignment.contentKey);
+    const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
+    const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
+    return {
+      allocatedCourseRunAssignmentKeys,
+      allocatedCourseRunAssignments,
+      hasAssignedCourseRuns,
+      hasMultipleAssignedCourseRuns,
+    };
+  }
+  return {
+    allocatedCourseRunAssignmentKeys: [],
+    allocatedCourseRunAssignments: [],
+    hasAssignedCourseRuns: false,
+    hasMultipleAssignedCourseRuns: false,
+  };
+}
+
+/**
+ * Transform course metadata to display available runs with multiple allocated course runs
+ *
+ * @param hasMultipleAssignedCourseRuns
+ * @param courseMetadata
+ * @param allocatedCourseRunAssignmentKeys
+ * @returns {
+ * * |
+ *  (* &
+ *    {
+ *      courseRuns: *,
+ *      availableCourseRuns: *
+ *    }
+ *  )
+ * }
+ */
+export function transformCourseMetadataByAllocationCourseRun({
+  hasMultipleAssignedCourseRuns,
+  courseMetadata,
+  allocatedCourseRunAssignmentKeys,
+}) {
+  if (hasMultipleAssignedCourseRuns && allocatedCourseRunAssignmentKeys.length > 1) {
+    return {
+      ...courseMetadata,
+      courseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+      availableCourseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+    };
+  }
+  return courseMetadata;
+}
+
+/**
+ * Takes assignments with the earliestPossibleExpirationDate field and sorts by the
+ * soonest expiring expiration date, along with returns relevant metadata
+ *
+ * @param assignmentObjectArray
+ * @param dateFormat
+ * @returns {
+ *  {
+ *    date: (*|string),
+ *    reason: string,
+ *    sortedExpirationDateData: *,
+ *    soonestExpirationDateData: *
+ *   } |
+ *   {
+ *    date: null,
+ *    reason: null,
+ *    sortedExpirationDateData: null
+ *   } |
+ *   {
+ *    date: null,
+ *    reason: null,
+ *    sortedByExpirationDate: null
+ *   }
+ * }
+ */
+export function getSoonestEarliestPossibleExpirationData({
+  assignmentObjectArray,
+  dateFormat = null,
+}) {
+  if (!Array.isArray(assignmentObjectArray) || !assignmentObjectArray?.length) {
+    logInfo(`[sortedByExpirationDate] ${assignmentObjectArray} is not an array, or an empty array`);
+    return {
+      date: null,
+      reason: null,
+      sortedByExpirationDate: null,
+    };
+  }
+  const assignmentsWithExpiration = assignmentObjectArray.filter(
+    assignment => !!assignment?.earliestPossibleExpiration,
+  );
+  if (!assignmentsWithExpiration?.length) {
+    logInfo(`[sortedByExpirationDate] ${assignmentsWithExpiration} does not contain earliestPossibleExpiration field`);
+    return {
+      date: null,
+      reason: null,
+      sortedExpirationDateData: null,
+    };
+  }
+
+  const sortedByExpirationDate = assignmentsWithExpiration.sort(
+    (a, b) => new Date(a.earliestPossibleExpiration.date) - new Date(b.earliestPossibleExpiration.date),
+  );
+  let { date } = sortedByExpirationDate[0].earliestPossibleExpiration;
+  if (dateFormat) {
+    date = dayjs(date).format(dateFormat);
+  }
+
+  return {
+    date,
+    reason: sortedByExpirationDate[0].earliestPossibleExpiration?.reason,
+    soonestExpirationDateData: sortedByExpirationDate[0],
+    sortedExpirationDateData: sortedByExpirationDate,
+  };
 }
