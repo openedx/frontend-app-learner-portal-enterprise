@@ -1,4 +1,3 @@
-// In `videos/index.js` or another relevant file
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { extractEnterpriseCustomer, queryVideoDetail } from '../../app/data';
 
@@ -10,7 +9,7 @@ interface VideoLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
   params: VideoRouteParams;
 }
 
-const makeVideoLoader: Types.MakeRouteLoaderFunction = function makeVideoLoader(queryClient) {
+const makeVideosLoader: Types.MakeRouteLoaderFunction = function makeVideosLoader(queryClient) {
   return async function videosLoader({ params, request } : VideoLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
@@ -32,4 +31,4 @@ const makeVideoLoader: Types.MakeRouteLoaderFunction = function makeVideoLoader(
   };
 };
 
-export default makeVideoLoader;
+export default makeVideosLoader;

@@ -47,7 +47,7 @@ const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseCustomerTwo = enterpriseCustomerFactory();
 
 const mockQueryClient = {
-  ensureQueryData: jest.fn().mockResolvedValue({}),
+  ensureQueryData: jest.fn().mockResolvedValue(),
 };
 
 let locationPathname;

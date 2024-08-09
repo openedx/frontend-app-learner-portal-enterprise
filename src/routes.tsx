@@ -12,11 +12,11 @@ import NotFoundPage from './components/NotFoundPage';
 /**
  * Returns the route loader function if a queryClient is available; otherwise, returns null.
  */
-function getRouteLoader(routeLoaderFn: Types.MakeRouteLoaderFunction, queryClient?: Types.QueryClient) {
+export function getRouteLoader(makeRouteLoaderFn: Types.MakeRouteLoaderFunction, queryClient?: Types.QueryClient) {
   if (!queryClient) {
     return undefined;
   }
-  return routeLoaderFn(queryClient);
+  return makeRouteLoaderFn(queryClient);
 }
 
 /**
@@ -47,9 +47,9 @@ function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
     {
       path: 'academies/:academyUUID',
       lazy: async () => {
-        const { makeAcademiesLoader, AcademyDetailPage } = await import('./components/academies');
+        const { makeAcademiesLoader, AcademyPage } = await import('./components/academies');
         return {
-          Component: AcademyDetailPage,
+          Component: AcademyPage,
           loader: getRouteLoader(makeAcademiesLoader, queryClient),
         };
       },
@@ -160,10 +160,10 @@ function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
     {
       path: 'videos/:videoUUID',
       lazy: async () => {
-        const { makeVideoLoader, VideoDetailPage } = await import('./components/microlearning');
+        const { makeVideosLoader, VideoDetailPage } = await import('./components/microlearning');
         return {
           Component: VideoDetailPage,
-          loader: getRouteLoader(makeVideoLoader, queryClient),
+          loader: getRouteLoader(makeVideosLoader, queryClient),
         };
       },
     },
@@ -319,11 +319,15 @@ export function flattenRoutePaths(routes: Types.RouteObject[], basePath = '/') {
 }
 
 /**
- * Replaces all dynamic route parameters in the view path with '?'.
+ * Replaces all dynamic route parameters in the view path.
  */
 export function replaceRouteParamsInPath(viewPath: string, routePaths: string[]) {
   let viewPathCopy = viewPath;
   routePaths.forEach((routePath) => {
+    if (routePath.includes('*')) {
+      // skip wildcard routes
+      return;
+    }
     const matchResult = matchPath(routePath, viewPathCopy);
     if (!matchResult) {
       return;
@@ -333,7 +337,9 @@ export function replaceRouteParamsInPath(viewPath: string, routePaths: string[])
       if (!value) {
         return;
       }
-      viewPathCopy = viewPathCopy.replaceAll(value, '?');
+      // Use the value of the MASKED_ROUTE_PARAM_VALUE environment variable if it is set; otherwise, use '?'
+      const maskedRouteParamValue = process.env.MASKED_ROUTE_PARAM_VALUE ? process.env.MASKED_ROUTE_PARAM_VALUE : '?';
+      viewPathCopy = viewPathCopy.replace(value, maskedRouteParamValue);
     });
   });
   return viewPathCopy;

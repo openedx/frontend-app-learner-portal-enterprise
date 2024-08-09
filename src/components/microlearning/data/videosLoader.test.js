@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../utils/tests';
-import makeVideosLoader from './videoLoader';
+import makeVideosLoader from './videosLoader';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { extractEnterpriseCustomer, queryVideoDetail } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
