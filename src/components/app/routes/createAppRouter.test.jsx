@@ -16,6 +16,11 @@ import { makeProgramProgressLoader } from '../../program-progress';
 import { makeEnterpriseInviteLoader } from './EnterpriseInviteRoute';
 import { CoursePage, makeCourseLoader } from '../../course';
 import { makeExternalCourseEnrollmentLoader } from '../../course/routes/ExternalCourseEnrollment';
+import { makeProgramLoader } from '../../program';
+import { makeAcademiesLoader } from '../../academies';
+import { makePathwayProgressLoader } from '../../pathway-progress';
+import { makeVideosLoader } from '../../microlearning';
+import { flattenRoutePaths, getRouteLoader, replaceRouteParamsInPath } from '../../../routes';
 
 jest.mock('./loaders', () => ({
   ...jest.requireActual('./loaders'),
@@ -42,6 +47,11 @@ jest.mock('../../dashboard', () => ({
   DashboardPage: jest.fn(() => <div data-testid="dashboard" />),
   makeDashboardLoader: jest.fn(),
 }));
+jest.mock('../../academies', () => ({
+  ...jest.requireActual('../../academies'),
+  AcademyPage: jest.fn(() => <div data-testid="academies" />),
+  makeAcademiesLoader: jest.fn(),
+}));
 jest.mock('../../search', () => ({
   ...jest.requireActual('../../search'),
   SearchPage: jest.fn(() => <div data-testid="search" />),
@@ -62,6 +72,16 @@ jest.mock('../../course/routes/ExternalCourseEnrollmentConfirmation', () => ({
   __esModule: true,
   default: jest.fn(() => <div data-testid="external-course-enrollment-confirmation" />),
 }));
+jest.mock('../../pathway-progress', () => ({
+  ...jest.requireActual('../../pathway-progress'),
+  PathwayProgressPage: jest.fn(() => <div data-testid="pathway-progress" />),
+  makePathwayProgressLoader: jest.fn(),
+}));
+jest.mock('../../program', () => ({
+  ...jest.requireActual('../../program'),
+  ProgramPage: jest.fn(() => <div data-testid="program" />),
+  makeProgramLoader: jest.fn(),
+}));
 jest.mock('../../program-progress', () => ({
   ...jest.requireActual('../../program-progress'),
   ProgramProgressPage: jest.fn(() => <div data-testid="program-progress" />),
@@ -70,6 +90,11 @@ jest.mock('../../program-progress', () => ({
 jest.mock('../../skills-quiz', () => ({
   ...jest.requireActual('../../skills-quiz'),
   SkillsQuizPage: jest.fn(() => <div data-testid="skills-quiz" />),
+}));
+jest.mock('../../microlearning', () => ({
+  ...jest.requireActual('../../microlearning'),
+  VideoDetailPage: jest.fn(() => <div data-testid="microlearning" />),
+  makeVideosLoader: jest.fn(),
 }));
 jest.mock('./EnterpriseInviteRoute', () => ({
   __esModule: true,
@@ -127,6 +152,22 @@ describe('createAppRouter', () => {
       }],
     },
     {
+      currentRoutePath: '/test-enterprise/pathway/test-pathway-uuid/progress',
+      expectedRouteTestId: 'pathway-progress',
+      expectedRouteLoaders: [{
+        loader: makePathwayProgressLoader,
+        usesQueryClient: true,
+      }],
+    },
+    {
+      currentRoutePath: '/test-enterprise/program/test-program-progress-uuid',
+      expectedRouteTestId: 'program',
+      expectedRouteLoaders: [{
+        loader: makeProgramLoader,
+        usesQueryClient: true,
+      }],
+    },
+    {
       currentRoutePath: '/test-enterprise/program/test-program-progress-uuid/progress',
       expectedRouteTestId: 'program-progress',
       expectedRouteLoaders: [{
@@ -139,6 +180,14 @@ describe('createAppRouter', () => {
       expectedRouteTestId: 'search',
       expectedRouteLoaders: [{
         loader: makeSearchLoader,
+        usesQueryClient: true,
+      }],
+    },
+    {
+      currentRoutePath: '/test-enterprise/academies/test-academy-uuid',
+      expectedRouteTestId: 'academies',
+      expectedRouteLoaders: [{
+        loader: makeAcademiesLoader,
         usesQueryClient: true,
       }],
     },
@@ -187,6 +236,14 @@ describe('createAppRouter', () => {
       expectedRouteTestId: 'skills-quiz',
       expectedRouteLoaders: [],
     },
+    {
+      currentRoutePath: '/test-enterprise/videos/video-uuid',
+      expectedRouteTestId: 'microlearning',
+      expectedRouteLoaders: [{
+        loader: makeVideosLoader,
+        usesQueryClient: true,
+      }],
+    },
   ])('renders expected route components for given route path (%s)', async ({
     currentRoutePath,
     expectedRouteTestId,
@@ -222,5 +279,103 @@ describe('createAppRouter', () => {
         }
       });
     }
+  });
+});
+
+describe('getRouteLoader', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  it.each([
+    { hasQueryClient: true },
+    { hasQueryClient: false },
+  ])('calls and returns the expected loader', ({
+    hasQueryClient,
+  }) => {
+    const mockResult = { success: true };
+    const mockMakeRouteLoader = jest.fn().mockReturnValue(mockResult);
+    const loader = getRouteLoader(mockMakeRouteLoader, hasQueryClient ? mockQueryClient : undefined);
+    if (hasQueryClient) {
+      expect(mockMakeRouteLoader).toHaveBeenCalledTimes(1);
+      expect(mockMakeRouteLoader).toHaveBeenCalledWith(mockQueryClient);
+      expect(loader).toEqual(mockResult);
+    } else {
+      expect(mockMakeRouteLoader).not.toHaveBeenCalled();
+      expect(loader).toBeUndefined();
+    }
+  });
+});
+
+describe('flattenRoutePaths', () => {
+  it('transforms route data structure into flattened array of route paths', () => {
+    const routes = [
+      {
+        path: ':enterpriseSlug?',
+        element: <Outlet />, // Outlet renders child route(s)
+        loader: [() => {}],
+        children: [
+          {
+            index: true,
+            element: <div data-testid="dashboard" />,
+          },
+          {
+            path: 'search',
+            element: <div data-testid="search" />,
+          },
+          {
+            path: ':courseType?/course/:courseKey',
+            element: <Outlet />,
+            children: [
+              {
+                index: true,
+                element: <div data-testid="course-about" />,
+              },
+              {
+                path: 'enroll/:courseRunKey',
+                element: <div data-testid="course-enroll" />,
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const routePaths = flattenRoutePaths(routes);
+    expect(routePaths).toEqual([
+      '/:enterpriseSlug?',
+      '/:enterpriseSlug?/search',
+      '/:enterpriseSlug?/:courseType?/course/:courseKey',
+      '/:enterpriseSlug?/:courseType?/course/:courseKey/enroll/:courseRunKey',
+    ]);
+  });
+});
+
+describe('replaceRouteParamsInPath', () => {
+  it.each([
+    {
+      currentViewPath: '/test-enterprise',
+      expectedViewPath: '/?',
+    },
+    {
+      currentViewPath: '/test-enterprise/executive-education-2u/course/edX+DemoX/enroll/course-v1:edX+DemoX+T2024',
+      expectedViewPath: '/?/?/course/?/enroll/?',
+    },
+    {
+      currentViewPath: '/test-enterprise/course/edX+DemoX',
+      expectedViewPath: '/?/course/?',
+    },
+  ])('replaces matching route params with masked value (%s)', ({
+    currentViewPath,
+    expectedViewPath,
+  }) => {
+    const routePaths = [
+      '/:enterpriseSlug?',
+      '/:enterpriseSlug?/search',
+      '/:enterpriseSlug?/:courseType?/course/:courseKey',
+      '/:enterpriseSlug?/:courseType?/course/:courseKey/enroll/:courseRunKey',
+      '/:enterpriseSlug?/*',
+      '/*',
+    ];
+    const updatedPath = replaceRouteParamsInPath(currentViewPath, routePaths);
+    expect(updatedPath).toEqual(expectedViewPath);
   });
 });

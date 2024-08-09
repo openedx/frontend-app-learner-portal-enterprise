@@ -34,9 +34,6 @@ const SearchJobCard = ({ index, isSkillQuizV2, courseIndex }) => {
   useEffect(
     () => {
       let fetch = true;
-      fetchJobs(); // eslint-disable-line no-use-before-define
-      return () => { fetch = false; };
-
       async function fetchJobs() {
         setIsLoading(true);
         const { hits } = await index.search('', {
@@ -50,15 +47,13 @@ const SearchJobCard = ({ index, isSkillQuizV2, courseIndex }) => {
         dispatch({ type: SET_KEY_VALUE, key: 'interestedJobs', value: jobHits });
         setIsLoading(false);
       }
+      fetchJobs();
+      return () => { fetch = false; };
     },
     [dispatch, index, jobs, jobsToFetch],
   );
   useEffect(() => {
     let fetch = true;
-    if (currentJob) {
-      fetchJob(); // eslint-disable-line no-use-before-define
-    }
-    return () => { fetch = false; };
     async function fetchJob() {
       const { hits } = await index.search('', {
         facetFilters: [
@@ -68,6 +63,10 @@ const SearchJobCard = ({ index, isSkillQuizV2, courseIndex }) => {
       if (!fetch) { return; }
       dispatch({ type: SET_KEY_VALUE, key: 'currentJobRole', value: hits });
     }
+    if (currentJob) {
+      fetchJob();
+    }
+    return () => { fetch = false; };
   }, [dispatch, index, currentJob, jobToFetch]);
 
   return (

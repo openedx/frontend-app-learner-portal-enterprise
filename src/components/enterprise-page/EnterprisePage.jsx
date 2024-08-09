@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
+import { getLoggingService } from '@edx/frontend-platform/logging';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 import { useAlgoliaSearch } from '../../utils/hooks';
@@ -17,6 +18,10 @@ const EnterprisePage = ({ children }) => {
   useEffect(() => {
     if (isDefinedAndNotNull(enterpriseCustomer)) {
       pushUserCustomerAttributes(enterpriseCustomer);
+
+      // Set custom attributes for logging service
+      const loggingService = getLoggingService();
+      loggingService.setCustomAttribute('enterprise_customer_uuid', enterpriseCustomer.uuid);
     }
   }, [enterpriseCustomer]);
 

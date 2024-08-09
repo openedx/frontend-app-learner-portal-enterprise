@@ -105,7 +105,7 @@ export async function getAutoAppliedSubscriptionLicense({
   }
 
   try {
-    return requestAutoAppliedUserLicense(customerAgreement.uuid);
+    return await requestAutoAppliedUserLicense(customerAgreement.uuid);
   } catch (error) {
     logError(error);
     return null;

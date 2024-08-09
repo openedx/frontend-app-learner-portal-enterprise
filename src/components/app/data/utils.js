@@ -298,7 +298,9 @@ export const canUnenrollCourseEnrollment = (courseEnrollment) => {
 };
 
 /**
- * TODO
+ * Transforms the raw course enrollment data from API into the expected
+ * shape for consuming UI components/logic.
+ *
  * @param {*} rawCourseEnrollment
  * @returns
  */

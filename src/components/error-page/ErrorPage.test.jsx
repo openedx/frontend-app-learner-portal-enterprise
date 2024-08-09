@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import ErrorPage from './ErrorPage';
 
-jest.mock('@edx/frontend-component-footer', () => function MockFrontendComponentFooter() {
+jest.mock('@openedx/frontend-slot-footer', () => function MockFrontendComponentFooter() {
   return <div data-testid="site-footer" />;
 });
 
@@ -41,16 +41,7 @@ describe('ErrorPage', () => {
     expect(tree).toMatchSnapshot();
   });
 
-  test('handles optional title', async () => {
-    const tree = ErrorPageWrapper(
-      <ErrorPage>
-        Here goes the error message.
-      </ErrorPage>,
-    ).toJSON();
-    expect(tree).toMatchSnapshot();
-  });
-
-  test('handles optional subtitle', async () => {
+  test('handles optional title and subtitle', async () => {
     const tree = ErrorPageWrapper(
       <ErrorPage>
         Here goes the error message.

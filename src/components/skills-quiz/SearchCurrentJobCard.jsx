@@ -25,9 +25,6 @@ const SearchCurrentJobCard = ({ index }) => {
   useEffect(
     () => {
       let fetch = true;
-      fetchJobs(); // eslint-disable-line no-use-before-define
-      return () => { fetch = false; };
-
       async function fetchJobs() {
         setIsLoading(true);
         const { hits } = await index.search('', {
@@ -39,6 +36,8 @@ const SearchCurrentJobCard = ({ index }) => {
         dispatch({ type: SET_KEY_VALUE, key: 'currentJobRole', value: hits });
         setIsLoading(false);
       }
+      fetchJobs();
+      return () => { fetch = false; };
     },
     [currentJob, dispatch, index, jobToFetch],
   );

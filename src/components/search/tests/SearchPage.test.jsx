@@ -18,7 +18,7 @@ jest.mock('../utils', () => ({
   hasActivatedAndCurrentSubscription: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock('../Search', () => function () {
+jest.mock('../Search', () => function Search() {
   return <div>Mock Search Component</div>;
 });
 

@@ -9,12 +9,26 @@ import {
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
-export default function makeExternalCourseEnrollmentLoader(queryClient) {
-  return async function externalCourseEnrollmentLoader({ params = {}, request }) {
+type ExternalCourseEnrollmentRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+  readonly courseType: string;
+  readonly courseKey: string;
+  readonly courseRunKey: string;
+  readonly enterpriseSlug: string;
+};
+interface ExternalCourseEnrollmentLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+  params: ExternalCourseEnrollmentRouteParams;
+}
+
+const makeExternalCourseEnrollmentLoader: Types.MakeRouteLoaderFunction = function makeExternalCourseEnrollmentLoader(
+  queryClient,
+) {
+  return async function externalCourseEnrollmentLoader(
+    { params, request }: ExternalCourseEnrollmentLoaderFunctionArgs,
+  ) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-    // User is not authenticated, so we can't do anything in this loader.
-    if (!authenticatedUser) {
+    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
+    if (!authenticatedUser || !queryClient) {
       return null;
     }
 
@@ -62,4 +76,6 @@ export default function makeExternalCourseEnrollmentLoader(queryClient) {
 
     return null;
   };
-}
+};
+
+export default makeExternalCourseEnrollmentLoader;

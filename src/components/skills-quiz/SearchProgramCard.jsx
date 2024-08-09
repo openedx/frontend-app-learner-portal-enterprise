@@ -57,9 +57,6 @@ const SearchProgramCard = ({ index }) => {
   useEffect(
     () => {
       let fetch = true;
-      fetchPrograms(); // eslint-disable-line no-use-before-define
-      return () => { fetch = false; };
-
       async function fetchPrograms() {
         setIsLoading(true);
         const { hits, nbHits } = await index.search('', {
@@ -78,6 +75,8 @@ const SearchProgramCard = ({ index }) => {
           setIsLoading(false);
         }
       }
+      fetchPrograms();
+      return () => { fetch = false; };
     },
     [filters, index, selectedJob, skills, skillsFacetFilter],
   );

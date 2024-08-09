@@ -17,31 +17,31 @@ import SearchVideoCard from '../search/SearchVideoCard';
 
 export const getContentTypeFromTitle = (title) => {
   switch (title) {
-      case PROGRAM_TITLE:
-        return CONTENT_TYPE_PROGRAM;
-      case COURSE_TITLE:
-        return CONTENT_TYPE_COURSE;
-      case PATHWAY_TITLE:
-        return CONTENT_TYPE_PATHWAY;
-      case VIDEO_TITLE:
-        return CONTENT_TYPE_VIDEO;
-      default:
-          return null;
+    case PROGRAM_TITLE:
+      return CONTENT_TYPE_PROGRAM;
+    case COURSE_TITLE:
+      return CONTENT_TYPE_COURSE;
+    case PATHWAY_TITLE:
+      return CONTENT_TYPE_PATHWAY;
+    case VIDEO_TITLE:
+      return CONTENT_TYPE_VIDEO;
+    default:
+      return null;
   }
 };
 
 export const getHitComponentFromTitle = (title) => {
   switch (title) {
-      case COURSE_TITLE:
-        return SearchCourseCard;
-      case PROGRAM_TITLE:
-        return SearchProgramCard;
-      case PATHWAY_TITLE:
-        return SearchPathwayCard;
-      case VIDEO_TITLE:
-        return SearchVideoCard;
-      default:
-        return null;
+    case COURSE_TITLE:
+      return SearchCourseCard;
+    case PROGRAM_TITLE:
+      return SearchProgramCard;
+    case PATHWAY_TITLE:
+      return SearchPathwayCard;
+    case VIDEO_TITLE:
+      return SearchVideoCard;
+    default:
+      return null;
   }
 };
 

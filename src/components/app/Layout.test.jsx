@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { mergeConfig } from '@edx/frontend-platform';
+import { getLoggingService } from '@edx/frontend-platform/logging';
 import dayjs from 'dayjs';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -21,7 +22,14 @@ const mockDefaultAppContextValue = {
   },
 };
 
-jest.mock('@edx/frontend-component-footer', () => jest.fn(() => <div data-testid="site-footer" />));
+jest.mock('@openedx/frontend-slot-footer', () => jest.fn(() => <div data-testid="site-footer" />));
+jest.mock('@edx/frontend-platform/logging', () => ({
+  getLoggingService: jest.fn(),
+}));
+const mockSetCustomAttribute = jest.fn();
+getLoggingService.mockReturnValue({
+  setCustomAttribute: mockSetCustomAttribute,
+});
 jest.mock('../site-header', () => ({
   ...jest.requireActual('../site-header'),
   SiteHeader: jest.fn(() => <div data-testid="site-header" />),

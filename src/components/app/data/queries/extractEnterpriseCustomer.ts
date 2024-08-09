@@ -1,22 +1,25 @@
 import { queryEnterpriseLearner } from './queries';
 
+interface ExtractEnterpriseCustomerArgs {
+  queryClient: Types.QueryClient;
+  authenticatedUser: Types.AuthenticatedUser;
+  enterpriseSlug?: string;
+}
+
 /**
  * Extracts the appropriate enterprise ID for the current user and enterprise slug.
- * @param {Object} params - The parameters object.
- * @param {Object} params.queryClient - The query client.
- * @param {Object} params.authenticatedUser - The authenticated user.
- * @param {string} params.enterpriseSlug - The enterprise slug.
- * @returns {Promise<string>} - The enterprise ID to use for subsquent queries in route loaders.
  */
 async function extractEnterpriseCustomer({
   queryClient,
   authenticatedUser,
   enterpriseSlug,
-}) {
+} : ExtractEnterpriseCustomerArgs) : Promise<Types.EnterpriseCustomer> {
   // Retrieve linked enterprise customers for the current user from query cache, or
   // fetch from the server if not available.
   const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug);
-  const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
+  const enterpriseLearnerData = await queryClient.ensureQueryData<Types.EnterpriseLearnerData>(
+    linkedEnterpriseCustomersQuery,
+  );
   const {
     activeEnterpriseCustomer,
     allLinkedEnterpriseCustomerUsers,

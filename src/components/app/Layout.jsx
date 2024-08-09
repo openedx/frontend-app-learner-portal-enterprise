@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet';
 import { Outlet } from 'react-router-dom';
-import SiteFooter from '@edx/frontend-component-footer';
+import FooterSlot from '@openedx/frontend-slot-footer';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import { isSystemMaintenanceAlertOpen, useEnterpriseCustomer } from './data';
@@ -44,7 +44,7 @@ const Layout = () => {
       <main id="content" className="fill-vertical-space">
         <Outlet />
       </main>
-      <SiteFooter />
+      <FooterSlot />
     </EnterprisePage>
   );
 };

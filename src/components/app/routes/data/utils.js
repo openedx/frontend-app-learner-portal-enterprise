@@ -29,7 +29,7 @@ import {
 } from '../../data';
 
 /**
- * TODO
+ * Ensures all enterprise-related app data is loaded.
  * @param {*} options
  * @param {*} options.requestUrl
  * @param {*} options.enterpriseCustomer
@@ -257,11 +257,12 @@ export async function ensureAuthenticatedUser(requestUrl, params) {
 /**
  * Ensures the user's EnterpriseCustomerUser is marked as active when
  * visiting its customer slug.
- * @param {*} enterpriseSlug
- * @param {*} activeEnterpriseCustomer
- * @param {*} staffEnterpriseCustomer
- * @param {*} allLinkedEnterpriseCustomerUsers
- * @param {*} requestUrl
+ * @param {Objects} params
+ * @param {*} params.enterpriseSlug
+ * @param {*} params.activeEnterpriseCustomer
+ * @param {*} params.staffEnterpriseCustomer
+ * @param {*} params.allLinkedEnterpriseCustomerUsers
+ * @param {*} params.requestUrl
  * @returns
  */
 export async function ensureActiveEnterpriseCustomerUser({

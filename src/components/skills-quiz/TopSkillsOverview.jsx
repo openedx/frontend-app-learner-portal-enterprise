@@ -57,8 +57,7 @@ const TopSkillsOverview = ({ index }) => {
           setCurrentJobDetails(null);
         }
       }
-
-      fetchJobDetails(); // eslint-disable-line no-use-before-define
+      fetchJobDetails();
     },
     [currentJob, index],
   );
