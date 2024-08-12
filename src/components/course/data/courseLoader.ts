@@ -101,12 +101,12 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
             redeemableLearnerCreditPolicies.redeemablePolicies,
           );
           const transformedCourseMetadata = transformCourseMetadataByAllocatedCourseRunAssignments({
-              hasMultipleAssignedCourseRuns,
-              courseMetadata,
-              allocatedCourseRunAssignmentKeys,
+            hasMultipleAssignedCourseRuns,
+            courseMetadata,
+            allocatedCourseRunAssignmentKeys,
           });
           return queryClient.ensureQueryData(
-            queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+            queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
           );
         }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
