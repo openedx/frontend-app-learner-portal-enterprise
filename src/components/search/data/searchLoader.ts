@@ -13,13 +13,13 @@ interface Academy {
   uuid: string;
 }
 
-const makeSearchLoader: Types.MakeRouteLoaderFunction = function makeSearchLoader(queryClient) {
+const makeSearchLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeSearchLoader(queryClient) {
   return async function searchLoader({ params, request } : SearchLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
 
-    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
-    if (!authenticatedUser || !queryClient) {
+    // User is not authenticated, so we can't do anything in this loader.
+    if (!authenticatedUser) {
       return null;
     }
 

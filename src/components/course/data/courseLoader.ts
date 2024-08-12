@@ -42,12 +42,12 @@ type CourseMetadata = {
 /**
  * Course loader for the course related page routes.
  */
-const makeCourseLoader: Types.MakeRouteLoaderFunction = function makeCourseLoader(queryClient) {
+const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeCourseLoader(queryClient) {
   return async function courseLoader({ params, request }: CourseLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
-    if (!authenticatedUser || !queryClient) {
+    // User is not authenticated is provided, so we can't do anything in this loader.
+    if (!authenticatedUser) {
       return null;
     }
 
@@ -125,7 +125,7 @@ const makeCourseLoader: Types.MakeRouteLoaderFunction = function makeCourseLoade
         // If learner is an assignment-only learner and is not assigned to the currently
         // viewed course, redirect to the Dashboard page route.
         if (isAssignmentOnlyLearner && !isCourseAssigned) {
-          throw redirect(generatePath('/:enterpriseSlug', { enterpriseSlug: enterpriseSlug as string }));
+          throw redirect(generatePath('/:enterpriseSlug', { enterpriseSlug }));
         }
 
         // Determine which catalogs are available for the user/enterprise to filter course recommendations.

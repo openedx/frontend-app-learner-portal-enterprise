@@ -8,21 +8,23 @@ interface PathwayProgressLoaderFunctionArgs extends Types.RouteLoaderFunctionArg
   params: PathwayProgressRouteParams;
 }
 
-const makePathwayProgressLoader: Types.MakeRouteLoaderFunction = function makePathwayProgressLoader(queryClient) {
-  return async function pathwayProgressLoader({ params, request }: PathwayProgressLoaderFunctionArgs) {
-    const requestUrl = new URL(request.url);
+const makePathwayProgressLoader: Types.MakeRouteLoaderFunctionWithQueryClient = (
+  function makePathwayProgressLoader(queryClient) {
+    return async function pathwayProgressLoader({ params, request }: PathwayProgressLoaderFunctionArgs) {
+      const requestUrl = new URL(request.url);
 
-    const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
-    if (!authenticatedUser || !queryClient) {
+      const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
+      // User is not authenticated or no query client is provided, so we can't do anything in this loader.
+      if (!authenticatedUser) {
+        return null;
+      }
+
+      const { pathwayUUID } = params;
+      await queryClient.ensureQueryData(queryLearnerPathwayProgressData(pathwayUUID));
+
       return null;
-    }
-
-    const { pathwayUUID } = params;
-    await queryClient.ensureQueryData(queryLearnerPathwayProgressData(pathwayUUID));
-
-    return null;
-  };
-};
+    };
+  }
+);
 
 export default makePathwayProgressLoader;

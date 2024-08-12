@@ -9,12 +9,12 @@ interface VideoLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
   params: VideoRouteParams;
 }
 
-const makeVideosLoader: Types.MakeRouteLoaderFunction = function makeVideosLoader(queryClient) {
+const makeVideosLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeVideosLoader(queryClient) {
   return async function videosLoader({ params, request } : VideoLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
-    if (!authenticatedUser || !queryClient) {
+    // User is not authenticated, so we can't do anything in this loader.
+    if (!authenticatedUser) {
       return null;
     }
 

@@ -9,12 +9,12 @@ interface ProgramLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
   params: ProgramRouteParams;
 }
 
-const makeProgramLoader: Types.MakeRouteLoaderFunction = function makeProgramLoader(queryClient) {
+const makeProgramLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeProgramLoader(queryClient) {
   return async function programLoader({ params, request }: ProgramLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
-    if (!authenticatedUser || !queryClient) {
+    // User is not authenticated, so we can't do anything in this loader.
+    if (!authenticatedUser) {
       return null;
     }
 

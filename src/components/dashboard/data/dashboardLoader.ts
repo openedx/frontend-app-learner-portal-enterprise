@@ -16,12 +16,12 @@ interface DashboardLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
 /**
  * Returns a loader function responsible for loading the dashboard related data.
  */
-const makeDashboardLoader: Types.MakeRouteLoaderFunction = function makeDashboardLoader(queryClient) {
+const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeDashboardLoader(queryClient) {
   return async function dashboardLoader({ params, request }: DashboardLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
-    if (!authenticatedUser || !queryClient) {
+    // User is not authenticated, so we can't do anything in this loader.
+    if (!authenticatedUser) {
       return null;
     }
 

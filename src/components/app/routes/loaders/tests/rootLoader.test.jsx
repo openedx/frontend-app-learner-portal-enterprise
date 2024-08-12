@@ -32,16 +32,6 @@ jest.mock('../../../data', () => ({
   updateUserActiveEnterprise: jest.fn(),
 }));
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  configure: jest.fn(),
-}));
-jest.mock('@edx/frontend-platform/logging', () => ({
-  ...jest.requireActual('@edx/frontend-platform/logging'),
-  configure: jest.fn(),
-  getLoggingService: jest.fn(),
-}));
-
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseCustomerTwo = enterpriseCustomerFactory();
@@ -109,17 +99,17 @@ describe('rootLoader', () => {
   });
 
   it.each([
-    // {
-    //   enterpriseSlug: mockEnterpriseCustomerTwo.slug,
-    //   enterpriseCustomer: mockEnterpriseCustomerTwo,
-    //   activeEnterpriseCustomer: mockEnterpriseCustomer,
-    //   allLinkedEnterpriseCustomerUsers: [
-    //     { enterpriseCustomer: mockEnterpriseCustomer },
-    //     { enterpriseCustomer: mockEnterpriseCustomerTwo },
-    //   ],
-    //   isStaffUser: false,
-    //   shouldRedirectToSearch: false,
-    // },
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomerTwo,
+      activeEnterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+        { enterpriseCustomer: mockEnterpriseCustomerTwo },
+      ],
+      isStaffUser: false,
+      shouldRedirectToSearch: false,
+    },
     {
       enterpriseSlug: mockEnterpriseCustomerTwo.slug,
       enterpriseCustomer: mockEnterpriseCustomerTwo,

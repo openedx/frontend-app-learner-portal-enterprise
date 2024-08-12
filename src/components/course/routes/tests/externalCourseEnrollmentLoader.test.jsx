@@ -24,15 +24,6 @@ jest.mock('../../../app/data', () => ({
   extractEnterpriseCustomer: jest.fn(),
   getLateEnrollmentBufferDays: jest.fn(),
 }));
-// jest.mock('@edx/frontend-platform/auth', () => ({
-//   ...jest.requireActual('@edx/frontend-platform/auth'),
-//   configure: jest.fn(),
-// }));
-// jest.mock('@edx/frontend-platform/logging', () => ({
-//   ...jest.requireActual('@edx/frontend-platform/logging'),
-//   configure: jest.fn(),
-//   getLoggingService: jest.fn(),
-// }));
 
 const mockCourseKey = 'edX+DemoX';
 const mockCourseRunKey = 'course-v1:edX+DemoX+Demo';

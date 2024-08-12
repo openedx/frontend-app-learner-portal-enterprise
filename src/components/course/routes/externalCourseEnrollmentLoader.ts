@@ -19,63 +19,65 @@ interface ExternalCourseEnrollmentLoaderFunctionArgs extends Types.RouteLoaderFu
   params: ExternalCourseEnrollmentRouteParams;
 }
 
-const makeExternalCourseEnrollmentLoader: Types.MakeRouteLoaderFunction = function makeExternalCourseEnrollmentLoader(
-  queryClient,
-) {
-  return async function externalCourseEnrollmentLoader(
-    { params, request }: ExternalCourseEnrollmentLoaderFunctionArgs,
-  ) {
-    const requestUrl = new URL(request.url);
-    const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
-    if (!authenticatedUser || !queryClient) {
-      return null;
-    }
-
-    const {
-      enterpriseSlug,
-      courseType,
-      courseKey,
-      courseRunKey,
-    } = params;
-    const enterpriseCustomer = await extractEnterpriseCustomer({
-      queryClient,
-      authenticatedUser,
-      enterpriseSlug,
-    });
-
-    // Fetch course metadata, and then check if the user can redeem the course.
-    // TODO: This should be refactored such that `can-redeem` can be called independently
-    // of `course-metadata` to avoid an unnecessary request waterfall.
-    await queryClient.ensureQueryData(queryCourseMetadata(courseKey, courseRunKey)).then(async (courseMetadata) => {
-      if (!courseMetadata) {
-        return;
+const makeExternalCourseEnrollmentLoader: Types.MakeRouteLoaderFunctionWithQueryClient = (
+  function makeExternalCourseEnrollmentLoader(queryClient) {
+    return async function externalCourseEnrollmentLoader(
+      { params, request }: ExternalCourseEnrollmentLoaderFunctionArgs,
+    ) {
+      const requestUrl = new URL(request.url);
+      const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
+      // User is not authenticated, so we can't do anything in this loader.
+      if (!authenticatedUser) {
+        return null;
       }
-      const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-        enterpriseUuid: enterpriseCustomer.uuid,
-        lmsUserId: authenticatedUser.userId,
-      }));
-      const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(redeemableLearnerCreditPolicies.redeemablePolicies);
-      const canRedeem = await queryClient.ensureQueryData(
-        queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
-      );
-      const hasSuccessfulRedemption = !!canRedeem.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption;
-      if (hasSuccessfulRedemption) {
-        const redirectUrl = generatePath(
-          '/:enterpriseSlug/:courseType/course/:courseKey/enroll/:courseRunKey/complete',
-          {
-            enterpriseSlug,
-            courseType,
-            courseKey,
-            courseRunKey,
-          },
+
+      const {
+        enterpriseSlug,
+        courseType,
+        courseKey,
+        courseRunKey,
+      } = params;
+      const enterpriseCustomer = await extractEnterpriseCustomer({
+        queryClient,
+        authenticatedUser,
+        enterpriseSlug,
+      });
+
+      // Fetch course metadata, and then check if the user can redeem the course.
+      // TODO: This should be refactored such that `can-redeem` can be called independently
+      // of `course-metadata` to avoid an unnecessary request waterfall.
+      await queryClient.ensureQueryData(queryCourseMetadata(courseKey, courseRunKey)).then(async (courseMetadata) => {
+        if (!courseMetadata) {
+          return;
+        }
+        const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
+          enterpriseUuid: enterpriseCustomer.uuid,
+          lmsUserId: authenticatedUser.userId,
+        }));
+        const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
+          redeemableLearnerCreditPolicies.redeemablePolicies,
         );
-        throw redirect(redirectUrl);
-      }
-    });
+        const canRedeem = await queryClient.ensureQueryData(
+          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+        );
+        const hasSuccessfulRedemption = !!canRedeem.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption;
+        if (hasSuccessfulRedemption) {
+          const redirectUrl = generatePath(
+            '/:enterpriseSlug/:courseType/course/:courseKey/enroll/:courseRunKey/complete',
+            {
+              enterpriseSlug,
+              courseType,
+              courseKey,
+              courseRunKey,
+            },
+          );
+          throw redirect(redirectUrl);
+        }
+      });
 
-    return null;
-  };
-};
+      return null;
+    };
+  }
+);
 
 export default makeExternalCourseEnrollmentLoader;

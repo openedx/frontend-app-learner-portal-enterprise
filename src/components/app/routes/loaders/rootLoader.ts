@@ -10,12 +10,12 @@ import {
 /**
  * Root loader for the enterprise learner portal.
  */
-const makeRootLoader: Types.MakeRouteLoaderFunction = function makeRootLoader(queryClient) {
+const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeRootLoader(queryClient) {
   return async function rootLoader({ params = {}, request }) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-    // User is not authenticated or no query client is provided, so we can't do anything in this loader.
-    if (!authenticatedUser || !queryClient) {
+    // User is not authenticated is provided, so we can't do anything in this loader.
+    if (!authenticatedUser) {
       return null;
     }
 
