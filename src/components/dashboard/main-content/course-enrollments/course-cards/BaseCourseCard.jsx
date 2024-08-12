@@ -32,7 +32,7 @@ import {
   EXECUTIVE_EDUCATION_COURSE_MODES,
   useEnterpriseCustomer,
 } from '../../../../app/data';
-import { isCourseEnded, isTodayWithinDateThreshold } from '../../../../../utils/common';
+import { isCourseEnded, isDefinedAndNotNull, isTodayWithinDateThreshold } from '../../../../../utils/common';
 
 const messages = defineMessages({
   statusBadgeLabelInProgress: {
@@ -342,7 +342,7 @@ const BaseCourseCard = ({
   };
 
   const renderEmailSettingsModal = () => {
-    if (!hasEmailsEnabled) {
+    if (!isDefinedAndNotNull(hasEmailsEnabled)) {
       return null;
     }
     return (

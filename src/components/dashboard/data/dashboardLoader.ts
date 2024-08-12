@@ -6,13 +6,18 @@ import {
   queryEnterpriseProgramsList,
 } from '../../app/data';
 
+type DashboardRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+  readonly enterpriseSlug: string;
+};
+interface DashboardLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+  params: DashboardRouteParams;
+}
+
 /**
  * Returns a loader function responsible for loading the dashboard related data.
- * @param {object} queryClient - The query client.
- * @returns {Promise} A loader function.
  */
-export default function makeDashboardLoader(queryClient) {
-  return async function dashboardLoader({ params = {}, request }) {
+const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeDashboardLoader(queryClient) {
+  return async function dashboardLoader({ params, request }: DashboardLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
     // User is not authenticated, so we can't do anything in this loader.
@@ -34,4 +39,6 @@ export default function makeDashboardLoader(queryClient) {
 
     return null;
   };
-}
+};
+
+export default makeDashboardLoader;
