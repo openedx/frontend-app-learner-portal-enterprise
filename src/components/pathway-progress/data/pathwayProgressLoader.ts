@@ -14,7 +14,7 @@ const makePathwayProgressLoader: Types.MakeRouteLoaderFunctionWithQueryClient = 
       const requestUrl = new URL(request.url);
 
       const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-      // User is not authenticated or no query client is provided, so we can't do anything in this loader.
+      // User is not authenticated, so we can't do anything in this loader.
       if (!authenticatedUser) {
         return null;
       }

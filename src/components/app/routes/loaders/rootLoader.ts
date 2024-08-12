@@ -14,7 +14,7 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
   return async function rootLoader({ params = {}, request }) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
-    // User is not authenticated is provided, so we can't do anything in this loader.
+    // User is not authenticated, so we can't do anything in this loader.
     if (!authenticatedUser) {
       return null;
     }
