@@ -90,23 +90,23 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
-        queryClient.ensureQueryData<CourseMetadata | undefined>(queryCourseMetadata(courseKey, courseRunKey))
-            .then(async (courseMetadata) => {
-        if (!courseMetadata) {
-          return null;
-        }
+      queryClient.ensureQueryData<CourseMetadata | undefined>(queryCourseMetadata(courseKey, courseRunKey))
+        .then(async (courseMetadata) => {
+          if (!courseMetadata) {
+            return null;
+          }
           const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
-              redeemableLearnerCreditPoliciesLoader.redeemablePolicies,
+            redeemableLearnerCreditPoliciesLoader.redeemablePolicies,
           );
           const transformedCourseMetadata = transformCourseMetadataByAllocationCourseRun({
-              hasMultipleAssignedCourseRuns,
-              courseMetadata,
-              allocatedCourseRunAssignmentKeys,
+            hasMultipleAssignedCourseRuns,
+            courseMetadata,
+            allocatedCourseRunAssignmentKeys,
           });
           return queryClient.ensureQueryData(
-              queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
+            queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
           );
-      }),
+        }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
       queryClient.ensureQueryData(queryUserEntitlements()),
       queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey])),
