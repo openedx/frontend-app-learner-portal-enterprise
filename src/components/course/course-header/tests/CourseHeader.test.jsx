@@ -5,6 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
+import { useParams } from 'react-router-dom';
 import CourseHeader from '../CourseHeader';
 
 import { COURSE_PACING_MAP } from '../../data/constants';
@@ -18,6 +19,7 @@ import {
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useIsAssignmentsOnlyLearner,
+  useRedeemablePolicies,
 } from '../../../app/data';
 import { renderWithRouterProvider } from '../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
@@ -33,6 +35,11 @@ jest.mock('../../LicenseRequestedAlert', () => function LicenseRequestedAlert() 
   return <div data-testid="license-requested-alert" />;
 });
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn(),
+}));
+
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
@@ -43,6 +50,7 @@ jest.mock('../../../app/data', () => ({
   useIsAssignmentsOnlyLearner: jest.fn(),
   useCourseReviews: jest.fn(),
   usePassLearnerCsodParams: jest.fn(),
+  useRedeemablePolicies: jest.fn(),
 }));
 
 jest.mock('../../data', () => ({
@@ -118,6 +126,29 @@ const mockEnterpriseCourseEnrollment = {
   linkToCourse: 'http://course.url',
   mode: COURSE_MODES_MAP.VERIFIED,
 };
+
+const mockBaseRedeemablePolicies = {
+  redeemablePolicies: [],
+  expiredPolicies: [],
+  unexpiredPolicies: [],
+  learnerContentAssignments: {
+    assignments: [],
+    hasAssignments: false,
+    allocatedAssignments: [],
+    hasAllocatedAssignments: false,
+    acceptedAssignments: [],
+    hasAcceptedAssignments: false,
+    canceledAssignments: [],
+    hasCanceledAssignments: false,
+    expiredAssignments: [],
+    hasExpiredAssignments: false,
+    erroredAssignments: [],
+    hasErroredAssignments: false,
+    assignmentsForDisplay: [],
+    hasAssignmentsForDisplay: false,
+  },
+};
+
 const mockAuthenticatedUser = authenticatedUserFactory();
 const CourseHeaderWrapper = () => (
   <IntlProvider locale="en">
@@ -130,6 +161,7 @@ const CourseHeaderWrapper = () => (
 describe('<CourseHeader />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useEnterpriseCourseEnrollments.mockReturnValue({
       data: defaultCourseEnrollmentsState,
@@ -145,6 +177,7 @@ describe('<CourseHeader />', () => {
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
     useIsCourseAssigned.mockReturnValue(false);
     useCourseReviews.mockReturnValue({ data: mockCourseReviews });
+    useRedeemablePolicies.mockReturnValue({ data: mockBaseRedeemablePolicies });
   });
 
   test('renders breadcrumb', () => {
