@@ -22,7 +22,7 @@ const messages = defineMessages({
   enrollByDate: {
     id: 'enterprise.course.about.page.important-dates.enroll-by-date',
     defaultMessage: 'Enroll-by date',
-    description: 'Enrol-by date for the important dates section on the course about page',
+    description: 'Enroll-by date for the important dates section on the course about page',
   },
   courseStarts: {
     id: 'enterprise.course.about.page.important-dates.course-starts',
@@ -53,7 +53,7 @@ const CourseImportantDates = () => {
   const [searchParams] = useSearchParams();
   const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
-  if (!hasAssignedCourseRuns || !allocatedCourseRunAssignmentKeys.includes(courseRunKey)) {
+  if (!hasAssignedCourseRuns || (!!courseRunKey && !allocatedCourseRunAssignmentKeys.includes(courseRunKey))) {
     return null;
   }
 
