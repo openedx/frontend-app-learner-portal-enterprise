@@ -3,11 +3,22 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
 import { extractEnterpriseCustomer, queryAcademiesList, queryContentHighlightSets } from '../../app/data';
 
-export default function makeSearchLoader(queryClient) {
-  return async function searchLoader({ params = {}, request }) {
+type SearchRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+  readonly enterpriseSlug: string;
+};
+interface SearchLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+  params: SearchRouteParams;
+}
+interface Academy {
+  uuid: string;
+}
+
+const makeSearchLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeSearchLoader(queryClient) {
+  return async function searchLoader({ params, request } : SearchLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
 
+    // User is not authenticated, so we can't do anything in this loader.
     if (!authenticatedUser) {
       return null;
     }
@@ -33,8 +44,8 @@ export default function makeSearchLoader(queryClient) {
 
     await Promise.all(searchData);
 
-    const academies = queryClient.getQueryData(academiesListQuery.queryKey);
-    if (enterpriseCustomer.enableOneAcademy && academies.length === 1) {
+    const academies = queryClient.getQueryData<Academy[]>(academiesListQuery.queryKey);
+    if (enterpriseCustomer.enableOneAcademy && academies?.length === 1) {
       const redirectPath = generatePath('/:enterpriseSlug/academies/:academyUUID', {
         enterpriseSlug,
         academyUUID: academies[0].uuid,
@@ -44,4 +55,6 @@ export default function makeSearchLoader(queryClient) {
 
     return null;
   };
-}
+};
+
+export default makeSearchLoader;

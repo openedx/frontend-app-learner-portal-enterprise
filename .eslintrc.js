@@ -6,7 +6,9 @@ const config = createConfig('eslint', {
     '@edx/eslint-config',
     'plugin:@tanstack/eslint-plugin-query/recommended',
   ],
-  ignorePatterns: ['*.config.js'],
+  ignorePatterns: [
+    'webpack.*.config.js',
+  ],
   overrides: [
     {
       files: ['*.test.js', '*.test.jsx'],
@@ -25,6 +27,7 @@ const config = createConfig('eslint', {
     'template-curly-spacing': 'off',
     'import/prefer-default-export': 'off',
     'no-underscore-dangle': ['error', { allow: ['_ctx', '_def'] }],
+    '@typescript-eslint/no-throw-literal': 'off',
   },
 });
 

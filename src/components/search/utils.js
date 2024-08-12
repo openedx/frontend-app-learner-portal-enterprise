@@ -1,6 +1,7 @@
 import { defineMessages } from '@edx/frontend-platform/i18n';
 import { getSearchFacetFilters as getBaseSearchFacetFilters } from '@edx/frontend-enterprise-catalog-search';
 import { features } from '../../config';
+import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
 
 export function isShortCourse(course) {
   return course.course_length === 'short';
@@ -58,3 +59,8 @@ export function getSearchFacetFilters(intl) {
 
   return searchFilters;
 }
+
+export const hasActivatedAndCurrentSubscription = (subscriptionLicense) => (
+  subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
+  && subscriptionLicense?.subscriptionPlan?.isCurrent
+);

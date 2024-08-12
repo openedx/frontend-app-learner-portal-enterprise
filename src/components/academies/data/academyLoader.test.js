@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouterProvider } from '../../../utils/tests';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { extractEnterpriseCustomer, queryAcademiesDetail } from '../../app/data';
-import makeAcademiesLoader from './academiesLoader';
+import makeAcademiesLoader from './academyLoader';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/routes/data', () => ({
