@@ -1,7 +1,7 @@
 import { generatePath, redirect } from 'react-router-dom';
 
 import {
-  determineAllocatedCourseRuns,
+  determineAllocatedCourseRunAssignmentsForCourse,
   determineLearnerHasContentAssignmentsOnly,
   extractEnterpriseCustomer,
   getCatalogsForSubsidyRequests,
@@ -21,7 +21,7 @@ import {
   queryRedeemablePolicies,
   querySubscriptions,
   queryUserEntitlements,
-  transformCourseMetadataByAllocationCourseRun,
+  transformCourseMetadataByAllocatedCourseRunAssignments,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
@@ -50,7 +50,11 @@ export default function makeCourseLoader(queryClient) {
       authenticatedUser,
       enterpriseSlug,
     });
-    const subsidyQueries = Promise.all([
+    const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
+      enterpriseUuid: enterpriseCustomer.uuid,
+      lmsUserId: authenticatedUser.userId,
+    }));
+    const otherSubsidyQueries = Promise.all([
       queryClient.ensureQueryData(queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: authenticatedUser.userId,
@@ -62,18 +66,16 @@ export default function makeCourseLoader(queryClient) {
       queryClient.ensureQueryData(queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
       queryClient.ensureQueryData(queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid)),
     ]);
-    const redeemableLearnerCreditPoliciesLoader = await queryClient.ensureQueryData(queryRedeemablePolicies({
-      enterpriseUuid: enterpriseCustomer.uuid,
-      lmsUserId: authenticatedUser.userId,
-    }));
+
     const {
       allocatedCourseRunAssignmentKeys,
       hasAssignedCourseRuns,
       hasMultipleAssignedCourseRuns,
-    } = determineAllocatedCourseRuns({
+    } = determineAllocatedCourseRunAssignmentsForCourse({
       courseKey,
-      redeemableLearnerCreditPolicies: redeemableLearnerCreditPoliciesLoader,
+      redeemableLearnerCreditPolicies,
     });
+    // only override `courseRunKey` when learner has a single allocated assignment
     if (!courseRunKey && hasAssignedCourseRuns) {
       courseRunKey = hasMultipleAssignedCourseRuns ? null : allocatedCourseRunAssignmentKeys[0];
     }
@@ -86,9 +88,9 @@ export default function makeCourseLoader(queryClient) {
           return null;
         }
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
-          redeemableLearnerCreditPoliciesLoader.redeemablePolicies,
+          redeemableLearnerCreditPolicies.redeemablePolicies,
         );
-        const transformedCourseMetadata = transformCourseMetadataByAllocationCourseRun({
+        const transformedCourseMetadata = transformCourseMetadataByAllocatedCourseRunAssignments({
           hasMultipleAssignedCourseRuns,
           courseMetadata,
           allocatedCourseRunAssignmentKeys,
@@ -101,8 +103,7 @@ export default function makeCourseLoader(queryClient) {
       queryClient.ensureQueryData(queryUserEntitlements()),
       queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey])),
       queryClient.ensureQueryData(queryCourseReviews(courseKey)),
-      subsidyQueries.then(async (subsidyResponses) => {
-        const redeemableLearnerCreditPolicies = subsidyResponses[0];
+      otherSubsidyQueries.then(async (subsidyResponses) => {
         const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[1];
         const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[2];
         const {
