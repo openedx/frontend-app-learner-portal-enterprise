@@ -18,6 +18,7 @@ export type RouteParams<Key extends string = string> = import('react-router-dom'
 export type RouteLoaderFunction = import('react-router-dom').LoaderFunction;
 export type RouteLoaderFunctionArgs = import('react-router-dom').LoaderFunctionArgs;
 export type MakeRouteLoaderFunction = (queryClient?: QueryClient) => RouteLoaderFunction;
+export type MakeRouteLoaderFunctionWithQueryClient = (queryClient: QueryClient) => RouteLoaderFunction;
 export type RouteObject = import('react-router-dom').RouteObject;
 
 // Application Data (general)
