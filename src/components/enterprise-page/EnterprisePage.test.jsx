@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { mount } from 'enzyme';
 import { AppContext } from '@edx/frontend-platform/react';
+import { getLoggingService } from '@edx/frontend-platform/logging';
 
 import EnterprisePage from './EnterprisePage';
 import { useEnterpriseCustomer } from '../app/data';
@@ -15,6 +16,13 @@ const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 
 jest.mock('@edx/frontend-platform/auth');
+jest.mock('@edx/frontend-platform/logging', () => ({
+  getLoggingService: jest.fn(),
+}));
+const mockSetCustomAttribute = jest.fn();
+getLoggingService.mockReturnValue({
+  setCustomAttribute: mockSetCustomAttribute,
+});
 
 describe('<EnterprisePage />', () => {
   beforeEach(() => {

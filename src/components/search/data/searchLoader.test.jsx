@@ -21,15 +21,6 @@ jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   extractEnterpriseCustomer: jest.fn(),
 }));
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  configure: jest.fn(),
-}));
-jest.mock('@edx/frontend-platform/logging', () => ({
-  ...jest.requireActual('@edx/frontend-platform/logging'),
-  configure: jest.fn(),
-  getLoggingService: jest.fn(),
-}));
 
 jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(),

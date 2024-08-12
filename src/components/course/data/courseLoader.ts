@@ -28,13 +28,22 @@ import {
   pathContainsCourseTypeSlug,
 } from './utils';
 
+type CourseRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+  readonly courseKey: string;
+  readonly enterpriseSlug: string;
+};
+interface CourseLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+  params: CourseRouteParams;
+}
+type CourseMetadata = {
+  courseType: string;
+};
+
 /**
  * Course loader for the course related page routes.
- * @param {Object} queryClient - The query client.
- * @returns {Function} - A loader function.
  */
-export default function makeCourseLoader(queryClient) {
-  return async function courseLoader({ params = {}, request }) {
+const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeCourseLoader(queryClient) {
+  return async function courseLoader({ params, request }: CourseLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
     // User is not authenticated, so we can't do anything in this loader.
@@ -69,21 +78,22 @@ export default function makeCourseLoader(queryClient) {
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
-      queryClient.ensureQueryData(queryCourseMetadata(courseKey, courseRunKey)).then(async (courseMetadata) => {
-        if (!courseMetadata) {
-          return null;
-        }
-        const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-          enterpriseUuid: enterpriseCustomer.uuid,
-          lmsUserId: authenticatedUser.userId,
-        }));
-        const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
-          redeemableLearnerCreditPolicies.redeemablePolicies,
-        );
-        return queryClient.ensureQueryData(
-          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
-        );
-      }),
+      queryClient.ensureQueryData<CourseMetadata | undefined>(queryCourseMetadata(courseKey, courseRunKey))
+        .then(async (courseMetadata) => {
+          if (!courseMetadata) {
+            return null;
+          }
+          const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
+            enterpriseUuid: enterpriseCustomer.uuid,
+            lmsUserId: authenticatedUser.userId,
+          }));
+          const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
+            redeemableLearnerCreditPolicies.redeemablePolicies,
+          );
+          return queryClient.ensureQueryData(
+            queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+          );
+        }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
       queryClient.ensureQueryData(queryUserEntitlements()),
       queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey])),
@@ -140,7 +150,9 @@ export default function makeCourseLoader(queryClient) {
 
     // If the course metadata (pre-fetched above) does not exist or is not available in
     // the enterprise's catalog(s), return with empty data.
-    const courseMetadata = queryClient.getQueryData(queryCourseMetadata(courseKey, courseRunKey));
+    const courseMetadata = queryClient.getQueryData<CourseMetadata>(
+      queryCourseMetadata(courseKey, courseRunKey).queryKey,
+    );
     if (!courseMetadata) {
       return null;
     }
@@ -160,4 +172,6 @@ export default function makeCourseLoader(queryClient) {
 
     return null;
   };
-}
+};
+
+export default makeCourseLoader;

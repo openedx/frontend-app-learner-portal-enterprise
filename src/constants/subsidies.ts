@@ -8,4 +8,4 @@ export const SUBSIDY_REQUEST_STATE = {
   APPROVED: 'approved',
   DECLINED: 'declined',
   ERROR: 'error',
-};
+} as const;

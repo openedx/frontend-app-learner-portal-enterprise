@@ -9,10 +9,8 @@ import {
 
 /**
  * Root loader for the enterprise learner portal.
- * @param {Object} queryClient - The query client.
- * @returns A loader function.
  */
-export default function makeRootLoader(queryClient) {
+const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeRootLoader(queryClient) {
   return async function rootLoader({ params = {}, request }) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
@@ -26,7 +24,9 @@ export default function makeRootLoader(queryClient) {
 
     // Retrieve linked enterprise customers for the current user from query cache
     // or fetch from the server if not available.
-    const enterpriseLearnerData = await queryClient.ensureQueryData(queryEnterpriseLearner(username, enterpriseSlug));
+    const enterpriseLearnerData = await queryClient.ensureQueryData<Types.EnterpriseLearnerData>(
+      queryEnterpriseLearner(username, enterpriseSlug),
+    );
     let {
       enterpriseCustomer,
       activeEnterpriseCustomer,
@@ -73,7 +73,7 @@ export default function makeRootLoader(queryClient) {
 
     // Redirect user to search page, for first-time users with no assignments.
     redirectToSearchPageForNewUser({
-      enterpriseSlug,
+      enterpriseSlug: enterpriseSlug as string,
       enterpriseAppData,
       requestUrl,
     });
@@ -83,4 +83,6 @@ export default function makeRootLoader(queryClient) {
 
     return null;
   };
-}
+};
+
+export default makeRootLoader;

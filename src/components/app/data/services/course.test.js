@@ -33,11 +33,6 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedHttpClient: jest.fn(),
   configure: jest.fn(),
 }));
-jest.mock('@edx/frontend-platform/logging', () => ({
-  ...jest.requireActual('@edx/frontend-platform/logging'),
-  configure: jest.fn(),
-  getLoggingService: jest.fn(),
-}));
 
 describe('fetchCourseMetadata', () => {
   const CONTENT_METADATA_URL = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/courses/${mockCourseKey}/?`;
