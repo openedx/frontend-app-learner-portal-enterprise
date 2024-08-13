@@ -7,7 +7,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 import { DATE_FORMAT } from '../data';
 import {
-  determineAllocatedCourseRuns,
+  determineAllocatedCourseRunAssignmentsForCourse,
   getSoonestEarliestPossibleExpirationData,
   useCourseMetadata,
   useRedeemablePolicies,
@@ -45,7 +45,7 @@ const CourseImportantDates = () => {
     allocatedCourseRunAssignments,
     allocatedCourseRunAssignmentKeys,
     hasAssignedCourseRuns,
-  } = determineAllocatedCourseRuns({
+  } = determineAllocatedCourseRunAssignmentsForCourse({
     redeemableLearnerCreditPolicies,
     courseKey,
   });

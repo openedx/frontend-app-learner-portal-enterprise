@@ -3,9 +3,9 @@ import { useParams, useSearchParams } from 'react-router-dom';
 
 import { queryCourseMetadata } from '../queries';
 import {
-  determineAllocatedCourseRuns,
+  determineAllocatedCourseRunAssignmentsForCourse,
   getAvailableCourseRuns,
-  transformCourseMetadataByAllocationCourseRun,
+  transformCourseMetadataByAllocatedCourseRunAssignments,
 } from '../utils';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import useRedeemablePolicies from './useRedeemablePolicies';
@@ -23,13 +23,14 @@ export default function useCourseMetadata(queryOptions = {}) {
     allocatedCourseRunAssignmentKeys,
     hasAssignedCourseRuns,
     hasMultipleAssignedCourseRuns,
-  } = determineAllocatedCourseRuns({
+  } = determineAllocatedCourseRunAssignmentsForCourse({
     courseKey,
     redeemableLearnerCreditPolicies,
   });
   // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
   // need to replace it with `+` again to be a valid course run key.
   let courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
+  // only override `courseRunKey` when learner has a single allocated assignment
   if (!courseRunKey && hasAssignedCourseRuns) {
     courseRunKey = hasMultipleAssignedCourseRuns ? null : allocatedCourseRunAssignmentKeys[0];
   }
@@ -50,7 +51,7 @@ export default function useCourseMetadata(queryOptions = {}) {
         availableCourseRuns,
       };
       // This logic should appropriately handle multiple course runs being assigned, and return the appropriate metadata
-      transformedData = transformCourseMetadataByAllocationCourseRun({
+      transformedData = transformCourseMetadataByAllocatedCourseRunAssignments({
         hasMultipleAssignedCourseRuns,
         courseMetadata: transformedData,
         allocatedCourseRunAssignmentKeys,

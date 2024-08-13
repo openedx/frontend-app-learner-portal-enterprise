@@ -770,35 +770,31 @@ export function isEnrollmentUpgradeable(enrollment) {
  *   }
  * }
  */
-export function determineAllocatedCourseRuns({
+export function determineAllocatedCourseRunAssignmentsForCourse({
   redeemableLearnerCreditPolicies,
   courseKey,
 }) {
   const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
-  if (learnerContentAssignments.hasAllocatedAssignments) {
-    let allocatedCourseRunAssignments = learnerContentAssignments.allocatedAssignments.filter(
-      (assignment) => assignment?.isAssignedCourseRun,
-    );
-    if (courseKey) {
-      allocatedCourseRunAssignments = allocatedCourseRunAssignments.filter(
-        (assignment) => assignment?.parentContentKey === courseKey,
-      );
-    }
-    const allocatedCourseRunAssignmentKeys = allocatedCourseRunAssignments.map(assignment => assignment.contentKey);
-    const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
-    const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
+  // note: checking the non-happy path first, with early return so happy path code isn't nested in conditional.
+  if (!learnerContentAssignments.hasAllocatedAssignments) {
     return {
-      allocatedCourseRunAssignmentKeys,
-      allocatedCourseRunAssignments,
-      hasAssignedCourseRuns,
-      hasMultipleAssignedCourseRuns,
+      allocatedCourseRunAssignmentKeys: [],
+      allocatedCourseRunAssignments: [],
+      hasAssignedCourseRuns: false,
+      hasMultipleAssignedCourseRuns: false,
     };
   }
+  const allocatedCourseRunAssignments = learnerContentAssignments.allocatedAssignments.filter((assignment) => (
+    assignment.isAssignedCourseRun && assignment.parentContentKey === courseKey
+  ));
+  const allocatedCourseRunAssignmentKeys = allocatedCourseRunAssignments.map(assignment => assignment.contentKey);
+  const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
+  const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
   return {
-    allocatedCourseRunAssignmentKeys: [],
-    allocatedCourseRunAssignments: [],
-    hasAssignedCourseRuns: false,
-    hasMultipleAssignedCourseRuns: false,
+    allocatedCourseRunAssignmentKeys,
+    allocatedCourseRunAssignments,
+    hasAssignedCourseRuns,
+    hasMultipleAssignedCourseRuns,
   };
 }
 
@@ -818,7 +814,7 @@ export function determineAllocatedCourseRuns({
  *  )
  * }
  */
-export function transformCourseMetadataByAllocationCourseRun({
+export function transformCourseMetadataByAllocatedCourseRunAssignments({
   hasMultipleAssignedCourseRuns,
   courseMetadata,
   allocatedCourseRunAssignmentKeys,
