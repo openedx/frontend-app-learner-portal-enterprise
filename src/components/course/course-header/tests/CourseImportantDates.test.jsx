@@ -23,6 +23,42 @@ jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
 }));
 
+const futureEarliestExpiration = dayjs().add(5, 'days').toISOString();
+const pastEarliestExpiration = dayjs().subtract(5, 'days').toISOString();
+const now = dayjs().toISOString();
+
+const mockAllocatedAssignments = [{
+  parentContentKey: 'edX+DemoX',
+  contentKey: 'course-v1:edX+DemoX+2T2020',
+  isAssignedCourseRun: true,
+  earliestPossibleExpiration: {
+    date: dayjs().add(10, 'days').toISOString(),
+    reason: 'subsidy_expired',
+  },
+},
+{
+  parentContentKey: 'edX+DemoX',
+  contentKey: 'course-v1:edX+DemoX+2018',
+  isAssignedCourseRun: true,
+  earliestPossibleExpiration: {
+    date: now,
+    reason: 'subsidy_expired',
+  },
+},
+{
+  parentContentKey: null,
+  contentKey: 'edX+DemoX',
+  isAssignedCourseRun: false,
+  earliestPossibleExpiration: {
+    date: dayjs().add(20, 'days').toISOString(),
+    reason: 'subsidy_expired',
+  },
+}];
+const mockLearnerContentAssignments = {
+  allocatedAssignments: mockAllocatedAssignments,
+  hasAllocatedAssignments: mockAllocatedAssignments.length > 0,
+};
+
 const mockBaseRedeemablePolicies = {
   redeemablePolicies: [],
   expiredPolicies: [],
@@ -42,6 +78,14 @@ const mockBaseRedeemablePolicies = {
     hasErroredAssignments: false,
     assignmentsForDisplay: [],
     hasAssignmentsForDisplay: false,
+  },
+};
+
+const mockRedeemablePoliciesWithAllocatedAssignments = {
+  ...mockBaseRedeemablePolicies,
+  learnerContentAssignments: {
+    ...mockBaseRedeemablePolicies.learnerContentAssignments,
+    ...mockLearnerContentAssignments,
   },
 };
 
@@ -91,44 +135,8 @@ describe('<CourseImportantDates />', () => {
     useCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
   });
   it('renders without crashing', () => {
-    const earliestExpiration = dayjs().add(5, 'days').toISOString();
-    const mockAllocatedAssignments = [{
-      parentContentKey: 'edX+DemoX',
-      contentKey: 'course-v1:edX+DemoX+2T2020',
-      isAssignedCourseRun: true,
-      earliestPossibleExpiration: {
-        date: dayjs().add(10, 'days').toISOString(),
-        reason: 'subsidy_expired',
-      },
-    },
-    {
-      parentContentKey: 'edX+DemoX',
-      contentKey: 'course-v1:edX+DemoX+2018',
-      isAssignedCourseRun: true,
-      earliestPossibleExpiration: {
-        date: earliestExpiration,
-        reason: 'subsidy_expired',
-      },
-    }, {
-      parentContentKey: null,
-      contentKey: 'edX+DemoX',
-      isAssignedCourseRun: false,
-      earliestPossibleExpiration: {
-        date: dayjs().add(20, 'days').toISOString(),
-        reason: 'subsidy_expired',
-      },
-    }];
-    const mockLearnerContentAssignments = {
-      allocatedAssignments: mockAllocatedAssignments,
-      hasAllocatedAssignments: mockAllocatedAssignments.length > 0,
-    };
     useRedeemablePolicies.mockReturnValue({
-      data: {
-        ...mockBaseRedeemablePolicies,
-        learnerContentAssignments: {
-          ...mockBaseRedeemablePolicies.learnerContentAssignments, ...mockLearnerContentAssignments,
-        },
-      },
+      data: mockRedeemablePoliciesWithAllocatedAssignments,
     });
 
     renderWithRouterProvider(<CourseImportantDatesWrapper />);
@@ -137,7 +145,37 @@ describe('<CourseImportantDates />', () => {
     expect(screen.getByText('Enroll-by date')).toBeTruthy();
     expect(screen.getByText('Course starts')).toBeTruthy();
 
-    expect(screen.getByText(dayjs(earliestExpiration).format(`${DATE_FORMAT} h:mm A`))).toBeTruthy();
+    expect(screen.getByText(dayjs(now).format(`${DATE_FORMAT} h:mm A`))).toBeTruthy();
     expect(screen.getByText(dayjs(mockCourseStartDate).format(DATE_FORMAT))).toBeTruthy();
+  });
+  it.each([{
+    courseStartDate: futureEarliestExpiration,
+    expected: 'Course starts',
+  },
+  {
+    courseStartDate: pastEarliestExpiration,
+    expected: 'Course started',
+  }])('renders the correct tense based on course start date', ({
+    courseStartDate,
+    expected,
+  }) => {
+    const updatedMockCourseRun = {
+      ...mockCourseRun,
+      start: courseStartDate,
+    };
+    const updatedMockCourseMetadata = {
+      ...mockCourseMetadata,
+      activeCourseRun: updatedMockCourseRun,
+      courseRuns: [updatedMockCourseRun],
+      availableCourseRuns: [updatedMockCourseRun],
+    };
+    useRedeemablePolicies.mockReturnValue({
+      data: mockRedeemablePoliciesWithAllocatedAssignments,
+    });
+    useCourseMetadata.mockReturnValue({ data: updatedMockCourseMetadata });
+
+    renderWithRouterProvider(<CourseImportantDatesWrapper />);
+
+    expect(screen.getByText(expected)).toBeTruthy();
   });
 });
