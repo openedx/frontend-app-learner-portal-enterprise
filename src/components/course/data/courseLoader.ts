@@ -1,32 +1,30 @@
 import { generatePath, redirect } from 'react-router-dom';
 
 import {
-  queryUserEntitlements,
-  queryCanRedeem,
-  queryCourseMetadata,
-  queryEnterpriseCourseEnrollments,
-  extractEnterpriseCustomer,
-  queryRedeemablePolicies,
-  getLateEnrollmentBufferDays,
-  querySubscriptions,
-  queryLicenseRequests,
-  queryCouponCodeRequests,
+  determineAllocatedCourseRunAssignmentsForCourse,
   determineLearnerHasContentAssignmentsOnly,
-  queryEnterpriseLearnerOffers,
-  queryCouponCodes,
-  queryCourseReviews,
-  queryEnterpriseCustomerContainsContent,
-  queryCourseRecommendations,
-  getSearchCatalogs,
+  extractEnterpriseCustomer,
   getCatalogsForSubsidyRequests,
+  getLateEnrollmentBufferDays,
+  getSearchCatalogs,
   queryBrowseAndRequestConfiguration,
+  queryCanRedeem,
+  queryCouponCodeRequests,
+  queryCouponCodes,
+  queryCourseMetadata,
+  queryCourseRecommendations,
+  queryCourseReviews,
+  queryEnterpriseCourseEnrollments,
+  queryEnterpriseCustomerContainsContent,
+  queryEnterpriseLearnerOffers,
+  queryLicenseRequests,
+  queryRedeemablePolicies,
+  querySubscriptions,
+  queryUserEntitlements,
+  transformCourseMetadataByAllocatedCourseRunAssignments,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import {
-  getCourseTypeConfig,
-  getLinkToCourse,
-  pathContainsCourseTypeSlug,
-} from './utils';
+import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
 
 type CourseRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
   readonly courseKey: string;
@@ -54,14 +52,18 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
     const { courseKey, enterpriseSlug } = params;
     // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
     // need to replace it with `+` again to be a valid course run key.
-    const courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
+    let courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
-    const subsidyQueries = Promise.all([
+    const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
+      enterpriseUuid: enterpriseCustomer.uuid,
+      lmsUserId: authenticatedUser.userId,
+    }));
+    const otherSubsidyQueries = Promise.all([
       queryClient.ensureQueryData(queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: authenticatedUser.userId,
@@ -74,6 +76,18 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
       queryClient.ensureQueryData(queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid)),
     ]);
 
+    const {
+      allocatedCourseRunAssignmentKeys,
+      hasAssignedCourseRuns,
+      hasMultipleAssignedCourseRuns,
+    } = determineAllocatedCourseRunAssignmentsForCourse({
+      courseKey,
+      redeemableLearnerCreditPolicies,
+    });
+    // only override `courseRunKey` when learner has a single allocated assignment
+    if (!courseRunKey && hasAssignedCourseRuns) {
+      courseRunKey = hasMultipleAssignedCourseRuns ? null : allocatedCourseRunAssignmentKeys[0];
+    }
     await Promise.all([
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
@@ -83,23 +97,23 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
           if (!courseMetadata) {
             return null;
           }
-          const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-            enterpriseUuid: enterpriseCustomer.uuid,
-            lmsUserId: authenticatedUser.userId,
-          }));
           const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
             redeemableLearnerCreditPolicies.redeemablePolicies,
           );
+          const transformedCourseMetadata = transformCourseMetadataByAllocatedCourseRunAssignments({
+            hasMultipleAssignedCourseRuns,
+            courseMetadata,
+            allocatedCourseRunAssignmentKeys,
+          });
           return queryClient.ensureQueryData(
-            queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+            queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
           );
         }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
       queryClient.ensureQueryData(queryUserEntitlements()),
       queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey])),
       queryClient.ensureQueryData(queryCourseReviews(courseKey)),
-      subsidyQueries.then(async (subsidyResponses) => {
-        const redeemableLearnerCreditPolicies = subsidyResponses[0];
+      otherSubsidyQueries.then(async (subsidyResponses) => {
         const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[1];
         const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[2];
         const {

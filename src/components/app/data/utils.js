@@ -749,3 +749,50 @@ export function isEnrollmentUpgradeable(enrollment) {
   const canUpgradeToVerifiedEnrollment = enrollment.mode === COURSE_MODES_MAP.AUDIT && !isEnrollByLapsed;
   return canUpgradeToVerifiedEnrollment;
 }
+
+export function determineAllocatedCourseRunAssignmentsForCourse({
+  redeemableLearnerCreditPolicies,
+  courseKey,
+}) {
+  const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
+  // note: checking the non-happy path first, with early return so happy path code isn't nested in conditional.
+  if (!learnerContentAssignments.hasAllocatedAssignments) {
+    return {
+      allocatedCourseRunAssignmentKeys: [],
+      allocatedCourseRunAssignments: [],
+      hasAssignedCourseRuns: false,
+      hasMultipleAssignedCourseRuns: false,
+    };
+  }
+  const allocatedCourseRunAssignments = learnerContentAssignments.allocatedAssignments.filter((assignment) => (
+    assignment.isAssignedCourseRun && assignment.parentContentKey === courseKey
+  ));
+  const allocatedCourseRunAssignmentKeys = allocatedCourseRunAssignments.map(assignment => assignment.contentKey);
+  const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
+  const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
+  return {
+    allocatedCourseRunAssignmentKeys,
+    allocatedCourseRunAssignments,
+    hasAssignedCourseRuns,
+    hasMultipleAssignedCourseRuns,
+  };
+}
+
+export function transformCourseMetadataByAllocatedCourseRunAssignments({
+  hasMultipleAssignedCourseRuns,
+  courseMetadata,
+  allocatedCourseRunAssignmentKeys,
+}) {
+  if (hasMultipleAssignedCourseRuns && allocatedCourseRunAssignmentKeys.length > 1) {
+    return {
+      ...courseMetadata,
+      courseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+      availableCourseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+    };
+  }
+  return courseMetadata;
+}
