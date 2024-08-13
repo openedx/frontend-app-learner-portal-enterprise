@@ -4,7 +4,7 @@ import VideoJS from './VideoJS';
 
 const hlsExtension = '.m3u8';
 const defaultOptions = {
-  autoplay: false,
+  autoplay: true,
   controls: true,
   responsive: true,
   fluid: true,
@@ -17,6 +17,8 @@ const VideoPlayer = ({ videoURL, onReady, customOptions }) => {
     if (isMp4Video) {
       return {
         ...defaultOptions,
+        // Disable autoplay if `showTranscripts` is enabled (video detail page); enable autoplay otherwise.
+        autoplay: !customOptions?.showTranscripts,
         sources: [{ src: videoURL, type: 'video/mp4' }],
       };
     }
@@ -35,6 +37,7 @@ const VideoPlayer = ({ videoURL, onReady, customOptions }) => {
       controls: true,
       sources: [{ src: videoURL, type: 'application/x-mpegURL' }],
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoURL]);
 
   return (
