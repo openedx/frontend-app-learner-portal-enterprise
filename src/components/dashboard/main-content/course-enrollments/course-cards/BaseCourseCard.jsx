@@ -121,7 +121,7 @@ export const getScreenReaderText = (str) => (
 );
 
 const BaseCourseCard = ({
-  hasEmailsEnabled: defaultHasEmailsEnabled,
+  hasEmailsEnabled,
   title,
   dropdownMenuItems: customDropdownMenuItem,
   canUnenroll,
@@ -148,7 +148,6 @@ const BaseCourseCard = ({
   const intl = useIntl();
   const { LEARNER_SUPPORT_PACED_COURSE_MODE_URL } = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const [hasEmailsEnabled, setHasEmailsEnabled] = useState(defaultHasEmailsEnabled);
   const [emailSettingsModal, setEmailSettingsModal] = useState({
     open: false,
     options: {},
@@ -267,11 +266,8 @@ const BaseCourseCard = ({
     }));
   };
 
-  const handleEmailSettingsModalOnClose = (newValue) => {
+  const handleEmailSettingsModalOnClose = () => {
     resetModals();
-    if (hasEmailsEnabled !== undefined) {
-      setHasEmailsEnabled(newValue);
-    }
   };
 
   const handleUnenrollModalOnClose = () => {

@@ -177,8 +177,8 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
     // redirect to the appropriate course route.
     if (
       courseMetadata.courseType
-        && getCourseTypeConfig(courseMetadata)
-        && !pathContainsCourseTypeSlug(requestUrl.pathname, courseMetadata.courseType)
+      && getCourseTypeConfig(courseMetadata)
+      && !pathContainsCourseTypeSlug(requestUrl.pathname, courseMetadata.courseType)
     ) {
       const newUrl = getLinkToCourse(courseMetadata, enterpriseSlug);
       throw redirect(newUrl);
