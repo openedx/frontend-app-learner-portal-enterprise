@@ -80,7 +80,8 @@ describe('<BaseCourseCard />', () => {
     it('handles email settings modal close/cancel', async () => {
       userEvent.click(screen.getByTestId('modal-footer-btn', { name: 'Close' }));
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        const dialogElement = screen.getByTestId('modal');
+        expect(dialogElement).not.toHaveClass('show');
       });
     });
   });
