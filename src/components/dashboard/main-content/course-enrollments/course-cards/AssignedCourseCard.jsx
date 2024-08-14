@@ -16,14 +16,14 @@ const AssignedCourseCard = (props) => {
     // refactoring to rename `courseRunId` to `contentKey` in the future given learner content assignments
     // are for top-level courses, not course runs.
     courseRunId: courseKey,
+    parentContentKey,
     isCanceledAssignment,
     isExpiredAssignment,
   } = props;
-
   const renderButtons = () => (
     <Button
       as={Link}
-      to={`/${enterpriseCustomer.slug}/course/${courseKey}`}
+      to={`/${enterpriseCustomer.slug}/course/${parentContentKey ?? courseKey}`}
       className={classNames('btn-xs-block', { disabled: isCanceledAssignment || isExpiredAssignment })}
       // TODO: Not all assignment cards are rendered with a darker background (e.g., external courses
       // such as Executive Education) should use the inverse-brand variant while Open Courses (with white
@@ -53,6 +53,7 @@ const AssignedCourseCard = (props) => {
 
 AssignedCourseCard.propTypes = {
   courseRunId: PropTypes.string.isRequired,
+  parentContentKey: PropTypes.string,
   title: PropTypes.string.isRequired,
   isRevoked: PropTypes.bool,
   courseRunStatus: PropTypes.string.isRequired,
@@ -66,6 +67,7 @@ AssignedCourseCard.propTypes = {
 
 AssignedCourseCard.defaultProps = {
   endDate: null,
+  parentContentKey: null,
   isRevoked: false,
   startDate: null,
   mode: null,

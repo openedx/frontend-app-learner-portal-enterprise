@@ -66,10 +66,14 @@ const CourseSection = ({
     notifications,
     courseRunStatus,
     isRevoked,
+    parentContentKey,
     ...rest
   }) => {
     const courseRunProps = { courseRunStatus };
     switch (courseRunStatus) {
+      case COURSE_STATUSES.assigned:
+        courseRunProps.parentContentKey = parentContentKey;
+        break;
       case COURSE_STATUSES.inProgress:
         courseRunProps.linkToCertificate = linkToCertificate;
         courseRunProps.notifications = notifications;
