@@ -750,6 +750,26 @@ export function isEnrollmentUpgradeable(enrollment) {
   return canUpgradeToVerifiedEnrollment;
 }
 
+/**
+ * Determines if allocatedAssignments are courseRun based
+ *
+ * @param redeemableLearnerCreditPolicies
+ * @param courseKey
+ * @returns {
+ *   {
+ *     hasAssignedCourseRuns: boolean,
+ *    allocatedCourseRunAssignmentKeys: *,
+ *    allocatedCourseRunAssignments: *,
+ *    hasMultipleAssignedCourseRuns: boolean
+ *   } |
+ *   {
+ *    hasAssignedCourseRuns: boolean,
+ *    allocatedCourseRunAssignmentKeys: *[],
+ *    allocatedCourseRunAssignments: *[],
+ *    hasMultipleAssignedCourseRuns: boolean
+ *   }
+ * }
+ */
 export function determineAllocatedCourseRunAssignmentsForCourse({
   redeemableLearnerCreditPolicies,
   courseKey,
@@ -778,6 +798,22 @@ export function determineAllocatedCourseRunAssignmentsForCourse({
   };
 }
 
+/**
+ * Transform course metadata to display available runs with multiple allocated course runs
+ *
+ * @param hasMultipleAssignedCourseRuns
+ * @param courseMetadata
+ * @param allocatedCourseRunAssignmentKeys
+ * @returns {
+ * * |
+ *  (* &
+ *    {
+ *      courseRuns: *,
+ *      availableCourseRuns: *
+ *    }
+ *  )
+ * }
+ */
 export function transformCourseMetadataByAllocatedCourseRunAssignments({
   hasMultipleAssignedCourseRuns,
   courseMetadata,
