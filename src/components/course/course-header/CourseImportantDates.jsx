@@ -44,7 +44,7 @@ const CourseImportantDate = ({
 }) => (
   <Row className="course-important-date border-bottom mx-0 py-2.5">
     <Col className="px-0">
-      <Stack className="small" direction="horizontal" gap={2}>
+      <Stack direction="horizontal" gap={2}>
         <Icon size="sm" src={Calendar} />
         {label}
       </Stack>
@@ -112,22 +112,18 @@ const CourseImportantDates = () => {
   }
 
   return (
-    <section className="assignments-important-dates mt-4">
-      <h3 className="mb-3">
+    <section className="assignments-important-dates mt-4 small">
+      <h3>
         {intl.formatMessage(messages.importantDates)}
       </h3>
       {enrollByDate && (
         <CourseImportantDate label={intl.formatMessage(messages.enrollByDate)}>
-          <small>
-            {enrollByDate}
-          </small>
+          {enrollByDate}
         </CourseImportantDate>
       )}
       {courseStartDate && (
         <CourseImportantDate label={courseHasStartedLabel}>
-          <small>
-            {courseStartDate}
-          </small>
+          {courseStartDate}
         </CourseImportantDate>
       )}
     </section>

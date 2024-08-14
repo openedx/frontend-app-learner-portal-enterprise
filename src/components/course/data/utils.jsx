@@ -3,7 +3,7 @@ import { ensureConfig, getConfig } from '@edx/frontend-platform';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { Button, Hyperlink, MailtoLink } from '@openedx/paragon';
 import isNil from 'lodash.isnil';
-import { logInfo } from '@edx/frontend-platform/logging';
+import { logError } from '@edx/frontend-platform/logging';
 import dayjs from '../../../utils/dayjs';
 
 import {
@@ -904,7 +904,7 @@ export function getSoonestEarliestPossibleExpirationData({
   dateFormat = null,
 }) {
   if (!assignments?.length) {
-    logInfo(`[sortedByExpirationDate] ${assignments} an empty array`);
+    logError('[getSoonestEarliestPossibleExpirationData] no assignments provided in array');
     return {
       soonestExpirationDate: null,
       soonestExpirationReason: null,
@@ -913,10 +913,10 @@ export function getSoonestEarliestPossibleExpirationData({
     };
   }
   const assignmentsWithExpiration = assignments.filter(
-    assignment => !!assignment?.earliestPossibleExpiration,
+    assignment => !!assignment.earliestPossibleExpiration,
   );
   if (!assignmentsWithExpiration.length) {
-    logInfo(`[sortedByExpirationDate] [${assignments.map((assignment) => assignment.uuid).join(',')}] allocated assignment uuids do not contain earliestPossibleExpiration field`);
+    logError(`[getSoonestEarliestPossibleExpirationData] [${assignments.map((assignment) => assignment.uuid).join(', ')}] allocated assignment uuids do not contain earliestPossibleExpiration field`);
     return {
       soonestExpirationDate: null,
       soonestExpirationReason: null,

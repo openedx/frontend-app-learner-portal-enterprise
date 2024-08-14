@@ -1,5 +1,6 @@
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -141,12 +142,12 @@ describe('<CourseImportantDates />', () => {
 
     renderWithRouterProvider(<CourseImportantDatesWrapper />);
 
-    expect(screen.getByText('Important dates')).toBeTruthy();
-    expect(screen.getByText('Enroll-by date')).toBeTruthy();
-    expect(screen.getByText('Course starts')).toBeTruthy();
+    expect(screen.getByText('Important dates')).toBeInTheDocument();
+    expect(screen.getByText('Enroll-by date')).toBeInTheDocument();
+    expect(screen.getByText('Course starts')).toBeInTheDocument();
 
-    expect(screen.getByText(dayjs(now).format(DATETIME_FORMAT))).toBeTruthy();
-    expect(screen.getByText(dayjs(mockCourseStartDate).format(DATE_FORMAT))).toBeTruthy();
+    expect(screen.getByText(dayjs(now).format(DATETIME_FORMAT))).toBeInTheDocument();
+    expect(screen.getByText(dayjs(mockCourseStartDate).format(DATE_FORMAT))).toBeInTheDocument();
   });
   it.each([{
     courseStartDate: futureEarliestExpiration,
@@ -176,6 +177,6 @@ describe('<CourseImportantDates />', () => {
 
     renderWithRouterProvider(<CourseImportantDatesWrapper />);
 
-    expect(screen.getByText(expected)).toBeTruthy();
+    expect(screen.getByText(expected)).toBeInTheDocument();
   });
 });
