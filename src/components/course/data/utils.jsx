@@ -3,6 +3,7 @@ import { ensureConfig, getConfig } from '@edx/frontend-platform';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { Button, Hyperlink, MailtoLink } from '@openedx/paragon';
 import isNil from 'lodash.isnil';
+import { logInfo } from '@edx/frontend-platform/logging';
 import dayjs from '../../../utils/dayjs';
 
 import {
@@ -21,12 +22,14 @@ import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { findHighestLevelEntitlementSku, findHighestLevelSkuByEntityModeType, isEnrollmentUpgradeable } from '../../app/data';
+import {
+  findHighestLevelEntitlementSku,
+  findHighestLevelSkuByEntityModeType,
+  isEnrollmentUpgradeable,
+} from '../../app/data';
 
 export function hasCourseStarted(start) {
-  const today = new Date();
-  const startDate = new Date(start);
-  return startDate && today >= startDate;
+  return dayjs(start).isBefore(dayjs());
 }
 
 export function findUserEnrollmentForCourseRun({ userEnrollments, key }) {
@@ -869,4 +872,71 @@ export function transformedCourseMetadata({
     },
   };
   return minimalCourseMetadata;
+}
+
+/**
+ * Takes assignments with the earliestPossibleExpirationDate field and sorts by the
+ * soonest expiring expiration date, along with returns relevant metadata
+ *
+ * @param assignmentObjectArray
+ * @param dateFormat
+ * @returns {
+ *  {
+ *    date: (*|string),
+ *    reason: string,
+ *    sortedExpirationDateData: *,
+ *    soonestExpirationDateData: *
+ *   } |
+ *   {
+ *    date: null,
+ *    reason: null,
+ *    sortedExpirationDateData: null
+ *   } |
+ *   {
+ *    date: null,
+ *    reason: null,
+ *    sortedByExpirationDate: null
+ *   }
+ * }
+ */
+export function getSoonestEarliestPossibleExpirationData({
+  assignments,
+  dateFormat = null,
+}) {
+  if (!assignments?.length) {
+    logInfo(`[sortedByExpirationDate] ${assignments} an empty array`);
+    return {
+      soonestExpirationDate: null,
+      soonestExpirationReason: null,
+      soonestExpiringAssignment: null,
+      sortedExpirationAssignments: null,
+    };
+  }
+  const assignmentsWithExpiration = assignments.filter(
+    assignment => !!assignment?.earliestPossibleExpiration,
+  );
+  if (!assignmentsWithExpiration.length) {
+    logInfo(`[sortedByExpirationDate] [${assignments.map((assignment) => assignment.uuid).join(',')}] allocated assignment uuids do not contain earliestPossibleExpiration field`);
+    return {
+      soonestExpirationDate: null,
+      soonestExpirationReason: null,
+      soonestExpiringAssignment: null,
+      sortedExpirationAssignments: null,
+    };
+  }
+
+  const sortedByExpirationDate = assignmentsWithExpiration.sort(
+    (a, b) => (dayjs(a.earliestPossibleExpiration.date).isBefore(b.earliestPossibleExpiration.date) ? -1 : 1),
+  );
+  let { date: soonestExpirationDate } = sortedByExpirationDate[0].earliestPossibleExpiration.date;
+  if (dateFormat) {
+    soonestExpirationDate = dayjs(soonestExpirationDate).format(dateFormat);
+  }
+
+  return {
+    soonestExpirationDate,
+    soonestExpirationReason: sortedByExpirationDate[0].earliestPossibleExpiration.reason,
+    soonestExpiringAssignment: sortedByExpirationDate[0],
+    sortedExpirationAssignments: sortedByExpirationDate,
+  };
 }

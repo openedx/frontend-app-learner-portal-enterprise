@@ -5,10 +5,12 @@ import { Calendar } from '@openedx/paragon/icons';
 import dayjs from 'dayjs';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
-import { DATE_FORMAT } from '../data';
+import PropTypes from 'prop-types';
+import {
+  DATE_FORMAT, DATETIME_FORMAT, getSoonestEarliestPossibleExpirationData, hasCourseStarted,
+} from '../data';
 import {
   determineAllocatedCourseRunAssignmentsForCourse,
-  getSoonestEarliestPossibleExpirationData,
   useCourseMetadata,
   useRedeemablePolicies,
 } from '../../app/data';
@@ -36,6 +38,28 @@ const messages = defineMessages({
   },
 });
 
+const CourseImportantDate = ({
+  label,
+  children,
+}) => (
+  <Row className="course-important-date border-bottom mx-0 py-2.5">
+    <Col className="px-0">
+      <Stack className="small" direction="horizontal" gap={2}>
+        <Icon size="sm" src={Calendar} />
+        {label}
+      </Stack>
+    </Col>
+    <Col>
+      {children}
+    </Col>
+  </Row>
+);
+
+CourseImportantDate.propTypes = {
+  label: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+};
+
 const CourseImportantDates = () => {
   const { courseKey } = useParams();
   const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
@@ -52,60 +76,61 @@ const CourseImportantDates = () => {
 
   const [searchParams] = useSearchParams();
   const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
-
-  if (!hasAssignedCourseRuns || (!!courseRunKey && !allocatedCourseRunAssignmentKeys.includes(courseRunKey))) {
+  // Check if the corresponding course run key from query parameters matches an allocated assignment course run key
+  const doesNotHaveCourseRunAssignmentForCourseRunKey = !!courseRunKey && !allocatedCourseRunAssignmentKeys.includes(
+    courseRunKey,
+  );
+  if (!hasAssignedCourseRuns || doesNotHaveCourseRunAssignmentForCourseRunKey) {
     return null;
   }
 
-  const { date, soonestExpirationDateData } = getSoonestEarliestPossibleExpirationData({
-    assignmentObjectArray: allocatedCourseRunAssignments,
-    dateFormat: `${DATE_FORMAT} h:mm A`,
+  // Retrieve soonest expiring enroll-by date
+  const { soonestExpirationDate, soonestExpiringAssignment } = getSoonestEarliestPossibleExpirationData({
+    assignments: allocatedCourseRunAssignments,
+    dateFormat: DATETIME_FORMAT,
   });
-  const soonestExpiringAllocatedAssignmentCourseStartDate = courseMetadata.availableCourseRuns.find(
-    (courseRun) => courseRun.key === soonestExpirationDateData?.contentKey,
-  )?.start;
 
-  const enrollByDate = date;
-  const courseStartDate = dayjs(soonestExpiringAllocatedAssignmentCourseStartDate).format(DATE_FORMAT);
-  const hasCourseStarted = dayjs(courseStartDate).isBefore(dayjs());
+  // Match soonest expiring assignment to the corresponding course start date from course metadata
+  let soonestExpiringAllocatedAssignmentCourseStartDate = null;
+  if (soonestExpiringAssignment) {
+    soonestExpiringAllocatedAssignmentCourseStartDate = courseMetadata.availableCourseRuns.find(
+      (courseRun) => courseRun.key === soonestExpiringAssignment?.contentKey,
+    )?.start;
+  }
+
+  // Parse logic of date existence and labels
+  const enrollByDate = soonestExpirationDate ?? null;
+  const courseStartDate = soonestExpiringAllocatedAssignmentCourseStartDate
+    ? dayjs(soonestExpiringAllocatedAssignmentCourseStartDate).format(DATE_FORMAT)
+    : null;
+  const courseHasStartedLabel = hasCourseStarted(courseStartDate)
+    ? intl.formatMessage(messages.courseStarted)
+    : intl.formatMessage(messages.courseStarts);
+
+  if (!enrollByDate && !courseStartDate) {
+    return null;
+  }
 
   return (
-    <Stack gap={2} className="mt-4">
-      <h3>{intl.formatMessage(messages.importantDates)}</h3>
-      <section>
-        {enrollByDate && (
-          <Row>
-            <Col>
-              <Stack direction="horizontal" gap={2}>
-                <Icon src={Calendar} />
-                {intl.formatMessage(messages.enrollByDate)}
-              </Stack>
-            </Col>
-            <Col>
-              {enrollByDate}
-            </Col>
-          </Row>
-        )}
-        {enrollByDate && courseStartDate && <hr />}
-        {courseStartDate && (
-          <Row>
-            <Col>
-              <Stack direction="horizontal" gap={2}>
-                <Icon src={Calendar} />
-                {
-                  hasCourseStarted
-                    ? intl.formatMessage(messages.courseStarted)
-                    : intl.formatMessage(messages.courseStarts)
-                }
-              </Stack>
-            </Col>
-            <Col>
-              {courseStartDate}
-            </Col>
-          </Row>
-        )}
-      </section>
-    </Stack>
+    <section className="assignments-important-dates mt-4">
+      <h3 className="mb-3">
+        {intl.formatMessage(messages.importantDates)}
+      </h3>
+      {enrollByDate && (
+        <CourseImportantDate label={intl.formatMessage(messages.enrollByDate)}>
+          <small>
+            {enrollByDate}
+          </small>
+        </CourseImportantDate>
+      )}
+      {courseStartDate && (
+        <CourseImportantDate label={courseHasStartedLabel}>
+          <small>
+            {courseStartDate}
+          </small>
+        </CourseImportantDate>
+      )}
+    </section>
   );
 };
 

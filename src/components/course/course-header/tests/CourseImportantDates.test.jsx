@@ -7,7 +7,7 @@ import CourseImportantDates from '../CourseImportantDates';
 import { renderWithRouterProvider } from '../../../../utils/tests';
 import { authenticatedUserFactory } from '../../../app/data/services/data/__factories__';
 import { useCourseMetadata, useRedeemablePolicies } from '../../../app/data';
-import { COURSE_PACING_MAP, DATE_FORMAT } from '../../data';
+import { COURSE_PACING_MAP, DATE_FORMAT, DATETIME_FORMAT } from '../../data';
 import { TEST_OWNER } from '../../tests/data/constants';
 
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -145,7 +145,7 @@ describe('<CourseImportantDates />', () => {
     expect(screen.getByText('Enroll-by date')).toBeTruthy();
     expect(screen.getByText('Course starts')).toBeTruthy();
 
-    expect(screen.getByText(dayjs(now).format(`${DATE_FORMAT} h:mm A`))).toBeTruthy();
+    expect(screen.getByText(dayjs(now).format(DATETIME_FORMAT))).toBeTruthy();
     expect(screen.getByText(dayjs(mockCourseStartDate).format(DATE_FORMAT))).toBeTruthy();
   });
   it.each([{
