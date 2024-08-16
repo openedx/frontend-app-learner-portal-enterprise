@@ -368,7 +368,7 @@ export const transformSubsidyRequest = ({
   notifications: [], // required prop by CourseSection
 });
 
-export const assignmentTypeStates = ({ state }) => ({
+export const determineAssignmentState = ({ state }) => ({
   isAcceptedAssignment: state === ASSIGNMENT_TYPES.ACCEPTED,
   isAllocatedAssignment: state === ASSIGNMENT_TYPES.ALLOCATED,
   isCanceledAssignment: state === ASSIGNMENT_TYPES.CANCELED,
@@ -388,9 +388,11 @@ export const transformLearnerContentAssignment = (learnerContentAssignment, ente
   const {
     isExpiredAssignment,
     isCanceledAssignment,
-  } = assignmentTypeStates({ state });
+  } = determineAssignmentState({ state });
   const { date: assignmentEnrollByDeadline } = earliestPossibleExpiration;
 
+  // This logic is intended to remain backwards
+  // compatible with assignments for top-level courses
   let courseKey = contentKey;
   let courseRunId = courseKey;
   if (isAssignedCourseRun) {

@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
-  assignmentTypeStates,
+  determineAssignmentState,
   determineLearnerHasContentAssignmentsOnly,
   filterPoliciesByExpirationAndActive,
   getAvailableCourseRuns,
@@ -867,7 +867,7 @@ describe('getSubsidyToApplyForCourse', () => {
   });
 });
 
-describe('assignmentTypeStates', () => {
+describe('determineAssignmentState', () => {
   it.each([{
     state: 'accepted',
   },
@@ -890,7 +890,7 @@ describe('assignmentTypeStates', () => {
     state: 'pikachu',
   },
   ])('returns expected object when state is passed (%s)', ({ state }) => {
-    const currentAssignmentStates = assignmentTypeStates({ state });
+    const currentAssignmentStates = determineAssignmentState({ state });
     const baseAssignmentStates = {
       isAcceptedAssignment: false,
       isAllocatedAssignment: false,
