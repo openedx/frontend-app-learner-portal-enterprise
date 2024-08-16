@@ -889,3 +889,21 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
   }
   return courseMetadata;
 }
+
+/*
+ * A centralized helper to tell us if a given run is unrestricted for the given catalog.
+ */
+export function isRunUnrestricted({
+  restrictedRunsAllowed,
+  courseMetadata,
+  courseRunKey,
+  catalogUuid,
+}) {
+  const courseRunMetadata = courseMetadata.availableCourseRuns.find(r => r.contentKey === courseRunKey);
+  if (courseRunMetadata?.restrictionType === 'custom-b2b-enterprise') {
+    // If the run is restricted for enterprise, make sure the catalog of interest explicitly allows it.
+    return restrictedRunsAllowed[courseMetadata.key][courseRunKey].includes(catalogUuid);
+  }
+  // Otherwise, only allow completely unrestricted runs.
+  return !courseRunMetadata?.restrictionType;
+}

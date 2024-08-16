@@ -1,10 +1,12 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
+import { isRunUnrestricted } from '../utils';
 import useCourseMetadata from './useCourseMetadata';
 import { queryCanRedeem } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
+import useEnterpriseCustomerContainsContent from './useEnterpriseCustomerContainsContent';
 
 const getContentListPriceRange = ({ courseRuns }) => {
   const flatContentPrice = courseRuns.flatMap(run => run.listPrice?.usd).filter(x => !!x);
@@ -25,25 +27,37 @@ export function transformCourseRedemptionEligibility({
   courseMetadata,
   canRedeemData,
   courseRunKey,
+  restrictedRunsAllowed,
 }) {
-  const redeemabilityForActiveCourseRun = canRedeemData.find(r => r.contentKey === courseMetadata.activeCourseRun?.key);
+  // Begin by excluding restricted runs that should not be visible to the requester.
+  // This filtering does not control visibility of individual course runs, but
+  // it does serve as input to the determination of redemption eligiblity.
+  const unrestrictedCanRedeemData = canRedeemData.filter(r => isRunUnrestricted({
+    restrictedRunsAllowed,
+    courseMetadata,
+    courseRunKey: r.contentKey,
+    catalogUuid: r.redeemableSubsidyAccessPolicy?.catalogUuid,
+  }));
+  const redeemabilityForActiveCourseRun = unrestrictedCanRedeemData.find(
+    r => r.contentKey === courseMetadata.activeCourseRun?.key,
+  );
   const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
   const preferredSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
-  const otherSubsidyAccessPolicy = canRedeemData.find(
+  const anyRedeemableSubsidyAccessPolicy = unrestrictedCanRedeemData.find(
     r => r.redeemableSubsidyAccessPolicy,
   )?.redeemableSubsidyAccessPolicy;
   const listPrice = getContentListPriceRange({ courseRuns: canRedeemData });
   const hasSuccessfulRedemption = courseRunKey
-    ? !!canRedeemData.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption
-    : canRedeemData.some(r => r.hasSuccessfulRedemption);
+    ? !!unrestrictedCanRedeemData.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption
+    : unrestrictedCanRedeemData.some(r => r.hasSuccessfulRedemption);
 
   // If there is a redeemable subsidy access policy for the active course run, use that. Otherwise, use any other
   // redeemable subsidy access policy for any of the content keys.
-  const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || otherSubsidyAccessPolicy;
+  const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || anyRedeemableSubsidyAccessPolicy;
   const isPolicyRedemptionEnabled = hasSuccessfulRedemption || !!redeemableSubsidyAccessPolicy;
   return {
     isPolicyRedemptionEnabled,
-    redeemabilityPerContentKey: canRedeemData,
+    redeemabilityPerContentKey: unrestrictedCanRedeemData,
     redeemableSubsidyAccessPolicy,
     missingSubsidyAccessPolicyReason,
     hasSuccessfulRedemption,
@@ -60,6 +74,7 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
   const { select, ...queryOptionsRest } = queryOptions;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
+  const { data: { restrictedRunsAllowed } } = useEnterpriseCustomerContainsContent([courseMetadata.key]);
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
 
   return useQuery({
@@ -70,6 +85,7 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
         courseMetadata,
         canRedeemData: data,
         courseRunKey,
+        restrictedRunsAllowed,
       });
       if (select) {
         return select({

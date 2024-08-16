@@ -10,6 +10,7 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomerContainsContent,
   useUserEntitlements,
+  isRunUnrestricted,
 } from '../../app/data';
 
 /**
@@ -21,18 +22,30 @@ const CourseRunCards = () => {
   const {
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
+    applicableCatalogUuid,
   } = useUserSubsidyApplicableToCourse();
+  const {
+    data: {
+      catalogList,
+      restrictedRunsAllowed,
+    },
+  } = useEnterpriseCustomerContainsContent([courseKey]);
   const { data: courseMetadata } = useCourseMetadata();
-  const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
   const { data: userEntitlements } = useUserEntitlements();
+  const availableCourseRuns = courseMetadata.availableCourseRuns.filter(r => isRunUnrestricted({
+    restrictedRunsAllowed,
+    courseMetadata,
+    courseRunKey: r.key,
+    applicableCatalogUuid,
+  }));
 
   return (
     <CardGrid
       columnSizes={{ xs: 12, md: 6, lg: 5 }}
       hasEqualColumnHeights={false}
     >
-      {courseMetadata.availableCourseRuns.map((courseRun) => {
+      {availableCourseRuns.map((courseRun) => {
         const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
 
         // Render the newer `CourseRunCard` component when the user's subsidy, if any, is
