@@ -539,18 +539,11 @@ export function getAvailableCourseRuns({ course, lateEnrollmentBufferDays }) {
     return today.isBefore(bufferedEnrollDeadline);
   };
 
-  const availableCourseRuns = course.courseRuns.filter(
+  return course.courseRuns.filter(
     isDefinedAndNotNull(lateEnrollmentBufferDays)
       ? lateEnrollmentAvailableCourseRunsFilter
       : standardAvailableCourseRunsFilter,
   );
-
-  // ENT-9359 (epic for Custom Presentations/Restricted Runs):
-  // Temporarily hide all restricted runs unconditionally on the course about
-  // page during implementation of the overall feature. ENT-9410 is most likely
-  // the ticket to replace this code with something to actually show restricted
-  // runs conditionally.
-  return availableCourseRuns.filter((courseRun) => !courseRun.restrictionType);
 }
 
 export function getCatalogsForSubsidyRequests({
@@ -710,7 +703,7 @@ export const filterPoliciesByExpirationAndActive = (policies) => {
  * @param applicableCouponCode
  * @param applicableEnterpriseOffer
  * @param applicableSubsidyAccessPolicy
- * @returns {{perLearnerSpendLimit: (number|null|Number|*), policyRedemptionUrl: (string|string|*), discountType: string, discountValue: number, subsidyType: string, perLearnerEnrollmentLimit: (null|*)}|{subsidyId, discountType: string, discountValue: number, startDate, subsidyType: string, expirationDate, status}|undefined|{maxUserApplications: (null|*), endDate: (string|*), subsidyType: string, offerType: *, isCurrent, remainingApplications: (number|null|*), remainingApplicationsForUser: (number|null|*), discountType: string, remainingBalance, remainingBalanceForUser, discountValue, startDate: (string|*), maxUserDiscount}|{code, endDate: (string|*), discountType: (string|*), discountValue: (number|*), startDate: (string|*), subsidyType: string}}
+ * @returns {{perLearnerSpendLimit: (number|null|Number|*), policyRedemptionUrl: (string|string|*), discountType: string, discountValue: number, subsidyType: string, perLearnerEnrollmentLimit: (null|*)}|{subsidyId, discountType: string, discountValue: number, startDate, subsidyType: string, expirationDate, status}|undefined|{maxUserApplications: (null|*), endDate: (string|*), subsidyType: string, offerType: *, isCurrent, remainingApplications: (number|null|*), remainingApplicationsForUser: (number|null|*), discountType: string, remainingBalance, remainingBalanceForUser, discountValue, startDate: (string|*), maxUserDiscount}|{code, endDate: (string|*), discountType: (string|*), discountValue: (number|*), startDate: (string|*), subsidyType: string, catalogUuid: (string|*)}}
  */
 /* eslint-enable max-len */
 export const getSubsidyToApplyForCourse = ({
@@ -743,7 +736,7 @@ export const getSubsidyToApplyForCourse = ({
   }
 
   if (applicableSubsidyAccessPolicy?.isPolicyRedemptionEnabled) {
-    const { redeemableSubsidyAccessPolicy } = applicableSubsidyAccessPolicy;
+    const { redeemableSubsidyAccessPolicy, availableCourseRuns } = applicableSubsidyAccessPolicy;
     return {
       discountType: 'percentage',
       discountValue: 100,
@@ -751,6 +744,7 @@ export const getSubsidyToApplyForCourse = ({
       perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
       perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
       policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+      availableCourseRuns,
     };
   }
 

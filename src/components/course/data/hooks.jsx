@@ -542,6 +542,7 @@ export function useCourseListPrice() {
  */
 export const useUserSubsidyApplicableToCourse = () => {
   const { courseKey } = useParams();
+  const { data: courseMetadata } = useCourseMetadata();
   const resolvedTransformedEnterpriseCustomerData = ({ transformed }) => ({
     fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
     contactEmail: transformed.contactEmail,
@@ -578,6 +579,7 @@ export const useUserSubsidyApplicableToCourse = () => {
       isPolicyRedemptionEnabled,
       redeemableSubsidyAccessPolicy,
       missingSubsidyAccessPolicyReason,
+      availableCourseRuns,
     },
   } = useCourseRedemptionEligibility();
   const {
@@ -594,7 +596,7 @@ export const useUserSubsidyApplicableToCourse = () => {
   );
   const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
     applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
-    applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy },
+    applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy, availableCourseRuns },
     applicableCouponCode: findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse),
     applicableEnterpriseOffer: findEnterpriseOfferForCourse({
       enterpriseOffers: currentEnterpriseOffers,
@@ -619,6 +621,14 @@ export const useUserSubsidyApplicableToCourse = () => {
       missingSubsidyAccessPolicyReason,
       enterpriseOffers,
     });
+  }
+  if (userSubsidyApplicableToCourse) {
+    // Augment the selected subsidy object to backfill availableCourseRuns in case it isn't
+    // supplied. Fallback to all unrestricted, available course runs.
+    const onlyUnrestrictedCourseRuns = courseMetadata?.availableCourseRuns.filter(r => !r.restrictionType) || [];
+    userSubsidyApplicableToCourse.availableCourseRuns = (
+      userSubsidyApplicableToCourse?.availableCourseRuns || onlyUnrestrictedCourseRuns
+    );
   }
   return useMemo(() => ({
     userSubsidyApplicableToCourse,

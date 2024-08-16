@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { CardGrid } from '@openedx/paragon';
+import { getConfig } from '@edx/frontend-platform';
 
 import CourseRunCard from './CourseRunCard';
 import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
@@ -26,36 +27,43 @@ const CourseRunCards = () => {
   const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
   const { data: userEntitlements } = useUserEntitlements();
+  // The DEPRECATED CourseRunCard should be used when the applicable subsidy is NOT Learner Credit.
+  const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
+  const shouldUseDeprecatedCourseRunCard = !hasRedeemablePolicy && !missingUserSubsidyReason?.userMessage;
+  // courseMetadata.avaialbleCourseRuns may include runs that are restricted from the applicable
+  // subsidy, so instead we ask userSubsidyApplicableToCourse to give us exactly which runs to
+  // display on this page. If there's no applicable subsidy for the course, fallback to just
+  // displaying unrestricted runs.
+  const runsAvailableToSubsidy = userSubsidyApplicableToCourse?.availableCourseRuns;
+  const unrestrictedRunsOnly = courseMetadata.availableCourseRuns.filter(run => !run.restrictionType);
+  const courseRunsToDisplay = (
+    getConfig().FEATURE_ENABLE_RESTRICTED_RUNS && runsAvailableToSubsidy
+  ) || unrestrictedRunsOnly;
 
   return (
     <CardGrid
       columnSizes={{ xs: 12, md: 6, lg: 5 }}
       hasEqualColumnHeights={false}
     >
-      {courseMetadata.availableCourseRuns.map((courseRun) => {
-        const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
-
-        // Render the newer `CourseRunCard` component when the user's subsidy, if any, is
-        // a policy OR if there is a known disabled enroll reason.
-        if (hasRedeemablePolicy || missingUserSubsidyReason?.userMessage) {
+      {courseRunsToDisplay.map((courseRun) => {
+        if (shouldUseDeprecatedCourseRunCard) {
           return (
-            <CourseRunCard
+            <DeprecatedCourseRunCard
               key={courseRun.uuid}
+              courseKey={courseKey}
+              userEnrollments={enterpriseCourseEnrollments}
               courseRun={courseRun}
+              catalogList={catalogList}
+              userEntitlements={userEntitlements}
+              courseEntitlements={courseMetadata.entitlements}
+              missingUserSubsidyReason={missingUserSubsidyReason}
             />
           );
         }
-
         return (
-          <DeprecatedCourseRunCard
+          <CourseRunCard
             key={courseRun.uuid}
-            courseKey={courseKey}
-            userEnrollments={enterpriseCourseEnrollments}
             courseRun={courseRun}
-            catalogList={catalogList}
-            userEntitlements={userEntitlements}
-            courseEntitlements={courseMetadata.entitlements}
-            missingUserSubsidyReason={missingUserSubsidyReason}
           />
         );
       })}
