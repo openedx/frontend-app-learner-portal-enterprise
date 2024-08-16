@@ -19,8 +19,8 @@ import {
   findHighestLevelSeatSku,
 } from '../../../../course/data/utils';
 import { getExpiringAssignmentsAcknowledgementState, getHasUnacknowledgedAssignments } from '../../../data/utils';
-import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
+  ASSIGNMENT_TYPES,
   COUPON_CODE_SUBSIDY_TYPE,
   getSubsidyToApplyForCourse,
   groupCourseEnrollmentsByStatus,

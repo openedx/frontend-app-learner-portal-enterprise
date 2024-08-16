@@ -4,8 +4,7 @@ import { Info, Warning } from '@openedx/paragon/icons';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import { getContactEmail } from '../../../../utils/common';
-import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { useEnterpriseCustomer } from '../../../app/data';
+import { ASSIGNMENT_TYPES, useEnterpriseCustomer } from '../../../app/data';
 
 const alertMessagingByVariant = {
   [ASSIGNMENT_TYPES.CANCELED]: {

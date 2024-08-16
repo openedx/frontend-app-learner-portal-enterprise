@@ -2,7 +2,7 @@ import MockDate from 'mockdate';
 
 import dayjs from 'dayjs';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
   determineLearnerHasContentAssignmentsOnly,
   filterPoliciesByExpirationAndActive,
@@ -11,6 +11,7 @@ import {
   transformGroupMembership,
 } from './utils';
 import {
+  ASSIGNMENT_TYPES,
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_AVAILABILITY_MAP,
   emptyRedeemableLearnerCreditPolicies,

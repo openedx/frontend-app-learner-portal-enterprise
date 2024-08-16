@@ -19,8 +19,9 @@ import {
   SUBSCRIPTION_SUMMARY_CARD_TITLE,
 } from '../data/constants';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
-import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { POLICY_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
+  ASSIGNMENT_TYPES,
   emptyRedeemableLearnerCreditPolicies,
   useAcademies,
   useBrowseAndRequest,

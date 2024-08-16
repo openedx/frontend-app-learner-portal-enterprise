@@ -53,3 +53,14 @@ export const LEARNER_CREDIT_SUBSIDY_TYPE = 'learnerCredit';
 
 export const ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS = 10;
 export const MAX_HIGHLIGHT_SETS = 12;
+
+// Note: `cancelled` is correct and matches backend state
+// despite how the key is spelled
+export const ASSIGNMENT_TYPES = {
+  ACCEPTED: 'accepted',
+  ALLOCATED: 'allocated',
+  CANCELED: 'cancelled',
+  EXPIRED: 'expired',
+  ERRORED: 'errored',
+  EXPIRING: 'expiring',
+};

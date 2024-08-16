@@ -13,12 +13,14 @@ import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
 
 import { COURSE_SECTION_TITLES } from '../../../data/constants';
 import CourseEnrollments from '../CourseEnrollments';
-import { MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL } from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
+import {
+  MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
+} from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
 import { COURSE_STATUSES } from '../data/constants';
-import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
+  ASSIGNMENT_TYPES,
   COURSE_MODES_MAP,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
@@ -30,7 +32,8 @@ import {
   useContentAssignments,
   useCourseEnrollments,
   useCourseEnrollmentsBySection,
-  useCourseUpgradeData, useGroupAssociationsAlert,
+  useCourseUpgradeData,
+  useGroupAssociationsAlert,
 } from '../data/hooks';
 
 jest.mock('@edx/frontend-enterprise-utils');
