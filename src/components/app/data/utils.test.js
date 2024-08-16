@@ -4,17 +4,20 @@ import dayjs from 'dayjs';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
+  assignmentTypeStates,
   determineLearnerHasContentAssignmentsOnly,
   filterPoliciesByExpirationAndActive,
   getAvailableCourseRuns,
   getSubsidyToApplyForCourse,
   transformGroupMembership,
+  transformLearnerContentAssignment,
 } from './utils';
 import {
   ASSIGNMENT_TYPES,
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_AVAILABILITY_MAP,
   emptyRedeemableLearnerCreditPolicies,
+  ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
@@ -861,5 +864,129 @@ describe('getSubsidyToApplyForCourse', () => {
     });
 
     expect(subsidyToApply).toBeUndefined();
+  });
+});
+
+describe('assignmentTypeStates', () => {
+  it.each([{
+    state: 'accepted',
+  },
+  {
+    state: 'allocated',
+  },
+  {
+    state: 'cancelled',
+  },
+  {
+    state: 'expired',
+  },
+  {
+    state: 'errored',
+  },
+  {
+    state: 'expiring',
+  },
+  {
+    state: 'pikachu',
+  },
+  ])('returns expected object when state is passed (%s)', ({ state }) => {
+    const currentAssignmentStates = assignmentTypeStates({ state });
+    const baseAssignmentStates = {
+      isAcceptedAssignment: false,
+      isAllocatedAssignment: false,
+      isCanceledAssignment: false,
+      isExpiredAssignment: false,
+      isErroredAssignment: false,
+      isExpiringAssignment: false,
+    };
+    switch (state) {
+      case ASSIGNMENT_TYPES.ACCEPTED:
+        expect(currentAssignmentStates).toEqual({
+          ...baseAssignmentStates,
+          isAcceptedAssignment: true,
+        });
+        break;
+      case ASSIGNMENT_TYPES.ALLOCATED:
+        expect(currentAssignmentStates).toEqual({
+          ...baseAssignmentStates,
+          isAllocatedAssignment: true,
+        });
+        break;
+      case ASSIGNMENT_TYPES.CANCELED:
+        expect(currentAssignmentStates).toEqual({
+          ...baseAssignmentStates,
+          isCanceledAssignment: true,
+        });
+        break;
+      case ASSIGNMENT_TYPES.EXPIRING:
+        expect(currentAssignmentStates).toEqual({
+          ...baseAssignmentStates,
+          isExpiringAssignment: true,
+        });
+        break;
+      case ASSIGNMENT_TYPES.EXPIRED:
+        expect(currentAssignmentStates).toEqual({
+          ...baseAssignmentStates,
+          isExpiredAssignment: true,
+        });
+        break;
+      case ASSIGNMENT_TYPES.ERRORED:
+        expect(currentAssignmentStates).toEqual({
+          ...baseAssignmentStates,
+          isErroredAssignment: true,
+        });
+        break;
+      default:
+        expect(currentAssignmentStates).toEqual(baseAssignmentStates);
+    }
+  });
+});
+describe('transformLearnerContentAssignment', () => {
+  it.each([
+    {
+      isAssignedCourseRun: true,
+      parentContentKey: 'edX+demoX',
+      contentKey: 'course-v1:edX+demoX+2018',
+    },
+    {
+      isAssignedCourseRun: false,
+      parentContentKey: null,
+      contentKey: 'edX+demoX',
+    },
+  ])('handles courseRunId and linkToCourse correct when isAssignedCourseRun is (%s)', ({
+    isAssignedCourseRun,
+    parentContentKey,
+    contentKey,
+  }) => {
+    const mockSlug = 'demoSlug';
+    const mockSubsidyExpirationDateStr = dayjs().add(ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS + 1, 'days').toISOString();
+    const mockAssignmentConfigurationId = 'test-assignment-configuration-id';
+    const mockAssignment = {
+      contentKey,
+      contentTitle: 'edX Demo Course',
+      subsidyExpirationDate: mockSubsidyExpirationDateStr,
+      assignmentConfiguration: mockAssignmentConfigurationId,
+      contentMetadata: {
+        enrollByDate: dayjs().add(1, 'w').toISOString(),
+        partners: [{ name: 'Test Partner' }],
+      },
+      earliestPossibleExpiration: {
+        date: mockSubsidyExpirationDateStr,
+        reason: 'subsidy_expired',
+      },
+      actions: [],
+    };
+    const mockAllocatedAssignment = {
+      ...mockAssignment,
+      isAssignedCourseRun,
+      parentContentKey,
+      uuid: 'test-assignment-uuid',
+      state: ASSIGNMENT_TYPES.ALLOCATED,
+    };
+    const transformedAllocatedAssignment = transformLearnerContentAssignment(mockAllocatedAssignment, mockSlug);
+    expect(transformedAllocatedAssignment.linkToCourse).toEqual(
+      `/${mockSlug}/course/edX+demoX`,
+    );
+    expect(transformedAllocatedAssignment.courseRunId).toEqual(contentKey);
   });
 });
