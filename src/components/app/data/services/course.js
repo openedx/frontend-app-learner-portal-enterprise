@@ -16,6 +16,8 @@ import { findHighestLevelEntitlementSku, getActiveCourseRun } from '../utils';
 export async function fetchCourseMetadata(courseKey, courseRunKey) {
   const contentMetadataUrl = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/courses/${courseKey}/`;
   const queryParams = new URLSearchParams();
+  // Always include restricted/custom-b2b-enterprise runs in case one has been requested.
+  queryParams.append('include_restricted', 'custom-b2b-enterprise');
   const url = `${contentMetadataUrl}?${queryParams.toString()}`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
@@ -28,6 +30,8 @@ export async function fetchCourseMetadata(courseKey, courseRunKey) {
     transformedData.activeCourseRun = getActiveCourseRun(transformedData);
     transformedData.courseEntitlementProductSku = findHighestLevelEntitlementSku(transformedData.entitlements);
 
+    // If a specific courseRunKey is requested, and that courseRunKey belongs
+    // to the specified course, narrow the returned runs to just the one run.
     const courseRunKeys = transformedData.courseRuns.map(({ key }) => key);
     if (courseRunKey && courseRunKeys.includes(courseRunKey)) {
       transformedData.canonicalCourseRunKey = courseRunKey;
@@ -47,8 +51,12 @@ export async function fetchCourseMetadata(courseKey, courseRunKey) {
 
 export async function fetchCourseRunMetadata(courseRunKey) {
   const courseRunMetadataUrl = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/course_runs/${courseRunKey}/`;
+  const queryParams = new URLSearchParams();
+  // Always include restricted/custom-b2b-enterprise runs in case one has been requested.
+  queryParams.append('include_restricted', 'custom-b2b-enterprise');
+  const url = `${courseRunMetadataUrl}?${queryParams.toString()}`;
   try {
-    const response = await getAuthenticatedHttpClient().get(courseRunMetadataUrl);
+    const response = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);
   } catch (error) {
     if (getErrorResponseStatusCode(error) !== 404) {

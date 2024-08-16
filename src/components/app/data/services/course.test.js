@@ -35,7 +35,8 @@ jest.mock('@edx/frontend-platform/auth', () => ({
 }));
 
 describe('fetchCourseMetadata', () => {
-  const CONTENT_METADATA_URL = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/courses/${mockCourseKey}/?`;
+  const params = 'include_restricted=custom-b2b-enterprise';
+  const CONTENT_METADATA_URL = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/courses/${mockCourseKey}/?${params}`;
   const courseMetadata = {
     key: mockCourseKey,
     title: 'edX Demonstration Course',
@@ -76,7 +77,8 @@ describe('fetchCourseMetadata', () => {
 });
 
 describe('fetchCourseRunMetadata', () => {
-  const COURSE_RUN_METADATA = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/course_runs/${mockCourseRunKey}/`;
+  const params = 'include_restricted=custom-b2b-enterprise';
+  const COURSE_RUN_METADATA = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/course_runs/${mockCourseRunKey}/?${params}`;
   const courseRunMetadata = {
     key: mockCourseRunKey,
     title: 'edX Demonstration Course',
