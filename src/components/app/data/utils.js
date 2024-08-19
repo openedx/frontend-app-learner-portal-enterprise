@@ -1,12 +1,13 @@
 import dayjs from 'dayjs';
 import { logError } from '@edx/frontend-platform/logging';
 
-import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { getBrandColorsFromCSSVariables, isDefinedAndNotNull, isTodayWithinDateThreshold } from '../../../utils/common';
 import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import {
+  ASSIGNMENT_TYPES,
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
@@ -367,17 +368,42 @@ export const transformSubsidyRequest = ({
   notifications: [], // required prop by CourseSection
 });
 
+export const determineAssignmentState = ({ state }) => ({
+  isAcceptedAssignment: state === ASSIGNMENT_TYPES.ACCEPTED,
+  isAllocatedAssignment: state === ASSIGNMENT_TYPES.ALLOCATED,
+  isCanceledAssignment: state === ASSIGNMENT_TYPES.CANCELED,
+  isExpiredAssignment: state === ASSIGNMENT_TYPES.EXPIRED,
+  isErroredAssignment: state === ASSIGNMENT_TYPES.ERRORED,
+  isExpiringAssignment: state === ASSIGNMENT_TYPES.EXPIRING,
+});
+
 export const transformLearnerContentAssignment = (learnerContentAssignment, enterpriseSlug) => {
-  const isCanceledAssignment = learnerContentAssignment.state === ASSIGNMENT_TYPES.CANCELED;
-  const isExpiredAssignment = learnerContentAssignment.state === ASSIGNMENT_TYPES.EXPIRED;
-  const { date: assignmentEnrollByDeadline } = learnerContentAssignment.earliestPossibleExpiration;
+  const {
+    contentKey,
+    parentContentKey,
+    isAssignedCourseRun,
+    state,
+    earliestPossibleExpiration,
+  } = learnerContentAssignment;
+  const {
+    isExpiredAssignment,
+    isCanceledAssignment,
+  } = determineAssignmentState({ state });
+  const { date: assignmentEnrollByDeadline } = earliestPossibleExpiration;
+
+  // This logic is intended to remain backwards
+  // compatible with assignments for top-level courses
+  let courseKey = contentKey;
+  let courseRunId = courseKey;
+  if (isAssignedCourseRun) {
+    courseKey = parentContentKey;
+    courseRunId = contentKey;
+  }
+
   return {
-    linkToCourse: `/${enterpriseSlug}/course/${learnerContentAssignment.contentKey}`,
-    // Note: we are using `courseRunId` instead of `contentKey` or `courseKey` because the `CourseSection`
-    // and `BaseCourseCard` components expect `courseRunId` to be used as the content identifier. Consider
-    // refactoring to rename `courseRunId` to `contentKey` in the future given learner content assignments
-    // are for top-level courses, not course runs.
-    courseRunId: learnerContentAssignment.contentKey,
+    linkToCourse: `/${enterpriseSlug}/course/${courseKey}`,
+    courseRunId,
+    isAssignedCourseRun,
     title: learnerContentAssignment.contentTitle,
     isRevoked: false,
     notifications: [],

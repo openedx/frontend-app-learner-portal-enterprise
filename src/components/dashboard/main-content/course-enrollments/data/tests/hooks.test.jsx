@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
 import * as logger from '@edx/frontend-platform/logging';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
@@ -20,27 +20,30 @@ import * as service from '../service';
 import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from '../constants';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import {
-  createEnrollWithLicenseUrl,
   createEnrollWithCouponCodeUrl,
+  createEnrollWithLicenseUrl,
   findHighestLevelSeatSku,
 } from '../../../../../course/data/utils';
-import { ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
-  ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
+  ASSIGNMENT_TYPES,
   COURSE_MODES_MAP,
   emptyRedeemableLearnerCreditPolicies,
+  ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
   transformCourseEnrollment,
   transformLearnerContentAssignment,
   useCanUpgradeWithLearnerCredit,
   useCouponCodes,
+  useCourseRunMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useRedeemablePolicies,
   useSubscriptions,
-  useCourseRunMetadata,
 } from '../../../../../app/data';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
+import {
+  authenticatedUserFactory,
+  enterpriseCustomerFactory,
+} from '../../../../../app/data/services/data/__factories__';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../../data/constants';
 import { LICENSE_STATUS } from '../../../../../enterprise-user-subsidy/data/constants';
 import { useStatefulEnroll } from '../../../../../stateful-enroll/data';
