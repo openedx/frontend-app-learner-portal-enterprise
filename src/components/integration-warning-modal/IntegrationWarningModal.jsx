@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
-import { Modal, Button } from '@openedx/paragon';
+import { Button, AlertModal } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MODAL_BUTTON_TEXT, MODAL_TITLE } from './data/constants';
 import ModalBody from './ModalBody';
@@ -27,23 +27,21 @@ const IntegrationWarningModal = ({
   };
 
   return (
-    <Modal
-      body={<ModalBody />}
-      open={dismissed}
-      onClose={handleModalOnClose}
+    <AlertModal
       title={MODAL_TITLE}
-      closeText={MODAL_BUTTON_TEXT}
-      renderHeaderCloseButton={false}
-      renderDefaultCloseButton={false}
-      buttons={[
+      isOpen={dismissed}
+      onClose={handleModalOnClose}
+      footerNode={(
         <Button
           variant="primary"
           onClick={handleButtonClick}
         >
           {MODAL_BUTTON_TEXT}
-        </Button>,
-      ]}
-    />
+        </Button>
+      )}
+    >
+      <ModalBody />
+    </AlertModal>
   );
 };
 

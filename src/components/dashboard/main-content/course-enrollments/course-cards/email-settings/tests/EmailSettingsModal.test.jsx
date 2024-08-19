@@ -15,6 +15,7 @@ describe('<EmailSettingsModal />', () => {
       <EmailSettingsModal
         onClose={() => {}}
         courseRunId="my+course+key"
+        open
       />
     ));
 
