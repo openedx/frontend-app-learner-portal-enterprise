@@ -85,7 +85,7 @@ describe('<MarkCompleteModal />', () => {
       />
     ));
     act(() => {
-      wrapper.find('.modal-footer button.btn-link').hostNodes().simulate('click');
+      wrapper.find('[data-testid="mark-complete-modal-cancel-btn"]').hostNodes().simulate('click');
     });
     expect(mockOnClose).toBeCalledTimes(1);
   });

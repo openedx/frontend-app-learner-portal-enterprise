@@ -4,7 +4,15 @@ import { COURSE_STATUSES } from '../data/constants';
  * Generate an enrollment with given status.
  * Can be used as a baseline to override and generate new courseRuns.
  */
-const createCourseEnrollmentWithStatus = ({ status = COURSE_STATUSES.inProgress, mode = 'verified', isCancelledAssignment = false }) => {
+const createCourseEnrollmentWithStatus = (
+  {
+    status = COURSE_STATUSES.inProgress,
+    mode = 'verified',
+    isCancelledAssignment = false,
+    start = '2017-02-05T05:00:00Z',
+    end = '2018-08-18T05:00:00Z',
+  },
+) => {
   const randomNumber = Math.random();
   return ({
     courseRunId: `$course-v1:edX+DemoX+Demo_Course-${randomNumber}`,
@@ -13,8 +21,8 @@ const createCourseEnrollmentWithStatus = ({ status = COURSE_STATUSES.inProgress,
     title: `edX Demonstration Course-${randomNumber}`,
     notifications: [],
     created: '2017-02-05T05:00:00Z',
-    startDate: '2017-02-05T05:00:00Z',
-    endDate: '2018-08-18T05:00:00Z',
+    startDate: start,
+    endDate: end,
     hasEmailsEnabled: true,
     isRevoked: false,
     mode,
