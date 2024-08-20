@@ -10,7 +10,7 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomerContainsContent,
   useUserEntitlements,
-  isRunUnrestricted,
+  isRunUnrestrictedForCatalog,
 } from '../../app/data';
 
 /**
@@ -22,7 +22,7 @@ const CourseRunCards = () => {
   const {
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
-    applicableCatalogUuid,
+    catalogUuid,
   } = useUserSubsidyApplicableToCourse();
   const {
     data: {
@@ -33,11 +33,11 @@ const CourseRunCards = () => {
   const { data: courseMetadata } = useCourseMetadata();
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
   const { data: userEntitlements } = useUserEntitlements();
-  const availableCourseRuns = courseMetadata.availableCourseRuns.filter(r => isRunUnrestricted({
+  const availableCourseRuns = courseMetadata.availableCourseRuns.filter(r => isRunUnrestrictedForCatalog({
     restrictedRunsAllowed,
-    courseMetadata,
-    courseRunKey: r.key,
-    applicableCatalogUuid,
+    courseKey: courseMetadata.key,
+    courseRunMetadata: r,
+    catalogUuid,
   }));
 
   return (

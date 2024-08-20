@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
-import { isRunUnrestricted } from '../utils';
+import { isRunUnrestrictedForCatalog } from '../utils';
 import useCourseMetadata from './useCourseMetadata';
 import { queryCanRedeem } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -32,11 +32,11 @@ export function transformCourseRedemptionEligibility({
   // Begin by excluding restricted runs that should not be visible to the requester.
   // This filtering does not control visibility of individual course runs, but
   // it does serve as input to the determination of redemption eligiblity.
-  const unrestrictedCanRedeemData = canRedeemData.filter(r => isRunUnrestricted({
+  const unrestrictedCanRedeemData = canRedeemData.filter(canRedeemRun => isRunUnrestrictedForCatalog({
     restrictedRunsAllowed,
-    courseMetadata,
-    courseRunKey: r.contentKey,
-    catalogUuid: r.redeemableSubsidyAccessPolicy?.catalogUuid,
+    courseKey: courseMetadata.key,
+    courseRunMetadata: courseMetadata.availableCourseRuns.find(r => r.key === canRedeemRun.contentKey),
+    catalogUuid: canRedeemRun.redeemableSubsidyAccessPolicy?.catalogUuid,
   }));
   const redeemabilityForActiveCourseRun = unrestrictedCanRedeemData.find(
     r => r.contentKey === courseMetadata.activeCourseRun?.key,

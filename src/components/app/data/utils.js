@@ -710,7 +710,7 @@ export const filterPoliciesByExpirationAndActive = (policies) => {
  * @param applicableCouponCode
  * @param applicableEnterpriseOffer
  * @param applicableSubsidyAccessPolicy
- * @returns {{perLearnerSpendLimit: (number|null|Number|*), policyRedemptionUrl: (string|string|*), discountType: string, discountValue: number, subsidyType: string, perLearnerEnrollmentLimit: (null|*)}|{subsidyId, discountType: string, discountValue: number, startDate, subsidyType: string, expirationDate, status}|undefined|{maxUserApplications: (null|*), endDate: (string|*), subsidyType: string, offerType: *, isCurrent, remainingApplications: (number|null|*), remainingApplicationsForUser: (number|null|*), discountType: string, remainingBalance, remainingBalanceForUser, discountValue, startDate: (string|*), maxUserDiscount}|{code, endDate: (string|*), discountType: (string|*), discountValue: (number|*), startDate: (string|*), subsidyType: string}}
+ * @returns {{perLearnerSpendLimit: (number|null|Number|*), policyRedemptionUrl: (string|string|*), discountType: string, discountValue: number, subsidyType: string, perLearnerEnrollmentLimit: (null|*)}|{subsidyId, discountType: string, discountValue: number, startDate, subsidyType: string, expirationDate, status}|undefined|{maxUserApplications: (null|*), endDate: (string|*), subsidyType: string, offerType: *, isCurrent, remainingApplications: (number|null|*), remainingApplicationsForUser: (number|null|*), discountType: string, remainingBalance, remainingBalanceForUser, discountValue, startDate: (string|*), maxUserDiscount}|{code, endDate: (string|*), discountType: (string|*), discountValue: (number|*), startDate: (string|*), subsidyType: string, catalogUuid: (string|*)}}
  */
 /* eslint-enable max-len */
 export const getSubsidyToApplyForCourse = ({
@@ -728,6 +728,7 @@ export const getSubsidyToApplyForCourse = ({
       expirationDate: applicableSubscriptionLicense.subscriptionPlan.expirationDate,
       status: applicableSubscriptionLicense.status,
       subsidyId: applicableSubscriptionLicense.uuid,
+      catalogUuid: applicableSubscriptionLicense.subscriptionPlan.enterpriseCatalogUuid,
     };
   }
 
@@ -739,6 +740,7 @@ export const getSubsidyToApplyForCourse = ({
       endDate: applicableCouponCode.couponEndDate,
       code: applicableCouponCode.code,
       subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+      catalogUuid: applicableCouponCode.catalog,
     };
   }
 
@@ -751,6 +753,7 @@ export const getSubsidyToApplyForCourse = ({
       perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
       perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
       policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+      catalogUuid: redeemableSubsidyAccessPolicy?.catalogUuid,
     };
   }
 
@@ -769,6 +772,7 @@ export const getSubsidyToApplyForCourse = ({
       remainingApplications: applicableEnterpriseOffer.remainingApplications,
       remainingApplicationsForUser: applicableEnterpriseOffer.remainingApplicationsForUser,
       isCurrent: applicableEnterpriseOffer.isCurrent,
+      catalogUuid: applicableEnterpriseOffer.enterpriseCatalogUuid,
     };
   }
 
@@ -891,19 +895,63 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
 }
 
 /*
- * A centralized helper to tell us if a given run is unrestricted for the given catalog.
+ * Centralized logic to get all the catalogs (for one customer) that have access to a specific restricted run.
+ *
+ * The hope is that we strive to limit any additional code that accesses restrictedRunsAllowed so that there is only one
+ * place to edit/fix it.
  */
-export function isRunUnrestricted({
+export function getAllowedCatalogsForRestrictedRun({
   restrictedRunsAllowed,
-  courseMetadata,
-  courseRunKey,
+  courseKey,
+  courseRunMetadata,
+}) {
+  if (courseRunMetadata?.restrictionType === 'custom-b2b-enterprise') {
+    return {
+      allowedCatalogs: restrictedRunsAllowed?.[courseKey]?.[courseRunMetadata.key]?.catalogUuids,
+      isRestricted: true,
+    };
+  }
+  return {
+    allowedCatalogs: undefined,
+    isRestricted: !!courseRunMetadata?.restrictionType,
+  };
+}
+
+/*
+ * Determine if a given run is unrestricted for ANY CATALOG for the current customer.
+ */
+export function isRunUnrestrictedForCustomer({
+  restrictedRunsAllowed,
+  courseKey,
+  courseRunMetadata,
+}) {
+  const {
+    allowedCatalogs,
+    isRestricted,
+  } = getAllowedCatalogsForRestrictedRun({
+    restrictedRunsAllowed,
+    courseKey,
+    courseRunMetadata,
+  });
+  return !isRestricted || allowedCatalogs?.length > 0;
+}
+
+/*
+ * Determine if a given run is unrestricted for the given catalog.
+ */
+export function isRunUnrestrictedForCatalog({
+  restrictedRunsAllowed,
+  courseKey,
+  courseRunMetadata,
   catalogUuid,
 }) {
-  const courseRunMetadata = courseMetadata.availableCourseRuns.find(r => r.contentKey === courseRunKey);
-  if (courseRunMetadata?.restrictionType === 'custom-b2b-enterprise') {
-    // If the run is restricted for enterprise, make sure the catalog of interest explicitly allows it.
-    return restrictedRunsAllowed[courseMetadata.key][courseRunKey].includes(catalogUuid);
-  }
-  // Otherwise, only allow completely unrestricted runs.
-  return !courseRunMetadata?.restrictionType;
+  const {
+    allowedCatalogs,
+    isRestricted,
+  } = getAllowedCatalogsForRestrictedRun({
+    restrictedRunsAllowed,
+    courseKey,
+    courseRunMetadata,
+  });
+  return !isRestricted || allowedCatalogs?.includes(catalogUuid);
 }

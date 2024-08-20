@@ -6,9 +6,11 @@ import {
   determineAllocatedAssignmentsForCourse,
   getAvailableCourseRuns,
   transformCourseMetadataByAllocatedCourseRunAssignments,
+  isRunUnrestrictedForCustomer,
 } from '../utils';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import useRedeemablePolicies from './useRedeemablePolicies';
+import useEnterpriseCustomerContainsContent from './useEnterpriseCustomerContainsContent';
 
 /**
  * Retrieves the course metadata for the given enterprise customer and course key.
@@ -24,6 +26,11 @@ export default function useCourseMetadata(queryOptions = {}) {
     hasAssignedCourseRuns,
     hasMultipleAssignedCourseRuns,
   } = determineAllocatedAssignmentsForCourse({ courseKey, redeemableLearnerCreditPolicies });
+  const {
+    data: {
+      restrictedRunsAllowed,
+    },
+  } = useEnterpriseCustomerContainsContent([courseKey]);
   // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
   // need to replace it with `+` again to be a valid course run key.
   let courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
@@ -42,10 +49,20 @@ export default function useCourseMetadata(queryOptions = {}) {
       if (!data) {
         return data;
       }
-      const availableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
+      // First stage filters out any runs that are unavailable for universal reasons, such as enrollment windows and
+      // published states.
+      const basicAvailableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
+      // Second stage filters out any *restricted* runs that are certainly not available to the current customer. The
+      // result may still include runs that are restricted for the subsidy types actually applicable for the learner, so
+      // consumers of useCourseMetadata() should perform additional subsidy-specific filtering.
+      const availableAndUnrestrictedCourseRuns = basicAvailableCourseRuns.filter(r => isRunUnrestrictedForCustomer({
+        restrictedRunsAllowed,
+        courseKey,
+        courseRunMetadata: r,
+      }));
       let transformedData = {
         ...data,
-        availableCourseRuns,
+        availableCourseRuns: availableAndUnrestrictedCourseRuns,
       };
       // This logic should appropriately handle multiple course runs being assigned, and return the appropriate metadata
       transformedData = transformCourseMetadataByAllocatedCourseRunAssignments({
