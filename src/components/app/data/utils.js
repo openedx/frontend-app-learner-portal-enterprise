@@ -9,7 +9,7 @@ import {
   isTodayBetweenDates,
   isTodayWithinDateThreshold,
 } from '../../../utils/common';
-import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
+import { COURSE_STATUSES, SUBSIDY_TYPE, ENTERPRISE_RESTRICTION_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import {
   ASSIGNMENT_TYPES,
@@ -905,7 +905,7 @@ export function getAllowedCatalogsForRestrictedRun({
   courseKey,
   courseRunMetadata,
 }) {
-  if (courseRunMetadata?.restrictionType === 'custom-b2b-enterprise') {
+  if (courseRunMetadata?.restrictionType === ENTERPRISE_RESTRICTION_TYPE) {
     return {
       allowedCatalogs: restrictedRunsAllowed?.[courseKey]?.[courseRunMetadata.key]?.catalogUuids,
       isRestricted: true,

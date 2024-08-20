@@ -14,3 +14,8 @@ export const COURSE_PACING = {
   INSTRUCTOR: 'instructor',
   SELF: 'self',
 };
+
+// [ENT-9360] Restricted runs feature. Pass this slug to discovery API endpoints (param key is "include_restricted") to
+// retrieve restricted runs. Find the same restriction type encoded in course run metadata under the `restriction_type`
+// metadata key.
+export const ENTERPRISE_RESTRICTION_TYPE = 'custom-b2b-enterprise';

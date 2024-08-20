@@ -10,7 +10,6 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomerContainsContent,
   useUserEntitlements,
-  isRunUnrestrictedForCatalog,
 } from '../../app/data';
 
 /**
@@ -24,28 +23,17 @@ const CourseRunCards = () => {
     missingUserSubsidyReason,
     catalogUuid,
   } = useUserSubsidyApplicableToCourse();
-  const {
-    data: {
-      catalogList,
-      restrictedRunsAllowed,
-    },
-  } = useEnterpriseCustomerContainsContent([courseKey]);
-  const { data: courseMetadata } = useCourseMetadata();
+  const { data: courseMetadata } = useCourseMetadata({}, catalogUuid);
+  const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
   const { data: userEntitlements } = useUserEntitlements();
-  const availableCourseRuns = courseMetadata.availableCourseRuns.filter(r => isRunUnrestrictedForCatalog({
-    restrictedRunsAllowed,
-    courseKey: courseMetadata.key,
-    courseRunMetadata: r,
-    catalogUuid,
-  }));
 
   return (
     <CardGrid
       columnSizes={{ xs: 12, md: 6, lg: 5 }}
       hasEqualColumnHeights={false}
     >
-      {availableCourseRuns.map((courseRun) => {
+      {courseMetadata.availableCourseRuns.map((courseRun) => {
         const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
 
         // Render the newer `CourseRunCard` component when the user's subsidy, if any, is
