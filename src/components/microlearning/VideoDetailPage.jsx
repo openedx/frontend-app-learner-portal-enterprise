@@ -1,5 +1,7 @@
 /* eslint-disable max-len */
-import { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
+import { AppContext } from '@edx/frontend-platform/react';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import {
   Container, Row, Badge, Skeleton,
   Icon,
@@ -34,11 +36,13 @@ const VideoPlayer = loadable(() => import(/* webpackChunkName: "videojs" */ '../
 });
 
 const VideoDetailPage = () => {
+  const { authenticatedUser: { userId } } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: videoData } = useVideoDetails();
   const { data: courseMetadata } = useVideoCourseMetadata(videoData?.courseKey);
   const [pacingType, pacingTypeContent] = useCoursePacingType(courseMetadata?.activeCourseRun);
   const { data: { subscriptionLicense } } = useSubscriptions();
+  const playerRef = React.useRef(null);
   const intl = useIntl();
 
   const customOptions = {
@@ -52,10 +56,47 @@ const VideoDetailPage = () => {
   );
 
   useEffect(() => {
-    if (videoData?.videoURL) {
+    if (videoData?.videoUrl) {
       VideoPlayer.preload();
     }
-  }, [videoData?.videoURL]);
+    sendEnterpriseTrackEvent(
+      enterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.video.detail_page_viewed',
+      {
+        userId,
+        video: videoData?.videoUrl,
+        courseKey: videoData?.courseKey,
+        title: videoData?.courseTitle,
+      },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoData?.videoUrl]);
+
+  const publishEvent = (eventName) => {
+    sendEnterpriseTrackEvent(
+      enterpriseCustomer.uuid,
+      eventName,
+      {
+        userId,
+        video: videoData?.videoUrl,
+        courseKey: videoData?.courseKey,
+        title: videoData?.courseTitle,
+      },
+    );
+  };
+
+  const handlePlayerReady = (player) => {
+    playerRef.current = player;
+    player.on('waiting', () => {
+      publishEvent('edx.ui.enterprise.learner_portal.video.player.stopped');
+    });
+    player.on('play', () => {
+      publishEvent('edx.ui.enterprise.learner_portal.video.player.playing');
+    });
+    player.on('pause', () => {
+      publishEvent('edx.ui.enterprise.learner_portal.video.player.paused');
+    });
+  };
 
   if (!enableVideos) {
     return <NotFoundPage />;
@@ -123,7 +164,7 @@ const VideoDetailPage = () => {
           </div>
           { videoData?.videoUrl && (
             <div className="video-player-wrapper position-relative mw-100 overflow-hidden my-4 mt-2">
-              <VideoPlayer videoURL={videoData?.videoUrl} customOptions={customOptions} />
+              <VideoPlayer videoURL={videoData?.videoUrl} onReady={handlePlayerReady} customOptions={customOptions} />
             </div>
           )}
         </article>
@@ -233,6 +274,8 @@ const VideoDetailPage = () => {
                     a: (chunks) => (
                       <Link
                         to={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
+                        onClick={() => publishEvent('edx.ui.enterprise.learner_portal.video.view_course_link.clicked')}
+                        onMouseLeave={() => publishEvent('edx.ui.enterprise.learner_portal.video.view_course_link.hovered')}
                       >
                         {chunks}
                       </Link>
@@ -245,6 +288,8 @@ const VideoDetailPage = () => {
                   variant="primary"
                   as={Link}
                   to={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
+                  onClick={() => publishEvent('edx.ui.enterprise.learner_portal.video.view_course_button.clicked')}
+                  onMouseLeave={() => publishEvent('edx.ui.enterprise.learner_portal.video.view_course_button.hovered')}
                   className="mt-4.5 w-100"
                 >
                   <FormattedMessage
