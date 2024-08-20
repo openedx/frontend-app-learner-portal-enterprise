@@ -7,10 +7,12 @@ import { fetchCourseMetadata } from '../services';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import useCourseMetadata from './useCourseMetadata';
 import useRedeemablePolicies from './useRedeemablePolicies';
+import useEnterpriseCustomerContainsContent from './useEnterpriseCustomerContainsContent';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useLateEnrollmentBufferDays');
 jest.mock('./useRedeemablePolicies');
+jest.mock('./useEnterpriseCustomerContainsContent');
 
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
@@ -69,6 +71,7 @@ describe('useCourseMetadata', () => {
     useLateEnrollmentBufferDays.mockReturnValue(undefined);
     useSearchParams.mockReturnValue([new URLSearchParams({ course_run_key: 'course-v1:edX+DemoX+2T2024' })]);
     useRedeemablePolicies.mockReturnValue({ data: mockBaseRedeemablePolicies });
+    useEnterpriseCustomerContainsContent.mockReturnValue({ data: {} });
   });
   it('should handle resolved value correctly with no select function passed', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
