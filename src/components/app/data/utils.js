@@ -4,7 +4,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { getBrandColorsFromCSSVariables, isDefinedAndNotNull, isTodayWithinDateThreshold } from '../../../utils/common';
-import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
+import { COURSE_STATUSES, SUBSIDY_TYPE, ENTERPRISE_RESTRICTION_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -848,7 +848,7 @@ export function getAllowedCatalogsForRestrictedRun({
   courseKey,
   courseRunMetadata,
 }) {
-  if (courseRunMetadata?.restrictionType === 'custom-b2b-enterprise') {
+  if (courseRunMetadata?.restrictionType === ENTERPRISE_RESTRICTION_TYPE) {
     return {
       allowedCatalogs: restrictedRunsAllowed?.[courseKey]?.[courseRunMetadata.key]?.catalogUuids,
       isRestricted: true,

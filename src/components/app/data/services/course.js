@@ -4,6 +4,7 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { findHighestLevelEntitlementSku, getActiveCourseRun } from '../utils';
+import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 
 /**
  * TODO
@@ -17,7 +18,7 @@ export async function fetchCourseMetadata(courseKey, courseRunKey) {
   const contentMetadataUrl = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/courses/${courseKey}/`;
   const queryParams = new URLSearchParams();
   // Always include restricted/custom-b2b-enterprise runs in case one has been requested.
-  queryParams.append('include_restricted', 'custom-b2b-enterprise');
+  queryParams.append('include_restricted', ENTERPRISE_RESTRICTION_TYPE);
   const url = `${contentMetadataUrl}?${queryParams.toString()}`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
