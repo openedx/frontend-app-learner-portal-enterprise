@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import 'videojs-youtube';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import { getLocale } from '@edx/frontend-platform/i18n';
 import { PLAYBACK_RATES } from './data/constants';
 import { usePlayerOptions, useTranscripts } from './data';
 
@@ -14,10 +15,12 @@ require('videojs-vjstranscribe');
 const VideoJS = ({ options, onReady, customOptions }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
+  const siteLanguage = getLocale();
 
   const transcripts = useTranscripts({
     player: playerRef.current,
     customOptions,
+    siteLanguage,
   });
 
   const playerOptions = usePlayerOptions({

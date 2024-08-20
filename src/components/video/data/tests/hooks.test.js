@@ -49,7 +49,7 @@ describe('useTranscripts', () => {
 
     expect(logError).toHaveBeenCalledWith(`Error fetching transcripts for player: Error: ${errorMessage}`);
     expect(result.current.isLoading).toBe(false);
-    expect(result.current.textTracks).toEqual([]);
+    expect(result.current.textTracks).toEqual({});
     expect(result.current.transcriptUrl).toBeNull();
   });
 
@@ -64,7 +64,7 @@ describe('useTranscripts', () => {
       customOptions: customOptionsWithoutTranscripts,
     }));
 
-    expect(result.current.textTracks).toEqual([]);
+    expect(result.current.textTracks).toEqual({});
     expect(result.current.transcriptUrl).toBeNull();
   });
 });

@@ -11,6 +11,11 @@ jest.mock('../data', () => ({
   usePlayerOptions: jest.fn(),
 }));
 
+jest.mock('@edx/frontend-platform/i18n', () => ({
+  ...jest.requireActual('@edx/frontend-platform/i18n'),
+  getLocale: () => 'en',
+}));
+
 const hlsUrl = 'https://test-domain.com/test-prefix/id.m3u8';
 const ytUrl = 'https://www.youtube.com/watch?v=oHg5SJYRHA0';
 
