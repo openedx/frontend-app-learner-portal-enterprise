@@ -10,8 +10,11 @@ import VideoDetailPage from '../VideoDetailPage';
 import {
   useVideoDetails, useEnterpriseCustomer, useVideoCourseMetadata,
   useVideoCourseReviews,
+  useSubscriptions,
 } from '../../app/data';
 import { COURSE_PACING_MAP } from '../../course/data';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { features } from '../../../config';
 
 const APP_CONFIG = {
   USE_API_CACHE: true,
@@ -44,6 +47,7 @@ jest.mock('../../app/data', () => ({
   useRedeemablePolicies: jest.fn(() => ({ data: { redeemablePolicies: [] } })),
   useVideoCourseMetadata: jest.fn(() => ({ data: { courseKey: 'test-course-key' } })),
   useVideoCourseReviews: jest.fn(() => ({ data: { courseKey: 'test-course-key' } })),
+  useSubscriptions: jest.fn(),
 }));
 
 jest.mock('react-router-dom', () => ({
@@ -97,6 +101,18 @@ describe('VideoDetailPage Tests', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useVideoDetails.mockReturnValue({ data: VIDEO_MOCK_DATA });
     useVideoCourseReviews.mockReturnValue({ data: mockCourseReviews });
+    useSubscriptions.mockReturnValue({
+      data: {
+        subscriptionLicense: {
+          status: LICENSE_STATUS.ACTIVATED,
+          subscriptionPlan: {
+            enterpriseCatalogUuid: 'test-catalog-uuid',
+            isCurrent: true,
+          },
+        },
+      },
+    });
+    features.FEATURE_ENABLE_VIDEO_CATALOG = true;
   });
 
   it('Renders video details when data is available', () => {
@@ -132,6 +148,21 @@ describe('VideoDetailPage Tests', () => {
 
   it('renders a not found page when video data is not found', () => {
     useVideoDetails.mockReturnValue({ data: null });
+    renderWithRouter(<VideoDetailPageWrapper />);
+    expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
+  });
+  it('renders a not found page when user do not have active subscription', () => {
+    useSubscriptions.mockReturnValue({
+      data: {
+        subscriptionLicense: {
+          status: LICENSE_STATUS.ACTIVATED,
+          subscriptionPlan: {
+            enterpriseCatalogUuid: 'test-catalog-uuid',
+            isCurrent: false,
+          },
+        },
+      },
+    });
     renderWithRouter(<VideoDetailPageWrapper />);
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });

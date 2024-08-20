@@ -1,8 +1,7 @@
 /* eslint-disable max-len */
 import React, { useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
 import {
-  Container, Breadcrumb, Row, Badge, Skeleton,
+  Container, Row, Badge, Skeleton,
   Hyperlink,
   Icon,
   Button,
@@ -14,6 +13,7 @@ import {
 } from '@openedx/paragon/icons';
 import {
   useVideoDetails, useEnterpriseCustomer, useVideoCourseMetadata,
+  useSubscriptions,
 } from '../app/data';
 import './styles/VideoDetailPage.scss';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
@@ -22,6 +22,8 @@ import { getCoursePrice, useCoursePacingType } from '../course/data';
 import VideoCourseReview from './VideoCourseReview';
 import { hasTruthyValue, isDefinedAndNotNull } from '../../utils/common';
 import { getLevelType } from './data/utils';
+import { hasActivatedAndCurrentSubscription } from '../search/utils';
+import { features } from '../../config';
 
 const VideoPlayer = loadable(() => import(/* webpackChunkName: "videojs" */ '../video/VideoPlayer'), {
   fallback: (
@@ -32,11 +34,11 @@ const VideoPlayer = loadable(() => import(/* webpackChunkName: "videojs" */ '../
 });
 
 const VideoDetailPage = () => {
-  const location = useLocation();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: videoData } = useVideoDetails();
   const { data: courseMetadata } = useVideoCourseMetadata(videoData?.courseKey);
   const [pacingType, pacingTypeContent] = useCoursePacingType(courseMetadata?.activeCourseRun);
+  const { data: { subscriptionLicense } } = useSubscriptions();
   const intl = useIntl();
 
   const customOptions = {
@@ -44,6 +46,10 @@ const VideoDetailPage = () => {
     showTranscripts: true,
     transcriptUrls: videoData?.transcriptUrls,
   };
+  const enableVideos = (
+    features.FEATURE_ENABLE_VIDEO_CATALOG
+    && hasActivatedAndCurrentSubscription(subscriptionLicense)
+  );
 
   useEffect(() => {
     if (videoData?.videoURL) {
@@ -51,16 +57,9 @@ const VideoDetailPage = () => {
     }
   }, [videoData?.videoURL]);
 
-  const routeLinks = [
-    {
-      label: 'Explore Videos',
-      to: `/${enterpriseCustomer.slug}/videos`,
-    },
-  ];
-  if (location.state?.parentRoute) {
-    routeLinks.push(location.state.parentRoute);
+  if (!enableVideos) {
+    return <NotFoundPage />;
   }
-
   // Comprehensive error handling will be implemented upon receiving specific error use cases from the UX team
   // and corresponding Figma designs.
   if (!videoData) {
@@ -76,14 +75,7 @@ const VideoDetailPage = () => {
   }
   const levelType = courseMetadata?.activeCourseRun?.levelType ? getLevelType(intl, courseMetadata.activeCourseRun.levelType) : null;
   return (
-    <Container size="lg" className="pt-3 video-detail-page-wrapper">
-      <div className="small">
-        <Breadcrumb
-          links={routeLinks}
-          activeLabel={videoData?.courseTitle}
-          linkAs={Link}
-        />
-      </div>
+    <Container size="lg" className="mt-4 video-detail-page-wrapper">
       <Row>
         <article className="col-12 col-lg-9">
           <div className="d-flex flex-column align-items-start flex-grow-1 video-container">
@@ -154,7 +146,6 @@ const VideoDetailPage = () => {
                 <div className="x-small">
                   <Hyperlink
                     destination={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
-                    target="_blank"
                   >
                     {courseMetadata?.title}
                   </Hyperlink>
@@ -242,7 +233,6 @@ const VideoDetailPage = () => {
                     a: (chunks) => (
                       <Hyperlink
                         destination={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
-                        target="_blank"
                       >
                         {chunks}
                       </Hyperlink>
@@ -255,7 +245,6 @@ const VideoDetailPage = () => {
                   variant="primary"
                   as={Hyperlink}
                   destination={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
-                  target="_blank"
                   className="mt-4.5 w-100"
                 >
                   <FormattedMessage
