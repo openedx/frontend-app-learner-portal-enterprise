@@ -145,6 +145,13 @@ export function isTodayWithinDateThreshold({ date, days }) {
   return today.isBetween(offsetDays, dateToCheck);
 }
 
+export function isTodayBetweenDates({ startDate, endDate }) {
+  const today = dayjs();
+  const formattedStartDate = dayjs(startDate);
+  const formattedEndDate = dayjs(endDate);
+  return today.isBetween(formattedStartDate, formattedEndDate);
+}
+
 /**
  * Returns a formatted date in the following format:
  *

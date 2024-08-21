@@ -3,7 +3,12 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { getBrandColorsFromCSSVariables, isDefinedAndNotNull, isTodayWithinDateThreshold } from '../../../utils/common';
+import {
+  getBrandColorsFromCSSVariables,
+  isDefinedAndNotNull,
+  isTodayBetweenDates,
+  isTodayWithinDateThreshold,
+} from '../../../utils/common';
 import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import {
@@ -34,15 +39,20 @@ export function isSystemMaintenanceAlertOpen(config) {
     return false;
   }
   const startTimestamp = config.MAINTENANCE_ALERT_START_TIMESTAMP;
-
-  // Given no start timestamp, the system maintenance alert should be open, as
-  // it's enabled and has a message.
-  if (!startTimestamp) {
-    return true;
+  const endTimestamp = config.MAINTENANCE_ALERT_END_TIMESTAMP;
+  if (startTimestamp && endTimestamp) {
+    return isTodayBetweenDates({ startDate: startTimestamp, endDate: endTimestamp });
+  }
+  if (startTimestamp) {
+    return dayjs().isAfter(dayjs(startTimestamp));
+  }
+  if (endTimestamp) {
+    return dayjs().isBefore(dayjs(endTimestamp));
   }
 
-  // Otherwise, check whether today's date is after the defined start date.
-  return dayjs().isAfter(dayjs(startTimestamp));
+  // Given no start timestamp and no end timestamp, the system maintenance alert should be open, as
+  // it's enabled and has a message.
+  return true;
 }
 
 /**

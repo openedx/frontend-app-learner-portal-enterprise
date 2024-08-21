@@ -80,26 +80,43 @@ describe('Layout', () => {
       isSystemMaintenanceAlertOpen: false,
       maintenanceMessage: undefined,
       maintenanceStartTimestamp: undefined,
+      maintenanceEndTimestamp: undefined,
     },
     {
       isSystemMaintenanceAlertOpen: true,
       maintenanceMessage: 'Hello World!',
       maintenanceStartTimestamp: undefined,
+      maintenanceEndTimestamp: undefined,
     },
     {
       isSystemMaintenanceAlertOpen: true,
       maintenanceMessage: 'Hello World!',
       maintenanceStartTimestamp: dayjs().subtract(1, 'm').toISOString(),
+      maintenanceEndTimestamp: dayjs().add(2, 'm').toISOString(),
     },
     {
       isSystemMaintenanceAlertOpen: false,
       maintenanceMessage: 'Hello World!',
-      maintenanceStartTimestamp: dayjs().add(1, 'm').toISOString(),
+      maintenanceStartTimestamp: dayjs().subtract(1, 'm').toISOString(),
+      maintenanceEndTimestamp: dayjs().add(2, 'm').toISOString(),
+    },
+    {
+      isSystemMaintenanceAlertOpen: true,
+      maintenanceMessage: 'Hello World!',
+      maintenanceStartTimestamp: undefined,
+      maintenanceEndTimestamp: dayjs().add(2, 'm').toISOString(),
+    },
+    {
+      isSystemMaintenanceAlertOpen: true,
+      maintenanceMessage: 'Hello World!',
+      maintenanceStartTimestamp: dayjs().subtract(1, 'm').toISOString(),
+      maintenanceEndTimestamp: undefined,
     },
   ])('renders with enterprise customer (%s)', ({
     isSystemMaintenanceAlertOpen,
     maintenanceMessage,
     maintenanceStartTimestamp,
+    maintenanceEndTimestamp,
   }) => {
     if (maintenanceMessage) {
       mergeConfig({
@@ -110,6 +127,12 @@ describe('Layout', () => {
     if (maintenanceStartTimestamp) {
       mergeConfig({
         MAINTENANCE_ALERT_START_TIMESTAMP: maintenanceStartTimestamp ?? '',
+      });
+    }
+
+    if (maintenanceEndTimestamp) {
+      mergeConfig({
+        MAINTENANCE_ALERT_END_TIMESTAMP: maintenanceEndTimestamp ?? '',
       });
     }
 
