@@ -6,8 +6,7 @@ import {
   determineAllocatedAssignmentsForCourse,
   getAvailableCourseRuns,
   transformCourseMetadataByAllocatedCourseRunAssignments,
-  isRunUnrestrictedForCatalog,
-  isRunUnrestrictedForCustomer,
+  isRunUnrestricted,
 } from '../utils';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import useRedeemablePolicies from './useRedeemablePolicies';
@@ -53,26 +52,16 @@ export default function useCourseMetadata(queryOptions = {}, catalogUuid = undef
       // First stage filters out any runs that are unavailable for universal reasons, such as enrollment windows and
       // published states.
       const basicAvailableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
-      // Second stage filters out any *restricted* runs.
-      let restrictedRunFilter;
-      if (catalogUuid) {
-        // We have all the info we need to filter out restricted runs that are not redeemable via a specific catalog.
-        restrictedRunFilter = courseRunMetadata => isRunUnrestrictedForCatalog({
+      // Second stage filters out any *restricted* runs that are not redeemable via a specific catalog (if
+      // catalogUuid is defined), or via any of the customer's catalogs (if catalogUuid is undefined).
+      const availableAndUnrestrictedCourseRuns = basicAvailableCourseRuns.filter(
+        courseRunMetadata => isRunUnrestricted({
           restrictedRunsAllowed,
           courseKey,
           courseRunMetadata,
           catalogUuid,
-        });
-      } else {
-        // Fallback to only filtering out runs that are not available to the current customer under ANY catalog. The
-        // result may still include runs that are restricted for the subsidy types actually applicable for the learner.
-        restrictedRunFilter = courseRunMetadata => isRunUnrestrictedForCustomer({
-          restrictedRunsAllowed,
-          courseKey,
-          courseRunMetadata,
-        });
-      }
-      const availableAndUnrestrictedCourseRuns = basicAvailableCourseRuns.filter(restrictedRunFilter);
+        }),
+      );
       let transformedData = {
         ...data,
         availableCourseRuns: availableAndUnrestrictedCourseRuns,

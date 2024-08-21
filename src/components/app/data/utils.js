@@ -895,63 +895,29 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
 }
 
 /*
- * Centralized logic to get all the catalogs (for one customer) that have access to a specific restricted run.
+ * Determine if a given run is unrestricted for either a SPECIFIC CATALOG or ANY CATALOG for the current customer.
  *
- * The hope is that we strive to limit any additional code that accesses restrictedRunsAllowed so that there is only one
- * place to edit/fix it.
+ * By centralizing the restricted run checking logic (i.e. limit any additional code that accesses
+ * restrictedRunsAllowed) there will be only one place to edit/fix it.
  */
-export function getAllowedCatalogsForRestrictedRun({
-  restrictedRunsAllowed,
-  courseKey,
-  courseRunMetadata,
-}) {
-  if (courseRunMetadata?.restrictionType === ENTERPRISE_RESTRICTION_TYPE) {
-    return {
-      allowedCatalogs: restrictedRunsAllowed?.[courseKey]?.[courseRunMetadata.key]?.catalogUuids,
-      isRestricted: true,
-    };
-  }
-  return {
-    allowedCatalogs: undefined,
-    isRestricted: !!courseRunMetadata?.restrictionType,
-  };
-}
-
-/*
- * Determine if a given run is unrestricted for ANY CATALOG for the current customer.
- */
-export function isRunUnrestrictedForCustomer({
-  restrictedRunsAllowed,
-  courseKey,
-  courseRunMetadata,
-}) {
-  const {
-    allowedCatalogs,
-    isRestricted,
-  } = getAllowedCatalogsForRestrictedRun({
-    restrictedRunsAllowed,
-    courseKey,
-    courseRunMetadata,
-  });
-  return !isRestricted || allowedCatalogs?.length > 0;
-}
-
-/*
- * Determine if a given run is unrestricted for the given catalog.
- */
-export function isRunUnrestrictedForCatalog({
+export function isRunUnrestricted({
   restrictedRunsAllowed,
   courseKey,
   courseRunMetadata,
   catalogUuid,
 }) {
-  const {
-    allowedCatalogs,
-    isRestricted,
-  } = getAllowedCatalogsForRestrictedRun({
-    restrictedRunsAllowed,
-    courseKey,
-    courseRunMetadata,
-  });
-  return !isRestricted || allowedCatalogs?.includes(catalogUuid);
+  if (!courseRunMetadata?.restrictionType) {
+    return true;
+  }
+  if (courseRunMetadata?.restrictionType !== ENTERPRISE_RESTRICTION_TYPE) {
+    return false;
+  }
+  // Get all the catalogs (for one customer) that have access to a specific restricted run.
+  const allowedCatalogs = restrictedRunsAllowed?.[courseKey]?.[courseRunMetadata.key]?.catalogUuids;
+  if (catalogUuid) {
+    // If a catalogUuid is supplied, determine if the given run is unrestricted for a SPECIFIC CATALOG.
+    return allowedCatalogs?.includes(catalogUuid);
+  }
+  // If a catalogUuid is not supplied, determine if the given run is unrestricted for ANY CATALOG for the customer.
+  return allowedCatalogs?.length > 0;
 }
