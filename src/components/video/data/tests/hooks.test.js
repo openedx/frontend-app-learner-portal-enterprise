@@ -30,7 +30,11 @@ describe('useTranscripts', () => {
     const textTracks = { en: 'https://example.com/transcript-en.txt' };
     fetchAndAddTranscripts.mockResolvedValueOnce(textTracks);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTranscripts({ player: mockPlayer, customOptions }));
+    const { result, waitForNextUpdate } = renderHook(() => useTranscripts({
+      player: mockPlayer,
+      customOptions,
+      siteLanguage: 'en',
+    }));
 
     await waitForNextUpdate();
 
