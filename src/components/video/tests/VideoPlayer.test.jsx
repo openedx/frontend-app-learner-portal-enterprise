@@ -7,6 +7,11 @@ const hlsUrl = 'https://test-domain.com/test-prefix/id.m3u8';
 const ytUrl = 'https://www.youtube.com/watch?v=oHg5SJYRHA0';
 const mp3Url = 'https://example.com/audio.mp3';
 
+jest.mock('@edx/frontend-platform/i18n', () => ({
+  ...jest.requireActual('@edx/frontend-platform/i18n'),
+  getLocale: () => 'en',
+}));
+
 describe('Video Player component', () => {
   it('Renders Video Player components correctly for HLS videos.', async () => {
     const { container } = renderWithRouter(<VideoPlayer videoURL={hlsUrl} />);
