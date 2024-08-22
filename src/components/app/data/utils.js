@@ -914,10 +914,13 @@ export function isRunUnrestricted({
   }
   // Get all the catalogs (for one customer) that have access to a specific restricted run.
   const allowedCatalogs = restrictedRunsAllowed?.[courseKey]?.[courseRunMetadata.key]?.catalogUuids;
+  if (!(allowedCatalogs instanceof Array)) {
+    return false;
+  }
   if (catalogUuid) {
     // If a catalogUuid is supplied, determine if the given run is unrestricted for a SPECIFIC CATALOG.
-    return allowedCatalogs?.includes(catalogUuid);
+    return allowedCatalogs.includes(catalogUuid);
   }
   // If a catalogUuid is not supplied, determine if the given run is unrestricted for ANY CATALOG for the customer.
-  return allowedCatalogs?.length > 0;
+  return allowedCatalogs.length > 0;
 }
