@@ -4,7 +4,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { getBrandColorsFromCSSVariables, isDefinedAndNotNull, isTodayWithinDateThreshold } from '../../../utils/common';
-import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
+import { COURSE_STATUSES, SUBSIDY_TYPE, ENTERPRISE_RESTRICTION_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import {
   ASSIGNMENT_TYPES,
@@ -697,7 +697,7 @@ export const filterPoliciesByExpirationAndActive = (policies) => {
  * @param applicableCouponCode
  * @param applicableEnterpriseOffer
  * @param applicableSubsidyAccessPolicy
- * @returns {{perLearnerSpendLimit: (number|null|Number|*), policyRedemptionUrl: (string|string|*), discountType: string, discountValue: number, subsidyType: string, perLearnerEnrollmentLimit: (null|*)}|{subsidyId, discountType: string, discountValue: number, startDate, subsidyType: string, expirationDate, status}|undefined|{maxUserApplications: (null|*), endDate: (string|*), subsidyType: string, offerType: *, isCurrent, remainingApplications: (number|null|*), remainingApplicationsForUser: (number|null|*), discountType: string, remainingBalance, remainingBalanceForUser, discountValue, startDate: (string|*), maxUserDiscount}|{code, endDate: (string|*), discountType: (string|*), discountValue: (number|*), startDate: (string|*), subsidyType: string}}
+ * @returns {{perLearnerSpendLimit: (number|null|Number|*), policyRedemptionUrl: (string|string|*), discountType: string, discountValue: number, subsidyType: string, perLearnerEnrollmentLimit: (null|*)}|{subsidyId, discountType: string, discountValue: number, startDate, subsidyType: string, expirationDate, status}|undefined|{maxUserApplications: (null|*), endDate: (string|*), subsidyType: string, offerType: *, isCurrent, remainingApplications: (number|null|*), remainingApplicationsForUser: (number|null|*), discountType: string, remainingBalance, remainingBalanceForUser, discountValue, startDate: (string|*), maxUserDiscount}|{code, endDate: (string|*), discountType: (string|*), discountValue: (number|*), startDate: (string|*), subsidyType: string, catalogUuid: (string|*)}}
  */
 /* eslint-enable max-len */
 export const getSubsidyToApplyForCourse = ({
@@ -715,6 +715,7 @@ export const getSubsidyToApplyForCourse = ({
       expirationDate: applicableSubscriptionLicense.subscriptionPlan.expirationDate,
       status: applicableSubscriptionLicense.status,
       subsidyId: applicableSubscriptionLicense.uuid,
+      catalogUuid: applicableSubscriptionLicense.subscriptionPlan.enterpriseCatalogUuid,
     };
   }
 
@@ -726,6 +727,7 @@ export const getSubsidyToApplyForCourse = ({
       endDate: applicableCouponCode.couponEndDate,
       code: applicableCouponCode.code,
       subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+      catalogUuid: applicableCouponCode.catalog,
     };
   }
 
@@ -738,6 +740,7 @@ export const getSubsidyToApplyForCourse = ({
       perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
       perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
       policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+      catalogUuid: redeemableSubsidyAccessPolicy?.catalogUuid,
     };
   }
 
@@ -756,6 +759,7 @@ export const getSubsidyToApplyForCourse = ({
       remainingApplications: applicableEnterpriseOffer.remainingApplications,
       remainingApplicationsForUser: applicableEnterpriseOffer.remainingApplicationsForUser,
       isCurrent: applicableEnterpriseOffer.isCurrent,
+      catalogUuid: applicableEnterpriseOffer.enterpriseCatalogUuid,
     };
   }
 
@@ -857,4 +861,32 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
     };
   }
   return courseMetadata;
+}
+
+/*
+ * Determine if a given run is unrestricted for either a SPECIFIC CATALOG or ANY CATALOG for the current customer.
+ *
+ * By centralizing the restricted run checking logic (i.e. limit any additional code that accesses
+ * restrictedRunsAllowed) there will be only one place to edit/fix it.
+ */
+export function isRunUnrestricted({
+  restrictedRunsAllowed,
+  courseKey,
+  courseRunMetadata,
+  catalogUuid,
+}) {
+  if (!courseRunMetadata?.restrictionType) {
+    return true;
+  }
+  if (courseRunMetadata?.restrictionType !== ENTERPRISE_RESTRICTION_TYPE) {
+    return false;
+  }
+  // Get all the catalogs (for one customer) that have access to a specific restricted run.
+  const allowedCatalogs = restrictedRunsAllowed?.[courseKey]?.[courseRunMetadata.key]?.catalogUuids;
+  if (catalogUuid) {
+    // If a catalogUuid is supplied, determine if the given run is unrestricted for a SPECIFIC CATALOG.
+    return allowedCatalogs?.includes(catalogUuid);
+  }
+  // If a catalogUuid is not supplied, determine if the given run is unrestricted for ANY CATALOG for the customer.
+  return allowedCatalogs?.length > 0;
 }

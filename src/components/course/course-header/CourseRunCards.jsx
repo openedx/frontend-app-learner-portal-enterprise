@@ -21,8 +21,9 @@ const CourseRunCards = () => {
   const {
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
+    catalogUuid,
   } = useUserSubsidyApplicableToCourse();
-  const { data: courseMetadata } = useCourseMetadata();
+  const { data: courseMetadata } = useCourseMetadata({}, catalogUuid);
   const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
   const { data: userEntitlements } = useUserEntitlements();
