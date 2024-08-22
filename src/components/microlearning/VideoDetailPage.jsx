@@ -1,8 +1,7 @@
 /* eslint-disable max-len */
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import {
   Container, Row, Badge, Skeleton,
-  Hyperlink,
   Icon,
   Button,
 } from '@openedx/paragon';
@@ -11,6 +10,7 @@ import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import {
   Person, Speed, Timelapse,
 } from '@openedx/paragon/icons';
+import { Link } from 'react-router-dom';
 import {
   useVideoDetails, useEnterpriseCustomer, useVideoCourseMetadata,
   useSubscriptions,
@@ -144,11 +144,11 @@ const VideoDetailPage = () => {
                   className="mr-2 logo-cutom-style rounded-sm p-1"
                 />
                 <div className="x-small">
-                  <Hyperlink
-                    destination={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
+                  <Link
+                    to={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
                   >
                     {courseMetadata?.title}
-                  </Hyperlink>
+                  </Link>
                 </div>
               </div>
               <VideoCourseReview courseKey={courseMetadata.key} />
@@ -231,11 +231,11 @@ const VideoDetailPage = () => {
                   values={{
                     // eslint-disable-next-line react/no-unstable-nested-components
                     a: (chunks) => (
-                      <Hyperlink
-                        destination={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
+                      <Link
+                        to={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
                       >
                         {chunks}
-                      </Hyperlink>
+                      </Link>
                     ),
                   }}
                 />
@@ -243,8 +243,8 @@ const VideoDetailPage = () => {
               <div>
                 <Button
                   variant="primary"
-                  as={Hyperlink}
-                  destination={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
+                  as={Link}
+                  to={`/${enterpriseCustomer.slug}/course/${courseMetadata?.key}`}
                   className="mt-4.5 w-100"
                 >
                   <FormattedMessage
