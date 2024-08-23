@@ -10,6 +10,7 @@ const mp3Url = 'https://example.com/audio.mp3';
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
   getLocale: () => 'en',
+  getPrimaryLanguageSubtag: () => 'en',
 }));
 
 describe('Video Player component', () => {

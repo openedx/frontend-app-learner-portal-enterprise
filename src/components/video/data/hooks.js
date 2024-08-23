@@ -18,12 +18,13 @@ export function useTranscripts({ player, customOptions, siteLanguage }) {
           const result = await fetchAndAddTranscripts(customOptions.transcriptUrls, player);
 
           // Sort the text tracks to prioritize the site language at the top of the list.
-          // Currently, video.js selects the top language from the list of transcripts.
-          const sortedResult = sortTextTracks(result, siteLanguage);
+          // since video.js selects the top language from the list of transcripts.
+          // Preferred language is the site language, with English as the fallback.
+          const preferredLanguage = result?.[siteLanguage] ? siteLanguage : 'en';
+          const sortedResult = sortTextTracks(result, preferredLanguage);
           setTextTracks(sortedResult);
 
-          // Default to site language, fallback to English
-          const preferredTranscript = sortedResult[siteLanguage] || sortedResult.en;
+          const preferredTranscript = sortedResult?.[preferredLanguage];
           setTranscriptUrl(preferredTranscript);
         } catch (error) {
           logError(`Error fetching transcripts for player: ${error}`);

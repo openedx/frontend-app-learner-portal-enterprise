@@ -14,6 +14,7 @@ const ytUrl = 'https://www.youtube.com/watch?v=oHg5SJYRHA0';
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
   getLocale: () => 'en',
+  getPrimaryLanguageSubtag: () => 'en',
 }));
 
 describe('Course Preview Tests', () => {
