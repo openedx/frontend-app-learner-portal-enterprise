@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, StatefulButton } from '@openedx/paragon';
+import {
+  ActionRow, Button, StandardModal, StatefulButton,
+} from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform';
 
 import MoveToInProgressModalContext from './MoveToInProgressModalContext';
@@ -67,26 +69,30 @@ const MoveToInProgressModal = ({
 
   return (
     <MoveToInProgressModalContext.Provider value={contextValue}>
-      <Modal
+      <StandardModal
         title="Move course to &quot;In Progress&quot;"
-        body={<ModalBody />}
-        buttons={[
-          <StatefulButton
-            labels={{
-              default: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
-              pending: MARK_MOVE_TO_IN_PROGRESS_PENDING_LABEL,
-            }}
-            disabledStates={['pending']}
-            className="confirm-move-to-in-progress-btn btn-primary btn-brand-primary"
-            state={confirmButtonState}
-            onClick={handleConfirmButtonClick}
-            key="confirm-move-to-in-progress-btn"
-          />,
-        ]}
-        open={isOpen && !confirmSuccessful}
+        isOpen={isOpen && !confirmSuccessful}
         onClose={handleModalOnClose}
-        closeText="Cancel"
-      />
+        hasCloseButton
+        isFullscreenOnMobile
+        footerNode={(
+          <ActionRow>
+            <Button variant="tertiary" onClick={onClose}>Cancel</Button>
+            <StatefulButton
+              labels={{
+                default: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
+                pending: MARK_MOVE_TO_IN_PROGRESS_PENDING_LABEL,
+              }}
+              disabledStates={['pending']}
+              className="confirm-move-to-in-progress-btn btn-primary btn-brand-primary"
+              state={confirmButtonState}
+              onClick={handleConfirmButtonClick}
+            />
+          </ActionRow>
+        )}
+      >
+        <ModalBody />
+      </StandardModal>
     </MoveToInProgressModalContext.Provider>
   );
 };
