@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Input, Modal, Alert, StatefulButton,
+  Form, Alert, StatefulButton, ActionRow, Button, StandardModal,
 } from '@openedx/paragon';
 import { Error } from '@openedx/paragon/icons';
 
@@ -108,51 +108,47 @@ class EmailSettingsModal extends Component {
     const {
       error, hasEmailsEnabled, isSubmitting,
     } = this.state;
-    const { open, courseRunId } = this.props;
+    const { open } = this.props;
 
     return (
-      <Modal
+      <StandardModal
         title="Email settings"
-        body={(
-          <>
-            {error && (
-              <Alert variant="danger" icon={Error}>
-                An error occurred while saving your email settings. Please try again.
-              </Alert>
-            )}
-            <div className="form-check">
-              <Input
-                type="checkbox"
-                id={`email-settings-${courseRunId}`}
-                checked={hasEmailsEnabled}
-                disabled={isSubmitting}
-                onChange={this.handleEmailSettingsChange}
-              />
-              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-              <label className="form-check-label ml-2 font-weight-normal" htmlFor={`email-settings-${courseRunId}`}>
-                Receive course emails such as reminders, schedule updates, and
-                other critical announcements.
-              </label>
-            </div>
-          </>
-        )}
+        isOpen={open}
         onClose={this.handleOnClose}
-        buttons={[
-          <StatefulButton
-            labels={{
-              default: 'Save',
-              pending: 'Saving',
-              complete: 'Saved',
-            }}
-            disabledStates={this.getDisabledStates()}
-            className="save-email-settings-btn btn-primary btn-brand-primary"
-            state={this.getButtonState()}
-            onClick={this.handleSaveButtonClick}
-            key="save-email-settings-btn"
-          />,
-        ]}
-        open={open}
-      />
+        hasCloseButton
+        isFullscreenOnMobile
+        footerNode={(
+          <ActionRow>
+            <Button variant="tertiary" onClick={this.handleOnClose} data-testid="email-setting-modal-close-btn">Close</Button>
+            <StatefulButton
+              labels={{
+                default: 'Save',
+                pending: 'Saving',
+                complete: 'Saved',
+              }}
+              disabledStates={this.getDisabledStates()}
+              state={this.getButtonState()}
+              onClick={this.handleSaveButtonClick}
+            />
+          </ActionRow>
+        )}
+      >
+        {error && (
+          <Alert variant="danger" icon={Error}>
+            An error occurred while saving your email settings. Please try again.
+          </Alert>
+        )}
+        <Form.Group>
+          <Form.Checkbox
+            checked={hasEmailsEnabled}
+            disabled={isSubmitting}
+            onChange={this.handleEmailSettingsChange}
+            className="email-checkbox"
+          >
+            Receive course emails such as reminders, schedule updates, and other critical announcements.
+          </Form.Checkbox>
+        </Form.Group>
+      </StandardModal>
     );
   }
 }

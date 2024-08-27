@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { mergeConfig } from '@edx/frontend-platform';
+import { getLoggingService } from '@edx/frontend-platform/logging';
 import dayjs from 'dayjs';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -21,7 +22,14 @@ const mockDefaultAppContextValue = {
   },
 };
 
-jest.mock('@edx/frontend-component-footer', () => jest.fn(() => <div data-testid="site-footer" />));
+jest.mock('@openedx/frontend-slot-footer', () => jest.fn(() => <div data-testid="site-footer" />));
+jest.mock('@edx/frontend-platform/logging', () => ({
+  getLoggingService: jest.fn(),
+}));
+const mockSetCustomAttribute = jest.fn();
+getLoggingService.mockReturnValue({
+  setCustomAttribute: mockSetCustomAttribute,
+});
 jest.mock('../site-header', () => ({
   ...jest.requireActual('../site-header'),
   SiteHeader: jest.fn(() => <div data-testid="site-header" />),
@@ -72,26 +80,43 @@ describe('Layout', () => {
       isSystemMaintenanceAlertOpen: false,
       maintenanceMessage: undefined,
       maintenanceStartTimestamp: undefined,
+      maintenanceEndTimestamp: undefined,
     },
     {
       isSystemMaintenanceAlertOpen: true,
       maintenanceMessage: 'Hello World!',
       maintenanceStartTimestamp: undefined,
+      maintenanceEndTimestamp: undefined,
     },
     {
       isSystemMaintenanceAlertOpen: true,
       maintenanceMessage: 'Hello World!',
       maintenanceStartTimestamp: dayjs().subtract(1, 'm').toISOString(),
+      maintenanceEndTimestamp: dayjs().add(2, 'm').toISOString(),
     },
     {
       isSystemMaintenanceAlertOpen: false,
       maintenanceMessage: 'Hello World!',
-      maintenanceStartTimestamp: dayjs().add(1, 'm').toISOString(),
+      maintenanceStartTimestamp: dayjs().subtract(1, 'm').toISOString(),
+      maintenanceEndTimestamp: dayjs().add(2, 'm').toISOString(),
+    },
+    {
+      isSystemMaintenanceAlertOpen: true,
+      maintenanceMessage: 'Hello World!',
+      maintenanceStartTimestamp: undefined,
+      maintenanceEndTimestamp: dayjs().add(2, 'm').toISOString(),
+    },
+    {
+      isSystemMaintenanceAlertOpen: true,
+      maintenanceMessage: 'Hello World!',
+      maintenanceStartTimestamp: dayjs().subtract(1, 'm').toISOString(),
+      maintenanceEndTimestamp: undefined,
     },
   ])('renders with enterprise customer (%s)', ({
     isSystemMaintenanceAlertOpen,
     maintenanceMessage,
     maintenanceStartTimestamp,
+    maintenanceEndTimestamp,
   }) => {
     if (maintenanceMessage) {
       mergeConfig({
@@ -102,6 +127,12 @@ describe('Layout', () => {
     if (maintenanceStartTimestamp) {
       mergeConfig({
         MAINTENANCE_ALERT_START_TIMESTAMP: maintenanceStartTimestamp ?? '',
+      });
+    }
+
+    if (maintenanceEndTimestamp) {
+      mergeConfig({
+        MAINTENANCE_ALERT_END_TIMESTAMP: maintenanceEndTimestamp ?? '',
       });
     }
 

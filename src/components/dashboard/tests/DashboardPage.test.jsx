@@ -533,8 +533,8 @@ describe('<Dashboard />', () => {
 
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy();
-      userEvent.click(screen.getByTestId('modal-footer-btn'));
-      await waitFor(() => expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy());
+      userEvent.click(screen.getByTestId('subscription-expiration-button'));
+      await waitFor(() => expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy());
       const expiredModalLocalStorageKey = !!global.localStorage.getItem(
         EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense),
       );
@@ -619,7 +619,7 @@ describe('<Dashboard />', () => {
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
-      userEvent.click(screen.getByTestId('modal-footer-btn'));
+      userEvent.click(screen.getByTestId('subscription-expiration-button'));
       const hasExpirationModal = !!global.localStorage.getItem(`${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${threshold}-${subscriptionPlanId}`);
       expect(hasExpirationModal).toEqual(true);
     });

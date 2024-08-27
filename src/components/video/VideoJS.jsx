@@ -1,11 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import 'videojs-youtube';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import { getLocale } from '@edx/frontend-platform/i18n';
 import { PLAYBACK_RATES } from './data/constants';
-import { fetchAndAddTranscripts } from './data/service';
+import { usePlayerOptions, useTranscripts } from './data';
 
 window.videojs = videojs;
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -14,8 +15,49 @@ require('videojs-vjstranscribe');
 const VideoJS = ({ options, onReady, customOptions }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
+  const siteLanguage = getLocale();
+
+  const transcripts = useTranscripts({
+    player: playerRef.current,
+    customOptions,
+    siteLanguage,
+  });
+
+  const playerOptions = usePlayerOptions({
+    transcripts,
+    options,
+    customOptions,
+  });
+
+  const handlePlayerReady = useCallback(() => {
+    // Add remote text tracks
+    const textTracks = Object.entries(transcripts.textTracks);
+    textTracks.forEach(([lang, webVttFileUrl]) => {
+      playerRef.current.addRemoteTextTrack({
+        kind: 'subtitles',
+        src: webVttFileUrl,
+        srclang: lang,
+        label: lang,
+      }, false);
+    });
+
+    // Set playback rates
+    if (customOptions?.showPlaybackMenu) {
+      playerRef.current.playbackRates(PLAYBACK_RATES);
+    }
+
+    // Callback to parent component, if provided
+    if (onReady) {
+      onReady(playerRef.current);
+    }
+  }, [customOptions?.showPlaybackMenu, onReady, transcripts.textTracks]);
 
   useEffect(() => {
+    if (transcripts.isLoading) {
+      // While async transcripts data is loading, don't initialize the player
+      return;
+    }
+
     // Make sure Video.js player is only initialized once
     if (!playerRef.current) {
       // The Video.js player needs to be _inside_ the component el for React 18 Strict Mode.
@@ -24,46 +66,30 @@ const VideoJS = ({ options, onReady, customOptions }) => {
       videoElement.classList.add('vjs-big-play-centered');
       videoRef.current.appendChild(videoElement);
 
-      // eslint-disable-next-line no-multi-assign
-      const player = playerRef.current = videojs(videoElement, options, () => {
-        if (onReady) {
-          onReady(player);
-        }
-      });
-
-      if (customOptions?.showPlaybackMenu) {
-        player.playbackRates(PLAYBACK_RATES);
-      }
-
-      if (customOptions?.showTranscripts && customOptions?.transcriptUrls) {
-        fetchAndAddTranscripts(customOptions?.transcriptUrls, player);
-      }
+      playerRef.current = videojs(videoElement, playerOptions, handlePlayerReady);
     } else {
-      const player = playerRef.current;
-
-      player.autoplay(options.autoplay);
-      player.src(options.sources);
+      playerRef.current.autoplay(playerOptions.autoplay);
+      playerRef.current.src(playerOptions.sources);
     }
-  }, [onReady, options, videoRef, customOptions]);
+  }, [transcripts.isLoading, playerOptions, handlePlayerReady]);
 
   // Dispose the Video.js player when the functional component unmounts
   useEffect(() => {
-    const player = playerRef.current;
-
-    return () => {
-      if (player && !player.isDisposed()) {
-        player.dispose();
+    const cleanup = () => {
+      if (playerRef.current && !playerRef.current.isDisposed()) {
+        playerRef.current.dispose();
         playerRef.current = null;
       }
     };
-  }, [playerRef]);
+    return cleanup;
+  }, []);
 
   return (
     <>
       <div data-vjs-player className="video-js-wrapper">
         <div ref={videoRef} />
       </div>
-      { customOptions?.showTranscripts && <div id="vjs-transcribe" className="transcript-container" />}
+      {customOptions?.showTranscripts && <div id="vjs-transcribe" className="transcript-container" />}
     </>
   );
 };

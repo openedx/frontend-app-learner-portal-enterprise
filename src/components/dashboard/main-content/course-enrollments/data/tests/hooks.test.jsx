@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
 import * as logger from '@edx/frontend-platform/logging';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
@@ -20,27 +20,30 @@ import * as service from '../service';
 import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from '../constants';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import {
-  createEnrollWithLicenseUrl,
   createEnrollWithCouponCodeUrl,
+  createEnrollWithLicenseUrl,
   findHighestLevelSeatSku,
 } from '../../../../../course/data/utils';
-import { ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
-  ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
+  ASSIGNMENT_TYPES,
   COURSE_MODES_MAP,
   emptyRedeemableLearnerCreditPolicies,
+  ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
   transformCourseEnrollment,
   transformLearnerContentAssignment,
   useCanUpgradeWithLearnerCredit,
   useCouponCodes,
+  useCourseRunMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useRedeemablePolicies,
   useSubscriptions,
-  useCourseRunMetadata,
 } from '../../../../../app/data';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
+import {
+  authenticatedUserFactory,
+  enterpriseCustomerFactory,
+} from '../../../../../app/data/services/data/__factories__';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../../data/constants';
 import { LICENSE_STATUS } from '../../../../../enterprise-user-subsidy/data/constants';
 import { useStatefulEnroll } from '../../../../../stateful-enroll/data';
@@ -628,7 +631,8 @@ describe('useContentAssignments', () => {
     },
   };
 
-  function mockUseEnterpriseCourseEnrollments(policies) {
+  function mockUseEnterpriseCourseEnrollments(policies, options = {}) {
+    const otherEnrollmentsByStatus = options.otherEnrollmentsByStatus || {};
     useEnterpriseCourseEnrollments.mockReturnValue({
       data: {
         allEnrollmentsByStatus: {
@@ -641,6 +645,8 @@ describe('useContentAssignments', () => {
                 mockEnterpriseCustomer.slug,
               )),
           },
+          inProgress: [],
+          ...otherEnrollmentsByStatus,
         },
       },
     });
@@ -853,6 +859,79 @@ describe('useContentAssignments', () => {
     );
     expect(acknowledgedExpiringAssignments).toEqual([mockExpiringAssignment.uuid]);
     expect(result.current.showExpiringAssignmentsAlert).toBe(false);
+  });
+
+  it.each([
+    // Audit, no enrollBy date
+    {
+      mode: COURSE_MODES_MAP.AUDIT,
+      enrollBy: undefined,
+      isAssignmentExcluded: true,
+    },
+    // Audit, with elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.AUDIT,
+      enrollBy: dayjs().subtract(1, 'd').toISOString(), // yesterday
+      isAssignmentExcluded: false,
+    },
+    // Audit, with not-yet-elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.AUDIT,
+      enrollBy: dayjs().add(1, 'd').toISOString(), // tomorrow
+      isAssignmentExcluded: true,
+    },
+    // Verified, no enrollBy date
+    {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      enrollBy: undefined,
+      isAssignmentExcluded: false,
+    },
+    // Verified, with elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      enrollBy: dayjs().subtract(1, 'd').toISOString(), // yesterday
+      isAssignmentExcluded: false,
+    },
+    // Verified, with not-yet-elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      enrollBy: dayjs().add(1, 'd').toISOString(), // tomorrow
+      isAssignmentExcluded: false,
+    },
+  ])('should exclude assignments that have an upgradeable in-progress course enrollment (%s)', ({
+    mode,
+    enrollBy,
+    isAssignmentExcluded,
+  }) => {
+    const mockEnrollment = {
+      ...mockTransformedMockCourseEnrollment,
+      mode,
+      enrollBy,
+    };
+    const mockAssignmentForExistingEnrollment = {
+      ...mockAllocatedAssignment,
+      contentKey: mockEnrollment.courseRunKey,
+    };
+    const mockPoliciesWithInProgressEnrollment = {
+      ...mockPoliciesWithAssignments,
+      learnerContentAssignments: {
+        ...mockPoliciesWithAssignments.learnerContentAssignments,
+        assignmentsForDisplay: [
+          mockAssignmentForExistingEnrollment,
+        ],
+      },
+    };
+    mockUseEnterpriseCourseEnrollments(mockPoliciesWithInProgressEnrollment, {
+      otherEnrollmentsByStatus: {
+        inProgress: [mockEnrollment],
+      },
+    });
+    const { result } = renderHook(() => useContentAssignments(), { wrapper });
+    if (isAssignmentExcluded) {
+      expect(result.current.assignments).toHaveLength(0);
+    } else {
+      expect(result.current.assignments).toHaveLength(1);
+    }
   });
 });
 

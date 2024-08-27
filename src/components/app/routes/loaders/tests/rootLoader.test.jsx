@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { when } from 'jest-when';
-import { useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
@@ -32,31 +32,21 @@ jest.mock('../../../data', () => ({
   updateUserActiveEnterprise: jest.fn(),
 }));
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  configure: jest.fn(),
-}));
-jest.mock('@edx/frontend-platform/logging', () => ({
-  ...jest.requireActual('@edx/frontend-platform/logging'),
-  configure: jest.fn(),
-  getLoggingService: jest.fn(),
-}));
-
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseCustomerTwo = enterpriseCustomerFactory();
 
 const mockQueryClient = {
-  ensureQueryData: jest.fn().mockResolvedValue({}),
+  ensureQueryData: jest.fn().mockResolvedValue(),
 };
 
 let locationPathname;
-const ComponentWithLocation = () => {
+const ComponentWithLocation = ({ children }) => {
   const { pathname } = useLocation();
   useEffect(() => {
     locationPathname = pathname;
   }, [pathname]);
-  return null;
+  return children || null;
 };
 
 describe('rootLoader', () => {
@@ -220,17 +210,29 @@ describe('rootLoader', () => {
       }),
     ).mockResolvedValue(mockRedeemablePolicies);
 
+    // Mock subscriptions query
+    const mockSubscriptionsData = {
+      customerAgreement: null,
+      licensesByStatus: {},
+    };
+    const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
+    when(mockQueryClient.ensureQueryData).calledWith(
+      expect.objectContaining({
+        queryKey: subscriptionsQuery.queryKey,
+      }),
+    ).mockResolvedValue(mockSubscriptionsData);
+
     renderWithRouterProvider({
       path: '/:enterpriseSlug/*',
-      element: <ComponentWithLocation />,
+      element: <ComponentWithLocation><Outlet /></ComponentWithLocation>,
       loader: makeRootLoader(mockQueryClient),
-    }, {
-      routes: [
+      children: [
         {
-          path: '/:enterpriseSlug/search',
+          path: 'search',
           element: <ComponentWithLocation />,
         },
       ],
+    }, {
       initialEntries: [`/${enterpriseSlug}`],
     });
 
@@ -244,8 +246,12 @@ describe('rootLoader', () => {
         } else {
           expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(2);
         }
+      } else if (shouldRedirectToSearch) {
+        // queries are executed again when redirecting to search
+        expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(18);
+      } else {
+        expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
       }
-      expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
     });
 
     function getExpectedSlugPath() {
@@ -290,7 +296,6 @@ describe('rootLoader', () => {
     );
 
     // Subscriptions query
-    const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: subscriptionsQuery.queryKey,

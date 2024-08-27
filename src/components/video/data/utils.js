@@ -26,3 +26,20 @@ export const createWebVttFile = (webVttContent) => {
   const blob = new Blob([webVttContent], { type: 'text/vtt' });
   return URL.createObjectURL(blob);
 };
+
+export const sortTextTracks = (tracks, siteLanguage) => {
+  // Some language codes returned by getLocale include a hyphen, which may not match the codes in the text tracks.
+  // To ensure proper matching, the hyphen is removed from the site language code if present.
+  const preferredLanguage = siteLanguage?.includes('-') ? siteLanguage.split('-')[0].toLowerCase() : siteLanguage.toLowerCase();
+
+  const sortedKeys = Object.keys(tracks).sort((a, b) => {
+    if (a === preferredLanguage) { return -1; }
+    if (b === preferredLanguage) { return 1; }
+    return a.localeCompare(b);
+  });
+
+  return sortedKeys.reduce((acc, key) => {
+    acc[key] = tracks[key];
+    return acc;
+  }, {});
+};

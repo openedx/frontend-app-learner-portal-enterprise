@@ -6,24 +6,21 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import BaseCourseCard from './BaseCourseCard';
 import { COURSE_STATUSES } from '../data';
-import { useEnterpriseCustomer } from '../../../../app/data';
 
 const AssignedCourseCard = (props) => {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     // Note: we are using `courseRunId` instead of `contentKey` or `courseKey` because the `CourseSection`
     // and `BaseCourseCard` components expect `courseRunId` to be used as the content identifier. Consider
     // refactoring to rename `courseRunId` to `contentKey` in the future given learner content assignments
     // are for top-level courses, not course runs.
-    courseRunId: courseKey,
+    linkToCourse,
     isCanceledAssignment,
     isExpiredAssignment,
   } = props;
-
   const renderButtons = () => (
     <Button
       as={Link}
-      to={`/${enterpriseCustomer.slug}/course/${courseKey}`}
+      to={linkToCourse}
       className={classNames('btn-xs-block', { disabled: isCanceledAssignment || isExpiredAssignment })}
       // TODO: Not all assignment cards are rendered with a darker background (e.g., external courses
       // such as Executive Education) should use the inverse-brand variant while Open Courses (with white

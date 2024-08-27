@@ -20,115 +20,61 @@ describe('fetchAndAddTranscripts', () => {
     const mockTranscriptUrls = {
       en: 'https://example.com/en-transcript.json',
     };
-
     const mockTranscriptData = {
       items: ['example'],
     };
-
     const mockWebVttData = 'WEBVTT\n\n1\n00:00:00.000 --> 00:00:05.000\nExample subtitle';
     const mockWebVttFileUrl = 'https://example.com/en-transcript.vtt';
-
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockTranscriptData),
-    });
-
+    fetch.mockResponseOnce(JSON.stringify(mockTranscriptData));
     convertToWebVtt.mockReturnValue(mockWebVttData);
     createWebVttFile.mockReturnValue(mockWebVttFileUrl);
 
-    const player = {
-      addRemoteTextTrack: jest.fn(),
-      vjstranscribe: jest.fn(),
-    };
+    const result = await fetchAndAddTranscripts(mockTranscriptUrls);
 
-    await fetchAndAddTranscripts(mockTranscriptUrls, player);
-
-    expect(global.fetch).toHaveBeenCalledWith(mockTranscriptUrls.en);
+    expect(fetch).toHaveBeenCalledWith(mockTranscriptUrls.en);
     expect(convertToWebVtt).toHaveBeenCalledWith(mockTranscriptData);
     expect(createWebVttFile).toHaveBeenCalledWith(mockWebVttData);
-    expect(player.addRemoteTextTrack).toHaveBeenCalledWith(
-      {
-        kind: 'subtitles',
-        src: mockWebVttFileUrl,
-        srclang: 'en',
-        label: 'en',
-      },
-      false,
-    );
-    expect(player.vjstranscribe).toHaveBeenCalledWith({
-      urls: [mockWebVttFileUrl],
+
+    expect(result).toEqual({
+      en: mockWebVttFileUrl,
     });
   });
 
-  it('should log an error if the transcript fetch fails', async () => {
+  it('should log an error if the transcript fetch, JSON parsing, or file creation fails', async () => {
     const mockTranscriptUrls = {
       en: 'https://example.com/en-transcript.json',
     };
+    const error = new Error('failed to fetch!');
+    fetch.mockRejectOnce(error);
 
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: false,
-    });
+    const result = await fetchAndAddTranscripts(mockTranscriptUrls);
 
-    const player = {
-      addRemoteTextTrack: jest.fn(),
-      vjstranscribe: jest.fn(),
-    };
+    expect(fetch).toHaveBeenCalledWith(mockTranscriptUrls.en);
+    expect(logError).toHaveBeenCalledWith(`Error fetching or processing transcript for en: ${error}`);
 
-    await fetchAndAddTranscripts(mockTranscriptUrls, player);
-
-    expect(global.fetch).toHaveBeenCalledWith(mockTranscriptUrls.en);
-    expect(logError).toHaveBeenCalledWith('Failed to fetch transcript for en');
-  });
-
-  it('should log an error if JSON parsing or file creation fails', async () => {
-    const mockTranscriptUrls = {
-      en: 'https://example.com/en-transcript.json',
-    };
-
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.reject(new Error('Parsing error')),
-    });
-
-    const player = {
-      addRemoteTextTrack: jest.fn(),
-      vjstranscribe: jest.fn(),
-    };
-
-    await fetchAndAddTranscripts(mockTranscriptUrls, player);
-
-    expect(global.fetch).toHaveBeenCalledWith(mockTranscriptUrls.en);
-    expect(logError).toHaveBeenCalledWith(
-      'Error fetching or processing transcript for en:',
-      expect.any(Error),
-    );
+    expect(result).toEqual({});
   });
 
   it('should log an error if there is an error during Promise.all', async () => {
     const mockTranscriptUrls = {
       en: 'https://example.com/en-transcript.json',
     };
-
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ items: [] }),
-    });
-
-    const player = {
-      addRemoteTextTrack: jest.fn(),
-      vjstranscribe: jest.fn(),
+    const mockTranscriptData = {
+      items: ['example'],
     };
-
+    fetch.mockResponseOnce(JSON.stringify(mockTranscriptData));
+    const error = new Error('File creation error');
     createWebVttFile.mockImplementation(() => {
-      throw new Error('File creation error');
+      throw error;
     });
 
-    await fetchAndAddTranscripts(mockTranscriptUrls, player);
+    const result = await fetchAndAddTranscripts(mockTranscriptUrls);
 
-    expect(global.fetch).toHaveBeenCalledWith(mockTranscriptUrls.en);
+    expect(fetch).toHaveBeenCalledWith(mockTranscriptUrls.en);
     expect(logError).toHaveBeenCalledWith(
-      'Error fetching or processing transcript for en:',
-      expect.any(Error),
+      `Error fetching or processing transcript for en: ${error}`,
     );
+
+    expect(result).toEqual({});
   });
 });

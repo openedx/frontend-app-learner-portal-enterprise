@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import loadable from '@loadable/component';
 
 import { PlayCircleFilled } from '@openedx/paragon/icons';
-import { useToggle, Image, Skeleton } from '@openedx/paragon';
+import { Image, Skeleton, useToggle } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import DelayedFallbackContainer from '../../DelayedFallback/DelayedFallbackContainer';
 
@@ -34,11 +34,11 @@ const CoursePreview = ({ previewImage, previewVideoURL }) => {
             </div>
           ) : (
             <button
-              className="video-trigger mw-100"
+              className="video-trigger w-100"
               onClick={() => playVideo(true)}
               type="button"
             >
-              <Image src={previewImage} className="video-thumb" alt="" />
+              <Image src={previewImage} className="w-100" alt="" />
               <div className="video-trigger-cta btn btn-inverse-primary">
                 <PlayCircleFilled className="mr-1" />
                 <FormattedMessage

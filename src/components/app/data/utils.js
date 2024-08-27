@@ -1,12 +1,18 @@
 import dayjs from 'dayjs';
 import { logError } from '@edx/frontend-platform/logging';
 
-import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { getBrandColorsFromCSSVariables, isDefinedAndNotNull, isTodayWithinDateThreshold } from '../../../utils/common';
+import {
+  getBrandColorsFromCSSVariables,
+  isDefinedAndNotNull,
+  isTodayBetweenDates,
+  isTodayWithinDateThreshold,
+} from '../../../utils/common';
 import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import {
+  ASSIGNMENT_TYPES,
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
@@ -33,15 +39,20 @@ export function isSystemMaintenanceAlertOpen(config) {
     return false;
   }
   const startTimestamp = config.MAINTENANCE_ALERT_START_TIMESTAMP;
-
-  // Given no start timestamp, the system maintenance alert should be open, as
-  // it's enabled and has a message.
-  if (!startTimestamp) {
-    return true;
+  const endTimestamp = config.MAINTENANCE_ALERT_END_TIMESTAMP;
+  if (startTimestamp && endTimestamp) {
+    return isTodayBetweenDates({ startDate: startTimestamp, endDate: endTimestamp });
+  }
+  if (startTimestamp) {
+    return dayjs().isAfter(dayjs(startTimestamp));
+  }
+  if (endTimestamp) {
+    return dayjs().isBefore(dayjs(endTimestamp));
   }
 
-  // Otherwise, check whether today's date is after the defined start date.
-  return dayjs().isAfter(dayjs(startTimestamp));
+  // Given no start timestamp and no end timestamp, the system maintenance alert should be open, as
+  // it's enabled and has a message.
+  return true;
 }
 
 /**
@@ -298,7 +309,9 @@ export const canUnenrollCourseEnrollment = (courseEnrollment) => {
 };
 
 /**
- * TODO
+ * Transforms the raw course enrollment data from API into the expected
+ * shape for consuming UI components/logic.
+ *
  * @param {*} rawCourseEnrollment
  * @returns
  */
@@ -365,17 +378,42 @@ export const transformSubsidyRequest = ({
   notifications: [], // required prop by CourseSection
 });
 
+export const determineAssignmentState = ({ state }) => ({
+  isAcceptedAssignment: state === ASSIGNMENT_TYPES.ACCEPTED,
+  isAllocatedAssignment: state === ASSIGNMENT_TYPES.ALLOCATED,
+  isCanceledAssignment: state === ASSIGNMENT_TYPES.CANCELED,
+  isExpiredAssignment: state === ASSIGNMENT_TYPES.EXPIRED,
+  isErroredAssignment: state === ASSIGNMENT_TYPES.ERRORED,
+  isExpiringAssignment: state === ASSIGNMENT_TYPES.EXPIRING,
+});
+
 export const transformLearnerContentAssignment = (learnerContentAssignment, enterpriseSlug) => {
-  const isCanceledAssignment = learnerContentAssignment.state === ASSIGNMENT_TYPES.CANCELED;
-  const isExpiredAssignment = learnerContentAssignment.state === ASSIGNMENT_TYPES.EXPIRED;
-  const { date: assignmentEnrollByDeadline } = learnerContentAssignment.earliestPossibleExpiration;
+  const {
+    contentKey,
+    parentContentKey,
+    isAssignedCourseRun,
+    state,
+    earliestPossibleExpiration,
+  } = learnerContentAssignment;
+  const {
+    isExpiredAssignment,
+    isCanceledAssignment,
+  } = determineAssignmentState({ state });
+  const { date: assignmentEnrollByDeadline } = earliestPossibleExpiration;
+
+  // This logic is intended to remain backwards
+  // compatible with assignments for top-level courses
+  let courseKey = contentKey;
+  let courseRunId = courseKey;
+  if (isAssignedCourseRun) {
+    courseKey = parentContentKey;
+    courseRunId = contentKey;
+  }
+
   return {
-    linkToCourse: `/${enterpriseSlug}/course/${learnerContentAssignment.contentKey}`,
-    // Note: we are using `courseRunId` instead of `contentKey` or `courseKey` because the `CourseSection`
-    // and `BaseCourseCard` components expect `courseRunId` to be used as the content identifier. Consider
-    // refactoring to rename `courseRunId` to `contentKey` in the future given learner content assignments
-    // are for top-level courses, not course runs.
-    courseRunId: learnerContentAssignment.contentKey,
+    linkToCourse: `/${enterpriseSlug}/course/${courseKey}`,
+    courseRunId,
+    isAssignedCourseRun,
     title: learnerContentAssignment.contentTitle,
     isRevoked: false,
     notifications: [],
@@ -733,3 +771,100 @@ export const getSubsidyToApplyForCourse = ({
 
   return undefined;
 };
+
+/**
+ * Determines whether the course enrollment can be upgraded to verified enrollment.
+ *
+ * @param {Object} enrollment Metadata about a course enrollment, containing the course mode and enrollment deadline.
+ * @returns {boolean} Whether the course enrollment can be upgraded to verified enrollment.
+ */
+export function isEnrollmentUpgradeable(enrollment) {
+  // Determine whether the course enrollment can be upgraded to verified enrollment, based
+  // on the course mode and enrollment deadline (if any).
+  const isEnrollByLapsed = enrollment.enrollBy ? dayjs().isAfter(dayjs(enrollment.enrollBy)) : false;
+  const canUpgradeToVerifiedEnrollment = enrollment.mode === COURSE_MODES_MAP.AUDIT && !isEnrollByLapsed;
+  return canUpgradeToVerifiedEnrollment;
+}
+
+/**
+ * Determines if allocatedAssignments are courseRun based
+ *
+ * @param redeemableLearnerCreditPolicies
+ * @param courseKey
+ * @returns {
+ *   {
+ *     hasAssignedCourseRuns: boolean,
+ *    allocatedCourseRunAssignmentKeys: *,
+ *    allocatedCourseRunAssignments: *,
+ *    hasMultipleAssignedCourseRuns: boolean
+ *   } |
+ *   {
+ *    hasAssignedCourseRuns: boolean,
+ *    allocatedCourseRunAssignmentKeys: *[],
+ *    allocatedCourseRunAssignments: *[],
+ *    hasMultipleAssignedCourseRuns: boolean
+ *   }
+ * }
+ */
+export function determineAllocatedCourseRunAssignmentsForCourse({
+  redeemableLearnerCreditPolicies,
+  courseKey,
+}) {
+  const { learnerContentAssignments } = redeemableLearnerCreditPolicies;
+  // note: checking the non-happy path first, with early return so happy path code isn't nested in conditional.
+  if (!learnerContentAssignments.hasAllocatedAssignments) {
+    return {
+      allocatedCourseRunAssignmentKeys: [],
+      allocatedCourseRunAssignments: [],
+      hasAssignedCourseRuns: false,
+      hasMultipleAssignedCourseRuns: false,
+    };
+  }
+  const allocatedCourseRunAssignments = learnerContentAssignments.allocatedAssignments.filter((assignment) => (
+    assignment.isAssignedCourseRun && assignment.parentContentKey === courseKey
+  ));
+  const allocatedCourseRunAssignmentKeys = allocatedCourseRunAssignments.map(assignment => assignment.contentKey);
+  const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
+  const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
+  return {
+    allocatedCourseRunAssignmentKeys,
+    allocatedCourseRunAssignments,
+    hasAssignedCourseRuns,
+    hasMultipleAssignedCourseRuns,
+  };
+}
+
+/**
+ * Transform course metadata to display available runs with multiple allocated course runs
+ *
+ * @param hasMultipleAssignedCourseRuns
+ * @param courseMetadata
+ * @param allocatedCourseRunAssignmentKeys
+ * @returns {
+ * * |
+ *  (* &
+ *    {
+ *      courseRuns: *,
+ *      availableCourseRuns: *
+ *    }
+ *  )
+ * }
+ */
+export function transformCourseMetadataByAllocatedCourseRunAssignments({
+  hasMultipleAssignedCourseRuns,
+  courseMetadata,
+  allocatedCourseRunAssignmentKeys,
+}) {
+  if (hasMultipleAssignedCourseRuns && allocatedCourseRunAssignmentKeys.length > 1) {
+    return {
+      ...courseMetadata,
+      courseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+      availableCourseRuns: courseMetadata.courseRuns.filter(
+        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
+      ),
+    };
+  }
+  return courseMetadata;
+}

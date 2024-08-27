@@ -1,12 +1,7 @@
 import { useMemo } from 'react';
 import classNames from 'classnames';
 import {
-  Breadcrumb,
-  Container,
-  Row,
-  Col,
-  Badge,
-  Hyperlink,
+  Badge, Breadcrumb, Col, Container, Hyperlink, Row,
 } from '@openedx/paragon';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
@@ -15,10 +10,7 @@ import CourseSkills from '../CourseSkills';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollmentFailedAlert';
 import CourseRunCards from './CourseRunCards';
 
-import {
-  getDefaultProgram,
-  formatProgramType,
-} from '../data/utils';
+import { formatProgramType, getDefaultProgram } from '../data/utils';
 import { useCoursePartners, useIsCourseAssigned } from '../data';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import SubsidyRequestButton from '../SubsidyRequestButton';
@@ -35,6 +27,7 @@ import {
   useEnterpriseCustomerContainsContent,
   useIsAssignmentsOnlyLearner,
 } from '../../app/data';
+import CourseImportantDates from './CourseImportantDates';
 
 const CourseHeader = () => {
   const location = useLocation();
@@ -136,6 +129,7 @@ const CourseHeader = () => {
               previewImage={courseMetadata.image?.src || courseMetadata.video?.image}
               previewVideoURL={courseMetadata.video?.src}
             />
+            <CourseImportantDates />
           </Col>
           <Col xs={12}>
             {containsContentItems && (

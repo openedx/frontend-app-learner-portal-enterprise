@@ -63,9 +63,7 @@ describe('<SearchCourseCard />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
 
     // reset the router history between tests
-    beforeEach(() => {
-      window.history.pushState({}, '', '/');
-    });
+    window.history.pushState({}, '', '/');
   });
 
   test('renders the correct data', () => {

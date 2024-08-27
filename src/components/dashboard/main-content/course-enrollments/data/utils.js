@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 /**
- * TODO
+ * Sorts list of enrollments by the enrollment date (i.e., when the enrollment record was created).
  * @param {*} enrollments
  * @returns
  */
