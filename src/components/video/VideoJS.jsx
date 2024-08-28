@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import 'videojs-youtube';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
-import { getLocale } from '@edx/frontend-platform/i18n';
+import { getLocale, getPrimaryLanguageSubtag } from '@edx/frontend-platform/i18n';
 import { PLAYBACK_RATES } from './data/constants';
 import { usePlayerOptions, useTranscripts } from './data';
 
@@ -15,7 +15,10 @@ require('videojs-vjstranscribe');
 const VideoJS = ({ options, onReady, customOptions }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
-  const siteLanguage = getLocale();
+
+  // Some language codes include full locales like es-419, which may not match the codes in the text tracks.
+  // To ensure proper matching, we strip a locale down to that first subtag.
+  const siteLanguage = getPrimaryLanguageSubtag(getLocale());
 
   const transcripts = useTranscripts({
     player: playerRef.current,
@@ -29,8 +32,7 @@ const VideoJS = ({ options, onReady, customOptions }) => {
     customOptions,
   });
 
-  const handlePlayerReady = useCallback(() => {
-    // Add remote text tracks
+  const addTextTracks = useCallback(() => {
     const textTracks = Object.entries(transcripts.textTracks);
     textTracks.forEach(([lang, webVttFileUrl]) => {
       playerRef.current.addRemoteTextTrack({
@@ -40,6 +42,11 @@ const VideoJS = ({ options, onReady, customOptions }) => {
         label: lang,
       }, false);
     });
+  }, [transcripts.textTracks]);
+
+  const handlePlayerReady = useCallback(() => {
+    // Add remote text tracks
+    addTextTracks();
 
     // Set playback rates
     if (customOptions?.showPlaybackMenu) {
@@ -50,7 +57,7 @@ const VideoJS = ({ options, onReady, customOptions }) => {
     if (onReady) {
       onReady(playerRef.current);
     }
-  }, [customOptions?.showPlaybackMenu, onReady, transcripts.textTracks]);
+  }, [customOptions?.showPlaybackMenu, onReady, addTextTracks]);
 
   useEffect(() => {
     if (transcripts.isLoading) {
@@ -70,8 +77,11 @@ const VideoJS = ({ options, onReady, customOptions }) => {
     } else {
       playerRef.current.autoplay(playerOptions.autoplay);
       playerRef.current.src(playerOptions.sources);
+
+      // Re-add the text tracks if the player already exists
+      addTextTracks();
     }
-  }, [transcripts.isLoading, playerOptions, handlePlayerReady]);
+  }, [transcripts.isLoading, playerOptions, handlePlayerReady, addTextTracks]);
 
   // Dispose the Video.js player when the functional component unmounts
   useEffect(() => {
