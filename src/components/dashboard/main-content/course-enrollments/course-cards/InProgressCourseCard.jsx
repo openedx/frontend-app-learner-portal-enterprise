@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import { Stack } from '@openedx/paragon';
+import { ProgressBar, Stack } from '@openedx/paragon';
 import dayjs from '../../../../../utils/dayjs';
 import BaseCourseCard, { getScreenReaderText } from './BaseCourseCard';
 import { MarkCompleteModal } from './mark-complete-modal';
 import ContinueLearningButton from './ContinueLearningButton';
+import { isExperimentVariant } from '../../../../../../src/utils';
 
 import Notification from './Notification';
 
@@ -43,6 +44,11 @@ const messages = defineMessages({
     defaultMessage: 'Covered by your organization',
     description: 'Text for the course info outline upgrade covered by organization in the course card dropdown menu',
   },
+  completion: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.completion',
+    defaultMessage: '{courseProgress}% completed',
+    description: 'Course progress percentage completed',
+  }
 });
 
 function useLinkToCourse({
@@ -87,6 +93,12 @@ export const InProgressCourseCard = ({
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
   const isExecutiveEducation = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+  const courseProgress = 20;
+
+  const isExperimentVariation = isExperimentVariant(
+    config.PREQUERY_SEARCH_EXPERIMENT_ID,
+    config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
+  );
 
   const coursewareOrUpgradeLink = useLinkToCourse({
     linkToCourse,
@@ -245,6 +257,11 @@ export const InProgressCourseCard = ({
       {...rest}
     >
       {renderNotifications()}
+      <ProgressBar.Annotated
+        now={courseProgress}
+        label={intl.formatMessage(messages.completion, { courseProgress: courseProgress })}
+        variant="success"
+      />
       <MarkCompleteModal
         isOpen={isMarkCompleteModalOpen}
         courseTitle={title}
