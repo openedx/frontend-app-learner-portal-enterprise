@@ -101,7 +101,7 @@ const CourseSection = ({
       },
     );
   };
-  
+
   const [progress, setProgress] = useState({});
   const fetchData = useCallback(
     async (courseRun) => {
@@ -121,7 +121,8 @@ const CourseSection = ({
     useEffect(() => {
       fetchData(courseRun.courseRunId);
     }, [fetchData]);
-
+    const numTotalUnits = progress?.completionSummary?.completeCount + progress?.completionSummary?.incompleteCount + progress?.completionSummary?.lockedCount;
+    const completePercentage = progress?.completionSummary?.completeCount ? Number(((progress?.completionSummary?.completeCount / numTotalUnits) * 100).toFixed(0)) : 0;
     if (isAuditEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
       return (
         <Suspense
@@ -133,14 +134,17 @@ const CourseSection = ({
             </DelayedFallbackContainer>
           )}
         >
-          <Component {...getCourseRunProps(courseRun)} />
+          <div>
+            <Component
+              {...getCourseRunProps(courseRun)}
+              key={courseRun.courseRunId}
+            />
+            <ProgressBar now={`${completePercentage}%`} label={`${completePercentage}%`} variant="primary" />
+            <br />
+          </div>
         </Suspense>
       );
     }
-  
-    const numTotalUnits = progress?.completionSummary?.completeCount + progress?.completionSummary?.incompleteCount + progress?.completionSummary?.lockedCount;
-    const completePercentage = progress?.completionSummary?.completeCount ? Number(((progress?.completionSummary?.completeCount / numTotalUnits) * 100).toFixed(0)) : 0;
-    console.log(completePercentage)
     return (
       <div>
         <Component
