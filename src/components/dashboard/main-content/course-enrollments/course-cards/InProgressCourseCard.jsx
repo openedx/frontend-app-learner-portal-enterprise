@@ -1,15 +1,19 @@
-import { useContext, useState } from 'react';
+import {
+  useCallback, useContext, useEffect, useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { ProgressBar, Stack } from '@openedx/paragon';
+import { getConfig } from '@edx/frontend-platform/config';
 import dayjs from '../../../../../utils/dayjs';
 import BaseCourseCard, { getScreenReaderText } from './BaseCourseCard';
 import { MarkCompleteModal } from './mark-complete-modal';
 import ContinueLearningButton from './ContinueLearningButton';
-import { isExperimentVariant } from '../../../../../../src/utils';
+import { isExperimentVariant } from '../../../../../utils/optimizely';
+import { getProgressTabData } from './mark-complete-modal/data/service';
 
 import Notification from './Notification';
 
@@ -48,7 +52,7 @@ const messages = defineMessages({
     id: 'enterprise.learner_portal.dashboard.enrollments.course.completion',
     defaultMessage: '{courseProgress}% completed',
     description: 'Course progress percentage completed',
-  }
+  },
 });
 
 function useLinkToCourse({
@@ -93,8 +97,27 @@ export const InProgressCourseCard = ({
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
   const isExecutiveEducation = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
-  const courseProgress = 20;
+  const config = getConfig();
 
+  const [progress, setProgress] = useState({});
+  const fetchProgressData = useCallback(
+    async (courseRun) => {
+      try {
+        const result = await getProgressTabData(courseRun);
+        setProgress(result);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    fetchProgressData(courseRunId);
+  }, [fetchProgressData, courseRunId]);
+
+  const numTotalUnits = progress?.completionSummary?.completeCount + progress?.completionSummary?.incompleteCount + progress?.completionSummary?.lockedCount;
+  const completePercentage = progress?.completionSummary?.completeCount ? Number(((progress?.completionSummary?.completeCount / numTotalUnits) * 100).toFixed(0)) : 0;
   const isExperimentVariation = isExperimentVariant(
     config.PREQUERY_SEARCH_EXPERIMENT_ID,
     config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
@@ -258,8 +281,8 @@ export const InProgressCourseCard = ({
     >
       {renderNotifications()}
       <ProgressBar.Annotated
-        now={courseProgress}
-        label={intl.formatMessage(messages.completion, { courseProgress: courseProgress })}
+        now={completePercentage}
+        label={intl.formatMessage(messages.completion, { courseProgress: completePercentage })}
         variant="success"
       />
       <MarkCompleteModal
