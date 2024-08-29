@@ -1,6 +1,7 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { logError } from '@edx/frontend-platform/logging';
 
 export const ENROLL_ENDPOINT = '/enterprise_learner_portal/api/v1/enterprise_course_enrollments/';
 
@@ -36,9 +37,9 @@ export async function getProgressTabData(courseId, targetUserId) {
   try {
     const { data } = await getAuthenticatedHttpClient().get(url);
     const camelCasedData = camelCaseObject(data);
-
     return camelCasedData;
   } catch (error) {
-    throw error;
+    logError(error);
+    return null;
   }
 }

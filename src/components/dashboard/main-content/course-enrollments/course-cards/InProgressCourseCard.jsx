@@ -1,9 +1,12 @@
+/* eslint-disable no-unsafe-optional-chaining */
+
 import {
   useCallback, useContext, useEffect, useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
+import { logError } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { ProgressBar, Stack } from '@openedx/paragon';
@@ -99,14 +102,14 @@ export const InProgressCourseCard = ({
   const isExecutiveEducation = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
   const config = getConfig();
 
-  const [progress, setProgress] = useState({});
+  const [completionSummary, setCompletionSummary] = useState({});
   const fetchProgressData = useCallback(
     async (courseRun) => {
       try {
         const result = await getProgressTabData(courseRun);
-        setProgress(result);
+        setCompletionSummary(result.completionSummary);
       } catch (error) {
-        console.log(error);
+        logError(error);
       }
     },
     [],
@@ -116,11 +119,12 @@ export const InProgressCourseCard = ({
     fetchProgressData(courseRunId);
   }, [fetchProgressData, courseRunId]);
 
-  const numTotalUnits = progress?.completionSummary?.completeCount + progress?.completionSummary?.incompleteCount + progress?.completionSummary?.lockedCount;
-  const completePercentage = progress?.completionSummary?.completeCount ? Number(((progress?.completionSummary?.completeCount / numTotalUnits) * 100).toFixed(0)) : 0;
+  const completeCount = completionSummary?.completeCount;
+  const numTotalUnits = completeCount + completionSummary?.incompleteCount + completionSummary?.lockedCount;
+  const completePercentage = completeCount ? Number(((completeCount / numTotalUnits) * 100).toFixed(0)) : 0;
   const isExperimentVariation = isExperimentVariant(
-    config.PREQUERY_SEARCH_EXPERIMENT_ID,
-    config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
+    config.PROGRESS_BAR_EXPERIMENT_ID,
+    config.PROGRESS_BAR_EXPERIMENT_VARIANT_ID,
   );
 
   const coursewareOrUpgradeLink = useLinkToCourse({
@@ -280,11 +284,13 @@ export const InProgressCourseCard = ({
       {...rest}
     >
       {renderNotifications()}
-      <ProgressBar.Annotated
-        now={completePercentage}
-        label={intl.formatMessage(messages.completion, { courseProgress: completePercentage })}
-        variant="success"
-      />
+      {isExperimentVariation && (
+        <ProgressBar.Annotated
+          now={completePercentage}
+          label={intl.formatMessage(messages.completion, { courseProgress: completePercentage })}
+          variant="success"
+        />
+      )}
       <MarkCompleteModal
         isOpen={isMarkCompleteModalOpen}
         courseTitle={title}
