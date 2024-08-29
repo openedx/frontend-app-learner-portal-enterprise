@@ -82,12 +82,14 @@
   .vjs-transcribe-cueline {
     color: #00688d;
   }
+
   .logo-cutom-style {
     max-width: 59px;
     max-height: 30px;
     box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.15), 0px 0px 4px 0px rgba(0, 0, 0, 0.15);
   }
 }
+
 .preview-enroll-expand-body {
   max-height: 120px;
   -webkit-transition: max-height .5s ease;
@@ -105,5 +107,14 @@
   }
   ul {
     padding-left: 1.5rem;
+  }
+}
+.video-banner-class {
+  width: 906px;
+  height: 100px;
+}
+.video-beta-badge-tooltip{
+  .tooltip-inner {
+    max-width: 310px;
   }
 }

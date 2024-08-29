@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';

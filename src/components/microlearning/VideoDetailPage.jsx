@@ -52,7 +52,7 @@ const VideoDetailPage = () => {
   };
   const enableVideos = (
     features.FEATURE_ENABLE_VIDEO_CATALOG
-    && hasActivatedAndCurrentSubscription(subscriptionLicense)
+    && hasActivatedAndCurrentSubscription(subscriptionLicense, enterpriseCustomer.enableBrowseAndRequest)
   );
 
   useEffect(() => {
