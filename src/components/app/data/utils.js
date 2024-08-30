@@ -734,6 +734,7 @@ export const getSubsidyToApplyForCourse = ({
       remainingApplicationsForUser: applicableEnterpriseOffer.remainingApplicationsForUser,
       isCurrent: applicableEnterpriseOffer.isCurrent,
       catalogUuid: applicableEnterpriseOffer.enterpriseCatalogUuid,
+      availableCourseRuns: applicableEnterpriseOffer.availableCourseRuns,
     };
   }
 
@@ -842,6 +843,8 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
  *
  * By centralizing the restricted run checking logic (i.e. limit any additional code that accesses
  * restrictedRunsAllowed) there will be only one place to edit/fix it.
+ *
+ * DEPRECATED
  */
 export function isRunUnrestricted({
   restrictedRunsAllowed,

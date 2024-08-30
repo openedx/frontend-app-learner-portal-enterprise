@@ -21,42 +21,43 @@ const CourseRunCards = () => {
   const {
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
-    catalogUuid,
   } = useUserSubsidyApplicableToCourse();
-  const { data: courseMetadata } = useCourseMetadata({}, catalogUuid);
+  const { data: courseMetadata } = useCourseMetadata();
   const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
   const { data: userEntitlements } = useUserEntitlements();
+  // The DEPRECATED CourseRunCard should be used when the applicable subsidy is NOT Learner Credit.
+  const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
+  const shouldUseDeprecatedCourseRunCard = !hasRedeemablePolicy && !missingUserSubsidyReason?.userMessage;
+  // courseMetadata.avaialbleCourseRuns may include runs that are restricted for the applicable
+  // subsidy, so instead we ask userSubsidyApplicableToCourse to give us exactly which runs to
+  // display on this page.
+  const courseRunsToDisplay = userSubsidyApplicableToCourse.availableCourseRuns;
 
   return (
     <CardGrid
       columnSizes={{ xs: 12, md: 6, lg: 5 }}
       hasEqualColumnHeights={false}
     >
-      {courseMetadata.availableCourseRuns.map((courseRun) => {
-        const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
-
-        // Render the newer `CourseRunCard` component when the user's subsidy, if any, is
-        // a policy OR if there is a known disabled enroll reason.
-        if (hasRedeemablePolicy || missingUserSubsidyReason?.userMessage) {
+      {courseRunsToDisplay.map((courseRun) => {
+        if (shouldUseDeprecatedCourseRunCard) {
           return (
-            <CourseRunCard
+            <DeprecatedCourseRunCard
               key={courseRun.uuid}
+              courseKey={courseKey}
+              userEnrollments={enterpriseCourseEnrollments}
               courseRun={courseRun}
+              catalogList={catalogList}
+              userEntitlements={userEntitlements}
+              courseEntitlements={courseMetadata.entitlements}
+              missingUserSubsidyReason={missingUserSubsidyReason}
             />
           );
         }
-
         return (
-          <DeprecatedCourseRunCard
+          <CourseRunCard
             key={courseRun.uuid}
-            courseKey={courseKey}
-            userEnrollments={enterpriseCourseEnrollments}
             courseRun={courseRun}
-            catalogList={catalogList}
-            userEntitlements={userEntitlements}
-            courseEntitlements={courseMetadata.entitlements}
-            missingUserSubsidyReason={missingUserSubsidyReason}
           />
         );
       })}
