@@ -1,10 +1,13 @@
 import React from 'react';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { AppContext } from '@edx/frontend-platform/react';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import userEvent from '@testing-library/user-event';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import { renderWithRouter } from '../../../utils/tests';
 import VideoDetailPage from '../VideoDetailPage';
 import {
@@ -35,8 +38,8 @@ const VIDEO_MOCK_DATA = {
   institutionLogo: 'test-institution-logo.png',
   courseKey: 'test-course-key',
 };
-
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 jest.mock('@edx/frontend-platform/auth');
 getAuthenticatedHttpClient.mockReturnValue(axios);
@@ -58,6 +61,17 @@ jest.mock('react-router-dom', () => ({
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: jest.fn(() => APP_CONFIG),
+}));
+
+jest.mock('@edx/frontend-enterprise-utils', () => ({
+  ...jest.requireActual('@edx/frontend-enterprise-utils'),
+  sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+jest.mock('@edx/frontend-platform/i18n', () => ({
+  ...jest.requireActual('@edx/frontend-platform/i18n'),
+  getLocale: () => 'en',
+  getMessages: () => ({}),
 }));
 
 const mockCourseRun = {
@@ -89,9 +103,17 @@ const mockCourseReviews = {
   totalEnrollments: 4444,
 };
 
-const VideoDetailPageWrapper = () => (
+const defaultAppState = {
+  authenticatedUser: mockAuthenticatedUser,
+};
+
+const VideoDetailPageWrapper = ({
+  initialAppState = defaultAppState,
+}) => (
   <IntlProvider locale="en">
-    <VideoDetailPage />
+    <AppContext.Provider value={initialAppState}>
+      <VideoDetailPage />
+    </AppContext.Provider>
   </IntlProvider>
 );
 
@@ -127,6 +149,17 @@ describe('VideoDetailPage Tests', () => {
     // expect(screen.getByText('Skill 1')).toBeInTheDocument();
     // expect(screen.getByText('Skill 2')).toBeInTheDocument();
     expect(container.querySelector('.video-player-wrapper')).toBeTruthy();
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(4);
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      mockEnterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.video.detail_page_viewed',
+      {
+        userId: mockAuthenticatedUser.userId,
+        video: VIDEO_MOCK_DATA.videoUrl,
+        courseKey: VIDEO_MOCK_DATA.courseKey,
+        title: VIDEO_MOCK_DATA.courseTitle,
+      },
+    );
   });
   it('renders a video detail page when course level type is Intermediate', () => {
     useVideoCourseMetadata.mockReturnValue({ data: { ...mockCourseMetadata, activeCourseRun: { ...mockCourseRun, levelType: 'Intermediate' } } });
@@ -165,5 +198,71 @@ describe('VideoDetailPage Tests', () => {
     });
     renderWithRouter(<VideoDetailPageWrapper />);
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
+  });
+  it('Sends observability events for view course details click', () => {
+    useVideoCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
+    renderWithRouter(<VideoDetailPageWrapper />);
+    userEvent.click(screen.getByText('View course details'));
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(5);
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      mockEnterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.video.view_course_button.clicked',
+      {
+        userId: mockAuthenticatedUser.userId,
+        video: VIDEO_MOCK_DATA.videoUrl,
+        courseKey: VIDEO_MOCK_DATA.courseKey,
+        title: VIDEO_MOCK_DATA.courseTitle,
+      },
+    );
+  });
+  it('Sends observability events for view more on course page click', () => {
+    useVideoCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
+    renderWithRouter(<VideoDetailPageWrapper />);
+    userEvent.click(screen.getByText('View more on course page'));
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(5);
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      mockEnterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.video.view_course_link.clicked',
+      {
+        userId: mockAuthenticatedUser.userId,
+        video: VIDEO_MOCK_DATA.videoUrl,
+        courseKey: VIDEO_MOCK_DATA.courseKey,
+        title: VIDEO_MOCK_DATA.courseTitle,
+      },
+    );
+  });
+  it('Sends observability events for view more on course page hover', async () => {
+    useVideoCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
+    renderWithRouter(<VideoDetailPageWrapper />);
+    userEvent.hover(screen.getByText('View more on course page'));
+    userEvent.unhover(screen.getByText('View more on course page'));
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(5);
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      mockEnterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.video.view_course_link.hovered',
+      {
+        userId: mockAuthenticatedUser.userId,
+        video: VIDEO_MOCK_DATA.videoUrl,
+        courseKey: VIDEO_MOCK_DATA.courseKey,
+        title: VIDEO_MOCK_DATA.courseTitle,
+      },
+    );
+  });
+  it('Sends observability events for view course details hover', async () => {
+    useVideoCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
+    renderWithRouter(<VideoDetailPageWrapper />);
+    userEvent.hover(screen.getByText('View course details'));
+    userEvent.unhover(screen.getByText('View course details'));
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(5);
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      mockEnterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.video.view_course_button.hovered',
+      {
+        userId: mockAuthenticatedUser.userId,
+        video: VIDEO_MOCK_DATA.videoUrl,
+        courseKey: VIDEO_MOCK_DATA.courseKey,
+        title: VIDEO_MOCK_DATA.courseTitle,
+      },
+    );
   });
 });
