@@ -74,7 +74,8 @@ const VideoJS = ({ options, onReady, customOptions }) => {
       videoRef.current.appendChild(videoElement);
 
       playerRef.current = videojs(videoElement, playerOptions, handlePlayerReady);
-    } else {
+    } else if (playerOptions?.sources[0]?.src !== playerRef?.current?.currentSrc()) {
+      // Only update player if the source changes
       playerRef.current.autoplay(playerOptions.autoplay);
       playerRef.current.src(playerOptions.sources);
 
