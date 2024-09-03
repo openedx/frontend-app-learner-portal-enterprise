@@ -13,12 +13,14 @@ import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
 
 import { COURSE_SECTION_TITLES } from '../../../data/constants';
 import CourseEnrollments from '../CourseEnrollments';
-import { MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL } from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
+import {
+  MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
+} from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
 import { COURSE_STATUSES } from '../data/constants';
-import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
+  ASSIGNMENT_TYPES,
   COURSE_MODES_MAP,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
@@ -30,7 +32,8 @@ import {
   useContentAssignments,
   useCourseEnrollments,
   useCourseEnrollmentsBySection,
-  useCourseUpgradeData, useGroupAssociationsAlert,
+  useCourseUpgradeData,
+  useGroupAssociationsAlert,
 } from '../data/hooks';
 
 jest.mock('@edx/frontend-enterprise-utils');
@@ -66,7 +69,13 @@ jest.mock('react-router-dom', () => ({
 const inProgCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.inProgress });
 const upcomingCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.upcoming });
 const completedCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.completed });
-const savedForLaterCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.savedForLater });
+const savedForLaterCourseRun = createCourseEnrollmentWithStatus(
+  {
+    status: COURSE_STATUSES.savedForLater,
+    start: dayjs().subtract(1, 'day').toISOString(),
+    end: dayjs().add(1, 'day').toISOString(),
+  },
+);
 const cancelledAssignedCourseRun = createCourseEnrollmentWithStatus({
   status: COURSE_STATUSES.assigned,
   isCancelledAssignment: true,
@@ -85,7 +94,7 @@ const assignmentData = {
   contentKey: 'test-contentKey',
   contentTitle: 'test-title',
   contentMetadata: {
-    endDate: '2018-08-18T05:00:00Z',
+    endDate: '2024-08-18T05:00:00Z',
     startDate: '2017-02-05T05:00:00Z',
     courseType: 'test-course-type',
     enrollByDate: '2017-02-05T05:00:00Z',
@@ -104,10 +113,10 @@ jest.mock('../../../../app/data', () => ({
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-const CourseEnrollmentsWrapper = () => (
+const CourseEnrollmentsWrapper = ({ appContextProps = {} }) => (
   <QueryClientProvider client={queryClient()}>
     <IntlProvider locale="en">
-      <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+      <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser, ...appContextProps }}>
         <CourseEnrollments />
       </AppContext.Provider>
     </IntlProvider>
@@ -344,6 +353,16 @@ describe('Course enrollments', () => {
       },
     });
     renderWithRouter(<CourseEnrollmentsWrapper />);
+    const { title } = savedForLaterCourseRun;
+
+    // Open the dropdown menu for the course
+    userEvent.click(screen.getByLabelText(`course settings for ${title}`));
+
+    // Wait for the dropdown to be visible and use getByRole with name to find the correct menuitem
+    const moveToInProgressMenuItem = await screen.findByRole('menuitem', { name: /Move to In Progress/i });
+    userEvent.click(moveToInProgressMenuItem);
+
+    // Clicks the "Move course to In Progress" button, moving the course back to in progress status
     userEvent.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
 
     // TODO This test only validates 'half way', we ideally want to update it to
@@ -357,18 +376,41 @@ describe('Course enrollments', () => {
   });
 
   it('generates course status update on move to saved for later action', async () => {
+    const appContext = {
+      courseCards: {
+        'in-progress': {
+          settingsMenu: {
+            hasMarkComplete: true,
+          },
+        },
+      },
+    };
     useLocation.mockReturnValue({
       state: {
         markedSavedForLaterSuccess: true,
         markedInProgressSuccess: false,
       },
     });
-    renderWithRouter(<CourseEnrollmentsWrapper />);
+    renderWithRouter(<CourseEnrollmentsWrapper appContextProps={appContext} />);
+    const { title } = inProgCourseRun;
+
+    // Open the dropdown menu for the course
+    userEvent.click(screen.getByLabelText(`course settings for ${title}`));
+
+    // Wait for the dropdown to be visible and use getByRole with name to find the correct menuitem
+    const saveForLaterMenuItem = await screen.findByRole('menuitem', { name: /Save course for later/i });
+    userEvent.click(saveForLaterMenuItem);
+
+    // Clicks the "Save course for later" button, identified by its role
     userEvent.click(screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL }));
+
+    // Verify the course status update request is made
     await waitFor(() => {
       expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
     });
-    expect(await screen.findByText('Your course was saved for later.'));
+
+    // Ensure the success message is displayed
+    expect(await screen.findByText('Your course was saved for later.')).toBeInTheDocument();
   });
 
   it('renders in progress, upcoming, and requested course enrollments in the same section', async () => {

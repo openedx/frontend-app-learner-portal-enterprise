@@ -179,10 +179,9 @@ export async function fetchLearnerProgramsList(enterpriseUUID) {
 /**
  * Fetches in-progress pathways for the authenticated user. Note, it should be
  * filtered based on the enterpriseUUID, but is not currently.
- * @param {*} enterpriseUUID
  * @returns
  */
-export async function fetchInProgressPathways(enterpriseUUID) { // eslint-disable-line no-unused-vars
+export async function fetchInProgressPathways() {
   // TODO: after adding support of filtering on enterprise UUID, send the uuid to endpoint as well
   const url = `${getConfig().LMS_BASE_URL}/api/learner-pathway-progress/v1/progress/`;
   try {

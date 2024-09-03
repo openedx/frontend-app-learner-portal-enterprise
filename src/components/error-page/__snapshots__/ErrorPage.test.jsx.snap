@@ -1,64 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ErrorPage handles optional subtitle 1`] = `
-[
-  <header>
-    <nav
-      className="border-bottom navbar navbar-expand-lg navbar-light bg-white"
-      role="navigation"
-    >
-      <div
-        className="container-fluid"
-      >
-        <nav
-          className="navbar"
-        >
-          <img
-            alt="edX logo"
-            src="icon/mock/path"
-            width={50}
-          />
-        </nav>
-        <nav
-          aria-label="Secondary"
-          className="nav secondary-menu-container align-items-center ml-auto"
-        >
-          <a
-            className="text-gray-700 mr-3"
-            href="https://support.url"
-          >
-            Help
-          </a>
-        </nav>
-      </div>
-    </nav>
-  </header>,
-  <main
-    className="fill-vertical-space"
-    id="content"
-  >
-    <div
-      className="error-page-container container-mw-lg container-fluid"
-    >
-      <div
-        className="col-lg-10 col-12 offset-lg-1"
-      >
-        <h2
-          className="text-danger mb-4"
-        >
-          Error occurred while processing your request
-        </h2>
-        Here goes the error message.
-      </div>
-    </div>
-  </main>,
-  <div
-    data-testid="site-footer"
-  />,
-]
-`;
-
-exports[`ErrorPage handles optional title 1`] = `
+exports[`ErrorPage handles optional title and subtitle 1`] = `
 [
   <header>
     <nav

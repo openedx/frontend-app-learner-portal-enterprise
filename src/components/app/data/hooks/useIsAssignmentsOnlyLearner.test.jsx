@@ -8,8 +8,8 @@ import useCouponCodes from './useCouponCodes';
 import useEnterpriseOffers from './useEnterpriseOffers';
 import useRedeemablePolicies from './useRedeemablePolicies';
 import useSubscriptions from './useSubscriptions';
-import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { emptyRedeemableLearnerCreditPolicies } from '../constants';
+import { POLICY_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { ASSIGNMENT_TYPES, emptyRedeemableLearnerCreditPolicies } from '../constants';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useBrowseAndRequest');

@@ -52,6 +52,8 @@ const {
   ENROLL_DISABLED,
   TO_DATASHARING_CONSENT,
   TO_ECOM_BASKET,
+  TO_EXECUTIVE_EDUCATION_2U_ENROLLMENT,
+  HIDE_BUTTON,
 } = enrollButtonTypes;
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -90,13 +92,15 @@ const renderEnrollAction = ({ enrollAction }) => {
 };
 
 describe('Scenarios where user is enrolled in course', () => {
+  const enrollmentUrl = 'http://test';
+  const enrollLabelText = 'hello enrollee!';
+
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   test('to_courseware_page rendered with course info url for self paced course', () => {
-    const enrollLabelText = 'hello enrollee!';
     const enrollAction = (
       <EnrollAction
         enrollmentType={TO_COURSEWARE_PAGE}
@@ -114,8 +118,8 @@ describe('Scenarios where user is enrolled in course', () => {
     expect(actualUrl)
       .toContain(verifiedTrackEnrollment.linkToCourse);
   });
+
   test('view_on_dashboard link is rendered with enterprise slug url as course has not started', () => {
-    const enrollLabelText = 'hello enrollee!';
     const enrollAction = (
       <EnrollAction
         enrollmentType={VIEW_ON_DASHBOARD}
@@ -128,6 +132,24 @@ describe('Scenarios where user is enrolled in course', () => {
     // the slug in the url comes from the appcontext passed when rendering.
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
     expect(actualUrl).toContain(`${mockEnterpriseCustomer.slug}`);
+  });
+
+  test('to_executive_education_2u_enrollment link rendered when enrollmentType is TO_EXECUTIVE_EDUCATION_2U_ENROLLMENT', () => {
+    const execEdLabelText = 'Enroll';
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType={TO_EXECUTIVE_EDUCATION_2U_ENROLLMENT}
+        enrollLabel={<EnrollLabel enrollLabelText={execEdLabelText} />}
+        enrollmentUrl={enrollmentUrl}
+        courseRunPrice={100}
+      />
+    );
+    renderEnrollAction({ enrollAction });
+
+    // ensure link is rendered and label text too
+    expect(screen.queryByText(execEdLabelText)).toBeInTheDocument();
+    const actualUrl = screen.getByText(execEdLabelText).closest('a').href;
+    expect(actualUrl).toContain(`${enrollmentUrl}`);
   });
 });
 
@@ -195,5 +217,31 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     );
     renderEnrollAction({ enrollAction });
     expect(screen.getByText('<ToEcomBasketPage />'));
+  });
+});
+
+describe('edge cases', () => {
+  test('no button rendered when enrollmentType is HIDE_BUTTON', () => {
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType={HIDE_BUTTON}
+        enrollLabel={<EnrollLabel enrollLabelText="hello" />}
+        courseRunPrice={100}
+      />
+    );
+    renderEnrollAction({ enrollAction });
+    expect(screen.queryByText('hello')).not.toBeInTheDocument();
+  });
+
+  test('no button rendered when enrollmentType is not recognized', () => {
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType="NOT_RECOGNIZED"
+        enrollLabel={<EnrollLabel enrollLabelText="hello" />}
+        courseRunPrice={100}
+      />
+    );
+    renderEnrollAction({ enrollAction });
+    expect(screen.queryByText('hello')).not.toBeInTheDocument();
   });
 });

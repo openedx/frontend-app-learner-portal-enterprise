@@ -161,6 +161,69 @@ describe('fetchSubscriptions', () => {
     };
     expect(response).toEqual(expectedResult);
   });
+
+  it('handles learner with multiple activated licenses due to a scheduled renewal', async () => {
+    const mockRenewalStartDate = dayjs().add(15, 'days');
+    const mockRenewalEndDate = mockRenewalStartDate.add(1, 'year');
+    const mockSubscriptionLicenseRenewal = {
+      uuid: 'test-license-uuid-1',
+      status: LICENSE_STATUS.ACTIVATED,
+      subscriptionPlan: {
+        uuid: 'test-subscription-plan-uuid-1',
+        isActive: true,
+        isCurrent: false,
+        daysUntilExpiration: mockRenewalEndDate.diff(mockRenewalStartDate, 'days'),
+        startDate: mockRenewalStartDate.toISOString(),
+        expirationDate: mockRenewalEndDate.toISOString(),
+      },
+    };
+    const mockCurrentStartDate = mockRenewalStartDate.subtract(30, 'days');
+    const mockSubscriptionLicenseCurrent = {
+      uuid: 'test-license-uuid-2',
+      status: LICENSE_STATUS.ACTIVATED,
+      subscriptionPlan: {
+        uuid: 'test-subscription-plan-uuid-2',
+        isActive: true,
+        isCurrent: true,
+        daysUntilExpiration: mockRenewalStartDate.diff(mockCurrentStartDate, 'days'),
+        startDate: mockCurrentStartDate.toISOString(),
+        expirationDate: mockRenewalStartDate.toISOString(),
+      },
+    };
+    const mockResponse = {
+      customerAgreement: {
+        uuid: 'test-customer-agreement-uuid',
+        disableExpirationNotifications: false,
+      },
+      results: [mockSubscriptionLicenseRenewal, mockSubscriptionLicenseCurrent],
+    };
+    const queryParams = new URLSearchParams({
+      enterprise_customer_uuid: mockEnterpriseId,
+      include_revoked: true,
+      current_plans_only: false,
+    });
+    const SUBSCRIPTIONS_URL = `${APP_CONFIG.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
+    axiosMock.onGet(SUBSCRIPTIONS_URL).reply(200, mockResponse);
+    const response = await fetchSubscriptions(mockEnterpriseId);
+    const expectedLicensesByStatus = {
+      [LICENSE_STATUS.ACTIVATED]: [],
+      [LICENSE_STATUS.ASSIGNED]: [],
+      [LICENSE_STATUS.REVOKED]: [],
+    };
+    expectedLicensesByStatus[LICENSE_STATUS.ACTIVATED].push(mockSubscriptionLicenseCurrent);
+    expectedLicensesByStatus[LICENSE_STATUS.ACTIVATED].push(mockSubscriptionLicenseRenewal);
+
+    const expectedResult = {
+      customerAgreement: mockResponse.customerAgreement,
+      licensesByStatus: expectedLicensesByStatus,
+      subscriptionPlan: mockSubscriptionLicenseCurrent.subscriptionPlan,
+      subscriptionLicense: mockSubscriptionLicenseCurrent,
+      subscriptionLicenses: [mockSubscriptionLicenseCurrent, mockSubscriptionLicenseRenewal],
+      shouldShowActivationSuccessMessage: false,
+      showExpirationNotifications: true,
+    };
+    expect(response).toEqual(expectedResult);
+  });
 });
 
 describe('activateOrAutoApplySubscriptionLicense', () => {

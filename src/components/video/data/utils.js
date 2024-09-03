@@ -26,3 +26,16 @@ export const createWebVttFile = (webVttContent) => {
   const blob = new Blob([webVttContent], { type: 'text/vtt' });
   return URL.createObjectURL(blob);
 };
+
+export const sortTextTracks = (tracks, preferredLanguage) => {
+  const sortedKeys = Object.keys(tracks).sort((a, b) => {
+    if (a === preferredLanguage) { return -1; }
+    if (b === preferredLanguage) { return 1; }
+    return a.localeCompare(b);
+  });
+
+  return sortedKeys.reduce((acc, key) => {
+    acc[key] = tracks[key];
+    return acc;
+  }, {});
+};

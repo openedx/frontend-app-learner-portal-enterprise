@@ -105,7 +105,7 @@ export async function getAutoAppliedSubscriptionLicense({
   }
 
   try {
-    return requestAutoAppliedUserLicense(customerAgreement.uuid);
+    return await requestAutoAppliedUserLicense(customerAgreement.uuid);
   } catch (error) {
     logError(error);
     return null;
@@ -233,8 +233,19 @@ export async function fetchSubscriptions(enterpriseUUID) {
     if (customerAgreement) {
       subscriptionsData.customerAgreement = customerAgreement;
     }
-    subscriptionsData.subscriptionLicenses = subscriptionLicenses;
     subscriptionsData.showExpirationNotifications = !(customerAgreement?.disableExpirationNotifications);
+
+    // Sort licenses within each license status by whether the associated subscription plans
+    // are current; current plans should be prioritized over non-current plans.
+    subscriptionLicenses.sort((a, b) => {
+      const aIsCurrent = a.subscriptionPlan.isCurrent;
+      const bIsCurrent = b.subscriptionPlan.isCurrent;
+      if (aIsCurrent && bIsCurrent) { return 0; }
+      return aIsCurrent ? -1 : 1;
+    });
+    subscriptionsData.subscriptionLicenses = subscriptionLicenses;
+
+    // Group licenses by status.
     subscriptionLicenses.forEach((license) => {
       const { subscriptionPlan, status } = license;
       const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
@@ -243,6 +254,8 @@ export async function fetchSubscriptions(enterpriseUUID) {
       }
       licensesByStatus[license.status].push(license);
     });
+
+    // Extracts a single subscription license for the user, from the ordered licenses by status.
     const applicableSubscriptionLicense = Object.values(licensesByStatus).flat()[0];
     if (applicableSubscriptionLicense) {
       subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;

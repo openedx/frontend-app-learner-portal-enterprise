@@ -1,4 +1,4 @@
-import { convertToWebVtt, createWebVttFile } from '../utils';
+import { convertToWebVtt, createWebVttFile, sortTextTracks } from '../utils';
 
 describe('Video utils tests', () => {
   it('should convert transcript data to WebVTT format correctly', () => {
@@ -39,5 +39,23 @@ describe('Video utils tests', () => {
     const blob = URL.createObjectURL.mock.calls[0][0];
     expect(blob.type).toBe('text/vtt');
     expect(blob.size).toBe(mockWebVttContent.length);
+  });
+  it('should sort text tracks with site language first and others alphabetically', () => {
+    const mockTracks = {
+      en: 'https://test-domain.com/transcript-en.txt',
+      ar: 'https://test-domain.com/transcript-ar.txt',
+      fr: 'https://test-domain.com/transcript-fr.txt',
+    };
+
+    const siteLanguage = 'fr';
+
+    const expectedSortedTracks = {
+      fr: 'https://test-domain.com/transcript-fr.txt',
+      ar: 'https://test-domain.com/transcript-ar.txt',
+      en: 'https://test-domain.com/transcript-en.txt',
+    };
+
+    const result = sortTextTracks(mockTracks, siteLanguage);
+    expect(result).toEqual(expectedSortedTracks);
   });
 });

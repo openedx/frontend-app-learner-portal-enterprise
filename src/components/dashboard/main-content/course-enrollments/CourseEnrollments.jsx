@@ -7,9 +7,8 @@ import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import CourseSection from './CourseSection';
 import CourseAssignmentAlert from './CourseAssignmentAlert';
 import { features } from '../../../../config';
-import { useCourseEnrollmentsBySection, useContentAssignments, useGroupAssociationsAlert } from './data';
-import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { useEnterpriseCourseEnrollments, useEnterpriseFeatures } from '../../../app/data';
+import { useContentAssignments, useCourseEnrollmentsBySection, useGroupAssociationsAlert } from './data';
+import { ASSIGNMENT_TYPES, useEnterpriseCourseEnrollments, useEnterpriseFeatures } from '../../../app/data';
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
 import NewGroupAssignmentAlert from './NewGroupAssignmentAlert';
 
@@ -79,7 +78,7 @@ const CourseEnrollments = ({ children }) => {
     handleAcknowledgeExpiringAssignments,
     handleAcknowledgeAssignments,
     isAcknowledgingAssignments,
-  } = useContentAssignments(allEnrollmentsByStatus.assigned);
+  } = useContentAssignments();
 
   const isFirstVisit = useIsFirstDashboardVisit();
 

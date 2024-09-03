@@ -15,7 +15,7 @@ import {
 
 import { COURSE_STATUSES } from '../../../../constants';
 import { COURSE_SECTION_TITLES } from '../../data/constants';
-import { COURSE_MODES_MAP, useEnterpriseCustomer } from '../../../app/data';
+import { COURSE_MODES_MAP, isEnrollmentUpgradeable, useEnterpriseCustomer } from '../../../app/data';
 import DelayedFallbackContainer from '../../../DelayedFallback/DelayedFallbackContainer';
 
 const CARD_COMPONENT_BY_COURSE_STATUS = {
@@ -103,8 +103,8 @@ const CourseSection = ({
 
   const renderCourseCards = () => courseRuns.map(courseRun => {
     const Component = CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
-    const isAuditOrHonorEnrollment = [COURSE_MODES_MAP.AUDIT, COURSE_MODES_MAP.HONOR].includes(courseRun.mode);
-    if (isAuditOrHonorEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
+    const isAuditEnrollment = isEnrollmentUpgradeable(courseRun);
+    if (isAuditEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
       return (
         <Suspense
           key={courseRun.courseRunId}

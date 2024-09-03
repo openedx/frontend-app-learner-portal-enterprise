@@ -27,10 +27,12 @@ import {
   useEnterpriseFeatures,
   useEnterpriseOffers,
   useIsAssignmentsOnlyLearner,
+  useSubscriptions,
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
 import SearchVideo from './SearchVideo';
+import { hasActivatedAndCurrentSubscription } from './utils';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -89,6 +91,13 @@ const Search = () => {
   const isExperimentVariation = isExperimentVariant(
     config.PREQUERY_SEARCH_EXPERIMENT_ID,
     config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
+  );
+
+  const { data: { subscriptionLicense } } = useSubscriptions();
+  const enableVideos = (
+    canOnlyViewHighlightSets === false
+    && features.FEATURE_ENABLE_VIDEO_CATALOG
+    && hasActivatedAndCurrentSubscription(subscriptionLicense)
   );
 
   const PAGE_TITLE = intl.formatMessage({
@@ -175,8 +184,7 @@ const Search = () => {
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
             {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
-            {canOnlyViewHighlightSets === false
-            && (features.FEATURE_ENABLE_VIDEO_CATALOG) && <SearchVideo filter={filters} /> }
+            {enableVideos && <SearchVideo filter={filters} /> }
           </Stack>
         )}
         {/* render a single contentType if the refinement exist and is either a course, program or learnerpathway */}

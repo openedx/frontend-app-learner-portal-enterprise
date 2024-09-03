@@ -5,11 +5,11 @@ import CourseRunCard from './CourseRunCard';
 import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
 import { useUserSubsidyApplicableToCourse } from '../data';
 import {
+  LEARNER_CREDIT_SUBSIDY_TYPE,
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomerContainsContent,
   useUserEntitlements,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
 } from '../../app/data';
 
 /**

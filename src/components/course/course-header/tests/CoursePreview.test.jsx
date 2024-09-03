@@ -11,6 +11,12 @@ const imageURL = 'https://test-domain.com/test-image/id.png';
 const hlsUrl = 'https://test-domain.com/test-prefix/id.m3u8';
 const ytUrl = 'https://www.youtube.com/watch?v=oHg5SJYRHA0';
 
+jest.mock('@edx/frontend-platform/i18n', () => ({
+  ...jest.requireActual('@edx/frontend-platform/i18n'),
+  getLocale: () => 'en',
+  getPrimaryLanguageSubtag: () => 'en',
+}));
+
 describe('Course Preview Tests', () => {
   it('Renders preview image and not the video when video URL is not given.', () => {
     const { container, getByAltText } = renderWithRouter(<CoursePreview previewImage={imageURL} />);

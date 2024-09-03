@@ -122,4 +122,5 @@ export const DISABLED_ENROLL_USER_MESSAGES = {
 /* eslint-enable max-len */
 
 export const DATE_FORMAT = 'MMM D, YYYY';
+export const DATETIME_FORMAT = 'MMM D, YYYY h:mm, a';
 export const ZERO_PRICE = 0.00;

@@ -36,6 +36,10 @@ global.structuredClone = val => JSON.parse(JSON.stringify(val));
 jest.mock('@edx/frontend-platform/logging');
 jest.mock('@edx/frontend-platform/analytics');
 
+if (typeof global.window.URL.createObjectURL === 'undefined') {
+  global.window.URL.createObjectURL = jest.fn();
+}
+
 // Upgrading to Node16 shows unhandledPromiseRejection warnings as errors so adding a handler
 process.on('unhandledRejection', (reason, p) => {
   // eslint-disable-next-line no-console
