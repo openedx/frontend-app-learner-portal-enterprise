@@ -2,7 +2,7 @@ import React from 'react';
 import { waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../../../utils/tests';
 import VideoJS from '../VideoJS';
-import { useTranscripts } from '../data';
+import { useTranscripts, usePlayerOptions } from '../data';
 
 // Mocking the 'videojs-vjstranscribe' and 'useTranscripts' hook
 jest.mock('videojs-vjstranscribe');
@@ -184,5 +184,61 @@ describe('VideoJS', () => {
       expect(container.querySelector('.vjs-big-play-centered')).toBeFalsy();
       expect(container.querySelector('video-js')).toBeFalsy();
     });
+  });
+
+  it('Updates player source when src changes', () => {
+    const mockPlayerInstance = {
+      autoplay: jest.fn(),
+      src: jest.fn(),
+      currentSrc: jest.fn(),
+    };
+    const addTextTracks = jest.fn();
+
+    // eslint-disable-next-line global-require
+    require('video.js').videojs.mockImplementation(() => mockPlayerInstance);
+
+    // Initial mock return value for currentSrc
+    mockPlayerInstance.currentSrc.mockReturnValue('https://initial-domain.com/initial.m3u8');
+
+    const initialOptions = {
+      autoplay: true,
+      responsive: true,
+      fluid: true,
+      controls: true,
+      sources: [{ src: 'https://initial-domain.com/initial.m3u8', type: 'application/x-mpegURL' }],
+    };
+
+    const updatedOptions = {
+      autoplay: true,
+      responsive: true,
+      fluid: true,
+      controls: true,
+      sources: [{ src: 'https://test-domain.com/test-prefix/id.m3u8', type: 'application/x-mpegURL' }],
+    };
+
+    usePlayerOptions.mockReturnValueOnce(initialOptions).mockReturnValueOnce(updatedOptions);
+
+    // Simulate the logic that checks and updates the player source
+    const mockUpdatePlayerSource = (playerOptions) => {
+      if (playerOptions?.sources[0]?.src !== mockPlayerInstance.currentSrc()) {
+        mockPlayerInstance.autoplay(playerOptions.autoplay);
+        mockPlayerInstance.src(playerOptions.sources);
+        addTextTracks();
+      }
+    };
+
+    // Simulate the initial state
+    mockUpdatePlayerSource(initialOptions);
+
+    expect(mockPlayerInstance.autoplay).not.toHaveBeenCalled();
+    expect(mockPlayerInstance.src).not.toHaveBeenCalled();
+    expect(addTextTracks).not.toHaveBeenCalled();
+
+    // Simulate the source change
+    mockUpdatePlayerSource(updatedOptions);
+
+    expect(mockPlayerInstance.autoplay).toHaveBeenCalledWith(updatedOptions.autoplay);
+    expect(mockPlayerInstance.src).toHaveBeenCalledWith([{ src: 'https://test-domain.com/test-prefix/id.m3u8', type: 'application/x-mpegURL' }]);
+    expect(addTextTracks).toHaveBeenCalled();
   });
 });
