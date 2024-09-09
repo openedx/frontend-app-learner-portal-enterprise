@@ -33,6 +33,7 @@ import { useAlgoliaSearch } from '../../utils/hooks';
 import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
 import SearchVideo from './SearchVideo';
 import { hasActivatedAndCurrentSubscription } from './utils';
+import VideoBanner from '../microlearning/VideoBanner';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -97,7 +98,7 @@ const Search = () => {
   const enableVideos = (
     canOnlyViewHighlightSets === false
     && features.FEATURE_ENABLE_VIDEO_CATALOG
-    && hasActivatedAndCurrentSubscription(subscriptionLicense)
+    && hasActivatedAndCurrentSubscription(subscriptionLicense, enterpriseCustomer.enableBrowseAndRequest)
   );
 
   const PAGE_TITLE = intl.formatMessage({
@@ -179,12 +180,13 @@ const Search = () => {
         {/* No content type refinement  */}
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
+            {enableVideos && <VideoBanner />}
             {!hasRefinements && <ContentHighlights />}
             {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <SearchAcademy />}
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
-            {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
-            {enableVideos && <SearchVideo filter={filters} /> }
+            {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} />}
+            {enableVideos && <SearchVideo filter={filters} />}
           </Stack>
         )}
         {/* render a single contentType if the refinement exist and is either a course, program or learnerpathway */}

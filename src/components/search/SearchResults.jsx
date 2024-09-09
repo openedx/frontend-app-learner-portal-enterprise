@@ -20,6 +20,7 @@ import {
   CARDGRID_COLUMN_SIZES,
 } from './constants';
 import { getContentTypeFromTitle, getNoOfResultsFromTitle, getSkeletonCardFromTitle } from '../utils/search';
+import BetaBadge from '../microlearning/BetaBadge';
 
 const SearchResults = ({
   className,
@@ -32,6 +33,7 @@ const SearchResults = ({
   contentType,
   translatedTitle,
   isPathwaySearchResults,
+  showBetaBadge,
 }) => {
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
@@ -96,11 +98,14 @@ const SearchResults = ({
           defaultMessage: 'result',
           description: 'Label for the search result count when we have only one result.',
         });
+      // I have added a condition to check if showBetaBadge is true then show the BetaBadge component
+      //  Theses changes are temporary and will be removed once the BetaBadge component is removed from
+      // the SearchResults component
       return (
-        <>
-          {translatedTitle || title} ({nbHits} {resultsLabel})
+        <div className="d-flex align-items-center" id={showBetaBadge ? 'videos-section' : 'some-other-section'}>
+          {translatedTitle || title} ({nbHits} {resultsLabel}) {showBetaBadge && <BetaBadge />}
           {query && <>{' '}for &quot;{query}&quot;</>}
-        </>
+        </div>
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -196,6 +201,7 @@ SearchResults.propTypes = {
   title: PropTypes.string.isRequired,
   translatedTitle: PropTypes.string,
   isPathwaySearchResults: PropTypes.bool,
+  showBetaBadge: PropTypes.bool,
 };
 
 SearchResults.defaultProps = {
@@ -206,6 +212,7 @@ SearchResults.defaultProps = {
   contentType: undefined,
   translatedTitle: undefined,
   isPathwaySearchResults: false,
+  showBetaBadge: false,
 };
 
 export default connectStateResults(SearchResults);

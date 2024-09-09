@@ -3,14 +3,16 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { useSubscriptions } from '../../app/data';
+import { useEnterpriseCustomer, useSubscriptions } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import SearchPage from '../SearchPage';
 import { features } from '../../../config';
 import { renderWithRouter } from '../../../utils/tests';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
   useSubscriptions: jest.fn(),
+  useEnterpriseCustomer: jest.fn(),
 }));
 
 jest.mock('../utils', () => ({
@@ -33,11 +35,12 @@ const renderSearchPage = () => renderWithRouter(
     </AppContext.Provider>
   </IntlProvider>,
 );
-
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 describe('SearchPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     features.FEATURE_ENABLE_VIDEO_CATALOG = true;
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('renders SearchPage component', () => {
