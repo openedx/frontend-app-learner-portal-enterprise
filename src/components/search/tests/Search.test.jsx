@@ -76,7 +76,6 @@ describe('<Search />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useEnterpriseFeatures.mockReturnValue({ data: { featurePrequerySearchSuggestions: false } });
     useDefaultSearchFilters.mockReturnValue(mockFilter);
     useAlgoliaSearch.mockReturnValue([{ search: jest.fn(), appId: 'test-app-id' }, { indexName: 'mock-index-name' }]);
   });

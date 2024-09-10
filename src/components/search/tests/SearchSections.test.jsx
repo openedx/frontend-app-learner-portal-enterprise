@@ -86,7 +86,6 @@ describe('<Search />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useEnterpriseFeatures.mockReturnValue({ data: { featurePrequerySearchSuggestions: false } });
     useDefaultSearchFilters.mockReturnValue(mockFilter);
     useAlgoliaSearch.mockReturnValue([{ search: jest.fn(), appId: 'test-app-id' }, { indexName: 'mock-index-name' }]);
   });
@@ -162,15 +161,5 @@ describe('<Search />', () => {
       </SearchWrapper>,
     );
     expect(screen.getByText('Pathways (2 results)')).toBeInTheDocument();
-  });
-
-  describe('pushEvent', () => {
-    test.each([
-      [true, 'test-course-101', EVENTS.PREQUERY_SUGGESTION_CLICK],
-      [false, 'test-course-102', EVENTS.SEARCH_SUGGESTION_CLICK],
-    ])('if isPrequeryEnabled is %p with course metadata %p, submit event %p', (isPrequeryEnabled, courseKeyMetadata, event) => {
-      sendPushEvent(isPrequeryEnabled, courseKeyMetadata);
-      expect(pushEvent).toHaveBeenCalledWith(event, { courseKeyMetadata });
-    });
   });
 });
