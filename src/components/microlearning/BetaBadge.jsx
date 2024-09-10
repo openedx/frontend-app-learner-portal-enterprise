@@ -21,7 +21,7 @@ const BetaBadge = () => (
       </Tooltip>
     )}
   >
-    <Badge variant="info" className="ml-2">
+    <Badge variant="info" className="mx-2">
       <FormattedMessage
         id="enterprise.microlearningVideo.betaBadge.text"
         defaultMessage="Beta"
