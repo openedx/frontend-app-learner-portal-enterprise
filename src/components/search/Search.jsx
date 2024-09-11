@@ -23,7 +23,6 @@ import {
   useCanOnlyViewHighlights,
   useDefaultSearchFilters,
   useEnterpriseCustomer,
-  useEnterpriseFeatures,
   useEnterpriseOffers,
   useIsAssignmentsOnlyLearner,
   useSubscriptions,
@@ -54,7 +53,6 @@ function useSearchPathwayModal() {
 const Search = () => {
   const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const intl = useIntl();
   const navigate = useNavigate();
 

@@ -8,7 +8,7 @@ import '../../skills-quiz/__mocks__/react-instantsearch-dom';
 import { queryClient, renderWithRouter } from '../../../utils/tests';
 import '@testing-library/jest-dom';
 import Search from '../Search';
-import { useDefaultSearchFilters, useEnterpriseFeatures, useEnterpriseCustomer } from '../../app/data';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
 import { useAlgoliaSearch } from '../../../utils/hooks';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import { features } from '../../../config';
@@ -31,7 +31,6 @@ jest.mock('../../app/data', () => ({
   useContentHighlightsConfiguration: jest.fn(() => ({ data: {} })),
   useCanOnlyViewHighlights: jest.fn(() => ({ data: false })),
   useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
-  useEnterpriseFeatures: jest.fn(),
   useDefaultSearchFilters: jest.fn(),
 }));
 jest.mock('../../../utils/hooks', () => ({
