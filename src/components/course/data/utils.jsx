@@ -26,11 +26,20 @@ import {
   findHighestLevelEntitlementSku,
   findHighestLevelSkuByEntityModeType,
   isEnrollmentUpgradeable,
+  START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS,
 } from '../../app/data';
 
-export function hasCourseStarted(start) {
-  return dayjs(start).isBefore(dayjs());
-}
+/**
+ * Determines if the course has already started. Mostly used around text formatting for tense
+ * Introduces 'jitter' in the form of a 30 second offset to take into account any additional
+ * formatting that takes place down stream related to setting values to today's date through dayjs()
+ *
+ * This should also help with reducing 'flaky' tests.
+ *
+ * @param start
+ * @returns {boolean}
+ */
+export const hasCourseStarted = (start) => dayjs(start).isBefore(dayjs().subtract(30, 'seconds'));
 
 export function findUserEnrollmentForCourseRun({ userEnrollments, key }) {
   return userEnrollments.find(
@@ -59,12 +68,42 @@ export function hasTimeToComplete(courseRun) {
 }
 
 export function isCourseSelfPaced(pacingType) {
-  return pacingType === COURSE_PACING_MAP.SELF_PACED;
+  return pacingType === COURSE_PACING_MAP.SELF_PACED || pacingType === COURSE_PACING_MAP.SELF;
 }
 
 export function isCourseInstructorPaced(pacingType) {
-  return pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED;
+  return pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED || pacingType === COURSE_PACING_MAP.INSTRUCTOR;
 }
+
+const isWithinMinimumStartDateThreshold = ({ start }) => dayjs(start).isBefore(dayjs().subtract(START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS, 'days'));
+
+/**
+ * If the start date of the course is before today offset by the START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS
+ * then return today's formatted date. Otherwise, pass-through the start date in ISO format.
+ *
+ * @param start
+ * @param pacingType
+ * @param end
+ * @param weeksToComplete
+ * @returns {string}
+ */
+export const getNormalizedStartDate = ({
+  start, pacingType, end, weeksToComplete,
+}) => {
+  const todayToIso = dayjs().toISOString();
+  if (!start) {
+    return todayToIso;
+  }
+  const startDateIso = dayjs(start).toISOString();
+  if (isCourseSelfPaced({ pacingType })) {
+    if (hasTimeToComplete({ end, weeksToComplete }) || isWithinMinimumStartDateThreshold({ start })) {
+      // always today's date (incentives enrollment)
+      return todayToIso;
+    }
+    return startDateIso;
+  }
+  return startDateIso;
+};
 
 export function getDefaultProgram(programs = []) {
   if (programs.length === 0) {
@@ -932,7 +971,6 @@ export function getSoonestEarliestPossibleExpirationData({
   if (dateFormat) {
     soonestExpirationDate = dayjs(soonestExpirationDate).format(dateFormat);
   }
-
   return {
     soonestExpirationDate,
     soonestExpirationReason: sortedByExpirationDate[0].earliestPossibleExpiration.reason,
@@ -940,3 +978,23 @@ export function getSoonestEarliestPossibleExpirationData({
     sortedExpirationAssignments: sortedByExpirationDate,
   };
 }
+
+/**
+ * If the start date of the course is before today offset by the START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS
+ * then return today's formatted date. Otherwise, pass-through the start date in ISO format.
+ *
+ * For cases where a start date does not exist, just return today's date.
+ *
+ * @param start
+ * @param format
+ * @returns {string}
+ */
+export const setStaleCourseStartDates = ({ start }) => {
+  if (!start) {
+    return dayjs().toISOString();
+  }
+  if (dayjs(start).isBefore(dayjs().subtract(START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS, 'days'))) {
+    return dayjs().toISOString();
+  }
+  return dayjs(start).toISOString();
+};

@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import {
   DATE_FORMAT,
   DATETIME_FORMAT,
+  getNormalizedStartDate,
   getSoonestEarliestPossibleExpirationData,
   hasCourseStarted,
   useIsCourseAssigned,
@@ -88,11 +89,11 @@ const CourseImportantDates = () => {
   // Match soonest expiring assignment to the corresponding course start date from course metadata
   let soonestExpiringAllocatedAssignmentCourseStartDate = null;
   if (soonestExpiringAssignment) {
-    soonestExpiringAllocatedAssignmentCourseStartDate = courseMetadata.availableCourseRuns.find(
+    const soonestExpiringAllocatedAssignment = courseMetadata.availableCourseRuns.find(
       (courseRun) => courseRun.key === soonestExpiringAssignment?.contentKey,
-    )?.start;
+    );
+    soonestExpiringAllocatedAssignmentCourseStartDate = getNormalizedStartDate(soonestExpiringAllocatedAssignment);
   }
-
   // Parse logic of date existence and labels
   const enrollByDate = soonestExpirationDate ?? null;
   const courseStartDate = soonestExpiringAllocatedAssignmentCourseStartDate

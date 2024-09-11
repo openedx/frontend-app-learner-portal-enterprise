@@ -498,7 +498,6 @@ export function useCourseEnrollmentsBySection(courseEnrollmentsByStatus) {
     ]),
     [courseEnrollmentsByStatus],
   );
-
   const completedCourseEnrollments = useMemo(
     () => sortedEnrollmentsByEnrollmentDate(courseEnrollmentsByStatus.completed),
     [courseEnrollmentsByStatus.completed],

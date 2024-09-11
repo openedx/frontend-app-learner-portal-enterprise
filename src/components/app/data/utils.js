@@ -317,7 +317,6 @@ export const canUnenrollCourseEnrollment = (courseEnrollment) => {
  */
 export const transformCourseEnrollment = (rawCourseEnrollment) => {
   const courseEnrollment = { ...rawCourseEnrollment };
-
   // Return the fields expected by the component(s)
   courseEnrollment.title = courseEnrollment.displayName;
   courseEnrollment.microMastersTitle = courseEnrollment.micromastersTitle;
@@ -409,7 +408,6 @@ export const transformLearnerContentAssignment = (learnerContentAssignment, ente
     courseKey = parentContentKey;
     courseRunId = contentKey;
   }
-
   return {
     linkToCourse: `/${enterpriseSlug}/course/${courseKey}`,
     courseRunId,
@@ -879,7 +877,7 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
       courseRuns: courseMetadata.courseRuns.filter(
         courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
       ),
-      availableCourseRuns: courseMetadata.courseRuns.filter(
+      availableCourseRuns: courseMetadata.availableCourseRuns.filter(
         courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
       ),
     };

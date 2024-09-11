@@ -64,3 +64,6 @@ export const ASSIGNMENT_TYPES = {
   ERRORED: 'errored',
   EXPIRING: 'expiring',
 };
+
+// Start date threshold to default to today days, sets start date to today if course start date is beyond this value
+export const START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS = 14;
