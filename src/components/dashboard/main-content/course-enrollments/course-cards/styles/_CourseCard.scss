@@ -37,3 +37,17 @@
     }
   }
 }
+
+.pgn__progress-annotated {
+  padding-bottom: 0 !important;
+  .pgn__progress-bar--success {
+    height: 15px;
+  }
+}
+
+.pgn__progress-annotated .progress .pgn__progress-bar--success::after {
+  width: 22px;
+  height: 22px;
+  top: -0.25rem;
+  border-radius: 1rem;
+}

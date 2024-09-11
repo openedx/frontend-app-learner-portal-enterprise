@@ -1,14 +1,22 @@
-import { useContext, useState } from 'react';
+/* eslint-disable no-unsafe-optional-chaining */
+
+import {
+  useCallback, useContext, useEffect, useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
+import { logError } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import { Stack } from '@openedx/paragon';
+import { ProgressBar, Stack } from '@openedx/paragon';
+import { getConfig } from '@edx/frontend-platform/config';
 import dayjs from '../../../../../utils/dayjs';
 import BaseCourseCard, { getScreenReaderText } from './BaseCourseCard';
 import { MarkCompleteModal } from './mark-complete-modal';
 import ContinueLearningButton from './ContinueLearningButton';
+import { isExperimentVariant } from '../../../../../utils/optimizely';
+import { getProgressTabData } from './mark-complete-modal/data/service';
 
 import Notification from './Notification';
 
@@ -42,6 +50,11 @@ const messages = defineMessages({
     id: 'enterprise.learner_portal.dashboard.enrollments.course.upgrade_course_covered_by_organization',
     defaultMessage: 'Covered by your organization',
     description: 'Text for the course info outline upgrade covered by organization in the course card dropdown menu',
+  },
+  completion: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.completion',
+    defaultMessage: '{courseProgress}% completed',
+    description: 'Course progress percentage completed',
   },
 });
 
@@ -87,6 +100,32 @@ export const InProgressCourseCard = ({
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
   const isExecutiveEducation = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+  const config = getConfig();
+
+  const [completionSummary, setCompletionSummary] = useState({});
+  const fetchProgressData = useCallback(
+    async (courseRun) => {
+      try {
+        const result = await getProgressTabData(courseRun);
+        setCompletionSummary(result.completionSummary);
+      } catch (error) {
+        logError(error);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    fetchProgressData(courseRunId);
+  }, [fetchProgressData, courseRunId]);
+
+  const completeCount = completionSummary?.completeCount;
+  const numTotalUnits = completeCount + completionSummary?.incompleteCount + completionSummary?.lockedCount;
+  const completePercentage = completeCount ? Number(((completeCount / numTotalUnits) * 100).toFixed(0)) : 0;
+  const isExperimentVariation = isExperimentVariant(
+    config.PROGRESS_BAR_EXPERIMENT_ID,
+    config.PROGRESS_BAR_EXPERIMENT_VARIANT_ID,
+  );
 
   const coursewareOrUpgradeLink = useLinkToCourse({
     linkToCourse,
@@ -245,6 +284,13 @@ export const InProgressCourseCard = ({
       {...rest}
     >
       {renderNotifications()}
+      {isExperimentVariation && (
+        <ProgressBar.Annotated
+          now={completePercentage}
+          label={intl.formatMessage(messages.completion, { courseProgress: completePercentage })}
+          variant="success"
+        />
+      )}
       <MarkCompleteModal
         isOpen={isMarkCompleteModalOpen}
         courseTitle={title}
