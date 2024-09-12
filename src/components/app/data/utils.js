@@ -814,7 +814,7 @@ export function determineAllocatedAssignmentsForCourse({
   // note: checking the non-happy path first, with early return so happy path code isn't nested in conditional.
   if (!learnerContentAssignments.hasAllocatedAssignments) {
     return {
-      isCourseAssigned: [],
+      isCourseAssigned: false,
       allocatedAssignmentsForCourse: [],
       allocatedCourseRunAssignmentKeys: [],
       allocatedCourseRunAssignments: [],

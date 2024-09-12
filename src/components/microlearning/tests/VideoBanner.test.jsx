@@ -46,21 +46,18 @@ describe('VideoBanner', () => {
   it('renders the explore videos button', () => {
     renderWithRouter(<VideoBannerWrapper />);
 
-    expect(screen.getByText('Explore Videos')).toBeInTheDocument();
+    expect(screen.getByText('Explore videos')).toBeInTheDocument();
   });
 
   it('calls sendEnterpriseTrackEvent when explore videos button is clicked', () => {
     renderWithRouter(<VideoBannerWrapper />);
 
-    const exploreVideosButton = screen.getByText('Explore Videos');
+    const exploreVideosButton = screen.getByText('Explore videos');
     exploreVideosButton.click();
 
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.video_banner.explore_videos_clicked',
-      {
-        userId: mockAuthenticatedUser.userId,
-      },
     );
   });
   it('hover on Beta badge', async () => {
