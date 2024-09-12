@@ -1,7 +1,7 @@
 import { generatePath, redirect } from 'react-router-dom';
 
 import {
-  determineAllocatedCourseRunAssignmentsForCourse,
+  determineAllocatedAssignmentsForCourse,
   determineLearnerHasContentAssignmentsOnly,
   extractEnterpriseCustomer,
   getCatalogsForSubsidyRequests,
@@ -80,7 +80,7 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
       allocatedCourseRunAssignmentKeys,
       hasAssignedCourseRuns,
       hasMultipleAssignedCourseRuns,
-    } = determineAllocatedCourseRunAssignmentsForCourse({
+    } = determineAllocatedAssignmentsForCourse({
       courseKey,
       redeemableLearnerCreditPolicies,
     });

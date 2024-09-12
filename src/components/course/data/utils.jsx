@@ -928,7 +928,7 @@ export function getSoonestEarliestPossibleExpirationData({
   const sortedByExpirationDate = assignmentsWithExpiration.sort(
     (a, b) => (dayjs(a.earliestPossibleExpiration.date).isBefore(b.earliestPossibleExpiration.date) ? -1 : 1),
   );
-  let { date: soonestExpirationDate } = sortedByExpirationDate[0].earliestPossibleExpiration.date;
+  let soonestExpirationDate = sortedByExpirationDate[0].earliestPossibleExpiration.date;
   if (dateFormat) {
     soonestExpirationDate = dayjs(soonestExpirationDate).format(dateFormat);
   }

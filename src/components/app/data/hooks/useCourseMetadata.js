@@ -3,7 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 
 import { queryCourseMetadata } from '../queries';
 import {
-  determineAllocatedCourseRunAssignmentsForCourse,
+  determineAllocatedAssignmentsForCourse,
   getAvailableCourseRuns,
   transformCourseMetadataByAllocatedCourseRunAssignments,
 } from '../utils';
@@ -23,10 +23,7 @@ export default function useCourseMetadata(queryOptions = {}) {
     allocatedCourseRunAssignmentKeys,
     hasAssignedCourseRuns,
     hasMultipleAssignedCourseRuns,
-  } = determineAllocatedCourseRunAssignmentsForCourse({
-    courseKey,
-    redeemableLearnerCreditPolicies,
-  });
+  } = determineAllocatedAssignmentsForCourse({ courseKey, redeemableLearnerCreditPolicies });
   // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
   // need to replace it with `+` again to be a valid course run key.
   let courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');

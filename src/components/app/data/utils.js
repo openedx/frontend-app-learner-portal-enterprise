@@ -806,7 +806,7 @@ export function isEnrollmentUpgradeable(enrollment) {
  *   }
  * }
  */
-export function determineAllocatedCourseRunAssignmentsForCourse({
+export function determineAllocatedAssignmentsForCourse({
   redeemableLearnerCreditPolicies,
   courseKey,
 }) {
@@ -814,19 +814,37 @@ export function determineAllocatedCourseRunAssignmentsForCourse({
   // note: checking the non-happy path first, with early return so happy path code isn't nested in conditional.
   if (!learnerContentAssignments.hasAllocatedAssignments) {
     return {
+      isCourseAssigned: false,
+      allocatedAssignmentsForCourse: [],
       allocatedCourseRunAssignmentKeys: [],
       allocatedCourseRunAssignments: [],
       hasAssignedCourseRuns: false,
       hasMultipleAssignedCourseRuns: false,
     };
   }
-  const allocatedCourseRunAssignments = learnerContentAssignments.allocatedAssignments.filter((assignment) => (
-    assignment.isAssignedCourseRun && assignment.parentContentKey === courseKey
-  ));
+
+  const allocatedAssignmentsForCourse = [];
+  const allocatedCourseRunAssignments = [];
+
+  learnerContentAssignments.allocatedAssignments.forEach((assignment) => {
+    const isCourseRunAssignment = assignment.isAssignedCourseRun && assignment.parentContentKey === courseKey;
+    const isCourseAssignment = !assignment.isAssignedCourseRun && assignment.contentKey === courseKey;
+    if (isCourseRunAssignment || isCourseAssignment) {
+      allocatedAssignmentsForCourse.push(assignment);
+    }
+    if (isCourseRunAssignment) {
+      allocatedCourseRunAssignments.push(assignment);
+    }
+  });
+
+  const isCourseAssigned = allocatedAssignmentsForCourse.length > 0;
   const allocatedCourseRunAssignmentKeys = allocatedCourseRunAssignments.map(assignment => assignment.contentKey);
   const hasAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 0;
   const hasMultipleAssignedCourseRuns = allocatedCourseRunAssignmentKeys.length > 1;
+
   return {
+    isCourseAssigned,
+    allocatedAssignmentsForCourse,
     allocatedCourseRunAssignmentKeys,
     allocatedCourseRunAssignments,
     hasAssignedCourseRuns,

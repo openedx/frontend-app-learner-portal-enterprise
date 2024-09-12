@@ -3,17 +3,17 @@ import {
 } from '@openedx/paragon';
 import { Calendar } from '@openedx/paragon/icons';
 import dayjs from 'dayjs';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import {
-  DATE_FORMAT, DATETIME_FORMAT, getSoonestEarliestPossibleExpirationData, hasCourseStarted,
+  DATE_FORMAT,
+  DATETIME_FORMAT,
+  getSoonestEarliestPossibleExpirationData,
+  hasCourseStarted,
+  useIsCourseAssigned,
 } from '../data';
-import {
-  determineAllocatedCourseRunAssignmentsForCourse,
-  useCourseMetadata,
-  useRedeemablePolicies,
-} from '../../app/data';
+import { useCourseMetadata } from '../../app/data';
 
 const messages = defineMessages({
   importantDates: {
@@ -61,18 +61,13 @@ CourseImportantDate.propTypes = {
 };
 
 const CourseImportantDates = () => {
-  const { courseKey } = useParams();
-  const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const { data: courseMetadata } = useCourseMetadata();
   const intl = useIntl();
   const {
     allocatedCourseRunAssignments,
     allocatedCourseRunAssignmentKeys,
     hasAssignedCourseRuns,
-  } = determineAllocatedCourseRunAssignmentsForCourse({
-    redeemableLearnerCreditPolicies,
-    courseKey,
-  });
+  } = useIsCourseAssigned();
 
   const [searchParams] = useSearchParams();
   const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
