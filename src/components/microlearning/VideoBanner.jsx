@@ -1,31 +1,23 @@
-import {
-  Card, Button,
-} from '@openedx/paragon';
-import './styles/VideoDetailPage.scss';
+import { Card, Button } from '@openedx/paragon';
 import { Link } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { AppContext } from '@edx/frontend-platform/react';
-import { useContext } from 'react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import BetaBadge from './BetaBadge';
 import { useEnterpriseCustomer } from '../app/data';
+import './styles/VideoDetailPage.scss';
 
 const VideoBanner = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { authenticatedUser: { userId } } = useContext(AppContext);
   const sendPushEvent = () => {
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.video_banner.explore_videos_clicked',
-      {
-        userId,
-      },
     );
   };
   return (
     <div data-testid="video-banner" className="d-flex justify-content-center">
       <Card orientation="horizontal" className="video-banner-class bg-light-300">
-        <Card.Section className="col-9 text-primary-500">
+        <Card.Section className="col-9">
           <span className="d-flex justify-content-center align-items-end">
             <h3 className="text-brand-500 pr-1 m-0">
               <FormattedMessage
@@ -60,8 +52,8 @@ const VideoBanner = () => {
           >
             <FormattedMessage
               id="enterprise.microlearning.videoBanner.exploreVideos"
-              defaultMessage="Explore Videos"
-              description="Explore Videos button text for the video banner on the video page."
+              defaultMessage="Explore videos"
+              description="Button text for the Explore CTA within video banner on the video page."
             />
           </Button>
         </Card.Footer>

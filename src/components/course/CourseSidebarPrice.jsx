@@ -20,7 +20,7 @@ const CourseSidebarPrice = () => {
   const intl = useIntl();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { coursePrice, currency } = useCoursePrice();
-  const isCourseAssigned = useIsCourseAssigned();
+  const { isCourseAssigned } = useIsCourseAssigned();
   const canRequestSubsidy = useCanUserRequestSubsidyForCourse();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
 

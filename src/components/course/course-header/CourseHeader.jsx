@@ -37,7 +37,7 @@ const CourseHeader = () => {
   const { data: { isPolicyRedemptionEnabled } } = useCourseRedemptionEligibility();
   const { data: { containsContentItems } } = useEnterpriseCustomerContainsContent([courseKey]);
   const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();
-  const isCourseAssigned = useIsCourseAssigned();
+  const { isCourseAssigned } = useIsCourseAssigned();
   const isCourseArchived = courseMetadata.courseRuns.every((courseRun) => isArchived(courseRun));
   const [partners] = useCoursePartners(courseMetadata);
   const defaultProgram = useMemo(
