@@ -19,12 +19,10 @@ import SearchPathway from './SearchPathway';
 import PathwayModal from '../pathway/PathwayModal';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
-import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 import {
   useCanOnlyViewHighlights,
   useDefaultSearchFilters,
   useEnterpriseCustomer,
-  useEnterpriseFeatures,
   useEnterpriseOffers,
   useIsAssignmentsOnlyLearner,
   useSubscriptions,
@@ -34,14 +32,6 @@ import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContain
 import SearchVideo from './SearchVideo';
 import { hasActivatedAndCurrentSubscription } from './utils';
 import VideoBanner from '../microlearning/VideoBanner';
-
-export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
-  if (isPreQueryEnabled) {
-    pushEvent(EVENTS.PREQUERY_SUGGESTION_CLICK, { courseKeyMetadata });
-  } else {
-    pushEvent(EVENTS.SEARCH_SUGGESTION_CLICK, { courseKeyMetadata });
-  }
-};
 
 function useSearchPathwayModal() {
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, close] = useToggle(false);
@@ -63,7 +53,6 @@ function useSearchPathwayModal() {
 const Search = () => {
   const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const intl = useIntl();
   const navigate = useNavigate();
 
@@ -88,11 +77,6 @@ const Search = () => {
     isLearnerPathwayModalOpen,
     closePathwayModal,
   } = useSearchPathwayModal();
-
-  const isExperimentVariation = isExperimentVariant(
-    config.PREQUERY_SEARCH_EXPERIMENT_ID,
-    config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
-  );
 
   const { data: { subscriptionLicense } } = useSubscriptions();
   const enableVideos = (
@@ -127,16 +111,6 @@ const Search = () => {
   const { content_type: contentType } = refinements;
   const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
-  const isPreQueryEnabled = enterpriseFeatures?.featurePrequerySearchSuggestions
-    && isExperimentVariation;
-
-  const optimizelySuggestionClickHandler = (courseKey) => {
-    // Programs pass in a list of keys. Optimizely does not accept array values
-    // so we are joining the items in the array.
-    const courseKeyMetadata = Array.isArray(courseKey) ? courseKey.join(', ') : courseKey;
-    sendPushEvent(isPreQueryEnabled, courseKeyMetadata);
-  };
-
   return (
     <>
       <Helmet title={PAGE_TITLE} />
@@ -160,8 +134,6 @@ const Search = () => {
               index={searchIndex}
               filters={filters}
               enterpriseConfig={enterpriseCustomer}
-              optimizelySuggestionClickHandler={optimizelySuggestionClickHandler}
-              isPreQueryEnabled={isPreQueryEnabled}
             />
           </div>
         )}

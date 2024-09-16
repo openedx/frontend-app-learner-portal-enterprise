@@ -1,7 +1,6 @@
 export const EVENTS = {
   ENROLLMENT_CLICK: 'enterprise_learner_portal_enrollment_click',
   FIRST_ENROLLMENT_CLICK: 'enterprise_learner_portal_first_enrollment_click',
-  PREQUERY_SUGGESTION_CLICK: 'enterprise_learner_portal_prequery_suggestions_click',
   SEARCH_SUGGESTION_CLICK: 'enterprise_learner_portal_search_suggestions_click',
 };
 
