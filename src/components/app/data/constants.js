@@ -52,7 +52,7 @@ export const ENTERPRISE_OFFER_SUBSIDY_TYPE = 'enterpriseOffer';
 export const LEARNER_CREDIT_SUBSIDY_TYPE = 'learnerCredit';
 
 export const ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS = 10;
-export const MAX_HIGHLIGHT_SETS = 12;
+export const MAX_HIGHLIGHT_SETS = 16;
 
 // Note: `cancelled` is correct and matches backend state
 // despite how the key is spelled
