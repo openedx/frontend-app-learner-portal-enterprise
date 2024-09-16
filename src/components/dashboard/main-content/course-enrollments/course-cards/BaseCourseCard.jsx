@@ -33,6 +33,7 @@ import {
   useEnterpriseCustomer,
 } from '../../../../app/data';
 import { isCourseEnded, isDefinedAndNotNull, isTodayWithinDateThreshold } from '../../../../../utils/common';
+import { getNormalizedStartDate } from '../../../../course/data';
 
 const messages = defineMessages({
   statusBadgeLabelInProgress: {
@@ -401,8 +402,15 @@ const BaseCourseCard = ({
   };
 
   const renderStartDate = () => {
-    const formattedStartDate = startDate ? dayjs(startDate).format('MMMM Do, YYYY') : null;
-    const isCourseStarted = dayjs(startDate) <= dayjs();
+    // TODO: Determine if its worth exposing weeks_to_complete in assignments to utilize this function effectively
+    const courseStartDate = getNormalizedStartDate({
+      start: startDate,
+      pacingType: pacing,
+      end: endDate,
+      weeksToComplete: null,
+    });
+    const formattedStartDate = dayjs(courseStartDate).format('MMMM Do, YYYY');
+    const isCourseStarted = dayjs(courseStartDate).isBefore(dayjs());
     if (formattedStartDate && !isCourseStarted) {
       return <span className="font-weight-light">Starts {formattedStartDate}</span>;
     }

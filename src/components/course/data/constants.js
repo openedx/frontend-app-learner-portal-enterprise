@@ -1,8 +1,12 @@
 import GetSmarterLogo from '../../../assets/icons/getsmarter-header-icon.svg';
 
+// The SELF and INSTRUCTOR values are keys/value pairs used specifically for pacing sourced from the
+// enterprise_course_enrollments API.
 export const COURSE_PACING_MAP = {
   SELF_PACED: 'self_paced',
   INSTRUCTOR_PACED: 'instructor_paced',
+  INSTRUCTOR: 'instructor',
+  SELF: 'self',
 };
 
 export const SUBSIDY_DISCOUNT_TYPE_MAP = {
@@ -122,5 +126,5 @@ export const DISABLED_ENROLL_USER_MESSAGES = {
 /* eslint-enable max-len */
 
 export const DATE_FORMAT = 'MMM D, YYYY';
-export const DATETIME_FORMAT = 'MMM D, YYYY h:mm, a';
+export const DATETIME_FORMAT = 'MMM D, YYYY h:mma';
 export const ZERO_PRICE = 0.00;

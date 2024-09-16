@@ -64,3 +64,6 @@ export const ASSIGNMENT_TYPES = {
   ERRORED: 'errored',
   EXPIRING: 'expiring',
 };
+
+// When the start date is before this number of days before today, display the alternate start date (fixed to today).
+export const START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS = 14;
