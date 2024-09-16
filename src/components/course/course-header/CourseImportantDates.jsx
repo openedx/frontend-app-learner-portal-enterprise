@@ -89,7 +89,7 @@ const CourseImportantDates = () => {
   // Match soonest expiring assignment to the corresponding course start date from course metadata
   let soonestExpiringAllocatedAssignmentCourseStartDate = null;
   if (soonestExpiringAssignment) {
-    const soonestExpiringAllocatedAssignment = courseMetadata.availableCourseRuns?.find(
+    const soonestExpiringAllocatedAssignment = courseMetadata.availableCourseRuns.find(
       (courseRun) => courseRun.key === soonestExpiringAssignment?.contentKey,
     );
     soonestExpiringAllocatedAssignmentCourseStartDate = soonestExpiringAllocatedAssignment

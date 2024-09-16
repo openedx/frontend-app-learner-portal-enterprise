@@ -31,10 +31,6 @@ import {
 
 /**
  * Determines if the course has already started. Mostly used around text formatting for tense
- * Introduces 'jitter' in the form of a 30 second offset to take into account any additional
- * formatting that takes place down stream related to setting values to today's date through dayjs()
- *
- * This should also help with reducing 'flaky' tests.
  *
  * @param start
  * @returns {boolean}
@@ -68,11 +64,11 @@ export function hasTimeToComplete(courseRun) {
 }
 
 export function isCourseSelfPaced(pacingType) {
-  return pacingType === COURSE_PACING_MAP.SELF_PACED || pacingType === COURSE_PACING_MAP.SELF;
+  return [COURSE_PACING_MAP.SELF_PACED, COURSE_PACING_MAP.SELF].includes(pacingType);
 }
 
 export function isCourseInstructorPaced(pacingType) {
-  return pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED || pacingType === COURSE_PACING_MAP.INSTRUCTOR;
+  return [COURSE_PACING_MAP.INSTRUCTOR_PACED, COURSE_PACING_MAP.INSTRUCTOR].includes(pacingType);
 }
 
 const isWithinMinimumStartDateThreshold = ({ start }) => dayjs(start).isBefore(dayjs().subtract(START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS, 'days'));
@@ -81,10 +77,10 @@ const isWithinMinimumStartDateThreshold = ({ start }) => dayjs(start).isBefore(d
  * If the start date of the course is before today offset by the START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS
  * then return today's formatted date. Otherwise, pass-through the start date in ISO format.
  *
- * @param start
- * @param pacingType
- * @param end
- * @param weeksToComplete
+ * @param {String} start
+ * @param {String} pacingType
+ * @param {String} end
+ * @param {Number} weeksToComplete
  * @returns {string}
  */
 export const getNormalizedStartDate = ({
@@ -978,23 +974,3 @@ export function getSoonestEarliestPossibleExpirationData({
     sortedExpirationAssignments: sortedByExpirationDate,
   };
 }
-
-/**
- * If the start date of the course is before today offset by the START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS
- * then return today's formatted date. Otherwise, pass-through the start date in ISO format.
- *
- * For cases where a start date does not exist, just return today's date.
- *
- * @param start
- * @param format
- * @returns {string}
- */
-export const setStaleCourseStartDates = ({ start }) => {
-  if (!start) {
-    return dayjs().toISOString();
-  }
-  if (dayjs(start).isBefore(dayjs().subtract(START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS, 'days'))) {
-    return dayjs().toISOString();
-  }
-  return dayjs(start).toISOString();
-};

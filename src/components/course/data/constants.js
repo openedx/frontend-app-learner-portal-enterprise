@@ -1,5 +1,7 @@
 import GetSmarterLogo from '../../../assets/icons/getsmarter-header-icon.svg';
 
+// The SELF and INSTRUCTOR values are keys/value pairs used specifically for pacing sourced from the
+// enterprise_course_enrollments API.
 export const COURSE_PACING_MAP = {
   SELF_PACED: 'self_paced',
   INSTRUCTOR_PACED: 'instructor_paced',
