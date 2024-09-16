@@ -39,7 +39,7 @@ import {
  * @param start
  * @returns {boolean}
  */
-export const hasCourseStarted = (start) => dayjs(start).isBefore(dayjs().subtract(30, 'seconds'));
+export const hasCourseStarted = (start) => dayjs(start).isBefore(dayjs());
 
 export function findUserEnrollmentForCourseRun({ userEnrollments, key }) {
   return userEnrollments.find(

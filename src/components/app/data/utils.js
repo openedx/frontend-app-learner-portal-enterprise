@@ -508,7 +508,6 @@ export function getAvailableCourseRuns({ course, lateEnrollmentBufferDays }) {
   if (!course?.courseRuns) {
     return [];
   }
-
   // These are the standard rules used for determining whether a run is "available".
   const standardAvailableCourseRunsFilter = (courseRun) => (
     courseRun.isMarketable && !isArchived(courseRun) && courseRun.isEnrollable
