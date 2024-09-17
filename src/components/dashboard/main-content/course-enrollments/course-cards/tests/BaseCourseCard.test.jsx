@@ -20,6 +20,7 @@ import {
 } from '../../../../../app/data/services/data/__factories__';
 import { COURSE_STATUSES } from '../../data';
 import { isCourseEnded } from '../../../../../../utils/common';
+import { getNormalizedStartDate } from '../../../../../course/data';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -129,14 +130,24 @@ describe('<BaseCourseCard />', () => {
 
   it.each([{
     startDate: dayjs().toISOString(),
+    endDate: dayjs().add(5, 'days').toISOString(),
+    isStarted: false,
   }, {
     startDate: dayjs().subtract(1, 'day').toISOString(),
+    endDate: dayjs().add(5, 'days').toISOString(),
+    isStarted: true,
   }, {
     startDate: dayjs().add(1, 'day').toISOString(),
-  }])('renders with different startDate values', ({ startDate }) => {
-    const formattedStartDate = dayjs(startDate).format('MMMM Do, YYYY');
-    const isCourseStarted = dayjs(startDate) <= dayjs();
-
+    endDate: dayjs().add(5, 'days').toISOString(),
+    isStarted: false,
+  }])('renders with different startDate values (%s)', ({ startDate, endDate, isStarted }) => {
+    const courseStartDate = getNormalizedStartDate({
+      start: startDate,
+      end: endDate,
+      pacingType: 'self',
+      weeksToComplete: null,
+    });
+    const formatStartDate = (date) => dayjs(date).format('MMMM Do, YYYY');
     renderWithRouter(
       <BaseCourseCardWrapper
         type={COURSE_STATUSES.inProgress}
@@ -148,14 +159,15 @@ describe('<BaseCourseCard />', () => {
         productSource="2u"
         mode="executive-education"
         startDate={startDate}
+        endDate={endDate}
         orgName="some_name"
         pacing="self"
       />,
     );
-    if (!isCourseStarted) {
-      expect(screen.getByText(`Starts ${formattedStartDate}`)).toBeInTheDocument();
+    if (isStarted) {
+      expect(screen.queryByText(`Starts ${formatStartDate(courseStartDate)}`)).not.toBeInTheDocument();
     } else {
-      expect(screen.queryByText(`Starts ${formattedStartDate}`)).not.toBeInTheDocument();
+      expect(screen.getByText(`Starts ${formatStartDate(courseStartDate)}`)).toBeInTheDocument();
     }
   });
 
@@ -204,9 +216,15 @@ describe('<BaseCourseCard />', () => {
   });
 
   it.each([
-    { type: COURSE_STATUSES.inProgress },
-    { type: COURSE_STATUSES.completed },
-  ])('renders endDate based on the course state', ({ type }) => {
+    {
+      type: COURSE_STATUSES.inProgress,
+      shouldRenderEndDate: true,
+    },
+    {
+      type: COURSE_STATUSES.completed,
+      shouldRenderEndDate: false,
+    },
+  ])('renders endDate based on the course state', ({ type, shouldRenderEndDate }) => {
     const startDate = dayjs().subtract(7, 'days').toISOString();
     const endDate = dayjs().add(7, 'days').toISOString();
     const formattedEndDate = dayjs(endDate).format('MMMM Do, YYYY');
@@ -221,10 +239,10 @@ describe('<BaseCourseCard />', () => {
         endDate={endDate}
         mode="executive-education"
         orgName="some_name"
-        pacing="self"
+        pacing="instructor"
       />,
     );
-    const shouldRenderEndDate = dayjs(startDate) <= dayjs() && type !== 'completed';
+    // const shouldRenderEndDate = dayjs(startDate).isBefore(dayjs(), 'day') && type !== 'completed';
     if (shouldRenderEndDate) {
       expect(screen.getByText(`Ends ${formattedEndDate}`)).toBeInTheDocument();
     } else {

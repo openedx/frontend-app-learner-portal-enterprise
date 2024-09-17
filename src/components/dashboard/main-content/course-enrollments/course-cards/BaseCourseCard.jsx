@@ -410,7 +410,7 @@ const BaseCourseCard = ({
       weeksToComplete: null,
     });
     const formattedStartDate = dayjs(courseStartDate).format('MMMM Do, YYYY');
-    const isCourseStarted = dayjs(courseStartDate).isBefore(dayjs());
+    const isCourseStarted = dayjs(startDate).isBefore(dayjs(), 'minute');
     if (formattedStartDate && !isCourseStarted) {
       return <span className="font-weight-light">Starts {formattedStartDate}</span>;
     }
@@ -419,7 +419,7 @@ const BaseCourseCard = ({
 
   const renderEndDate = () => {
     const formattedEndDate = endDate ? dayjs(endDate).format('MMMM Do, YYYY') : null;
-    const isCourseStarted = dayjs(startDate).isBefore(dayjs());
+    const isCourseStarted = dayjs(startDate).isBefore(dayjs(), 'minute');
     if (formattedEndDate && isCourseStarted && type !== COURSE_STATUSES.completed) {
       return <span className="font-weight-light">Ends {formattedEndDate}</span>;
     }
