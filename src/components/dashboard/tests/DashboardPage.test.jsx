@@ -510,8 +510,10 @@ describe('<Dashboard />', () => {
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
-      expect(screen.getByText(expectedTimeDiff)).toBeTruthy();
-      expect(screen.getByText(expectedText)).toBeTruthy();
+      waitFor(() => {
+        expect(screen.getByText(expectedTimeDiff)).toBeTruthy();
+        expect(screen.getByText(expectedText)).toBeTruthy();
+      });
     });
 
     it('should render the expired version of the modal when 0 >= daysUntilExpirationIncludingRenewals', async () => {
