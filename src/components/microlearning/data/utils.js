@@ -26,6 +26,7 @@ export const transformVideoData = (data) => ({
   videoDuration: formatDuration(data?.json_metadata?.duration),
   institutionLogo: data?.parent_content_metadata?.logo_image_urls[0],
   courseKey: data?.parent_content_metadata?.parent_content_key,
+  videoUsageKey: data?.video_usage_key,
 });
 
 export const getLevelType = (intl, level) => {

@@ -38,6 +38,7 @@ describe('Microlearning utils tests', () => {
         subcategory: { name: 'Subcategory 1' },
       },
     ],
+    video_usage_key: 'block-v1:InSendItx+WeTrustx+2T2024+type@video+block@86753094ab4b62be73e7188934982e',
   };
 
   it('should format 60 seconds correctly', () => {
@@ -82,6 +83,7 @@ describe('Microlearning utils tests', () => {
       videoDuration: '2:03',
       institutionLogo: 'http://example.com/logo.png',
       courseKey: 'course-key',
+      videoUsageKey: 'block-v1:InSendItx+WeTrustx+2T2024+type@video+block@86753094ab4b62be73e7188934982e',
     });
   });
 
