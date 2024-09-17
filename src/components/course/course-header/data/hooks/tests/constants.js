@@ -9,6 +9,8 @@ export const MOCK_COURSE_RUN_URL = `http://localhost:2000/course/${MOCK_COURSE_R
 
 export const MOCK_COURSE_RUN_START = '2023-04-20T12:00:00Z';
 
+export const MOCK_COURSE_RUN_END = '2024-04-20T12:00:00Z';
+
 export const MOCK_ENROLLMENT_VERIFIED = { mode: COURSE_MODES_MAP.VERIFIED };
 
 export const MOCK_ENROLLMENT_AUDIT = { mode: COURSE_MODES_MAP.AUDIT };

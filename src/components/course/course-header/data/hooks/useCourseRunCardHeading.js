@@ -1,7 +1,7 @@
-import dayjs from 'dayjs';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
-import { getCourseStartDate, hasTimeToComplete, isCourseSelfPaced } from '../../../data/utils';
+import dayjs from 'dayjs';
+import { getNormalizedStartDate, hasCourseStarted } from '../../../data/utils';
 import { DATE_FORMAT } from '../constants';
 
 const messages = defineMessages({
@@ -37,33 +37,22 @@ const useCourseRunCardHeading = ({
 }) => {
   const intl = useIntl();
 
-  const courseStartDate = getCourseStartDate({ courseRun });
-
+  const courseStartDate = getNormalizedStartDate(courseRun);
+  const courseLabel = hasCourseStarted(courseStartDate) ? messages.courseStartedDate : messages.courseStartDate;
   // check whether the course run is current based on its `availability` or whether
   // the start date is indeed in the past. As of this implementation, the `availability`
   // for published, enrollable externally hosted courses is always "Current" even if the
   // date is upcoming.
-  if (isCourseRunCurrent && dayjs(courseStartDate).isBefore(dayjs())) {
+  if (isCourseRunCurrent && hasCourseStarted(courseRun.start)) {
     if (isUserEnrolled) {
       return intl.formatMessage(messages.courseStarted);
     }
-    if (isCourseSelfPaced(courseRun.pacingType)) {
-      if (hasTimeToComplete(courseRun)) {
-        // always today's date (incentives enrollment)
-        return intl.formatMessage(messages.courseStartDate, {
-          startDate: dayjs().format(DATE_FORMAT),
-        });
-      }
-      return intl.formatMessage(messages.courseStartedDate, {
-        startDate: dayjs(courseStartDate).format(DATE_FORMAT),
-      });
-    }
-    return intl.formatMessage(messages.courseStartedDate, {
+    return intl.formatMessage(courseLabel, {
       startDate: dayjs(courseStartDate).format(DATE_FORMAT),
     });
   }
   return intl.formatMessage(messages.courseStartDate, {
-    startDate: dayjs(courseStartDate).format(DATE_FORMAT),
+    startDate: dayjs(courseRun.start).format(DATE_FORMAT),
   });
 };
 
