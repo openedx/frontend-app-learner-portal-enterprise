@@ -67,6 +67,7 @@ const VideoDetailPage = () => {
         video: videoData?.videoUrl,
         courseKey: videoData?.courseKey,
         title: videoData?.courseTitle,
+        video_usage_key: videoData?.videoUsageKey,
       },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,6 +82,7 @@ const VideoDetailPage = () => {
         video: videoData?.videoUrl,
         courseKey: videoData?.courseKey,
         title: videoData?.courseTitle,
+        video_usage_key: videoData?.videoUsageKey,
       },
     );
   };
