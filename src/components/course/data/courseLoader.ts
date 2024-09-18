@@ -133,9 +133,10 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
           redeemableLearnerCreditPolicies,
           hasCurrentEnterpriseOffers,
         });
-        const isCourseAssigned = redeemableLearnerCreditPolicies.learnerContentAssignments.allocatedAssignments.some(
-          (assignment) => assignment.contentKey === courseKey,
-        );
+        const { isCourseAssigned } = determineAllocatedAssignmentsForCourse({
+          courseKey,
+          redeemableLearnerCreditPolicies,
+        });
         // If learner is an assignment-only learner and is not assigned to the currently
         // viewed course, redirect to the Dashboard page route.
         if (isAssignmentOnlyLearner && !isCourseAssigned) {
