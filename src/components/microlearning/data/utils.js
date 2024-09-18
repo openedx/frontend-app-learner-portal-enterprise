@@ -18,6 +18,7 @@ export const formatSkills = (skills) => skills?.map(skill => ({
 }));
 
 export const transformVideoData = (data) => ({
+  edxVideoId: data?.edx_video_id,
   videoUrl: data?.json_metadata?.download_link,
   courseTitle: data?.title || data?.parent_content_metadata?.title,
   videoSummary: data?.summary_transcripts?.[0],

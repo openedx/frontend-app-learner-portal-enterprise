@@ -26,6 +26,7 @@ import { hasTruthyValue, isDefinedAndNotNull } from '../../utils/common';
 import { getLevelType } from './data/utils';
 import { hasActivatedAndCurrentSubscription } from '../search/utils';
 import { features } from '../../config';
+import VideoFeedbackCard from './VideoFeedbackCard';
 
 const VideoPlayer = loadable(() => import(/* webpackChunkName: "videojs" */ '../video/VideoPlayer'), {
   fallback: (
@@ -171,7 +172,7 @@ const VideoDetailPage = () => {
           )}
         </article>
         {isDefinedAndNotNull(courseMetadata.activeCourseRun) && (
-          <article className="col-12 col-lg-3 pr-0">
+          <article className="col-12 col-lg-3 pr-0 pb-3">
             <div className="d-flex flex-column align-items-start">
               <h3 className="m-0">
                 <FormattedMessage
@@ -304,6 +305,16 @@ const VideoDetailPage = () => {
             </div>
           </article>
         )}
+        <article className="col-12 col-lg-9">
+          <div className="pt-3 pb-6">
+            <VideoFeedbackCard
+              videoId={videoData?.edxVideoId}
+              courseRunKey={videoData?.courseKey}
+              enterpriseCustomerUuid={enterpriseCustomer.uuid}
+              videoUsageKey={videoData?.videoUsageKey}
+            />
+          </div>
+        </article>
       </Row>
     </Container>
   );
