@@ -35,6 +35,7 @@ jest.mock('../../app/data', () => ({
 }));
 
 const mockCourseKey = 'edX+DemoX';
+const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
 const mockSubscriptionCatalog = 'test-subscription-catalog-uuid';
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 extractEnterpriseCustomer.mockResolvedValue(mockEnterpriseCustomer);
@@ -74,13 +75,33 @@ describe('courseLoader', () => {
       assignments: {
         allocatedAssignments: [],
       },
+      hasAssignmentForCourse: false,
     },
     {
       hasCourseMetadata: true,
       isAssignmentOnlyLearner: false,
       assignments: {
-        allocatedAssignments: [{ contentKey: mockCourseKey }],
+        hasAllocatedAssignments: true,
+        allocatedAssignments: [{
+          contentKey: mockCourseKey,
+          parentContentKey: null,
+          isAssignedCourseRun: false,
+        }],
       },
+      hasAssignmentForCourse: true,
+    },
+    {
+      hasCourseMetadata: true,
+      isAssignmentOnlyLearner: false,
+      assignments: {
+        hasAllocatedAssignments: true,
+        allocatedAssignments: [{
+          contentKey: mockCourseRunKey,
+          parentContentKey: mockCourseKey,
+          isAssignedCourseRun: true,
+        }],
+      },
+      hasAssignmentForCourse: true,
     },
     {
       hasCourseMetadata: true,
@@ -88,6 +109,20 @@ describe('courseLoader', () => {
       assignments: {
         allocatedAssignments: [{ contentKey: mockCourseKey }],
       },
+      hasAssignmentForCourse: true,
+    },
+    {
+      hasCourseMetadata: true,
+      isAssignmentOnlyLearner: true,
+      assignments: {
+        hasAllocatedAssignments: true,
+        allocatedAssignments: [{
+          contentKey: mockCourseRunKey,
+          parentContentKey: mockCourseKey,
+          isAssignedCourseRun: true,
+        }],
+      },
+      hasAssignmentForCourse: true,
     },
     {
       hasCourseMetadata: true,
@@ -95,6 +130,20 @@ describe('courseLoader', () => {
       assignments: {
         allocatedAssignments: [{ contentKey: 'edX+DemoY' }],
       },
+      hasAssignmentForCourse: false,
+    },
+    {
+      hasCourseMetadata: true,
+      isAssignmentOnlyLearner: true,
+      assignments: {
+        hasAllocatedAssignments: true,
+        allocatedAssignments: [{
+          contentKey: 'course-v1:edX+DemoY+Demo_Course',
+          parentContentKey: 'edX+DemoY',
+          isAssignedCourseRun: true,
+        }],
+      },
+      hasAssignmentForCourse: false,
     },
     {
       hasCourseMetadata: false,
@@ -102,11 +151,13 @@ describe('courseLoader', () => {
       assignments: {
         allocatedAssignments: [],
       },
+      hasAssignmentForCourse: false,
     },
   ])('ensures the requisite course-related metadata data is resolved (%s)', async ({
     hasCourseMetadata,
     isAssignmentOnlyLearner,
     assignments,
+    hasAssignmentForCourse,
   }) => {
     const mockCourseMetadata = {
       key: mockCourseKey,
@@ -118,10 +169,19 @@ describe('courseLoader', () => {
       }],
     };
 
+    const mockAllocatedAssignments = assignments?.allocatedAssignments || [];
+
     // When `ensureQueryData` is called with the course metadata
     // query, ensure its mock return value is the course metadata
     // for the dependent course redemption eligibility query.
-    const courseMetadataQuery = queryCourseMetadata(mockCourseKey);
+    let courseMetadataQuery = queryCourseMetadata(mockCourseKey);
+    const hasAssignedCourseRunsForCourse = mockAllocatedAssignments.some(
+      (assignment) => assignment.isAssignedCourseRun && assignment.parentContentKey === mockCourseKey,
+    );
+    if (hasAssignedCourseRunsForCourse) {
+      courseMetadataQuery = queryCourseMetadata(mockCourseKey, mockCourseRunKey);
+    }
+
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: courseMetadataQuery.queryKey,
@@ -135,7 +195,6 @@ describe('courseLoader', () => {
 
     // When `ensureQueryData` is called with the redeemable policies query,
     // ensure its mock return value is valid.
-    const mockAllocatedAssignments = assignments?.allocatedAssignments || [];
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: queryRedeemablePolicies({
@@ -268,10 +327,6 @@ describe('courseLoader', () => {
         },
       ],
     });
-
-    const hasAssignmentForCourse = !!assignments?.allocatedAssignments.some(
-      assignment => assignment.contentKey === mockCourseKey,
-    );
     if (isAssignmentOnlyLearner && !hasAssignmentForCourse) {
       expect(await screen.findByTestId('dashboard')).toBeInTheDocument();
     } else {
@@ -353,7 +408,7 @@ describe('courseLoader', () => {
     // Course metadata query
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: queryCourseMetadata(mockCourseMetadata.key).queryKey,
+        queryKey: courseMetadataQuery.queryKey,
         queryFn: expect.any(Function),
       }),
     );
