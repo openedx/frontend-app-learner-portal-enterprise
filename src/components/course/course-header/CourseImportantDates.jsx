@@ -90,7 +90,7 @@ const CourseImportantDates = () => {
   let soonestExpiringAllocatedAssignmentCourseStartDate = null;
   if (soonestExpiringAssignment) {
     const soonestExpiringAllocatedAssignment = courseMetadata.availableCourseRuns.find(
-      (courseRun) => courseRun.key === soonestExpiringAssignment?.contentKey,
+      (courseRun) => courseRun.key === soonestExpiringAssignment.contentKey,
     );
     if (soonestExpiringAllocatedAssignment) {
       soonestExpiringAllocatedAssignmentCourseStartDate = getNormalizedStartDate(soonestExpiringAllocatedAssignment);

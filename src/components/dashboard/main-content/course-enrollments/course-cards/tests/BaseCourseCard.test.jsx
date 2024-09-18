@@ -242,7 +242,6 @@ describe('<BaseCourseCard />', () => {
         pacing="instructor"
       />,
     );
-    // const shouldRenderEndDate = dayjs(startDate).isBefore(dayjs(), 'day') && type !== 'completed';
     if (shouldRenderEndDate) {
       expect(screen.getByText(`Ends ${formattedEndDate}`)).toBeInTheDocument();
     } else {
