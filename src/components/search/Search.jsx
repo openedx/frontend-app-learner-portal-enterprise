@@ -19,12 +19,10 @@ import SearchPathway from './SearchPathway';
 import PathwayModal from '../pathway/PathwayModal';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
-import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 import {
   useCanOnlyViewHighlights,
   useDefaultSearchFilters,
   useEnterpriseCustomer,
-  useEnterpriseFeatures,
   useEnterpriseOffers,
   useIsAssignmentsOnlyLearner,
   useSubscriptions,
@@ -33,14 +31,7 @@ import { useAlgoliaSearch } from '../../utils/hooks';
 import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
 import SearchVideo from './SearchVideo';
 import { hasActivatedAndCurrentSubscription } from './utils';
-
-export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
-  if (isPreQueryEnabled) {
-    pushEvent(EVENTS.PREQUERY_SUGGESTION_CLICK, { courseKeyMetadata });
-  } else {
-    pushEvent(EVENTS.SEARCH_SUGGESTION_CLICK, { courseKeyMetadata });
-  }
-};
+import VideoBanner from '../microlearning/VideoBanner';
 
 function useSearchPathwayModal() {
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, close] = useToggle(false);
@@ -62,7 +53,6 @@ function useSearchPathwayModal() {
 const Search = () => {
   const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const intl = useIntl();
   const navigate = useNavigate();
 
@@ -88,16 +78,11 @@ const Search = () => {
     closePathwayModal,
   } = useSearchPathwayModal();
 
-  const isExperimentVariation = isExperimentVariant(
-    config.PREQUERY_SEARCH_EXPERIMENT_ID,
-    config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
-  );
-
   const { data: { subscriptionLicense } } = useSubscriptions();
   const enableVideos = (
     canOnlyViewHighlightSets === false
     && features.FEATURE_ENABLE_VIDEO_CATALOG
-    && hasActivatedAndCurrentSubscription(subscriptionLicense)
+    && hasActivatedAndCurrentSubscription(subscriptionLicense, enterpriseCustomer.enableBrowseAndRequest)
   );
 
   const PAGE_TITLE = intl.formatMessage({
@@ -126,16 +111,6 @@ const Search = () => {
   const { content_type: contentType } = refinements;
   const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
-  const isPreQueryEnabled = enterpriseFeatures?.featurePrequerySearchSuggestions
-    && isExperimentVariation;
-
-  const optimizelySuggestionClickHandler = (courseKey) => {
-    // Programs pass in a list of keys. Optimizely does not accept array values
-    // so we are joining the items in the array.
-    const courseKeyMetadata = Array.isArray(courseKey) ? courseKey.join(', ') : courseKey;
-    sendPushEvent(isPreQueryEnabled, courseKeyMetadata);
-  };
-
   return (
     <>
       <Helmet title={PAGE_TITLE} />
@@ -159,8 +134,6 @@ const Search = () => {
               index={searchIndex}
               filters={filters}
               enterpriseConfig={enterpriseCustomer}
-              optimizelySuggestionClickHandler={optimizelySuggestionClickHandler}
-              isPreQueryEnabled={isPreQueryEnabled}
             />
           </div>
         )}
@@ -179,12 +152,13 @@ const Search = () => {
         {/* No content type refinement  */}
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
+            {enableVideos && <VideoBanner />}
             {!hasRefinements && <ContentHighlights />}
             {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <SearchAcademy />}
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
-            {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
-            {enableVideos && <SearchVideo filter={filters} /> }
+            {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} />}
+            {enableVideos && <SearchVideo filter={filters} />}
           </Stack>
         )}
         {/* render a single contentType if the refinement exist and is either a course, program or learnerpathway */}

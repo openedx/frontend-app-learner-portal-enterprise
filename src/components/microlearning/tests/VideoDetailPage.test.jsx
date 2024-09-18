@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -37,6 +36,7 @@ const VIDEO_MOCK_DATA = {
   videoUrl: 'test-video-url.mp4',
   institutionLogo: 'test-institution-logo.png',
   courseKey: 'test-course-key',
+  videoUsageKey: 'block-v1:InSendItx+WeTrustx+2T2024+type@video+block@86753094ab4b62be73e7188934982e',
 };
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -158,6 +158,7 @@ describe('VideoDetailPage Tests', () => {
         video: VIDEO_MOCK_DATA.videoUrl,
         courseKey: VIDEO_MOCK_DATA.courseKey,
         title: VIDEO_MOCK_DATA.courseTitle,
+        video_usage_key: VIDEO_MOCK_DATA.videoUsageKey,
       },
     );
   });
@@ -212,6 +213,7 @@ describe('VideoDetailPage Tests', () => {
         video: VIDEO_MOCK_DATA.videoUrl,
         courseKey: VIDEO_MOCK_DATA.courseKey,
         title: VIDEO_MOCK_DATA.courseTitle,
+        video_usage_key: VIDEO_MOCK_DATA.videoUsageKey,
       },
     );
   });
@@ -228,6 +230,7 @@ describe('VideoDetailPage Tests', () => {
         video: VIDEO_MOCK_DATA.videoUrl,
         courseKey: VIDEO_MOCK_DATA.courseKey,
         title: VIDEO_MOCK_DATA.courseTitle,
+        video_usage_key: VIDEO_MOCK_DATA.videoUsageKey,
       },
     );
   });
@@ -245,6 +248,7 @@ describe('VideoDetailPage Tests', () => {
         video: VIDEO_MOCK_DATA.videoUrl,
         courseKey: VIDEO_MOCK_DATA.courseKey,
         title: VIDEO_MOCK_DATA.courseTitle,
+        video_usage_key: VIDEO_MOCK_DATA.videoUsageKey,
       },
     );
   });
@@ -262,6 +266,7 @@ describe('VideoDetailPage Tests', () => {
         video: VIDEO_MOCK_DATA.videoUrl,
         courseKey: VIDEO_MOCK_DATA.courseKey,
         title: VIDEO_MOCK_DATA.courseTitle,
+        video_usage_key: VIDEO_MOCK_DATA.videoUsageKey,
       },
     );
   });

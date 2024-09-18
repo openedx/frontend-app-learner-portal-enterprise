@@ -73,7 +73,7 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
     },
     enabled: isEnabled,
   });
-
+  // TODO: Talk about how we don't have access to weeksToComplete on the dashboard page.
   const allEnrollmentsByStatus = useMemo(() => transformAllEnrollmentsByStatus({
     enterpriseCourseEnrollments,
     requests,

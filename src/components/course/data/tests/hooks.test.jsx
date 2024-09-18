@@ -1481,6 +1481,7 @@ describe('useMinimalCourseMetadata', () => {
 
 describe('useIsCourseAssigned', () => {
   const mockContentKey = 'edX+DemoX';
+  const mockContentKeyAsRun = 'course-v1:edX+DemoX+T2024a';
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
@@ -1498,7 +1499,14 @@ describe('useIsCourseAssigned', () => {
     useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
     const { result } = renderHook(() => useIsCourseAssigned(), { wrapper: Wrapper });
 
-    expect(result.current).toEqual(false);
+    expect(result.current).toEqual({
+      isCourseAssigned: false,
+      allocatedAssignmentsForCourse: [],
+      allocatedCourseRunAssignmentKeys: [],
+      allocatedCourseRunAssignments: [],
+      hasAssignedCourseRuns: false,
+      hasMultipleAssignedCourseRuns: false,
+    });
   });
 
   it('should return false if there is NO matching allocated assignment to the course key', () => {
@@ -1519,7 +1527,14 @@ describe('useIsCourseAssigned', () => {
       { wrapper: Wrapper },
     );
 
-    expect(result.current).toEqual(false);
+    expect(result.current).toEqual({
+      isCourseAssigned: false,
+      allocatedAssignmentsForCourse: [],
+      allocatedCourseRunAssignmentKeys: [],
+      allocatedCourseRunAssignments: [],
+      hasAssignedCourseRuns: false,
+      hasMultipleAssignedCourseRuns: false,
+    });
   });
 
   it('should return false if matching assignment(s) are canceled', () => {
@@ -1542,10 +1557,17 @@ describe('useIsCourseAssigned', () => {
       { wrapper: Wrapper },
     );
 
-    expect(result.current).toEqual(false);
+    expect(result.current).toEqual({
+      isCourseAssigned: false,
+      allocatedAssignmentsForCourse: [],
+      allocatedCourseRunAssignmentKeys: [],
+      allocatedCourseRunAssignments: [],
+      hasAssignedCourseRuns: false,
+      hasMultipleAssignedCourseRuns: false,
+    });
   });
 
-  it('should return true if there is a matching allocated assignment to the course key', () => {
+  it('should return true if there is a matching allocated course-based assignment to the course key', () => {
     const learnerContentAssignments = {
       hasAllocatedAssignments: true,
       allocatedAssignments: [
@@ -1562,7 +1584,57 @@ describe('useIsCourseAssigned', () => {
       () => useIsCourseAssigned(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(true);
+    expect(result.current).toEqual({
+      isCourseAssigned: true,
+      allocatedAssignmentsForCourse: [
+        {
+          contentKey: mockContentKey,
+          state: 'allocated',
+        },
+      ],
+      allocatedCourseRunAssignmentKeys: [],
+      allocatedCourseRunAssignments: [],
+      hasAssignedCourseRuns: false,
+      hasMultipleAssignedCourseRuns: false,
+    });
+  });
+
+  it.each([
+    { hasMultipleAssignedCourseRuns: true },
+    { hasMultipleAssignedCourseRuns: false },
+  ])('should return true if there is a matching allocated course run-based assignment to the course key (%s)', ({ hasMultipleAssignedCourseRuns }) => {
+    const mockRunBasedAssignment = {
+      isAssignedCourseRun: true,
+      contentKey: mockContentKeyAsRun,
+      parentContentKey: mockContentKey,
+      state: 'allocated',
+    };
+    const allocatedAssignments = [mockRunBasedAssignment];
+    if (hasMultipleAssignedCourseRuns) {
+      allocatedAssignments.push({
+        ...mockRunBasedAssignment,
+        contentKey: 'course-v1:edX+DemoX+T2024b',
+      });
+    }
+    const learnerContentAssignments = {
+      hasAllocatedAssignments: true,
+      allocatedAssignments,
+    };
+    useRedeemablePolicies.mockReturnValue({ data: { learnerContentAssignments } });
+    useCourseMetadata.mockReturnValue({ data: { key: mockContentKey } });
+
+    const { result } = renderHook(
+      () => useIsCourseAssigned(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual({
+      isCourseAssigned: true,
+      allocatedAssignmentsForCourse: allocatedAssignments,
+      allocatedCourseRunAssignmentKeys: allocatedAssignments.map(assignment => assignment.contentKey),
+      allocatedCourseRunAssignments: allocatedAssignments,
+      hasAssignedCourseRuns: true,
+      hasMultipleAssignedCourseRuns,
+    });
   });
 });
 

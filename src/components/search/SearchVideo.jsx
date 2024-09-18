@@ -29,6 +29,7 @@ const SearchVideo = ({ filter }) => {
             description: 'Translated title for the enterprise search page videos section.',
           })
         }
+        showBetaBadge
       />
     </Index>
   );

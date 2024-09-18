@@ -26,11 +26,16 @@ import {
   findHighestLevelEntitlementSku,
   findHighestLevelSkuByEntityModeType,
   isEnrollmentUpgradeable,
+  START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS,
 } from '../../app/data';
 
-export function hasCourseStarted(start) {
-  return dayjs(start).isBefore(dayjs());
-}
+/**
+ * Determines if the course has already started. Mostly used around text formatting for tense
+ *
+ * @param start
+ * @returns {boolean}
+ */
+export const hasCourseStarted = (start) => dayjs(start).isBefore(dayjs());
 
 export function findUserEnrollmentForCourseRun({ userEnrollments, key }) {
   return userEnrollments.find(
@@ -59,12 +64,42 @@ export function hasTimeToComplete(courseRun) {
 }
 
 export function isCourseSelfPaced(pacingType) {
-  return pacingType === COURSE_PACING_MAP.SELF_PACED;
+  return [COURSE_PACING_MAP.SELF_PACED, COURSE_PACING_MAP.SELF].includes(pacingType);
 }
 
 export function isCourseInstructorPaced(pacingType) {
-  return pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED;
+  return [COURSE_PACING_MAP.INSTRUCTOR_PACED, COURSE_PACING_MAP.INSTRUCTOR].includes(pacingType);
 }
+
+const isWithinMinimumStartDateThreshold = ({ start }) => dayjs(start).isBefore(dayjs().subtract(START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS, 'days'));
+
+/**
+ * If the start date of the course is before today offset by the START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS
+ * then return today's formatted date. Otherwise, pass-through the start date in ISO format.
+ *
+ * @param {String} start
+ * @param {String} pacingType
+ * @param {String} end
+ * @param {Number} weeksToComplete
+ * @returns {string}
+ */
+export const getNormalizedStartDate = ({
+  start, pacingType, end, weeksToComplete,
+}) => {
+  const todayToIso = dayjs().toISOString();
+  if (!start) {
+    return todayToIso;
+  }
+  const startDateIso = dayjs(start).toISOString();
+  if (isCourseSelfPaced({ pacingType })) {
+    if (hasTimeToComplete({ end, weeksToComplete }) || isWithinMinimumStartDateThreshold({ start })) {
+      // always today's date (incentives enrollment)
+      return todayToIso;
+    }
+    return startDateIso;
+  }
+  return startDateIso;
+};
 
 export function getDefaultProgram(programs = []) {
   if (programs.length === 0) {
@@ -928,11 +963,10 @@ export function getSoonestEarliestPossibleExpirationData({
   const sortedByExpirationDate = assignmentsWithExpiration.sort(
     (a, b) => (dayjs(a.earliestPossibleExpiration.date).isBefore(b.earliestPossibleExpiration.date) ? -1 : 1),
   );
-  let { date: soonestExpirationDate } = sortedByExpirationDate[0].earliestPossibleExpiration.date;
+  let soonestExpirationDate = sortedByExpirationDate[0].earliestPossibleExpiration.date;
   if (dateFormat) {
     soonestExpirationDate = dayjs(soonestExpirationDate).format(dateFormat);
   }
-
   return {
     soonestExpirationDate,
     soonestExpirationReason: sortedByExpirationDate[0].earliestPossibleExpiration.reason,

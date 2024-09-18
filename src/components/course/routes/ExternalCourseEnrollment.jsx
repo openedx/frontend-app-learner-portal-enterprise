@@ -33,7 +33,7 @@ const ExternalCourseEnrollment = () => {
   const config = getConfig();
   const { externalCourseFormSubmissionError } = useContext(CourseContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const isCourseAssigned = useIsCourseAssigned();
+  const { isCourseAssigned } = useIsCourseAssigned();
   const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
   const { data: { redeemabilityPerContentKey } } = useCourseRedemptionEligibility();

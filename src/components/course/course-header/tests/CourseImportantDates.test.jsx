@@ -7,21 +7,30 @@ import dayjs from 'dayjs';
 import CourseImportantDates from '../CourseImportantDates';
 import { renderWithRouterProvider } from '../../../../utils/tests';
 import { authenticatedUserFactory } from '../../../app/data/services/data/__factories__';
-import { useCourseMetadata, useRedeemablePolicies } from '../../../app/data';
-import { COURSE_PACING_MAP, DATE_FORMAT, DATETIME_FORMAT } from '../../data';
+import { useCourseMetadata } from '../../../app/data';
+import {
+  COURSE_PACING_MAP,
+  DATE_FORMAT,
+  DATETIME_FORMAT,
+  useIsCourseAssigned,
+} from '../../data';
 import { TEST_OWNER } from '../../tests/data/constants';
 
 const mockAuthenticatedUser = authenticatedUserFactory();
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
-  useRedeemablePolicies: jest.fn(),
   useCourseMetadata: jest.fn(),
 }));
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(),
+}));
+
+jest.mock('../../data', () => ({
+  ...jest.requireActual('../../data'),
+  useIsCourseAssigned: jest.fn(),
 }));
 
 const futureEarliestExpiration = dayjs().add(5, 'days').toISOString();
@@ -55,40 +64,6 @@ const mockAllocatedAssignments = [{
     reason: 'subsidy_expired',
   },
 }];
-const mockLearnerContentAssignments = {
-  allocatedAssignments: mockAllocatedAssignments,
-  hasAllocatedAssignments: mockAllocatedAssignments.length > 0,
-};
-
-const mockBaseRedeemablePolicies = {
-  redeemablePolicies: [],
-  expiredPolicies: [],
-  unexpiredPolicies: [],
-  learnerContentAssignments: {
-    assignments: [],
-    hasAssignments: false,
-    allocatedAssignments: [],
-    hasAllocatedAssignments: false,
-    acceptedAssignments: [],
-    hasAcceptedAssignments: false,
-    canceledAssignments: [],
-    hasCanceledAssignments: false,
-    expiredAssignments: [],
-    hasExpiredAssignments: false,
-    erroredAssignments: [],
-    hasErroredAssignments: false,
-    assignmentsForDisplay: [],
-    hasAssignmentsForDisplay: false,
-  },
-};
-
-const mockRedeemablePoliciesWithAllocatedAssignments = {
-  ...mockBaseRedeemablePolicies,
-  learnerContentAssignments: {
-    ...mockBaseRedeemablePolicies.learnerContentAssignments,
-    ...mockLearnerContentAssignments,
-  },
-};
 
 const mockCourseStartDate = dayjs().add(10, 'days').toISOString();
 
@@ -132,14 +107,25 @@ describe('<CourseImportantDates />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
-    useRedeemablePolicies.mockReturnValue({ data: mockBaseRedeemablePolicies });
     useCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
-  });
-  it('renders without crashing', () => {
-    useRedeemablePolicies.mockReturnValue({
-      data: mockRedeemablePoliciesWithAllocatedAssignments,
+    useIsCourseAssigned.mockReturnValue({
+      allocatedCourseRunAssignments: mockAllocatedAssignments,
+      allocatedCourseRunAssignmentKeys: mockAllocatedAssignments.map((assignment) => assignment.contentKey),
+      hasAssignedCourseRuns: mockAllocatedAssignments.length > 0,
     });
+  });
 
+  it('does not render without run-based assignments', () => {
+    useIsCourseAssigned.mockReturnValue({
+      allocatedCourseRunAssignments: [],
+      allocatedCourseRunAssignmentKeys: [],
+      hasAssignedCourseRuns: false,
+    });
+    const { container } = renderWithRouterProvider(<CourseImportantDatesWrapper />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders expected dates for run-based assignments', () => {
     renderWithRouterProvider(<CourseImportantDatesWrapper />);
 
     expect(screen.getByText('Important dates')).toBeInTheDocument();
@@ -149,6 +135,7 @@ describe('<CourseImportantDates />', () => {
     expect(screen.getByText(dayjs(now).format(DATETIME_FORMAT))).toBeInTheDocument();
     expect(screen.getByText(dayjs(mockCourseStartDate).format(DATE_FORMAT))).toBeInTheDocument();
   });
+
   it.each([{
     courseStartDate: futureEarliestExpiration,
     expected: 'Course starts',
@@ -156,7 +143,7 @@ describe('<CourseImportantDates />', () => {
   {
     courseStartDate: pastEarliestExpiration,
     expected: 'Course started',
-  }])('renders the correct tense based on course start date', ({
+  }])('renders the correct tense based on course start date (%s)', ({
     courseStartDate,
     expected,
   }) => {
@@ -170,9 +157,6 @@ describe('<CourseImportantDates />', () => {
       courseRuns: [updatedMockCourseRun],
       availableCourseRuns: [updatedMockCourseRun],
     };
-    useRedeemablePolicies.mockReturnValue({
-      data: mockRedeemablePoliciesWithAllocatedAssignments,
-    });
     useCourseMetadata.mockReturnValue({ data: updatedMockCourseMetadata });
 
     renderWithRouterProvider(<CourseImportantDatesWrapper />);

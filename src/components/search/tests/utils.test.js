@@ -24,8 +24,9 @@ describe('hasActivatedAndCurrentSubscription', () => {
         isCurrent: true,
       },
     };
+    const enableBrowseAndRequest = false;
 
-    const result = hasActivatedAndCurrentSubscription(subscriptionLicense);
+    const result = hasActivatedAndCurrentSubscription(subscriptionLicense, enableBrowseAndRequest);
     expect(result).toBe(true);
   });
 
@@ -36,13 +37,20 @@ describe('hasActivatedAndCurrentSubscription', () => {
         isCurrent: false,
       },
     };
+    const enableBrowseAndRequest = false;
 
-    const result = hasActivatedAndCurrentSubscription(subscriptionLicense);
+    const result = hasActivatedAndCurrentSubscription(subscriptionLicense, enableBrowseAndRequest);
     expect(result).toBe(false);
   });
 
   it('should return false when subscriptionLicense is undefined', () => {
-    const result = hasActivatedAndCurrentSubscription(undefined);
+    const enableBrowseAndRequest = false;
+    const result = hasActivatedAndCurrentSubscription(undefined, enableBrowseAndRequest);
     expect(result).toBe(false);
+  });
+  it('should return true when enableBrowseAndRequest is true', () => {
+    const enableBrowseAndRequest = true;
+    const result = hasActivatedAndCurrentSubscription(undefined, enableBrowseAndRequest);
+    expect(result).toBe(true);
   });
 });

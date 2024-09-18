@@ -52,7 +52,7 @@ export const ENTERPRISE_OFFER_SUBSIDY_TYPE = 'enterpriseOffer';
 export const LEARNER_CREDIT_SUBSIDY_TYPE = 'learnerCredit';
 
 export const ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS = 10;
-export const MAX_HIGHLIGHT_SETS = 12;
+export const MAX_HIGHLIGHT_SETS = 16;
 
 // Note: `cancelled` is correct and matches backend state
 // despite how the key is spelled
@@ -64,3 +64,6 @@ export const ASSIGNMENT_TYPES = {
   ERRORED: 'errored',
   EXPIRING: 'expiring',
 };
+
+// When the start date is before this number of days before today, display the alternate start date (fixed to today).
+export const START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS = 14;

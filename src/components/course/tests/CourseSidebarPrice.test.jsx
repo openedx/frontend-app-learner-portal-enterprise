@@ -65,7 +65,7 @@ describe('<CourseSidebarPrice/> ', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useUserSubsidyApplicableToCourse.mockReturnValue({ userSubsidyApplicableToCourse: null });
     useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 7.5 }, currency: 'USD' });
-    useIsCourseAssigned.mockReturnValue(false);
+    useIsCourseAssigned.mockReturnValue({ isCourseAssigned: false });
     useCanUserRequestSubsidyForCourse.mockReturnValue(false);
   });
 
@@ -167,7 +167,7 @@ describe('<CourseSidebarPrice/> ', () => {
     });
 
     test('assigned course, shows no price, correct message', () => {
-      useIsCourseAssigned.mockReturnValue(true);
+      useIsCourseAssigned.mockReturnValue({ isCourseAssigned: true });
       useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 0 }, currency: 'USD' });
       useUserSubsidyApplicableToCourse.mockReturnValue({
         userSubsidyApplicableToCourse: { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },
@@ -229,7 +229,7 @@ describe('<CourseSidebarPrice/> ', () => {
       expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('assigned course, shows orig price, correct message', () => {
-      useIsCourseAssigned.mockReturnValue(true);
+      useIsCourseAssigned.mockReturnValue({ isCourseAssigned: true });
       useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 0 }, currency: 'USD' });
       useUserSubsidyApplicableToCourse.mockReturnValue({
         userSubsidyApplicableToCourse: { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },

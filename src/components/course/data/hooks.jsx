@@ -50,6 +50,7 @@ import {
   useSubscriptions,
   COUPON_CODE_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
+  determineAllocatedAssignmentsForCourse,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CourseContext } from '../CourseContextProvider';
@@ -735,13 +736,27 @@ export const useExternalEnrollmentFailureReason = () => {
  * @returns {boolean} - Returns true if the course is assigned to the learner, false otherwise.
  */
 export const useIsCourseAssigned = () => {
-  const { data: { learnerContentAssignments } } = useRedeemablePolicies();
+  const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const { data: courseMetadata } = useCourseMetadata();
-  if (!learnerContentAssignments.hasAllocatedAssignments) {
-    return false;
-  }
-  const isCourseAssigned = learnerContentAssignments.allocatedAssignments.some(
-    (assignment) => assignment.contentKey === courseMetadata.key,
-  );
-  return isCourseAssigned;
+
+  const {
+    isCourseAssigned,
+    allocatedAssignmentsForCourse,
+    allocatedCourseRunAssignmentKeys,
+    allocatedCourseRunAssignments,
+    hasAssignedCourseRuns,
+    hasMultipleAssignedCourseRuns,
+  } = determineAllocatedAssignmentsForCourse({
+    courseKey: courseMetadata.key,
+    redeemableLearnerCreditPolicies,
+  });
+
+  return {
+    isCourseAssigned,
+    allocatedAssignmentsForCourse,
+    allocatedCourseRunAssignmentKeys,
+    allocatedCourseRunAssignments,
+    hasAssignedCourseRuns,
+    hasMultipleAssignedCourseRuns,
+  };
 };

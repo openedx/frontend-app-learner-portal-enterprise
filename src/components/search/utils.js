@@ -60,7 +60,10 @@ export function getSearchFacetFilters(intl) {
   return searchFilters;
 }
 
-export const hasActivatedAndCurrentSubscription = (subscriptionLicense) => (
-  subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
-  && subscriptionLicense?.subscriptionPlan?.isCurrent
+export const hasActivatedAndCurrentSubscription = (
+  subscriptionLicense,
+  enableBrowseAndRequest,
+) => (
+  (subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
+  && subscriptionLicense?.subscriptionPlan?.isCurrent) || enableBrowseAndRequest
 );

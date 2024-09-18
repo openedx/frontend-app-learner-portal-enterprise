@@ -18,9 +18,6 @@ const mockEnterpriseLearnerData = {
   activeEnterpriseCustomer: null,
   activeEnterpriseCustomerUserRoleAssignments: [],
   allLinkedEnterpriseCustomerUsers: [],
-  enterpriseFeatures: {
-    featurePrequerySearchSuggestions: true,
-  },
   staffEnterpriseCustomer: null,
 };
 const mockEnterpriseFeatures = mockEnterpriseLearnerData.enterpriseFeatures;
