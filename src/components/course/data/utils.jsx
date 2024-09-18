@@ -60,6 +60,9 @@ export function weeksRemainingUntilEnd(courseRun) {
 }
 
 export function hasTimeToComplete(courseRun) {
+  if ((!courseRun.weeksToComplete || !courseRun.end) && dayjs(courseRun.start).isAfter(dayjs(), 'minute')) {
+    return true;
+  }
   return courseRun.weeksToComplete <= weeksRemainingUntilEnd(courseRun);
 }
 
@@ -91,12 +94,11 @@ export const getNormalizedStartDate = ({
     return todayToIso;
   }
   const startDateIso = dayjs(start).toISOString();
-  if (isCourseSelfPaced({ pacingType })) {
+  if (isCourseSelfPaced(pacingType)) {
     if (hasTimeToComplete({ end, weeksToComplete }) || isWithinMinimumStartDateThreshold({ start })) {
       // always today's date (incentives enrollment)
       return todayToIso;
     }
-    return startDateIso;
   }
   return startDateIso;
 };
