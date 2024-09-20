@@ -49,7 +49,7 @@ const RegistrationSummaryCard = ({ priceDetails }) => (
                     </del>
                   </div>
                   <div className="d-flex justify-content-end mr-2.5">
-                    ${priceDetails?.price ? `${String(0).padStart(priceDetails.price.toString().length, '0') }.00` : '0.00'} {priceDetails?.currency ? priceDetails.currency : CURRENCY_USD}
+                    {priceDetails?.price ? `$${numberWithPrecision(0)} ${priceDetails?.currency ? priceDetails.currency : CURRENCY_USD}` : '-'}
                   </div>
                   <div className="d-flex justify-content-end small font-weight-light text-gray-500 mr-2.5">
                     <FormattedMessage
