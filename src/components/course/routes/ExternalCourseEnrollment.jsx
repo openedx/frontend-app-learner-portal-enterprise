@@ -77,7 +77,7 @@ const ExternalCourseEnrollment = () => {
   //   current date is outside the enrollment window of the run.
   if (userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
     const canRedeemDataCourseRun = redeemabilityPerContentKey.find(r => r.contentKey === courseRunKey);
-    if (!canRedeemDataCourseRun?.canRedeem) {
+    if (!canRedeemDataCourseRun?.canRedeem && !canRedeemDataCourseRun?.hasSuccessfulRedemption) {
       return <NotFoundPage />;
     }
   }

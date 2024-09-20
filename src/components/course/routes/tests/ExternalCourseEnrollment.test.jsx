@@ -145,12 +145,21 @@ describe('ExternalCourseEnrollment', () => {
       },
       LEARNER_CREDIT_SUBSIDY_TYPE,
     ],
+    // The auto-selected subsidy type is learner credit, and the specific requested run is already redeemed.
+    [
+      {
+        contentKey: mockCourseRunKey,
+        hasSuccessfulRedemption: true,
+        canRedeem: false,
+      },
+      LEARNER_CREDIT_SUBSIDY_TYPE,
+    ],
     // The specific run is not redeemable via LC, but that's okay because we're not using learner credit anyway.
     [
       {
         contentKey: mockCourseRunKey,
         hasSuccessfulRedemption: false,
-        canRedeem: false, // Not redeemable!?
+        canRedeem: false, // Not redeemable
       },
       LICENSE_SUBSIDY_TYPE, // Auto-selected subsidy type is not learner credit anyway, so allow the page to render.
     ],
