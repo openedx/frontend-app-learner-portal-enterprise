@@ -3,7 +3,7 @@
     gap: 16px;
     flex: 1 0 0;
   }
-
+  
   /* 
   Custom CSS is necessary here because we are using a custom video.js plugin - videojs-vjstranscribe
   The elements of this plugin need to be customized to cater to the hidden classes and other specific 
@@ -29,7 +29,6 @@
 
   .video-player-container-with-transcript {
     display: flex;
-    padding-bottom: 55px;
   }
 
   .video-js-wrapper {
