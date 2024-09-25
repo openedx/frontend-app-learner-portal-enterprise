@@ -36,7 +36,10 @@ import { canUserRequestSubsidyForCourse, getExternalCourseEnrollmentUrl } from '
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 import { SUBSIDY_TYPE } from '../../../constants';
 import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  determineAllocatedAssignmentsForCourse,
   getSubsidyToApplyForCourse,
+  LICENSE_SUBSIDY_TYPE,
   useBrowseAndRequest,
   useBrowseAndRequestConfiguration,
   useCatalogsForSubsidyRequests,
@@ -48,9 +51,6 @@ import {
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
-  COUPON_CODE_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
-  determineAllocatedAssignmentsForCourse,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CourseContext } from '../CourseContextProvider';
@@ -198,24 +198,30 @@ export const useCoursePriceForUserSubsidy = ({
   const currency = CURRENCY_USD;
   const coursePrice = useMemo(
     () => {
+      console.log(listPrice, 'hamzah');
       if (!listPrice) {
         return null;
       }
+      console.log(listPrice, userSubsidyApplicableToCourse);
 
       const onlyListPrice = {
-        list: listPrice,
+        listRange: listPrice,
       };
 
       if (userSubsidyApplicableToCourse) {
         const { discountType, discountValue } = userSubsidyApplicableToCourse;
-        let discountedPrice;
+        let discountedPrice = [];
 
         if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()) {
-          discountedPrice = listPrice - (listPrice * (discountValue / 100));
+          discountedPrice = onlyListPrice.listRange.map(
+            (individualPrice) => individualPrice - (individualPrice * (discountValue / 100)),
+          );
         }
 
         if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()) {
-          discountedPrice = Math.max(listPrice - discountValue, 0);
+          discountedPrice = onlyListPrice.listRange.map(
+            (individualPrice) => Math.max(individualPrice - discountValue, 0),
+          );
         }
 
         if (isDefinedAndNotNull(discountedPrice)) {
@@ -226,7 +232,7 @@ export const useCoursePriceForUserSubsidy = ({
         }
         return {
           ...onlyListPrice,
-          discounted: onlyListPrice.list,
+          discounted: onlyListPrice.listRange,
         };
       }
 
@@ -631,6 +637,7 @@ export const useUserSubsidyApplicableToCourse = () => {
 export function useCoursePrice() {
   const { data: courseListPrice } = useCourseListPrice();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  console.log(courseListPrice, userSubsidyApplicableToCourse);
   return useCoursePriceForUserSubsidy({
     userSubsidyApplicableToCourse,
     listPrice: courseListPrice,

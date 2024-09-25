@@ -8,13 +8,27 @@ import {
   useCoursePrice,
   useIsCourseAssigned,
   useUserSubsidyApplicableToCourse,
+  ZERO_PRICE,
 } from './data';
 import {
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
   useEnterpriseCustomer,
 } from '../app/data';
+import { sumOfArray } from '../../utils/common';
+
+const getContentPriceDisplay = (priceRange) => {
+  if (!priceRange?.length) {
+    return numberWithPrecision(ZERO_PRICE);
+  }
+  const minPrice = Math.min(...priceRange);
+  const maxPrice = Math.max(...priceRange);
+  if (maxPrice !== minPrice) {
+    return `${numberWithPrecision(minPrice)} - ${numberWithPrecision(maxPrice)}`;
+  }
+  return numberWithPrecision(priceRange.sort((a, b) => a - b)[0]);
+};
 
 const CourseSidebarPrice = () => {
   const intl = useIntl();
@@ -23,12 +37,12 @@ const CourseSidebarPrice = () => {
   const { isCourseAssigned } = useIsCourseAssigned();
   const canRequestSubsidy = useCanUserRequestSubsidyForCourse();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
-
+  console.log(coursePrice, 'hi');
   if (!coursePrice) {
     return <Skeleton containerTestId="course-price-skeleton" height={24} />;
   }
-
-  const originalPriceDisplay = numberWithPrecision(coursePrice.list);
+  console.log(coursePrice);
+  const originalPriceDisplay = getContentPriceDisplay(coursePrice.listRange);
   const showOrigPrice = !enterpriseCustomer.hideCourseOriginalPrice;
   const crossedOutOriginalPrice = (
     <del>
@@ -62,8 +76,7 @@ const CourseSidebarPrice = () => {
     );
   }
 
-  const hasDiscountedPrice = coursePrice.discounted < coursePrice.list;
-
+  const hasDiscountedPrice = coursePrice.discounted && sumOfArray(coursePrice.discounted) < sumOfArray(coursePrice.listRange);
   // Case 2: No subsidies found but learner can request a subsidy
   if (!hasDiscountedPrice && canRequestSubsidy) {
     return (
@@ -113,14 +126,13 @@ const CourseSidebarPrice = () => {
       });
     }
   }
-  const discountedPriceDisplay = `${numberWithPrecision(coursePrice.discounted)} ${currency}`;
-
+  const discountedPriceDisplay = `${getContentPriceDisplay(coursePrice.discounted)} ${currency}`;
   return (
     <>
       <div className={classNames({ 'mb-2': coursePrice.discounted > 0 || showOrigPrice })}>
         {/* discounted > 0 means partial discount */}
         {showOrigPrice && <>{crossedOutOriginalPrice}{' '}</>}
-        {coursePrice.discounted > 0 && (
+        {sumOfArray(coursePrice.discounted) > 0 && (
           <>
             <span className="sr-only">
               <FormattedMessage

@@ -25,6 +25,9 @@ export const isNull = (value) => {
 };
 
 export const isDefinedAndNotNull = (value) => {
+  if (Array.isArray(value)) {
+    return value.every(item => isDefined(item) && !isNull(item));
+  }
   const values = createArrayFromValue(value);
   return values.every(item => isDefined(item) && !isNull(item));
 };
@@ -38,6 +41,8 @@ export const hasTruthyValue = (value) => {
   const values = createArrayFromValue(value);
   return values.every(item => !!item);
 };
+
+export const sumOfArray = (values) => values.reduce((prev, next) => prev + next, 0);
 
 export const hasValidStartExpirationDates = ({ startDate, expirationDate, endDate }) => {
   const now = dayjs();

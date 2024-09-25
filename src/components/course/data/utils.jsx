@@ -154,6 +154,16 @@ export function getProgramIcon(type) {
 
 export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);
 
+export const formatPrice = (price, options = {}) => {
+  const USDollar = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    ...options,
+  });
+  return USDollar.format(Math.abs(price));
+};
+
 /**
  *
  * @param couponCodes
@@ -817,10 +827,17 @@ export function getEntitlementPrice(entitlements) {
  * @returns Price for the course run.
  */
 export function getCoursePrice(course) {
-  if (course.activeCourseRun?.firstEnrollablePaidSeatPrice) {
-    return course.activeCourseRun.firstEnrollablePaidSeatPrice;
+  console.log(course, course.activeCourseRun?.fixedPriceUsd, course.activeCourseRun?.firstEnrollablePaidSeatPrice, course.entitlements);
+  if (course.activeCourseRun?.fixedPriceUsd) {
+    return [course.activeCourseRun?.fixedPriceUsd];
   }
-  return getEntitlementPrice(course.entitlements);
+  if (course.activeCourseRun?.firstEnrollablePaidSeatPrice) {
+    return [course.activeCourseRun?.firstEnrollablePaidSeatPrice];
+  }
+  if (course.entitlements.length > 0) {
+    return [course.entitlements];
+  }
+  return null;
 }
 
 /**
