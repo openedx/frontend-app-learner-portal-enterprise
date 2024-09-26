@@ -817,6 +817,9 @@ export function getEntitlementPrice(entitlements) {
  * @returns Price for the course run.
  */
 export function getCoursePrice(course) {
+  if (course.activeCourseRun?.fixedPriceUsd) {
+    return course.activeCourseRun.fixedPriceUsd;
+  }
   if (course.activeCourseRun?.firstEnrollablePaidSeatPrice) {
     return course.activeCourseRun.firstEnrollablePaidSeatPrice;
   }

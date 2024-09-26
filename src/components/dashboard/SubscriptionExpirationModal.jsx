@@ -109,6 +109,7 @@ const SubscriptionExpirationModal = () => {
           </ActionRow>
         )}
         hasCloseButton
+        onClose={handleSubscriptionExpiredModalDismissal}
       >
         <p>
           Your organization&#39;s access to your subscription has expired. You will only have audit
@@ -170,6 +171,7 @@ const SubscriptionExpirationModal = () => {
         </ActionRow>
       )}
       hasCloseButton
+      onClose={handleSubscriptionExpiringModalDismissal}
     >
       <p>
         Your organization&#39;s access to your current subscription is expiring in
