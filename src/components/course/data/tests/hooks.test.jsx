@@ -34,18 +34,18 @@ import {
   getSubscriptionDisabledEnrollmentReasonType,
   transformedCourseMetadata,
 } from '../utils';
-import {
-  DISABLED_ENROLL_REASON_TYPES,
-  DISABLED_ENROLL_USER_MESSAGES,
-  REASON_USER_MESSAGES,
-} from '../constants';
+import { DISABLED_ENROLL_REASON_TYPES, DISABLED_ENROLL_USER_MESSAGES, REASON_USER_MESSAGES } from '../constants';
 import { mockSubscriptionLicense } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_TYPE } from '../../../../constants';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
   getSubsidyToApplyForCourse,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
   useBrowseAndRequest,
   useCatalogsForSubsidyRequests,
   useCouponCodes,
@@ -56,10 +56,6 @@ import {
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
-  COUPON_CODE_SUBSIDY_TYPE,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
 } from '../../../app/data';
 import { CourseContext } from '../../CourseContextProvider';
 
@@ -1714,6 +1710,22 @@ describe('useCourseListPrice', () => {
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
     delete baseCourseMetadataValue.entitlements;
     useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
+    const { result } = renderHook(
+      () => useCourseListPrice(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual(undefined);
+  });
+  it('should return fixed_price_usd from fallback getCoursePrice', () => {
+    const updatedListPrice = undefined;
+    useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
+    const updatedBaseCourseMetadataValue = {
+      ...baseCourseMetadataValue,
+      activeCourseRun: {
+        fixed_price_usd: 20,
+      },
+    };
+    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(updatedBaseCourseMetadataValue));
     const { result } = renderHook(
       () => useCourseListPrice(),
       { wrapper: Wrapper },
