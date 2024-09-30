@@ -12,6 +12,7 @@ import {
   DISABLED_ENROLL_USER_MESSAGES,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   ENROLLMENT_FAILED_QUERY_PARAM,
+  ZERO_PRICE,
 } from './constants';
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
 import ProfessionalSvgIcon from '../../../assets/icons/professional.svg';
@@ -153,6 +154,23 @@ export function getProgramIcon(type) {
 }
 
 export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);
+
+/**
+ * Displays content price with precision as a range or singular price
+ * @param priceRange
+ * @returns {*|string}
+ */
+export const getContentPriceDisplay = (priceRange) => {
+  if (!priceRange?.length) {
+    return numberWithPrecision(ZERO_PRICE);
+  }
+  const minPrice = Math.min(...priceRange);
+  const maxPrice = Math.max(...priceRange);
+  if (maxPrice !== minPrice) {
+    return `${numberWithPrecision(minPrice)} - ${numberWithPrecision(maxPrice)}`;
+  }
+  return numberWithPrecision(priceRange.sort((a, b) => a - b)[0]);
+};
 
 export const formatPrice = (price, options = {}) => {
   const USDollar = new Intl.NumberFormat('en-US', {
@@ -827,7 +845,6 @@ export function getEntitlementPrice(entitlements) {
  * @returns Price for the course run.
  */
 export function getCoursePrice(course) {
-  console.log(course, course.activeCourseRun?.fixedPriceUsd, course.activeCourseRun?.firstEnrollablePaidSeatPrice, course.entitlements);
   if (course.activeCourseRun?.fixedPriceUsd) {
     return [course.activeCourseRun?.fixedPriceUsd];
   }
@@ -835,7 +852,7 @@ export function getCoursePrice(course) {
     return [course.activeCourseRun?.firstEnrollablePaidSeatPrice];
   }
   if (course.entitlements.length > 0) {
-    return [course.entitlements];
+    return [getEntitlementPrice(course.entitlements)];
   }
   return null;
 }
@@ -921,7 +938,7 @@ export function transformedCourseMetadata({
     startDate: getCourseStartDate({ courseRun }),
     duration: getDuration(),
     priceDetails: {
-      price: coursePrice.list,
+      price: coursePrice.listRange,
       currency,
     },
   };

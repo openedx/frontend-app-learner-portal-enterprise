@@ -41,7 +41,6 @@ export function transformCourseRedemptionEligibility({
   // redeemable subsidy access policy for any of the content keys.
   const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || otherSubsidyAccessPolicy;
   const isPolicyRedemptionEnabled = hasSuccessfulRedemption || !!redeemableSubsidyAccessPolicy;
-  console.log(listPrice);
   return {
     isPolicyRedemptionEnabled,
     redeemabilityPerContentKey: canRedeemData,

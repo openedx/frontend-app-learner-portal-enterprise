@@ -30,7 +30,6 @@ const SubscriptionExpirationModal = () => {
   const seenExpiredSubscriptionModal = !!global.localStorage.getItem(
     EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense),
   );
-  console.log(seenExpiredSubscriptionModal);
   const [isOpen, , close] = useToggle(!seenExpiredSubscriptionModal);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {

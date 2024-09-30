@@ -1,22 +1,23 @@
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import {
-  Card, Image, Row, Col, Hyperlink,
+  Card, Col, Hyperlink, Image, Row,
 } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import {
-  useMinimalCourseMetadata,
   DATE_FORMAT,
-  ZERO_PRICE,
+  getContentPriceDisplay,
   numberWithPrecision,
+  useMinimalCourseMetadata,
+  ZERO_PRICE,
 } from '../../course/data';
 
 const CourseSummaryCard = ({ enrollmentCompleted }) => {
   const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
 
   let coursePrice = null;
-  const precisePrice = minimalCourseMetadata.priceDetails?.price ? `$${numberWithPrecision(
+  const precisePrice = minimalCourseMetadata.priceDetails?.price ? `$${getContentPriceDisplay(
     minimalCourseMetadata.priceDetails.price,
   )} ${minimalCourseMetadata.priceDetails.currency}` : '-';
   if (enrollmentCompleted && minimalCourseMetadata.priceDetails?.price) {

@@ -39,7 +39,6 @@ export default function useCourseMetadata(queryOptions = {}) {
     enabled: !!courseKey,
     ...queryOptionsRest,
     select: (data) => {
-      console.log(data, 'useC');
       if (!data) {
         return data;
       }

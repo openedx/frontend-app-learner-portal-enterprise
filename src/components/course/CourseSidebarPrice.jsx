@@ -1,14 +1,12 @@
 import { Skeleton } from '@openedx/paragon';
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-
-import { numberWithPrecision } from './data/utils';
 import {
+  getContentPriceDisplay,
   useCanUserRequestSubsidyForCourse,
   useCoursePrice,
   useIsCourseAssigned,
   useUserSubsidyApplicableToCourse,
-  ZERO_PRICE,
 } from './data';
 import {
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
@@ -18,18 +16,6 @@ import {
 } from '../app/data';
 import { sumOfArray } from '../../utils/common';
 
-const getContentPriceDisplay = (priceRange) => {
-  if (!priceRange?.length) {
-    return numberWithPrecision(ZERO_PRICE);
-  }
-  const minPrice = Math.min(...priceRange);
-  const maxPrice = Math.max(...priceRange);
-  if (maxPrice !== minPrice) {
-    return `${numberWithPrecision(minPrice)} - ${numberWithPrecision(maxPrice)}`;
-  }
-  return numberWithPrecision(priceRange.sort((a, b) => a - b)[0]);
-};
-
 const CourseSidebarPrice = () => {
   const intl = useIntl();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -37,11 +23,9 @@ const CourseSidebarPrice = () => {
   const { isCourseAssigned } = useIsCourseAssigned();
   const canRequestSubsidy = useCanUserRequestSubsidyForCourse();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
-  console.log(coursePrice, 'hi');
   if (!coursePrice) {
     return <Skeleton containerTestId="course-price-skeleton" height={24} />;
   }
-  console.log(coursePrice);
   const originalPriceDisplay = getContentPriceDisplay(coursePrice.listRange);
   const showOrigPrice = !enterpriseCustomer.hideCourseOriginalPrice;
   const crossedOutOriginalPrice = (
@@ -76,7 +60,8 @@ const CourseSidebarPrice = () => {
     );
   }
 
-  const hasDiscountedPrice = coursePrice.discounted && sumOfArray(coursePrice.discounted) < sumOfArray(coursePrice.listRange);
+  const hasDiscountedPrice = coursePrice.discounted
+    && sumOfArray(coursePrice.discounted) < sumOfArray(coursePrice.listRange);
   // Case 2: No subsidies found but learner can request a subsidy
   if (!hasDiscountedPrice && canRequestSubsidy) {
     return (

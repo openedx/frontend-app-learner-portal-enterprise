@@ -198,11 +198,9 @@ export const useCoursePriceForUserSubsidy = ({
   const currency = CURRENCY_USD;
   const coursePrice = useMemo(
     () => {
-      console.log(listPrice, 'hamzah');
       if (!listPrice) {
         return null;
       }
-      console.log(listPrice, userSubsidyApplicableToCourse);
 
       const onlyListPrice = {
         listRange: listPrice,
@@ -637,7 +635,6 @@ export const useUserSubsidyApplicableToCourse = () => {
 export function useCoursePrice() {
   const { data: courseListPrice } = useCourseListPrice();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
-  console.log(courseListPrice, userSubsidyApplicableToCourse);
   return useCoursePriceForUserSubsidy({
     userSubsidyApplicableToCourse,
     listPrice: courseListPrice,

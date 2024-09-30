@@ -34,18 +34,18 @@ import {
   getSubscriptionDisabledEnrollmentReasonType,
   transformedCourseMetadata,
 } from '../utils';
-import {
-  DISABLED_ENROLL_REASON_TYPES,
-  DISABLED_ENROLL_USER_MESSAGES,
-  REASON_USER_MESSAGES,
-} from '../constants';
+import { DISABLED_ENROLL_REASON_TYPES, DISABLED_ENROLL_USER_MESSAGES, REASON_USER_MESSAGES } from '../constants';
 import { mockSubscriptionLicense } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_TYPE } from '../../../../constants';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
   getSubsidyToApplyForCourse,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
   useBrowseAndRequest,
   useCatalogsForSubsidyRequests,
   useCouponCodes,
@@ -56,10 +56,6 @@ import {
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
-  COUPON_CODE_SUBSIDY_TYPE,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
 } from '../../../app/data';
 import { CourseContext } from '../../CourseContextProvider';
 
@@ -1663,6 +1659,7 @@ describe('useCourseListPrice', () => {
     },
     activeCourseRun: {
       firstEnrollablePaidSeatPrice: 25,
+      fixedPriceUsd: 35,
     },
     entitlements: [
       {
@@ -1688,7 +1685,7 @@ describe('useCourseListPrice', () => {
     );
     expect(result.current).toEqual(mockListPrice);
   });
-  it('should not return the list price if one doesnt, first fallback, firstEnrollablePaidSeatPrice', () => {
+  it('should not return the list price if one doesnt, first fallback, fixed_price_usd', () => {
     const updatedListPrice = undefined;
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
     useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
@@ -1696,29 +1693,44 @@ describe('useCourseListPrice', () => {
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(baseCourseMetadataValue.activeCourseRun.firstEnrollablePaidSeatPrice);
+    expect(result.current).toEqual([baseCourseMetadataValue.activeCourseRun.fixedPriceUsd]);
   });
-  it('should not return the list price if one doesnt, second fallback, entitlements', () => {
+  it('should not return the list price if one doesnt, second fallback, firstEnrollablePaidSeatPrice', () => {
     const updatedListPrice = undefined;
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
+    delete baseCourseMetadataValue.activeCourseRun.fixedPriceUsd;
+    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
+    const { result } = renderHook(
+      () => useCourseListPrice(),
+      { wrapper: Wrapper },
+    );
+    expect(result.current).toEqual([baseCourseMetadataValue.activeCourseRun.firstEnrollablePaidSeatPrice]);
+  });
+  it('should not return the list price if one doesnt, third fallback, entitlements', () => {
+    const updatedListPrice = undefined;
+    useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
+    delete baseCourseMetadataValue.activeCourseRun.fixedPriceUsd;
     delete baseCourseMetadataValue.activeCourseRun.firstEnrollablePaidSeatPrice;
     useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
     const { result } = renderHook(
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(baseCourseMetadataValue.entitlements[0].price);
+    expect(result.current).toEqual([baseCourseMetadataValue.entitlements[0].price]);
   });
   it('should not return the list price if one doesnt exist or the course metadata doesnt include it', () => {
     const updatedListPrice = undefined;
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
-    delete baseCourseMetadataValue.entitlements;
-    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
+    const updatedCourseMetadata = {
+      ...baseCourseMetadataValue,
+      entitlements: [],
+    };
+    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(updatedCourseMetadata));
     const { result } = renderHook(
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(undefined);
+    expect(result.current).toEqual(null);
   });
 });
 

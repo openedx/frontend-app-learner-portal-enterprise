@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Card, Row, Col,
-} from '@openedx/paragon';
+import { Card, Col, Row } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { numberWithPrecision } from '../../course/data/utils';
+import { getContentPriceDisplay, numberWithPrecision } from '../../course/data/utils';
 import { CURRENCY_USD } from '../../course/data/constants';
 
 const RegistrationSummaryCard = ({ priceDetails }) => (
@@ -45,7 +43,7 @@ const RegistrationSummaryCard = ({ priceDetails }) => (
                 <Col xs={12} lg={{ span: 6, offset: 0 }} className="justify-content-end">
                   <div className="d-flex justify-content-end mr-2.5">
                     <del>
-                      {priceDetails?.price ? `$${numberWithPrecision(priceDetails.price)} ${priceDetails.currency}` : '-'}
+                      {priceDetails?.price ? `$${getContentPriceDisplay(priceDetails.price)} ${priceDetails.currency}` : '-'}
                     </del>
                   </div>
                   <div className="d-flex justify-content-end mr-2.5">
