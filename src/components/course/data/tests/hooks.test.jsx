@@ -788,7 +788,7 @@ describe('CoursePacingType', () => {
 
 describe('useCoursePriceForUserSubsidy', () => {
   it('should return the correct course price when a user subsidy is applicable with percentage discount', () => {
-    const listPrice = 100;
+    const listPrice = [100];
     const userSubsidyApplicableToCourse = {
       discountType: 'percentage',
       discountValue: 10,
@@ -801,11 +801,11 @@ describe('useCoursePriceForUserSubsidy', () => {
       userSubsidyApplicableToCourse,
     }));
     const { coursePrice } = result.current;
-    expect(coursePrice).toEqual({ list: 100, discounted: 90 });
+    expect(coursePrice).toEqual({ listRange: [100], discounted: [90] });
   });
 
   it('should return the correct course price when a user subsidy is applicable with unknown discount type', () => {
-    const listPrice = 100;
+    const listPrice = [100];
     const userSubsidyApplicableToCourse = {
       discountType: 'unknown',
       discountValue: 100,
@@ -818,11 +818,11 @@ describe('useCoursePriceForUserSubsidy', () => {
       userSubsidyApplicableToCourse,
     }));
     const { coursePrice } = result.current;
-    expect(coursePrice).toEqual({ list: 100, discounted: 100 });
+    expect(coursePrice).toEqual({ listRange: [100], discounted: [] });
   });
 
   it('should return the correct course price when a user subsidy is applicable with absolute discount', () => {
-    const listPrice = 150;
+    const listPrice = [150];
     const userSubsidyApplicableToCourse = {
       discountType: 'absolute',
       discountValue: 10,
@@ -835,22 +835,22 @@ describe('useCoursePriceForUserSubsidy', () => {
       userSubsidyApplicableToCourse,
     }));
     const { coursePrice } = result.current;
-    expect(coursePrice).toEqual({ list: 150, discounted: 140 });
+    expect(coursePrice).toEqual({ listRange: [150], discounted: [140] });
   });
 
   it('should return the correct course price when a user subsidy is not applicable', () => {
-    const listPrice = 100;
+    const listPrice = [100];
     const userSubsidyApplicableToCourse = null;
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
       listPrice,
       userSubsidyApplicableToCourse,
     }));
     const { coursePrice } = result.current;
-    expect(coursePrice).toEqual({ list: 100 });
+    expect(coursePrice).toEqual({ listRange: [100] });
   });
 
   it('should return the correct course price for exec ed course', () => {
-    const listPrice = 200;
+    const listPrice = [200];
 
     const userSubsidyApplicableToCourse = null;
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
@@ -858,11 +858,11 @@ describe('useCoursePriceForUserSubsidy', () => {
       userSubsidyApplicableToCourse,
     }));
     const { coursePrice } = result.current;
-    expect(coursePrice).toEqual({ list: 200 });
+    expect(coursePrice).toEqual({ listRange: [200] });
   });
 
   it('should return the correct currency', () => {
-    const listPrice = 100;
+    const listPrice = [100];
     const userSubsidyApplicableToCourse = null;
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
       listPrice,
@@ -1291,7 +1291,7 @@ describe('useMinimalCourseMetadata', () => {
   const mockLogoImageUrl = 'https://fake-logo.url';
   const mockOrgMarketingUrl = 'https://fake-mktg.url';
   const mockWeeksToComplete = 8;
-  const mockListPrice = 100;
+  const mockListPrice = [100];
   const mockCurrency = 'USD';
   const mockCourseTitle = 'Test Course Title';
   const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
@@ -1322,7 +1322,7 @@ describe('useMinimalCourseMetadata', () => {
     }],
   };
   const coursePrice = {
-    list: mockListPrice,
+    listRange: mockListPrice,
   };
 
   const Wrapper = ({ children }) => (
@@ -1385,7 +1385,7 @@ describe('useMinimalCourseMetadata', () => {
       title: 'Test Course Title',
       startDate: '2023-04-20T12:00:00Z',
       duration: '8 Weeks',
-      priceDetails: { price: 100, currency: 'USD' },
+      priceDetails: { price: [100], currency: 'USD' },
     };
     useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: baseCourseMetadataValue }));
     const { result } = renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
@@ -1406,7 +1406,7 @@ describe('useMinimalCourseMetadata', () => {
       title: 'Test Course Title',
       startDate: undefined,
       duration: '-',
-      priceDetails: { price: 100, currency: 'USD' },
+      priceDetails: { price: [100], currency: 'USD' },
     };
     useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
@@ -1433,7 +1433,7 @@ describe('useMinimalCourseMetadata', () => {
       title: 'Test Course Title',
       startDate: '2023-04-20T12:00:00Z',
       duration: '1 Week',
-      priceDetails: { price: 100, currency: 'USD' },
+      priceDetails: { price: [100], currency: 'USD' },
     };
     useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(
@@ -1463,7 +1463,7 @@ describe('useMinimalCourseMetadata', () => {
       title: 'Test Course Title',
       startDate: '2023-04-20T12:00:00Z',
       duration: '8 Weeks',
-      priceDetails: { price: 100, currency: 'USD' },
+      priceDetails: { price: [100], currency: 'USD' },
     };
     useCourseMetadata.mockReturnValue(courseMetadataTransformer({ transformed: updatedCourseMetadataValue }));
     const { result } = renderHook(

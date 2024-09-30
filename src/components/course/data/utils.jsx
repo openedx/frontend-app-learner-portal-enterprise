@@ -169,7 +169,7 @@ export const getContentPriceDisplay = (priceRange) => {
   if (maxPrice !== minPrice) {
     return `${numberWithPrecision(minPrice)} - ${numberWithPrecision(maxPrice)}`;
   }
-  return numberWithPrecision(priceRange.sort((a, b) => a - b)[0]);
+  return numberWithPrecision(priceRange[0]);
 };
 
 export const formatPrice = (price, options = {}) => {

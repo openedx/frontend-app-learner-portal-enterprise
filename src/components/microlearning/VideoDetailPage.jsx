@@ -3,24 +3,19 @@ import React, { useContext, useEffect } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import {
-  Container, Row, Badge, Skeleton,
-  Icon,
-  Button,
+  Badge, Button, Container, Icon, Row, Skeleton,
 } from '@openedx/paragon';
 import loadable from '@loadable/component';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import {
-  Person, Speed, Timelapse,
-} from '@openedx/paragon/icons';
+import { Person, Speed, Timelapse } from '@openedx/paragon/icons';
 import { Link } from 'react-router-dom';
 import {
-  useVideoDetails, useEnterpriseCustomer, useVideoCourseMetadata,
-  useSubscriptions,
+  useEnterpriseCustomer, useSubscriptions, useVideoCourseMetadata, useVideoDetails,
 } from '../app/data';
 import './styles/VideoDetailPage.scss';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import NotFoundPage from '../NotFoundPage';
-import { getCoursePrice, useCoursePacingType } from '../course/data';
+import { getContentPriceDisplay, getCoursePrice, useCoursePacingType } from '../course/data';
 import VideoCourseReview from './VideoCourseReview';
 import { hasTruthyValue, isDefinedAndNotNull } from '../../utils/common';
 import { getLevelType } from './data/utils';
@@ -40,6 +35,7 @@ const VideoDetailPage = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: videoData } = useVideoDetails();
   const { data: courseMetadata } = useVideoCourseMetadata(videoData?.courseKey);
+  const coursePrice = getCoursePrice(courseMetadata);
   const [pacingType, pacingTypeContent] = useCoursePacingType(courseMetadata?.activeCourseRun);
   const { data: { subscriptionLicense } } = useSubscriptions();
   const playerRef = React.useRef(null);
@@ -204,7 +200,7 @@ const VideoDetailPage = () => {
                       description="Label for the original price of the course."
                     />
                   </strong>
-                  <s>${getCoursePrice(courseMetadata)} USD</s>
+                  <s>${getContentPriceDisplay(coursePrice)} USD</s>
                   <h4 className="text-danger ml-2 m-0">
                     <FormattedMessage
                       id="enterprise.courseAbout.courseSidebar.price.free"

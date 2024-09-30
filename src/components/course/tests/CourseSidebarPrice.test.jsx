@@ -1,17 +1,15 @@
 import React from 'react';
-import { screen, render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseSidebarPrice from '../CourseSidebarPrice';
+import { SUBSIDY_DISCOUNT_TYPE_MAP } from '../data/constants';
 import {
-  SUBSIDY_DISCOUNT_TYPE_MAP,
-} from '../data/constants';
-import {
-  useEnterpriseCustomer,
+  COUPON_CODE_SUBSIDY_TYPE,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
-  COUPON_CODE_SUBSIDY_TYPE,
+  useEnterpriseCustomer,
 } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import {
@@ -64,7 +62,7 @@ describe('<CourseSidebarPrice/> ', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useUserSubsidyApplicableToCourse.mockReturnValue({ userSubsidyApplicableToCourse: null });
-    useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 7.5 }, currency: 'USD' });
+    useCoursePrice.mockReturnValue({ coursePrice: { listRange: [7.5], discounted: [7.5] }, currency: 'USD' });
     useIsCourseAssigned.mockReturnValue({ isCourseAssigned: false });
     useCanUserRequestSubsidyForCourse.mockReturnValue(false);
   });
@@ -95,7 +93,7 @@ describe('<CourseSidebarPrice/> ', () => {
         subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
       };
       useUserSubsidyApplicableToCourse.mockReturnValue({ userSubsidyApplicableToCourse: mockEnterpriseOfferSubsidy });
-      useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 0 }, currency: 'USD' });
+      useCoursePrice.mockReturnValue({ coursePrice: { listRange: [7.5], discounted: [0] }, currency: 'USD' });
       render(<CourseSidebarPriceWrapper />);
       expect(screen.getByText('Priced reduced from:')).toBeInTheDocument();
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
@@ -126,7 +124,7 @@ describe('<CourseSidebarPrice/> ', () => {
     });
 
     test('subscription license subsidy, shows no price, correct message', () => {
-      useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 0 }, currency: 'USD' });
+      useCoursePrice.mockReturnValue({ coursePrice: { listRange: 7.5, discounted: 0 }, currency: 'USD' });
       useUserSubsidyApplicableToCourse.mockReturnValue({
         userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
       });
@@ -140,7 +138,7 @@ describe('<CourseSidebarPrice/> ', () => {
     });
 
     test('coupon code 100% subsidy, shows no price, correct message', () => {
-      useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 0 }, currency: 'USD' });
+      useCoursePrice.mockReturnValue({ coursePrice: { listRange: [7.5], discounted: [0] }, currency: 'USD' });
       useUserSubsidyApplicableToCourse.mockReturnValue({
         userSubsidyApplicableToCourse: FULL_COUPON_CODE_SUBSIDY,
       });
@@ -154,7 +152,7 @@ describe('<CourseSidebarPrice/> ', () => {
     });
 
     test('coupon code non-full subsidy, shows discounted price only, correct message', () => {
-      useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 3.75 }, currency: 'USD' });
+      useCoursePrice.mockReturnValue({ coursePrice: { listRange: [7.5], discounted: [3.75] }, currency: 'USD' });
       useUserSubsidyApplicableToCourse.mockReturnValue({
         userSubsidyApplicableToCourse: PARTIAL_COUPON_CODE_SUBSIDY,
       });
@@ -168,7 +166,7 @@ describe('<CourseSidebarPrice/> ', () => {
 
     test('assigned course, shows no price, correct message', () => {
       useIsCourseAssigned.mockReturnValue({ isCourseAssigned: true });
-      useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 0 }, currency: 'USD' });
+      useCoursePrice.mockReturnValue({ coursePrice: { listRange: [7.5], discounted: [0] }, currency: 'USD' });
       useUserSubsidyApplicableToCourse.mockReturnValue({
         userSubsidyApplicableToCourse: { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },
       });
@@ -192,7 +190,7 @@ describe('<CourseSidebarPrice/> ', () => {
       expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('subscription license subsidy, shows orig crossed out price, correct message', () => {
-      useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 0 }, currency: 'USD' });
+      useCoursePrice.mockReturnValue({ coursePrice: { listRange: [7.5], discounted: [0] }, currency: 'USD' });
       useUserSubsidyApplicableToCourse.mockReturnValue({
         userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
       });
@@ -204,7 +202,7 @@ describe('<CourseSidebarPrice/> ', () => {
       expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('coupon code 100% subsidy, shows orig price, correct message', () => {
-      useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 0 }, currency: 'USD' });
+      useCoursePrice.mockReturnValue({ coursePrice: { listRange: [7.5], discounted: [0] }, currency: 'USD' });
       useUserSubsidyApplicableToCourse.mockReturnValue({
         userSubsidyApplicableToCourse: FULL_COUPON_CODE_SUBSIDY,
       });
@@ -216,7 +214,7 @@ describe('<CourseSidebarPrice/> ', () => {
       expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('coupon code non-full subsidy, shows orig and discounted price only, correct message', () => {
-      useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 3.75 }, currency: 'USD' });
+      useCoursePrice.mockReturnValue({ coursePrice: { listRange: [7.5], discounted: [3.75] }, currency: 'USD' });
       useUserSubsidyApplicableToCourse.mockReturnValue({
         userSubsidyApplicableToCourse: PARTIAL_COUPON_CODE_SUBSIDY,
       });
@@ -230,7 +228,7 @@ describe('<CourseSidebarPrice/> ', () => {
     });
     test('assigned course, shows orig price, correct message', () => {
       useIsCourseAssigned.mockReturnValue({ isCourseAssigned: true });
-      useCoursePrice.mockReturnValue({ coursePrice: { list: 7.5, discounted: 0 }, currency: 'USD' });
+      useCoursePrice.mockReturnValue({ coursePrice: { listRange: [7.5], discounted: [0] }, currency: 'USD' });
       useUserSubsidyApplicableToCourse.mockReturnValue({
         userSubsidyApplicableToCourse: { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },
       });

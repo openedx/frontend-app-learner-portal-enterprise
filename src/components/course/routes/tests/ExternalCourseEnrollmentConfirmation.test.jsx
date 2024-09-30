@@ -54,7 +54,7 @@ describe('ExternalCourseEnrollmentConfirmation', () => {
           logoImgUrl: 'https://example.com/logo.png',
         },
         priceDetails: {
-          price: 100,
+          price: [100],
           currency: 'USD',
         },
         startDate: '2023-03-05T12:00:00Z',
