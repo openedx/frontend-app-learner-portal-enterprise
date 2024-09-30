@@ -135,6 +135,14 @@ describe('createAppRouter', () => {
       }],
     },
     {
+      currentRoutePath: '/test-enterprise/invite/enterprise-customer-invite-key',
+      expectedRouteTestId: 'invite',
+      expectedRouteLoaders: [{
+        loader: makeEnterpriseInviteLoader,
+        usesQueryClient: false,
+      }],
+    },
+    {
       currentRoutePath: '/test-enterprise',
       expectedRouteTestId: 'dashboard',
       expectedRouteLoaders: [{

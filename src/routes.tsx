@@ -214,6 +214,28 @@ function getOtherRoutes() {
         };
       },
     },
+    {
+      /**
+       * We want to support a slug-"aware" version of the invite key route,
+       * but we don't want it nested under the root loader via
+       * enterpriseSlugRoutes above. Putting this route under the root loader
+       * would mean that the post-registration redirect back to this route
+       * would run through the root loader logic with a now-authenticated-but-unlinked
+       * requesting user, which will throw a 404 (until the async call to
+       * `link-user/` resolves and the page is reloaded).
+       */
+      path: ':enterpriseSlug/invite/:enterpriseCustomerInviteKey',
+      lazy: async () => {
+        const {
+          default: EnterpriseInviteRoute,
+          makeEnterpriseInviteLoader,
+        } = await import('./components/app/routes/EnterpriseInviteRoute');
+        return {
+          Component: EnterpriseInviteRoute,
+          loader: makeEnterpriseInviteLoader(),
+        };
+      },
+    },
   ];
   return otherRoutes;
 }
