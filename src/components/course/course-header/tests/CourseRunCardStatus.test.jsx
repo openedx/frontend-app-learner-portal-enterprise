@@ -4,6 +4,15 @@ import '@testing-library/jest-dom/extend-expect';
 
 import CourseRunCardStatus from '../CourseRunCardStatus';
 
+import {
+  useSubscriptions,
+} from '../../../app/data';
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useSubscriptions: jest.fn(),
+}));
+
 const baseProps = {
   missingUserSubsidyReason: undefined,
   isUserEnrolled: false,
@@ -17,6 +26,18 @@ const mockMissingUserSubsidyReason = {
 };
 
 describe('<CourseRunCardStatus />', () => {
+  beforeEach(() => {
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: {
+          hasCustomLicenseExpirationMessaging: false,
+          expiredSubscriptionModalMessaging: null,
+          urlForExpiredModal: null,
+          hyperLinkTextForExpiredModal: null,
+        },
+      },
+    });
+  });
   test('does not render if there is no missing subsidy reason', () => {
     const { container } = render(<CourseRunCardStatus />);
     expect(container).toBeEmptyDOMElement();
@@ -51,5 +72,21 @@ describe('<CourseRunCardStatus />', () => {
     render(<CourseRunCardStatus {...props} />);
     expect(screen.queryByText(mockMissingUserSubsidyReason.userMessage)).not.toBeInTheDocument();
     expect(screen.queryByTestId(mockActionTestId)).not.toBeInTheDocument();
+  });
+
+  test('render lock status when license has been expired', () => {
+    const props = {
+      ...baseProps,
+      missingUserSubsidyReason: mockMissingUserSubsidyReason,
+    };
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: {
+          hasCustomLicenseExpirationMessaging: true,
+        },
+      },
+    });
+    render(<CourseRunCardStatus {...props} />);
+    expect(screen.getByTestId('custom-license-expiration-message-id')).toBeInTheDocument();
   });
 });
