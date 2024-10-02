@@ -36,7 +36,8 @@ const CourseSidebarPrice = () => {
           defaultMessage="Priced reduced from:"
           description="Message to indicate that the price has been reduced."
         />
-      </span>${originalPriceDisplay} {currency}
+      </span>
+      ${originalPriceDisplay} {currency}
     </del>
   );
 
@@ -66,7 +67,9 @@ const CourseSidebarPrice = () => {
   if (!hasDiscountedPrice && canRequestSubsidy) {
     return (
       <span style={{ whiteSpace: 'pre-wrap' }} data-testid="browse-and-request-pricing">
-        <s>${originalPriceDisplay} {currency}</s><br />
+        <s>
+          ${originalPriceDisplay} {currency}
+        </s><br />
         <FormattedMessage
           id="enterprise.course.about.course.sidebar.price.free.when.approved"
           defaultMessage="Free to me{br}(when approved)"
@@ -125,7 +128,8 @@ const CourseSidebarPrice = () => {
                 defaultMessage="Discounted price:"
                 description="Message to indicate that the price has been discounted."
               />
-            </span>${discountedPriceDisplay}
+            </span>
+            ${discountedPriceDisplay}
           </>
         )}
       </div>
