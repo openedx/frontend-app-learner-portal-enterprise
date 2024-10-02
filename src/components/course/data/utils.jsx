@@ -846,6 +846,9 @@ export function getEntitlementPrice(entitlements) {
  */
 export function getCoursePrice(course) {
   if (course.activeCourseRun?.fixedPriceUsd) {
+    if (typeof course.activeCourseRun.fixedPriceUsd === 'string') {
+      return [Number(course.activeCourseRun.fixedPriceUsd)];
+    }
     return [course.activeCourseRun?.fixedPriceUsd];
   }
   if (course.activeCourseRun?.firstEnrollablePaidSeatPrice) {
