@@ -39,10 +39,6 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
       return null;
     }
 
-    // TODO:
-    // - Make POST request to new onboarding API in enterprise-access (passing lms_user_id and enterprise_customer_uuid)
-    // - Remove `ensureActiveEnterpriseCustomerUser`, since it'll be abstracted in above API call.
-
     // Ensure the active enterprise customer user is updated, when applicable (e.g., the
     // current enterprise slug in the URL does not match the active enterprise customer's slug).
     const updateActiveEnterpriseCustomerUserResult = await ensureActiveEnterpriseCustomerUser({
