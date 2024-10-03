@@ -1,7 +1,12 @@
 import dayjs from 'dayjs';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
-import { getCourseStartDate, hasTimeToComplete, isCourseSelfPaced } from '../../../data/utils';
+import {
+  getCourseStartDate,
+  hasTimeToComplete,
+  isCourseSelfPaced,
+  isWithinMinimumStartDateThreshold,
+} from '../../../data/utils';
 import { DATE_FORMAT } from '../constants';
 
 const messages = defineMessages({
@@ -48,7 +53,7 @@ const useCourseRunCardHeading = ({
       return intl.formatMessage(messages.courseStarted);
     }
     if (isCourseSelfPaced(courseRun.pacingType)) {
-      if (hasTimeToComplete(courseRun)) {
+      if (hasTimeToComplete(courseRun) || isWithinMinimumStartDateThreshold(courseRun)) {
         // always today's date (incentives enrollment)
         return intl.formatMessage(messages.courseStartDate, {
           startDate: dayjs().format(DATE_FORMAT),

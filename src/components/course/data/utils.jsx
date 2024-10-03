@@ -74,7 +74,7 @@ export function isCourseInstructorPaced(pacingType) {
   return [COURSE_PACING_MAP.INSTRUCTOR_PACED, COURSE_PACING_MAP.INSTRUCTOR].includes(pacingType);
 }
 
-const isWithinMinimumStartDateThreshold = ({ start }) => dayjs(start).isBefore(dayjs().subtract(START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS, 'days'));
+export const isWithinMinimumStartDateThreshold = ({ start }) => dayjs(start).isBefore(dayjs().subtract(START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS, 'days'));
 
 /**
  * If the start date of the course is before today offset by the START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS
