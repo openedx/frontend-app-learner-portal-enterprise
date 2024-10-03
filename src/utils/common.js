@@ -25,9 +25,6 @@ export const isNull = (value) => {
 };
 
 export const isDefinedAndNotNull = (value) => {
-  if (Array.isArray(value)) {
-    return value.every(item => isDefined(item) && !isNull(item));
-  }
   const values = createArrayFromValue(value);
   return values.every(item => isDefined(item) && !isNull(item));
 };
@@ -42,7 +39,9 @@ export const hasTruthyValue = (value) => {
   return values.every(item => !!item);
 };
 
-export const sumOfArray = (values) => values.reduce((prev, next) => prev + next, 0);
+export const sumOfArray = (values) => (values.every(item => typeof item === 'number' && !Number.isNaN(item))
+  ? values.reduce((prev, next) => prev + next, 0)
+  : null);
 
 export const hasValidStartExpirationDates = ({ startDate, expirationDate, endDate }) => {
   const now = dayjs();
@@ -183,3 +182,14 @@ export function i18nFormatTimestamp({ intl, timestamp, formatOpts = {} }) {
     ...formatOpts,
   });
 }
+
+export const formatPrice = (price, options = {}) => {
+  const USDollar = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    ...options,
+  });
+  return USDollar.format(Math.abs(price));
+};

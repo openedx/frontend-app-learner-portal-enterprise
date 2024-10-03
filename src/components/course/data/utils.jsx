@@ -21,7 +21,7 @@ import XSeriesSvgIcon from '../../../assets/icons/xseries.svg';
 import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
-import { hasValidStartExpirationDates } from '../../../utils/common';
+import { formatPrice, hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import {
   findHighestLevelEntitlementSku,
@@ -167,19 +167,9 @@ export const getContentPriceDisplay = (priceRange) => {
   const minPrice = Math.min(...priceRange);
   const maxPrice = Math.max(...priceRange);
   if (maxPrice !== minPrice) {
-    return `${numberWithPrecision(minPrice)} - ${numberWithPrecision(maxPrice)}`;
+    return `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`;
   }
-  return numberWithPrecision(priceRange[0]);
-};
-
-export const formatPrice = (price, options = {}) => {
-  const USDollar = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    ...options,
-  });
-  return USDollar.format(Math.abs(price));
+  return formatPrice(priceRange[0]);
 };
 
 /**
@@ -831,7 +821,7 @@ export function getLinkToCourse(course, slug) {
  */
 export function getEntitlementPrice(entitlements) {
   if (entitlements?.length) {
-    return Number(entitlements[0].price);
+    return parseFloat(entitlements[0].price);
   }
   return undefined;
 }
@@ -846,10 +836,7 @@ export function getEntitlementPrice(entitlements) {
  */
 export function getCoursePrice(course) {
   if (course.activeCourseRun?.fixedPriceUsd) {
-    if (typeof course.activeCourseRun.fixedPriceUsd === 'string') {
-      return [Number(course.activeCourseRun.fixedPriceUsd)];
-    }
-    return [course.activeCourseRun?.fixedPriceUsd];
+    return [parseFloat(course.activeCourseRun.fixedPriceUsd)];
   }
   if (course.activeCourseRun?.firstEnrollablePaidSeatPrice) {
     return [course.activeCourseRun?.firstEnrollablePaidSeatPrice];

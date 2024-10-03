@@ -6,24 +6,21 @@ import {
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import {
-  DATE_FORMAT,
-  getContentPriceDisplay,
-  numberWithPrecision,
-  useMinimalCourseMetadata,
-  ZERO_PRICE,
+  DATE_FORMAT, getContentPriceDisplay, useMinimalCourseMetadata, ZERO_PRICE,
 } from '../../course/data';
+import { formatPrice } from '../../../utils/common';
 
 const CourseSummaryCard = ({ enrollmentCompleted }) => {
   const { data: minimalCourseMetadata } = useMinimalCourseMetadata();
 
   let coursePrice = null;
-  const precisePrice = minimalCourseMetadata.priceDetails?.price ? `$${getContentPriceDisplay(
+  const precisePrice = minimalCourseMetadata.priceDetails?.price ? `${getContentPriceDisplay(
     minimalCourseMetadata.priceDetails.price,
   )} ${minimalCourseMetadata.priceDetails.currency}` : '-';
   if (enrollmentCompleted && minimalCourseMetadata.priceDetails?.price) {
     coursePrice = (
       <><del>{precisePrice}</del>
-        ${numberWithPrecision(ZERO_PRICE)} {minimalCourseMetadata.priceDetails.currency}
+        {formatPrice(ZERO_PRICE)} {minimalCourseMetadata.priceDetails.currency}
       </>
     );
   } else {

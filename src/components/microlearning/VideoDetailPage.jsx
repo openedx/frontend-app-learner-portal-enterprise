@@ -200,7 +200,7 @@ const VideoDetailPage = () => {
                       description="Label for the original price of the course."
                     />
                   </strong>
-                  <s>${getContentPriceDisplay(coursePrice)} USD</s>
+                  <s>{getContentPriceDisplay(coursePrice)} USD</s>
                   <h4 className="text-danger ml-2 m-0">
                     <FormattedMessage
                       id="enterprise.courseAbout.courseSidebar.price.free"

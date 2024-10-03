@@ -173,8 +173,8 @@ export function useCoursePacingType(courseRun) {
 
 /**
  * @typedef {Object} CoursePrice
- * @property {number} list The list price.
- * @property {number} discounted The discounted price.
+ * @property {number} listRange The list price.
+ * @property {number} discountedList The discountedList price.
  */
 
 /**
@@ -208,29 +208,29 @@ export const useCoursePriceForUserSubsidy = ({
 
       if (userSubsidyApplicableToCourse) {
         const { discountType, discountValue } = userSubsidyApplicableToCourse;
-        let discountedPrice = [];
+        let discountedPriceList = [];
 
         if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()) {
-          discountedPrice = onlyListPrice.listRange.map(
+          discountedPriceList = onlyListPrice.listRange.map(
             (individualPrice) => individualPrice - (individualPrice * (discountValue / 100)),
           );
         }
 
         if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()) {
-          discountedPrice = onlyListPrice.listRange.map(
+          discountedPriceList = onlyListPrice.listRange.map(
             (individualPrice) => Math.max(individualPrice - discountValue, 0),
           );
         }
 
-        if (isDefinedAndNotNull(discountedPrice)) {
+        if (isDefinedAndNotNull(discountedPriceList)) {
           return {
             ...onlyListPrice,
-            discounted: discountedPrice,
+            discountedList: discountedPriceList,
           };
         }
         return {
           ...onlyListPrice,
-          discounted: onlyListPrice.listRange,
+          discountedList: onlyListPrice.listRange,
         };
       }
 

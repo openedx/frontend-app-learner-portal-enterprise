@@ -801,7 +801,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       userSubsidyApplicableToCourse,
     }));
     const { coursePrice } = result.current;
-    expect(coursePrice).toEqual({ listRange: [100], discounted: [90] });
+    expect(coursePrice).toEqual({ listRange: [100], discountedList: [90] });
   });
 
   it('should return the correct course price when a user subsidy is applicable with unknown discount type', () => {
@@ -818,7 +818,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       userSubsidyApplicableToCourse,
     }));
     const { coursePrice } = result.current;
-    expect(coursePrice).toEqual({ listRange: [100], discounted: [] });
+    expect(coursePrice).toEqual({ listRange: [100], discountedList: [] });
   });
 
   it('should return the correct course price when a user subsidy is applicable with absolute discount', () => {
@@ -835,7 +835,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       userSubsidyApplicableToCourse,
     }));
     const { coursePrice } = result.current;
-    expect(coursePrice).toEqual({ listRange: [150], discounted: [140] });
+    expect(coursePrice).toEqual({ listRange: [150], discountedList: [140] });
   });
 
   it('should return the correct course price when a user subsidy is not applicable', () => {
@@ -1676,47 +1676,47 @@ describe('useCourseListPrice', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: mockListPrice } });
-    useCourseMetadata.mockReturnValue(mockListPrice || getCoursePrice(baseCourseMetadataValue));
+    useCourseMetadata.mockReturnValue({ data: mockListPrice || getCoursePrice(baseCourseMetadataValue) });
   });
   it('should return the list price if one exist', () => {
     const { result } = renderHook(
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(mockListPrice);
+    expect(result.current).toEqual({ data: mockListPrice });
   });
-  it('should not return the list price if one doesnt, first fallback, fixed_price_usd', () => {
+  it('should not return the list price if one doesnt exist, first fallback price, fixed_price_usd', () => {
     const updatedListPrice = undefined;
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
-    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
+    useCourseMetadata.mockReturnValue({ data: updatedListPrice || getCoursePrice(baseCourseMetadataValue) });
     const { result } = renderHook(
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual([baseCourseMetadataValue.activeCourseRun.fixedPriceUsd]);
+    expect(result.current).toEqual({ data: [baseCourseMetadataValue.activeCourseRun.fixedPriceUsd] });
   });
-  it('should not return the list price if one doesnt, second fallback, firstEnrollablePaidSeatPrice', () => {
+  it('should not return the list price if one doesnt exist, second fallback price, firstEnrollablePaidSeatPrice', () => {
     const updatedListPrice = undefined;
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
     delete baseCourseMetadataValue.activeCourseRun.fixedPriceUsd;
-    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
+    useCourseMetadata.mockReturnValue({ data: updatedListPrice || getCoursePrice(baseCourseMetadataValue) });
     const { result } = renderHook(
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual([baseCourseMetadataValue.activeCourseRun.firstEnrollablePaidSeatPrice]);
+    expect(result.current).toEqual({ data: [baseCourseMetadataValue.activeCourseRun.firstEnrollablePaidSeatPrice] });
   });
-  it('should not return the list price if one doesnt, third fallback, entitlements', () => {
+  it('should not return the list price if one doesnt exit, third fallback price, entitlements', () => {
     const updatedListPrice = undefined;
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
     delete baseCourseMetadataValue.activeCourseRun.fixedPriceUsd;
     delete baseCourseMetadataValue.activeCourseRun.firstEnrollablePaidSeatPrice;
-    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(baseCourseMetadataValue));
+    useCourseMetadata.mockReturnValue({ data: updatedListPrice || getCoursePrice(baseCourseMetadataValue) });
     const { result } = renderHook(
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual([baseCourseMetadataValue.entitlements[0].price]);
+    expect(result.current).toEqual({ data: [baseCourseMetadataValue.entitlements[0].price] });
   });
   it('should not return the list price if one doesnt exist or the course metadata doesnt include it', () => {
     const updatedListPrice = undefined;
@@ -1725,12 +1725,12 @@ describe('useCourseListPrice', () => {
       ...baseCourseMetadataValue,
       entitlements: [],
     };
-    useCourseMetadata.mockReturnValue(updatedListPrice || getCoursePrice(updatedCourseMetadata));
+    useCourseMetadata.mockReturnValue({ data: updatedListPrice || getCoursePrice(updatedCourseMetadata) });
     const { result } = renderHook(
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual(null);
+    expect(result.current).toEqual({ data: null });
   });
 });
 

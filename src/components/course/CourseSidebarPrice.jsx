@@ -37,7 +37,7 @@ const CourseSidebarPrice = () => {
           description="Message to indicate that the price has been reduced."
         />
       </span>
-      ${originalPriceDisplay} {currency}
+      {originalPriceDisplay} {currency}
     </del>
   );
 
@@ -61,15 +61,13 @@ const CourseSidebarPrice = () => {
     );
   }
 
-  const hasDiscountedPrice = coursePrice.discounted
-    && sumOfArray(coursePrice.discounted) < sumOfArray(coursePrice.listRange);
+  const hasDiscountedPrice = coursePrice.discountedList
+    && sumOfArray(coursePrice.discountedList) < sumOfArray(coursePrice.listRange);
   // Case 2: No subsidies found but learner can request a subsidy
   if (!hasDiscountedPrice && canRequestSubsidy) {
     return (
       <span style={{ whiteSpace: 'pre-wrap' }} data-testid="browse-and-request-pricing">
-        <s>
-          ${originalPriceDisplay} {currency}
-        </s><br />
+        <s>{originalPriceDisplay} {currency}</s><br />
         <FormattedMessage
           id="enterprise.course.about.course.sidebar.price.free.when.approved"
           defaultMessage="Free to me{br}(when approved)"
@@ -84,7 +82,7 @@ const CourseSidebarPrice = () => {
   if (!hasDiscountedPrice) {
     return (
       <span className="d-block">
-        ${originalPriceDisplay} {currency}
+        {originalPriceDisplay} {currency}
       </span>
     );
   }
@@ -114,22 +112,22 @@ const CourseSidebarPrice = () => {
       });
     }
   }
-  const discountedPriceDisplay = `${getContentPriceDisplay(coursePrice.discounted)} ${currency}`;
+  const discountedPriceDisplay = `${getContentPriceDisplay(coursePrice.discountedList)} ${currency}`;
   return (
     <>
-      <div className={classNames({ 'mb-2': coursePrice.discounted > 0 || showOrigPrice })}>
-        {/* discounted > 0 means partial discount */}
+      <div className={classNames({ 'mb-2': coursePrice.discountedList > 0 || showOrigPrice })}>
+        {/* discountedList > 0 means partial discount */}
         {showOrigPrice && <>{crossedOutOriginalPrice}{' '}</>}
-        {sumOfArray(coursePrice.discounted) > 0 && (
+        {sumOfArray(coursePrice.discountedList) > 0 && (
           <>
             <span className="sr-only">
               <FormattedMessage
                 id="enterprise.course.about.price.discounted"
                 defaultMessage="Discounted price:"
-                description="Message to indicate that the price has been discounted."
+                description="Message to indicate that the price has been discountedList."
               />
             </span>
-            ${discountedPriceDisplay}
+            {discountedPriceDisplay}
           </>
         )}
       </div>

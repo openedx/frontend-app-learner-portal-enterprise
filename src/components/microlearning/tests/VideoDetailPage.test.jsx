@@ -19,6 +19,7 @@ import {
 import { COURSE_PACING_MAP } from '../../course/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../config';
+import { formatPrice } from '../../../utils/common';
 
 const APP_CONFIG = {
   USE_API_CACHE: true,
@@ -187,7 +188,7 @@ describe('VideoDetailPage', () => {
   it('renders the price', () => {
     useVideoCourseMetadata.mockReturnValue({ data: { ...mockCourseMetadata, activeCourseRun: { ...mockCourseRun, levelType: 'Unknown' } } });
     renderWithRouter(<VideoDetailPageWrapper />);
-    expect(screen.getByText(`$${mockCourseRun.firstEnrollablePaidSeatPrice}.00 USD`)).toBeInTheDocument();
+    expect(screen.getByText(`${formatPrice(mockCourseRun.firstEnrollablePaidSeatPrice)} USD`)).toBeInTheDocument();
   });
 
   it('renders a not found page when video data is not found', () => {
