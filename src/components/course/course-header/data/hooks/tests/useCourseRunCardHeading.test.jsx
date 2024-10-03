@@ -1,6 +1,7 @@
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderHook } from '@testing-library/react-hooks';
 import MockDate from 'mockdate';
+import dayjs from 'dayjs';
 import '@testing-library/jest-dom/extend-expect';
 
 import { hasTimeToComplete } from '../../../../data/utils';
@@ -8,7 +9,6 @@ import { hasTimeToComplete } from '../../../../data/utils';
 import { MOCK_COURSE_RUN_START } from './constants';
 import useCourseRunCardHeading from '../useCourseRunCardHeading';
 import { COURSE_PACING_MAP } from '../../../../data/constants';
-import dayjs from 'dayjs';
 import { DATE_FORMAT } from '../../constants';
 
 jest.mock('../../../../data/utils', () => ({
