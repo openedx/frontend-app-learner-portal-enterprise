@@ -96,11 +96,14 @@ export async function getAutoAppliedSubscriptionLicense({
 
   const hasSubscriptionForAutoAppliedLicenses = !!customerAgreement.subscriptionForAutoAppliedLicenses;
   const hasIdentityProvider = enterpriseCustomer.identityProvider;
+  const hasAutoAppliedWithUniversalLink = !!customerAgreement.enableAutoAppliedSubscriptionsWithUniversalLink;
+  const hasIdpOrAutoAppliedWithUniversalLink = hasIdentityProvider || hasAutoAppliedWithUniversalLink;
 
   // If customer agreement has no configured subscription plan for auto-applied
-  // licenses, or the enterprise customer does not have an identity provider,
+  // licenses, or the enterprise customer does not have either a identity provider or
+  // the field `enableAutoAppliedSubscriptionsWithUniversalLink` enabled
   // return early.
-  if (!hasSubscriptionForAutoAppliedLicenses || !hasIdentityProvider) {
+  if (!(hasSubscriptionForAutoAppliedLicenses && hasIdpOrAutoAppliedWithUniversalLink)) {
     return null;
   }
 
