@@ -6,7 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseAbout from '../CourseAbout';
 import { renderWithRouter } from '../../../../utils/tests';
-import { useEnterpriseCustomer, useCanOnlyViewHighlights } from '../../../app/data';
+import { useEnterpriseCustomer, useCanOnlyViewHighlights, useSubscriptions } from '../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('../../../app/data', () => ({
@@ -15,6 +15,7 @@ jest.mock('../../../app/data', () => ({
   useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
   useCanOnlyViewHighlights: jest.fn().mockReturnValue(false),
   usePassLearnerCsodParams: jest.fn(),
+  useSubscriptions: jest.fn(),
 }));
 
 jest.mock('../../course-header/CourseHeader', () => jest.fn(() => (
@@ -67,6 +68,16 @@ describe('CourseAbout', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: {
+          hasCustomLicenseExpirationMessaging: false,
+          expiredSubscriptionModalMessaging: null,
+          urlForExpiredModal: null,
+          hyperLinkTextForExpiredModal: null,
+        },
+      },
+    });
   });
 
   it('renders', () => {

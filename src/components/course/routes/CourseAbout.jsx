@@ -13,6 +13,7 @@ import {
   useIsAssignmentsOnlyLearner,
   usePassLearnerCsodParams,
 } from '../../app/data';
+import ExpiredSubscriptionModal from '../ExpiredSubscriptionModal';
 
 const CourseAbout = () => {
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
@@ -28,6 +29,7 @@ const CourseAbout = () => {
 
   return (
     <>
+      <ExpiredSubscriptionModal />
       <CourseHeader />
       <Container size="lg" className="py-5">
         <Row>

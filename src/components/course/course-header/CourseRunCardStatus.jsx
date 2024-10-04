@@ -4,6 +4,7 @@ import { Card } from '@openedx/paragon';
 import { Lock } from '@openedx/paragon/icons';
 
 import { DISABLED_ENROLL_REASON_TYPES } from '../data/constants';
+import { useSubscriptions } from '../../app/data';
 
 /**
  * Display under these situations:
@@ -28,25 +29,33 @@ const CourseRunCardStatus = ({
   isUserEnrolled,
   userCanRequestSubsidyForCourse,
 }) => {
+  const { data: { customerAgreement } } = useSubscriptions();
   const missingUserSubsidyReasonType = missingUserSubsidyReason?.reason;
   const missingUserSubsidyReasonUserMessage = missingUserSubsidyReason?.userMessage;
   const missingUserSubsidyReasonActions = missingUserSubsidyReason?.actions;
-
   const hasValidReason = !!(missingUserSubsidyReasonType && missingUserSubsidyReasonUserMessage);
   if (isUserEnrolled || !hasValidReason || userCanRequestSubsidyForCourse) {
     return null;
   }
-
   return (
-    <Card.Status
-      variant="primary"
-      icon={Lock}
-      actions={missingUserSubsidyReasonActions}
-    >
-      <p className="font-weight-bold">
-        {missingUserSubsidyReasonUserMessage}
-      </p>
-    </Card.Status>
+    customerAgreement?.hasCustomLicenseExpirationMessaging ? (
+      <Card.Status
+        data-testid="custom-license-expiration-message-id"
+        variant="primary"
+        className="d-flex justify-content-center align-items-center"
+        icon={Lock}
+      />
+    ) : (
+      <Card.Status
+        variant="primary"
+        icon={Lock}
+        actions={missingUserSubsidyReasonActions}
+      >
+        <p className="font-weight-bold">
+          {missingUserSubsidyReasonUserMessage}
+        </p>
+      </Card.Status>
+    )
   );
 };
 
