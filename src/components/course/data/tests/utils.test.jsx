@@ -4,9 +4,7 @@ import MockDate from 'mockdate';
 import '@testing-library/jest-dom/extend-expect';
 
 import { getConfig } from '@edx/frontend-platform';
-import {
-  DISABLED_ENROLL_REASON_TYPES,
-} from '../constants';
+import { DISABLED_ENROLL_REASON_TYPES } from '../constants';
 import {
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
@@ -919,7 +917,7 @@ describe('transformedCourseMetadata', () => {
   const mockLogoImageUrl = 'https://fake-logo.url';
   const mockOrgMarketingUrl = 'https://fake-mktg.url';
   const mockWeeksToComplete = 8;
-  const mockListPrice = 100;
+  const mockListPrice = [100];
   const mockCurrency = 'USD';
   const mockCourseTitle = 'Test Course Title';
   const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
@@ -958,7 +956,7 @@ describe('transformedCourseMetadata', () => {
     },
   };
   const coursePrice = {
-    list: mockListPrice,
+    listRange: mockListPrice,
   };
   const expectedValue = {
     duration: '8 Weeks',
@@ -969,7 +967,7 @@ describe('transformedCourseMetadata', () => {
     },
     priceDetails: {
       currency: 'USD',
-      price: 100,
+      price: [100],
     },
     startDate: '2023-04-20T12:00:00Z',
     title: 'Test Course Title',

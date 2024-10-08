@@ -5,17 +5,15 @@ import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouterProvider } from '../../../../utils/tests';
 
-import {
-  DISABLED_ENROLL_REASON_TYPES,
-} from '../../data/constants';
+import { DISABLED_ENROLL_REASON_TYPES } from '../../data/constants';
 import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
 import {
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
   useCourseRedemptionEligibility,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
 } from '../../../app/data';
 import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import {
@@ -108,7 +106,7 @@ describe('ExternalCourseEnrollment', () => {
         startDate: '2023-03-05',
         duration: '3 Weeks',
         priceDetails: {
-          price: 100,
+          price: [100],
           currency: 'USD',
         },
       },

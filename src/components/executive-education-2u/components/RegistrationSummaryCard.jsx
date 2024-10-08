@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Card, Row, Col,
-} from '@openedx/paragon';
+import { Card, Col, Row } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { numberWithPrecision } from '../../course/data/utils';
-import { CURRENCY_USD } from '../../course/data/constants';
+import { getContentPriceDisplay } from '../../course/data/utils';
+import { CURRENCY_USD, ZERO_PRICE } from '../../course/data/constants';
+import { formatPrice } from '../../../utils/common';
 
 const RegistrationSummaryCard = ({ priceDetails }) => (
   <Card
@@ -45,11 +44,11 @@ const RegistrationSummaryCard = ({ priceDetails }) => (
                 <Col xs={12} lg={{ span: 6, offset: 0 }} className="justify-content-end">
                   <div className="d-flex justify-content-end mr-2.5">
                     <del>
-                      {priceDetails?.price ? `$${numberWithPrecision(priceDetails.price)} ${priceDetails.currency}` : '-'}
+                      {priceDetails?.price ? `${getContentPriceDisplay(priceDetails.price)} ${priceDetails.currency}` : '-'}
                     </del>
                   </div>
                   <div className="d-flex justify-content-end mr-2.5">
-                    {priceDetails?.price ? `$${numberWithPrecision(0)} ${priceDetails?.currency ? priceDetails.currency : CURRENCY_USD}` : '-'}
+                    {priceDetails?.price ? `${formatPrice(ZERO_PRICE)} ${priceDetails?.currency ? priceDetails.currency : CURRENCY_USD}` : '-'}
                   </div>
                   <div className="d-flex justify-content-end small font-weight-light text-gray-500 mr-2.5">
                     <FormattedMessage

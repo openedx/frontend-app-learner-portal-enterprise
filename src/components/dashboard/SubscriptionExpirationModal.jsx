@@ -25,10 +25,13 @@ const SubscriptionExpirationModal = () => {
   } = useContext(AppContext);
 
   const intl = useIntl();
-  const [isOpen, , close] = useToggle(true);
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: subscriptions } = useSubscriptions();
   const { subscriptionPlan, subscriptionLicense } = subscriptions;
+  const seenExpiredSubscriptionModal = !!global.localStorage.getItem(
+    EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense),
+  );
+  const [isOpen, , close] = useToggle(!seenExpiredSubscriptionModal);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     daysUntilExpirationIncludingRenewals,
     expirationDate,
@@ -88,10 +91,6 @@ const SubscriptionExpirationModal = () => {
     close();
     global.localStorage.setItem(EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense), 'true');
   };
-
-  const seenExpiredSubscriptionModal = !!global.localStorage.getItem(
-    EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense),
-  );
   // If the subscription has already expired, we show a different un-dismissible modal
   if (!isCurrent) {
     if (seenExpiredSubscriptionModal) {
@@ -109,6 +108,7 @@ const SubscriptionExpirationModal = () => {
           </ActionRow>
         )}
         hasCloseButton
+        onClose={handleSubscriptionExpiredModalDismissal}
       >
         <p>
           Your organization&#39;s access to your subscription has expired. You will only have audit
@@ -170,6 +170,7 @@ const SubscriptionExpirationModal = () => {
         </ActionRow>
       )}
       hasCloseButton
+      onClose={handleSubscriptionExpiringModalDismissal}
     >
       <p>
         Your organization&#39;s access to your current subscription is expiring in

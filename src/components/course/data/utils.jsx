@@ -12,6 +12,7 @@ import {
   DISABLED_ENROLL_USER_MESSAGES,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   ENROLLMENT_FAILED_QUERY_PARAM,
+  ZERO_PRICE,
 } from './constants';
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
 import ProfessionalSvgIcon from '../../../assets/icons/professional.svg';
@@ -20,7 +21,7 @@ import XSeriesSvgIcon from '../../../assets/icons/xseries.svg';
 import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
-import { hasValidStartExpirationDates } from '../../../utils/common';
+import { formatPrice, hasValidStartExpirationDates, isDefinedAndNotNull } from '../../../utils/common';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import {
   findHighestLevelEntitlementSku,
@@ -152,7 +153,22 @@ export function getProgramIcon(type) {
   }
 }
 
-export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);
+/**
+ * Displays content price with precision as a range or singular price
+ * @param priceRange
+ * @returns {*|string}
+ */
+export const getContentPriceDisplay = (priceRange) => {
+  if (!priceRange?.length) {
+    return formatPrice(ZERO_PRICE);
+  }
+  const minPrice = Math.min(...priceRange);
+  const maxPrice = Math.max(...priceRange);
+  if (maxPrice !== minPrice) {
+    return `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`;
+  }
+  return formatPrice(priceRange[0]);
+};
 
 /**
  *
@@ -803,7 +819,7 @@ export function getLinkToCourse(course, slug) {
  */
 export function getEntitlementPrice(entitlements) {
   if (entitlements?.length) {
-    return Number(entitlements[0].price);
+    return parseFloat(entitlements[0].price);
   }
   return undefined;
 }
@@ -817,10 +833,16 @@ export function getEntitlementPrice(entitlements) {
  * @returns Price for the course run.
  */
 export function getCoursePrice(course) {
-  if (course.activeCourseRun?.firstEnrollablePaidSeatPrice) {
-    return course.activeCourseRun.firstEnrollablePaidSeatPrice;
+  if (isDefinedAndNotNull(course.activeCourseRun?.fixedPriceUsd)) {
+    return [parseFloat(course.activeCourseRun.fixedPriceUsd)];
   }
-  return getEntitlementPrice(course.entitlements);
+  if (isDefinedAndNotNull(course.activeCourseRun?.firstEnrollablePaidSeatPrice)) {
+    return [course.activeCourseRun.firstEnrollablePaidSeatPrice];
+  }
+  if (course.entitlements.length > 0) {
+    return [getEntitlementPrice(course.entitlements)];
+  }
+  return null;
 }
 
 /**
@@ -904,7 +926,7 @@ export function transformedCourseMetadata({
     startDate: getCourseStartDate({ courseRun }),
     duration: getDuration(),
     priceDetails: {
-      price: coursePrice.list,
+      price: coursePrice.listRange,
       currency,
     },
   };

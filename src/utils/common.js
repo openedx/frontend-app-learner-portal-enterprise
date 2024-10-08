@@ -39,6 +39,10 @@ export const hasTruthyValue = (value) => {
   return values.every(item => !!item);
 };
 
+export const sumOfArray = (values) => (values.every(item => typeof item === 'number' && !Number.isNaN(item))
+  ? values.reduce((prev, next) => prev + next, 0)
+  : null);
+
 export const hasValidStartExpirationDates = ({ startDate, expirationDate, endDate }) => {
   const now = dayjs();
   // Subscriptions use "expirationDate" while Codes use "endDate"
@@ -178,3 +182,14 @@ export function i18nFormatTimestamp({ intl, timestamp, formatOpts = {} }) {
     ...formatOpts,
   });
 }
+
+export const formatPrice = (price, options = {}) => {
+  const USDollar = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    ...options,
+  });
+  return USDollar.format(Math.abs(price));
+};

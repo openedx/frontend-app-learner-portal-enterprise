@@ -10,13 +10,16 @@ import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/d
 import { renderWithRouter } from '../../../utils/tests';
 import VideoDetailPage from '../VideoDetailPage';
 import {
-  useVideoDetails, useEnterpriseCustomer, useVideoCourseMetadata,
-  useVideoCourseReviews,
+  useEnterpriseCustomer,
   useSubscriptions,
+  useVideoCourseMetadata,
+  useVideoCourseReviews,
+  useVideoDetails,
 } from '../../app/data';
 import { COURSE_PACING_MAP } from '../../course/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../config';
+import { formatPrice } from '../../../utils/common';
 
 const APP_CONFIG = {
   USE_API_CACHE: true,
@@ -85,13 +88,15 @@ const mockCourseRun = {
   minEffort: 2,
   maxEffort: 4,
   levelType: 'Introductory',
+  firstEnrollablePaidSeatPrice: 100,
 };
 const mockCourseMetadata = {
   key: 'test-course-key',
-  outcome: '<ul><li>hello i am descritpion</li></ul>',
+  outcome: '<ul><li>hello i am description</li></ul>',
   title: 'Test Course Title',
   activeCourseRun: mockCourseRun,
   courseRuns: [mockCourseRun],
+  entitlements: [],
 };
 const mockCourseReviews = {
   course_key: 'course-test-key',
@@ -117,7 +122,7 @@ const VideoDetailPageWrapper = ({
   </IntlProvider>
 );
 
-describe('VideoDetailPage Tests', () => {
+describe('VideoDetailPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
@@ -178,6 +183,12 @@ describe('VideoDetailPage Tests', () => {
     useVideoCourseMetadata.mockReturnValue({ data: { ...mockCourseMetadata, activeCourseRun: { ...mockCourseRun, levelType: 'Unknown' } } });
     renderWithRouter(<VideoDetailPageWrapper />);
     expect(screen.getByText('Unknown')).toBeInTheDocument();
+  });
+
+  it('renders the price', () => {
+    useVideoCourseMetadata.mockReturnValue({ data: { ...mockCourseMetadata, activeCourseRun: { ...mockCourseRun, levelType: 'Unknown' } } });
+    renderWithRouter(<VideoDetailPageWrapper />);
+    expect(screen.getByText(`${formatPrice(mockCourseRun.firstEnrollablePaidSeatPrice)} USD`)).toBeInTheDocument();
   });
 
   it('renders a not found page when video data is not found', () => {

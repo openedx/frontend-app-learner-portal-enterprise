@@ -1,20 +1,20 @@
 import { Skeleton } from '@openedx/paragon';
 import classNames from 'classnames';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-
-import { numberWithPrecision } from './data/utils';
 import {
+  getContentPriceDisplay,
   useCanUserRequestSubsidyForCourse,
   useCoursePrice,
   useIsCourseAssigned,
   useUserSubsidyApplicableToCourse,
 } from './data';
 import {
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
   useEnterpriseCustomer,
 } from '../app/data';
+import { sumOfArray } from '../../utils/common';
 
 const CourseSidebarPrice = () => {
   const intl = useIntl();
@@ -23,12 +23,10 @@ const CourseSidebarPrice = () => {
   const { isCourseAssigned } = useIsCourseAssigned();
   const canRequestSubsidy = useCanUserRequestSubsidyForCourse();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
-
   if (!coursePrice) {
     return <Skeleton containerTestId="course-price-skeleton" height={24} />;
   }
-
-  const originalPriceDisplay = numberWithPrecision(coursePrice.list);
+  const originalPriceDisplay = getContentPriceDisplay(coursePrice.listRange);
   const showOrigPrice = !enterpriseCustomer.hideCourseOriginalPrice;
   const crossedOutOriginalPrice = (
     <del>
@@ -38,7 +36,8 @@ const CourseSidebarPrice = () => {
           defaultMessage="Priced reduced from:"
           description="Message to indicate that the price has been reduced."
         />
-      </span>${originalPriceDisplay} {currency}
+      </span>
+      {originalPriceDisplay} {currency}
     </del>
   );
 
@@ -62,13 +61,13 @@ const CourseSidebarPrice = () => {
     );
   }
 
-  const hasDiscountedPrice = coursePrice.discounted < coursePrice.list;
-
+  const hasDiscountedPrice = coursePrice.discountedList
+    && sumOfArray(coursePrice.discountedList) < sumOfArray(coursePrice.listRange);
   // Case 2: No subsidies found but learner can request a subsidy
   if (!hasDiscountedPrice && canRequestSubsidy) {
     return (
       <span style={{ whiteSpace: 'pre-wrap' }} data-testid="browse-and-request-pricing">
-        <s>${originalPriceDisplay} {currency}</s><br />
+        <s>{originalPriceDisplay} {currency}</s><br />
         <FormattedMessage
           id="enterprise.course.about.course.sidebar.price.free.when.approved"
           defaultMessage="Free to me{br}(when approved)"
@@ -83,7 +82,7 @@ const CourseSidebarPrice = () => {
   if (!hasDiscountedPrice) {
     return (
       <span className="d-block">
-        ${originalPriceDisplay} {currency}
+        {originalPriceDisplay} {currency}
       </span>
     );
   }
@@ -113,22 +112,22 @@ const CourseSidebarPrice = () => {
       });
     }
   }
-  const discountedPriceDisplay = `${numberWithPrecision(coursePrice.discounted)} ${currency}`;
-
+  const discountedPriceDisplay = `${getContentPriceDisplay(coursePrice.discountedList)} ${currency}`;
   return (
     <>
-      <div className={classNames({ 'mb-2': coursePrice.discounted > 0 || showOrigPrice })}>
-        {/* discounted > 0 means partial discount */}
+      <div className={classNames({ 'mb-2': sumOfArray(coursePrice.discountedList) > 0 || showOrigPrice })}>
+        {/* discountedList > 0 means partial discount */}
         {showOrigPrice && <>{crossedOutOriginalPrice}{' '}</>}
-        {coursePrice.discounted > 0 && (
+        {sumOfArray(coursePrice.discountedList) > 0 && (
           <>
             <span className="sr-only">
               <FormattedMessage
                 id="enterprise.course.about.price.discounted"
                 defaultMessage="Discounted price:"
-                description="Message to indicate that the price has been discounted."
+                description="Message to indicate that the price has been discountedList."
               />
-            </span>${discountedPriceDisplay}
+            </span>
+            {discountedPriceDisplay}
           </>
         )}
       </div>

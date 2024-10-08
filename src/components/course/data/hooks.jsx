@@ -36,7 +36,10 @@ import { canUserRequestSubsidyForCourse, getExternalCourseEnrollmentUrl } from '
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 import { SUBSIDY_TYPE } from '../../../constants';
 import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  determineAllocatedAssignmentsForCourse,
   getSubsidyToApplyForCourse,
+  LICENSE_SUBSIDY_TYPE,
   useBrowseAndRequest,
   useBrowseAndRequestConfiguration,
   useCatalogsForSubsidyRequests,
@@ -48,9 +51,6 @@ import {
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
-  COUPON_CODE_SUBSIDY_TYPE,
-  LICENSE_SUBSIDY_TYPE,
-  determineAllocatedAssignmentsForCourse,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CourseContext } from '../CourseContextProvider';
@@ -173,8 +173,8 @@ export function useCoursePacingType(courseRun) {
 
 /**
  * @typedef {Object} CoursePrice
- * @property {number} list The list price.
- * @property {number} discounted The discounted price.
+ * @property {number[]} listRange The list price.
+ * @property {number[]} discountedList The discountedList price.
  */
 
 /**
@@ -203,30 +203,34 @@ export const useCoursePriceForUserSubsidy = ({
       }
 
       const onlyListPrice = {
-        list: listPrice,
+        listRange: listPrice,
       };
 
       if (userSubsidyApplicableToCourse) {
         const { discountType, discountValue } = userSubsidyApplicableToCourse;
-        let discountedPrice;
+        let discountedPriceList = [];
 
         if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()) {
-          discountedPrice = listPrice - (listPrice * (discountValue / 100));
+          discountedPriceList = onlyListPrice.listRange.map(
+            (individualPrice) => individualPrice - (individualPrice * (discountValue / 100)),
+          );
         }
 
         if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()) {
-          discountedPrice = Math.max(listPrice - discountValue, 0);
+          discountedPriceList = onlyListPrice.listRange.map(
+            (individualPrice) => Math.max(individualPrice - discountValue, 0),
+          );
         }
 
-        if (isDefinedAndNotNull(discountedPrice)) {
+        if (isDefinedAndNotNull(discountedPriceList)) {
           return {
             ...onlyListPrice,
-            discounted: discountedPrice,
+            discountedList: discountedPriceList,
           };
         }
         return {
           ...onlyListPrice,
-          discounted: onlyListPrice.list,
+          discountedList: onlyListPrice.listRange,
         };
       }
 
