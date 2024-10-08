@@ -1683,9 +1683,12 @@ describe('useCourseListPrice', () => {
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual({ data: mockListPrice });
+    const expectedListPrice = mockListPrice;
+    const courseMetadataSelectFn = useCourseMetadata.mock.calls[0][0].select;
+    expect(expectedListPrice).toEqual(courseMetadataSelectFn({ transformed: baseCourseMetadataValue }));
+    expect(result.current).toEqual({ data: expectedListPrice });
   });
-  it('should not return the list price if one doesnt exist, first fallback price, fixed_price_usd', () => {
+  it('should not return the list price if one doesnt exist, fall back to fixed_price_usd from getCoursePrice', () => {
     const updatedListPrice = undefined;
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
     useCourseMetadata.mockReturnValue({ data: updatedListPrice || getCoursePrice(baseCourseMetadataValue) });
@@ -1693,9 +1696,12 @@ describe('useCourseListPrice', () => {
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual({ data: [baseCourseMetadataValue.activeCourseRun.fixedPriceUsd] });
+    const expectedListPrice = [baseCourseMetadataValue.activeCourseRun.fixedPriceUsd];
+    const courseMetadataSelectFn = useCourseMetadata.mock.calls[0][0].select;
+    expect(expectedListPrice).toEqual(courseMetadataSelectFn({ transformed: baseCourseMetadataValue }));
+    expect(result.current).toEqual({ data: expectedListPrice });
   });
-  it('should not return the list price if one doesnt exist, second fallback price, firstEnrollablePaidSeatPrice', () => {
+  it('should not return the list price if one doesnt exist, fall back to firstEnrollablePaidSeatPrice from getCoursePrice', () => {
     const updatedListPrice = undefined;
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
     delete baseCourseMetadataValue.activeCourseRun.fixedPriceUsd;
@@ -1704,9 +1710,12 @@ describe('useCourseListPrice', () => {
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual({ data: [baseCourseMetadataValue.activeCourseRun.firstEnrollablePaidSeatPrice] });
+    const expectedListPrice = [baseCourseMetadataValue.activeCourseRun.firstEnrollablePaidSeatPrice];
+    const courseMetadataSelectFn = useCourseMetadata.mock.calls[0][0].select;
+    expect(expectedListPrice).toEqual(courseMetadataSelectFn({ transformed: baseCourseMetadataValue }));
+    expect(result.current).toEqual({ data: expectedListPrice });
   });
-  it('should not return the list price if one doesnt exit, third fallback price, entitlements', () => {
+  it('should not return the list price if one doesnt exit, fall back to entitlements from getCoursePrice', () => {
     const updatedListPrice = undefined;
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
     delete baseCourseMetadataValue.activeCourseRun.fixedPriceUsd;
@@ -1716,13 +1725,21 @@ describe('useCourseListPrice', () => {
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual({ data: [baseCourseMetadataValue.entitlements[0].price] });
+    const expectedListPrice = [baseCourseMetadataValue.entitlements[0].price];
+    const courseMetadataSelectFn = useCourseMetadata.mock.calls[0][0].select;
+    expect(expectedListPrice).toEqual(courseMetadataSelectFn({ transformed: baseCourseMetadataValue }));
+    expect(result.current).toEqual({ data: expectedListPrice });
   });
   it('should not return the list price if one doesnt exist or the course metadata doesnt include it', () => {
     const updatedListPrice = undefined;
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: updatedListPrice } });
     const updatedCourseMetadata = {
       ...baseCourseMetadataValue,
+      activeCourseRun: {
+        ...baseCourseMetadataValue.activeCourseRun,
+        fixedPriceUsd: null,
+        firstEnrollablePaidSeatPrice: null,
+      },
       entitlements: [],
     };
     useCourseMetadata.mockReturnValue({ data: updatedListPrice || getCoursePrice(updatedCourseMetadata) });
@@ -1730,7 +1747,10 @@ describe('useCourseListPrice', () => {
       () => useCourseListPrice(),
       { wrapper: Wrapper },
     );
-    expect(result.current).toEqual({ data: null });
+    const expectedListPrice = null;
+    const courseMetadataSelectFn = useCourseMetadata.mock.calls[0][0].select;
+    expect(expectedListPrice).toEqual(courseMetadataSelectFn({ transformed: updatedCourseMetadata }));
+    expect(result.current).toEqual({ data: expectedListPrice });
   });
 });
 
