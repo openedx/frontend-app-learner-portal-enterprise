@@ -1676,6 +1676,8 @@ describe('useCourseListPrice', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: mockListPrice } });
+    // NOTE: `useCourseMetadata`'s mocked return value assumes the returned value
+    // from the `select` function passed to the hook.
     useCourseMetadata.mockReturnValue({ data: mockListPrice || getCoursePrice(baseCourseMetadataValue) });
   });
   it('should return the list price if one exist', () => {

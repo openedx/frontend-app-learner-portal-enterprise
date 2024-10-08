@@ -173,8 +173,8 @@ export function useCoursePacingType(courseRun) {
 
 /**
  * @typedef {Object} CoursePrice
- * @property {number} listRange The list price.
- * @property {number} discountedList The discountedList price.
+ * @property {number[]} listRange The list price.
+ * @property {number[]} discountedList The discountedList price.
  */
 
 /**

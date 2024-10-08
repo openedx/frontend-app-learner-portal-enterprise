@@ -153,8 +153,6 @@ export function getProgramIcon(type) {
   }
 }
 
-export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);
-
 /**
  * Displays content price with precision as a range or singular price
  * @param priceRange
@@ -162,7 +160,7 @@ export const numberWithPrecision = (number, precision = 2) => number.toFixed(pre
  */
 export const getContentPriceDisplay = (priceRange) => {
   if (!priceRange?.length) {
-    return numberWithPrecision(ZERO_PRICE);
+    return formatPrice(ZERO_PRICE);
   }
   const minPrice = Math.min(...priceRange);
   const maxPrice = Math.max(...priceRange);

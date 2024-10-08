@@ -6,11 +6,11 @@ import { queryCanRedeem } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 
-const getContentListPrice = ({ courseRuns }) => {
+const getContentListPriceRange = ({ courseRuns }) => {
   const flatContentPrice = courseRuns.flatMap(run => run.listPrice?.usd).filter(x => !!x);
   // Find the max and min prices
   if (!flatContentPrice.length) {
-    return null;
+    return [];
   }
   const maxPrice = Math.max(...flatContentPrice);
   const minPrice = Math.min(...flatContentPrice);
@@ -32,7 +32,7 @@ export function transformCourseRedemptionEligibility({
   const otherSubsidyAccessPolicy = canRedeemData.find(
     r => r.redeemableSubsidyAccessPolicy,
   )?.redeemableSubsidyAccessPolicy;
-  const listPrice = getContentListPrice({ courseRuns: canRedeemData });
+  const listPrice = getContentListPriceRange({ courseRuns: canRedeemData });
   const hasSuccessfulRedemption = courseRunKey
     ? !!canRedeemData.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption
     : canRedeemData.some(r => r.hasSuccessfulRedemption);

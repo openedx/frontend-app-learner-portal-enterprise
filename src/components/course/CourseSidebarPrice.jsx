@@ -115,7 +115,7 @@ const CourseSidebarPrice = () => {
   const discountedPriceDisplay = `${getContentPriceDisplay(coursePrice.discountedList)} ${currency}`;
   return (
     <>
-      <div className={classNames({ 'mb-2': coursePrice.discountedList > 0 || showOrigPrice })}>
+      <div className={classNames({ 'mb-2': sumOfArray(coursePrice.discountedList) > 0 || showOrigPrice })}>
         {/* discountedList > 0 means partial discount */}
         {showOrigPrice && <>{crossedOutOriginalPrice}{' '}</>}
         {sumOfArray(coursePrice.discountedList) > 0 && (
