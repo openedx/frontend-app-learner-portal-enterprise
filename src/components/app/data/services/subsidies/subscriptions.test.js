@@ -377,36 +377,77 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     {
       identityProvider: null,
       subscriptionForAutoAppliedLicenses: null,
+      enableAutoAppliedSubscriptionsWithUniversalLink: false,
       isLinkedToEnterpriseCustomer: false,
       shouldAutoApply: false,
     },
     {
       identityProvider: null,
       subscriptionForAutoAppliedLicenses: mockSubscriptionPlanUUID,
+      enableAutoAppliedSubscriptionsWithUniversalLink: false,
       isLinkedToEnterpriseCustomer: false,
       shouldAutoApply: false,
     },
     {
       identityProvider: 'identity-provider',
       subscriptionForAutoAppliedLicenses: null,
+      enableAutoAppliedSubscriptionsWithUniversalLink: false,
       isLinkedToEnterpriseCustomer: false,
       shouldAutoApply: false,
     },
     {
       identityProvider: 'identity-provider',
       subscriptionForAutoAppliedLicenses: mockSubscriptionPlanUUID,
+      enableAutoAppliedSubscriptionsWithUniversalLink: false,
       isLinkedToEnterpriseCustomer: false,
       shouldAutoApply: false,
     },
     {
       identityProvider: 'identity-provider',
       subscriptionForAutoAppliedLicenses: mockSubscriptionPlanUUID,
+      enableAutoAppliedSubscriptionsWithUniversalLink: false,
+      isLinkedToEnterpriseCustomer: true,
+      shouldAutoApply: true,
+    },
+    {
+      identityProvider: null,
+      subscriptionForAutoAppliedLicenses: null,
+      enableAutoAppliedSubscriptionsWithUniversalLink: true,
+      isLinkedToEnterpriseCustomer: false,
+      shouldAutoApply: false,
+    },
+    {
+      identityProvider: null,
+      subscriptionForAutoAppliedLicenses: mockSubscriptionPlanUUID,
+      enableAutoAppliedSubscriptionsWithUniversalLink: true,
+      isLinkedToEnterpriseCustomer: false,
+      shouldAutoApply: false,
+    },
+    {
+      identityProvider: 'identity-provider',
+      subscriptionForAutoAppliedLicenses: null,
+      enableAutoAppliedSubscriptionsWithUniversalLink: true,
+      isLinkedToEnterpriseCustomer: false,
+      shouldAutoApply: false,
+    },
+    {
+      identityProvider: 'identity-provider',
+      subscriptionForAutoAppliedLicenses: mockSubscriptionPlanUUID,
+      enableAutoAppliedSubscriptionsWithUniversalLink: true,
+      isLinkedToEnterpriseCustomer: false,
+      shouldAutoApply: false,
+    },
+    {
+      identityProvider: 'identity-provider',
+      subscriptionForAutoAppliedLicenses: mockSubscriptionPlanUUID,
+      enableAutoAppliedSubscriptionsWithUniversalLink: true,
       isLinkedToEnterpriseCustomer: true,
       shouldAutoApply: true,
     },
   ])('auto-applies subscription license (%s)', async ({
     identityProvider,
     subscriptionForAutoAppliedLicenses,
+    enableAutoAppliedSubscriptionsWithUniversalLink,
     isLinkedToEnterpriseCustomer,
     shouldAutoApply,
   }) => {
@@ -418,6 +459,7 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     const mockCustomerAgreementWithAutoApplied = {
       ...mockCustomerAgreement,
       subscriptionForAutoAppliedLicenses,
+      enableAutoAppliedSubscriptionsWithUniversalLink,
     };
     const mockSubscriptionsData = {
       customerAgreement: mockCustomerAgreementWithAutoApplied,
