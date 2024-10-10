@@ -8,12 +8,36 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
-import { queryEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../../../../app/data';
+import { queryEnterpriseCourseEnrollments, queryEnterpriseLearnerDashboardBFF, useEnterpriseCustomer } from '../../../../../app/data';
 
 const btnLabels = {
   default: 'Unenroll',
   pending: 'Unenrolling...',
 };
+
+function handleQueriesForUnroll(queryClient, courseRunId, enterpriseCustomer) {
+  const enrollmentForCourseFilter = (enrollment) => enrollment.courseRunId !== courseRunId;
+
+  // Determine which BFF queries need to be updated after unenrolling.
+  const learnerDashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF(enterpriseCustomer.uuid).queryKey;
+  const bffQueryKeysToUpdate = [learnerDashboardBFFQueryKey];
+
+  // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
+  bffQueryKeysToUpdate.forEach((queryKey) => {
+    const existingBFFData = queryClient.getQueryData(queryKey);
+    const updatedBFFData = {
+      ...existingBFFData,
+      enterpriseCourseEnrollments: existingBFFData.enterpriseCourseEnrollments.filter(enrollmentForCourseFilter),
+    };
+    queryClient.setQueryData(queryKey, updatedBFFData);
+  });
+
+  // Update the legacy queryEnterpriseCourseEnrollments cache as well.
+  const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
+  const existingCourseEnrollmentsData = queryClient.getQueryData(enterpriseCourseEnrollmentsQueryKey);
+  const updatedCourseEnrollmentsData = existingCourseEnrollmentsData.filter(enrollmentForCourseFilter);
+  queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, updatedCourseEnrollmentsData);
+}
 
 const UnenrollModal = ({
   courseRunId,
@@ -43,14 +67,7 @@ const UnenrollModal = ({
       setBtnState('default');
       return;
     }
-    const enrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
-    const existingEnrollments = queryClient.getQueryData(enrollmentsQueryKey);
-    // Optimistically remove the unenrolled course from the list of enrollments in
-    // the cache for the `queryEnterpriseCourseEnrollments` query.
-    queryClient.setQueryData(
-      enrollmentsQueryKey,
-      existingEnrollments.filter((enrollment) => enrollment.courseRunId !== courseRunId),
-    );
+    handleQueriesForUnroll(queryClient, courseRunId, enterpriseCustomer);
     addToast('You have been unenrolled from the course.');
     onSuccess();
   };

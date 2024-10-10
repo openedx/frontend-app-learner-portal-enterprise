@@ -1,9 +1,9 @@
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer,
-  queryEnterpriseCourseEnrollments,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
+  queryEnterpriseLearnerDashboardBFF,
 } from '../../app/data';
 
 type DashboardRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
@@ -31,8 +31,9 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
       authenticatedUser,
       enterpriseSlug,
     });
+
     await Promise.all([
-      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
+      queryClient.ensureQueryData(queryEnterpriseLearnerDashboardBFF(enterpriseCustomer.uuid)),
       queryClient.ensureQueryData(queryEnterpriseProgramsList(enterpriseCustomer.uuid)),
       queryClient.ensureQueryData(queryEnterprisePathwaysList(enterpriseCustomer.uuid)),
     ]);

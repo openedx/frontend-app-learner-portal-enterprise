@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'react-router-dom';
 
 import { queryEnterpriseCourseEnrollments } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -11,6 +12,7 @@ import {
   transformLearnerContentAssignment,
   transformSubsidyRequest,
 } from '../utils';
+import { resolveBFFQuery } from '../../routes/data/utils';
 import { COURSE_STATUSES } from '../../../../constants';
 
 export const transformAllEnrollmentsByStatus = ({
@@ -27,6 +29,34 @@ export const transformAllEnrollmentsByStatus = ({
   return enrollmentsByStatus;
 };
 
+export function useBaseEnterpriseCourseEnrollments(queryOptions = {}) {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const location = useLocation();
+
+  // Determine the BFF query to use based on the current location
+  const matchedBFFQuery = resolveBFFQuery(location.pathname);
+
+  // Determine the query configuration: use the matched BFF query or fallback to default
+  let queryConfig;
+  if (matchedBFFQuery) {
+    queryConfig = {
+      ...matchedBFFQuery(enterpriseCustomer.uuid),
+      // TODO: move transforms into the BFF response
+      select: (data) => data.enterpriseCourseEnrollments.map(transformCourseEnrollment),
+    };
+  } else {
+    queryConfig = {
+      ...queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
+      select: (data) => data.map(transformCourseEnrollment),
+    };
+  }
+
+  return useQuery({
+    ...queryConfig,
+    enabled: queryOptions.enabled,
+  });
+}
+
 /**
  * Retrieves the relevant enterprise course enrollments, subsidy requests (e.g., license
  * requests), and content assignments for the active enterprise customer user.
@@ -35,11 +65,7 @@ export const transformAllEnrollmentsByStatus = ({
 export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
   const isEnabled = queryOptions.enabled;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: enterpriseCourseEnrollments } = useQuery({
-    ...queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
-    select: (data) => data.map(transformCourseEnrollment),
-    enabled: isEnabled,
-  });
+  const { data: enterpriseCourseEnrollments } = useBaseEnterpriseCourseEnrollments(queryOptions);
   const { data: { requests } } = useBrowseAndRequest({
     subscriptionLicensesQueryOptions: {
       select: (data) => data.map((subsidyRequest) => transformSubsidyRequest({

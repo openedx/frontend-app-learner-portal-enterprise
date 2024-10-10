@@ -16,6 +16,7 @@ import {
   fetchEnterpriseCourseEnrollments,
   fetchEnterpriseCuration,
   fetchEnterpriseCustomerContainsContent,
+  fetchEnterpriseLearnerDashboard,
   fetchEnterpriseLearnerData,
   fetchEnterpriseOffers,
   fetchInProgressPathways,
@@ -47,6 +48,15 @@ const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({
     queryKey: [enterpriseUuid],
     contextQueries: {
+      bffs: {
+        queryKey: null,
+        contextQueries: {
+          dashboard: ({
+            queryKey: null,
+            queryFn: ({ queryKey }) => fetchEnterpriseLearnerDashboard(queryKey[2]),
+          }),
+        },
+      },
       academies: {
         queryKey: null,
         contextQueries: {
