@@ -16,6 +16,7 @@ import {
   useSubscriptions,
 } from '../app/data';
 import BudgetExpiryNotification from '../budget-expiry-notification';
+import ExpiredSubscriptionModal from '../expired-subscription-modal';
 
 const DashboardPage = () => {
   const intl = useIntl();
@@ -95,6 +96,13 @@ const DashboardPage = () => {
         {tabs.map((tab) => React.cloneElement(tab, { key: tab.props.eventKey }))}
       </Tabs>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
+      {/* ExpiredSubscriptionModal is specifically tailored for learners with an expired license and is
+      triggered when the learner has hasCustomLicenseExpirationMessaging enabled.
+      Ideally, the existing SubscriptionExpirationModal should be extended or repurposed to incorporate
+      this logic and support the custom messaging.
+      This is noted as a TO-DO, and a ticket will be created to address this enhancement.
+      Ticket: https://2u-internal.atlassian.net/browse/ENT-9512 */}
+      <ExpiredSubscriptionModal />
       {subscriptions.subscriptionPlan && subscriptions.showExpirationNotifications && <SubscriptionExpirationModal />}
     </Container>
   );
