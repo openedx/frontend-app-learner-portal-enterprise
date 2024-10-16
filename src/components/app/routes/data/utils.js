@@ -15,7 +15,7 @@ import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 
 import {
-  activateOrAutoApplySubscriptionLicense,
+  queryEnterpriseLearnerDashboardBFF,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
@@ -25,8 +25,38 @@ import {
   queryNotices,
   queryRedeemablePolicies,
   querySubscriptions,
+} from '../../data/queries';
+
+import {
+  activateOrAutoApplySubscriptionLicense,
   updateUserActiveEnterprise,
-} from '../../data';
+} from '../../data/services';
+
+/**
+ * Resolves the appropriate BFF query function to use for the current route.
+ * @param {string} pathname - The current route pathname.
+ * @returns {Function|null} The BFF query function to use for the current route, or null if no match is found.
+ */
+export function resolveBFFQuery(pathname) {
+  // Define route patterns and their corresponding query functions
+  const routeToBFFQueryMap = [
+    {
+      pattern: '/:enterpriseSlug',
+      query: queryEnterpriseLearnerDashboardBFF,
+    },
+    // Add more routes and queries incrementally as needed
+  ];
+
+  // Find the matching route and return the corresponding query function
+  const matchedRoute = routeToBFFQueryMap.find((route) => matchPath(route.pattern, pathname));
+
+  if (matchedRoute) {
+    return matchedRoute.query;
+  }
+
+  // No match found
+  return null;
+}
 
 /**
  * Ensures all enterprise-related app data is loaded.
@@ -47,58 +77,80 @@ export async function ensureEnterpriseAppData({
   queryClient,
   requestUrl,
 }) {
-  const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
-  const enterpriseAppDataQueries = [
-    // Enterprise Customer User Subsidies
-    queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
-      // Auto-activate the user's subscription license, if applicable.
-      const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
-        enterpriseCustomer,
-        allLinkedEnterpriseCustomerUsers,
-        subscriptionsData,
-        requestUrl,
-        queryClient,
-        subscriptionsQuery,
-      });
-      if (activatedOrAutoAppliedLicense) {
-        const { licensesByStatus } = subscriptionsData;
-        const updatedLicensesByStatus = { ...licensesByStatus };
-        Object.entries(licensesByStatus).forEach(([status, licenses]) => {
-          const licensesIncludesActivatedOrAutoAppliedLicense = licenses.some(
-            (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
-          );
-          const isCurrentStatusMatchingLicenseStatus = status === activatedOrAutoAppliedLicense.status;
-          if (licensesIncludesActivatedOrAutoAppliedLicense) {
-            updatedLicensesByStatus[status] = isCurrentStatusMatchingLicenseStatus
-              ? licenses.filter((license) => license.uuid !== activatedOrAutoAppliedLicense.uuid)
-              : [...licenses, activatedOrAutoAppliedLicense];
-          } else if (isCurrentStatusMatchingLicenseStatus) {
-            updatedLicensesByStatus[activatedOrAutoAppliedLicense.status].push(activatedOrAutoAppliedLicense);
-          }
+  const enterpriseAppDataQueries = [];
+  const resolvedBFFQuery = resolveBFFQuery(requestUrl.pathname);
+  if (!resolvedBFFQuery) {
+    /**
+     * If the user is visiting a route configured to use a BFF, return early to avoid
+     * auto-activating or auto-applying the user's subscription license. All other
+     * routes will auto-activate or auto-apply the user's subscription license through
+     * the below logic.
+     *
+     * This is to an incremental migration to the Learner Portal's suite of
+     * Backend-for-Frontend (BFF) APIs, where the subscription license activation
+     * or auto-application is handled by the Learner BFF.
+     *
+     * As such, the dashboardLoader is now responsible for the auto-activation or auto-application of the
+     * user's subscription license via the Dashboard BFF. The existing subscriptions-related query cache will be
+     * optimistilly updated with the auto-activated or auto-applied subscription license, if applicable,
+     * after resolving the dashboardLoader's request to the dashboard's BFF API.
+     */
+    const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
+    enterpriseAppDataQueries.push(
+      queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
+        // Auto-activate or auto-apply the user's subscription license, if applicable.
+        const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
+          enterpriseCustomer,
+          allLinkedEnterpriseCustomerUsers,
+          subscriptionsData,
+          requestUrl,
+          queryClient,
+          subscriptionsQuery,
         });
-        // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
-        const updatedSubscriptionLicenses = subscriptionsData.subscriptionLicenses.length > 0
-          ? subscriptionsData.subscriptionLicenses.map((license) => {
-            // Ensures an auto-activated license is updated in the query cache to change
-            // its status from "assigned" to "activated".
-            if (license.uuid === activatedOrAutoAppliedLicense.uuid) {
-              return activatedOrAutoAppliedLicense;
+        if (activatedOrAutoAppliedLicense) {
+          const { licensesByStatus } = subscriptionsData;
+          const updatedLicensesByStatus = { ...licensesByStatus };
+          Object.entries(licensesByStatus).forEach(([status, licenses]) => {
+            const licensesIncludesActivatedOrAutoAppliedLicense = licenses.some(
+              (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
+            );
+            const isCurrentStatusMatchingLicenseStatus = status === activatedOrAutoAppliedLicense.status;
+            if (licensesIncludesActivatedOrAutoAppliedLicense) {
+              updatedLicensesByStatus[status] = isCurrentStatusMatchingLicenseStatus
+                ? licenses.filter((license) => license.uuid !== activatedOrAutoAppliedLicense.uuid)
+                : [...licenses, activatedOrAutoAppliedLicense];
+            } else if (isCurrentStatusMatchingLicenseStatus) {
+              updatedLicensesByStatus[activatedOrAutoAppliedLicense.status].push(activatedOrAutoAppliedLicense);
             }
-            return license;
-          })
-          : [activatedOrAutoAppliedLicense];
+          });
+          // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
+          const updatedSubscriptionLicenses = subscriptionsData.subscriptionLicenses.length > 0
+            ? subscriptionsData.subscriptionLicenses.map((license) => {
+              // Ensures an auto-activated license is updated in the query cache to change
+              // its status from "assigned" to "activated".
+              if (license.uuid === activatedOrAutoAppliedLicense.uuid) {
+                return activatedOrAutoAppliedLicense;
+              }
+              return license;
+            })
+            : [activatedOrAutoAppliedLicense];
 
-        queryClient.setQueryData(subscriptionsQuery.queryKey, {
-          ...queryClient.getQueryData(subscriptionsQuery.queryKey),
-          licensesByStatus: updatedLicensesByStatus,
-          subscriptionPlan: activatedOrAutoAppliedLicense.subscriptionPlan,
-          subscriptionLicense: activatedOrAutoAppliedLicense,
-          subscriptionLicenses: updatedSubscriptionLicenses,
-        });
-      }
+          queryClient.setQueryData(subscriptionsQuery.queryKey, {
+            ...queryClient.getQueryData(subscriptionsQuery.queryKey),
+            licensesByStatus: updatedLicensesByStatus,
+            subscriptionPlan: activatedOrAutoAppliedLicense.subscriptionPlan,
+            subscriptionLicense: activatedOrAutoAppliedLicense,
+            subscriptionLicenses: updatedSubscriptionLicenses,
+          });
+        }
 
-      return subscriptionsData;
-    }),
+        return subscriptionsData;
+      }),
+    );
+  }
+
+  // Load the rest of the enterprise app data.
+  enterpriseAppDataQueries.push(...[
     queryClient.ensureQueryData(
       queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
@@ -124,7 +176,8 @@ export async function ensureEnterpriseAppData({
     queryClient.ensureQueryData(
       queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
     ),
-  ];
+  ]);
+
   if (getConfig().ENABLE_NOTICES) {
     enterpriseAppDataQueries.push(
       queryClient.ensureQueryData(queryNotices()),

@@ -23,12 +23,27 @@ import {
   LEARNER_CREDIT_SUBSIDY_TYPE,
   queryCanRedeemContextQueryKey,
   queryEnterpriseCourseEnrollments,
+  queryEnterpriseLearnerDashboardBFF,
   queryRedeemablePolicies,
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
 } from '../app/data';
 import { useUserSubsidyApplicableToCourse } from '../course/data';
+
+function handleQueriesForEnrollSuccess(queryClient, enterpriseCustomer) {
+  // Determine which BFF queries need to be updated after successfully enrolling.
+  const learnerDashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF(enterpriseCustomer.uuid).queryKey;
+  const bffQueryKeysToUpdate = [learnerDashboardBFFQueryKey];
+
+  // Invalidate the cache for each BFF query.
+  bffQueryKeysToUpdate.forEach((queryKey) => {
+    queryClient.invalidateQueries({ queryKey });
+  });
+
+  // Invalidate the legacy queryEnterpriseCourseEnrollments cache as well.
+  queryClient.invalidateQueries({ queryKey: queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid) });
+}
 
 const UserEnrollmentForm = ({ className }) => {
   const navigate = useNavigate();
@@ -66,7 +81,7 @@ const UserEnrollmentForm = ({ className }) => {
           lmsUserId: userId,
         }),
       }),
-      queryClient.invalidateQueries({ queryKey: queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid) }),
+      handleQueriesForEnrollSuccess(queryClient, enterpriseCustomer),
       sendEnterpriseTrackEventWithDelay(
         enterpriseCustomer.uuid,
         'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',

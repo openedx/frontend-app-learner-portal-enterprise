@@ -28,6 +28,7 @@ import {
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
   queryEnterpriseCourseEnrollments,
+  queryEnterpriseLearnerDashboardBFF,
   queryRedeemablePolicies,
   transformCourseEnrollment,
   useCanUpgradeWithLearnerCredit,
@@ -525,29 +526,62 @@ export function useCourseEnrollmentsBySection(courseEnrollmentsByStatus) {
   };
 }
 
+function handleQueriesForUpdatedCourseEnrollmentStatus(
+  queryClient,
+  location,
+  enterpriseCustomer,
+  courseRunId,
+  updatedEnrollmentParams,
+) {
+  const { newStatus, savedForLater } = updatedEnrollmentParams;
+  const transformUpdatedEnrollment = (enrollment) => {
+    if (enrollment.courseRunId !== courseRunId) {
+      return enrollment;
+    }
+    return {
+      ...enrollment,
+      courseRunStatus: newStatus,
+      savedForLater,
+    };
+  };
+
+  // Determine which BFF queries need to be updated after unenrolling.
+  const learnerDashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF(enterpriseCustomer.uuid).queryKey;
+  const bffQueryKeysToUpdate = [learnerDashboardBFFQueryKey];
+
+  // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
+  bffQueryKeysToUpdate.forEach((queryKey) => {
+    const existingBFFData = queryClient.getQueryData(queryKey);
+    const updatedBFFData = {
+      ...existingBFFData,
+      enterpriseCourseEnrollments: existingBFFData.enterpriseCourseEnrollments.map(transformUpdatedEnrollment),
+    };
+    queryClient.setQueryData(queryKey, updatedBFFData);
+  });
+
+  // Update the legacy queryEnterpriseCourseEnrollments cache as well.
+  const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
+  const existingCourseEnrollmentsData = queryClient.getQueryData(enterpriseCourseEnrollmentsQueryKey);
+  const updatedCourseEnrollmentsData = existingCourseEnrollmentsData.map(transformUpdatedEnrollment);
+  queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, updatedCourseEnrollmentsData);
+}
+
 export const useUpdateCourseEnrollmentStatus = ({ enterpriseCustomer }) => {
   const queryClient = useQueryClient();
+  const location = useLocation();
 
   const updateCourseEnrollmentStatus = useCallback(({ courseRunId, newStatus, savedForLater }) => {
-    const enrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
-    const existingEnrollments = queryClient.getQueryData(enrollmentsQueryKey);
-    queryClient.setQueryData(
-      enrollmentsQueryKey,
-      existingEnrollments.map((enrollment) => {
-        if (enrollment.courseRunId === courseRunId) {
-          return {
-            ...enrollment,
-            courseRunStatus: newStatus,
-            savedForLater,
-          };
-        }
-        return enrollment;
-      }),
-    );
-  }, [
-    enterpriseCustomer.uuid,
-    queryClient,
-  ]);
+    handleQueriesForUpdatedCourseEnrollmentStatus({
+      queryClient,
+      location,
+      enterpriseCustomer,
+      courseRunId,
+      updatedEnrollmentParams: {
+        newStatus,
+        savedForLater,
+      },
+    });
+  }, [enterpriseCustomer, queryClient, location]);
 
   return updateCourseEnrollmentStatus;
 };
