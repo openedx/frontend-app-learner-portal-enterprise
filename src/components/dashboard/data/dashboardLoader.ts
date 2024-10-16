@@ -1,9 +1,10 @@
-import { ensureAuthenticatedUser } from '../../app/routes/data';
+import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer,
   queryEnterpriseCourseEnrollments,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
+  queryRedeemablePolicies,
 } from '../../app/data';
 
 type DashboardRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
@@ -31,8 +32,27 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
       authenticatedUser,
       enterpriseSlug,
     });
-    await Promise.all([
+
+    const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
+      queryClient.ensureQueryData(queryRedeemablePolicies({
+        enterpriseUuid: enterpriseCustomer.uuid,
+        lmsUserId: authenticatedUser.userId,
+      })),
+    ]).then((responses) => {
+      const enterpriseCourseEnrollments = responses[0];
+      const redeemablePolicies = responses[1];
+
+      // Redirect user to search page, for first-time users with no enrollments and/or assignments.
+      redirectToSearchPageForNewUser({
+        enterpriseSlug: enterpriseSlug as string,
+        enterpriseCourseEnrollments,
+        redeemablePolicies,
+      });
+    });
+
+    await Promise.all([
+      loadEnrollmentsPoliciesAndRedirectForNewUsers,
       queryClient.ensureQueryData(queryEnterpriseProgramsList(enterpriseCustomer.uuid)),
       queryClient.ensureQueryData(queryEnterprisePathwaysList(enterpriseCustomer.uuid)),
     ]);

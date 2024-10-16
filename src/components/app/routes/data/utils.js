@@ -130,26 +130,7 @@ export async function ensureEnterpriseAppData({
       queryClient.ensureQueryData(queryNotices()),
     );
   }
-  const enterpriseAppData = await Promise.all(enterpriseAppDataQueries);
-  return enterpriseAppData;
-}
-
-/**
- * Determines whether the user is visiting the dashboard for the first time.
- * @param {URL} requestUrl - The request URL.
- * @returns {boolean} - Whether the user is visiting the dashboard for the first time.
- */
-function isFirstDashboardPageVisit(requestUrl) {
-  // Check whether the request URL matches the dashboard page route. If not, return early.
-  const isDashboardRoute = matchPath('/:enterpriseSlug', requestUrl.pathname);
-  if (!isDashboardRoute) {
-    return false;
-  }
-
-  // User is visiting the dashboard for the first time if the 'has-user-visited-learner-dashboard'
-  // localStorage item is not set.
-  const hasUserVisitedDashboard = localStorage.getItem('has-user-visited-learner-dashboard');
-  return !hasUserVisitedDashboard;
+  await Promise.all(enterpriseAppDataQueries);
 }
 
 /**
@@ -161,22 +142,37 @@ function isFirstDashboardPageVisit(requestUrl) {
  *
  * @param {Object} params - The parameters object.
  * @param {string} params.enterpriseSlug - The enterprise slug.
- * @param {Object} params.enterpriseAppData - The enterprise app data.
- * @param {URL} params.requestUrl - The request URL.
+ * @param {Array} params.enterpriseCourseEnrollments - The enterprise course enrollments.
+ * @param {Object} params.redeemablePolicies - The redeemable policies.
  */
-export function redirectToSearchPageForNewUser({ enterpriseSlug, enterpriseAppData, requestUrl }) {
-  const isFirstDashboardVisit = isFirstDashboardPageVisit(requestUrl);
-  if (!isFirstDashboardVisit) {
+export function redirectToSearchPageForNewUser({
+  enterpriseSlug,
+  enterpriseCourseEnrollments,
+  redeemablePolicies,
+}) {
+  // If the user has already visited the dashboard, return early.
+  if (localStorage.getItem('has-user-visited-learner-dashboard')) {
     return;
   }
 
-  // Set the localStorage item to indicate that the user has visited the learner dashboard.
+  // Otherwise, set the localStorage item to indicate that the user has visited the dashboard.
   localStorage.setItem('has-user-visited-learner-dashboard', true);
 
-  // Check whether the user has any assignments for display. If not, redirect to the search page.
-  const redeemablePolicies = enterpriseAppData[1];
+  // If the current URL does not match the dashboard, return early. This covers the use
+  // case where user may be on a non-dashboard route (e.g., search) and then explicitly
+  // navigates to the dashboard route. If the user is not already on the dashboard route,
+  // we do not want to trigger a redirect to the search page as the user explicitly requested
+  // to view the dashboard.
+  const isCurrentUrlMatchingDashboard = matchPath('/:enterpriseSlug', global.location.pathname);
+  if (!isCurrentUrlMatchingDashboard) {
+    return;
+  }
+
+  // Check whether user has any assignments for display or active enterprise course
+  // enrollments. If not, redirect to the search page.
   const { hasAssignmentsForDisplay } = redeemablePolicies.learnerContentAssignments;
-  if (!hasAssignmentsForDisplay) {
+  const hasEnterpriseCourseEnrollments = enterpriseCourseEnrollments.length > 0;
+  if (!(hasAssignmentsForDisplay || hasEnterpriseCourseEnrollments)) {
     throw redirect(generatePath('/:enterpriseSlug/search', { enterpriseSlug }));
   }
 }

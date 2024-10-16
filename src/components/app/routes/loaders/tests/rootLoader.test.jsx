@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { when } from 'jest-when';
-import { Outlet, useLocation } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
@@ -40,19 +38,9 @@ const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue(),
 };
 
-let locationPathname;
-const ComponentWithLocation = ({ children }) => {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    locationPathname = pathname;
-  }, [pathname]);
-  return children || null;
-};
-
 describe('rootLoader', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    localStorage.clear();
     ensureAuthenticatedUser.mockResolvedValue(mockAuthenticatedUser);
     extractEnterpriseCustomer.mockResolvedValue(mockEnterpriseCustomer);
   });
@@ -108,7 +96,6 @@ describe('rootLoader', () => {
         { enterpriseCustomer: mockEnterpriseCustomerTwo },
       ],
       isStaffUser: false,
-      shouldRedirectToSearch: false,
     },
     {
       enterpriseSlug: mockEnterpriseCustomerTwo.slug,
@@ -119,7 +106,6 @@ describe('rootLoader', () => {
         { enterpriseCustomer: mockEnterpriseCustomerTwo },
       ],
       isStaffUser: false,
-      shouldRedirectToSearch: true,
     },
     {
       enterpriseSlug: mockEnterpriseCustomerTwo.slug,
@@ -129,7 +115,6 @@ describe('rootLoader', () => {
         { enterpriseCustomer: mockEnterpriseCustomer },
       ],
       isStaffUser: false,
-      shouldRedirectToSearch: false,
     },
     {
       enterpriseSlug: mockEnterpriseCustomerTwo.slug,
@@ -139,7 +124,6 @@ describe('rootLoader', () => {
         { enterpriseCustomer: mockEnterpriseCustomer },
       ],
       isStaffUser: false,
-      shouldRedirectToSearch: true,
     },
     {
       enterpriseSlug: mockEnterpriseCustomerTwo.slug,
@@ -149,7 +133,6 @@ describe('rootLoader', () => {
         { enterpriseCustomer: mockEnterpriseCustomer },
       ],
       isStaffUser: true,
-      shouldRedirectToSearch: false,
     },
     {
       enterpriseSlug: mockEnterpriseCustomerTwo.slug,
@@ -159,7 +142,6 @@ describe('rootLoader', () => {
         { enterpriseCustomer: mockEnterpriseCustomer },
       ],
       isStaffUser: true,
-      shouldRedirectToSearch: true,
     },
   ])('ensures all requisite root loader queries are resolved with an active enterprise customer user (%s)', async ({
     isStaffUser,
@@ -167,7 +149,6 @@ describe('rootLoader', () => {
     enterpriseCustomer,
     activeEnterpriseCustomer,
     allLinkedEnterpriseCustomerUsers,
-    shouldRedirectToSearch,
   }) => {
     const enterpriseLearnerQuery = queryEnterpriseLearner(mockAuthenticatedUser.username, enterpriseSlug);
     const enterpriseLearnerQueryTwo = queryEnterpriseLearner(mockAuthenticatedUser.username, enterpriseCustomer.slug);
@@ -197,13 +178,10 @@ describe('rootLoader', () => {
     const mockRedeemablePolicies = {
       redeemablePolicies: [],
       learnerContentAssignments: {
-        hasAssignmentsForDisplay: !shouldRedirectToSearch,
+        hasAssignmentsForDisplay: false,
       },
     };
-    const redeemablePoliciesQuery = queryRedeemablePolicies({
-      enterpriseUuid: enterpriseCustomer.uuid,
-      lmsUserId: 3,
-    });
+    const redeemablePoliciesQuery = queryRedeemablePolicies({ enterpriseUuid: enterpriseCustomer.uuid, lmsUserId: 3 });
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: redeemablePoliciesQuery.queryKey,
@@ -223,15 +201,9 @@ describe('rootLoader', () => {
     ).mockResolvedValue(mockSubscriptionsData);
 
     renderWithRouterProvider({
-      path: '/:enterpriseSlug/*',
-      element: <ComponentWithLocation><Outlet /></ComponentWithLocation>,
+      path: '/:enterpriseSlug',
+      element: <div data-testid="dashboard" />,
       loader: makeRootLoader(mockQueryClient),
-      children: [
-        {
-          path: 'search',
-          element: <ComponentWithLocation />,
-        },
-      ],
     }, {
       initialEntries: [`/${enterpriseSlug}`],
     });
@@ -246,30 +218,10 @@ describe('rootLoader', () => {
         } else {
           expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(2);
         }
-      } else if (shouldRedirectToSearch) {
-        // queries are executed again when redirecting to search
-        expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(18);
       } else {
         expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
       }
     });
-
-    function getExpectedSlugPath() {
-      if (enterpriseSlug === activeEnterpriseCustomer?.slug) {
-        return enterpriseSlug;
-      }
-      if (isLinked || isStaffUser) {
-        return enterpriseCustomer.slug;
-      }
-      return activeEnterpriseCustomer.slug;
-    }
-    const expectedCustomerPath = getExpectedSlugPath();
-    // Assert that the expected number of queries were made.
-    if (shouldRedirectToSearch) {
-      expect(locationPathname).toEqual(`/${expectedCustomerPath}/search`);
-    } else {
-      expect(locationPathname).toEqual(`/${expectedCustomerPath}`);
-    }
 
     // Enterprise learner query
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
