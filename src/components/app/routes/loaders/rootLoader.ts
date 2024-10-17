@@ -3,7 +3,6 @@ import {
   ensureAuthenticatedUser,
   ensureEnterpriseAppData,
   redirectToRemoveTrailingSlash,
-  redirectToSearchPageForNewUser,
   ensureActiveEnterpriseCustomerUser,
 } from '../data';
 
@@ -62,19 +61,12 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
     }
 
     // Fetch all enterprise app data.
-    const enterpriseAppData = await ensureEnterpriseAppData({
+    await ensureEnterpriseAppData({
       enterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
       userId,
       userEmail,
       queryClient,
-      requestUrl,
-    });
-
-    // Redirect user to search page, for first-time users with no assignments.
-    redirectToSearchPageForNewUser({
-      enterpriseSlug: enterpriseSlug as string,
-      enterpriseAppData,
       requestUrl,
     });
 
