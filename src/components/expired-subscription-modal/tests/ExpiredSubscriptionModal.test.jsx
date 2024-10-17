@@ -15,9 +15,10 @@ describe('<ExpiredSubscriptionModal />', () => {
       data: {
         customerAgreement: {
           hasCustomLicenseExpirationMessaging: false,
+          modalHeaderText: null,
+          buttonLabelInModal: null,
           expiredSubscriptionModalMessaging: null,
-          urlForExpiredModal: null,
-          hyperLinkTextForExpiredModal: null,
+          urlForButtonInModal: null,
         },
       },
     });
@@ -33,18 +34,18 @@ describe('<ExpiredSubscriptionModal />', () => {
       data: {
         customerAgreement: {
           hasCustomLicenseExpirationMessaging: true,
-          expiredSubscriptionModalMessaging: 'Your subscription has expired.',
-          urlForExpiredModal: '/renew',
-          hyperLinkTextForExpiredModal: 'Click here to renew',
+          modalHeaderText: 'Expired Subscription',
+          buttonLabelInModal: 'Continue Learning',
+          expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
+          urlForButtonInModal: '/renew',
         },
       },
     });
 
     renderWithRouter(<ExpiredSubscriptionModal />);
 
-    expect(screen.getByText('Your subscription has expired.')).toBeInTheDocument();
-    expect(screen.getByText('Click here to renew')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Click here to renew' })).toHaveAttribute('href', '/renew');
+    expect(screen.getByText('Expired Subscription')).toBeInTheDocument();
+    expect(screen.getByText('Continue Learning')).toBeInTheDocument();
   });
 
   test('does not renderwithrouter modal if no customer agreement data is present', () => {
@@ -53,19 +54,49 @@ describe('<ExpiredSubscriptionModal />', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  test('renderwithrouters close button in modal', () => {
+  test('Close button (cross) should not be available, making the modal truly blocking', () => {
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: {
           hasCustomLicenseExpirationMessaging: true,
-          expiredSubscriptionModalMessaging: 'Subscription expired',
-          urlForExpiredModal: '/renew',
-          hyperLinkTextForExpiredModal: 'Renew',
+          modalHeaderText: 'Expired Subscription',
+          buttonLabelInModal: 'Continue Learning',
+          expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
+          urlForButtonInModal: '/renew',
         },
       },
     });
 
     renderWithRouter(<ExpiredSubscriptionModal />);
-    expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/close/i)).not.toBeInTheDocument();
+  });
+  test('clicks on Continue Learning button', () => {
+    // Mock useSubscriptions
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: {
+          hasCustomLicenseExpirationMessaging: true,
+          modalHeaderText: 'Expired Subscription',
+          buttonLabelInModal: 'Continue Learning',
+          expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
+          urlForButtonInModal: 'example.com',
+        },
+      },
+    });
+
+    // Mock window.open
+    const windowOpenSpy = jest.spyOn(window, 'open').mockImplementation(() => {});
+
+    // Render the component
+    renderWithRouter(<ExpiredSubscriptionModal />);
+
+    const continueButton = screen.getByText('Continue Learning');
+    continueButton.click();
+
+    // Assert window.open was called with the correct URL
+    expect(windowOpenSpy).toHaveBeenCalledWith('https://example.com', '_blank');
+
+    // Restore window.open after the test
+    windowOpenSpy.mockRestore();
   });
 });
