@@ -542,6 +542,7 @@ export function useCourseListPrice() {
  */
 export const useUserSubsidyApplicableToCourse = () => {
   const { courseKey } = useParams();
+  const { data: courseMetadata } = useCourseMetadata();
   const resolvedTransformedEnterpriseCustomerData = ({ transformed }) => ({
     fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
     contactEmail: transformed.contactEmail,
@@ -620,10 +621,12 @@ export const useUserSubsidyApplicableToCourse = () => {
       enterpriseOffers,
     });
   }
+  const onlyUnrestrictedCourseRuns = courseMetadata.availableCourseRuns.filter(r => !r.restrictionType);
+  const availableCourseRuns = userSubsidyApplicableToCourse.availableCourseRuns || onlyUnrestrictedCourseRuns;
   return useMemo(() => ({
-    userSubsidyApplicableToCourse,
+    userSubsidyApplicableToCourse: { ...userSubsidyApplicableToCourse, availableCourseRuns },
     missingUserSubsidyReason,
-  }), [userSubsidyApplicableToCourse, missingUserSubsidyReason]);
+  }), [userSubsidyApplicableToCourse, missingUserSubsidyReason, availableCourseRuns]);
 };
 
 /**
