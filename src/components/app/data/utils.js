@@ -539,12 +539,18 @@ export function getAvailableCourseRuns({ course, lateEnrollmentBufferDays }) {
     return today.isBefore(bufferedEnrollDeadline);
   };
 
-  // lateEnrollmentBufferDays being set is used as a heuristic to determine if the late enrollment feature is enabled.
-  return course.courseRuns.filter(
+  const availableCourseRuns = course.courseRuns.filter(
     isDefinedAndNotNull(lateEnrollmentBufferDays)
       ? lateEnrollmentAvailableCourseRunsFilter
       : standardAvailableCourseRunsFilter,
   );
+
+  // ENT-9359 (epic for Custom Presentations/Restricted Runs):
+  // Temporarily hide all restricted runs unconditionally on the course about
+  // page during implementation of the overall feature. ENT-9410 is most likely
+  // the ticket to replace this code with something to actually show restricted
+  // runs conditionally.
+  return availableCourseRuns.filter((courseRun) => !courseRun.restrictionType);
 }
 
 export function getCatalogsForSubsidyRequests({
