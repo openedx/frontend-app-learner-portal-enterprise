@@ -522,7 +522,7 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
 
 export function useCourseListPrice() {
   const { data: { listPrice } } = useCourseRedemptionEligibility();
-  const resolveListPrice = ({ transformed }) => listPrice || getCoursePrice(transformed);
+  const resolveListPrice = ({ transformed }) => (listPrice.length > 0 ? listPrice : getCoursePrice(transformed));
   return useCourseMetadata({
     select: resolveListPrice,
   });
