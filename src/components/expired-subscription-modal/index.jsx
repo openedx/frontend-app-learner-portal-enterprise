@@ -1,27 +1,46 @@
 import {
-  StandardModal, useToggle,
+  useToggle, AlertModal, Button, ActionRow,
 } from '@openedx/paragon';
-import { Link } from 'react-router-dom';
 import { useSubscriptions } from '../app/data';
 
 const ExpiredSubscriptionModal = () => {
   const { data: { customerAgreement } } = useSubscriptions();
-  const [isOpen, ,close] = useToggle(true);
+  const [isOpen] = useToggle(true);
   if (!customerAgreement?.hasCustomLicenseExpirationMessaging) {
     return null;
   }
+  const onClickHandler = () => {
+    let url = customerAgreement?.urlForButtonInModal;
+
+    if (url) {
+      // Check if the URL starts with 'http://' or 'https://'
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        // Prepend 'https://' if the URL is missing the protocol
+        url = `https://${url}`;
+      }
+
+      // Navigate to the full URL
+      window.open(url, '_blank'); // Opening in a new tab
+    }
+  };
   return (
-    <StandardModal
+    <AlertModal
+      title={customerAgreement?.modalHeaderText}
       isOpen={isOpen}
-      className="d-flex justify-content-center align-items-center text-wrap text-right "
-      hasCloseButton
-      onClose={close}
+      isBlocking
+      footerNode={(
+        <ActionRow>
+          <Button
+            onClick={onClickHandler}
+          >
+            {customerAgreement?.buttonLabelInModal}
+          </Button>
+        </ActionRow>
+      )}
     >
-      <p className="text-center">
-        {customerAgreement?.expiredSubscriptionModalMessaging}
-        <Link className="text-decoration-none" to={customerAgreement?.urlForExpiredModal}> {customerAgreement?.hyperLinkTextForExpiredModal}</Link>
-      </p>
-    </StandardModal>
+      {/* eslint-disable-next-line react/no-danger */}
+      <div dangerouslySetInnerHTML={{ __html: customerAgreement?.expiredSubscriptionModalMessaging }} />
+    </AlertModal>
   );
 };
 
