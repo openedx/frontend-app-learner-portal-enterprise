@@ -25,7 +25,7 @@ const ExpiredSubscriptionModal = () => {
   };
   return (
     <AlertModal
-      title={customerAgreement?.modalHeaderText}
+      title={<h3 className="mb-2">{customerAgreement?.modalHeaderText}</h3>}
       isOpen={isOpen}
       isBlocking
       footerNode={(
