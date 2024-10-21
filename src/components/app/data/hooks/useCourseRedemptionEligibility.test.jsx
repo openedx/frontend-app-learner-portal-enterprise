@@ -77,7 +77,6 @@ const mockExpectedUseCouseRedemptionEligibilityReturn = transformCourseRedemptio
   courseMetadata: mockCourseMetadata,
   courseRunKey: mockCourseRunKey,
   canRedeemData: mockCanRedeemData,
-  restrictedRunsAllowed: undefined,
 });
 
 describe('useCourseRedemptionEligibility', () => {

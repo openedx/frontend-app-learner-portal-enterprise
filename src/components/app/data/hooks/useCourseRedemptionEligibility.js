@@ -97,6 +97,8 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
     ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
     enabled: !!courseMetadata,
     select: (data) => {
+      // Among other things, transformCourseRedemptionEligibility() removes
+      // restricted runs that fail the policy's can-redeem check.
       const transformedData = transformCourseRedemptionEligibility({
         courseMetadata,
         canRedeemData: data,

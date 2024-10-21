@@ -6,17 +6,15 @@ import {
   determineAllocatedAssignmentsForCourse,
   getAvailableCourseRuns,
   transformCourseMetadataByAllocatedCourseRunAssignments,
-  isRunUnrestricted,
 } from '../utils';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import useRedeemablePolicies from './useRedeemablePolicies';
-import useEnterpriseCustomerContainsContent from './useEnterpriseCustomerContainsContent';
 
 /**
  * Retrieves the course metadata for the given enterprise customer and course key.
  * @returns {Types.UseQueryResult}} The query results for the course metadata.
  */
-export default function useCourseMetadata(queryOptions = {}, catalogUuid = undefined) {
+export default function useCourseMetadata(queryOptions = {}) {
   const { select, ...queryOptionsRest } = queryOptions;
   const { courseKey } = useParams();
   const [searchParams] = useSearchParams();
@@ -26,11 +24,6 @@ export default function useCourseMetadata(queryOptions = {}, catalogUuid = undef
     hasAssignedCourseRuns,
     hasMultipleAssignedCourseRuns,
   } = determineAllocatedAssignmentsForCourse({ courseKey, redeemableLearnerCreditPolicies });
-  const {
-    data: {
-      restrictedRunsAllowed,
-    },
-  } = useEnterpriseCustomerContainsContent([courseKey]);
   // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
   // need to replace it with `+` again to be a valid course run key.
   let courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
@@ -49,22 +42,15 @@ export default function useCourseMetadata(queryOptions = {}, catalogUuid = undef
       if (!data) {
         return data;
       }
-      // First stage filters out any runs that are unavailable for universal reasons, such as enrollment windows and
-      // published states.
-      const basicAvailableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
-      // Second stage filters out any *restricted* runs that are not redeemable via a specific catalog (if
-      // catalogUuid is defined), or via any of the customer's catalogs (if catalogUuid is undefined).
-      const availableAndUnrestrictedCourseRuns = basicAvailableCourseRuns.filter(
-        courseRunMetadata => isRunUnrestricted({
-          restrictedRunsAllowed,
-          courseKey,
-          courseRunMetadata,
-          catalogUuid,
-        }),
-      );
+      // NOTE: The results from this call includes restricted runs, some of
+      // which might not be ACTUALLY available depending on the subsidy being
+      // applied.  However, we don't know the subsidy being applied at this
+      // point of the code, so just return all of the basically available
+      // restricted runs regardless of catalog inclusion.
+      const availableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
       let transformedData = {
         ...data,
-        availableCourseRuns: availableAndUnrestrictedCourseRuns,
+        availableCourseRuns,
       };
       // This logic should appropriately handle multiple course runs being assigned, and return the appropriate metadata
       transformedData = transformCourseMetadataByAllocatedCourseRunAssignments({

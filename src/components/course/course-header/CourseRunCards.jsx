@@ -29,10 +29,13 @@ const CourseRunCards = () => {
   // The DEPRECATED CourseRunCard should be used when the applicable subsidy is NOT Learner Credit.
   const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
   const shouldUseDeprecatedCourseRunCard = !hasRedeemablePolicy && !missingUserSubsidyReason?.userMessage;
-  // courseMetadata.avaialbleCourseRuns may include runs that are restricted for the applicable
+  // courseMetadata.avaialbleCourseRuns may include runs that are restricted from the applicable
   // subsidy, so instead we ask userSubsidyApplicableToCourse to give us exactly which runs to
-  // display on this page.
-  const courseRunsToDisplay = userSubsidyApplicableToCourse.availableCourseRuns;
+  // display on this page. If there's no applicable subsidy for the course, fallback to just
+  // displaying unrestricted runs.
+  const runsAvailableToSubsidy = userSubsidyApplicableToCourse.availableCourseRuns;
+  const unrestrictedRunsOnly = courseMetadata.availableCourseRuns.filter(run => !run.restrictionType);
+  const courseRunsToDisplay = runsAvailableToSubsidy || unrestrictedRunsOnly;
 
   return (
     <CardGrid

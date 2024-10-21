@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -116,7 +115,11 @@ describe('useCourseMetadata', () => {
       expect.objectContaining({
         data: {
           ...mockCourseMetadata,
-          availableCourseRuns: [mockCourseMetadata.courseRuns[0]],
+          availableCourseRuns: [
+            mockCourseMetadata.courseRuns[0],
+            mockCourseMetadata.courseRuns[2],
+            mockCourseMetadata.courseRuns[3],
+          ],
         },
         isLoading: false,
         isFetching: false,
@@ -148,7 +151,11 @@ describe('useCourseMetadata', () => {
           original: mockCourseMetadata,
           transformed: {
             ...mockCourseMetadata,
-            availableCourseRuns: [mockCourseMetadata.courseRuns[0]],
+            availableCourseRuns: [
+              mockCourseMetadata.courseRuns[0],
+              mockCourseMetadata.courseRuns[2],
+              mockCourseMetadata.courseRuns[3],
+            ],
           },
         },
         isLoading: false,
@@ -178,10 +185,10 @@ describe('useCourseMetadata', () => {
 
     const availableCourseRuns = [
       mockCourseMetadata.courseRuns[0], // This is marketable, enrollable, unrestricted, etc.
+      mockCourseMetadata.courseRuns[2], // This is restricted, but that doesn't disqualify it.
     ];
     const unavailableCourseRuns = [
       mockCourseMetadata.courseRuns[1], // This one is unavailable due to being unmarketable.
-      mockCourseMetadata.courseRuns[2], // This one is unavailable due to being restricted.
     ];
     // Copy all the above runs to make both assigned and unassigned versions.
     const courseRunsMatrix = {
@@ -301,85 +308,9 @@ describe('useCourseMetadata', () => {
       expect.objectContaining({
         data: {
           ...mockCourseMetadata,
-          // The requested run is available, unrestricted, and assigned, so should appear in both lists below:
+          // The requested run is available and assigned, so should appear in both lists below:
           courseRuns: mockCourseRun,
           availableCourseRuns: mockCourseRun,
-        },
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
-  });
-  it('should return restricted course run if allowed for customer', async () => {
-    useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
-    useLateEnrollmentBufferDays.mockReturnValue(undefined);
-    useSearchParams.mockReturnValue([new URLSearchParams({})]);
-    useEnterpriseCustomerContainsContent.mockReturnValue({
-      data: {
-        restrictedRunsAllowed: {
-          'edX+DemoX': {
-            // The restricted run (index 2) is simulated to be "allowed" for some of the customer's catalogs.
-            // This should be enough to get it to be included in the output.
-            [mockCourseMetadata.courseRuns[2].key]: { catalogUuids: [uuidv4(), uuidv4()] },
-          },
-        },
-      },
-    });
-
-    // This test is all about if the restricted run is allowed for ANY catalog
-    // for the customer, so do not pass a specific catalog UUID.
-    const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: {
-          ...mockCourseMetadata,
-          availableCourseRuns: [
-            mockCourseMetadata.courseRuns[0], // Include the completely unrestricted run.
-            // skip unmarketable run `mockCourseMetadata.courseRuns[1]`.
-            mockCourseMetadata.courseRuns[2], // Include restricted, but allowed runs.
-            // skip restricted run `mockCourseMetadata.courseRuns[3]` as it isn't part of any catalog for the customer.
-          ],
-        },
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
-  });
-  it('should return restricted course run if allowed for specific catalog', async () => {
-    useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
-    useLateEnrollmentBufferDays.mockReturnValue(undefined);
-    useSearchParams.mockReturnValue([new URLSearchParams({})]);
-    const catalogA = uuidv4();
-    const catalogB = uuidv4();
-    useEnterpriseCustomerContainsContent.mockReturnValue({
-      data: {
-        restrictedRunsAllowed: {
-          'edX+DemoX': {
-            // The restricted runs (index 2 & 3) are simulated to be "allowed" for different catalogs.
-            // Only one will get to be included in the output.
-            [mockCourseMetadata.courseRuns[2].key]: { catalogUuids: [catalogA] },
-            [mockCourseMetadata.courseRuns[3].key]: { catalogUuids: [catalogB] },
-          },
-        },
-      },
-    });
-
-    // This test is all about if the restricted run is allowed for a SPECIFIC catalog (catalogA).
-    const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata({}, catalogA), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: {
-          ...mockCourseMetadata,
-          availableCourseRuns: [
-            mockCourseMetadata.courseRuns[0], // Include the completely unrestricted run.
-            // skip unmarketable run `mockCourseMetadata.courseRuns[1]`.
-            mockCourseMetadata.courseRuns[2], // Include the restricted, but allowed run.
-            // skip restricted run `mockCourseMetadata.courseRuns[3]` DESPITE its inclusion in one catalog.
-          ],
         },
         isLoading: false,
         isFetching: false,
