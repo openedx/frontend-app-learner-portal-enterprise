@@ -1,6 +1,7 @@
 import {
   useToggle, AlertModal, Button, ActionRow,
 } from '@openedx/paragon';
+import DOMPurify from 'dompurify';
 import { useSubscriptions } from '../app/data';
 
 const ExpiredSubscriptionModal = () => {
@@ -9,20 +10,6 @@ const ExpiredSubscriptionModal = () => {
   if (!customerAgreement?.hasCustomLicenseExpirationMessaging) {
     return null;
   }
-  const onClickHandler = () => {
-    let url = customerAgreement?.urlForButtonInModal;
-
-    if (url) {
-      // Check if the URL starts with 'http://' or 'https://'
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        // Prepend 'https://' if the URL is missing the protocol
-        url = `https://${url}`;
-      }
-
-      // Navigate to the full URL
-      window.open(url, '_blank'); // Opening in a new tab
-    }
-  };
   return (
     <AlertModal
       title={<h3 className="mb-2">{customerAgreement?.modalHeaderText}</h3>}
@@ -31,7 +18,7 @@ const ExpiredSubscriptionModal = () => {
       footerNode={(
         <ActionRow>
           <Button
-            onClick={onClickHandler}
+            onClick={() => window.open(customerAgreement?.urlForButtonInModal, '_blank')}
           >
             {customerAgreement?.buttonLabelInModal}
           </Button>
@@ -39,7 +26,13 @@ const ExpiredSubscriptionModal = () => {
       )}
     >
       {/* eslint-disable-next-line react/no-danger */}
-      <div dangerouslySetInnerHTML={{ __html: customerAgreement?.expiredSubscriptionModalMessaging }} />
+      <div dangerouslySetInnerHTML={{
+        __html: DOMPurify.sanitize(
+          customerAgreement?.expiredSubscriptionModalMessaging,
+          { USE_PROFILES: { html: true } },
+        ),
+      }}
+      />
     </AlertModal>
   );
 };
