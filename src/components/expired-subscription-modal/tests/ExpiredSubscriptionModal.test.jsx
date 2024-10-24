@@ -79,7 +79,7 @@ describe('<ExpiredSubscriptionModal />', () => {
           modalHeaderText: 'Expired Subscription',
           buttonLabelInModal: 'Continue Learning',
           expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
-          urlForButtonInModal: 'example.com',
+          urlForButtonInModal: 'https://example.com',
         },
       },
     });
