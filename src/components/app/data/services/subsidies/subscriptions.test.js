@@ -66,6 +66,9 @@ describe('fetchSubscriptions', () => {
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
+      disableExpirationNotifications: false,
+      hasCustomLicenseExpirationMessaging: false,
+      expectedShowExpirationNotifications: true,
     },
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
@@ -74,6 +77,9 @@ describe('fetchSubscriptions', () => {
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
+      disableExpirationNotifications: false,
+      hasCustomLicenseExpirationMessaging: false,
+      expectedShowExpirationNotifications: true,
     },
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
@@ -82,6 +88,9 @@ describe('fetchSubscriptions', () => {
       daysUntilExpiration: 0,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().toISOString(),
+      disableExpirationNotifications: false,
+      hasCustomLicenseExpirationMessaging: false,
+      expectedShowExpirationNotifications: true,
     },
     {
       licenseStatus: LICENSE_STATUS.UNASSIGNED,
@@ -90,6 +99,45 @@ describe('fetchSubscriptions', () => {
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
+      disableExpirationNotifications: false,
+      hasCustomLicenseExpirationMessaging: false,
+      expectedShowExpirationNotifications: true,
+    },
+    // Custom subs messaging with standard expiration still enabled
+    {
+      licenseStatus: LICENSE_STATUS.ACTIVATED,
+      isSubscriptionPlanActive: true,
+      isSubscriptionPlanCurrent: false,
+      daysUntilExpiration: -10,
+      startDate: dayjs().subtract(15, 'days').toISOString(),
+      expirationDate: dayjs().subtract(10, 'days').toISOString(),
+      disableExpirationNotifications: false,
+      hasCustomLicenseExpirationMessaging: true,
+      expectedShowExpirationNotifications: false,
+    },
+    // Disabled standard expiration, with custom subs expiration enabled
+    {
+      licenseStatus: LICENSE_STATUS.ACTIVATED,
+      isSubscriptionPlanActive: true,
+      isSubscriptionPlanCurrent: false,
+      daysUntilExpiration: -10,
+      startDate: dayjs().subtract(15, 'days').toISOString(),
+      expirationDate: dayjs().subtract(10, 'days').toISOString(),
+      disableExpirationNotifications: true,
+      hasCustomLicenseExpirationMessaging: true,
+      expectedShowExpirationNotifications: false,
+    },
+    // Disabled standard expiration, no custom subs expiration
+    {
+      licenseStatus: LICENSE_STATUS.ACTIVATED,
+      isSubscriptionPlanActive: true,
+      isSubscriptionPlanCurrent: false,
+      daysUntilExpiration: -10,
+      startDate: dayjs().subtract(15, 'days').toISOString(),
+      expirationDate: dayjs().subtract(10, 'days').toISOString(),
+      disableExpirationNotifications: true,
+      hasCustomLicenseExpirationMessaging: false,
+      expectedShowExpirationNotifications: false,
     },
   ])('returns subscriptions (%s)', async ({
     licenseStatus,
@@ -98,6 +146,9 @@ describe('fetchSubscriptions', () => {
     daysUntilExpiration,
     startDate,
     expirationDate,
+    disableExpirationNotifications,
+    hasCustomLicenseExpirationMessaging,
+    expectedShowExpirationNotifications,
   }) => {
     const mockSubscriptionLicense = {
       uuid: 'test-license-uuid',
@@ -114,7 +165,8 @@ describe('fetchSubscriptions', () => {
     const mockResponse = {
       customerAgreement: {
         uuid: 'test-customer-agreement-uuid',
-        disableExpirationNotifications: false,
+        disableExpirationNotifications,
+        hasCustomLicenseExpirationMessaging,
       },
       results: [mockSubscriptionLicense],
     };
@@ -157,7 +209,7 @@ describe('fetchSubscriptions', () => {
       subscriptionLicense: isLicenseApplicable ? updatedMockSubscriptionLicense : null,
       subscriptionLicenses: [updatedMockSubscriptionLicense],
       shouldShowActivationSuccessMessage: false,
-      showExpirationNotifications: true,
+      showExpirationNotifications: expectedShowExpirationNotifications,
     };
     expect(response).toEqual(expectedResult);
   });
