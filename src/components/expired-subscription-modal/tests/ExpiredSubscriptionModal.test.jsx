@@ -21,6 +21,11 @@ describe('<ExpiredSubscriptionModal />', () => {
           expiredSubscriptionModalMessaging: null,
           urlForButtonInModal: null,
         },
+        subscriptionLicense: {
+          subscriptionPlan: {
+            isCurrent: true,
+          },
+        },
       },
     });
   });
@@ -30,7 +35,7 @@ describe('<ExpiredSubscriptionModal />', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  test('renderwithrouters modal with messaging when `hasCustomLicenseExpirationMessaging` is true', () => {
+  test('does not renderwithrouter if learner has a current license', () => {
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: {
@@ -39,6 +44,33 @@ describe('<ExpiredSubscriptionModal />', () => {
           buttonLabelInModal: 'Continue Learning',
           expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
           urlForButtonInModal: '/renew',
+        },
+        subscriptionLicense: {
+          subscriptionPlan: {
+            isCurrent: true,
+          },
+        },
+      },
+    });
+
+    const { container } = renderWithRouter(<ExpiredSubscriptionModal />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  test('renderwithrouters modal with messaging when `hasCustomLicenseExpirationMessaging` is true and license is expired', () => {
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: {
+          hasCustomLicenseExpirationMessaging: true,
+          modalHeaderText: 'Expired Subscription',
+          buttonLabelInModal: 'Continue Learning',
+          expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
+          urlForButtonInModal: '/renew',
+        },
+        subscriptionLicense: {
+          subscriptionPlan: {
+            isCurrent: false,
+          },
         },
       },
     });

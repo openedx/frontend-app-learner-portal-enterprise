@@ -5,9 +5,11 @@ import DOMPurify from 'dompurify';
 import { useSubscriptions } from '../app/data';
 
 const ExpiredSubscriptionModal = () => {
-  const { data: { customerAgreement } } = useSubscriptions();
+  const { data: { customerAgreement, subscriptionLicense } } = useSubscriptions();
   const [isOpen] = useToggle(true);
-  if (!customerAgreement?.hasCustomLicenseExpirationMessaging) {
+  const displaySubscriptionExpirationModal = customerAgreement?.hasCustomLicenseExpirationMessaging
+      && !subscriptionLicense?.subscriptionPlan.isCurrent;
+  if (!displaySubscriptionExpirationModal) {
     return null;
   }
   return (
