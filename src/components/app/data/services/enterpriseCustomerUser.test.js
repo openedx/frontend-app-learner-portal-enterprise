@@ -8,6 +8,7 @@ import {
   fetchInProgressPathways,
   fetchLearnerProgramsList,
   postLinkEnterpriseLearner,
+  postUnlinkUserFromEnterprise,
   updateUserActiveEnterprise,
   updateUserCsodParams,
 } from './enterpriseCustomerUser';
@@ -307,5 +308,20 @@ describe('fetchInProgressPathways', () => {
     axiosMock.onPost(SAVE_CSOD_LEARNER_PARAMS_ENDPOINT).reply(200);
     const response = await updateUserCsodParams(data);
     expect(response.status).toEqual(200);
+  });
+});
+describe('postUnlinkUserFromEnterprise', () => {
+  const mockEnterpriseCustomerUserUUID = 'test-enterprise-customer-user-uuid';
+  const UNLINK_USER_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/${mockEnterpriseCustomerUserUUID}/unlink_self/`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('passes correct POST body', async () => {
+    axiosMock.onPost(UNLINK_USER_ENDPOINT).reply(200);
+    await postUnlinkUserFromEnterprise(mockEnterpriseCustomerUserUUID);
+    expect(axiosMock.history.post[0].data).toEqual(undefined);
   });
 });

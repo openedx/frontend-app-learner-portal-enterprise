@@ -204,3 +204,17 @@ export async function updateUserCsodParams({ data }) {
   const url = `${getConfig().LMS_BASE_URL}/integrated_channels/api/v1/cornerstone/save-learner-information`;
   return getAuthenticatedHttpClient().post(url, data);
 }
+
+/**
+ * Helper function to unlink an enterprise customer user by making a POST API request.
+ * @param {string} enterpriseCustomerUserUUID - The UUID of the enterprise customer user to be unlinked.
+ * @returns {Promise} - A promise that resolves when the user is successfully unlinked from the enterprise customer.
+ */
+export async function postUnlinkUserFromEnterprise(enterpriseCustomerUserUUID) {
+  const url = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/${enterpriseCustomerUserUUID}/unlink_self/`;
+  try {
+    await getAuthenticatedHttpClient().post(url);
+  } catch (error) {
+    logError(error);
+  }
+}
