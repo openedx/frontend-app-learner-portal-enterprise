@@ -236,7 +236,9 @@ export async function fetchSubscriptions(enterpriseUUID) {
     if (customerAgreement) {
       subscriptionsData.customerAgreement = customerAgreement;
     }
-    subscriptionsData.showExpirationNotifications = !(customerAgreement?.disableExpirationNotifications);
+    subscriptionsData.showExpirationNotifications = (
+      !customerAgreement?.disableExpirationNotifications && !customerAgreement?.hasCustomLicenseExpirationMessaging
+    );
 
     // Sort licenses within each license status by whether the associated subscription plans
     // are current; current plans should be prioritized over non-current plans.

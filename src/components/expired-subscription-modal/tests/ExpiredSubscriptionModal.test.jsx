@@ -22,9 +22,10 @@ describe('<ExpiredSubscriptionModal />', () => {
           urlForButtonInModal: null,
         },
         subscriptionLicense: {
-          subscriptionPlan: {
-            isCurrent: true,
-          },
+          uuid: '123',
+        },
+        subscriptionPlan: {
+          isCurrent: true,
         },
       },
     });
@@ -46,10 +47,30 @@ describe('<ExpiredSubscriptionModal />', () => {
           urlForButtonInModal: '/renew',
         },
         subscriptionLicense: {
-          subscriptionPlan: {
-            isCurrent: true,
-          },
+          uuid: '123',
         },
+        subscriptionPlan: {
+          isCurrent: true,
+        },
+      },
+    });
+
+    const { container } = renderWithRouter(<ExpiredSubscriptionModal />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  test('does not renderwithrouter if learner does not have a license', () => {
+    useSubscriptions.mockReturnValue({
+      data: {
+        customerAgreement: {
+          hasCustomLicenseExpirationMessaging: true,
+          modalHeaderText: 'Expired Subscription',
+          buttonLabelInModal: 'Continue Learning',
+          expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
+          urlForButtonInModal: '/renew',
+        },
+        subscriptionLicense: null,
+        subscriptionPlan: null,
       },
     });
 
@@ -68,9 +89,10 @@ describe('<ExpiredSubscriptionModal />', () => {
           urlForButtonInModal: '/renew',
         },
         subscriptionLicense: {
-          subscriptionPlan: {
-            isCurrent: false,
-          },
+          uuid: '123',
+        },
+        subscriptionPlan: {
+          isCurrent: false,
         },
       },
     });
@@ -97,6 +119,12 @@ describe('<ExpiredSubscriptionModal />', () => {
           expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
           urlForButtonInModal: '/renew',
         },
+        subscriptionLicense: {
+          uuid: '123',
+        },
+        subscriptionPlan: {
+          isCurrent: false,
+        },
       },
     });
 
@@ -113,6 +141,12 @@ describe('<ExpiredSubscriptionModal />', () => {
           buttonLabelInModal: 'Continue Learning',
           expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
           urlForButtonInModal: 'https://example.com',
+        },
+        subscriptionLicense: {
+          uuid: '123',
+        },
+        subscriptionPlan: {
+          isCurrent: false,
         },
       },
     });
