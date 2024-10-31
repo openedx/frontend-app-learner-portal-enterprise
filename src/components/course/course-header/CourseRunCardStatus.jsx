@@ -38,7 +38,7 @@ const CourseRunCardStatus = ({
     return null;
   }
   return (
-    customerAgreement?.hasCustomLicenseExpirationMessaging ? (
+    customerAgreement?.hasCustomLicenseExpirationMessagingV2 ? (
       <Card.Status
         data-testid="custom-license-expiration-message-id"
         variant="primary"

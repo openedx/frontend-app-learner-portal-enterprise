@@ -71,7 +71,7 @@ describe('CourseAbout', () => {
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: {
-          hasCustomLicenseExpirationMessaging: false,
+          hasCustomLicenseExpirationMessagingV2: false,
           expiredSubscriptionModalMessaging: null,
           urlForExpiredModal: null,
           hyperLinkTextForExpiredModal: null,

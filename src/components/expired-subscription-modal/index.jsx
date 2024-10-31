@@ -8,7 +8,7 @@ const ExpiredSubscriptionModal = () => {
   const { data: { customerAgreement, subscriptionLicense, subscriptionPlan } } = useSubscriptions();
   const [isOpen] = useToggle(true);
   const displaySubscriptionExpirationModal = (
-    customerAgreement?.hasCustomLicenseExpirationMessaging
+    customerAgreement?.hasCustomLicenseExpirationMessagingV2
     && subscriptionLicense && !subscriptionPlan.isCurrent
   );
 
@@ -18,13 +18,13 @@ const ExpiredSubscriptionModal = () => {
 
   return (
     <AlertModal
-      title={<h3 className="mb-2">{customerAgreement.modalHeaderText}</h3>}
+      title={<h3 className="mb-2">{customerAgreement.modalHeaderTextV2}</h3>}
       isOpen={isOpen}
       isBlocking
       footerNode={(
         <ActionRow>
-          <Button href={customerAgreement.urlForButtonInModal}>
-            {customerAgreement.buttonLabelInModal}
+          <Button href={customerAgreement.urlForButtonInModalV2}>
+            {customerAgreement.buttonLabelInModalV2}
           </Button>
         </ActionRow>
       )}
@@ -32,7 +32,7 @@ const ExpiredSubscriptionModal = () => {
       {/* eslint-disable-next-line react/no-danger */}
       <div dangerouslySetInnerHTML={{
         __html: DOMPurify.sanitize(
-          customerAgreement.expiredSubscriptionModalMessaging,
+          customerAgreement.expiredSubscriptionModalMessagingV2,
           { USE_PROFILES: { html: true } },
         ),
       }}
