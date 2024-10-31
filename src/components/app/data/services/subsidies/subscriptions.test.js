@@ -67,7 +67,7 @@ describe('fetchSubscriptions', () => {
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
       disableExpirationNotifications: false,
-      hasCustomLicenseExpirationMessaging: false,
+      hasCustomLicenseExpirationMessagingV2: false,
       expectedShowExpirationNotifications: true,
     },
     {
@@ -78,7 +78,7 @@ describe('fetchSubscriptions', () => {
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
       disableExpirationNotifications: false,
-      hasCustomLicenseExpirationMessaging: false,
+      hasCustomLicenseExpirationMessagingV2: false,
       expectedShowExpirationNotifications: true,
     },
     {
@@ -89,7 +89,7 @@ describe('fetchSubscriptions', () => {
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().toISOString(),
       disableExpirationNotifications: false,
-      hasCustomLicenseExpirationMessaging: false,
+      hasCustomLicenseExpirationMessagingV2: false,
       expectedShowExpirationNotifications: true,
     },
     {
@@ -100,7 +100,7 @@ describe('fetchSubscriptions', () => {
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().add(30, 'days').toISOString(),
       disableExpirationNotifications: false,
-      hasCustomLicenseExpirationMessaging: false,
+      hasCustomLicenseExpirationMessagingV2: false,
       expectedShowExpirationNotifications: true,
     },
     // Custom subs messaging with standard expiration still enabled
@@ -112,7 +112,7 @@ describe('fetchSubscriptions', () => {
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().subtract(10, 'days').toISOString(),
       disableExpirationNotifications: false,
-      hasCustomLicenseExpirationMessaging: true,
+      hasCustomLicenseExpirationMessagingV2: true,
       expectedShowExpirationNotifications: false,
     },
     // Disabled standard expiration, with custom subs expiration enabled
@@ -124,7 +124,7 @@ describe('fetchSubscriptions', () => {
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().subtract(10, 'days').toISOString(),
       disableExpirationNotifications: true,
-      hasCustomLicenseExpirationMessaging: true,
+      hasCustomLicenseExpirationMessagingV2: true,
       expectedShowExpirationNotifications: false,
     },
     // Disabled standard expiration, no custom subs expiration
@@ -136,7 +136,7 @@ describe('fetchSubscriptions', () => {
       startDate: dayjs().subtract(15, 'days').toISOString(),
       expirationDate: dayjs().subtract(10, 'days').toISOString(),
       disableExpirationNotifications: true,
-      hasCustomLicenseExpirationMessaging: false,
+      hasCustomLicenseExpirationMessagingV2: false,
       expectedShowExpirationNotifications: false,
     },
   ])('returns subscriptions (%s)', async ({
@@ -147,7 +147,7 @@ describe('fetchSubscriptions', () => {
     startDate,
     expirationDate,
     disableExpirationNotifications,
-    hasCustomLicenseExpirationMessaging,
+    hasCustomLicenseExpirationMessagingV2,
     expectedShowExpirationNotifications,
   }) => {
     const mockSubscriptionLicense = {
@@ -166,7 +166,7 @@ describe('fetchSubscriptions', () => {
       customerAgreement: {
         uuid: 'test-customer-agreement-uuid',
         disableExpirationNotifications,
-        hasCustomLicenseExpirationMessaging,
+        hasCustomLicenseExpirationMessagingV2,
       },
       results: [mockSubscriptionLicense],
     };

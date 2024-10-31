@@ -15,11 +15,11 @@ describe('<ExpiredSubscriptionModal />', () => {
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: {
-          hasCustomLicenseExpirationMessaging: false,
-          modalHeaderText: null,
-          buttonLabelInModal: null,
-          expiredSubscriptionModalMessaging: null,
-          urlForButtonInModal: null,
+          hasCustomLicenseExpirationMessagingV2: false,
+          modalHeaderTextV2: null,
+          buttonLabelInModalV2: null,
+          expiredSubscriptionModalMessagingV2: null,
+          urlForButtonInModalV2: null,
         },
         subscriptionLicense: {
           uuid: '123',
@@ -31,7 +31,7 @@ describe('<ExpiredSubscriptionModal />', () => {
     });
   });
 
-  test('does not renderwithrouter if `hasCustomLicenseExpirationMessaging` is false', () => {
+  test('does not renderwithrouter if `hasCustomLicenseExpirationMessagingV2` is false', () => {
     const { container } = renderWithRouter(<ExpiredSubscriptionModal />);
     expect(container).toBeEmptyDOMElement();
   });
@@ -40,11 +40,11 @@ describe('<ExpiredSubscriptionModal />', () => {
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: {
-          hasCustomLicenseExpirationMessaging: true,
-          modalHeaderText: 'Expired Subscription',
-          buttonLabelInModal: 'Continue Learning',
-          expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
-          urlForButtonInModal: '/renew',
+          hasCustomLicenseExpirationMessagingV2: true,
+          modalHeaderTextV2: 'Expired Subscription',
+          buttonLabelInModalV2: 'Continue Learning',
+          expiredSubscriptionModalMessagingV2: '<p>Your subscription has expired.</p>',
+          urlForButtonInModalV2: '/renew',
         },
         subscriptionLicense: {
           uuid: '123',
@@ -63,11 +63,11 @@ describe('<ExpiredSubscriptionModal />', () => {
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: {
-          hasCustomLicenseExpirationMessaging: true,
-          modalHeaderText: 'Expired Subscription',
-          buttonLabelInModal: 'Continue Learning',
-          expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
-          urlForButtonInModal: '/renew',
+          hasCustomLicenseExpirationMessagingV2: true,
+          modalHeaderTextV2: 'Expired Subscription',
+          buttonLabelInModalV2: 'Continue Learning',
+          expiredSubscriptionModalMessagingV2: '<p>Your subscription has expired.</p>',
+          urlForButtonInModalV2: '/renew',
         },
         subscriptionLicense: null,
         subscriptionPlan: null,
@@ -78,15 +78,15 @@ describe('<ExpiredSubscriptionModal />', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  test('renderwithrouters modal with messaging when `hasCustomLicenseExpirationMessaging` is true and license is expired', () => {
+  test('renderwithrouters modal with messaging when `hasCustomLicenseExpirationMessagingV2` is true and license is expired', () => {
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: {
-          hasCustomLicenseExpirationMessaging: true,
-          modalHeaderText: 'Expired Subscription',
-          buttonLabelInModal: 'Continue Learning',
-          expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
-          urlForButtonInModal: '/renew',
+          hasCustomLicenseExpirationMessagingV2: true,
+          modalHeaderTextV2: 'Expired Subscription',
+          buttonLabelInModalV2: 'Continue Learning',
+          expiredSubscriptionModalMessagingV2: '<p>Your subscription has expired.</p>',
+          urlForButtonInModalV2: '/renew',
         },
         subscriptionLicense: {
           uuid: '123',
@@ -113,11 +113,11 @@ describe('<ExpiredSubscriptionModal />', () => {
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: {
-          hasCustomLicenseExpirationMessaging: true,
-          modalHeaderText: 'Expired Subscription',
-          buttonLabelInModal: 'Continue Learning',
-          expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
-          urlForButtonInModal: '/renew',
+          hasCustomLicenseExpirationMessagingV2: true,
+          modalHeaderTextV2: 'Expired Subscription',
+          buttonLabelInModalV2: 'Continue Learning',
+          expiredSubscriptionModalMessagingV2: '<p>Your subscription has expired.</p>',
+          urlForButtonInModalV2: '/renew',
         },
         subscriptionLicense: {
           uuid: '123',
@@ -136,11 +136,11 @@ describe('<ExpiredSubscriptionModal />', () => {
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: {
-          hasCustomLicenseExpirationMessaging: true,
-          modalHeaderText: 'Expired Subscription',
-          buttonLabelInModal: 'Continue Learning',
-          expiredSubscriptionModalMessaging: '<p>Your subscription has expired.</p>',
-          urlForButtonInModal: 'https://example.com',
+          hasCustomLicenseExpirationMessagingV2: true,
+          modalHeaderTextV2: 'Expired Subscription',
+          buttonLabelInModalV2: 'Continue Learning',
+          expiredSubscriptionModalMessagingV2: '<p>Your subscription has expired.</p>',
+          urlForButtonInModalV2: 'https://example.com',
         },
         subscriptionLicense: {
           uuid: '123',

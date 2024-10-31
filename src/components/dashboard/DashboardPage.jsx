@@ -97,7 +97,7 @@ const DashboardPage = () => {
       </Tabs>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
       {/* ExpiredSubscriptionModal is specifically tailored for learners with an expired license and is
-      triggered when the learner has hasCustomLicenseExpirationMessaging enabled.
+      triggered when the learner has hasCustomLicenseExpirationMessagingV2 enabled.
       Ideally, the existing SubscriptionExpirationModal should be extended or repurposed to incorporate
       this logic and support the custom messaging.
       This is noted as a TO-DO, and a ticket will be created to address this enhancement.
