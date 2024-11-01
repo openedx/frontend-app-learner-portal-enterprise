@@ -1,11 +1,15 @@
 import {
-  useToggle, AlertModal, Button, ActionRow,
+  useToggle, AlertModal, ActionRow, StatefulButton,
 } from '@openedx/paragon';
 import DOMPurify from 'dompurify';
-import { useSubscriptions } from '../app/data';
+import { useState } from 'react';
+import { postUnlinkUserFromEnterprise, useEnterpriseCustomer, useSubscriptions } from '../app/data';
 
 const ExpiredSubscriptionModal = () => {
+  const [buttonState, setButtonState] = useState('default');
   const { data: { customerAgreement, subscriptionLicense, subscriptionPlan } } = useSubscriptions();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+
   const [isOpen] = useToggle(true);
   const displaySubscriptionExpirationModal = (
     customerAgreement?.hasCustomLicenseExpirationMessagingV2
@@ -16,6 +20,22 @@ const ExpiredSubscriptionModal = () => {
     return null;
   }
 
+  const onClickHandler = async (e) => {
+    e.preventDefault();
+    setButtonState('pending');
+
+    await postUnlinkUserFromEnterprise(enterpriseCustomer.uuid);
+
+    // Redirect immediately
+    window.location.href = customerAgreement.urlForButtonInModalV2;
+    setButtonState('default');
+  };
+  const props = {
+    labels: {
+      default: customerAgreement.buttonLabelInModalV2,
+    },
+    variant: 'primary',
+  };
   return (
     <AlertModal
       title={<h3 className="mb-2">{customerAgreement.modalHeaderTextV2}</h3>}
@@ -23,9 +43,11 @@ const ExpiredSubscriptionModal = () => {
       isBlocking
       footerNode={(
         <ActionRow>
-          <Button href={customerAgreement.urlForButtonInModalV2}>
-            {customerAgreement.buttonLabelInModalV2}
-          </Button>
+          <StatefulButton
+            state={buttonState}
+            onClick={onClickHandler}
+            {...props}
+          />
         </ActionRow>
       )}
     >
