@@ -9,7 +9,7 @@ import {
   isTodayBetweenDates,
   isTodayWithinDateThreshold,
 } from '../../../utils/common';
-import { COURSE_STATUSES, SUBSIDY_TYPE } from '../../../constants';
+import { COURSE_STATUSES, ENTERPRISE_RESTRICTION_TYPE, SUBSIDY_TYPE } from '../../../constants';
 import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 import {
   ASSIGNMENT_TYPES,
@@ -513,6 +513,11 @@ export function getAvailableCourseRuns({ course, lateEnrollmentBufferDays }) {
     courseRun.isMarketable && !isArchived(courseRun) && courseRun.isEnrollable
   );
 
+  // These are more relaxed availability rules that only apply to restricted runs.
+  const restrictedRunAvailableCourseRunsFilter = (courseRun) => (
+    !isArchived(courseRun) && courseRun.isEnrollable
+  );
+
   // These are more relaxed availability rules when late enrollment is applicable. We still never show archived courses,
   // but the rules around the following fields are relaxed:
   //
@@ -539,11 +544,15 @@ export function getAvailableCourseRuns({ course, lateEnrollmentBufferDays }) {
     return today.isBefore(bufferedEnrollDeadline);
   };
 
-  return course.courseRuns.filter(
-    isDefinedAndNotNull(lateEnrollmentBufferDays)
-      ? lateEnrollmentAvailableCourseRunsFilter
-      : standardAvailableCourseRunsFilter,
-  );
+  return course.courseRuns.filter(run => {
+    if (isDefinedAndNotNull(lateEnrollmentBufferDays)) {
+      return lateEnrollmentAvailableCourseRunsFilter(run);
+    }
+    if (run.restrictionType === ENTERPRISE_RESTRICTION_TYPE) {
+      return restrictedRunAvailableCourseRunsFilter(run);
+    }
+    return standardAvailableCourseRunsFilter(run);
+  });
 }
 
 export function getCatalogsForSubsidyRequests({

@@ -33,7 +33,7 @@ const CourseRunCards = () => {
   // subsidy, so instead we ask userSubsidyApplicableToCourse to give us exactly which runs to
   // display on this page. If there's no applicable subsidy for the course, fallback to just
   // displaying unrestricted runs.
-  const runsAvailableToSubsidy = userSubsidyApplicableToCourse.availableCourseRuns;
+  const runsAvailableToSubsidy = userSubsidyApplicableToCourse?.availableCourseRuns;
   const unrestrictedRunsOnly = courseMetadata.availableCourseRuns.filter(run => !run.restrictionType);
   const courseRunsToDisplay = runsAvailableToSubsidy || unrestrictedRunsOnly;
 
