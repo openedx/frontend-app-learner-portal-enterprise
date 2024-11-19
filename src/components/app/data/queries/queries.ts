@@ -265,3 +265,13 @@ export function queryVideoDetail(videoUUID: string, enterpriseUUID: string) {
     ._ctx.video
     ._ctx.detail(videoUUID);
 }
+
+// BFF queries
+export function queryEnterpriseLearnerDashboardBFF(enterpriseUuid: string, enterpriseSlug: string) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.enterpriseSlug(enterpriseSlug)
+    ._ctx.bffs
+    ._ctx.dashboard;
+}

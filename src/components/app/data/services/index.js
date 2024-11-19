@@ -1,4 +1,5 @@
 export * from './academies';
+export * from './bffs';
 export * from './content';
 export * from './contentHighlights';
 export * from './course';

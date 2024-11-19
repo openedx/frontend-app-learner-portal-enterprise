@@ -16,6 +16,7 @@ import {
   fetchEnterpriseCourseEnrollments,
   fetchEnterpriseCuration,
   fetchEnterpriseCustomerContainsContent,
+  fetchEnterpriseLearnerDashboard,
   fetchEnterpriseLearnerData,
   fetchEnterpriseOffers,
   fetchInProgressPathways,
@@ -47,6 +48,20 @@ const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({
     queryKey: [enterpriseUuid],
     contextQueries: {
+      enterpriseSlug: (enterpriseSlug) => ({
+        queryKey: [enterpriseSlug],
+        contextQueries: {
+          bffs: {
+            queryKey: null,
+            contextQueries: {
+              dashboard: ({
+                queryKey: null,
+                queryFn: ({ queryKey }) => fetchEnterpriseLearnerDashboard(queryKey[2], queryKey[4]),
+              }),
+            },
+          },
+        },
+      }),
       academies: {
         queryKey: null,
         contextQueries: {
@@ -64,6 +79,15 @@ const enterprise = createQueryKeys('enterprise', {
           detail: (academyUUID) => ({
             queryKey: [academyUUID],
             queryFn: ({ queryKey }) => fetchAcademiesDetail(academyUUID, queryKey[2]),
+          }),
+        },
+      },
+      bffs: {
+        queryKey: null,
+        contextQueries: {
+          dashboard: ({
+            queryKey: null,
+            queryFn: ({ queryKey }) => fetchEnterpriseLearnerDashboard(queryKey[2]),
           }),
         },
       },
