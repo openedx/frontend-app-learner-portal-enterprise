@@ -1,6 +1,7 @@
 import MockDate from 'mockdate';
 
 import dayjs from 'dayjs';
+import { matchPath } from 'react-router-dom';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
@@ -22,6 +23,11 @@ import {
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
 } from './constants';
+import { resolveBFFQuery } from '../routes';
+
+jest.mock('react-router-dom', () => ({
+  matchPath: jest.fn(),
+}));
 
 describe('determineLearnerHasContentAssignmentsOnly', () => {
   test.each([
@@ -988,5 +994,47 @@ describe('transformLearnerContentAssignment', () => {
       `/${mockSlug}/course/edX+demoX`,
     );
     expect(transformedAllocatedAssignment.courseRunId).toEqual(contentKey);
+  });
+});
+describe('resolveBFFQuery', () => {
+  const dashboardRoute = '/:enterpriseSlug';
+  const routes = [dashboardRoute];
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  it('returns the dashboard query key', () => {
+    const pathname = '/testEnterpriseSlug';
+    const mockParams = { enterpriseSlug: 'testEnterpriseSlug' };
+    const expectedQueryKey = [
+      'enterprise',
+      'enterpriseCustomer',
+      null,
+      'enterpriseSlug',
+      'testEnterpriseSlug',
+      'bffs',
+      'dashboard',
+    ];
+    matchPath.mockImplementation((pattern, path) => {
+      if (routes.includes(pattern) && path === '/testEnterpriseSlug') {
+        return { params: mockParams };
+      }
+      return null;
+    });
+    const result = resolveBFFQuery(pathname);
+    expect(matchPath).toHaveBeenCalledWith('/:enterpriseSlug', pathname);
+    expect(result.queryKey).toEqual(expectedQueryKey);
+  });
+  it('returns null from unmatched query key', () => {
+    const pathname = '/testEnterpriseSlug/Slugma';
+    const mockParams = { enterpriseSlug: 'testEnterpriseSlug' };
+    matchPath.mockImplementation((pattern, path) => {
+      if (routes.includes(pattern) && path === '/testEnterpriseSlug') {
+        return { params: mockParams };
+      }
+      return null;
+    });
+    const result = resolveBFFQuery(pathname);
+    expect(matchPath).toHaveBeenCalledWith('/:enterpriseSlug', pathname);
+    expect(result).toEqual(null);
   });
 });

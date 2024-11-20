@@ -3,6 +3,19 @@ import { logError } from '@edx/frontend-platform/logging';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
+export const learnerDashboardBFFResponse = {
+  enterpriseCustomerUserSubsidies: {
+    subscriptions: {
+      customerAgreement: {},
+      subscriptionLicenses: [],
+      subscriptionLicensesByStatus: {},
+    },
+  },
+  enterpriseCourseEnrollments: [],
+  errors: [],
+  warnings: [],
+};
+
 export async function fetchEnterpriseLearnerDashboard(enterpriseId, enterpriseSlug, lmsUserId) {
   const { ENTERPRISE_ACCESS_BASE_URL } = getConfig();
   const params = {
@@ -16,7 +29,6 @@ export async function fetchEnterpriseLearnerDashboard(enterpriseId, enterpriseSl
     return camelCaseObject(result.data);
   } catch (error) {
     logError(error);
-    // TODO: consider returning a sane default API response structure here to mitigate complete failure.
-    return {};
+    return learnerDashboardBFFResponse;
   }
 }

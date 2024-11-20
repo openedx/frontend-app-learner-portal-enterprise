@@ -1,20 +1,14 @@
 import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  Alert, Container, Tabs,
-} from '@openedx/paragon';
+import { Alert, Container, Tabs } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 import { useDashboardTabs } from './data';
-import {
-  querySubscriptions,
-  useEnterpriseCustomer,
-  useSubscriptions,
-} from '../app/data';
+import { querySubscriptions, useEnterpriseCustomer, useSubscriptions } from '../app/data';
 import BudgetExpiryNotification from '../budget-expiry-notification';
 import ExpiredSubscriptionModal from '../expired-subscription-modal';
 

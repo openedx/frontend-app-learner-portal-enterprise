@@ -4,11 +4,13 @@ import { resolveBFFQuery } from '../../routes/data/utils';
 import { useEnterpriseCustomer } from './index';
 
 /**
- * Switch from UUID to SLUG todo
+ * Uses the route to determine which API call to make for the BFF
+ * Populates the queryKey with the appropriate enterprise customer uuid once BFF call is resolved
  * @param queryOptions
- * @returns {UseQueryResult<unknown, unknown>}
+ * @returns  {Types.UseQueryResult}} The query results for the routes BFF.
  */
 export function useBFF(queryOptions = {}) {
+  const { select, ...queryOptionsRest } = queryOptions;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -17,16 +19,26 @@ export function useBFF(queryOptions = {}) {
   const matchedBFFQuery = resolveBFFQuery(location.pathname);
   return useQuery({
     ...matchedBFFQuery,
-    ...queryOptions,
+    ...queryOptionsRest,
     select: (data) => {
-      if (data) {
-        const oldKey = matchedBFFQuery.queryKey;
-        // To be replaced eventually with the LMS enterprise customer uuid from the response
-        const newKey = oldKey.map((key) => key || enterpriseCustomer.uuid);
-        queryClient.setQueryData(newKey, data);
+      if (!data) {
         return data;
       }
-      return data;
+      // TODO: To be extracted into helper function once BFF exposes enterpriseCustomer.uuid
+      const originalQueryKey = matchedBFFQuery.queryKey;
+      // To be replaced eventually with the LMS enterprise customer uuid from the response
+      const queryKeyWithEnterpriseUuid = originalQueryKey.map((keySegment) => keySegment || enterpriseCustomer.uuid);
+      queryClient.setQueryData(queryKeyWithEnterpriseUuid, data);
+
+      // TODO: Determine if returned data needs further transformations
+      const transformedData = structuredClone(data);
+      if (select) {
+        return select({
+          original: data,
+          transformed: transformedData,
+        });
+      }
+      return transformedData;
     },
   });
 }

@@ -82,15 +82,6 @@ const enterprise = createQueryKeys('enterprise', {
           }),
         },
       },
-      bffs: {
-        queryKey: null,
-        contextQueries: {
-          dashboard: ({
-            queryKey: null,
-            queryFn: ({ queryKey }) => fetchEnterpriseLearnerDashboard(queryKey[2]),
-          }),
-        },
-      },
       // queryContentHighlightsConfiguration
       contentHighlights: {
         queryKey: null,
