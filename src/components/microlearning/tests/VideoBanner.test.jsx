@@ -49,6 +49,15 @@ describe('VideoBanner', () => {
     expect(screen.getByText('Explore videos')).toBeInTheDocument();
   });
 
+  it('calls sendEnterpriseTrackEvent when banner is rendered', () => {
+    renderWithRouter(<VideoBannerWrapper />);
+
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      mockEnterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.video_banner.viewed',
+    );
+  });
+
   it('calls sendEnterpriseTrackEvent when explore videos button is clicked', () => {
     renderWithRouter(<VideoBannerWrapper />);
 
