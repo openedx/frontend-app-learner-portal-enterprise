@@ -7,6 +7,7 @@ import { fetchCanRedeem, fetchCourseMetadata, fetchCourseRunMetadata } from './c
 import { findHighestLevelEntitlementSku, getActiveCourseRun } from '../utils';
 import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { COURSE_MODES_MAP } from '../constants';
+import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
@@ -35,7 +36,8 @@ jest.mock('@edx/frontend-platform/auth', () => ({
 }));
 
 describe('fetchCourseMetadata', () => {
-  const CONTENT_METADATA_URL = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/courses/${mockCourseKey}/?`;
+  const params = `include_restricted=${ENTERPRISE_RESTRICTION_TYPE}`;
+  const CONTENT_METADATA_URL = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/courses/${mockCourseKey}/?${params}`;
   const courseMetadata = {
     key: mockCourseKey,
     title: 'edX Demonstration Course',
@@ -76,7 +78,8 @@ describe('fetchCourseMetadata', () => {
 });
 
 describe('fetchCourseRunMetadata', () => {
-  const COURSE_RUN_METADATA = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/course_runs/${mockCourseRunKey}/`;
+  const params = `include_restricted=${ENTERPRISE_RESTRICTION_TYPE}`;
+  const COURSE_RUN_METADATA = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/course_runs/${mockCourseRunKey}/?${params}`;
   const courseRunMetadata = {
     key: mockCourseRunKey,
     title: 'edX Demonstration Course',

@@ -42,6 +42,11 @@ export default function useCourseMetadata(queryOptions = {}) {
       if (!data) {
         return data;
       }
+      // NOTE: The results from this call includes restricted runs, some of
+      // which might not be ACTUALLY available depending on the subsidy being
+      // applied.  However, we don't know the subsidy being applied at this
+      // point of the code, so just return all of the basically available
+      // restricted runs regardless of catalog inclusion.
       const availableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
       let transformedData = {
         ...data,
