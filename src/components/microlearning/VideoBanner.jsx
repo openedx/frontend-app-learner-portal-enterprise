@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Card, Button } from '@openedx/paragon';
 import { Link } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -8,6 +9,14 @@ import './styles/VideoDetailPage.scss';
 
 const VideoBanner = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+
+  useEffect(() => {
+    sendEnterpriseTrackEvent(
+      enterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.video_banner.viewed',
+    );
+  }, [enterpriseCustomer]);
+
   const sendPushEvent = () => {
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
