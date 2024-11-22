@@ -131,13 +131,13 @@ describe('fetchEnterpriseLearnerDashboard', () => {
 
   it('returns learner dashboard metadata', async () => {
     axiosMock.onPost(enterpriseDashboard).reply(200, mockBFFDashboardResponse);
-    const result = await fetchEnterpriseLearnerDashboard(mockEnterpriseCustomer.uuid, null, 1234);
+    const result = await fetchEnterpriseLearnerDashboard({ enterpriseId: mockEnterpriseCustomer.uuid });
     expect(result).toEqual(camelCaseObject(mockBFFDashboardResponse));
   });
 
   it('catches error and returns null', async () => {
     axiosMock.onPost(enterpriseDashboard).reply(404, learnerDashboardBFFResponse);
-    const result = await fetchEnterpriseLearnerDashboard(null, null, null);
+    const result = await fetchEnterpriseLearnerDashboard(null);
     expect(result).toEqual(learnerDashboardBFFResponse);
   });
 });

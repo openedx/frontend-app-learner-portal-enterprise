@@ -49,9 +49,7 @@ export function resolveBFFQuery(pathname) {
   const matchedRoute = routeToBFFQueryMap.find((route) => matchPath(route.pattern, pathname));
 
   if (matchedRoute) {
-    const match = matchPath(matchedRoute.pattern, pathname);
-    const params = match ? match.params : {};
-    return matchedRoute.query(null, params?.enterpriseSlug);
+    return matchedRoute.query;
   }
 
   // No match found

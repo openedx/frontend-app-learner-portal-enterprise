@@ -1006,12 +1006,10 @@ describe('resolveBFFQuery', () => {
     const pathname = '/testEnterpriseSlug';
     const mockParams = { enterpriseSlug: 'testEnterpriseSlug' };
     const expectedQueryKey = [
-      'enterprise',
-      'enterpriseCustomer',
-      null,
+      'bff',
       'enterpriseSlug',
       'testEnterpriseSlug',
-      'bffs',
+      'route',
       'dashboard',
     ];
     matchPath.mockImplementation((pattern, path) => {
@@ -1022,7 +1020,7 @@ describe('resolveBFFQuery', () => {
     });
     const result = resolveBFFQuery(pathname);
     expect(matchPath).toHaveBeenCalledWith('/:enterpriseSlug', pathname);
-    expect(result.queryKey).toEqual(expectedQueryKey);
+    expect(result({ enterpriseSlug: 'testEnterpriseSlug' }).queryKey).toEqual(expectedQueryKey);
   });
   it('returns null from unmatched query key', () => {
     const pathname = '/testEnterpriseSlug/Slugma';
