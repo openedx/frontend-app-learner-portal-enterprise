@@ -16,6 +16,7 @@ import {
   fetchEnterpriseCourseEnrollments,
   fetchEnterpriseCuration,
   fetchEnterpriseCustomerContainsContent,
+  fetchEnterpriseLearnerDashboard,
   fetchEnterpriseLearnerData,
   fetchEnterpriseOffers,
   fetchInProgressPathways,
@@ -263,5 +264,22 @@ const content = createQueryKeys('content', {
   }),
 });
 
-const queries = mergeQueryKeys(enterprise, user, content);
+const bff = createQueryKeys('bff', {
+  enterpriseSlug: (enterpriseSlug) => ({
+    queryKey: [enterpriseSlug],
+    contextQueries: {
+      route: {
+        queryKey: null,
+        contextQueries: {
+          dashboard: ({
+            queryKey: null,
+            queryFn: ({ queryKey }) => fetchEnterpriseLearnerDashboard({ enterpriseSlug: queryKey[2] }),
+          }),
+        },
+      },
+    },
+  }),
+});
+
+const queries = mergeQueryKeys(enterprise, user, content, bff);
 export default queries;
