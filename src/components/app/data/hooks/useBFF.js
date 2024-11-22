@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getConfig } from '@edx/frontend-platform/config';
 import { resolveBFFQuery } from '../../routes/data/utils';
 import { useEnterpriseCustomer } from './index';
 
@@ -14,7 +15,13 @@ export function useBFF(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const queryClient = useQueryClient();
   const location = useLocation();
-
+  const { FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS } = getConfig();
+  let shouldUseBFF = false;
+  if (!FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS) {
+    shouldUseBFF = false;
+  } else if (FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS.includes(enterpriseCustomer.uuid)) {
+    shouldUseBFF = true;
+  }
   // Determine the BFF query to use based on the current location
   const matchedBFFQuery = resolveBFFQuery(location.pathname);
   return useQuery({
@@ -24,6 +31,7 @@ export function useBFF(queryOptions = {}) {
       if (!data) {
         return data;
       }
+      console.log(data, 'bff hook');
       // TODO: To be extracted into helper function once BFF exposes enterpriseCustomer.uuid
       const originalQueryKey = matchedBFFQuery.queryKey;
       // To be replaced eventually with the LMS enterprise customer uuid from the response
@@ -40,5 +48,6 @@ export function useBFF(queryOptions = {}) {
       }
       return transformedData;
     },
+    enabled: shouldUseBFF,
   });
 }

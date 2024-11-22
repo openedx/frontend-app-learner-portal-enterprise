@@ -12,6 +12,7 @@ import {
   transformSubsidyRequest,
 } from '../utils';
 import { COURSE_STATUSES } from '../../../../constants';
+import { useBFF } from './useBFF';
 
 export const transformAllEnrollmentsByStatus = ({
   enterpriseCourseEnrollments,
@@ -27,6 +28,21 @@ export const transformAllEnrollmentsByStatus = ({
   return enrollmentsByStatus;
 };
 
+export function useBaseEnterpriseCourseEnrollments(queryOptions = {}) {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: bff } = useBFF(
+    {
+      select: (data) => data.enterpriseCourseEnrollments?.map(transformCourseEnrollment),
+    },
+  );
+  console.log(!bff);
+  return useQuery({
+    ...queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
+    select: (data) => data.map(transformCourseEnrollment),
+    enabled: queryOptions.enabled && !bff,
+  });
+}
+
 /**
  * Retrieves the relevant enterprise course enrollments, subsidy requests (e.g., license
  * requests), and content assignments for the active enterprise customer user.
@@ -35,11 +51,7 @@ export const transformAllEnrollmentsByStatus = ({
 export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
   const isEnabled = queryOptions.enabled;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: enterpriseCourseEnrollments } = useQuery({
-    ...queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
-    select: (data) => data.map(transformCourseEnrollment),
-    enabled: isEnabled,
-  });
+  const { data: enterpriseCourseEnrollments } = useBaseEnterpriseCourseEnrollments(queryOptions);
   const { data: { requests } } = useBrowseAndRequest({
     subscriptionLicensesQueryOptions: {
       select: (data) => data.map((subsidyRequest) => transformSubsidyRequest({

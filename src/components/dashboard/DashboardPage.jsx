@@ -11,15 +11,18 @@ import { useDashboardTabs } from './data';
 import { querySubscriptions, useEnterpriseCustomer, useSubscriptions } from '../app/data';
 import BudgetExpiryNotification from '../budget-expiry-notification';
 import ExpiredSubscriptionModal from '../expired-subscription-modal';
+import { useBFF } from '../app/data/hooks/useBFF';
 
 const DashboardPage = () => {
   const intl = useIntl();
   const queryClient = useQueryClient();
   const { authenticatedUser } = useContext(AppContext);
   const userFirstName = authenticatedUser?.name?.split(' ').shift();
-
+  const { data: bff } = useBFF();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: subscriptions } = useSubscriptions();
+  console.log('hi');
+  console.log(bff);
 
   const handleSubscriptionLicenseActivationAlertClose = () => {
     queryClient.setQueryData(
