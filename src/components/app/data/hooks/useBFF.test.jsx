@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
@@ -22,6 +22,7 @@ jest.mock('../services', () => ({
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
   matchPath: jest.fn(),
+  useParams: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -134,10 +135,11 @@ describe('useBFF', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     fetchEnterpriseLearnerDashboard.mockResolvedValue(mockBFFDashboardData);
     useLocation.mockReturnValue({ pathname: '/test-enterprise' });
+    useParams.mockReturnValue({ enterpriseSlug: 'test-enterprise' });
     resolveBFFQuery.mockReturnValue(null);
   });
   it('should handle resolved value correctly for the dashboard route', async () => {
-    resolveBFFQuery.mockReturnValue(queryEnterpriseLearnerDashboardBFF(null, 'test-enterprise'));
+    resolveBFFQuery.mockReturnValue(queryEnterpriseLearnerDashboardBFF);
     const { result, waitForNextUpdate } = renderHook(() => useBFF(), { wrapper: Wrapper });
     await waitForNextUpdate();
 

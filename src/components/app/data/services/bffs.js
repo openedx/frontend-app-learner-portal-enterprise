@@ -3,7 +3,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
-export const learnerDashboardBFFResponse = {
+export const baseLearnerBFFResponse = {
   enterpriseCustomerUserSubsidies: {
     subscriptions: {
       customerAgreement: {},
@@ -11,20 +11,24 @@ export const learnerDashboardBFFResponse = {
       subscriptionLicensesByStatus: {},
     },
   },
-  enterpriseCourseEnrollments: [],
   errors: [],
   warnings: [],
 };
 
-export async function fetchEnterpriseLearnerDashboard(enterpriseId, enterpriseSlug, lmsUserId) {
+export const learnerDashboardBFFResponse = {
+  ...baseLearnerBFFResponse,
+  enterpriseCourseEnrollments: [],
+};
+
+export async function fetchEnterpriseLearnerDashboard(customerIdentifiers) {
   const { ENTERPRISE_ACCESS_BASE_URL } = getConfig();
-  const params = {
-    enterprise_customer_uuid: enterpriseId,
-    enterprise_customer_slug: enterpriseSlug,
-    lms_user_id: lmsUserId,
-  };
   const url = `${ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/dashboard/`;
   try {
+    const params = {
+      enterprise_customer_uuid: customerIdentifiers?.enterpriseId,
+      enterprise_customer_slug: customerIdentifiers?.enterpriseSlug,
+    };
+
     const result = await getAuthenticatedHttpClient().post(url, params);
     return camelCaseObject(result.data);
   } catch (error) {

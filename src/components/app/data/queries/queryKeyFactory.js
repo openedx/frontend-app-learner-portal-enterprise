@@ -48,20 +48,6 @@ const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({
     queryKey: [enterpriseUuid],
     contextQueries: {
-      enterpriseSlug: (enterpriseSlug) => ({
-        queryKey: [enterpriseSlug],
-        contextQueries: {
-          bffs: {
-            queryKey: null,
-            contextQueries: {
-              dashboard: ({
-                queryKey: null,
-                queryFn: ({ queryKey }) => fetchEnterpriseLearnerDashboard(queryKey[2], queryKey[4]),
-              }),
-            },
-          },
-        },
-      }),
       academies: {
         queryKey: null,
         contextQueries: {
@@ -278,5 +264,26 @@ const content = createQueryKeys('content', {
   }),
 });
 
-const queries = mergeQueryKeys(enterprise, user, content);
+const bff = createQueryKeys('bff', {
+  enterpriseSlug: (enterpriseSlug) => ({
+    queryKey: [enterpriseSlug],
+    contextQueries: {
+      route: {
+        queryKey: null,
+        contextQueries: {
+          dashboard: ({
+            queryKey: null,
+            queryFn: ({ queryKey }) => fetchEnterpriseLearnerDashboard({ enterpriseSlug: queryKey[2] }),
+          }),
+        },
+      },
+      fallback: {
+        queryKey: null,
+        queryFn: () => null,
+      },
+    },
+  }),
+});
+
+const queries = mergeQueryKeys(enterprise, user, content, bff);
 export default queries;

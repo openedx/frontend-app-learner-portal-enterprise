@@ -267,11 +267,18 @@ export function queryVideoDetail(videoUUID: string, enterpriseUUID: string) {
 }
 
 // BFF queries
-export function queryEnterpriseLearnerDashboardBFF(enterpriseUuid: string, enterpriseSlug: string) {
+export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }) {
   return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.enterpriseSlug(enterpriseSlug)
-    ._ctx.bffs
+    .bff
+    .enterpriseSlug(enterpriseSlug)
+    ._ctx.route
     ._ctx.dashboard;
+}
+
+// BFF queries
+export function queryFallbackRouteBFF({ enterpriseSlug }) {
+  return queries
+    .bff
+    .enterpriseSlug(enterpriseSlug)
+    ._ctx.fallback;
 }
