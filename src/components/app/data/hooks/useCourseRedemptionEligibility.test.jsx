@@ -331,6 +331,33 @@ describe('useCourseRedemptionEligibility', () => {
         mockCourseRunKey,
       ],
     },
+    // Make sure a restricted run still available even though it has been redeemed.
+    {
+      courseRunKey: null, // Simulate course about page.
+      canRedeemData: [
+        {
+          ...mockCanRedeemData[0],
+          contentKey: `${mockCourseRunKey}-restricted`,
+          canRedeem: false, // Successfully redeemed content has canRedeem = false.
+          // A successful redemption should cause the logic to deem this content available despite being non-redeemable.
+          hasSuccessfulRedemption: true,
+        },
+      ],
+      useCourseMetadataData: {
+        ...mockCourseMetadata,
+        availableCourseRuns: [
+          {
+            ...mockCourseMetadata.availableCourseRuns[0],
+            key: `${mockCourseRunKey}-restricted`,
+            restrictionType: ENTERPRISE_RESTRICTION_TYPE,
+          },
+        ],
+      },
+      expectedHasSuccessfulRedemption: true,
+      expectedAvailableCourseRunKeys: [
+        `${mockCourseRunKey}-restricted`,
+      ],
+    },
   ])('should resolve as expected when restricted runs exist (%s)', async ({
     courseRunKey,
     canRedeemData,

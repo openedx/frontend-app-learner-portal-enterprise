@@ -44,7 +44,7 @@ export function transformCourseRedemptionEligibility({
       return false;
     }
     const canRedeemRunData = canRedeemData.find(r => r.contentKey === courseRunMetadata.key);
-    return !!canRedeemRunData?.canRedeem;
+    return !!canRedeemRunData?.canRedeem || !!canRedeemRunData?.hasSuccessfulRedemption;
   });
   const availableCourseRunKeys = availableCourseRuns.map(r => r.key);
   // From here on, do not consider can-redeem responses for restricted runs that this
