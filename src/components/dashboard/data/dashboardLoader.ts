@@ -1,7 +1,9 @@
 import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer,
+  isBFFFeatureFlagEnabled,
   queryEnterpriseCourseEnrollments,
+  queryEnterpriseLearnerDashboardBFF,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
   queryRedeemablePolicies,
@@ -33,14 +35,22 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
       enterpriseSlug,
     });
 
+    const shouldUseBFF = isBFFFeatureFlagEnabled(enterpriseCustomer.uuid);
+
+    const enterpriseCourseEnrollmentsEndpoint = shouldUseBFF
+      ? queryClient.ensureQueryData(queryEnterpriseLearnerDashboardBFF(params))
+      : queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid));
+
     const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([
-      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
+      enterpriseCourseEnrollmentsEndpoint,
       queryClient.ensureQueryData(queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: authenticatedUser.userId,
       })),
     ]).then((responses) => {
-      const enterpriseCourseEnrollments = responses[0];
+      const enterpriseCourseEnrollments = shouldUseBFF
+        ? responses[0].enterpriseCourseEnrollments
+        : responses[0];
       const redeemablePolicies = responses[1];
 
       // Redirect user to search page, for first-time users with no enrollments and/or assignments.

@@ -193,6 +193,59 @@ export async function activateOrAutoApplySubscriptionLicense({
   return activatedOrAutoAppliedLicense;
 }
 
+export function transformSubscriptionsData(subscriptions) {
+  if (
+    !(subscriptions?.customerAgreement
+      && subscriptions?.subscriptionLicenses
+      && subscriptions?.subscriptionLicensesByStatus)
+  ) {
+    return {};
+  }
+  const {
+    customerAgreement, subscriptionLicenses, subscriptionLicensesByStatus,
+  } = subscriptions;
+  const subscriptionsData = {
+    subscriptionLicenses,
+    customerAgreement,
+    subscriptionLicense: null,
+    subscriptionPlan: null,
+    licensesByStatus: subscriptionLicensesByStatus,
+    showExpirationNotifications: false,
+    shouldShowActivationSuccessMessage: false,
+  };
+
+  subscriptionsData.customerAgreement = customerAgreement;
+  subscriptionsData.showExpirationNotifications = !(customerAgreement?.disableExpirationNotifications);
+
+  // Sort licenses within each license status by whether the associated subscription plans
+  // are current; current plans should be prioritized over non-current plans.
+  const sortedSubscriptionLicenses = [...subscriptionLicenses].sort((a, b) => {
+    const aIsCurrent = a.subscriptionPlan.isCurrent;
+    const bIsCurrent = b.subscriptionPlan.isCurrent;
+    if (aIsCurrent && bIsCurrent) { return 0; }
+    return aIsCurrent ? -1 : 1;
+  });
+  subscriptionsData.subscriptionLicenses = sortedSubscriptionLicenses;
+
+  // Group licenses by status.
+  // subscriptionLicenses.forEach((license) => {
+  //   const { subscriptionPlan, status } = license;
+  //   const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
+  //   if (isUnassignedLicense || !subscriptionPlan.isActive) {
+  //     return;
+  //   }
+  //   licensesByStatus[license.status].push(license);
+  // });
+
+  // Extracts a single subscription license for the user, from the ordered licenses by status.
+  const applicableSubscriptionLicense = Object.values(subscriptionLicensesByStatus).flat()[0];
+  if (applicableSubscriptionLicense) {
+    subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
+    subscriptionsData.subscriptionPlan = applicableSubscriptionLicense.subscriptionPlan;
+  }
+
+  return subscriptionsData;
+}
 /**
  * TODO
  * @returns

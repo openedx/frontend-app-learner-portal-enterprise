@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 
 import { queryEnterpriseCourseEnrollments } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -12,6 +11,7 @@ import {
   transformSubsidyRequest,
 } from '../utils';
 import { COURSE_STATUSES } from '../../../../constants';
+import useBFF from './useBFF';
 
 export const transformAllEnrollmentsByStatus = ({
   enterpriseCourseEnrollments,
@@ -35,11 +35,17 @@ export const transformAllEnrollmentsByStatus = ({
 export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
   const isEnabled = queryOptions.enabled;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: enterpriseCourseEnrollments } = useQuery({
+  const bffQueryFallback = {
     ...queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
+    ...queryOptions,
     select: (data) => data.map(transformCourseEnrollment),
     enabled: isEnabled,
-  });
+  };
+  const { data: enterpriseCourseEnrollments } = useBFF({
+    ...queryOptions,
+    select: (data) => data.enterpriseCourseEnrollments.map(transformCourseEnrollment),
+    enabled: isEnabled,
+  }, bffQueryFallback);
   const { data: { requests } } = useBrowseAndRequest({
     subscriptionLicensesQueryOptions: {
       select: (data) => data.map((subsidyRequest) => transformSubsidyRequest({

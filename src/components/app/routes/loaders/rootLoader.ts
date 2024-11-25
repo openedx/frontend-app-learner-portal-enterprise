@@ -1,9 +1,9 @@
 import { queryEnterpriseLearner } from '../../data';
 import {
+  ensureActiveEnterpriseCustomerUser,
   ensureAuthenticatedUser,
   ensureEnterpriseAppData,
   redirectToRemoveTrailingSlash,
-  ensureActiveEnterpriseCustomerUser,
 } from '../data';
 
 /**
@@ -63,6 +63,7 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
     // Fetch all enterprise app data.
     await ensureEnterpriseAppData({
       enterpriseCustomer,
+      params,
       allLinkedEnterpriseCustomerUsers,
       userId,
       userEmail,

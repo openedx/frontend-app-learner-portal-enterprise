@@ -277,6 +277,10 @@ const bff = createQueryKeys('bff', {
           }),
         },
       },
+      fallback: {
+        queryKey: null,
+        queryFn: () => null,
+      },
     },
   }),
 });

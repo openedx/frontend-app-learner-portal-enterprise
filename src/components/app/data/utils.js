@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { logError } from '@edx/frontend-platform/logging';
 
+import { getConfig } from '@edx/frontend-platform/config';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import {
@@ -882,4 +883,12 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
     };
   }
   return courseMetadata;
+}
+
+export function isBFFFeatureFlagEnabled(enterpriseCustomerUuid) {
+  const { FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS } = getConfig();
+  if (FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS.includes(enterpriseCustomerUuid)) {
+    return true;
+  }
+  return false;
 }

@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
 import { querySubscriptions } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
+import useBFF from './useBFF';
+import { transformSubscriptionsData } from '../services';
 
 /**
  * Custom hook to get subscriptions data for the enterprise.
@@ -9,8 +10,13 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
  */
 export default function useSubscriptions(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  return useQuery({
-    ...querySubscriptions(enterpriseCustomer.uuid),
-    ...queryOptions,
-  });
+  return useBFF(
+    {
+      select: (data) => transformSubscriptionsData(data?.enterpriseCustomerUserSubsidies?.subscriptions),
+    },
+    {
+      ...querySubscriptions(enterpriseCustomer.uuid),
+      ...queryOptions,
+    },
+  );
 }

@@ -16,16 +16,19 @@ import Cookies from 'universal-cookie';
 
 import {
   activateOrAutoApplySubscriptionLicense,
+  isBFFFeatureFlagEnabled,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
   queryCouponCodes,
   queryEnterpriseLearnerDashboardBFF,
   queryEnterpriseLearnerOffers,
+  queryFallbackRouteBFF,
   queryLicenseRequests,
   queryNotices,
   queryRedeemablePolicies,
   querySubscriptions,
+  transformSubscriptionsData,
   updateUserActiveEnterprise,
 } from '../../data';
 
@@ -53,7 +56,7 @@ export function resolveBFFQuery(pathname) {
   }
 
   // No match found
-  return null;
+  return queryFallbackRouteBFF;
 }
 
 /**
@@ -61,6 +64,7 @@ export function resolveBFFQuery(pathname) {
  * @param {*} options
  * @param {*} options.requestUrl
  * @param {*} options.enterpriseCustomer
+ * @param {*} options.params
  * @param {*} options.allLinkedEnterpriseCustomerUsers
  * @param {*} options.userId
  * @param {*} options.userEmail
@@ -69,16 +73,24 @@ export function resolveBFFQuery(pathname) {
  */
 export async function ensureEnterpriseAppData({
   enterpriseCustomer,
+  params,
   allLinkedEnterpriseCustomerUsers,
   userId,
   userEmail,
   queryClient,
   requestUrl,
 }) {
-  const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
+  const shouldUseBFF = isBFFFeatureFlagEnabled(enterpriseCustomer.uuid);
+  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
+  const subscriptionsQuery = shouldUseBFF || !matchedBFFQuery(params).queryKey.includes('fallback')
+    ? matchedBFFQuery(params)
+    : querySubscriptions(enterpriseCustomer.uuid);
   const enterpriseAppDataQueries = [
     // Enterprise Customer User Subsidies
-    queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
+    queryClient.ensureQueryData(subscriptionsQuery).then(async (rootLoaderData) => {
+      const subscriptionsData = shouldUseBFF
+        ? transformSubscriptionsData(rootLoaderData.enterpriseCustomerUserSubsidies?.subscriptions)
+        : rootLoaderData;
       // Auto-activate the user's subscription license, if applicable.
       const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
         enterpriseCustomer,

@@ -5,27 +5,47 @@ import { Alert, Container, Tabs } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
+import { useParams } from 'react-router-dom';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
-import { useDashboardTabs } from './data';
-import { querySubscriptions, useEnterpriseCustomer, useSubscriptions } from '../app/data';
+import { LICENSE_ACTIVATION_MESSAGE, useDashboardTabs } from './data';
+import {
+  queryEnterpriseLearnerDashboardBFF,
+  querySubscriptions,
+  useEnterpriseCustomer,
+  useSubscriptions,
+} from '../app/data';
 import BudgetExpiryNotification from '../budget-expiry-notification';
 import ExpiredSubscriptionModal from '../expired-subscription-modal';
+import useBFF from '../app/data/hooks/useBFF';
 
 const DashboardPage = () => {
   const intl = useIntl();
   const queryClient = useQueryClient();
   const { authenticatedUser } = useContext(AppContext);
   const userFirstName = authenticatedUser?.name?.split(' ').shift();
+  const params = useParams();
 
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: subscriptions } = useSubscriptions();
+
+  // TODO: REMOVE ME
+  const { data: bff } = useBFF();
+  console.log('bff dashboard', bff);
 
   const handleSubscriptionLicenseActivationAlertClose = () => {
     queryClient.setQueryData(
       querySubscriptions(enterpriseCustomer.uuid).queryKey,
       {
         ...subscriptions,
+        shouldShowActivationSuccessMessage: false,
+      },
+    );
+    // TODO: how to handle this if derived from the BFF? TLDR: dismissing license activation modal
+    queryClient.setQueryData(
+      queryEnterpriseLearnerDashboardBFF(params).queryKey,
+      {
+        ...bff,
         shouldShowActivationSuccessMessage: false,
       },
     );
@@ -79,7 +99,7 @@ const DashboardPage = () => {
       >
         <FormattedMessage
           id="enterprise.dashboard.tab.courses.license.activated"
-          defaultMessage="Your license was successfully activated."
+          defaultMessage={LICENSE_ACTIVATION_MESSAGE}
           description="Alert message shown to a learner on enterprise dashboard courses tab."
         />
       </Alert>
