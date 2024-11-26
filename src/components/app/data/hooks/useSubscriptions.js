@@ -11,6 +11,7 @@ import { transformSubscriptionsData } from '../services';
 export default function useSubscriptions(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   return useBFF(
+    {},
     {
       select: (data) => transformSubscriptionsData(data?.enterpriseCustomerUserSubsidies?.subscriptions),
     },

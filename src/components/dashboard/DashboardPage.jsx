@@ -6,7 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
-import { LICENSE_ACTIVATION_MESSAGE, useDashboardTabs } from './data';
+import { useDashboardTabs } from './data';
 import { querySubscriptions, useEnterpriseCustomer, useSubscriptions } from '../app/data';
 import BudgetExpiryNotification from '../budget-expiry-notification';
 import ExpiredSubscriptionModal from '../expired-subscription-modal';
@@ -78,7 +78,7 @@ const DashboardPage = () => {
       >
         <FormattedMessage
           id="enterprise.dashboard.tab.courses.license.activated"
-          defaultMessage={LICENSE_ACTIVATION_MESSAGE}
+          defaultMessage="Your license was successfully activated."
           description="Alert message shown to a learner on enterprise dashboard courses tab."
         />
       </Alert>

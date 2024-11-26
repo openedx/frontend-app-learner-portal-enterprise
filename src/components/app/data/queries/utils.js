@@ -1,13 +1,20 @@
 import { matchPath } from 'react-router-dom';
-import { queryEnterpriseLearnerDashboardBFF, queryFallbackRouteBFF } from './queries';
+import { queryEnterpriseLearnerDashboardBFF } from './queries';
+import { isBFFEnabledForEnterpriseCustomer } from '../utils';
 
 /**
  * Resolves the appropriate BFF query function to use for the current route.
  * @param {string} pathname - The current route pathname.
  * @returns {Function|null} The BFF query function to use for the current route, or null if no match is found.
  */
-export function resolveBFFQuery(pathname) {
+export function resolveBFFQuery(pathname, options = {}) {
   // Define route patterns and their corresponding query functions
+  const { enterpriseCustomerUuid } = options;
+
+  const isBFFEnabledForCustomer = isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid);
+  if (!isBFFEnabledForCustomer) {
+    return null;
+  }
 
   const routeToBFFQueryMap = [
     {
@@ -25,5 +32,5 @@ export function resolveBFFQuery(pathname) {
   }
 
   // No match found
-  return queryFallbackRouteBFF;
+  return null;
 }

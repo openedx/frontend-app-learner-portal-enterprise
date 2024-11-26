@@ -885,7 +885,7 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
   return courseMetadata;
 }
 
-export function isBFFFeatureFlagEnabled(enterpriseCustomerUuid) {
+export function isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid) {
   const { FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS } = getConfig();
   if (FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS.includes(enterpriseCustomerUuid)) {
     return true;

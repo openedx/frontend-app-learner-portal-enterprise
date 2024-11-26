@@ -274,10 +274,3 @@ export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }) {
     ._ctx.route
     ._ctx.dashboard;
 }
-
-export function queryFallbackRouteBFF({ enterpriseSlug }) {
-  return queries
-    .bff
-    .enterpriseSlug(enterpriseSlug)
-    ._ctx.fallback;
-}

@@ -43,6 +43,16 @@ export interface EnterpriseLearnerData {
   staffEnterpriseCustomer: Types.EnterpriseCustomer;
 }
 
+export interface EnterpriseCourseEnrollment {
+  course_run_id: string;
+  course_key: string;
+  course_type: string;
+  org_name: string;
+  course_run_status: string;
+  mode: string;
+  certificate_download_url?: string;
+}
+
 // Application Data (subsidy)
 export type SubsidyRequestState = typeof SUBSIDY_REQUEST_STATE[keyof typeof SUBSIDY_REQUEST_STATE];
 

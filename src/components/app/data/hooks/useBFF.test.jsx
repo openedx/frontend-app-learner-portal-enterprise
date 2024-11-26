@@ -2,6 +2,8 @@ import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
 import { useLocation, useParams } from 'react-router-dom';
+import { getConfig } from '@edx/frontend-platform/config';
+import { waitFor } from '@testing-library/react';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
@@ -10,8 +12,8 @@ import useBFF from './useBFF';
 import { queryEnterpriseLearnerDashboardBFF, resolveBFFQuery } from '../queries';
 
 jest.mock('./useEnterpriseCustomer');
-jest.mock('../../routes/data/utils', () => ({
-  ...jest.requireActual('../services'),
+jest.mock('../queries', () => ({
+  ...jest.requireActual('../queries'),
   resolveBFFQuery: jest.fn(),
 }));
 jest.mock('../services', () => ({
@@ -22,6 +24,12 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
   matchPath: jest.fn(),
   useParams: jest.fn(),
+}));
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: jest.fn(() => ({
+    FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [],
+  })),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -136,8 +144,11 @@ describe('useBFF', () => {
     useLocation.mockReturnValue({ pathname: '/test-enterprise' });
     useParams.mockReturnValue({ enterpriseSlug: 'test-enterprise' });
     resolveBFFQuery.mockReturnValue(null);
+    getConfig.mockReturnValue({
+      FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [mockEnterpriseCustomer.uuid],
+    });
   });
-  it('should handle resolved value correctly for the dashboard route', async () => {
+  it('should handle resolved value correctly for the dashboard route, and the config enabled', async () => {
     resolveBFFQuery.mockReturnValue(queryEnterpriseLearnerDashboardBFF);
     const { result, waitForNextUpdate } = renderHook(() => useBFF(), { wrapper: Wrapper });
     await waitForNextUpdate();
@@ -149,5 +160,49 @@ describe('useBFF', () => {
         isFetching: false,
       }),
     );
+  });
+  it.each([
+    {
+      enterpriseCustomerUuids: [mockEnterpriseCustomer.uuid],
+      shouldResolve: true,
+    },
+    {
+      enterpriseCustomerUuids: [mockEnterpriseCustomer.uuid, uuidv4()],
+      shouldResolve: true,
+    },
+    {
+      enterpriseCustomerUuids: [uuidv4()],
+      shouldResolve: false,
+    },
+    {
+      enterpriseCustomerUuids: [],
+      shouldResolve: false,
+    },
+
+  ])('tests whether the API resolves on the dashboard based on the feature flag (%s)', async ({ enterpriseCustomerUuids, shouldResolve }) => {
+    resolveBFFQuery.mockReturnValue(queryEnterpriseLearnerDashboardBFF);
+    getConfig.mockReturnValue({
+      FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: enterpriseCustomerUuids,
+    });
+    const { result } = renderHook(() => useBFF(), { wrapper: Wrapper });
+    await waitFor(() => {
+      if (shouldResolve) {
+        expect(result.current).toEqual(
+          expect.objectContaining({
+            data: mockBFFDashboardData,
+            isLoading: false,
+            isFetching: false,
+          }),
+        );
+      } else {
+        expect(result.current).toEqual(
+          expect.objectContaining({
+            data: undefined,
+            isLoading: true,
+            isFetching: false,
+          }),
+        );
+      }
+    });
   });
 });
