@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useMatch } from 'react-router-dom';
 import FooterSlot from '@openedx/frontend-slot-footer';
 import { getConfig } from '@edx/frontend-platform/config';
 
@@ -17,12 +17,17 @@ export const DEFAULT_TITLE = 'edX';
 const Layout = () => {
   const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const licenseActivationRouteMatch = useMatch('/:enterpriseSlug/licenses/:activationKey/activate');
 
   const brandStyles = useStylesForCustomBrandColors(enterpriseCustomer);
 
-  // Authenticated user is NOT linked an enterprise customer, so
-  // render the not found page.
+  // Authenticated user is NOT linked to an enterprise customer.
   if (!enterpriseCustomer) {
+    if (licenseActivationRouteMatch) {
+      // If the user is trying to activate a license, render the license activation route.
+      return <Outlet />;
+    }
+    // Otherwise, render the not found page.
     return <NotFoundPage />;
   }
 
