@@ -1,8 +1,8 @@
 import { useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { resolveBFFQuery } from '../../routes/data/utils';
-import { useEnterpriseCustomer } from './index';
+import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { isBFFFeatureFlagEnabled } from '../utils';
+import { resolveBFFQuery } from '../queries';
 
 /**
  * Uses the route to determine which API call to make for the BFF
@@ -14,12 +14,11 @@ import { isBFFFeatureFlagEnabled } from '../utils';
 export default function useBFF(queryOptions = {}, bffQueryFallback = null) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
-    select, enabled, ...queryOptionsRest
+    enabled, ...queryOptionsRest
   } = queryOptions;
   const location = useLocation();
 
   const shouldUseBFF = isBFFFeatureFlagEnabled(enterpriseCustomer.uuid);
-
   // Determine the BFF query to use based on the current location
   const params = useParams();
   const matchedBFFQuery = resolveBFFQuery(location.pathname);
@@ -28,16 +27,7 @@ export default function useBFF(queryOptions = {}, bffQueryFallback = null) {
   let query = {
     ...matchedBFFQuery(params),
     ...queryOptionsRest,
-    select: (data) => {
-      if (!data) {
-        return data;
-      }
-      if (select) {
-        return select(data);
-      }
-      return data;
-    },
-    enabled: enabled && !!shouldUseBFF,
+    enabled: enabled && shouldUseBFF,
   };
   // Determine if the flag is enabled, or if we have retrieved teh fallback query
   if ((!shouldUseBFF || matchedBFFQuery(params).queryKey.includes('fallback')) && !!bffQueryFallback) {

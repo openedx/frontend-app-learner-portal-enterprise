@@ -23,7 +23,7 @@ import {
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
 } from './constants';
-import { resolveBFFQuery } from '../routes';
+import { resolveBFFQuery } from './queries';
 
 jest.mock('react-router-dom', () => ({
   matchPath: jest.fn(),

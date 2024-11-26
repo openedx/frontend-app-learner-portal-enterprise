@@ -6,9 +6,8 @@ import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseLearnerDashboard } from '../services';
-import { useBFF } from './useBFF';
-import { resolveBFFQuery } from '../../routes/data/utils';
-import { queryEnterpriseLearnerDashboardBFF } from '../queries';
+import useBFF from './useBFF';
+import { queryEnterpriseLearnerDashboardBFF, resolveBFFQuery } from '../queries';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('../../routes/data/utils', () => ({
