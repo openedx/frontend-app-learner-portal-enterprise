@@ -208,7 +208,6 @@ describe('fetchSubscriptions', () => {
       subscriptionPlan: isLicenseApplicable ? updatedMockSubscriptionLicense.subscriptionPlan : null,
       subscriptionLicense: isLicenseApplicable ? updatedMockSubscriptionLicense : null,
       subscriptionLicenses: [updatedMockSubscriptionLicense],
-      shouldShowActivationSuccessMessage: false,
       showExpirationNotifications: expectedShowExpirationNotifications,
     };
     expect(response).toEqual(expectedResult);
@@ -271,7 +270,6 @@ describe('fetchSubscriptions', () => {
       subscriptionPlan: mockSubscriptionLicenseCurrent.subscriptionPlan,
       subscriptionLicense: mockSubscriptionLicenseCurrent,
       subscriptionLicenses: [mockSubscriptionLicenseCurrent, mockSubscriptionLicenseRenewal],
-      shouldShowActivationSuccessMessage: false,
       showExpirationNotifications: true,
     };
     expect(response).toEqual(expectedResult);

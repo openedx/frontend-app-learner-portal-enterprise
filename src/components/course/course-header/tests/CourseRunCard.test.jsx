@@ -8,6 +8,7 @@ import { useCourseRunCardData } from '../data';
 import { findUserEnrollmentForCourseRun } from '../../data/utils';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import {
+  LEARNER_CREDIT_SUBSIDY_TYPE,
   useCouponCodes,
   useCourseMetadata,
   useCourseRedemptionEligibility,
@@ -16,12 +17,8 @@ import {
   useEnterpriseCustomerContainsContent,
   useEnterpriseOffers,
   useSubscriptions,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
 } from '../../../app/data';
-import {
-  useCanUserRequestSubsidyForCourse,
-  useUserSubsidyApplicableToCourse,
-} from '../../data';
+import { useCanUserRequestSubsidyForCourse, useUserSubsidyApplicableToCourse } from '../../data';
 import { renderWithRouterProvider } from '../../../../utils/tests';
 
 jest.mock('../../../app/data', () => ({
@@ -102,7 +99,6 @@ describe('<CourseRunCard />', () => {
         customerAgreement: undefined,
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
     });
     useEnterpriseCustomerContainsContent.mockReturnValue({

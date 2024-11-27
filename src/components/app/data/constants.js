@@ -82,5 +82,4 @@ export const baseSubscriptionsData = {
   subscriptionPlan: null,
   licensesByStatus: baseLicensesByStatus,
   showExpirationNotifications: false,
-  shouldShowActivationSuccessMessage: false,
 };

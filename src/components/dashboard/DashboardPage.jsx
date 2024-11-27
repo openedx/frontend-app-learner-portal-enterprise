@@ -1,33 +1,28 @@
 import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
-import { useQueryClient } from '@tanstack/react-query';
-import { Alert, Container, Tabs } from '@openedx/paragon';
+import {
+  Alert, Container, Tabs, useToggle,
+} from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 import { useDashboardTabs } from './data';
-import { querySubscriptions, useEnterpriseCustomer, useSubscriptions } from '../app/data';
+import { useEnterpriseCustomer, useSubscriptions } from '../app/data';
 import BudgetExpiryNotification from '../budget-expiry-notification';
 import ExpiredSubscriptionModal from '../expired-subscription-modal';
 
 const DashboardPage = () => {
   const intl = useIntl();
-  const queryClient = useQueryClient();
   const { authenticatedUser } = useContext(AppContext);
   const userFirstName = authenticatedUser?.name?.split(' ').shift();
-
+  const [shouldShowActivationSuccessMessage, , close] = useToggle(!!sessionStorage.getItem('shouldShowActivationSuccessMessage'));
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: subscriptions } = useSubscriptions();
-
-  const handleSubscriptionLicenseActivationAlertClose = () => {
-    queryClient.setQueryData(
-      querySubscriptions(enterpriseCustomer.uuid).queryKey,
-      {
-        ...subscriptions,
-        shouldShowActivationSuccessMessage: false,
-      },
-    );
+  const handleSubscriptionLicenseActivationAlertClose = (e) => {
+    e.preventDefault();
+    sessionStorage.removeItem('shouldShowActivationSuccessMessage', 'false');
+    close();
   };
 
   const {
@@ -71,7 +66,7 @@ const DashboardPage = () => {
       </h2>
       <Alert
         variant="success"
-        show={subscriptions.shouldShowActivationSuccessMessage}
+        show={shouldShowActivationSuccessMessage}
         onClose={handleSubscriptionLicenseActivationAlertClose}
         className="mt-3"
         dismissible

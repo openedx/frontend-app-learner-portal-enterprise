@@ -29,7 +29,6 @@ const mockSubscriptionsData = {
   subscriptionPlan: null,
   licensesByStatus,
   showExpirationNotifications: false,
-  shouldShowActivationSuccessMessage: false,
 };
 const mockCouponsOverviewResponse = [{ id: 123 }];
 const mockBrowseAndRequestConfiguration = {

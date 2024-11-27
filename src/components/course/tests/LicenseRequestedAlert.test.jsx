@@ -6,7 +6,11 @@ import userEvent from '@testing-library/user-event';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useParams } from 'react-router-dom';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
-import { LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME, LICENSE_REQUESTED_ALERT_HEADING, LICENSE_REQUESTED_ALERT_TEXT } from '../data/constants';
+import {
+  LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME,
+  LICENSE_REQUESTED_ALERT_HEADING,
+  LICENSE_REQUESTED_ALERT_TEXT,
+} from '../data/constants';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import {
   useBrowseAndRequest,
@@ -69,7 +73,6 @@ describe('<LicenseRequestedAlert />', () => {
         customerAgreement: undefined,
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
     });
   });

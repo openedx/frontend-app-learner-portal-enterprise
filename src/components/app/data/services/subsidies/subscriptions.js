@@ -32,8 +32,6 @@ export async function activateSubscriptionLicense({
   subscriptionLicenseToActivate,
   licenseActivationRouteMatch,
   dashboardRedirectPath,
-  queryClient,
-  subscriptionsQuery,
 }) {
   try {
     // Activate the user's assigned subscription license.
@@ -53,10 +51,7 @@ export async function activateSubscriptionLicense({
     );
     // If user is on the license activation route, redirect to the dashboard.
     if (licenseActivationRouteMatch) {
-      queryClient.setQueryData(subscriptionsQuery.queryKey, {
-        ...queryClient.getQueryData(subscriptionsQuery.queryKey),
-        shouldShowActivationSuccessMessage: true,
-      });
+      sessionStorage.setItem('shouldShowActivationSuccessMessage', 'true');
       throw redirect(dashboardRedirectPath);
     }
     // Otherwise, return the now-activated subscription license.
@@ -179,8 +174,6 @@ export async function activateOrAutoApplySubscriptionLicense({
       subscriptionLicenseToActivate,
       licenseActivationRouteMatch,
       dashboardRedirectPath,
-      queryClient,
-      subscriptionsQuery,
     });
   } else if (!hasRevokedSubscriptionLicense && isUserLinkedToEnterpriseCustomer) {
     activatedOrAutoAppliedLicense = await getAutoAppliedSubscriptionLicense({

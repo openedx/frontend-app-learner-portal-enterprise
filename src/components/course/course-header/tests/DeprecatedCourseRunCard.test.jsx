@@ -6,10 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { QueryClientProvider } from '@tanstack/react-query';
-import {
-  renderWithRouter,
-  queryClient,
-} from '../../../../utils/tests';
+import { queryClient, renderWithRouter } from '../../../../utils/tests';
 import { COURSE_PACING_MAP } from '../../data/constants';
 import CourseRunCardDeprecated from '../deprecated/CourseRunCard';
 import { enrollButtonTypes } from '../../enrollment/constants';
@@ -27,9 +24,7 @@ import {
   useSubscriptions,
 } from '../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
-import {
-  useCanUserRequestSubsidyForCourse,
-} from '../../data/hooks';
+import { useCanUserRequestSubsidyForCourse } from '../../data/hooks';
 import { SUBSIDY_TYPE } from '../../../../constants';
 
 const COURSE_UUID = 'foo';
@@ -131,7 +126,6 @@ describe('<DeprecatedCourseRunCard />', () => {
         customerAgreement: undefined,
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
     });
     useRedeemablePolicies.mockReturnValue({

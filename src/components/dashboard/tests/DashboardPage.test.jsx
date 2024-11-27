@@ -221,7 +221,6 @@ describe('<Dashboard />', () => {
       data: {
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
     });
     useRedeemablePolicies.mockReturnValue({ data: defaultRedeemablePoliciesState });
@@ -287,7 +286,6 @@ describe('<Dashboard />', () => {
       data: {
         subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
         subscriptionPlan: { uuid: 'test-uuid' },
-        shouldShowActivationSuccessMessage: true,
       },
     });
     renderWithRouter(<DashboardWithContext />);
@@ -355,7 +353,6 @@ describe('<Dashboard />', () => {
       data: {
         subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
         subscriptionPlan: { uuid: 'test-uuid' },
-        shouldShowActivationSuccessMessage: false,
       },
     });
     useHasAvailableSubsidiesOrRequests.mockReturnValue(

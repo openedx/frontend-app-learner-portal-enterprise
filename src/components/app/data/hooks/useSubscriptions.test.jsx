@@ -26,7 +26,6 @@ const mockSubscriptionsData = {
   subscriptionPlan: null,
   licensesByStatus,
   showExpirationNotifications: false,
-  shouldShowActivationSuccessMessage: false,
 };
 
 describe('useSubscriptions', () => {
