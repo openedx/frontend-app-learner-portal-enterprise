@@ -887,8 +887,8 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
 
 export function isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid) {
   const { FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS } = getConfig();
-  if (FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS.includes(enterpriseCustomerUuid)) {
-    return true;
+  if (!FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS) {
+    return false;
   }
-  return false;
+  return !!FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS.includes(enterpriseCustomerUuid);
 }

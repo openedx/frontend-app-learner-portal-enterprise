@@ -52,13 +52,13 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
     ]).then((responses) => {
       const enterpriseCourseEnrollments = dashboardBFFQuery
         ? (responses[0] as DashboardBFFResponse).enterpriseCourseEnrollments
-        : responses[0];
+        : responses[0] as Types.EnterpriseCourseEnrollment[];
       const redeemablePolicies = responses[1];
 
       // Redirect user to search page, for first-time users with no enrollments and/or assignments.
       redirectToSearchPageForNewUser({
         enterpriseSlug: enterpriseSlug as string,
-        enterpriseCourseEnrollments: enterpriseCourseEnrollments as DashboardBFFResponse['enterpriseCourseEnrollments'],
+        enterpriseCourseEnrollments,
         redeemablePolicies,
       });
     });

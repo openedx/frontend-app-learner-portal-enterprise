@@ -178,7 +178,6 @@ describe('useBFF', () => {
       enterpriseCustomerUuids: [],
       shouldResolve: false,
     },
-
   ])('tests whether the API resolves on the dashboard based on the feature flag (%s)', async ({ enterpriseCustomerUuids, shouldResolve }) => {
     resolveBFFQuery.mockReturnValue(queryEnterpriseLearnerDashboardBFF);
     getConfig.mockReturnValue({

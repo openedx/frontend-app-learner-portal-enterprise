@@ -41,15 +41,14 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
     select: (data) => data.map(transformCourseEnrollment),
     enabled: isEnabled,
   };
-  const { data: enterpriseCourseEnrollments } = useBFF(
-    {},
-    {
+  const { data: enterpriseCourseEnrollments } = useBFF({
+    bffQueryOptions: {
       ...queryOptions,
       select: (data) => data.enterpriseCourseEnrollments.map(transformCourseEnrollment),
       enabled: isEnabled,
     },
-    bffQueryFallback,
-  );
+    fallbackQueryConfig: bffQueryFallback,
+  });
   const { data: { requests } } = useBrowseAndRequest({
     subscriptionLicensesQueryOptions: {
       select: (data) => data.map((subsidyRequest) => transformSubsidyRequest({

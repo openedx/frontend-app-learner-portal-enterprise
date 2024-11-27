@@ -13,11 +13,11 @@ import { resolveBFFQuery } from '../queries';
  * allows you to pass a fallback query endpoint to call in lieu of an unmatched BFF query
  * @returns  {Types.UseQueryResult}} The query results for the routes BFF.
  */
-export default function useBFF(
+export default function useBFF({
   bffQueryAdditionalParams = {},
   bffQueryOptions = {},
   fallbackQueryConfig = null,
-) {
+}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { enterpriseSlug } = useParams();
   const location = useLocation();

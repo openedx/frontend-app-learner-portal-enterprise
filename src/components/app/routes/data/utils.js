@@ -34,7 +34,6 @@ import {
  * @param {*} options
  * @param {*} options.requestUrl
  * @param {*} options.enterpriseCustomer
- * @param {*} options.params
  * @param {*} options.allLinkedEnterpriseCustomerUsers
  * @param {*} options.userId
  * @param {*} options.userEmail

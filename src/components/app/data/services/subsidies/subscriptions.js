@@ -7,6 +7,7 @@ import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { fetchPaginatedData } from '../utils';
+import { baseLicensesByStatus, baseSubscriptionsData } from '../../constants';
 
 // Subscriptions
 
@@ -193,52 +194,58 @@ export async function activateOrAutoApplySubscriptionLicense({
   return activatedOrAutoAppliedLicense;
 }
 
-export function transformSubscriptionsData(subscriptions) {
-  if (
-    !(subscriptions?.customerAgreement
+export function transformSubscriptionsData(subscriptions, BFFTransform = false) {
+  if (BFFTransform
+    && !(subscriptions?.customerAgreement
       && subscriptions?.subscriptionLicenses
       && subscriptions?.subscriptionLicensesByStatus)
   ) {
-    return {};
+    return baseSubscriptionsData;
   }
   const {
     customerAgreement, subscriptionLicenses, subscriptionLicensesByStatus,
   } = subscriptions;
+
   const subscriptionsData = {
+    ...baseSubscriptionsData,
     subscriptionLicenses,
-    customerAgreement,
-    subscriptionLicense: null,
-    subscriptionPlan: null,
-    licensesByStatus: subscriptionLicensesByStatus,
-    showExpirationNotifications: false,
-    shouldShowActivationSuccessMessage: false,
+    licensesByStatus: BFFTransform ? subscriptionLicensesByStatus : baseLicensesByStatus,
   };
 
-  subscriptionsData.customerAgreement = customerAgreement;
-  subscriptionsData.showExpirationNotifications = !(customerAgreement?.disableExpirationNotifications);
+  if (customerAgreement) {
+    subscriptionsData.customerAgreement = customerAgreement;
+  }
+  subscriptionsData.showExpirationNotifications = BFFTransform
+    ? !(customerAgreement?.disableExpirationNotifications)
+    : !customerAgreement?.disableExpirationNotifications && !customerAgreement?.hasCustomLicenseExpirationMessagingV2;
 
   // Sort licenses within each license status by whether the associated subscription plans
   // are current; current plans should be prioritized over non-current plans.
-  const sortedSubscriptionLicenses = [...subscriptionLicenses].sort((a, b) => {
+  subscriptionsData.subscriptionLicenses = [...subscriptionLicenses].sort((a, b) => {
     const aIsCurrent = a.subscriptionPlan.isCurrent;
     const bIsCurrent = b.subscriptionPlan.isCurrent;
-    if (aIsCurrent && bIsCurrent) { return 0; }
+    if (aIsCurrent && bIsCurrent) {
+      return 0;
+    }
     return aIsCurrent ? -1 : 1;
   });
-  subscriptionsData.subscriptionLicenses = sortedSubscriptionLicenses;
 
   // Group licenses by status.
-  // subscriptionLicenses.forEach((license) => {
-  //   const { subscriptionPlan, status } = license;
-  //   const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
-  //   if (isUnassignedLicense || !subscriptionPlan.isActive) {
-  //     return;
-  //   }
-  //   licensesByStatus[license.status].push(license);
-  // });
+  if (!BFFTransform) {
+    subscriptionLicenses.forEach((license) => {
+      const { subscriptionPlan, status } = license;
+      const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
+      if (isUnassignedLicense || !subscriptionPlan.isActive) {
+        return;
+      }
+      subscriptionsData.licensesByStatus[license.status].push(license);
+    });
+  }
 
   // Extracts a single subscription license for the user, from the ordered licenses by status.
-  const applicableSubscriptionLicense = Object.values(subscriptionLicensesByStatus).flat()[0];
+  const applicableSubscriptionLicense = Object.values(
+    BFFTransform ? subscriptionLicensesByStatus : subscriptionsData.licensesByStatus,
+  ).flat()[0];
   if (applicableSubscriptionLicense) {
     subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
     subscriptionsData.subscriptionPlan = applicableSubscriptionLicense.subscriptionPlan;
@@ -266,63 +273,19 @@ export async function fetchSubscriptions(enterpriseUUID) {
    * Example: an activated license will be chosen as the applicable license because activated licenses
    * come first in ``licensesByStatus`` even if the user also has a revoked license.
    */
-  const licensesByStatus = {
-    [LICENSE_STATUS.ACTIVATED]: [],
-    [LICENSE_STATUS.ASSIGNED]: [],
-    [LICENSE_STATUS.REVOKED]: [],
-  };
-  const subscriptionsData = {
-    subscriptionLicenses: [],
-    customerAgreement: null,
-    subscriptionLicense: null,
-    subscriptionPlan: null,
-    licensesByStatus,
-    showExpirationNotifications: false,
-    shouldShowActivationSuccessMessage: false,
-  };
   try {
     const {
       results: subscriptionLicenses,
       response,
     } = await fetchPaginatedData(url);
     const { customerAgreement } = response;
-    if (customerAgreement) {
-      subscriptionsData.customerAgreement = customerAgreement;
-    }
-    subscriptionsData.showExpirationNotifications = (
-      !customerAgreement?.disableExpirationNotifications && !customerAgreement?.hasCustomLicenseExpirationMessagingV2
-    );
-
-    // Sort licenses within each license status by whether the associated subscription plans
-    // are current; current plans should be prioritized over non-current plans.
-    subscriptionLicenses.sort((a, b) => {
-      const aIsCurrent = a.subscriptionPlan.isCurrent;
-      const bIsCurrent = b.subscriptionPlan.isCurrent;
-      if (aIsCurrent && bIsCurrent) { return 0; }
-      return aIsCurrent ? -1 : 1;
-    });
-    subscriptionsData.subscriptionLicenses = subscriptionLicenses;
-
-    // Group licenses by status.
-    subscriptionLicenses.forEach((license) => {
-      const { subscriptionPlan, status } = license;
-      const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
-      if (isUnassignedLicense || !subscriptionPlan.isActive) {
-        return;
-      }
-      licensesByStatus[license.status].push(license);
-    });
-
-    // Extracts a single subscription license for the user, from the ordered licenses by status.
-    const applicableSubscriptionLicense = Object.values(licensesByStatus).flat()[0];
-    if (applicableSubscriptionLicense) {
-      subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
-      subscriptionsData.subscriptionPlan = applicableSubscriptionLicense.subscriptionPlan;
-    }
-    subscriptionsData.licensesByStatus = licensesByStatus;
-    return subscriptionsData;
+    return transformSubscriptionsData({
+      customerAgreement,
+      subscriptionLicensesByStatus: baseLicensesByStatus,
+      subscriptionLicenses,
+    }, false);
   } catch (error) {
     logError(error);
-    return subscriptionsData;
+    return baseSubscriptionsData;
   }
 }
