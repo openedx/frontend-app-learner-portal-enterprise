@@ -16,12 +16,12 @@ const DashboardPage = () => {
   const intl = useIntl();
   const { authenticatedUser } = useContext(AppContext);
   const userFirstName = authenticatedUser?.name?.split(' ').shift();
-  const [shouldShowActivationSuccessMessage, , close] = useToggle(!!sessionStorage.getItem('shouldShowActivationSuccessMessage'));
+  const [shouldShowLicenseActivationSuccessMessage, , close] = useToggle(!!sessionStorage.getItem('shouldShowActivationSuccessMessage'));
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: subscriptions } = useSubscriptions();
   const handleSubscriptionLicenseActivationAlertClose = (e) => {
     e.preventDefault();
-    sessionStorage.removeItem('shouldShowActivationSuccessMessage', 'false');
+    sessionStorage.removeItem('shouldShowLicenseActivationSuccessMessage');
     close();
   };
 
@@ -66,7 +66,7 @@ const DashboardPage = () => {
       </h2>
       <Alert
         variant="success"
-        show={shouldShowActivationSuccessMessage}
+        show={shouldShowLicenseActivationSuccessMessage}
         onClose={handleSubscriptionLicenseActivationAlertClose}
         className="mt-3"
         dismissible

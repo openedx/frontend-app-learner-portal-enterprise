@@ -51,7 +51,7 @@ export async function activateSubscriptionLicense({
     );
     // If user is on the license activation route, redirect to the dashboard.
     if (licenseActivationRouteMatch) {
-      sessionStorage.setItem('shouldShowActivationSuccessMessage', 'true');
+      sessionStorage.setItem('shouldShowLicenseActivationSuccessMessage', 'true');
       throw redirect(dashboardRedirectPath);
     }
     // Otherwise, return the now-activated subscription license.
@@ -121,8 +121,6 @@ export async function activateOrAutoApplySubscriptionLicense({
   allLinkedEnterpriseCustomerUsers,
   subscriptionsData,
   requestUrl,
-  queryClient,
-  subscriptionsQuery,
 }) {
   const licenseActivationRouteMatch = matchPath('/:enterpriseSlug/licenses/:activationKey/activate', requestUrl.pathname);
   const dashboardRedirectPath = generatePath('/:enterpriseSlug', { enterpriseSlug: enterpriseCustomer.slug });
@@ -187,30 +185,34 @@ export async function activateOrAutoApplySubscriptionLicense({
   return activatedOrAutoAppliedLicense;
 }
 
-export function transformSubscriptionsData(subscriptions, BFFTransform = false) {
-  if (BFFTransform
-    && !(subscriptions?.customerAgreement
-      && subscriptions?.subscriptionLicenses
-      && subscriptions?.subscriptionLicensesByStatus)
-  ) {
-    return baseSubscriptionsData;
-  }
+export function transformSubscriptionsData(subscriptions, options = {}) {
+  const { isBFFData } = options;
   const {
-    customerAgreement, subscriptionLicenses, subscriptionLicensesByStatus,
+    customerAgreement,
+    subscriptionLicenses,
+    subscriptionLicensesByStatus,
   } = subscriptions;
+
+  const licensesByStatus = isBFFData && subscriptionLicensesByStatus
+    ? subscriptionLicensesByStatus
+    : baseLicensesByStatus;
 
   const subscriptionsData = {
     ...baseSubscriptionsData,
-    subscriptionLicenses,
-    licensesByStatus: BFFTransform ? subscriptionLicensesByStatus : baseLicensesByStatus,
+    licensesByStatus,
   };
+
+  if (subscriptionLicenses) {
+    subscriptionsData.subscriptionLicenses = subscriptionLicenses;
+  }
 
   if (customerAgreement) {
     subscriptionsData.customerAgreement = customerAgreement;
   }
-  subscriptionsData.showExpirationNotifications = BFFTransform
-    ? !(customerAgreement?.disableExpirationNotifications)
-    : !customerAgreement?.disableExpirationNotifications && !customerAgreement?.hasCustomLicenseExpirationMessagingV2;
+
+  subscriptionsData.showExpirationNotifications = !(
+    customerAgreement?.disableExpirationNotifications || customerAgreement?.hasCustomLicenseExpirationMessagingV2
+  );
 
   // Sort licenses within each license status by whether the associated subscription plans
   // are current; current plans should be prioritized over non-current plans.
@@ -224,7 +226,7 @@ export function transformSubscriptionsData(subscriptions, BFFTransform = false) 
   });
 
   // Group licenses by status.
-  if (!BFFTransform) {
+  if (!isBFFData) {
     subscriptionLicenses.forEach((license) => {
       const { subscriptionPlan, status } = license;
       const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
@@ -237,15 +239,15 @@ export function transformSubscriptionsData(subscriptions, BFFTransform = false) 
 
   // Extracts a single subscription license for the user, from the ordered licenses by status.
   const applicableSubscriptionLicense = Object.values(
-    BFFTransform ? subscriptionLicensesByStatus : subscriptionsData.licensesByStatus,
+    subscriptionsData.licensesByStatus,
   ).flat()[0];
   if (applicableSubscriptionLicense) {
     subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
     subscriptionsData.subscriptionPlan = applicableSubscriptionLicense.subscriptionPlan;
   }
-
   return subscriptionsData;
 }
+
 /**
  * TODO
  * @returns
@@ -272,11 +274,13 @@ export async function fetchSubscriptions(enterpriseUUID) {
       response,
     } = await fetchPaginatedData(url);
     const { customerAgreement } = response;
-    return transformSubscriptionsData({
+    const subscriptionsData = {
       customerAgreement,
-      subscriptionLicensesByStatus: baseLicensesByStatus,
       subscriptionLicenses,
-    }, false);
+    };
+    return transformSubscriptionsData(
+      subscriptionsData,
+    );
   } catch (error) {
     logError(error);
     return baseSubscriptionsData;

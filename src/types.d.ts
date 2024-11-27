@@ -44,9 +44,9 @@ export interface EnterpriseLearnerData {
 }
 
 interface DueDate {
-  name?: string;
-  date?: string;
-  url?: string;
+  name: string;
+  date: string;
+  url: string;
 }
 
 export interface EnterpriseCourseEnrollment {
@@ -69,7 +69,7 @@ export interface EnterpriseCourseEnrollment {
   course_run_url: string;
   resume_course_run_url?: string;
   is_revoked: boolean;
-  due_dates: (DueDate | {})[]
+  due_dates: DueDate[]
 }
 
 // Application Data (subsidy)

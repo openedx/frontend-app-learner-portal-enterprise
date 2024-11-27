@@ -12,6 +12,7 @@ export function resolveBFFQuery(pathname, options = {}) {
   const { enterpriseCustomerUuid } = options;
 
   const isBFFEnabledForCustomer = isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid);
+
   if (!isBFFEnabledForCustomer) {
     return null;
   }

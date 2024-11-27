@@ -61,8 +61,6 @@ export async function ensureEnterpriseAppData({
           allLinkedEnterpriseCustomerUsers,
           subscriptionsData,
           requestUrl,
-          queryClient,
-          subscriptionsQuery,
         });
         if (activatedOrAutoAppliedLicense) {
           const { licensesByStatus } = subscriptionsData;

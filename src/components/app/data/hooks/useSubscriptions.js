@@ -12,7 +12,10 @@ export default function useSubscriptions(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   return useBFF({
     bffQueryOptions: {
-      select: (data) => transformSubscriptionsData(data?.enterpriseCustomerUserSubsidies?.subscriptions, true),
+      select: (data) => transformSubscriptionsData(
+        data?.enterpriseCustomerUserSubsidies?.subscriptions,
+        { isBFFData: true },
+      ),
     },
     fallbackQueryConfig: {
       ...querySubscriptions(enterpriseCustomer.uuid),
