@@ -75,6 +75,28 @@ describe('Layout', () => {
     expect(screen.getByText('404', { selector: 'h1' })).toBeInTheDocument();
   });
 
+  it('renders the license activation route when user is not linked to enterprise customer but accessing license activation', () => {
+    useEnterpriseCustomer.mockReturnValue({ data: null });
+
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/*',
+      element: <LayoutWrapper />,
+      children: [
+        {
+          path: 'licenses/:activationKey/activate',
+          element: <div data-testid="license-activation-page" />,
+        },
+      ],
+    }, {
+      initialEntries: ['/enterprise-slug/licenses/12345678-1234-5678-1234-567812345678/activate'],
+    });
+
+    // Verify license activation page is rendered
+    expect(screen.getByTestId('license-activation-page')).toBeInTheDocument();
+    // Verify 404 is not rendered
+    expect(screen.queryByRole('heading', { name: '404' })).not.toBeInTheDocument();
+  });
+
   it.each([
     {
       isSystemMaintenanceAlertOpen: false,
