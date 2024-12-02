@@ -7,9 +7,11 @@ import makeDashboardLoader from './dashboardLoader';
 import {
   extractEnterpriseCustomer,
   queryEnterpriseCourseEnrollments,
+  queryEnterpriseLearnerDashboardBFF,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
   queryRedeemablePolicies,
+  resolveBFFQuery,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
@@ -20,6 +22,7 @@ jest.mock('../../app/routes/data', () => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   extractEnterpriseCustomer: jest.fn(),
+  resolveBFFQuery: jest.fn(),
 }));
 
 const mockEnterpriseId = 'test-enterprise-uuid';
@@ -35,6 +38,7 @@ describe('dashboardLoader', () => {
     localStorage.clear();
     ensureAuthenticatedUser.mockResolvedValue({ userId: 3 });
     extractEnterpriseCustomer.mockResolvedValue({ uuid: mockEnterpriseId, slug: mockEnterpriseSlug });
+    resolveBFFQuery.mockReturnValue(null);
   });
 
   it('does nothing with unauthenticated users', async () => {
@@ -60,6 +64,7 @@ describe('dashboardLoader', () => {
       currentPageRoute: `/${mockEnterpriseSlug}`,
       hasVisitedDashboardBefore: false,
       shouldRedirectToSearch: true,
+      shouldUseBFFQuery: false,
     },
     {
       hasAssignmentsForDisplay: false,
@@ -67,6 +72,7 @@ describe('dashboardLoader', () => {
       currentPageRoute: `/${mockEnterpriseSlug}`,
       hasVisitedDashboardBefore: true,
       shouldRedirectToSearch: false,
+      shouldUseBFFQuery: false,
     },
     {
       hasAssignmentsForDisplay: false,
@@ -74,6 +80,7 @@ describe('dashboardLoader', () => {
       currentPageRoute: `/${mockEnterpriseSlug}/search`,
       hasVisitedDashboardBefore: false,
       shouldRedirectToSearch: false,
+      shouldUseBFFQuery: false,
     },
     {
       hasAssignmentsForDisplay: true,
@@ -81,6 +88,7 @@ describe('dashboardLoader', () => {
       currentPageRoute: `/${mockEnterpriseSlug}`,
       hasVisitedDashboardBefore: false,
       shouldRedirectToSearch: false,
+      shouldUseBFFQuery: false,
     },
     {
       hasAssignmentsForDisplay: false,
@@ -88,6 +96,7 @@ describe('dashboardLoader', () => {
       currentPageRoute: `/${mockEnterpriseSlug}`,
       hasVisitedDashboardBefore: false,
       shouldRedirectToSearch: false,
+      shouldUseBFFQuery: false,
     },
     {
       hasAssignmentsForDisplay: true,
@@ -95,6 +104,55 @@ describe('dashboardLoader', () => {
       currentPageRoute: `/${mockEnterpriseSlug}`,
       hasVisitedDashboardBefore: false,
       shouldRedirectToSearch: false,
+      shouldUseBFFQuery: false,
+    },
+    {
+      hasAssignmentsForDisplay: false,
+      hasEnterpriseCourseEnrollments: false,
+      currentPageRoute: `/${mockEnterpriseSlug}`,
+      hasVisitedDashboardBefore: false,
+      shouldRedirectToSearch: true,
+      shouldUseBFFQuery: true,
+    },
+    {
+      hasAssignmentsForDisplay: false,
+      hasEnterpriseCourseEnrollments: false,
+      currentPageRoute: `/${mockEnterpriseSlug}`,
+      hasVisitedDashboardBefore: true,
+      shouldRedirectToSearch: false,
+      shouldUseBFFQuery: true,
+    },
+    {
+      hasAssignmentsForDisplay: false,
+      hasEnterpriseCourseEnrollments: false,
+      currentPageRoute: `/${mockEnterpriseSlug}/search`,
+      hasVisitedDashboardBefore: false,
+      shouldRedirectToSearch: false,
+      shouldUseBFFQuery: true,
+    },
+    {
+      hasAssignmentsForDisplay: true,
+      hasEnterpriseCourseEnrollments: false,
+      currentPageRoute: `/${mockEnterpriseSlug}`,
+      hasVisitedDashboardBefore: false,
+      shouldRedirectToSearch: false,
+      shouldUseBFFQuery: true,
+    },
+    {
+      hasAssignmentsForDisplay: false,
+      hasEnterpriseCourseEnrollments: true,
+      currentPageRoute: `/${mockEnterpriseSlug}`,
+      hasVisitedDashboardBefore: false,
+      shouldRedirectToSearch: false,
+      shouldUseBFFQuery: true,
+    },
+    {
+      hasAssignmentsForDisplay: true,
+      hasEnterpriseCourseEnrollments: true,
+      currentPageRoute: `/${mockEnterpriseSlug}`,
+      hasVisitedDashboardBefore: false,
+      shouldRedirectToSearch: false,
+      shouldUseBFFQuery: true,
     },
   ])('ensures the requisite dashboard data is resolved (%s)', async ({
     hasAssignmentsForDisplay,
@@ -102,7 +160,13 @@ describe('dashboardLoader', () => {
     currentPageRoute,
     hasVisitedDashboardBefore,
     shouldRedirectToSearch,
+    shouldUseBFFQuery,
   }) => {
+    if (shouldUseBFFQuery) {
+      resolveBFFQuery.mockReturnValue(queryEnterpriseLearnerDashboardBFF);
+    } else {
+      resolveBFFQuery.mockReturnValue(null);
+    }
     // Mock global.location.pathname
     const mockLocation = {
       pathname: currentPageRoute,
@@ -138,6 +202,30 @@ describe('dashboardLoader', () => {
       }),
     ).mockResolvedValue(mockEnterpriseCourseEnrollments);
 
+    // Mock bff dashboard query
+    const mockBFFDashboardResponse = {
+      enterpriseCustomerUserSubsidies: {
+        subscriptions: {
+          customerAgreement: null,
+          subscriptionLicenses: [],
+          subscriptionLicensesByStatus: {
+            activated: [],
+            assigned: [],
+            expired: [],
+            revoked: [],
+          },
+        },
+      },
+      enterpriseCourseEnrollments: mockEnterpriseCourseEnrollments,
+      errors: [],
+      warnings: [],
+    };
+    when(mockQueryClient.ensureQueryData).calledWith(
+      expect.objectContaining({
+        queryKey: queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: mockEnterpriseSlug }).queryKey,
+      }),
+    ).mockReturnValue(mockBFFDashboardResponse);
+
     renderWithRouterProvider(
       {
         path: '/:enterpriseSlug',
@@ -164,7 +252,9 @@ describe('dashboardLoader', () => {
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(4);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: queryEnterpriseCourseEnrollments(mockEnterpriseId).queryKey,
+        queryKey: shouldUseBFFQuery
+          ? queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: mockEnterpriseSlug }).queryKey
+          : queryEnterpriseCourseEnrollments(mockEnterpriseId).queryKey,
         queryFn: expect.any(Function),
       }),
     );

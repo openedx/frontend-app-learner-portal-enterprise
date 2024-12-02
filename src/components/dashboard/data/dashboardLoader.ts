@@ -38,7 +38,6 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
     });
 
     const dashboardBFFQuery = resolveBFFQuery(requestUrl.pathname, enterpriseCustomer.uuid);
-
     const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([
       queryClient.ensureQueryData(
         dashboardBFFQuery
@@ -54,7 +53,6 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
         ? (responses[0] as DashboardBFFResponse).enterpriseCourseEnrollments
         : responses[0] as Types.EnterpriseCourseEnrollment[];
       const redeemablePolicies = responses[1];
-
       // Redirect user to search page, for first-time users with no enrollments and/or assignments.
       redirectToSearchPageForNewUser({
         enterpriseSlug: enterpriseSlug as string,

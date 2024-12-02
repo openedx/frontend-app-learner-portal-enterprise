@@ -86,6 +86,7 @@ describe('rootLoader', () => {
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
   });
 
+  // TODO: include tests related to resolveBFFQuery within ensureEnterpriseAppData
   it.each([
     {
       enterpriseSlug: mockEnterpriseCustomerTwo.slug,
@@ -152,6 +153,7 @@ describe('rootLoader', () => {
   }) => {
     const enterpriseLearnerQuery = queryEnterpriseLearner(mockAuthenticatedUser.username, enterpriseSlug);
     const enterpriseLearnerQueryTwo = queryEnterpriseLearner(mockAuthenticatedUser.username, enterpriseCustomer.slug);
+
     // Mock the enterprise-learner query to return an active enterprise customer user.
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
