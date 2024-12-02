@@ -69,7 +69,7 @@ export interface EnterpriseCourseEnrollment {
   course_run_url: string;
   resume_course_run_url?: string;
   is_revoked: boolean;
-  due_dates: DueDate[]
+  due_dates: DueDate[];
 }
 
 // Application Data (subsidy)

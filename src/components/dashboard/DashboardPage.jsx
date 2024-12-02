@@ -8,7 +8,7 @@ import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 import { useDashboardTabs } from './data';
-import { useEnterpriseCustomer, useSubscriptions } from '../app/data';
+import { SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE, useEnterpriseCustomer, useSubscriptions } from '../app/data';
 import BudgetExpiryNotification from '../budget-expiry-notification';
 import ExpiredSubscriptionModal from '../expired-subscription-modal';
 
@@ -16,12 +16,14 @@ const DashboardPage = () => {
   const intl = useIntl();
   const { authenticatedUser } = useContext(AppContext);
   const userFirstName = authenticatedUser?.name?.split(' ').shift();
-  const [shouldShowLicenseActivationSuccessMessage, , close] = useToggle(!!sessionStorage.getItem('shouldShowActivationSuccessMessage'));
+  const [shouldShowLicenseActivationSuccessMessageState, , close] = useToggle(
+    !!sessionStorage.getItem(SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE),
+  );
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: subscriptions } = useSubscriptions();
   const handleSubscriptionLicenseActivationAlertClose = (e) => {
     e.preventDefault();
-    sessionStorage.removeItem('shouldShowLicenseActivationSuccessMessage');
+    sessionStorage.removeItem(SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE);
     close();
   };
 
@@ -66,7 +68,7 @@ const DashboardPage = () => {
       </h2>
       <Alert
         variant="success"
-        show={shouldShowLicenseActivationSuccessMessage}
+        show={shouldShowLicenseActivationSuccessMessageState}
         onClose={handleSubscriptionLicenseActivationAlertClose}
         className="mt-3"
         dismissible

@@ -7,7 +7,11 @@ import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { fetchPaginatedData } from '../utils';
-import { baseLicensesByStatus, baseSubscriptionsData } from '../../constants';
+import {
+  baseLicensesByStatus,
+  baseSubscriptionsData,
+  SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE,
+} from '../../constants';
 
 // Subscriptions
 
@@ -51,7 +55,7 @@ export async function activateSubscriptionLicense({
     );
     // If user is on the license activation route, redirect to the dashboard.
     if (licenseActivationRouteMatch) {
-      sessionStorage.setItem('shouldShowLicenseActivationSuccessMessage', 'true');
+      sessionStorage.setItem(SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE, 'true');
       throw redirect(dashboardRedirectPath);
     }
     // Otherwise, return the now-activated subscription license.
@@ -227,7 +231,7 @@ export function transformSubscriptionsData(subscriptions, options = {}) {
 
   // Group licenses by status.
   if (!isBFFData) {
-    subscriptionLicenses.forEach((license) => {
+    subscriptionsData.subscriptionLicenses.forEach((license) => {
       const { subscriptionPlan, status } = license;
       const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
       if (isUnassignedLicense || !subscriptionPlan.isActive) {

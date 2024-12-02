@@ -20,7 +20,6 @@ export default function useSubscriptions(queryOptions = {}) {
     fallbackQueryConfig: {
       ...querySubscriptions(enterpriseCustomer.uuid),
       ...queryOptions,
-    }
-    ,
+    },
   });
 }

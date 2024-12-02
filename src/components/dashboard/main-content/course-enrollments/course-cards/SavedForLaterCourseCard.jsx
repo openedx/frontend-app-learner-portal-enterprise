@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { FormattedMessage, defineMessages } from '@edx/frontend-platform/i18n';
+import { defineMessages, FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import BaseCourseCard, { getScreenReaderText } from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';

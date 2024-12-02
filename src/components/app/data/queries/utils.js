@@ -8,15 +8,15 @@ import { isBFFEnabledForEnterpriseCustomer } from '../utils';
  * @returns {Function|null} The BFF query function to use for the current route, or null if no match is found.
  */
 export function resolveBFFQuery(pathname, options = {}) {
-  // Define route patterns and their corresponding query functions
   const { enterpriseCustomerUuid } = options;
 
+  // Exit early if BFF is not enabled for the enterprise customer
   const isBFFEnabledForCustomer = isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid);
-
   if (!isBFFEnabledForCustomer) {
     return null;
   }
 
+  // Define route patterns and their corresponding query functions
   const routeToBFFQueryMap = [
     {
       pattern: '/:enterpriseSlug',

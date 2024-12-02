@@ -83,3 +83,5 @@ export const baseSubscriptionsData = {
   licensesByStatus: baseLicensesByStatus,
   showExpirationNotifications: false,
 };
+
+export const SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE = 'SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE';
