@@ -6,7 +6,7 @@ import { resolveBFFQuery } from '../queries';
 
 /**
  * Uses the route to determine which API call to make for the BFF
- * Populates the queryKey with the appropriate enterprise customer uuid once BFF call is resolved
+ *
  * @param bffQueryAdditionalParams - additional fields to pass into a matched BFF query call
  * @param bffQueryOptions - the queryOptions specifically for the matched BFF query call
  * @param fallbackQueryConfig - if a route is not compatible with the BFF layer, this field

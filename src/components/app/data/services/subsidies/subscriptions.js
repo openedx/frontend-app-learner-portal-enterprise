@@ -7,7 +7,7 @@ import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { fetchPaginatedData } from '../utils';
-import { SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE } from '../../constants';
+import { getBaseSubscriptionsData, SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE } from '../../constants';
 
 // Subscriptions
 
@@ -187,19 +187,8 @@ export async function activateOrAutoApplySubscriptionLicense({
 
 export function transformSubscriptionsData(subscriptions, options = {}) {
   const { isBFFData } = options;
-  const baseLicensesByStatus = {
-    [LICENSE_STATUS.ACTIVATED]: [],
-    [LICENSE_STATUS.ASSIGNED]: [],
-    [LICENSE_STATUS.REVOKED]: [],
-  };
-  const baseSubscriptionsData = {
-    subscriptionLicenses: [],
-    customerAgreement: null,
-    subscriptionLicense: null,
-    subscriptionPlan: null,
-    licensesByStatus: baseLicensesByStatus,
-    showExpirationNotifications: false,
-  };
+  const { baseSubscriptionsData, baseLicensesByStatus } = getBaseSubscriptionsData();
+
   const {
     customerAgreement,
     subscriptionLicenses,
@@ -279,19 +268,7 @@ export async function fetchSubscriptions(enterpriseUUID) {
    * Example: an activated license will be chosen as the applicable license because activated licenses
    * come first in ``licensesByStatus`` even if the user also has a revoked license.
    */
-  const baseLicensesByStatus = {
-    [LICENSE_STATUS.ACTIVATED]: [],
-    [LICENSE_STATUS.ASSIGNED]: [],
-    [LICENSE_STATUS.REVOKED]: [],
-  };
-  const baseSubscriptionsData = {
-    subscriptionLicenses: [],
-    customerAgreement: null,
-    subscriptionLicense: null,
-    subscriptionPlan: null,
-    licensesByStatus: baseLicensesByStatus,
-    showExpirationNotifications: false,
-  };
+  const { baseSubscriptionsData } = getBaseSubscriptionsData();
   try {
     const {
       results: subscriptionLicenses,

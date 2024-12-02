@@ -890,5 +890,5 @@ export function isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid) {
   if (!FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS) {
     return false;
   }
-  return !!FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS.includes(enterpriseCustomerUuid);
+  return FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS.includes(enterpriseCustomerUuid);
 }

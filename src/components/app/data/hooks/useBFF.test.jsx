@@ -132,6 +132,7 @@ const mockBFFDashboardData = {
   errors: [],
   warnings: [],
 };
+// TODO: Test with select function passed to to validate args
 describe('useBFF', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
@@ -165,38 +166,38 @@ describe('useBFF', () => {
   it.each([
     {
       enterpriseCustomerUuids: [mockEnterpriseCustomer.uuid],
-      isCustomer: true,
+      isCustomerWithBFF: true,
       shouldResolve: true,
     },
     {
       enterpriseCustomerUuids: [mockEnterpriseCustomer.uuid, uuidv4()],
-      isCustomer: true,
+      isCustomerWithBFF: true,
       shouldResolve: true,
     },
     {
       enterpriseCustomerUuids: [uuidv4()],
-      isCustomer: true,
+      isCustomerWithBFF: true,
       shouldResolve: false,
     },
     {
       enterpriseCustomerUuids: [],
-      isCustomer: true,
+      isCustomerWithBFF: true,
       shouldResolve: false,
     },
     {
       enterpriseCustomerUuids: [uuidv4()],
-      isCustomer: false,
+      isCustomerWithBFF: false,
       shouldResolve: true,
     },
     {
       enterpriseCustomerUuids: [],
-      isCustomer: false,
+      isCustomerWithBFF: false,
       shouldResolve: true,
     },
-  ])('tests whether the API resolves on the dashboard based on the feature flag (%s)', async ({ enterpriseCustomerUuids, isCustomer, shouldResolve }) => {
+  ])('tests whether the API resolves on the dashboard based on the feature flag (%s)', async ({ enterpriseCustomerUuids, isCustomerWithBFF, shouldResolve }) => {
     if (shouldResolve) {
       resolveBFFQuery.mockReturnValue(
-        isCustomer ? queryEnterpriseLearnerDashboardBFF : queryEnterpriseCourseEnrollments,
+        isCustomerWithBFF ? queryEnterpriseLearnerDashboardBFF : queryEnterpriseCourseEnrollments,
       );
       fetchEnterpriseCourseEnrollments.mockResolvedValue(mockBFFDashboardData.enterpriseCourseEnrollments);
     } else {
@@ -214,7 +215,7 @@ describe('useBFF', () => {
 
     const { result } = renderHook(() => useBFF({}), { wrapper: Wrapper });
     await waitFor(() => {
-      if (shouldResolve && isCustomer) {
+      if (shouldResolve && isCustomerWithBFF) {
         expect(result.current).toEqual(
           expect.objectContaining({
             data: mockBFFDashboardData,
