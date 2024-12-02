@@ -7,9 +7,9 @@ import { waitFor } from '@testing-library/react';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
-import { fetchEnterpriseLearnerDashboard } from '../services';
+import { fetchEnterpriseCourseEnrollments, fetchEnterpriseLearnerDashboard } from '../services';
 import useBFF from './useBFF';
-import { queryEnterpriseLearnerDashboardBFF, resolveBFFQuery } from '../queries';
+import { queryEnterpriseCourseEnrollments, queryEnterpriseLearnerDashboardBFF, resolveBFFQuery } from '../queries';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('../queries', () => ({
@@ -19,6 +19,7 @@ jest.mock('../queries', () => ({
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
   fetchEnterpriseLearnerDashboard: jest.fn().mockResolvedValue(null),
+  fetchEnterpriseCourseEnrollments: jest.fn().mockResolvedValue(null),
 }));
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -150,7 +151,7 @@ describe('useBFF', () => {
   });
   it('should handle resolved value correctly for the dashboard route, and the config enabled', async () => {
     resolveBFFQuery.mockReturnValue(queryEnterpriseLearnerDashboardBFF);
-    const { result, waitForNextUpdate } = renderHook(() => useBFF(), { wrapper: Wrapper });
+    const { result, waitForNextUpdate } = renderHook(() => useBFF({}), { wrapper: Wrapper });
     await waitForNextUpdate();
 
     expect(result.current).toEqual(
@@ -164,28 +165,56 @@ describe('useBFF', () => {
   it.each([
     {
       enterpriseCustomerUuids: [mockEnterpriseCustomer.uuid],
+      isCustomer: true,
       shouldResolve: true,
     },
     {
       enterpriseCustomerUuids: [mockEnterpriseCustomer.uuid, uuidv4()],
+      isCustomer: true,
       shouldResolve: true,
     },
     {
       enterpriseCustomerUuids: [uuidv4()],
+      isCustomer: true,
       shouldResolve: false,
     },
     {
       enterpriseCustomerUuids: [],
+      isCustomer: true,
       shouldResolve: false,
     },
-  ])('tests whether the API resolves on the dashboard based on the feature flag (%s)', async ({ enterpriseCustomerUuids, shouldResolve }) => {
-    resolveBFFQuery.mockReturnValue(queryEnterpriseLearnerDashboardBFF);
+    {
+      enterpriseCustomerUuids: [uuidv4()],
+      isCustomer: false,
+      shouldResolve: true,
+    },
+    {
+      enterpriseCustomerUuids: [],
+      isCustomer: false,
+      shouldResolve: true,
+    },
+  ])('tests whether the API resolves on the dashboard based on the feature flag (%s)', async ({ enterpriseCustomerUuids, isCustomer, shouldResolve }) => {
+    if (shouldResolve) {
+      resolveBFFQuery.mockReturnValue(
+        isCustomer ? queryEnterpriseLearnerDashboardBFF : queryEnterpriseCourseEnrollments,
+      );
+      fetchEnterpriseCourseEnrollments.mockResolvedValue(mockBFFDashboardData.enterpriseCourseEnrollments);
+    } else {
+      resolveBFFQuery.mockReturnValue(null);
+    }
     getConfig.mockReturnValue({
       FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: enterpriseCustomerUuids,
     });
-    const { result } = renderHook(() => useBFF(), { wrapper: Wrapper });
+    if (!shouldResolve) {
+      expect(() => {
+        const { result } = renderHook(() => useBFF({}), { wrapper: Wrapper });
+        return result.current;
+      }).toThrow('No BFF query found for the current route and no fallback query provided');
+    }
+
+    const { result } = renderHook(() => useBFF({}), { wrapper: Wrapper });
     await waitFor(() => {
-      if (shouldResolve) {
+      if (shouldResolve && isCustomer) {
         expect(result.current).toEqual(
           expect.objectContaining({
             data: mockBFFDashboardData,
@@ -193,11 +222,11 @@ describe('useBFF', () => {
             isFetching: false,
           }),
         );
-      } else {
+      } else if (shouldResolve) {
         expect(result.current).toEqual(
           expect.objectContaining({
-            data: undefined,
-            isLoading: true,
+            data: mockBFFDashboardData.enterpriseCourseEnrollments,
+            isLoading: false,
             isFetching: false,
           }),
         );

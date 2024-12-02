@@ -27,6 +27,7 @@ export default function useBFF({
     location.pathname,
     { enterpriseCustomerUuid: enterpriseCustomer.uuid },
   );
+
   // Determine which query to call, the original hook or the new BFF
   let queryConfig = {};
   if (matchedBFFQuery) {

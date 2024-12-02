@@ -1,5 +1,3 @@
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-
 export const emptyRedeemableLearnerCreditPolicies = {
   redeemablePolicies: [],
   learnerContentAssignments: {
@@ -70,18 +68,4 @@ export const ASSIGNMENT_TYPES = {
 // When the start date is before this number of days before today, display the alternate start date (fixed to today).
 export const START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS = 14;
 
-export const baseLicensesByStatus = {
-  [LICENSE_STATUS.ACTIVATED]: [],
-  [LICENSE_STATUS.ASSIGNED]: [],
-  [LICENSE_STATUS.REVOKED]: [],
-};
-export const baseSubscriptionsData = {
-  subscriptionLicenses: [],
-  customerAgreement: null,
-  subscriptionLicense: null,
-  subscriptionPlan: null,
-  licensesByStatus: baseLicensesByStatus,
-  showExpirationNotifications: false,
-};
-
-export const SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE = 'SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE';
+export const SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE = 'shouldShowLicenseActivationSuccessMessage';

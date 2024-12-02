@@ -7,11 +7,7 @@ import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { fetchPaginatedData } from '../utils';
-import {
-  baseLicensesByStatus,
-  baseSubscriptionsData,
-  SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE,
-} from '../../constants';
+import { SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE } from '../../constants';
 
 // Subscriptions
 
@@ -191,6 +187,19 @@ export async function activateOrAutoApplySubscriptionLicense({
 
 export function transformSubscriptionsData(subscriptions, options = {}) {
   const { isBFFData } = options;
+  const baseLicensesByStatus = {
+    [LICENSE_STATUS.ACTIVATED]: [],
+    [LICENSE_STATUS.ASSIGNED]: [],
+    [LICENSE_STATUS.REVOKED]: [],
+  };
+  const baseSubscriptionsData = {
+    subscriptionLicenses: [],
+    customerAgreement: null,
+    subscriptionLicense: null,
+    subscriptionPlan: null,
+    licensesByStatus: baseLicensesByStatus,
+    showExpirationNotifications: false,
+  };
   const {
     customerAgreement,
     subscriptionLicenses,
@@ -213,11 +222,9 @@ export function transformSubscriptionsData(subscriptions, options = {}) {
   if (customerAgreement) {
     subscriptionsData.customerAgreement = customerAgreement;
   }
-
   subscriptionsData.showExpirationNotifications = !(
     customerAgreement?.disableExpirationNotifications || customerAgreement?.hasCustomLicenseExpirationMessagingV2
   );
-
   // Sort licenses within each license status by whether the associated subscription plans
   // are current; current plans should be prioritized over non-current plans.
   subscriptionsData.subscriptionLicenses = [...subscriptionLicenses].sort((a, b) => {
@@ -272,6 +279,19 @@ export async function fetchSubscriptions(enterpriseUUID) {
    * Example: an activated license will be chosen as the applicable license because activated licenses
    * come first in ``licensesByStatus`` even if the user also has a revoked license.
    */
+  const baseLicensesByStatus = {
+    [LICENSE_STATUS.ACTIVATED]: [],
+    [LICENSE_STATUS.ASSIGNED]: [],
+    [LICENSE_STATUS.REVOKED]: [],
+  };
+  const baseSubscriptionsData = {
+    subscriptionLicenses: [],
+    customerAgreement: null,
+    subscriptionLicense: null,
+    subscriptionPlan: null,
+    licensesByStatus: baseLicensesByStatus,
+    showExpirationNotifications: false,
+  };
   try {
     const {
       results: subscriptionLicenses,

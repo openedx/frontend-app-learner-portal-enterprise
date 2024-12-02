@@ -25,6 +25,7 @@ import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import learnerPathwayData from '../../pathway-progress/data/__mocks__/PathwayProgressListData.json';
 import {
   emptyRedeemableLearnerCreditPolicies,
+  SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE,
   useAcademies,
   useBrowseAndRequest,
   useCanOnlyViewHighlights,
@@ -281,7 +282,8 @@ describe('<Dashboard />', () => {
     expect(screen.getByText('Welcome!')).toBeInTheDocument();
   });
 
-  it('renders license activation alert on activation success', () => {
+  it('renders license activation alert on activation success and dismisses it', async () => {
+    sessionStorage.setItem(SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE, 'true');
     useSubscriptions.mockReturnValue({
       data: {
         subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
@@ -290,6 +292,9 @@ describe('<Dashboard />', () => {
     });
     renderWithRouter(<DashboardWithContext />);
     expect(screen.getByText(LICENSE_ACTIVATION_MESSAGE)).toBeInTheDocument();
+    userEvent.click(screen.getByText('Dismiss'));
+    await waitFor(() => expect(screen.queryByText(LICENSE_ACTIVATION_MESSAGE)).toBeFalsy());
+    expect(sessionStorage.removeItem).toHaveBeenCalledWith(SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE);
   });
 
   it('does not render license activation alert without activation success', () => {

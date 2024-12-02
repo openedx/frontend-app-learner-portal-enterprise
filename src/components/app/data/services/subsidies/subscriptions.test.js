@@ -57,7 +57,6 @@ describe('fetchSubscriptions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
   it.each([
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
