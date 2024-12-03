@@ -48,7 +48,7 @@ export async function ensureEnterpriseAppData({
   queryClient,
   requestUrl,
 }) {
-  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
+  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname, { enterpriseCustomerUuid: enterpriseCustomer.uuid });
   const enterpriseAppDataQueries = [];
   if (!matchedBFFQuery) {
     const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);

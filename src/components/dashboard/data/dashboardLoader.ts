@@ -37,7 +37,7 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
       enterpriseSlug,
     });
 
-    const dashboardBFFQuery = resolveBFFQuery(requestUrl.pathname, enterpriseCustomer.uuid);
+    const dashboardBFFQuery = resolveBFFQuery(requestUrl.pathname, { enterpriseCustomerUuid: enterpriseCustomer.uuid });
     const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([
       queryClient.ensureQueryData(
         dashboardBFFQuery
