@@ -2,6 +2,7 @@ import MockDate from 'mockdate';
 
 import dayjs from 'dayjs';
 import { matchPath } from 'react-router-dom';
+import { getConfig } from '@edx/frontend-platform/config';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
@@ -23,11 +24,21 @@ import {
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
 } from './constants';
-import { resolveBFFQuery } from '../routes';
+import { resolveBFFQuery } from './queries';
+import { enterpriseCustomerFactory } from './services/data/__factories__';
 
 jest.mock('react-router-dom', () => ({
   matchPath: jest.fn(),
 }));
+
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: jest.fn(() => ({
+    FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [],
+  })),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('determineLearnerHasContentAssignmentsOnly', () => {
   test.each([
@@ -1001,6 +1012,9 @@ describe('resolveBFFQuery', () => {
   const routes = [dashboardRoute];
   beforeEach(() => {
     jest.clearAllMocks();
+    getConfig.mockReturnValue({
+      FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [mockEnterpriseCustomer.uuid],
+    });
   });
   it('returns the dashboard query key', () => {
     const pathname = '/testEnterpriseSlug';
@@ -1018,7 +1032,7 @@ describe('resolveBFFQuery', () => {
       }
       return null;
     });
-    const result = resolveBFFQuery(pathname);
+    const result = resolveBFFQuery(pathname, { enterpriseCustomerUuid: mockEnterpriseCustomer.uuid });
     expect(matchPath).toHaveBeenCalledWith('/:enterpriseSlug', pathname);
     expect(result({ enterpriseSlug: 'testEnterpriseSlug' }).queryKey).toEqual(expectedQueryKey);
   });
@@ -1031,7 +1045,7 @@ describe('resolveBFFQuery', () => {
       }
       return null;
     });
-    const result = resolveBFFQuery(pathname);
+    const result = resolveBFFQuery(pathname, { enterpriseCustomerUuid: mockEnterpriseCustomer.uuid });
     expect(matchPath).toHaveBeenCalledWith('/:enterpriseSlug', pathname);
     expect(result).toEqual(null);
   });

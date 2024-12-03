@@ -46,3 +46,4 @@ export { default as useCourseRunMetadata } from './useCourseRunMetadata';
 export { default as useVideoDetails } from './useVideoDetails';
 export { default as useVideoCourseMetadata } from './useVideoCourseMetadata';
 export { default as useVideoCourseReviews } from './useVideoCourseReviews';
+export { default as useBFF } from './useBFF';

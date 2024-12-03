@@ -6,13 +6,16 @@ import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
 import {
-  fetchBrowseAndRequestConfiguration, fetchCouponCodeRequests,
+  fetchBrowseAndRequestConfiguration,
+  fetchCouponCodeRequests,
   fetchEnterpriseCourseEnrollments,
-  fetchLicenseRequests, fetchRedeemablePolicies,
+  fetchLicenseRequests,
+  fetchRedeemablePolicies,
 } from '../services';
 import useEnterpriseCourseEnrollments, { transformAllEnrollmentsByStatus } from './useEnterpriseCourseEnrollments';
 import { COURSE_STATUSES } from '../../../../constants';
-import { canUnenrollCourseEnrollment } from '../utils';
+import { canUnenrollCourseEnrollment, transformCourseEnrollment } from '../utils';
+import useBFF from './useBFF';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('../services', () => ({
@@ -23,6 +26,7 @@ jest.mock('../services', () => ({
   fetchCouponCodeRequests: jest.fn().mockResolvedValue(null),
   fetchRedeemablePolicies: jest.fn().mockResolvedValue(null),
 }));
+jest.mock('./useBFF');
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -126,8 +130,9 @@ describe('useEnterpriseCourseEnrollments', () => {
     fetchLicenseRequests.mockResolvedValue([mockLicenseRequests]);
     fetchCouponCodeRequests.mockResolvedValue([mockCouponCodeRequests]);
     fetchRedeemablePolicies.mockResolvedValue(mockRedeemablePolicies);
+    useBFF.mockReturnValue({ data: [mockCourseEnrollments].map(transformCourseEnrollment) });
   });
-  it('should return transformed return values', async () => {
+  it('should return transformed return values from course enrollments API', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCourseEnrollments(), { wrapper: Wrapper });
     await waitForNextUpdate();
     const expectedEnterpriseCourseEnrollments = {

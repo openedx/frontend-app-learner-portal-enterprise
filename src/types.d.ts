@@ -43,6 +43,35 @@ export interface EnterpriseLearnerData {
   staffEnterpriseCustomer: Types.EnterpriseCustomer;
 }
 
+interface DueDate {
+  name: string;
+  date: string;
+  url: string;
+}
+
+export interface EnterpriseCourseEnrollment {
+  course_run_id: string;
+  course_key: string;
+  course_type: string;
+  org_name: string;
+  course_run_status: string;
+  display_name: string;
+  emails_enabled?: boolean;
+  certificate_download_url?: string;
+  created: string;
+  start_date?: string;
+  end_date?: string;
+  mode: string;
+  is_enrollment_active: boolean;
+  product_source: string;
+  enroll_by?: string;
+  pacing: boolean;
+  course_run_url: string;
+  resume_course_run_url?: string;
+  is_revoked: boolean;
+  due_dates: DueDate[];
+}
+
 // Application Data (subsidy)
 export type SubsidyRequestState = typeof SUBSIDY_REQUEST_STATE[keyof typeof SUBSIDY_REQUEST_STATE];
 

@@ -20,41 +20,14 @@ import {
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
   queryCouponCodes,
-  queryEnterpriseLearnerDashboardBFF,
   queryEnterpriseLearnerOffers,
   queryLicenseRequests,
   queryNotices,
   queryRedeemablePolicies,
   querySubscriptions,
+  resolveBFFQuery,
   updateUserActiveEnterprise,
 } from '../../data';
-
-/**
- * Resolves the appropriate BFF query function to use for the current route.
- * @param {string} pathname - The current route pathname.
- * @returns {Function|null} The BFF query function to use for the current route, or null if no match is found.
- */
-export function resolveBFFQuery(pathname) {
-  // Define route patterns and their corresponding query functions
-
-  const routeToBFFQueryMap = [
-    {
-      pattern: '/:enterpriseSlug',
-      query: queryEnterpriseLearnerDashboardBFF,
-    },
-    // Add more routes and queries incrementally as needed
-  ];
-
-  // Find the matching route and return the corresponding query function
-  const matchedRoute = routeToBFFQueryMap.find((route) => matchPath(route.pattern, pathname));
-
-  if (matchedRoute) {
-    return matchedRoute.query;
-  }
-
-  // No match found
-  return null;
-}
 
 /**
  * Ensures all enterprise-related app data is loaded.
@@ -75,84 +48,87 @@ export async function ensureEnterpriseAppData({
   queryClient,
   requestUrl,
 }) {
-  const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
-  const enterpriseAppDataQueries = [
+  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
+  const enterpriseAppDataQueries = [];
+  if (!matchedBFFQuery) {
+    const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
+    enterpriseAppDataQueries.push(
     // Enterprise Customer User Subsidies
-    queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
+      queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
       // Auto-activate the user's subscription license, if applicable.
-      const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
-        enterpriseCustomer,
-        allLinkedEnterpriseCustomerUsers,
-        subscriptionsData,
-        requestUrl,
-        queryClient,
-        subscriptionsQuery,
-      });
-      if (activatedOrAutoAppliedLicense) {
-        const { licensesByStatus } = subscriptionsData;
-        const updatedLicensesByStatus = { ...licensesByStatus };
-        Object.entries(licensesByStatus).forEach(([status, licenses]) => {
-          const licensesIncludesActivatedOrAutoAppliedLicense = licenses.some(
-            (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
-          );
-          const isCurrentStatusMatchingLicenseStatus = status === activatedOrAutoAppliedLicense.status;
-          if (licensesIncludesActivatedOrAutoAppliedLicense) {
-            updatedLicensesByStatus[status] = isCurrentStatusMatchingLicenseStatus
-              ? licenses.filter((license) => license.uuid !== activatedOrAutoAppliedLicense.uuid)
-              : [...licenses, activatedOrAutoAppliedLicense];
-          } else if (isCurrentStatusMatchingLicenseStatus) {
-            updatedLicensesByStatus[activatedOrAutoAppliedLicense.status].push(activatedOrAutoAppliedLicense);
-          }
+        const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
+          enterpriseCustomer,
+          allLinkedEnterpriseCustomerUsers,
+          subscriptionsData,
+          requestUrl,
         });
-        // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
-        const updatedSubscriptionLicenses = subscriptionsData.subscriptionLicenses.length > 0
-          ? subscriptionsData.subscriptionLicenses.map((license) => {
+        if (activatedOrAutoAppliedLicense) {
+          const { licensesByStatus } = subscriptionsData;
+          const updatedLicensesByStatus = { ...licensesByStatus };
+          Object.entries(licensesByStatus).forEach(([status, licenses]) => {
+            const licensesIncludesActivatedOrAutoAppliedLicense = licenses.some(
+              (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
+            );
+            const isCurrentStatusMatchingLicenseStatus = status === activatedOrAutoAppliedLicense.status;
+            if (licensesIncludesActivatedOrAutoAppliedLicense) {
+              updatedLicensesByStatus[status] = isCurrentStatusMatchingLicenseStatus
+                ? licenses.filter((license) => license.uuid !== activatedOrAutoAppliedLicense.uuid)
+                : [...licenses, activatedOrAutoAppliedLicense];
+            } else if (isCurrentStatusMatchingLicenseStatus) {
+              updatedLicensesByStatus[activatedOrAutoAppliedLicense.status].push(activatedOrAutoAppliedLicense);
+            }
+          });
+          // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
+          const updatedSubscriptionLicenses = subscriptionsData.subscriptionLicenses.length > 0
+            ? subscriptionsData.subscriptionLicenses.map((license) => {
             // Ensures an auto-activated license is updated in the query cache to change
             // its status from "assigned" to "activated".
-            if (license.uuid === activatedOrAutoAppliedLicense.uuid) {
-              return activatedOrAutoAppliedLicense;
-            }
-            return license;
-          })
-          : [activatedOrAutoAppliedLicense];
+              if (license.uuid === activatedOrAutoAppliedLicense.uuid) {
+                return activatedOrAutoAppliedLicense;
+              }
+              return license;
+            })
+            : [activatedOrAutoAppliedLicense];
 
-        queryClient.setQueryData(subscriptionsQuery.queryKey, {
-          ...queryClient.getQueryData(subscriptionsQuery.queryKey),
-          licensesByStatus: updatedLicensesByStatus,
-          subscriptionPlan: activatedOrAutoAppliedLicense.subscriptionPlan,
-          subscriptionLicense: activatedOrAutoAppliedLicense,
-          subscriptionLicenses: updatedSubscriptionLicenses,
-        });
-      }
+          queryClient.setQueryData(subscriptionsQuery.queryKey, {
+            ...queryClient.getQueryData(subscriptionsQuery.queryKey),
+            licensesByStatus: updatedLicensesByStatus,
+            subscriptionPlan: activatedOrAutoAppliedLicense.subscriptionPlan,
+            subscriptionLicense: activatedOrAutoAppliedLicense,
+            subscriptionLicenses: updatedSubscriptionLicenses,
+          });
+        }
 
-      return subscriptionsData;
-    }),
-    queryClient.ensureQueryData(
-      queryRedeemablePolicies({
-        enterpriseUuid: enterpriseCustomer.uuid,
-        lmsUserId: userId,
+        return subscriptionsData;
       }),
-    ),
-    queryClient.ensureQueryData(
-      queryCouponCodes(enterpriseCustomer.uuid),
-    ),
-    queryClient.ensureQueryData(
-      queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
-    ),
-    queryClient.ensureQueryData(
-      queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
-    ),
-    queryClient.ensureQueryData(
-      queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
-    ),
-    queryClient.ensureQueryData(
-      queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
-    ),
-    // Content Highlights
-    queryClient.ensureQueryData(
-      queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
-    ),
-  ];
+      queryClient.ensureQueryData(
+        queryRedeemablePolicies({
+          enterpriseUuid: enterpriseCustomer.uuid,
+          lmsUserId: userId,
+        }),
+      ),
+      queryClient.ensureQueryData(
+        queryCouponCodes(enterpriseCustomer.uuid),
+      ),
+      queryClient.ensureQueryData(
+        queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
+      ),
+      queryClient.ensureQueryData(
+        queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
+      ),
+      queryClient.ensureQueryData(
+        queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
+      ),
+      queryClient.ensureQueryData(
+        queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
+      ),
+      // Content Highlights
+      queryClient.ensureQueryData(
+        queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
+      ),
+    );
+  }
+
   if (getConfig().ENABLE_NOTICES) {
     enterpriseAppDataQueries.push(
       queryClient.ensureQueryData(queryNotices()),

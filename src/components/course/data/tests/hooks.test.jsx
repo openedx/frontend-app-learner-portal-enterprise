@@ -964,7 +964,6 @@ describe('useUserSubsidyApplicableToCourse', () => {
         customerAgreement: undefined,
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
     });
     useEnterpriseCustomerContainsContent.mockReturnValue({
@@ -1353,7 +1352,6 @@ describe('useMinimalCourseMetadata', () => {
         customerAgreement: undefined,
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
     });
     useEnterpriseCustomerContainsContent.mockReturnValue({

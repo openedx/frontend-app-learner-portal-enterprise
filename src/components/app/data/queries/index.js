@@ -2,3 +2,4 @@ export { default as extractEnterpriseCustomer } from './extractEnterpriseCustome
 export { default as queries } from './queryKeyFactory';
 
 export * from './queries';
+export { resolveBFFQuery } from './utils';

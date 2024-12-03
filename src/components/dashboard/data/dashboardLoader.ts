@@ -5,6 +5,7 @@ import {
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
   queryRedeemablePolicies,
+  resolveBFFQuery,
 } from '../../app/data';
 
 type DashboardRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
@@ -12,6 +13,9 @@ type DashboardRouteParams<Key extends string = string> = Types.RouteParams<Key> 
 };
 interface DashboardLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
   params: DashboardRouteParams;
+}
+interface DashboardBFFResponse {
+  enterpriseCourseEnrollments: Types.EnterpriseCourseEnrollment[];
 }
 
 /**
@@ -33,16 +37,22 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
       enterpriseSlug,
     });
 
+    const dashboardBFFQuery = resolveBFFQuery(requestUrl.pathname, enterpriseCustomer.uuid);
     const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([
-      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
+      queryClient.ensureQueryData(
+        dashboardBFFQuery
+          ? dashboardBFFQuery({ enterpriseSlug })
+          : queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
+      ),
       queryClient.ensureQueryData(queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: authenticatedUser.userId,
       })),
     ]).then((responses) => {
-      const enterpriseCourseEnrollments = responses[0];
+      const enterpriseCourseEnrollments = dashboardBFFQuery
+        ? (responses[0] as DashboardBFFResponse).enterpriseCourseEnrollments
+        : responses[0] as Types.EnterpriseCourseEnrollment[];
       const redeemablePolicies = responses[1];
-
       // Redirect user to search page, for first-time users with no enrollments and/or assignments.
       redirectToSearchPageForNewUser({
         enterpriseSlug: enterpriseSlug as string,

@@ -1,36 +1,46 @@
 import { useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { resolveBFFQuery } from '../../routes/data/utils';
+import { logError } from '@edx/frontend-platform/logging';
+import useEnterpriseCustomer from './useEnterpriseCustomer';
+import { resolveBFFQuery } from '../queries';
 
 /**
  * Uses the route to determine which API call to make for the BFF
- * Populates the queryKey with the appropriate enterprise customer uuid once BFF call is resolved
- * @param queryOptions
+ *
+ * @param bffQueryAdditionalParams - additional fields to pass into a matched BFF query call
+ * @param bffQueryOptions - the queryOptions specifically for the matched BFF query call
+ * @param fallbackQueryConfig - if a route is not compatible with the BFF layer, this field
+ * allows you to pass a fallback query endpoint to call in lieu of an unmatched BFF query
  * @returns  {Types.UseQueryResult}} The query results for the routes BFF.
  */
-export function useBFF(queryOptions = {}) {
-  const { select, ...queryOptionsRest } = queryOptions;
+export default function useBFF({
+  bffQueryAdditionalParams = {},
+  bffQueryOptions = {},
+  fallbackQueryConfig = null,
+}) {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { enterpriseSlug } = useParams();
   const location = useLocation();
-  const params = useParams();
-  // Determine the BFF query to use based on the current location
-  const matchedBFFQuery = resolveBFFQuery(location.pathname);
-  return useQuery({
-    ...matchedBFFQuery(params),
-    ...queryOptionsRest,
-    select: (data) => {
-      if (!data) {
-        return data;
-      }
 
-      // TODO: Determine if returned data needs further transformations
-      const transformedData = structuredClone(data);
-      if (select) {
-        return select({
-          original: data,
-          transformed: transformedData,
-        });
-      }
-      return transformedData;
-    },
-  });
+  // Determine the BFF query to use based on the current location
+  const matchedBFFQuery = resolveBFFQuery(
+    location.pathname,
+    { enterpriseCustomerUuid: enterpriseCustomer.uuid },
+  );
+
+  // Determine which query to call, the original hook or the new BFF
+  let queryConfig = {};
+  if (matchedBFFQuery) {
+    queryConfig = {
+      ...matchedBFFQuery({ enterpriseSlug, ...bffQueryAdditionalParams }),
+      ...bffQueryOptions,
+    };
+  } else if (fallbackQueryConfig) {
+    queryConfig = fallbackQueryConfig;
+  } else {
+    const err = new Error('No BFF query found for the current route and no fallback query provided');
+    logError(err);
+    throw err;
+  }
+  return useQuery(queryConfig);
 }

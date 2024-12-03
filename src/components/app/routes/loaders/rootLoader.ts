@@ -1,9 +1,9 @@
 import { queryEnterpriseLearner } from '../../data';
 import {
+  ensureActiveEnterpriseCustomerUser,
   ensureAuthenticatedUser,
   ensureEnterpriseAppData,
   redirectToRemoveTrailingSlash,
-  ensureActiveEnterpriseCustomerUser,
 } from '../data';
 
 /**

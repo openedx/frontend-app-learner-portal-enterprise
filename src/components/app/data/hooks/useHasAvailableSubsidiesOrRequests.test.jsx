@@ -42,7 +42,6 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       data: {
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
     });
     useBrowseAndRequest.mockReturnValue({
@@ -93,7 +92,6 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
           status: LICENSE_STATUS.ACTIVATED,
         },
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
       mockBrowseAndRequests: {
         requests: {
@@ -126,7 +124,6 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
           status: LICENSE_STATUS.ASSIGNED,
         },
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
       mockBrowseAndRequests: {
         requests: {
@@ -157,7 +154,6 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockSubscriptions: {
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
       mockBrowseAndRequests: {
         requests: {
@@ -191,7 +187,6 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockSubscriptions: {
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
       mockBrowseAndRequests: {
         requests: {
@@ -233,7 +228,6 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockSubscriptions: {
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
       mockBrowseAndRequests: {
         requests: {
@@ -297,7 +291,6 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       mockSubscriptions: {
         subscriptionLicense: undefined,
         subscriptionPlan: undefined,
-        shouldShowActivationSuccessMessage: false,
       },
       mockBrowseAndRequests: {
         requests: {
