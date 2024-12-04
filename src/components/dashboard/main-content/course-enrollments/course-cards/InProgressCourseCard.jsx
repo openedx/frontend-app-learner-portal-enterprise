@@ -87,7 +87,6 @@ export const InProgressCourseCard = ({
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
   const isExecutiveEducation = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
-
   const coursewareOrUpgradeLink = useLinkToCourse({
     linkToCourse,
     subsidyForCourse,
@@ -196,7 +195,6 @@ export const InProgressCourseCard = ({
     updateCourseEnrollmentStatus({
       courseRunId: response.courseRunId,
       newStatus: response.courseRunStatus,
-      savedForLater: response.savedForLater,
     });
     navigate('.', {
       replace: true,
