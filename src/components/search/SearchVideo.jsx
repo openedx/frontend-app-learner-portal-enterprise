@@ -13,7 +13,7 @@ const SearchVideo = ({ filter }) => {
   const intl = useIntl();
 
   return (
-    <Index indexName={config.ALGOLIA_INDEX_NAME} indexId="search-videos">
+    <Index indexName={config.ALGOLIA_REPLICA_INDEX_NAME} indexId="search-videos">
       <Configure
         hitsPerPage={NUM_RESULTS_VIDEO}
         filters={defaultFilter}
