@@ -1,2 +1,3 @@
 ignore:
   - "src/i18n"
+  - "src/index.jsx"
