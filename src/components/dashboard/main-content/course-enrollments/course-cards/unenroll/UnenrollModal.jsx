@@ -2,13 +2,19 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-  AlertModal, Alert, StatefulButton, Button, ActionRow,
+  ActionRow, Alert, AlertModal, Button, StatefulButton,
 } from '@openedx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 
+import { useParams } from 'react-router-dom';
 import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
-import { queryEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../../../../app/data';
+import {
+  isBFFEnabledForEnterpriseCustomer,
+  queryEnterpriseCourseEnrollments,
+  queryEnterpriseLearnerDashboardBFF,
+  useEnterpriseCustomer,
+} from '../../../../../app/data';
 
 const btnLabels = {
   default: 'Unenroll',
@@ -22,6 +28,7 @@ const UnenrollModal = ({
   onSuccess,
 }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const params = useParams();
   const { addToast } = useContext(ToastsContext);
   const queryClient = useQueryClient();
   const [btnState, setBtnState] = useState('default');
@@ -31,6 +38,33 @@ const UnenrollModal = ({
     setBtnState('default');
     setError(null);
     onClose();
+  };
+
+  const updateQueryForUnenrollment = () => {
+    const enrollmentForCourseFilter = (enrollment) => enrollment.courseRunId !== courseRunId;
+    const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
+    // Determine which BFF queries need to be updated after unenrolling.
+    if (isBFFEnabled) {
+      const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF(
+        { enterpriseSlug: params.enterpriseSlug },
+      ).queryKey;
+      const bffQueryKeysToUpdate = [dashboardBFFQueryKey];
+      // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
+      bffQueryKeysToUpdate.forEach((queryKey) => {
+        const existingBFFData = queryClient.getQueryData(queryKey);
+        const updatedBFFData = {
+          ...existingBFFData,
+          enterpriseCourseEnrollments: existingBFFData.enterpriseCourseEnrollments.filter(enrollmentForCourseFilter),
+        };
+        queryClient.setQueryData(queryKey, updatedBFFData);
+      });
+    } else {
+      // Update the legacy queryEnterpriseCourseEnrollments cache as well.
+      const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
+      const existingCourseEnrollmentsData = queryClient.getQueryData(enterpriseCourseEnrollmentsQueryKey);
+      const updatedCourseEnrollmentsData = existingCourseEnrollmentsData.filter(enrollmentForCourseFilter);
+      queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, updatedCourseEnrollmentsData);
+    }
   };
 
   const handleUnenrollButtonClick = async () => {
