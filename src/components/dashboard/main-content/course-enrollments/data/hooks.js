@@ -4,7 +4,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { logError } from '@edx/frontend-platform/logging';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
@@ -527,26 +527,26 @@ export function useCourseEnrollmentsBySection(courseEnrollmentsByStatus) {
   };
 }
 
+// TODO: There is opportunity to generalize this approach into a helper function
 function handleQueriesForUpdatedCourseEnrollmentStatus({
   queryClient,
   enterpriseSlug,
   enterpriseCustomer,
   courseRunId,
-  updatedEnrollmentParams,
+  newEnrollmentStatus,
 }) {
   // Transformation
-  const { newStatus } = updatedEnrollmentParams;
   const transformUpdatedEnrollment = (enrollment) => {
     if (enrollment.courseRunId !== courseRunId) {
       return enrollment;
     }
     return {
       ...enrollment,
-      courseRunStatus: newStatus,
+      courseRunStatus: newEnrollmentStatus,
     };
   };
-  const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
 
+  const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
   if (isBFFEnabled) {
   // Determine which BFF queries need to be updated after unenrolling.
     const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF(
@@ -556,6 +556,10 @@ function handleQueriesForUpdatedCourseEnrollmentStatus({
     // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
     bffQueryKeysToUpdate.forEach((queryKey) => {
       const existingBFFData = queryClient.getQueryData(queryKey);
+      if (!existingBFFData) {
+        logInfo(`Skipping optimistic cache update of ${queryKey} as no cached query data exists yet.`);
+        return;
+      }
       const updatedBFFData = {
         ...existingBFFData,
         enterpriseCourseEnrollments: existingBFFData.enterpriseCourseEnrollments.map(transformUpdatedEnrollment),
@@ -566,6 +570,10 @@ function handleQueriesForUpdatedCourseEnrollmentStatus({
     // Update the legacy queryEnterpriseCourseEnrollments cache as well.
     const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
     const existingCourseEnrollmentsData = queryClient.getQueryData(enterpriseCourseEnrollmentsQueryKey);
+    if (!existingCourseEnrollmentsData) {
+      logInfo('Skipping optimistic cache update of {existingCourseEnrollmentsData} as no cached query data exists yet.');
+      return;
+    }
     const updatedCourseEnrollmentsData = existingCourseEnrollmentsData.map(transformUpdatedEnrollment);
     queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, updatedCourseEnrollmentsData);
   }
@@ -576,20 +584,16 @@ export const useUpdateCourseEnrollmentStatus = ({ enterpriseCustomer }) => {
   const params = useParams();
   const location = useLocation();
 
-  const updateCourseEnrollmentStatus = useCallback(({ courseRunId, newStatus }) => {
+  return useCallback(({ courseRunId, newStatus }) => {
     handleQueriesForUpdatedCourseEnrollmentStatus({
       queryClient,
       location,
       enterpriseSlug: params.enterpriseSlug,
       enterpriseCustomer,
       courseRunId,
-      updatedEnrollmentParams: {
-        newStatus,
-      },
+      newEnrollmentStatus: newStatus,
     });
   }, [queryClient, location, params.enterpriseSlug, enterpriseCustomer]);
-
-  return updateCourseEnrollmentStatus;
 };
 
 /**

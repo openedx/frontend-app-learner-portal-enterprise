@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   ActionRow, Alert, AlertModal, Button, StatefulButton,
 } from '@openedx/paragon';
-import { logError } from '@edx/frontend-platform/logging';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 
 import { useParams } from 'react-router-dom';
 import { ToastsContext } from '../../../../../Toasts';
@@ -40,11 +40,13 @@ const UnenrollModal = ({
     onClose();
   };
 
+  // TODO: There is opportunity to generalize this approach into a helper function
   const updateQueryForUnenrollment = () => {
     const enrollmentForCourseFilter = (enrollment) => enrollment.courseRunId !== courseRunId;
+
     const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
-    // Determine which BFF queries need to be updated after unenrolling.
     if (isBFFEnabled) {
+      // Determine which BFF queries need to be updated after unenrolling.
       const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF(
         { enterpriseSlug: params.enterpriseSlug },
       ).queryKey;
@@ -52,6 +54,10 @@ const UnenrollModal = ({
       // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
       bffQueryKeysToUpdate.forEach((queryKey) => {
         const existingBFFData = queryClient.getQueryData(queryKey);
+        if (!existingBFFData) {
+          logInfo(`Skipping optimistic cache update of ${queryKey} as no cached query data exists yet.`);
+          return;
+        }
         const updatedBFFData = {
           ...existingBFFData,
           enterpriseCourseEnrollments: existingBFFData.enterpriseCourseEnrollments.filter(enrollmentForCourseFilter),
@@ -62,6 +68,10 @@ const UnenrollModal = ({
       // Update the legacy queryEnterpriseCourseEnrollments cache as well.
       const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
       const existingCourseEnrollmentsData = queryClient.getQueryData(enterpriseCourseEnrollmentsQueryKey);
+      if (!existingCourseEnrollmentsData) {
+        logInfo('Skipping optimistic cache update of {existingCourseEnrollmentsData} as no cached query data exists yet.');
+        return;
+      }
       const updatedCourseEnrollmentsData = existingCourseEnrollmentsData.filter(enrollmentForCourseFilter);
       queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, updatedCourseEnrollmentsData);
     }
@@ -77,14 +87,7 @@ const UnenrollModal = ({
       setBtnState('default');
       return;
     }
-    const enrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
-    const existingEnrollments = queryClient.getQueryData(enrollmentsQueryKey);
-    // Optimistically remove the unenrolled course from the list of enrollments in
-    // the cache for the `queryEnterpriseCourseEnrollments` query.
-    queryClient.setQueryData(
-      enrollmentsQueryKey,
-      existingEnrollments.filter((enrollment) => enrollment.courseRunId !== courseRunId),
-    );
+    updateQueryForUnenrollment();
     addToast('You have been unenrolled from the course.');
     onSuccess();
   };
