@@ -30,7 +30,6 @@ const useStatefulEnroll = ({
 }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [transaction, setTransaction] = useState();
-  // TODO: What is the href/enrollmentURL for a statefulEnroll?
   const optimizelyHandler = useOptimizelyEnrollmentClickHandler({
     courseRunKey: contentKey,
     userEnrollments,
