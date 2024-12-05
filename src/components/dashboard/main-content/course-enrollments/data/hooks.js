@@ -528,7 +528,7 @@ export function useCourseEnrollmentsBySection(courseEnrollmentsByStatus) {
 }
 
 // TODO: There is opportunity to generalize this approach into a helper function
-function handleQueriesForUpdatedCourseEnrollmentStatus({
+export function handleQueriesForUpdatedCourseEnrollmentStatus({
   queryClient,
   enterpriseSlug,
   enterpriseCustomer,
@@ -582,18 +582,16 @@ function handleQueriesForUpdatedCourseEnrollmentStatus({
 export const useUpdateCourseEnrollmentStatus = ({ enterpriseCustomer }) => {
   const queryClient = useQueryClient();
   const params = useParams();
-  const location = useLocation();
 
   return useCallback(({ courseRunId, newStatus }) => {
     handleQueriesForUpdatedCourseEnrollmentStatus({
       queryClient,
-      location,
       enterpriseSlug: params.enterpriseSlug,
       enterpriseCustomer,
       courseRunId,
       newEnrollmentStatus: newStatus,
     });
-  }, [queryClient, location, params.enterpriseSlug, enterpriseCustomer]);
+  }, [queryClient, params.enterpriseSlug, enterpriseCustomer]);
 };
 
 /**
