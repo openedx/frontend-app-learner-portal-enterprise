@@ -85,7 +85,7 @@ export const InProgressCourseCard = ({
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
   const { courseCards } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
+  const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus();
   const isExecutiveEducation = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
   const coursewareOrUpgradeLink = useLinkToCourse({
     linkToCourse,

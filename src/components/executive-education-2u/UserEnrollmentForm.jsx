@@ -36,7 +36,6 @@ const UserEnrollmentForm = ({ className }) => {
   const navigate = useNavigate();
   const config = getConfig();
   const queryClient = useQueryClient();
-  const params = useParams();
   const intl = useIntl();
   const {
     authenticatedUser: { userId, email: userEmail },
@@ -62,13 +61,15 @@ const UserEnrollmentForm = ({ className }) => {
       lmsUserId: userId,
     }).queryKey;
     const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
+
+    // List of queries to invalidate after successfully enrolling in the course.
     const queriesToInvalidate = [canRedeemQueryKey, redeemablePoliciesQueryKey, enterpriseCourseEnrollmentsQueryKey];
 
     if (isBFFEnabled) {
       // Determine which BFF queries need to be updated after successfully enrolling.
-      const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF(
-        { enterpriseSlug: params.enterpriseSlug },
-      ).queryKey;
+      const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({
+        enterpriseSlug: enterpriseCustomer.slug,
+      }).queryKey;
       queriesToInvalidate.push(dashboardBFFQueryKey);
     }
 
