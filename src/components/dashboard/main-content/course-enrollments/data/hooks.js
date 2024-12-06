@@ -528,9 +528,7 @@ export function useCourseEnrollmentsBySection(courseEnrollmentsByStatus) {
 }
 
 /**
-* - Provides a helper function to update the course enrollment status in the query cache.
- * @param {Object} args
- * @param {Object} args.enterpriseCustomer - Object containing enterprise customer data.
+* Provides a helper function to update the course enrollment status in the query cache.
  * @returns {Function} - Returns a function to update a course enrollment status in the query cache. The
  *  function accepts a courseRunId and newStatus (i.e., the new status for which to update the enrollment).
  */
