@@ -111,7 +111,7 @@ describe('useStatefulEnroll', () => {
 
     if (isSuccess) {
       expect(trackSearchSpy).toHaveBeenCalledWith({ eventName: EVENT_NAMES.sucessfulEnrollment });
-      expect(optimizelySpy).toHaveBeenCalledWith('content_key', []);
+      expect(optimizelySpy).toHaveBeenCalledWith({ courseRunKey: 'content_key', userEnrollments: [] });
       expect(onSuccess).toHaveBeenCalledTimes(1);
       expect(onSuccess).toHaveBeenCalledWith({ state: mockState });
     } else {

@@ -20,9 +20,11 @@ import { checkoutExecutiveEducation2U, isDuplicateExternalCourseOrder, toISOStri
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { CourseContext } from '../course/CourseContextProvider';
 import {
+  isBFFEnabledForEnterpriseCustomer,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   queryCanRedeemContextQueryKey,
   queryEnterpriseCourseEnrollments,
+  queryEnterpriseLearnerDashboardBFF,
   queryRedeemablePolicies,
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
@@ -51,22 +53,41 @@ const UserEnrollmentForm = ({ className }) => {
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [enrollButtonState, setEnrollButtonState] = useState('default');
 
+  const handleQueryInvalidationForEnrollSuccess = async () => {
+    const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
+    const canRedeemQueryKey = queryCanRedeemContextQueryKey(enterpriseCustomer.uuid, courseKey).queryKey;
+    const redeemablePoliciesQueryKey = queryRedeemablePolicies({
+      enterpriseUuid: enterpriseCustomer.uuid,
+      lmsUserId: userId,
+    }).queryKey;
+    const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
+
+    // List of queries to invalidate after successfully enrolling in the course.
+    const queryKeysToInvalidate = [canRedeemQueryKey, redeemablePoliciesQueryKey, enterpriseCourseEnrollmentsQueryKey];
+
+    if (isBFFEnabled) {
+      // Determine which BFF queries need to be updated after successfully enrolling.
+      const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({
+        enterpriseSlug: enterpriseCustomer.slug,
+      }).queryKey;
+      queryKeysToInvalidate.push(dashboardBFFQueryKey);
+    }
+
+    const queriesToInvalidate = [];
+    queryKeysToInvalidate.forEach((queryKey) => {
+      queriesToInvalidate.push(queryClient.invalidateQueries({ queryKey }));
+    });
+    await Promise.all(queriesToInvalidate);
+  };
+
   const handleFormSubmissionSuccess = async (newTransaction) => {
     // If a transaction is passed, it must be in the 'committed' state to proceed
     if (!isNil(newTransaction) && newTransaction.state !== 'committed') {
       return;
     }
 
-    const canRedeemQueryKey = queryCanRedeemContextQueryKey(enterpriseCustomer.uuid, courseKey);
     await Promise.all([
-      queryClient.invalidateQueries({ queryKey: canRedeemQueryKey }),
-      queryClient.invalidateQueries({
-        queryKey: queryRedeemablePolicies({
-          enterpriseUuid: enterpriseCustomer.uuid,
-          lmsUserId: userId,
-        }),
-      }),
-      queryClient.invalidateQueries({ queryKey: queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid) }),
+      handleQueryInvalidationForEnrollSuccess(),
       sendEnterpriseTrackEventWithDelay(
         enterpriseCustomer.uuid,
         'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
