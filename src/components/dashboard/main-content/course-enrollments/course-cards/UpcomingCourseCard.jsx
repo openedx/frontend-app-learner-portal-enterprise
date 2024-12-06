@@ -1,6 +1,4 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import dayjs from 'dayjs';
 import { FormattedDate, FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import { Button } from '@openedx/paragon';
@@ -15,7 +13,7 @@ const UpcomingCourseCard = (props) => {
         description="Label for the upcoming course card button"
         values={{
           upcomingDate: <FormattedDate
-            value={dayjs(props.startDate).format('MMM D')}
+            value={props.startDate}
             month="short"
             day="numeric"
           />,

@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import dayjs from 'dayjs';
 import { useLocation } from 'react-router-dom';
 import { Card } from '@openedx/paragon';
 import { FormattedDate, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
@@ -15,7 +14,7 @@ import {
   hasCourseStarted,
   findHighestLevelSku,
   pathContainsCourseTypeSlug,
-  getCourseStartDate,
+  getNormalizedStartDate,
 } from '../../data/utils';
 import { formatStringAsNumber } from '../../../../utils/common';
 import {
@@ -31,8 +30,6 @@ import {
   useEnterpriseCustomer,
   useSubscriptions,
 } from '../../../app/data';
-
-const DATE_FORMAT = 'MMM D';
 
 const CourseRunCard = ({
   courseEntitlements,
@@ -62,7 +59,7 @@ const CourseRunCard = ({
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const userCanRequestSubsidyForCourse = useCanUserRequestSubsidyForCourse();
 
-  const courseStartDate = getCourseStartDate({ courseRun });
+  const courseStartDate = getNormalizedStartDate(courseRun);
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(courseStartDate),
@@ -165,7 +162,7 @@ const CourseRunCard = ({
             values={{
               upcomingCourseStartDate: (
                 <FormattedDate
-                  value={dayjs(courseStartDate).format(DATE_FORMAT)}
+                  value={courseStartDate}
                   month="short"
                   day="numeric"
                 />
@@ -203,7 +200,7 @@ const CourseRunCard = ({
               values={{
                 courseStartDate: (
                   <FormattedDate
-                    value={dayjs(courseStartDate).format(DATE_FORMAT)}
+                    value={courseStartDate}
                     month="short"
                     day="numeric"
                   />
@@ -275,7 +272,7 @@ const CourseRunCard = ({
           values={{
             courseStartedDate: (
               <FormattedDate
-                value={dayjs(courseStartDate).format(DATE_FORMAT)}
+                value={courseStartDate}
                 month="short"
                 day="numeric"
               />
@@ -291,7 +288,7 @@ const CourseRunCard = ({
           values={{
             courseStartsDate: (
               <FormattedDate
-                value={dayjs(courseStartDate).format(DATE_FORMAT)}
+                value={courseStartDate}
                 month="short"
                 day="numeric"
               />
@@ -311,7 +308,7 @@ const CourseRunCard = ({
               values={{
                 courseStartsDate: (
                   <FormattedDate
-                    value={dayjs(courseStartDate).format(DATE_FORMAT)}
+                    value={courseStartDate}
                     month="short"
                     day="numeric"
                   />
