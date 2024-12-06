@@ -28,7 +28,7 @@ import { useCanUserRequestSubsidyForCourse } from '../../data/hooks';
 import { SUBSIDY_TYPE } from '../../../../constants';
 
 const COURSE_UUID = 'foo';
-const COURSE_RUN_START = dayjs().format();
+const COURSE_RUN_START = dayjs().toISOString();
 const COURSE_WEEKS_TO_COMPLETE = 1;
 const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
@@ -201,9 +201,7 @@ describe('<DeprecatedCourseRunCard />', () => {
   test('Course is self paced and has started', () => {
     // If Browse/Request feature is off, user should always see the enroll button
     const courseRun = generateCourseRun({});
-    renderCard({
-      courseRun,
-    });
+    renderCard({ courseRun });
     const startDate = dayjs(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('Be the first to enroll!')).toBeInTheDocument();
@@ -213,14 +211,12 @@ describe('<DeprecatedCourseRunCard />', () => {
   test('Course self is paced, has not started, and enrollment count', () => {
     // The user has a mocked subsidy from renderCard default values,
     // so they should see an enroll button.
-    const courseRunStart = dayjs(COURSE_RUN_START).add(1, 'd').format();
+    const courseRunStart = dayjs(COURSE_RUN_START).add(1, 'd').toISOString();
     const courseRun = generateCourseRun({
       start: courseRunStart,
       enrollmentCount: 1000,
     });
-    renderCard({
-      courseRun,
-    });
+    renderCard({ courseRun });
     const startDate = dayjs(courseRunStart).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('1,000 recently enrolled!')).toBeInTheDocument();
@@ -240,9 +236,7 @@ describe('<DeprecatedCourseRunCard />', () => {
       },
     });
     const courseRun = generateCourseRun({});
-    renderCard({
-      courseRun,
-    });
+    renderCard({ courseRun });
     const startDate = dayjs(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('Be the first to enroll!')).toBeInTheDocument();
@@ -254,9 +248,7 @@ describe('<DeprecatedCourseRunCard />', () => {
     // and there is an applicable catalog for the configured subsidy request type.
     const courseRun = generateCourseRun({});
     useCanUserRequestSubsidyForCourse.mockReturnValue(true);
-    renderCard({
-      courseRun,
-    });
+    renderCard({ courseRun });
     const startDate = dayjs(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('Be the first to enroll!')).toBeInTheDocument();
@@ -268,9 +260,7 @@ describe('<DeprecatedCourseRunCard />', () => {
     // subsidies and there is no applicable catalog for the configured subsidy type.
     // Instead, the CTA should bring the user through the ecommerce basket flow.
     const courseRun = generateCourseRun({});
-    renderCard({
-      courseRun,
-    });
+    renderCard({ courseRun });
     const startDate = dayjs(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('Be the first to enroll!')).toBeInTheDocument();
@@ -278,7 +268,7 @@ describe('<DeprecatedCourseRunCard />', () => {
   });
 
   test('User is enrolled, and course not started', () => {
-    const courseRunStart = dayjs(COURSE_RUN_START).add(1, 'd').format();
+    const courseRunStart = dayjs(COURSE_RUN_START).add(1, 'd').toISOString();
     const courseRun = generateCourseRun({
       start: courseRunStart,
     });
@@ -289,7 +279,7 @@ describe('<DeprecatedCourseRunCard />', () => {
         courseRunId: COURSE_ID,
         isEnrollmentActive: true,
         isRevoked: false,
-        mode: COURSE_MODES_MAP.AUDIT,
+        mode: COURSE_MODES_MAP.VERIFIED,
       }],
     });
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
