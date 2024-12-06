@@ -95,7 +95,7 @@ export const getNormalizedStartDate = ({
     return todayToIso;
   }
   const startDateIso = dayjs(start).toISOString();
-  if (isCourseSelfPaced(pacingType)) {
+  if (isCourseSelfPaced(pacingType) && dayjs(startDateIso).isBefore(dayjs())) {
     if (hasTimeToComplete({ end, weeksToComplete }) || isWithinMinimumStartDateThreshold({ start })) {
       // always today's date (incentives enrollment)
       return todayToIso;
