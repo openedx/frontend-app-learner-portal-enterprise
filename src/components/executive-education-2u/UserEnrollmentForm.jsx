@@ -53,7 +53,7 @@ const UserEnrollmentForm = ({ className }) => {
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [enrollButtonState, setEnrollButtonState] = useState('default');
 
-  const handleQueryInvalidationForEnrollSuccess = () => {
+  const handleQueryInvalidationForEnrollSuccess = async () => {
     const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
     const canRedeemQueryKey = queryCanRedeemContextQueryKey(enterpriseCustomer.uuid, courseKey).queryKey;
     const redeemablePoliciesQueryKey = queryRedeemablePolicies({
@@ -63,19 +63,21 @@ const UserEnrollmentForm = ({ className }) => {
     const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
 
     // List of queries to invalidate after successfully enrolling in the course.
-    const queriesToInvalidate = [canRedeemQueryKey, redeemablePoliciesQueryKey, enterpriseCourseEnrollmentsQueryKey];
+    const queryKeysToInvalidate = [canRedeemQueryKey, redeemablePoliciesQueryKey, enterpriseCourseEnrollmentsQueryKey];
 
     if (isBFFEnabled) {
       // Determine which BFF queries need to be updated after successfully enrolling.
       const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({
         enterpriseSlug: enterpriseCustomer.slug,
       }).queryKey;
-      queriesToInvalidate.push(dashboardBFFQueryKey);
+      queryKeysToInvalidate.push(dashboardBFFQueryKey);
     }
 
-    queriesToInvalidate.forEach((queryKey) => {
-      queryClient.invalidateQueries({ queryKey });
+    const queriesToInvalidate = [];
+    queryKeysToInvalidate.forEach((queryKey) => {
+      queriesToInvalidate.push(queryClient.invalidateQueries({ queryKey }));
     });
+    await Promise.all(queriesToInvalidate);
   };
 
   const handleFormSubmissionSuccess = async (newTransaction) => {
