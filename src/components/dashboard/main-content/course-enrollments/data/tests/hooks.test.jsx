@@ -1099,10 +1099,6 @@ describe('useUpdateCourseEnrollmentStatus', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
-  afterEach(() => {
-    mockQueryClient = undefined;
-  });
-
   it.each([
     // BFF enabled && course run id matches
     {

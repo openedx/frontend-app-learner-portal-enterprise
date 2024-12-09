@@ -35,11 +35,6 @@ jest.mock('../../../../../app/data', () => ({
   fetchEnterpriseLearnerDashboard: jest.fn(),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: () => ({ enterpriseSlug: 'test-enterprise-slug' }),
-}));
-
 jest.mock('@edx/frontend-platform/logging', () => ({
   logInfo: jest.fn(),
 }));
@@ -80,7 +75,7 @@ const UnenrollModalWrapper = ({
   }
   if (existingBFFDashboardQueryData) {
     mockQueryClient.setQueryData(
-      queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: 'test-enterprise-slug' }).queryKey,
+      queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: mockEnterpriseCustomer.slug }).queryKey,
       existingBFFDashboardQueryData,
     );
   }
@@ -191,7 +186,7 @@ describe('<UnenrollModal />', () => {
 
     await waitFor(() => {
       const bffDashboardData = mockQueryClient.getQueryData(
-        queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: 'test-enterprise-slug' }).queryKey,
+        queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: mockEnterpriseCustomer.slug }).queryKey,
       );
       let expectedLogInfoCalls = 0;
       if (isBFFEnabled) {

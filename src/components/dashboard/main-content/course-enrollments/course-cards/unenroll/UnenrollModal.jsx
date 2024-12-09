@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -6,7 +6,6 @@ import {
 } from '@openedx/paragon';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 
-import { useParams } from 'react-router-dom';
 import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
 import {
@@ -28,7 +27,6 @@ const UnenrollModal = ({
   onSuccess,
 }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const params = useParams();
   const { addToast } = useContext(ToastsContext);
   const queryClient = useQueryClient();
   const [btnState, setBtnState] = useState('default');
@@ -47,7 +45,7 @@ const UnenrollModal = ({
     if (isBFFEnabled) {
       // Determine which BFF queries need to be updated after unenrolling.
       const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({
-        enterpriseSlug: params.enterpriseSlug,
+        enterpriseSlug: enterpriseCustomer.slug,
       }).queryKey;
       const bffQueryKeysToUpdate = [dashboardBFFQueryKey];
       // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
