@@ -1104,55 +1104,116 @@ describe('useUpdateCourseEnrollmentStatus', () => {
   });
 
   it.each([
-    // BFF enabled
+    // BFF enabled && course run id matches
     {
       isBFFEnabled: true,
+      doesCourseRunIdMatch: true,
       existingBFFDashboardQueryData: mockBFFEnterpriseCourseEnrollments,
       existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
     },
     {
       isBFFEnabled: true,
+      doesCourseRunIdMatch: true,
       existingBFFDashboardQueryData: mockBFFEnterpriseCourseEnrollments,
       existingEnrollmentsQueryData: null,
     },
     {
       isBFFEnabled: true,
+      doesCourseRunIdMatch: true,
       existingBFFDashboardQueryData: null,
       existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
     },
     {
       isBFFEnabled: true,
+      doesCourseRunIdMatch: true,
       existingBFFDashboardQueryData: null,
       existingEnrollmentsQueryData: null,
     },
-    // BFF disabled
+    // BFF disabled && course run id matches
     {
       isBFFEnabled: false,
+      doesCourseRunIdMatch: true,
       existingBFFDashboardQueryData: mockBFFEnterpriseCourseEnrollments,
       existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
     },
     {
       isBFFEnabled: false,
+      doesCourseRunIdMatch: true,
       existingBFFDashboardQueryData: mockBFFEnterpriseCourseEnrollments,
       existingEnrollmentsQueryData: null,
     },
     {
       isBFFEnabled: false,
+      doesCourseRunIdMatch: true,
       existingBFFDashboardQueryData: null,
       existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
     },
     {
       isBFFEnabled: false,
+      doesCourseRunIdMatch: true,
+      existingBFFDashboardQueryData: null,
+      existingEnrollmentsQueryData: null,
+    },
+    // BFF enabled && course run id does not match
+    {
+      isBFFEnabled: true,
+      doesCourseRunIdMatch: false,
+      existingBFFDashboardQueryData: mockBFFEnterpriseCourseEnrollments,
+      existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
+    },
+    {
+      isBFFEnabled: true,
+      doesCourseRunIdMatch: false,
+      existingBFFDashboardQueryData: mockBFFEnterpriseCourseEnrollments,
+      existingEnrollmentsQueryData: null,
+    },
+    {
+      isBFFEnabled: true,
+      doesCourseRunIdMatch: false,
+      existingBFFDashboardQueryData: null,
+      existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
+    },
+    {
+      isBFFEnabled: true,
+      doesCourseRunIdMatch: false,
+      existingBFFDashboardQueryData: null,
+      existingEnrollmentsQueryData: null,
+    },
+    // BFF disabled && course run id does not match
+    {
+      isBFFEnabled: false,
+      doesCourseRunIdMatch: false,
+      existingBFFDashboardQueryData: mockBFFEnterpriseCourseEnrollments,
+      existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
+    },
+    {
+      isBFFEnabled: false,
+      doesCourseRunIdMatch: false,
+      existingBFFDashboardQueryData: mockBFFEnterpriseCourseEnrollments,
+      existingEnrollmentsQueryData: null,
+    },
+    {
+      isBFFEnabled: false,
+      doesCourseRunIdMatch: false,
+      existingBFFDashboardQueryData: null,
+      existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
+    },
+    {
+      isBFFEnabled: false,
+      doesCourseRunIdMatch: false,
       existingBFFDashboardQueryData: null,
       existingEnrollmentsQueryData: null,
     },
   ])('updates the enrollment status (%s)', async ({
     isBFFEnabled,
+    doesCourseRunIdMatch,
     existingBFFDashboardQueryData,
     existingEnrollmentsQueryData,
   }) => {
     isBFFEnabledForEnterpriseCustomer.mockReturnValue(isBFFEnabled);
-    const mockCourseRunId = mockEnterpriseCourseEnrollment.courseRunId;
+    const mockCorrectCourseRunId = mockEnterpriseCourseEnrollment.courseRunId;
+    const mockIncorrectCourseRunId = 'course-v1:edX+DemoY+Demo';
+    const mockCourseRunId = doesCourseRunIdMatch ? mockCorrectCourseRunId : mockIncorrectCourseRunId;
     const newEnrollmentStatus = 'saved_for_later';
 
     // Validate initial courseRunStatus as `in_progress`
@@ -1188,13 +1249,16 @@ describe('useUpdateCourseEnrollmentStatus', () => {
         }).queryKey,
       );
       let expectedLogInfoCalls = 0;
+      const expectedCourseRunStatus = doesCourseRunIdMatch
+        ? newEnrollmentStatus
+        : originalEnrollmentStatus;
       if (isBFFEnabled) {
         // Validate the updated enrollment status in BFF-related queries
         const foundMockEnrollment = dashboardBFFData?.enterpriseCourseEnrollments.find(
-          (enrollment) => enrollment.courseRunId === mockCourseRunId,
+          (enrollment) => enrollment.courseRunId === mockCorrectCourseRunId,
         );
         if (existingBFFDashboardQueryData) {
-          expect(foundMockEnrollment.courseRunStatus).toEqual(newEnrollmentStatus);
+          expect(foundMockEnrollment.courseRunStatus).toEqual(expectedCourseRunStatus);
         } else {
           expectedLogInfoCalls += 1;
           expect(dashboardBFFData).toBeUndefined();
@@ -1206,10 +1270,10 @@ describe('useUpdateCourseEnrollmentStatus', () => {
         queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey,
       );
       const foundMockEnrollment = enrollmentsData?.find(
-        (enrollment) => enrollment.courseRunId === mockCourseRunId,
+        (enrollment) => enrollment.courseRunId === mockCorrectCourseRunId,
       );
       if (existingEnrollmentsQueryData) {
-        expect(foundMockEnrollment.courseRunStatus).toEqual(newEnrollmentStatus);
+        expect(foundMockEnrollment.courseRunStatus).toEqual(expectedCourseRunStatus);
       } else {
         expectedLogInfoCalls += 1;
         expect(enrollmentsData).toBeUndefined();
