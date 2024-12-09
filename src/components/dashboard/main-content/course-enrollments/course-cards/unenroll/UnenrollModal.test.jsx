@@ -237,30 +237,24 @@ describe('<UnenrollModal />', () => {
         updatedEnrollments = mockQueryClient.getQueryData(
           queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: 'test-enterprise-slug' }).queryKey,
         );
-        if (bffEnterpriseCourseEnrollmentsData && !enterpriseCourseEnrollmentsData) {
+        if (bffEnterpriseCourseEnrollmentsData) {
           expect(updatedEnrollments).toEqual(learnerDashboardBFFResponse);
           expect(logInfo).toHaveBeenCalledTimes(0);
-        } else if (!bffEnterpriseCourseEnrollmentsData) {
+        } else {
           expect(updatedEnrollments).toEqual(undefined);
           expect(logInfo).toHaveBeenCalledTimes(1);
-        } else {
-          expect(updatedEnrollments).toEqual(learnerDashboardBFFResponse);
-          expect(logInfo).toHaveBeenCalledTimes(0);
         }
       }
       if (!isBFFEnabled) {
         updatedEnrollments = mockQueryClient.getQueryData(
           queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey,
         );
-        if (enterpriseCourseEnrollmentsData && !bffEnterpriseCourseEnrollmentsData) {
+        if (enterpriseCourseEnrollmentsData) {
           expect(updatedEnrollments).toEqual([]);
           expect(logInfo).toHaveBeenCalledTimes(0);
-        } else if (!enterpriseCourseEnrollmentsData) {
+        } else {
           expect(updatedEnrollments).toEqual(undefined);
           expect(logInfo).toHaveBeenCalledTimes(1);
-        } else {
-          expect(updatedEnrollments).toEqual([]);
-          expect(logInfo).toHaveBeenCalledTimes(0);
         }
       }
     });
