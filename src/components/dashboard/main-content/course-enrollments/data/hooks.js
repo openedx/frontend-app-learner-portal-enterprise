@@ -4,7 +4,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { logError } from '@edx/frontend-platform/logging';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
@@ -24,10 +24,12 @@ import {
   COUPON_CODE_SUBSIDY_TYPE,
   getSubsidyToApplyForCourse,
   groupCourseEnrollmentsByStatus,
+  isBFFEnabledForEnterpriseCustomer,
   isEnrollmentUpgradeable,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
   queryEnterpriseCourseEnrollments,
+  queryEnterpriseLearnerDashboardBFF,
   queryRedeemablePolicies,
   transformCourseEnrollment,
   useCanUpgradeWithLearnerCredit,
@@ -525,32 +527,62 @@ export function useCourseEnrollmentsBySection(courseEnrollmentsByStatus) {
   };
 }
 
-export const useUpdateCourseEnrollmentStatus = ({ enterpriseCustomer }) => {
+/**
+ * - Provides a helper function to update the course enrollment status in the query cache.
+ * @param {Object} args
+ * @param {Object} args.enterpriseCustomer - Object containing enterprise customer data.
+ * @returns {Function} - Returns a function to update a course enrollment status in the query cache. The
+ *  function accepts a courseRunId and newStatus (i.e., the new status for which to update the enrollment).
+ */
+export function useUpdateCourseEnrollmentStatus() {
   const queryClient = useQueryClient();
-
-  const updateCourseEnrollmentStatus = useCallback(({ courseRunId, newStatus, savedForLater }) => {
-    const enrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
-    const existingEnrollments = queryClient.getQueryData(enrollmentsQueryKey);
-    queryClient.setQueryData(
-      enrollmentsQueryKey,
-      existingEnrollments.map((enrollment) => {
-        if (enrollment.courseRunId === courseRunId) {
-          return {
-            ...enrollment,
-            courseRunStatus: newStatus,
-            savedForLater,
-          };
-        }
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  return useCallback(({ courseRunId, newStatus }) => {
+    // Transformation to update the course enrollment status.
+    const transformUpdatedEnrollment = (enrollment) => {
+      if (enrollment.courseRunId !== courseRunId) {
         return enrollment;
-      }),
-    );
-  }, [
-    enterpriseCustomer.uuid,
-    queryClient,
-  ]);
+      }
+      return {
+        ...enrollment,
+        courseRunStatus: newStatus,
+      };
+    };
 
-  return updateCourseEnrollmentStatus;
-};
+    const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
+    if (isBFFEnabled) {
+      // Determine which BFF queries need to be updated after updating enrollment status.
+      const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({
+        enterpriseSlug: enterpriseCustomer.slug,
+      }).queryKey;
+
+      const bffQueryKeysToUpdate = [dashboardBFFQueryKey];
+      // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
+      bffQueryKeysToUpdate.forEach((queryKey) => {
+        const existingBFFData = queryClient.getQueryData(queryKey);
+        if (!existingBFFData) {
+          logInfo(`Skipping optimistic cache update of ${JSON.stringify(queryKey)} as no cached query data exists yet.`);
+          return;
+        }
+        const updatedBFFData = {
+          ...existingBFFData,
+          enterpriseCourseEnrollments: existingBFFData.enterpriseCourseEnrollments.map(transformUpdatedEnrollment),
+        };
+        queryClient.setQueryData(queryKey, updatedBFFData);
+      });
+    }
+
+    // Update the legacy queryEnterpriseCourseEnrollments cache as well.
+    const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
+    const existingCourseEnrollmentsData = queryClient.getQueryData(enterpriseCourseEnrollmentsQueryKey);
+    if (!existingCourseEnrollmentsData) {
+      logInfo(`Skipping optimistic cache update of ${JSON.stringify(enterpriseCourseEnrollmentsQueryKey)} as no cached query data exists yet.`);
+      return;
+    }
+    const updatedCourseEnrollmentsData = existingCourseEnrollmentsData.map(transformUpdatedEnrollment);
+    queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, updatedCourseEnrollmentsData);
+  }, [queryClient, enterpriseCustomer]);
+}
 
 /**
  * - Parses a list of redeemable policies and checks if learner has acknowledged the new group.

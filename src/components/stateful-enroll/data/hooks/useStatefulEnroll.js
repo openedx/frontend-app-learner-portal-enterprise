@@ -30,10 +30,10 @@ const useStatefulEnroll = ({
 }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [transaction, setTransaction] = useState();
-  const optimizelyHandler = useOptimizelyEnrollmentClickHandler(
-    contentKey,
+  const optimizelyHandler = useOptimizelyEnrollmentClickHandler({
+    courseRunKey: contentKey,
     userEnrollments,
-  );
+  });
   const searchHandler = useTrackSearchConversionClickHandler({
     eventName: EVENT_NAMES.sucessfulEnrollment,
   });
