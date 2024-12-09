@@ -8,7 +8,6 @@ import { unenrollFromCourse } from './data';
 import UnenrollModal from './UnenrollModal';
 import { ToastsContext } from '../../../../../Toasts';
 import {
-  fetchEnterpriseLearnerDashboard,
   isBFFEnabledForEnterpriseCustomer,
   learnerDashboardBFFResponse,
   queryEnterpriseCourseEnrollments,
@@ -47,9 +46,10 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseCourseEnrollment = enterpriseCourseEnrollmentFactory();
-const mockBFFEnterpriseCourseEnrollments = {
+const mockEnterpriseCourseEnrollments = [mockEnterpriseCourseEnrollment];
+const mockBFFDashboardDataWithEnrollments = {
   ...learnerDashboardBFFResponse,
-  enterpriseCourseEnrollments: [mockEnterpriseCourseEnrollment],
+  enterpriseCourseEnrollments: mockEnterpriseCourseEnrollments,
 };
 
 const mockOnClose = jest.fn();
@@ -67,21 +67,21 @@ const mockAddToast = jest.fn();
 
 let mockQueryClient;
 const UnenrollModalWrapper = ({
-  enterpriseCourseEnrollmentsData = mockEnterpriseCourseEnrollment,
-  bffEnterpriseCourseEnrollmentsData = mockBFFEnterpriseCourseEnrollments,
+  existingEnrollmentsQueryData = mockEnterpriseCourseEnrollments,
+  existingBFFDashboardQueryData = mockBFFDashboardDataWithEnrollments,
   ...props
 }) => {
   mockQueryClient = queryClient();
-  if (enterpriseCourseEnrollmentsData) {
+  if (existingEnrollmentsQueryData) {
     mockQueryClient.setQueryData(
       queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey,
-      [enterpriseCourseEnrollmentsData],
+      existingEnrollmentsQueryData,
     );
   }
-  if (bffEnterpriseCourseEnrollmentsData) {
+  if (existingBFFDashboardQueryData) {
     mockQueryClient.setQueryData(
       queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: 'test-enterprise-slug' }).queryKey,
-      bffEnterpriseCourseEnrollmentsData,
+      existingBFFDashboardQueryData,
     );
   }
   return (
@@ -130,139 +130,107 @@ describe('<UnenrollModal />', () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  test('should handle unenroll click, non-BFF', async () => {
-    unenrollFromCourse.mockResolvedValueOnce();
-    const props = {
-      ...baseUnenrollModalProps,
-      isOpen: true,
-    };
-    render(<UnenrollModalWrapper {...props} />);
-    userEvent.click(screen.getByText('Unenroll'));
-
-    await waitFor(() => {
-      const updatedEnrollments = mockQueryClient.getQueryData(
-        queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey,
-      );
-      expect(updatedEnrollments).toEqual([]);
-      expect(mockOnSuccess).toHaveBeenCalledTimes(1);
-      expect(mockAddToast).toHaveBeenCalledTimes(1);
-      expect(mockAddToast).toHaveBeenCalledWith('You have been unenrolled from the course.');
-    });
-  });
-
-  test('should handle unenroll click, BFF', async () => {
-    fetchEnterpriseLearnerDashboard.mockResolvedValueOnce(learnerDashboardBFFResponse);
-    isBFFEnabledForEnterpriseCustomer.mockReturnValue(true);
-    const props = {
-      ...baseUnenrollModalProps,
-      isOpen: true,
-    };
-    render(<UnenrollModalWrapper {...props} />);
-    userEvent.click(screen.getByText('Unenroll'));
-
-    await waitFor(() => {
-      const updatedEnrollments = mockQueryClient.getQueryData(
-        queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: 'test-enterprise-slug' }).queryKey,
-      );
-      expect(updatedEnrollments).toEqual(learnerDashboardBFFResponse);
-      expect(mockOnSuccess).toHaveBeenCalledTimes(1);
-      expect(mockAddToast).toHaveBeenCalledTimes(1);
-      expect(mockAddToast).toHaveBeenCalledWith('You have been unenrolled from the course.');
-    });
-  });
-
   test.each([
     // BFF enabled
     {
-      bffEnterpriseCourseEnrollmentsData: mockBFFEnterpriseCourseEnrollments,
-      enterpriseCourseEnrollmentsData: mockEnterpriseCourseEnrollment,
       isBFFEnabled: true,
+      existingBFFDashboardQueryData: mockBFFDashboardDataWithEnrollments,
+      existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
     },
     {
-      bffEnterpriseCourseEnrollmentsData: mockBFFEnterpriseCourseEnrollments,
-      enterpriseCourseEnrollmentsData: null,
       isBFFEnabled: true,
+      existingBFFDashboardQueryData: mockBFFDashboardDataWithEnrollments,
+      existingEnrollmentsQueryData: null,
     },
     {
-      bffEnterpriseCourseEnrollmentsData: null,
-      enterpriseCourseEnrollmentsData: mockEnterpriseCourseEnrollment,
       isBFFEnabled: true,
+      existingBFFDashboardQueryData: null,
+      existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
     },
     {
-      bffEnterpriseCourseEnrollmentsData: null,
-      enterpriseCourseEnrollmentsData: null,
       isBFFEnabled: true,
+      existingBFFDashboardQueryData: null,
+      existingEnrollmentsQueryData: null,
     },
     // BFF disabled
     {
-      bffEnterpriseCourseEnrollmentsData: mockBFFEnterpriseCourseEnrollments,
-      enterpriseCourseEnrollmentsData: mockEnterpriseCourseEnrollment,
       isBFFEnabled: false,
+      existingBFFDashboardQueryData: mockBFFDashboardDataWithEnrollments,
+      existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
     },
     {
-      bffEnterpriseCourseEnrollmentsData: mockBFFEnterpriseCourseEnrollments,
-      enterpriseCourseEnrollmentsData: null,
       isBFFEnabled: false,
+      existingBFFDashboardQueryData: mockBFFDashboardDataWithEnrollments,
+      existingEnrollmentsQueryData: null,
     },
     {
-      bffEnterpriseCourseEnrollmentsData: null,
-      enterpriseCourseEnrollmentsData: mockEnterpriseCourseEnrollment,
       isBFFEnabled: false,
+      existingBFFDashboardQueryData: null,
+      existingEnrollmentsQueryData: mockEnterpriseCourseEnrollments,
     },
     {
-      bffEnterpriseCourseEnrollmentsData: null,
-      enterpriseCourseEnrollmentsData: null,
       isBFFEnabled: false,
+      existingBFFDashboardQueryData: null,
+      existingEnrollmentsQueryData: null,
     },
-  ])('should handle unenroll click, with empty dataset (%s)', async ({
-    bffEnterpriseCourseEnrollmentsData,
-    enterpriseCourseEnrollmentsData,
+  ])('should handle unenroll click (%s)', async ({
     isBFFEnabled,
+    existingBFFDashboardQueryData,
+    existingEnrollmentsQueryData,
   }) => {
-    fetchEnterpriseLearnerDashboard.mockResolvedValueOnce(learnerDashboardBFFResponse);
-    unenrollFromCourse.mockResolvedValueOnce();
     isBFFEnabledForEnterpriseCustomer.mockReturnValue(isBFFEnabled);
+    unenrollFromCourse.mockResolvedValueOnce();
     const props = {
       ...baseUnenrollModalProps,
       isOpen: true,
-      bffEnterpriseCourseEnrollmentsData,
-      enterpriseCourseEnrollmentsData,
+      existingBFFDashboardQueryData,
+      existingEnrollmentsQueryData,
     };
     render(<UnenrollModalWrapper {...props} />);
     userEvent.click(screen.getByText('Unenroll'));
 
     await waitFor(() => {
-      let updatedEnrollments;
+      const bffDashboardData = mockQueryClient.getQueryData(
+        queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: 'test-enterprise-slug' }).queryKey,
+      );
+      let expectedLogInfoCalls = 0;
       if (isBFFEnabled) {
-        updatedEnrollments = mockQueryClient.getQueryData(
-          queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: 'test-enterprise-slug' }).queryKey,
-        );
-        if (bffEnterpriseCourseEnrollmentsData && !enterpriseCourseEnrollmentsData) {
-          expect(updatedEnrollments).toEqual(learnerDashboardBFFResponse);
-          expect(logInfo).toHaveBeenCalledTimes(0);
-        } else if (!bffEnterpriseCourseEnrollmentsData) {
-          expect(updatedEnrollments).toEqual(undefined);
-          expect(logInfo).toHaveBeenCalledTimes(1);
+        // Only verify the BFF queryEnterpriseCourseEnrollments cache is updated if BFF feature is enabled.
+        let expectedBFFDashboardData;
+        if (existingBFFDashboardQueryData) {
+          expectedBFFDashboardData = learnerDashboardBFFResponse;
         } else {
-          expect(updatedEnrollments).toEqual(learnerDashboardBFFResponse);
-          expect(logInfo).toHaveBeenCalledTimes(0);
+          expectedLogInfoCalls += 1;
         }
-      }
-      if (!isBFFEnabled) {
-        updatedEnrollments = mockQueryClient.getQueryData(
-          queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey,
-        );
-        if (enterpriseCourseEnrollmentsData && !bffEnterpriseCourseEnrollmentsData) {
-          expect(updatedEnrollments).toEqual([]);
-          expect(logInfo).toHaveBeenCalledTimes(0);
-        } else if (!enterpriseCourseEnrollmentsData) {
-          expect(updatedEnrollments).toEqual(undefined);
-          expect(logInfo).toHaveBeenCalledTimes(1);
-        } else {
-          expect(updatedEnrollments).toEqual([]);
-          expect(logInfo).toHaveBeenCalledTimes(0);
+        expect(bffDashboardData).toEqual(expectedBFFDashboardData);
+      } else {
+        let expectedBFFDashboardData;
+        if (existingBFFDashboardQueryData) {
+          expectedBFFDashboardData = existingBFFDashboardQueryData;
         }
+        // Without BFF feature enabled, the original query cache data should remain, if any.
+        expect(bffDashboardData).toEqual(expectedBFFDashboardData);
       }
+
+      // Always verify the legacy queryEnterpriseCourseEnrollments cache is updated.
+      const legacyEnrollmentsData = mockQueryClient.getQueryData(
+        queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey,
+      );
+      let expectedLegacyEnrollmentsData;
+      if (existingEnrollmentsQueryData) {
+        expectedLegacyEnrollmentsData = [];
+      } else {
+        expectedLogInfoCalls += 1;
+      }
+      expect(legacyEnrollmentsData).toEqual(expectedLegacyEnrollmentsData);
+
+      // Verify logInfo calls
+      expect(logInfo).toHaveBeenCalledTimes(expectedLogInfoCalls);
+
+      // Verify side effects
+      expect(mockOnSuccess).toHaveBeenCalledTimes(1);
+      expect(mockAddToast).toHaveBeenCalledTimes(1);
+      expect(mockAddToast).toHaveBeenCalledWith('You have been unenrolled from the course.');
     });
   });
 });

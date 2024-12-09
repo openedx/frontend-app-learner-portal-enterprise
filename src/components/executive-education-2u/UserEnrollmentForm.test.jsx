@@ -1,6 +1,4 @@
-import {
-  act, screen, waitFor,
-} from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -10,7 +8,7 @@ import { logError, logInfo } from '@edx/frontend-platform/logging';
 import dayjs from 'dayjs';
 import MockDate from 'mockdate';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import UserEnrollmentForm from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
@@ -23,7 +21,7 @@ import {
   useEnterpriseCustomer,
 } from '../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
-import { renderWithRouter } from '../../utils/tests';
+import { queryClient, renderWithRouter } from '../../utils/tests';
 import { useUserSubsidyApplicableToCourse } from '../course/data';
 
 const termsLabelText = "I agree to GetSmarter's Terms and Conditions for Students";
@@ -97,8 +95,7 @@ const initialAppContextValue = {
   authenticatedUser: mockAuthenticatedUser,
 };
 
-const queryClient = new QueryClient();
-
+let mockQueryClient;
 const UserEnrollmentFormWrapper = ({
   appContextValue = initialAppContextValue,
   courseContextValue = {
@@ -108,17 +105,20 @@ const UserEnrollmentFormWrapper = ({
     setExternalFormSubmissionError: jest.fn(),
     formSubmissionError: {},
   },
-}) => (
-  <IntlProvider locale="en">
-    <QueryClientProvider client={queryClient}>
-      <AppContext.Provider value={appContextValue}>
-        <CourseContext.Provider value={courseContextValue}>
-          <UserEnrollmentForm />
-        </CourseContext.Provider>
-      </AppContext.Provider>
-    </QueryClientProvider>
-  </IntlProvider>
-);
+}) => {
+  mockQueryClient = queryClient();
+  return (
+    <IntlProvider locale="en">
+      <QueryClientProvider client={mockQueryClient}>
+        <AppContext.Provider value={appContextValue}>
+          <CourseContext.Provider value={courseContextValue}>
+            <UserEnrollmentForm />
+          </CourseContext.Provider>
+        </AppContext.Provider>
+      </QueryClientProvider>
+    </IntlProvider>
+  );
+};
 
 describe('UserEnrollmentForm', () => {
   beforeEach(() => {

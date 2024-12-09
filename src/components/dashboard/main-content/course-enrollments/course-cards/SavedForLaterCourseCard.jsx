@@ -35,7 +35,7 @@ const SavedForLaterCourseCard = (props) => {
 
   const navigate = useNavigate();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
+  const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleMoveToInProgressOnClose = () => {
