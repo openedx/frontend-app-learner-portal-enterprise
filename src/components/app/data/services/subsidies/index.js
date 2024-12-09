@@ -65,7 +65,7 @@ export async function fetchEnterpriseOffers(enterpriseId, options = {}) {
 // Redeemable Policies
 
 /**
- * TODO
+ * Fetches the redeemable policies for the specified enterprise and user.
  * @param {*} enterpriseUUID
  * @param {*} userID
  * @returns

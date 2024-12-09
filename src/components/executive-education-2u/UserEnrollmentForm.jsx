@@ -48,6 +48,7 @@ const UserEnrollmentForm = ({ className }) => {
     externalCourseFormSubmissionError,
     setExternalCourseFormSubmissionError,
   } = useContext(CourseContext);
+
   const { data: { courseEntitlementProductSku } } = useCourseMetadata();
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
@@ -55,7 +56,7 @@ const UserEnrollmentForm = ({ className }) => {
 
   const handleQueryInvalidationForEnrollSuccess = () => {
     const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
-    const canRedeemQueryKey = queryCanRedeemContextQueryKey(enterpriseCustomer.uuid, courseKey).queryKey;
+    const canRedeemQueryKey = queryCanRedeemContextQueryKey(enterpriseCustomer.uuid, courseKey);
     const redeemablePoliciesQueryKey = queryRedeemablePolicies({
       enterpriseUuid: enterpriseCustomer.uuid,
       lmsUserId: userId,
@@ -63,14 +64,19 @@ const UserEnrollmentForm = ({ className }) => {
     const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
 
     // List of queries to invalidate after successfully enrolling in the course.
-    const queriesToInvalidate = [canRedeemQueryKey, redeemablePoliciesQueryKey, enterpriseCourseEnrollmentsQueryKey];
+    const queriesToInvalidate = [
+      canRedeemQueryKey,
+      redeemablePoliciesQueryKey,
+      enterpriseCourseEnrollmentsQueryKey,
+    ];
 
     if (isBFFEnabled) {
       // Determine which BFF queries need to be updated after successfully enrolling.
       const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({
         enterpriseSlug: enterpriseCustomer.slug,
       }).queryKey;
-      queriesToInvalidate.push(dashboardBFFQueryKey);
+      const bffQueriesToInvalidate = [dashboardBFFQueryKey];
+      queriesToInvalidate.push(...bffQueriesToInvalidate);
     }
 
     queriesToInvalidate.forEach((queryKey) => {
@@ -83,7 +89,6 @@ const UserEnrollmentForm = ({ className }) => {
     if (!isNil(newTransaction) && newTransaction.state !== 'committed') {
       return;
     }
-
     await Promise.all([
       handleQueryInvalidationForEnrollSuccess(),
       sendEnterpriseTrackEventWithDelay(

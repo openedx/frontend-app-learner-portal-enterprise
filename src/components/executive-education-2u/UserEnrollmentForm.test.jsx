@@ -9,19 +9,23 @@ import dayjs from 'dayjs';
 import MockDate from 'mockdate';
 
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
 import UserEnrollmentForm from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { CourseContext } from '../course/CourseContextProvider';
 import {
   LEARNER_CREDIT_SUBSIDY_TYPE,
+  queryCanRedeemContextQueryKey,
+  queryEnterpriseCourseEnrollments,
+  queryRedeemablePolicies,
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
+  isBFFEnabledForEnterpriseCustomer,
+  queryEnterpriseLearnerDashboardBFF,
 } from '../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
-import { queryClient, renderWithRouter } from '../../utils/tests';
+import { queryClient, renderWithRouter, renderWithRouterProvider } from '../../utils/tests';
 import { useUserSubsidyApplicableToCourse } from '../course/data';
 
 const termsLabelText = "I agree to GetSmarter's Terms and Conditions for Students";
@@ -32,6 +36,7 @@ const mockFirstName = 'John';
 const mockLastName = 'Doe';
 const mockDateOfBirth = '1993-06-10';
 const mockProductSKU = 'ABC123';
+const mockCourseKey = 'edX+DemoX';
 const mockCourseRunKey = 'course-v1:edX+DemoX+Demo_Course';
 
 jest.mock('@edx/frontend-platform/logging', () => ({
@@ -56,16 +61,12 @@ jest.mock('../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
   useCourseMetadata: jest.fn(),
+  isBFFEnabledForEnterpriseCustomer: jest.fn(),
 }));
 
 jest.mock('../course/data', () => ({
   ...jest.requireActual('../course/data'),
   useUserSubsidyApplicableToCourse: jest.fn(),
-}));
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory({
@@ -96,6 +97,7 @@ const initialAppContextValue = {
 };
 
 let mockQueryClient;
+let invalidateQueriesSpy;
 const UserEnrollmentFormWrapper = ({
   appContextValue = initialAppContextValue,
   courseContextValue = {
@@ -107,6 +109,7 @@ const UserEnrollmentFormWrapper = ({
   },
 }) => {
   mockQueryClient = queryClient();
+  invalidateQueriesSpy = jest.spyOn(mockQueryClient, 'invalidateQueries');
   return (
     <IntlProvider locale="en">
       <QueryClientProvider client={mockQueryClient}>
@@ -132,7 +135,7 @@ describe('UserEnrollmentForm', () => {
       missingUserSubsidyReason: undefined,
     });
     useCourseMetadata.mockReturnValue({ data: {} });
-    useParams.mockReturnValue({ courseRunKey: mockCourseRunKey });
+    isBFFEnabledForEnterpriseCustomer.mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -225,21 +228,65 @@ describe('UserEnrollmentForm', () => {
     });
   });
 
-  it('handles successful form submission with subsidy access policy redemption', async () => {
+  it.each([
+    // BFF Disabled
+    {
+      isBFFEnabled: false,
+      isDSCEnabled: false,
+    },
+    {
+      isBFFEnabled: false,
+      isDSCEnabled: true,
+    },
+    // BFF Enabled
+    {
+      isBFFEnabled: true,
+      isDSCEnabled: false,
+    },
+    {
+      isBFFEnabled: true,
+      isDSCEnabled: true,
+    },
+  ])('handles successful form submission with subsidy access policy redemption (%s)', async ({
+    isBFFEnabled,
+    isDSCEnabled,
+  }) => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     MockDate.set(mockTermsAcceptedAt);
-
+    isBFFEnabledForEnterpriseCustomer.mockReturnValue(isBFFEnabled);
     useUserSubsidyApplicableToCourse.mockReturnValue({
       userSubsidyApplicableToCourse: {
         subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
       },
     });
-    renderWithRouter(<UserEnrollmentFormWrapper />);
+    if (!isDSCEnabled) {
+      useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledDataSharingConsent });
+    }
+
+    const mockExternalEnrollmentUrl = `/${mockEnterpriseCustomer.slug}/executive-education-2u/course/${mockCourseKey}/enroll/${mockCourseRunKey}`;
+    renderWithRouterProvider(
+      {
+        path: '/:enterpriseSlug/:courseType/course/:courseKey/enroll/:courseRunKey',
+        element: <UserEnrollmentFormWrapper />,
+      },
+      {
+        initialEntries: [mockExternalEnrollmentUrl],
+        routes: [
+          {
+            path: '/:enterpriseSlug/:courseType/course/:courseKey/enroll/:courseRunKey/complete',
+            element: <div data-testid="enrollment-confirmation" />,
+          },
+        ],
+      },
+    );
+
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
     userEvent.click(screen.getByLabelText(termsLabelText));
-    userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
+    if (isDSCEnabled) {
+      userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
+    }
     userEvent.click(screen.getByText('Confirm registration'));
 
     await waitFor(() => {
@@ -254,10 +301,11 @@ describe('UserEnrollmentForm', () => {
           geagEmail: mockAuthenticatedUser.email,
           geagDateOfBirth: mockDateOfBirth,
           geagTermsAcceptedAt: mockTermsAcceptedAt,
-          geagDataShareConsent: true,
+          geagDataShareConsent: isDSCEnabled ? true : undefined,
         }),
       }),
     );
+
     // Ensure the contentKey from the URL is passed along to the redeem endpoint via useStatefulEnroll.
     expect(useStatefulEnroll.mock.calls[0][0]).toEqual(
       expect.objectContaining({
@@ -271,49 +319,36 @@ describe('UserEnrollmentForm', () => {
       useStatefulEnroll.mock.calls[0][0].onSuccess(newTransaction);
     });
 
-    // disabled after submitting
-    await waitFor(() => expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true'));
-  });
+    const canRedeemQueryKey = queryCanRedeemContextQueryKey(mockEnterpriseCustomer.uuid, mockCourseKey);
+    const redeemablePoliciesQueryKey = queryRedeemablePolicies({
+      enterpriseUuid: mockEnterpriseCustomer.uuid,
+      lmsUserId: mockAuthenticatedUser.userId,
+    }).queryKey;
+    const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey;
+    const expectedQueriesToInvalidate = [
+      canRedeemQueryKey,
+      redeemablePoliciesQueryKey,
+      enterpriseCourseEnrollmentsQueryKey,
+    ];
 
-  it('handles successful form submission with data sharing consent disabled', async () => {
-    const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
-    MockDate.set(mockTermsAcceptedAt);
-
-    useUserSubsidyApplicableToCourse.mockReturnValue({
-      userSubsidyApplicableToCourse: {
-        subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-      },
-    });
-    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledDataSharingConsent });
-    renderWithRouter(<UserEnrollmentFormWrapper />);
-
-    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
-    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
-    userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
-    userEvent.click(screen.getByLabelText(termsLabelText));
-    userEvent.click(screen.getByText('Confirm registration'));
+    if (isBFFEnabled) {
+      const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({
+        enterpriseSlug: mockEnterpriseCustomer.slug,
+      }).queryKey;
+      const expectedBFFQueriesToInvalidate = [dashboardBFFQueryKey];
+      expectedQueriesToInvalidate.push(...expectedBFFQueriesToInvalidate);
+    }
 
     await waitFor(() => {
-      expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
-    });
-    expect(mockRedeem).toHaveBeenCalledTimes(1);
-    expect(mockRedeem).toHaveBeenCalledWith(
-      expect.objectContaining({
-        metadata: snakeCaseObject({
-          geagFirstName: mockFirstName,
-          geagLastName: mockLastName,
-          geagEmail: mockAuthenticatedUser.email,
-          geagDateOfBirth: mockDateOfBirth,
-          geagTermsAcceptedAt: mockTermsAcceptedAt,
-          geagDataShareConsent: undefined,
-        }),
-      }),
-    );
+      expect(invalidateQueriesSpy).toHaveBeenCalledTimes(expectedQueriesToInvalidate.length);
+      expectedQueriesToInvalidate.forEach((queryKey) => {
+        expect(invalidateQueriesSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ queryKey }),
+        );
+      });
 
-    // simulate `useStatefulEnroll` calling `onSuccess` arg
-    const newTransaction = { state: 'committed' };
-    act(() => {
-      useStatefulEnroll.mock.calls[0][0].onSuccess(newTransaction);
+      // Redirected to the enrollment confirmation page
+      expect(screen.getByTestId('enrollment-confirmation')).toBeInTheDocument();
     });
   });
 
@@ -334,6 +369,7 @@ describe('UserEnrollmentForm', () => {
       + 'that you are under the age of 18, and we need your parent or legal '
       + 'guardian to consent to your registration and GetSmarter processing '
       + 'your personal information.';
+
     await waitFor(() => {
       expect(screen.getByText(invalidAgeErrorMessage, { exact: false })).toBeInTheDocument();
       expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(0);
