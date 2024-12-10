@@ -1,6 +1,7 @@
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 
 import { v4 as uuidv4 } from 'uuid';
 import { camelCaseObject } from '@edx/frontend-platform';
@@ -13,14 +14,19 @@ getAuthenticatedHttpClient.mockReturnValue(axios);
 const APP_CONFIG = {
   ENTERPRISE_ACCESS_BASE_URL: 'http://localhost:18270',
 };
+
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform'),
   getConfig: jest.fn(() => APP_CONFIG),
 }));
-
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
   getAuthenticatedHttpClient: jest.fn(),
+}));
+jest.mock('@edx/frontend-platform/logging', () => ({
+  ...jest.requireActual('@edx/frontend-platform/logging'),
+  logError: jest.fn(),
+  logInfo: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -29,7 +35,8 @@ const mockSubscriptionCatalogUuid = uuidv4();
 const mockSubscriptionLicenseUuid = uuidv4();
 const mockSubscriptionPlanUuid = uuidv4();
 const mockActivationKey = uuidv4();
-const mockBFFDashboardResponse = {
+
+const mockBaseLearnerBFFResponse = {
   enterprise_customer_user_subsidies: {
     subscriptions: {
       customer_agreement: {
@@ -96,6 +103,12 @@ const mockBFFDashboardResponse = {
       },
     },
   },
+  errors: [],
+  warnings: [],
+};
+
+const mockBFFDashboardResponse = {
+  ...mockBaseLearnerBFFResponse,
   enterprise_course_enrollments: [
     {
       course_run_id: 'course-v1:edX+DemoX+3T2022',
@@ -119,25 +132,78 @@ const mockBFFDashboardResponse = {
       is_revoked: false,
     },
   ],
-  errors: [],
-  warnings: [],
 };
+
 describe('fetchEnterpriseLearnerDashboard', () => {
-  const enterpriseDashboard = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/dashboard/`;
+  const urlForDashboardBFF = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/dashboard/`;
+
   beforeEach(() => {
     jest.clearAllMocks();
     axiosMock.reset();
   });
 
-  it('returns learner dashboard metadata', async () => {
-    axiosMock.onPost(enterpriseDashboard).reply(200, mockBFFDashboardResponse);
-    const result = await fetchEnterpriseLearnerDashboard({ enterpriseId: mockEnterpriseCustomer.uuid });
+  it.each([
+    {
+      enterpriseId: mockEnterpriseCustomer.uuid,
+      enterpriseSlug: null,
+    },
+    {
+      enterpriseId: null,
+      enterpriseSlug: mockEnterpriseCustomer.slug,
+    },
+    {
+      enterpriseId: mockEnterpriseCustomer.uuid,
+      enterpriseSlug: mockEnterpriseCustomer.slug,
+    },
+  ])('returns learner dashboard metadata (%s)', async ({
+    enterpriseId,
+    enterpriseSlug,
+  }) => {
+    axiosMock.onPost(urlForDashboardBFF).reply(200, mockBFFDashboardResponse);
+    const result = await fetchEnterpriseLearnerDashboard({ enterpriseId, enterpriseSlug });
     expect(result).toEqual(camelCaseObject(mockBFFDashboardResponse));
   });
 
-  it('catches error and returns null', async () => {
-    axiosMock.onPost(enterpriseDashboard).reply(404, learnerDashboardBFFResponse);
-    const result = await fetchEnterpriseLearnerDashboard(null);
+  it.each([
+    {
+      enterpriseId: mockEnterpriseCustomer.uuid,
+      enterpriseSlug: null,
+    },
+    {
+      enterpriseId: null,
+      enterpriseSlug: mockEnterpriseCustomer.slug,
+    },
+    {
+      enterpriseId: mockEnterpriseCustomer.uuid,
+      enterpriseSlug: mockEnterpriseCustomer.slug,
+    },
+  ])('catches error and returns default dashboard BFF response (%s)', async ({
+    enterpriseId,
+    enterpriseSlug,
+  }) => {
+    axiosMock.onPost(urlForDashboardBFF).reply(404, learnerDashboardBFFResponse);
+    const result = await fetchEnterpriseLearnerDashboard({ enterpriseId, enterpriseSlug });
     expect(result).toEqual(learnerDashboardBFFResponse);
+  });
+
+  it('logs errors and warnings from BFF response', async () => {
+    const mockError = {
+      developer_message: 'This is a developer message',
+    };
+    const mockWarning = {
+      developer_message: 'This is a developer warning',
+    };
+    const mockResponseWithErrorsAndWarnings = {
+      ...mockBFFDashboardResponse,
+      errors: [mockError],
+      warnings: [mockWarning],
+    };
+    axiosMock.onPost(urlForDashboardBFF).reply(200, mockResponseWithErrorsAndWarnings);
+    const result = await fetchEnterpriseLearnerDashboard({ enterpriseSlug: mockEnterpriseCustomer.slug });
+    expect(result).toEqual(camelCaseObject(mockResponseWithErrorsAndWarnings));
+
+    // Assert the logError and logInfo functions were called with the expected arguments.
+    expect(logError).toHaveBeenCalledWith(`BFF Error (${urlForDashboardBFF}): ${mockError.developer_message}`);
+    expect(logInfo).toHaveBeenCalledWith(`BFF Warning (${urlForDashboardBFF}): ${mockWarning.developer_message}`);
   });
 });
