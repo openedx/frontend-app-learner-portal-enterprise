@@ -30,7 +30,12 @@ describe('<EnterprisePage />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
-  const defaultAppContextValue = { authenticatedUser: mockAuthenticatedUser };
+  const defaultAppContextValue = {
+    authenticatedUser: mockAuthenticatedUser,
+    config: {
+      FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [],
+    },
+  };
 
   const EnterprisePageWrapper = ({ children, appContextValue = defaultAppContextValue }) => (
     <AppContext.Provider value={appContextValue}>
@@ -69,5 +74,27 @@ describe('<EnterprisePage />', () => {
         },
       }),
     );
+  });
+
+  it.each([
+    { isBFFEnabled: false },
+    { isBFFEnabled: true },
+  ])('sets custom attributes via logging service', ({ isBFFEnabled }) => {
+    // Mock the BFF-related feature flag
+    const bffFeatureFlag = isBFFEnabled ? [mockEnterpriseCustomer.uuid] : [];
+    const appContextValueWithBFFConfig = {
+      authenticatedUser: mockAuthenticatedUser,
+      config: {
+        FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: bffFeatureFlag,
+      },
+    };
+
+    // Mount the component
+    mount(<EnterprisePageWrapper appContextValue={appContextValueWithBFFConfig} />);
+
+    // Verify that the custom attributes were set
+    expect(mockSetCustomAttribute).toHaveBeenCalledTimes(2);
+    expect(mockSetCustomAttribute).toHaveBeenCalledWith('enterprise_customer_uuid', mockEnterpriseCustomer.uuid);
+    expect(mockSetCustomAttribute).toHaveBeenCalledWith('is_bff_enabled', isBFFEnabled);
   });
 });
