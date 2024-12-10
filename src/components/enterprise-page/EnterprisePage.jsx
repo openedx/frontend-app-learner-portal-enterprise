@@ -20,11 +20,13 @@ function useLoggingCustomAttributes() {
     if (isDefinedAndNotNull(enterpriseCustomer)) {
       pushUserCustomerAttributes(enterpriseCustomer);
 
-      // Set custom attributes for logging service
+      // Set custom attributes via logging service
       const loggingService = getLoggingService();
       loggingService.setCustomAttribute('enterprise_customer_uuid', enterpriseCustomer.uuid);
-      const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
-      loggingService.setCustomAttribute('is_bff_enabled', isBFFEnabled);
+      loggingService.setCustomAttribute(
+        'is_bff_enabled',
+        isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid),
+      );
     }
   }, [enterpriseCustomer]);
 }

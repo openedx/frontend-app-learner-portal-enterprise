@@ -4,12 +4,13 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getLoggingService } from '@edx/frontend-platform/logging';
 
 import EnterprisePage from './EnterprisePage';
-import { useEnterpriseCustomer } from '../app/data';
+import { isBFFEnabledForEnterpriseCustomer, useEnterpriseCustomer } from '../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
 
 jest.mock('../app/data', () => ({
   ...jest.requireActual('../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  isBFFEnabledForEnterpriseCustomer: jest.fn().mockReturnValue(false),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -79,18 +80,19 @@ describe('<EnterprisePage />', () => {
   it.each([
     { isBFFEnabled: false },
     { isBFFEnabled: true },
-  ])('sets custom attributes via logging service', ({ isBFFEnabled }) => {
-    // Mock the BFF-related feature flag
-    const bffFeatureFlag = isBFFEnabled ? [mockEnterpriseCustomer.uuid] : [];
-    const appContextValueWithBFFConfig = {
-      authenticatedUser: mockAuthenticatedUser,
-      config: {
-        FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: bffFeatureFlag,
-      },
-    };
+  ])('sets custom attributes via logging service (%s)', ({ isBFFEnabled }) => {
+    // Mock the BFF feature flag
+    isBFFEnabledForEnterpriseCustomer.mockReturnValue(isBFFEnabled);
 
     // Mount the component
-    mount(<EnterprisePageWrapper appContextValue={appContextValueWithBFFConfig} />);
+    const wrapper = mount(
+      <EnterprisePageWrapper>
+        <div data-testid="child-component" />
+      </EnterprisePageWrapper>,
+    );
+
+    // Verify the children are rendered
+    expect(wrapper.find('[data-testid="child-component"]').exists()).toBe(true);
 
     // Verify that the custom attributes were set
     expect(mockSetCustomAttribute).toHaveBeenCalledTimes(2);
