@@ -41,8 +41,8 @@ export function logErrorsAndWarningsFromBFFResponse({ url, response }) {
  * @param {String} args.url - The URL of the BFF API endpoint.
  * @param {Object} args.defaultResponse - The default response to return if unable to resolve the request.
  * @param {Object} args.options - The options to pass to the BFF API endpoint.
- * @param {String} args.options.enterpriseId - The UUID of the enterprise customer.
- * @param {String} args.options.enterpriseSlug - The slug of the enterprise customer.
+ * @param {String} [args.options.enterpriseId] - The UUID of the enterprise customer.
+ * @param {String} [args.options.enterpriseSlug] - The slug of the enterprise customer.
  * @returns {Promise<Object>} - The response from the BFF.
  */
 export async function makeBFFRequest({ url, defaultResponse, options = {} }) {
@@ -79,8 +79,8 @@ export async function makeBFFRequest({ url, defaultResponse, options = {} }) {
 /**
  * Fetch the learner dashboard BFF API for the specified enterprise customer.
  * @param {Object} args
- * @param {String} args.enterpriseId - The UUID of the enterprise customer.
- * @param {String} args.enterpriseSlug - The slug of the enterprise customer.
+ * @param {String} [args.enterpriseId] - The UUID of the enterprise customer.
+ * @param {String} [args.enterpriseSlug] - The slug of the enterprise customer.
  * @returns {Promise<Object>} - The learner dashboard metadata.
  */
 export async function fetchEnterpriseLearnerDashboard({ enterpriseId, enterpriseSlug }) {
