@@ -37,7 +37,7 @@ Factory.define('enterpriseCustomer')
     secondary_color: faker.internet.color(),
     tertiary_color: faker.internet.color(),
   });
-export function enterpriseCustomerFactory(overrides = {}) {
+export function enterpriseCustomerFactory(overrides = {}): Types.EnterpriseCustomer {
   return camelCaseObject(Factory.build('enterpriseCustomer', overrides));
 }
 

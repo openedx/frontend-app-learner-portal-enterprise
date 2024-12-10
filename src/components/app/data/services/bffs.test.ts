@@ -29,7 +29,7 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   logInfo: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = enterpriseCustomerFactory() as Types.EnterpriseCustomer;
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockCustomerAgreementUuid = uuidv4();
 const mockSubscriptionCatalogUuid = uuidv4();
 const mockSubscriptionLicenseUuid = uuidv4();
