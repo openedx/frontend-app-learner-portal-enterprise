@@ -45,7 +45,11 @@ export function logErrorsAndWarningsFromBFFResponse({ url, response }) {
  * @param {String} [args.options.enterpriseSlug] - The slug of the enterprise customer.
  * @returns {Promise<Object>} - The response from the BFF.
  */
-export async function makeBFFRequest({ url, defaultResponse, options = {} }) {
+export async function makeBFFRequest({
+  url,
+  defaultResponse,
+  options = {} as Types.BFFRequestOptions,
+}) {
   const { enterpriseId, enterpriseSlug, ...optionsRest } = options;
   const snakeCaseOptionsRest = optionsRest ? snakeCaseObject(optionsRest) : {};
 
@@ -76,6 +80,11 @@ export async function makeBFFRequest({ url, defaultResponse, options = {} }) {
   }
 }
 
+export interface EnterpriseLearnerDashboardOptions {
+  enterpriseId?: string;
+  enterpriseSlug?: string;
+}
+
 /**
  * Fetch the learner dashboard BFF API for the specified enterprise customer.
  * @param {Object} args
@@ -83,10 +92,20 @@ export async function makeBFFRequest({ url, defaultResponse, options = {} }) {
  * @param {String} [args.enterpriseSlug] - The slug of the enterprise customer.
  * @returns {Promise<Object>} - The learner dashboard metadata.
  */
-export async function fetchEnterpriseLearnerDashboard({ enterpriseId, enterpriseSlug }) {
+export async function fetchEnterpriseLearnerDashboard({
+  enterpriseId,
+  enterpriseSlug,
+}: EnterpriseLearnerDashboardOptions) {
+  const options = {} as Types.BFFRequestOptions;
+  if (enterpriseId) {
+    options.enterpriseId = enterpriseId;
+  }
+  if (enterpriseSlug) {
+    options.enterpriseSlug = enterpriseSlug;
+  }
   return makeBFFRequest({
     url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/dashboard/`,
     defaultResponse: learnerDashboardBFFResponse,
-    options: { enterpriseId, enterpriseSlug },
+    options,
   });
 }

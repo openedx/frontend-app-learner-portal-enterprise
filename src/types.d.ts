@@ -29,6 +29,14 @@ export interface AuthenticatedUser {
   administrator: boolean;
 }
 
+export interface BFFRequestAdditionalOptions {
+  [key: string]: any; // Allow any additional properties
+}
+
+export type BFFRequestOptions =
+  | ({ enterpriseId: string; enterpriseSlug?: string; } & BFFRequestAdditionalOptions)
+  | ({ enterpriseId?: string; enterpriseSlug: string; } & BFFRequestAdditionalOptions);
+
 export interface EnterpriseCustomer {
   uuid: string;
   slug: string;
@@ -43,7 +51,7 @@ export interface EnterpriseLearnerData {
   staffEnterpriseCustomer: Types.EnterpriseCustomer;
 }
 
-interface DueDate {
+interface EnrollmentDueDate {
   name: string;
   date: string;
   url: string;
@@ -69,7 +77,7 @@ export interface EnterpriseCourseEnrollment {
   course_run_url: string;
   resume_course_run_url?: string;
   is_revoked: boolean;
-  due_dates: DueDate[];
+  due_dates: EnrollmentDueDate[];
 }
 
 // Application Data (subsidy)

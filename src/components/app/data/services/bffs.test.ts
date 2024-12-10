@@ -29,7 +29,7 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   logInfo: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory() as Types.EnterpriseCustomer;
 const mockCustomerAgreementUuid = uuidv4();
 const mockSubscriptionCatalogUuid = uuidv4();
 const mockSubscriptionLicenseUuid = uuidv4();
@@ -145,10 +145,10 @@ describe('fetchEnterpriseLearnerDashboard', () => {
   it.each([
     {
       enterpriseId: mockEnterpriseCustomer.uuid,
-      enterpriseSlug: null,
+      enterpriseSlug: undefined,
     },
     {
-      enterpriseId: null,
+      enterpriseId: undefined,
       enterpriseSlug: mockEnterpriseCustomer.slug,
     },
     {
@@ -167,10 +167,10 @@ describe('fetchEnterpriseLearnerDashboard', () => {
   it.each([
     {
       enterpriseId: mockEnterpriseCustomer.uuid,
-      enterpriseSlug: null,
+      enterpriseSlug: undefined,
     },
     {
-      enterpriseId: null,
+      enterpriseId: undefined,
       enterpriseSlug: mockEnterpriseCustomer.slug,
     },
     {
