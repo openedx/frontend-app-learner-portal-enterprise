@@ -7,23 +7,37 @@ import { getLoggingService } from '@edx/frontend-platform/logging';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
-import { useEnterpriseCustomer } from '../app/data';
+import { isBFFEnabledForEnterpriseCustomer, useEnterpriseCustomer } from '../app/data';
 
-const EnterprisePage = ({ children }) => {
+/**
+ * Custom hook to set custom attributes for logging service:
+ * - enterprise_customer_uuid - The UUID of the enterprise customer
+ * - is_bff_enabled - Whether the BFF is enabled for the enterprise customer
+ */
+function useLoggingCustomAttributes() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const config = getConfig();
-  const [searchClient, searchIndex] = useAlgoliaSearch(config);
-  const { authenticatedUser } = useContext(AppContext);
-
   useEffect(() => {
     if (isDefinedAndNotNull(enterpriseCustomer)) {
       pushUserCustomerAttributes(enterpriseCustomer);
 
-      // Set custom attributes for logging service
+      // Set custom attributes via logging service
       const loggingService = getLoggingService();
       loggingService.setCustomAttribute('enterprise_customer_uuid', enterpriseCustomer.uuid);
+      loggingService.setCustomAttribute(
+        'is_bff_enabled',
+        isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid),
+      );
     }
   }, [enterpriseCustomer]);
+}
+
+const EnterprisePage = ({ children }) => {
+  const config = getConfig();
+  const [searchClient, searchIndex] = useAlgoliaSearch(config);
+  const { authenticatedUser } = useContext(AppContext);
+
+  // Set custom attributes via logging service
+  useLoggingCustomAttributes();
 
   const contextValue = useMemo(() => ({
     authenticatedUser,
