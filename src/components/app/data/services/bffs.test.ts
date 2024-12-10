@@ -177,6 +177,10 @@ describe('fetchEnterpriseLearnerDashboard', () => {
       enterpriseId: mockEnterpriseCustomer.uuid,
       enterpriseSlug: mockEnterpriseCustomer.slug,
     },
+    {
+      enterpriseId: undefined,
+      enterpriseSlug: undefined,
+    },
   ])('catches error and returns default dashboard BFF response (%s)', async ({
     enterpriseId,
     enterpriseSlug,
