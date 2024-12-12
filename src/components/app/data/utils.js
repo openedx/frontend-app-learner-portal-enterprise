@@ -173,6 +173,7 @@ export function getAssignmentsByState(assignments = []) {
   const canceledAssignments = [];
   const expiredAssignments = [];
   const erroredAssignments = [];
+  const reversedAssignments = [];
   const assignmentsForDisplay = [];
 
   assignments.forEach((assignment) => {
@@ -191,6 +192,9 @@ export function getAssignmentsByState(assignments = []) {
         break;
       case ASSIGNMENT_TYPES.ERRORED:
         erroredAssignments.push(assignment);
+        break;
+      case ASSIGNMENT_TYPES.REVERSED:
+        reversedAssignments.push(assignment);
         break;
       default:
         logError(`[getAssignmentsByState] Unsupported state ${assignment.state} for assignment ${assignment.uuid}`);

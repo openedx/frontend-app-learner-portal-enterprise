@@ -10,12 +10,28 @@ import { transformSubscriptionsData } from '../services';
  */
 export default function useSubscriptions(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { select, ...queryOptionsRest } = queryOptions;
+
   return useBFF({
     bffQueryOptions: {
-      select: (data) => transformSubscriptionsData(
-        data?.enterpriseCustomerUserSubsidies?.subscriptions,
-        { isBFFData: true },
-      ),
+      ...queryOptionsRest,
+      select: (data) => {
+        const transformedData = transformSubscriptionsData(
+          data?.enterpriseCustomerUserSubsidies?.subscriptions,
+          { isBFFData: true },
+        );
+
+        // When custom `select` function is provided in `queryOptions`, call it with original and transformed data.
+        if (select) {
+          return select({
+            original: data,
+            transformed: transformedData,
+          });
+        }
+
+        // Otherwise, return the transformed data.
+        return transformedData;
+      },
     },
     fallbackQueryConfig: {
       ...querySubscriptions(enterpriseCustomer.uuid),

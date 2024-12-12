@@ -65,6 +65,7 @@ export const ASSIGNMENT_TYPES = {
   EXPIRED: 'expired',
   ERRORED: 'errored',
   EXPIRING: 'expiring',
+  REVERSED: 'reversed',
 };
 
 // When the start date is before this number of days before today, display the alternate start date (fixed to today).

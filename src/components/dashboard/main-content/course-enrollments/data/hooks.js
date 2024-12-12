@@ -160,8 +160,8 @@ export const useCourseUpgradeData = ({
 
   // Metadata required to allow upgrade via applicable subscription license
   const { data: subscriptionLicense } = useSubscriptions({
-    select: (data) => {
-      const license = data?.subscriptionLicense;
+    select: ({ transformed }) => {
+      const license = transformed?.subscriptionLicense;
       const isLicenseActivated = !!(license?.status === LICENSE_STATUS.ACTIVATED);
       const isSubscriptionPlanCurrent = !!license?.subscriptionPlan.isCurrent;
       if (!isLicenseActivated || !isSubscriptionPlanCurrent) {
