@@ -82,9 +82,7 @@ describe('useSubscriptions', () => {
     };
     let mockSelect = jest.fn((data) => data);
     if (isBFFQueryEnabled) {
-      mockSelect = jest.fn(({ original, transformed }) => {
-        return transformed.subscriptionLicense;
-      })
+      mockSelect = jest.fn(({ transformed }) => transformed.subscriptionLicense);
     }
     const queryOptions = hasQueryOptions ? { select: mockSelect } : undefined;
     const mockSubscriptionLicensesByStatus = {
@@ -122,7 +120,7 @@ describe('useSubscriptions', () => {
         }
         return useSubscriptions();
       },
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     await waitForNextUpdate();

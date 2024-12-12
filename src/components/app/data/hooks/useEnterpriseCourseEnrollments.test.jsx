@@ -206,9 +206,9 @@ describe('useEnterpriseCourseEnrollments', () => {
         if (hasQueryOptions) {
           return useEnterpriseCourseEnrollments(queryOptions);
         }
-        return useEnterpriseCourseEnrollments()
+        return useEnterpriseCourseEnrollments();
       },
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
     await waitForNextUpdate();
 
