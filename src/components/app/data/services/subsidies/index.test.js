@@ -127,6 +127,7 @@ describe('fetchRedeemablePolicies', () => {
         canceledAssignments: [],
         erroredAssignments: [],
         expiredAssignments: [],
+        reversedAssignments: [],
         hasAcceptedAssignments: false,
         hasAllocatedAssignments: true,
         hasAssignments: true,
@@ -134,6 +135,7 @@ describe('fetchRedeemablePolicies', () => {
         hasCanceledAssignments: false,
         hasErroredAssignments: false,
         hasExpiredAssignments: false,
+        hasReversedAssignments: false,
       },
     };
     expect(result).toEqual(expectedRedeemablePolicies);

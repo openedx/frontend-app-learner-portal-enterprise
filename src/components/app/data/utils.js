@@ -165,6 +165,14 @@ export function determineEnterpriseCustomerUserForDisplay({
 *  hasCanceledAssignments: Boolean,
 *  acceptedAssignments: Array,
 *  hasAcceptedAssignments: Boolean,
+*  expiredAssignments: Array,
+*  hasExpiredAssignments: Boolean,
+*  erroredAssignments: Array,
+*  hasErroredAssignments: Boolean,
+*  reversedAssignments: Array,
+*  hasReversedAssignments: Boolean,
+*  assignmentsForDisplay: Array,
+*  hasAssignmentsForDisplay: Boolean
 * }}
 */
 export function getAssignmentsByState(assignments = []) {
@@ -173,6 +181,7 @@ export function getAssignmentsByState(assignments = []) {
   const canceledAssignments = [];
   const expiredAssignments = [];
   const erroredAssignments = [];
+  const reversedAssignments = [];
   const assignmentsForDisplay = [];
 
   assignments.forEach((assignment) => {
@@ -192,6 +201,9 @@ export function getAssignmentsByState(assignments = []) {
       case ASSIGNMENT_TYPES.ERRORED:
         erroredAssignments.push(assignment);
         break;
+      case ASSIGNMENT_TYPES.REVERSED:
+        reversedAssignments.push(assignment);
+        break;
       default:
         logError(`[getAssignmentsByState] Unsupported state ${assignment.state} for assignment ${assignment.uuid}`);
         break;
@@ -204,6 +216,7 @@ export function getAssignmentsByState(assignments = []) {
   const hasCanceledAssignments = canceledAssignments.length > 0;
   const hasExpiredAssignments = expiredAssignments.length > 0;
   const hasErroredAssignments = erroredAssignments.length > 0;
+  const hasReversedAssignments = reversedAssignments.length > 0;
 
   // Concatenate all assignments for display (includes allocated and canceled assignments)
   assignmentsForDisplay.push(...allocatedAssignments);
@@ -224,6 +237,8 @@ export function getAssignmentsByState(assignments = []) {
     hasExpiredAssignments,
     erroredAssignments,
     hasErroredAssignments,
+    reversedAssignments,
+    hasReversedAssignments,
     assignmentsForDisplay,
     hasAssignmentsForDisplay,
   };

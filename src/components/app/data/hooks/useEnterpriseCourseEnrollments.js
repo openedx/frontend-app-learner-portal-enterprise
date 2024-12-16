@@ -30,41 +30,90 @@ export const transformAllEnrollmentsByStatus = ({
 /**
  * Retrieves the relevant enterprise course enrollments, subsidy requests (e.g., license
  * requests), and content assignments for the active enterprise customer user.
+ * @param {Types.UseQueryOptions} queryOptions The query options.
  * @returns {Types.UseQueryResult} The query results.
  */
 export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
-  const isEnabled = queryOptions.enabled;
+  const {
+    enrollmentQueryOptions = {},
+    licenseRequestQueryOptions = {},
+    couponCodeRequestQueryOptions = {},
+    contentAssignmentQueryOptions = {},
+  } = queryOptions;
+  const { select: selectEnrollment, ...enrollmentQueryOptionsRest } = enrollmentQueryOptions;
+  const { select: selectLicenseRequest, ...licenseRequestQueryOptionsRest } = licenseRequestQueryOptions;
+  const { select: selectCouponCodeRequest, ...couponCodeRequestQueryOptionsRest } = couponCodeRequestQueryOptions;
+  const { select: selectContentAssignment, ...contentAssignmentQueryOptionsRest } = contentAssignmentQueryOptions;
+
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const bffQueryFallback = {
-    ...queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
-    ...queryOptions,
-    select: (data) => data.map(transformCourseEnrollment),
-    enabled: isEnabled,
-  };
+
   const { data: enterpriseCourseEnrollments } = useBFF({
     bffQueryOptions: {
       ...queryOptions,
-      select: (data) => data.enterpriseCourseEnrollments.map(transformCourseEnrollment),
-      enabled: isEnabled,
+      select: (data) => {
+        const transformedData = data.enterpriseCourseEnrollments.map(transformCourseEnrollment);
+        if (selectEnrollment) {
+          return selectEnrollment({
+            original: data,
+            transformed: transformedData,
+          });
+        }
+        return transformedData;
+      },
+      ...enrollmentQueryOptionsRest,
     },
-    fallbackQueryConfig: bffQueryFallback,
+    fallbackQueryConfig: {
+      ...queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
+      ...queryOptions,
+      select: (data) => {
+        const transformedData = data.map(transformCourseEnrollment);
+        if (selectEnrollment) {
+          return selectEnrollment({
+            original: data,
+            transformed: transformedData,
+          });
+        }
+        return transformedData;
+      },
+      ...enrollmentQueryOptionsRest,
+    },
   });
+
   const { data: { requests } } = useBrowseAndRequest({
     subscriptionLicensesQueryOptions: {
-      select: (data) => data.map((subsidyRequest) => transformSubsidyRequest({
-        subsidyRequest,
-        slug: enterpriseCustomer.slug,
-      })),
-      enabled: isEnabled,
+      select: (data) => {
+        const transformedData = data.map((subsidyRequest) => transformSubsidyRequest({
+          subsidyRequest,
+          slug: enterpriseCustomer.slug,
+        }));
+        if (selectLicenseRequest) {
+          return selectLicenseRequest({
+            original: data,
+            transformed: transformedData,
+          });
+        }
+        return transformedData;
+      },
+      ...licenseRequestQueryOptionsRest,
     },
     couponCodesQueryOptions: {
-      select: (data) => data.map((subsidyRequest) => transformSubsidyRequest({
-        subsidyRequest,
-        slug: enterpriseCustomer.slug,
-      })),
-      enabled: isEnabled,
+      select: (data) => {
+        const transformedData = data.map((subsidyRequest) => transformSubsidyRequest({
+          subsidyRequest,
+          slug: enterpriseCustomer.slug,
+        }));
+        if (selectCouponCodeRequest) {
+          return selectCouponCodeRequest({
+            original: data,
+            transformed: transformedData,
+          });
+        }
+        return transformedData;
+      },
+      ...couponCodeRequestQueryOptionsRest,
     },
   });
+
   const { data: contentAssignments } = useRedeemablePolicies({
     select: (data) => {
       const { learnerContentAssignments } = data;
@@ -78,10 +127,17 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
           enterpriseCustomer.slug,
         ));
       });
+      if (selectContentAssignment) {
+        return selectContentAssignment({
+          original: data,
+          transformed: transformedAssignments,
+        });
+      }
       return transformedAssignments;
     },
-    enabled: isEnabled,
+    ...contentAssignmentQueryOptionsRest,
   });
+
   // TODO: Talk about how we don't have access to weeksToComplete on the dashboard page.
   const allEnrollmentsByStatus = useMemo(() => transformAllEnrollmentsByStatus({
     enterpriseCourseEnrollments,

@@ -30,7 +30,7 @@ jest.mock('./useBFF');
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
-const mockCourseEnrollments = {
+const mockCourseEnrollment = {
   displayName: 'Education',
   micromastersTitle: 'Demo in higher education',
   courseRunUrl: 'test-course-url',
@@ -114,6 +114,16 @@ const mockRedeemablePolicies = {
   },
 };
 
+const expectedTransformedRequests = (request) => ({
+  courseRunId: request.courseId,
+  title: request.courseTitle,
+  orgName: request.coursePartners?.map(partner => partner.name).join(', '),
+  courseRunStatus: COURSE_STATUSES.requested,
+  linkToCourse: `${mockEnterpriseCustomer.slug}/course/${request.courseId}`,
+  created: request.created,
+  notifications: [],
+});
+
 describe('useEnterpriseCourseEnrollments', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
@@ -125,35 +135,28 @@ describe('useEnterpriseCourseEnrollments', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    fetchEnterpriseCourseEnrollments.mockResolvedValue([mockCourseEnrollments]);
+    fetchEnterpriseCourseEnrollments.mockResolvedValue([mockCourseEnrollment]);
     fetchBrowseAndRequestConfiguration.mockResolvedValue(mockBrowseAndRequestConfiguration);
     fetchLicenseRequests.mockResolvedValue([mockLicenseRequests]);
     fetchCouponCodeRequests.mockResolvedValue([mockCouponCodeRequests]);
     fetchRedeemablePolicies.mockResolvedValue(mockRedeemablePolicies);
-    useBFF.mockReturnValue({ data: [mockCourseEnrollments].map(transformCourseEnrollment) });
+    useBFF.mockReturnValue({ data: [mockCourseEnrollment].map(transformCourseEnrollment) });
   });
-  it('should return transformed return values from course enrollments API', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCourseEnrollments(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    const expectedEnterpriseCourseEnrollments = {
-      title: mockCourseEnrollments.displayName,
-      microMastersTitle: mockCourseEnrollments.micromastersTitle,
-      linkToCourse: mockCourseEnrollments.courseRunUrl,
-      linkToCertificate: mockCourseEnrollments.certificateDownloadUrl,
-      hasEmailsEnabled: mockCourseEnrollments.emailsEnabled,
-      notifications: mockCourseEnrollments.dueDates,
-      canUnenroll: canUnenrollCourseEnrollment(mockCourseEnrollments),
+
+  it.each([
+    { hasQueryOptions: false },
+    { hasQueryOptions: true },
+  ])('should return transformed enrollments data (%s)', async ({ hasQueryOptions }) => {
+    const expectedEnterpriseCourseEnrollments = [{
+      title: mockCourseEnrollment.displayName,
+      microMastersTitle: mockCourseEnrollment.micromastersTitle,
+      linkToCourse: mockCourseEnrollment.courseRunUrl,
+      linkToCertificate: mockCourseEnrollment.certificateDownloadUrl,
+      hasEmailsEnabled: mockCourseEnrollment.emailsEnabled,
+      notifications: mockCourseEnrollment.dueDates,
+      canUnenroll: canUnenrollCourseEnrollment(mockCourseEnrollment),
       isCourseAssigned: false,
-    };
-    const expectedTransformedRequests = (request) => ({
-      courseRunId: request.courseId,
-      title: request.courseTitle,
-      orgName: request.coursePartners?.map(partner => partner.name).join(', '),
-      courseRunStatus: COURSE_STATUSES.requested,
-      linkToCourse: `${mockEnterpriseCustomer.slug}/course/${request.courseId}`,
-      created: request.created,
-      notifications: [],
-    });
+    }];
     const expectedRequests = {
       couponCodes: [expectedTransformedRequests(mockCouponCodeRequests)],
       subscriptionLicenses: [expectedTransformedRequests(mockLicenseRequests)],
@@ -177,7 +180,7 @@ describe('useEnterpriseCourseEnrollments', () => {
       uuid: mockContentAssignment.uuid,
       learnerAcknowledged: mockContentAssignment.learnerAcknowledged,
     };
-    const expectedContentAssignment = {
+    const expectedContentAssignmentData = {
       acceptedAssignments: [],
       allocatedAssignments: [expectedTransformedLearnerContentAssignment],
       assignmentsForDisplay: [expectedTransformedLearnerContentAssignment],
@@ -187,15 +190,64 @@ describe('useEnterpriseCourseEnrollments', () => {
       expiredAssignments: [],
     };
 
+    const mockSelectEnrollment = jest.fn().mockReturnValue(expectedEnterpriseCourseEnrollments);
+    const mockSelectLicenseRequest = jest.fn().mockReturnValue(expectedRequests.subscriptionLicenses);
+    const mockSelectCouponCodeRequest = jest.fn().mockReturnValue(expectedRequests.couponCodes);
+    const mockSelectContentAssignment = jest.fn().mockReturnValue(expectedContentAssignmentData);
+    const mockQueryOptions = {
+      enrollmentQueryOptions: { select: mockSelectEnrollment },
+      licenseRequestQueryOptions: { select: mockSelectLicenseRequest },
+      couponCodeRequestQueryOptions: { select: mockSelectCouponCodeRequest },
+      contentAssignmentQueryOptions: { select: mockSelectContentAssignment },
+    };
+    const queryOptions = hasQueryOptions ? mockQueryOptions : undefined;
+    const { result, waitForNextUpdate } = renderHook(
+      () => {
+        if (hasQueryOptions) {
+          return useEnterpriseCourseEnrollments(queryOptions);
+        }
+        return useEnterpriseCourseEnrollments();
+      },
+      { wrapper: Wrapper },
+    );
+    await waitForNextUpdate();
+
+    // Call the mocked useBFF's input select functions
+    const useBFFArgs = useBFF.mock.calls[0][0];
+    const { select: selectBFFQuery } = useBFFArgs.bffQueryOptions;
+    const { select: selectFallbackBFFQuery } = useBFFArgs.fallbackQueryConfig;
+    selectBFFQuery({ enterpriseCourseEnrollments: [mockCourseEnrollment] });
+    selectFallbackBFFQuery([mockCourseEnrollment]);
+
+    // Assert that passed select fn query options were called with the correct arguments
+    if (hasQueryOptions) {
+      expect(mockSelectLicenseRequest).toHaveBeenCalledWith({
+        original: [mockLicenseRequests],
+        transformed: expectedRequests.subscriptionLicenses,
+      });
+      expect(mockSelectCouponCodeRequest).toHaveBeenCalledWith({
+        original: [mockCouponCodeRequests],
+        transformed: expectedRequests.couponCodes,
+      });
+      expect(mockSelectContentAssignment).toHaveBeenCalledWith({
+        original: mockRedeemablePolicies,
+        transformed: expectedContentAssignmentData,
+      });
+      expect(mockSelectEnrollment).toHaveBeenCalledWith({
+        original: [mockCourseEnrollment],
+        transformed: expectedEnterpriseCourseEnrollments,
+      });
+    }
+
     const expectedTransformedAllEnrollmentsByStatus = transformAllEnrollmentsByStatus({
-      enterpriseCourseEnrollments: [expectedEnterpriseCourseEnrollments],
+      enterpriseCourseEnrollments: expectedEnterpriseCourseEnrollments,
       requests: expectedRequests,
-      contentAssignments: expectedContentAssignment,
+      contentAssignments: expectedContentAssignmentData,
     });
 
     expect(result.current.data.allEnrollmentsByStatus).toEqual(expectedTransformedAllEnrollmentsByStatus);
-    expect(result.current.data.enterpriseCourseEnrollments).toEqual([expectedEnterpriseCourseEnrollments]);
-    expect(result.current.data.contentAssignments).toEqual(expectedContentAssignment);
+    expect(result.current.data.enterpriseCourseEnrollments).toEqual(expectedEnterpriseCourseEnrollments);
+    expect(result.current.data.contentAssignments).toEqual(expectedContentAssignmentData);
     expect(result.current.data.requests).toEqual(expectedRequests);
   });
 });

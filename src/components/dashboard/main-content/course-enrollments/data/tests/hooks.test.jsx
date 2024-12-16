@@ -366,11 +366,18 @@ describe('useCourseUpgradeData', () => {
         }),
       );
       const useSubscriptionsSelectFn = useSubscriptions.mock.calls[0][0].select;
-      const selectTransformResult = useSubscriptionsSelectFn({ subscriptionLicense: mockSubscriptionLicense });
+      const selectTransformResultLegacy = useSubscriptionsSelectFn({ subscriptionLicense: mockSubscriptionLicense });
+      const transformedSubscriptionsBFFData = {
+        original: { subscriptionLicense: mockSubscriptionLicense },
+        transformed: { subscriptionLicense: mockSubscriptionLicense },
+      };
+      const selectTransformResultBFF = useSubscriptionsSelectFn(transformedSubscriptionsBFFData);
       if (subscriptionLicenseStatus === LICENSE_STATUS.ACTIVATED && isSubscriptionPlanCurrent) {
-        expect(selectTransformResult).toEqual(mockSubscriptionLicense);
+        expect(selectTransformResultLegacy).toEqual(mockSubscriptionLicense);
+        expect(selectTransformResultBFF).toEqual(mockSubscriptionLicense);
       } else {
-        expect(selectTransformResult).toBeNull();
+        expect(selectTransformResultLegacy).toBeNull();
+        expect(selectTransformResultBFF).toBeNull();
       }
 
       // Assert expected output

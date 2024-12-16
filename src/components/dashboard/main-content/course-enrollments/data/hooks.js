@@ -150,10 +150,13 @@ export const useCourseUpgradeData = ({
   const location = useLocation();
   const canUpgradeToVerifiedEnrollment = isEnrollmentUpgradeable({ mode, enrollBy });
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+
+  // Metadata required to determine if the course run is contained in the customer's content catalog(s)
   const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey], {
     enabled: canUpgradeToVerifiedEnrollment,
   });
 
+  // Metadata required to allow upgrade via applicable learner credit subsidy
   const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(courseRunKey, {
     enabled: canUpgradeToVerifiedEnrollment,
   });
@@ -161,7 +164,13 @@ export const useCourseUpgradeData = ({
   // Metadata required to allow upgrade via applicable subscription license
   const { data: subscriptionLicense } = useSubscriptions({
     select: (data) => {
-      const license = data?.subscriptionLicense;
+      let license;
+      if (data?.transformed) {
+        // If the data has been transformed, use the transformed data.
+        license = data.transformed.subscriptionLicense;
+      } else {
+        license = data?.subscriptionLicense;
+      }
       const isLicenseActivated = !!(license?.status === LICENSE_STATUS.ACTIVATED);
       const isSubscriptionPlanCurrent = !!license?.subscriptionPlan.isCurrent;
       if (!isLicenseActivated || !isSubscriptionPlanCurrent) {
