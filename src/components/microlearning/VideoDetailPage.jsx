@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import {

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import algoliasearch from 'algoliasearch';
 
 export const useRenderContactHelpText = (enterpriseCustomer) => {

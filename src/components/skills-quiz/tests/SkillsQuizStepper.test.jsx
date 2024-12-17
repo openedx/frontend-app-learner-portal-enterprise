@@ -2,7 +2,6 @@
 // "Cannot log after tests are done. Did you forget to wait
 // for something async in your test" and Algolia.
 
-import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, screen } from '@testing-library/react';

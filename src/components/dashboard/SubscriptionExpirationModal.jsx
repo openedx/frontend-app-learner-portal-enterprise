@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import {
   ActionRow, AlertModal, Button, MailtoLink, useToggle,
 } from '@openedx/paragon';

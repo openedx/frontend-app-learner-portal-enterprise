@@ -1,4 +1,3 @@
-import React from 'react';
 import { MailtoLink } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { getContactEmail } from '../../utils/common';

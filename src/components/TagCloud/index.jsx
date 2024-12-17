@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Chip } from '@openedx/paragon';
 import { Close } from '@openedx/paragon/icons';

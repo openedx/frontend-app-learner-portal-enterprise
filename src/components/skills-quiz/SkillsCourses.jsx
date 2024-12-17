@@ -1,4 +1,4 @@
-import React, {
+import {
   useEffect, useState, useContext, useMemo,
 } from 'react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';

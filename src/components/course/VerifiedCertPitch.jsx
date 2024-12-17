@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from '@openedx/paragon';
 import { ContentPasteGo, RocketLaunch } from '@openedx/paragon/icons';

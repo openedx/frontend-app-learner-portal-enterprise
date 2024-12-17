@@ -1,4 +1,3 @@
-import React from 'react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';

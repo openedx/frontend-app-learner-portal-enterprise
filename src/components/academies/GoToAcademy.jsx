@@ -1,9 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import React from 'react';
-import useEnterpriseCustomer from '../app/data/hooks/useEnterpriseCustomer';
-import { useAcademies } from '../app/data';
+import { useEnterpriseCustomer, useAcademies } from '../app/data';
 
 const GoToAcademy = () => {
   const { data: academies } = useAcademies();

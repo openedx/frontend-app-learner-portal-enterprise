@@ -42,6 +42,10 @@ export interface EnterpriseCustomer {
   slug: string;
   name: string;
   enableOneAcademy: boolean;
+  enterpriseFeatures: {
+    enterpriseLearnerBFFEnabled: boolean;
+    [key: string]: boolean;
+  };
 }
 
 export interface EnterpriseLearnerData {

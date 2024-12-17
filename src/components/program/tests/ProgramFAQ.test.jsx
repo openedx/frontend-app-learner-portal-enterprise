@@ -1,4 +1,3 @@
-import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
   screen, render, waitFor,

@@ -30,13 +30,35 @@ describe('useEnterpriseFeatures', () => {
       </AppContext.Provider>
     </QueryClientProvider>
   );
+
   beforeEach(() => {
     jest.clearAllMocks();
     fetchEnterpriseLearnerData.mockResolvedValue(mockEnterpriseLearnerData);
   });
-  it('should return enterprise features correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseFeatures(), { wrapper: Wrapper });
+
+  it.each([
+    { hasQueryOptions: false },
+    { hasQueryOptions: true },
+  ])('should return enterprise features correctly (%s)', async ({ hasQueryOptions }) => {
+    const mockSelect = jest.fn(data => data.transformed);
+    const { result, waitForNextUpdate } = renderHook(
+      () => {
+        if (hasQueryOptions) {
+          return useEnterpriseFeatures({ select: mockSelect });
+        }
+        return useEnterpriseFeatures();
+      },
+      { wrapper: Wrapper },
+    );
     await waitForNextUpdate();
+
+    if (hasQueryOptions) {
+      expect(mockSelect).toHaveBeenCalledWith({
+        original: mockEnterpriseLearnerData,
+        transformed: mockEnterpriseFeatures,
+      });
+    }
+
     const actualEnterpriseFeatures = result.current.data;
     expect(actualEnterpriseFeatures).toEqual(mockEnterpriseFeatures);
   });

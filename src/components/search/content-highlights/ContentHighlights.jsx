@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Container, Stack } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';

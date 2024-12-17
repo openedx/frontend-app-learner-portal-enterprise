@@ -8,8 +8,10 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSubscriptions from './useSubscriptions';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { queryEnterpriseLearnerDashboardBFF, resolveBFFQuery } from '../queries';
+import useEnterpriseFeatures from './useEnterpriseFeatures';
 
 jest.mock('./useEnterpriseCustomer');
+jest.mock('./useEnterpriseFeatures');
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
   fetchSubscriptions: jest.fn().mockResolvedValue(null),
@@ -18,6 +20,11 @@ jest.mock('../services', () => ({
 jest.mock('../queries', () => ({
   ...jest.requireActual('../queries'),
   resolveBFFQuery: jest.fn(),
+}));
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: jest.fn(),
+  useParams: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -34,10 +41,6 @@ const mockSubscriptionsData = {
   licensesByStatus,
   showExpirationNotifications: false,
 };
-jest.mock('react-router-dom', () => ({
-  useLocation: jest.fn(),
-  useParams: jest.fn(),
-}));
 
 describe('useSubscriptions', () => {
   const Wrapper = ({ children }) => (
@@ -49,6 +52,7 @@ describe('useSubscriptions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseFeatures.mockReturnValue(null);
     fetchSubscriptions.mockResolvedValue(mockSubscriptionsData);
     useLocation.mockReturnValue({ pathname: '/test-enterprise' });
     useParams.mockReturnValue({ enterpriseSlug: 'test-enterprise' });

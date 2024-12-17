@@ -30,7 +30,6 @@ import {
   COURSE_MODES_MAP,
   emptyRedeemableLearnerCreditPolicies,
   ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS,
-  isBFFEnabledForEnterpriseCustomer,
   learnerDashboardBFFResponse,
   queryEnterpriseCourseEnrollments,
   queryEnterpriseLearnerDashboardBFF,
@@ -42,6 +41,7 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
+  useIsBFFEnabled,
   useRedeemablePolicies,
   useSubscriptions,
 } from '../../../../../app/data';
@@ -77,7 +77,7 @@ jest.mock('../../../../../app/data', () => ({
   useCanUpgradeWithLearnerCredit: jest.fn(),
   useEnterpriseCustomerContainsContent: jest.fn(),
   useCourseRunMetadata: jest.fn(),
-  isBFFEnabledForEnterpriseCustomer: jest.fn(),
+  useIsBFFEnabled: jest.fn(),
 }));
 jest.mock('../../../../../course/data/hooks', () => ({
   ...jest.requireActual('../../../../../course/data/hooks'),
@@ -1213,7 +1213,7 @@ describe('useUpdateCourseEnrollmentStatus', () => {
     existingBFFDashboardQueryData,
     existingEnrollmentsQueryData,
   }) => {
-    isBFFEnabledForEnterpriseCustomer.mockReturnValue(isBFFEnabled);
+    useIsBFFEnabled.mockReturnValue(isBFFEnabled);
     const mockCorrectCourseRunId = mockEnterpriseCourseEnrollment.courseRunId;
     const mockIncorrectCourseRunId = 'course-v1:edX+DemoY+Demo';
     const mockCourseRunId = doesCourseRunIdMatch ? mockCorrectCourseRunId : mockIncorrectCourseRunId;

@@ -1,4 +1,3 @@
-import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
@@ -11,7 +10,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from '../../../../../../utils/dayjs';
 import BaseCourseCard from '../BaseCourseCard';
 import { ToastsContext } from '../../../../../Toasts';
-import { useEnterpriseCustomer } from '../../../../../app/data';
+import { useEnterpriseCustomer, useIsBFFEnabled } from '../../../../../app/data';
 
 import { queryClient } from '../../../../../../utils/tests';
 import {
@@ -30,6 +29,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('../../../../../app/data', () => ({
   ...jest.requireActual('../../../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useIsBFFEnabled: jest.fn(),
 }));
 
 const mockAddToast = jest.fn();
@@ -53,6 +53,7 @@ describe('<BaseCourseCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useIsBFFEnabled.mockReturnValue(false);
   });
 
   afterEach(() => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { connectStateResults } from 'react-instantsearch-dom';
 import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise-catalog-search';

@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge, Card, Stack } from '@openedx/paragon';
 import { defineMessages, FormattedMessage } from '@edx/frontend-platform/i18n';

@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import React from 'react';
 import EnrollmentCompletedSummaryCard from './components/EnrollmentCompletedSummaryCard';
 import { renderWithRouterProvider } from '../../utils/tests';
 

@@ -4,13 +4,13 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getLoggingService } from '@edx/frontend-platform/logging';
 
 import EnterprisePage from './EnterprisePage';
-import { isBFFEnabledForEnterpriseCustomer, useEnterpriseCustomer } from '../app/data';
+import { useEnterpriseCustomer, useIsBFFEnabled } from '../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
 
 jest.mock('../app/data', () => ({
   ...jest.requireActual('../app/data'),
   useEnterpriseCustomer: jest.fn(),
-  isBFFEnabledForEnterpriseCustomer: jest.fn().mockReturnValue(false),
+  useIsBFFEnabled: jest.fn().mockReturnValue(false),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -82,7 +82,7 @@ describe('<EnterprisePage />', () => {
     { isBFFEnabled: true },
   ])('sets custom attributes via logging service (%s)', ({ isBFFEnabled }) => {
     // Mock the BFF feature flag
-    isBFFEnabledForEnterpriseCustomer.mockReturnValue(isBFFEnabled);
+    useIsBFFEnabled.mockReturnValue(isBFFEnabled);
 
     // Mount the component
     const wrapper = mount(

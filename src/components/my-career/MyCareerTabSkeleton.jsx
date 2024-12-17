@@ -4,7 +4,6 @@ import {
   Row,
   Skeleton,
 } from '@openedx/paragon';
-import React from 'react';
 
 const MyCareerTabSkeleton = () => (
   <div className="py-4.5">

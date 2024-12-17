@@ -1,5 +1,4 @@
 import { Button, Container, useToggle } from '@openedx/paragon';
-import React from 'react';
 import PropTypes from 'prop-types';
 import DOMPurify from 'dompurify';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';

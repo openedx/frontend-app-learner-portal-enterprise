@@ -1,4 +1,3 @@
-import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';

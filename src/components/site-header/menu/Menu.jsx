@@ -1,8 +1,14 @@
-import React from 'react';
+import {
+  createElement,
+  Component,
+  createRef,
+  Children,
+  cloneElement,
+} from 'react';
 import { CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 
-const MenuTrigger = ({ tag, className, ...attributes }) => React.createElement(tag, {
+const MenuTrigger = ({ tag, className, ...attributes }) => createElement(tag, {
   className: `menu-trigger ${className}`,
   ...attributes,
 });
@@ -17,7 +23,7 @@ MenuTrigger.defaultProps = {
 };
 const MenuTriggerType = (<MenuTrigger />).type;
 
-const MenuContent = ({ tag, className, ...attributes }) => React.createElement(tag, {
+const MenuContent = ({ tag, className, ...attributes }) => createElement(tag, {
   className: ['menu-content', className].join(' '),
   ...attributes,
 });
@@ -31,11 +37,11 @@ MenuContent.defaultProps = {
   className: null,
 };
 
-class Menu extends React.Component {
+class Menu extends Component {
   constructor(props) {
     super(props);
 
-    this.menu = React.createRef();
+    this.menu = createRef();
     this.state = {
       expanded: false,
     };
@@ -208,7 +214,7 @@ class Menu extends React.Component {
   }
 
   renderTrigger(node) {
-    return React.cloneElement(node, {
+    return cloneElement(node, {
       onClick: this.onTriggerClick,
       'aria-haspopup': 'menu',
       'aria-expanded': this.state.expanded,
@@ -231,7 +237,7 @@ class Menu extends React.Component {
   render() {
     const { className } = this.props;
 
-    const wrappedChildren = React.Children.map(this.props.children, (child) => {
+    const wrappedChildren = Children.map(this.props.children, (child) => {
       if (child.type === MenuTriggerType) {
         return this.renderTrigger(child);
       }
@@ -240,7 +246,7 @@ class Menu extends React.Component {
 
     const rootClassName = this.state.expanded ? 'menu expanded' : 'menu';
 
-    return React.createElement(this.props.tag, {
+    return createElement(this.props.tag, {
       className: `${rootClassName} ${className}`,
       ref: this.menu,
       onKeyDown: this.onKeyDown,

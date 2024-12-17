@@ -1,4 +1,3 @@
-import React from 'react';
 import { waitFor } from '@testing-library/react';
 import VideoPlayer from '../VideoPlayer';
 import { renderWithRouter } from '../../../utils/tests';

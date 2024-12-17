@@ -2,7 +2,6 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { screen } from '@testing-library/react';
-import React from 'react';
 import { ProgramProgressPage } from '../index';
 import { authenticatedUserFactory, enterpriseCustomerFactory, academiesFactory } from '../../app/data/services/data/__factories__';
 import {

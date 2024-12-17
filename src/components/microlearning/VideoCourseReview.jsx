@@ -1,4 +1,3 @@
-import React from 'react';
 import { Icon, OverlayTrigger, Tooltip } from '@openedx/paragon';
 import { StarFilled, StarOutline } from '@openedx/paragon/icons';
 import PropTypes from 'prop-types';

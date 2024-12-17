@@ -1,4 +1,3 @@
-import React from 'react';
 import dayjs from 'dayjs';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';

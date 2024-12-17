@@ -1,4 +1,3 @@
-import React from 'react';
 import { screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
@@ -25,6 +24,7 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseFeatures,
+  useIsBFFEnabled,
 } from '../../../../app/data';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
@@ -60,10 +60,16 @@ jest.mock('../../../../../config', () => ({
     FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT: true,
   },
 }));
-
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn(),
+}));
+jest.mock('../../../../app/data', () => ({
+  ...jest.requireActual('../../../../app/data'),
+  useEnterpriseCourseEnrollments: jest.fn(),
+  useEnterpriseCustomer: jest.fn(),
+  useEnterpriseFeatures: jest.fn(),
+  useIsBFFEnabled: jest.fn(),
 }));
 
 const inProgCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.inProgress });
@@ -103,13 +109,6 @@ const assignmentData = {
   state: 'cancelled',
 };
 
-jest.mock('../../../../app/data', () => ({
-  ...jest.requireActual('../../../../app/data'),
-  useEnterpriseCourseEnrollments: jest.fn(),
-  useEnterpriseCustomer: jest.fn(),
-  useEnterpriseFeatures: jest.fn(),
-}));
-
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
@@ -136,6 +135,7 @@ describe('Course enrollments', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useLocation.mockReturnValue({});
+    useIsBFFEnabled.mockReturnValue(false);
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useEnterpriseCourseEnrollments.mockReturnValue({
       data: {

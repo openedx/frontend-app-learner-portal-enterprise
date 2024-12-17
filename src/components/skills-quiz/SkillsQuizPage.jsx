@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { getConfig } from '@edx/frontend-platform/config';
 import { Navigate } from 'react-router-dom';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import SkillsQuiz from './SkillsQuiz';
 

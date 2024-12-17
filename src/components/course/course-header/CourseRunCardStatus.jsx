@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Card } from '@openedx/paragon';
 import { Lock } from '@openedx/paragon/icons';

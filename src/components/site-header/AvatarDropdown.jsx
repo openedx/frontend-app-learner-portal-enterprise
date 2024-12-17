@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink, generatePath, useLocation } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';

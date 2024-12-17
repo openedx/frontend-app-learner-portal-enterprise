@@ -8,11 +8,11 @@ import { unenrollFromCourse } from './data';
 import UnenrollModal from './UnenrollModal';
 import { ToastsContext } from '../../../../../Toasts';
 import {
-  isBFFEnabledForEnterpriseCustomer,
   learnerDashboardBFFResponse,
   queryEnterpriseCourseEnrollments,
   queryEnterpriseLearnerDashboardBFF,
   useEnterpriseCustomer,
+  useIsBFFEnabled,
 } from '../../../../../app/data';
 import { queryClient } from '../../../../../../utils/tests';
 import {
@@ -31,7 +31,7 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 jest.mock('../../../../../app/data', () => ({
   ...jest.requireActual('../../../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
-  isBFFEnabledForEnterpriseCustomer: jest.fn(),
+  useIsBFFEnabled: jest.fn(),
   fetchEnterpriseLearnerDashboard: jest.fn(),
 }));
 
@@ -92,7 +92,7 @@ describe('<UnenrollModal />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    isBFFEnabledForEnterpriseCustomer.mockReturnValue(false);
+    useIsBFFEnabled.mockReturnValue(false);
   });
 
   test('should remain closed when `isOpen` is false', () => {
@@ -173,7 +173,7 @@ describe('<UnenrollModal />', () => {
     existingBFFDashboardQueryData,
     existingEnrollmentsQueryData,
   }) => {
-    isBFFEnabledForEnterpriseCustomer.mockReturnValue(isBFFEnabled);
+    useIsBFFEnabled.mockReturnValue(isBFFEnabled);
     unenrollFromCourse.mockResolvedValueOnce();
     const props = {
       ...baseUnenrollModalProps,

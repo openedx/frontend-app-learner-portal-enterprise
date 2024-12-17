@@ -1,5 +1,3 @@
-import React from 'react';
-
 const ModalBody = () => (
   <div>
     <p className="m-0">

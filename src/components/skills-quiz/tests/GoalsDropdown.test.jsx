@@ -1,4 +1,3 @@
-import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { GOAL_DROPDOWN_DEFAULT_OPTION } from '../constants';
