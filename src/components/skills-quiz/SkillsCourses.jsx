@@ -1,5 +1,5 @@
 import {
-  useEffect, useState, useContext, useMemo,
+  useEffect, useState, useContext, useMemo, Fragment,
 } from 'react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
@@ -121,7 +121,7 @@ const SkillsCourses = ({ index }) => {
       {isLoading ? (
         <CardLoadingSkeleton />
       ) : coursesWithSkills?.map((coursesWithSkill) => (
-        <React.Fragment key={uuidv4()}>
+        <Fragment key={uuidv4()}>
           <div className="my-4 d-flex align-items-center justify-content-between">
             <h3 className="mb-0">
               <FormattedMessage
@@ -155,7 +155,7 @@ const SkillsCourses = ({ index }) => {
               />
             ))}
           </CardGrid>
-        </React.Fragment>
+        </Fragment>
       ))}
       <div>
         { hitCount === 0 && (
