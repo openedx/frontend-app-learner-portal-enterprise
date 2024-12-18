@@ -42,10 +42,11 @@ export interface EnterpriseCustomer {
   slug: string;
   name: string;
   enableOneAcademy: boolean;
-  enterpriseFeatures: {
-    enterpriseLearnerBFFEnabled: boolean;
-    [key: string]: boolean;
-  };
+}
+
+export interface EnterpriseFeatures {
+  enterpriseLearnerBFFEnabled: boolean;
+  [key: string]: boolean;
 }
 
 export interface EnterpriseLearnerData {
@@ -53,6 +54,7 @@ export interface EnterpriseLearnerData {
   activeEnterpriseCustomer: Types.EnterpriseCustomer;
   allLinkedEnterpriseCustomerUsers: any[];
   staffEnterpriseCustomer: Types.EnterpriseCustomer;
+  enterpriseFeatures: Types.EnterpriseFeatures;
 }
 
 interface EnrollmentDueDate {
