@@ -7,6 +7,7 @@ import {
   queryRedeemablePolicies,
   resolveBFFQuery,
 } from '../../app/data';
+import extractEnterpriseFeatures from '../../app/data/queries/extractEnterpriseFeatures';
 
 type DashboardRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
   readonly enterpriseSlug: string;
@@ -37,13 +38,28 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
       enterpriseSlug,
     });
 
+    // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
+    if (!enterpriseCustomer) {
+      return null;
+    }
+
+    // Extract enterprise features.
+    const enterpriseFeatures = await extractEnterpriseFeatures({
+      queryClient,
+      authenticatedUser,
+      enterpriseSlug,
+    });
+
+    // Attempt to resolve the BFF query for the dashboard.
     const dashboardBFFQuery = resolveBFFQuery(
       requestUrl.pathname,
       {
         enterpriseCustomerUuid: enterpriseCustomer.uuid,
-        enterpriseFeatures: enterpriseCustomer.enterpriseFeatures,
+        enterpriseFeatures,
       },
     );
+
+    // Load enrollments, policies, and conditionally redirect for new users
     const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([
       queryClient.ensureQueryData(
         dashboardBFFQuery
