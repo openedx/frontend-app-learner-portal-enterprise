@@ -11,7 +11,7 @@ import NewGroupAssignmentAlert from './NewGroupAssignmentAlert';
 const CourseEnrollmentsEmptyState = () => {
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   const { data: academies } = useAcademies();
-  const { data: enterpriseFeatures } = useEnterpriseFeatures();
+  const enterpriseFeatures = useEnterpriseFeatures();
   const {
     showNewGroupAssociationAlert,
     dismissGroupAssociationAlert,
