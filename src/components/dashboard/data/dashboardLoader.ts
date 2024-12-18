@@ -32,16 +32,13 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
     }
 
     const { enterpriseSlug } = params;
+
+    // Extract enterprise customer.
     const enterpriseCustomer = await extractEnterpriseCustomer({
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
-
-    // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
-    if (!enterpriseCustomer) {
-      return null;
-    }
 
     // Extract enterprise features.
     const enterpriseFeatures = await extractEnterpriseFeatures({
