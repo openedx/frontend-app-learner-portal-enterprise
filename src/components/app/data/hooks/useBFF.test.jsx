@@ -138,7 +138,7 @@ describe('useBFF', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useEnterpriseFeatures.mockReturnValue({ data: { enterpriseLearnerBFFEnabled: false } });
+    useEnterpriseFeatures.mockReturnValue({ data: { enterpriseLearnerBffEnabled: false } });
     fetchEnterpriseLearnerDashboard.mockResolvedValue(mockBFFDashboardData);
     useLocation.mockReturnValue({ pathname: '/test-enterprise' });
     useParams.mockReturnValue({ enterpriseSlug: 'test-enterprise' });
@@ -207,7 +207,7 @@ describe('useBFF', () => {
       });
     }
     if (isBFFEnabledForUser) {
-      useEnterpriseFeatures.mockReturnValue({ data: { enterpriseLearnerBFFEnabled: true } });
+      useEnterpriseFeatures.mockReturnValue({ data: { enterpriseLearnerBffEnabled: true } });
     }
     const isBFFEnabled = isBFFEnabledForCustomer || isBFFEnabledForUser;
     const mockFallbackData = { fallback: 'data' };
