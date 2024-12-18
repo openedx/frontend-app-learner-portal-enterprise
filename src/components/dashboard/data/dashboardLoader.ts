@@ -1,13 +1,13 @@
 import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer,
+  extractEnterpriseFeatures,
   queryEnterpriseCourseEnrollments,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
   queryRedeemablePolicies,
   resolveBFFQuery,
 } from '../../app/data';
-import extractEnterpriseFeatures from '../../app/data/queries/extractEnterpriseFeatures';
 
 type DashboardRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
   readonly enterpriseSlug: string;
