@@ -20,7 +20,7 @@ export default function useBFF({
   fallbackQueryConfig = null,
 }) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const enterpriseFeatures = useEnterpriseFeatures();
+  const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const { enterpriseSlug } = useParams();
   const location = useLocation();
 

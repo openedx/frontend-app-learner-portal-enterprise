@@ -52,7 +52,7 @@ describe('useSubscriptions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useEnterpriseFeatures.mockReturnValue(null);
+    useEnterpriseFeatures.mockReturnValue({ data: undefined });
     fetchSubscriptions.mockResolvedValue(mockSubscriptionsData);
     useLocation.mockReturnValue({ pathname: '/test-enterprise' });
     useParams.mockReturnValue({ enterpriseSlug: 'test-enterprise' });

@@ -152,7 +152,7 @@ describe('Course enrollments', () => {
 
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
     sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentData]);
-    useEnterpriseFeatures.mockReturnValue({ enterpriseGroupsV1: false });
+    useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: false } });
     useGroupAssociationsAlert.mockReturnValue({
       showNewGroupAssociationAlert: true,
       dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
@@ -277,7 +277,7 @@ describe('Course enrollments', () => {
   it(
     'renders NewGroupAssignmentAlert when showNewGroupAssociationAlert is true',
     async () => {
-      useEnterpriseFeatures.mockReturnValue({ enterpriseGroupsV1: true });
+      useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: true } });
       useGroupAssociationsAlert.mockReturnValue({
         showNewGroupAssociationAlert: true,
         dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,

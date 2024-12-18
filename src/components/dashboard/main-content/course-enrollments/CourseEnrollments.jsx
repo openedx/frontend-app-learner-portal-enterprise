@@ -62,7 +62,7 @@ const CourseEnrollments = ({ children }) => {
     },
   } = useEnterpriseCourseEnrollments();
 
-  const enterpriseFeatures = useEnterpriseFeatures();
+  const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const {
     hasCourseEnrollments,
     currentCourseEnrollments,

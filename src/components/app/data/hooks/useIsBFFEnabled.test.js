@@ -23,13 +23,13 @@ describe('useIsBFFEnabled', () => {
     const mockEnterpriseFeatures = { featureX: true };
 
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useEnterpriseFeatures.mockReturnValue(mockEnterpriseFeatures);
+    useEnterpriseFeatures.mockReturnValue({ data: mockEnterpriseFeatures });
     isBFFEnabled.mockReturnValue(hasBFFEnabled);
 
     const { result } = renderHook(() => useIsBFFEnabled());
 
-    expect(useEnterpriseCustomer).toHaveBeenCalled();
-    expect(useEnterpriseFeatures).toHaveBeenCalled();
+    expect(useEnterpriseCustomer).toHaveBeenCalledTimes(1);
+    expect(useEnterpriseFeatures).toHaveBeenCalledTimes(1);
     expect(isBFFEnabled).toHaveBeenCalledWith(mockEnterpriseCustomer.uuid, mockEnterpriseFeatures);
     expect(result.current).toBe(hasBFFEnabled);
   });

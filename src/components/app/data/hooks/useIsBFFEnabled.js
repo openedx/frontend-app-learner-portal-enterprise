@@ -4,6 +4,6 @@ import useEnterpriseFeatures from './useEnterpriseFeatures';
 
 export default function useIsBFFEnabled() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const enterpriseFeatures = useEnterpriseFeatures();
+  const { data: enterpriseFeatures } = useEnterpriseFeatures();
   return isBFFEnabled(enterpriseCustomer.uuid, enterpriseFeatures);
 }
