@@ -1,4 +1,3 @@
-import React from 'react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { useIntl } from '@edx/frontend-platform/i18n';
 

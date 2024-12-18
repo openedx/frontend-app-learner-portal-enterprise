@@ -1,8 +1,6 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 
 import BaseCourseCard from './BaseCourseCard';
-
 import { COURSE_STATUSES } from '../data/constants';
 
 const RequestedCourseCard = (props) => (

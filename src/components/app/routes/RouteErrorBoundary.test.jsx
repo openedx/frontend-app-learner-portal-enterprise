@@ -1,4 +1,3 @@
-import React from 'react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { useAsyncError, useRouteError } from 'react-router-dom';
 import { screen } from '@testing-library/react';

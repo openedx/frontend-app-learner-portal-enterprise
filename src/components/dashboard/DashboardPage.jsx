@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { cloneElement, useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import {
   Alert, Container, Tabs, useToggle,
@@ -83,7 +83,7 @@ const DashboardPage = () => {
         activeKey={activeTab}
         onSelect={onSelectHandler}
       >
-        {tabs.map((tab) => React.cloneElement(tab, { key: tab.props.eventKey }))}
+        {tabs.map((tab) => cloneElement(tab, { key: tab.props.eventKey }))}
       </Tabs>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
       {/* ExpiredSubscriptionModal is specifically tailored for learners with an expired license and is

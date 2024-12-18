@@ -24,7 +24,6 @@ import {
   COUPON_CODE_SUBSIDY_TYPE,
   getSubsidyToApplyForCourse,
   groupCourseEnrollmentsByStatus,
-  isBFFEnabledForEnterpriseCustomer,
   isEnrollmentUpgradeable,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
@@ -40,6 +39,7 @@ import {
   useEnterpriseCustomerContainsContent,
   useRedeemablePolicies,
   useSubscriptions,
+  useIsBFFEnabled,
 } from '../../../../app/data';
 import { sortAssignmentsByAssignmentStatus, sortedEnrollmentsByEnrollmentDate } from './utils';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../data/constants';
@@ -546,6 +546,9 @@ export function useCourseEnrollmentsBySection(courseEnrollmentsByStatus) {
 export function useUpdateCourseEnrollmentStatus() {
   const queryClient = useQueryClient();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+
+  const isBFFEnabled = useIsBFFEnabled();
+
   return useCallback(({ courseRunId, newStatus }) => {
     // Transformation to update the course enrollment status.
     const transformUpdatedEnrollment = (enrollment) => {
@@ -558,7 +561,6 @@ export function useUpdateCourseEnrollmentStatus() {
       };
     };
 
-    const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
     if (isBFFEnabled) {
       // Determine which BFF queries need to be updated after updating enrollment status.
       const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({
@@ -590,7 +592,7 @@ export function useUpdateCourseEnrollmentStatus() {
     }
     const updatedCourseEnrollmentsData = existingCourseEnrollmentsData.map(transformUpdatedEnrollment);
     queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, updatedCourseEnrollmentsData);
-  }, [queryClient, enterpriseCustomer]);
+  }, [queryClient, enterpriseCustomer, isBFFEnabled]);
 }
 
 /**

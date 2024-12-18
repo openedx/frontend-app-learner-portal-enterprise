@@ -2,7 +2,6 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
-import React from 'react';
 import ReactDOM from 'react-dom';
 import {
   APP_INIT_ERROR, APP_READY, initialize, subscribe,

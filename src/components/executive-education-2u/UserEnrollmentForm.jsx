@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
@@ -20,7 +20,6 @@ import { checkoutExecutiveEducation2U, isDuplicateExternalCourseOrder, toISOStri
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { CourseContext } from '../course/CourseContextProvider';
 import {
-  isBFFEnabledForEnterpriseCustomer,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   queryCanRedeemContextQueryKey,
   queryEnterpriseCourseEnrollments,
@@ -29,6 +28,7 @@ import {
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
+  useIsBFFEnabled,
 } from '../app/data';
 import { useUserSubsidyApplicableToCourse } from '../course/data';
 
@@ -49,13 +49,14 @@ const UserEnrollmentForm = ({ className }) => {
     setExternalCourseFormSubmissionError,
   } = useContext(CourseContext);
 
+  const isBFFEnabled = useIsBFFEnabled();
+
   const { data: { courseEntitlementProductSku } } = useCourseMetadata();
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [enrollButtonState, setEnrollButtonState] = useState('default');
 
   const handleQueryInvalidationForEnrollSuccess = () => {
-    const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
     const canRedeemQueryKey = queryCanRedeemContextQueryKey(enterpriseCustomer.uuid, courseKey);
     const redeemablePoliciesQueryKey = queryRedeemablePolicies({
       enterpriseUuid: enterpriseCustomer.uuid,

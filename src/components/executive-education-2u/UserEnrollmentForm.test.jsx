@@ -21,8 +21,8 @@ import {
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
-  isBFFEnabledForEnterpriseCustomer,
   queryEnterpriseLearnerDashboardBFF,
+  useIsBFFEnabled,
 } from '../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
 import { queryClient, renderWithRouter, renderWithRouterProvider } from '../../utils/tests';
@@ -61,7 +61,7 @@ jest.mock('../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
   useCourseMetadata: jest.fn(),
-  isBFFEnabledForEnterpriseCustomer: jest.fn(),
+  useIsBFFEnabled: jest.fn(),
 }));
 
 jest.mock('../course/data', () => ({
@@ -135,7 +135,7 @@ describe('UserEnrollmentForm', () => {
       missingUserSubsidyReason: undefined,
     });
     useCourseMetadata.mockReturnValue({ data: {} });
-    isBFFEnabledForEnterpriseCustomer.mockReturnValue(false);
+    useIsBFFEnabled.mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -253,7 +253,7 @@ describe('UserEnrollmentForm', () => {
   }) => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     MockDate.set(mockTermsAcceptedAt);
-    isBFFEnabledForEnterpriseCustomer.mockReturnValue(isBFFEnabled);
+    useIsBFFEnabled.mockReturnValue(isBFFEnabled);
     useUserSubsidyApplicableToCourse.mockReturnValue({
       userSubsidyApplicableToCourse: {
         subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,

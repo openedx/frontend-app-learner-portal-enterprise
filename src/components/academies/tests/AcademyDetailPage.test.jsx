@@ -1,5 +1,4 @@
 import axios from 'axios';
-import React from 'react';
 import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';

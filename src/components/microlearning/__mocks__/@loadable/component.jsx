@@ -1,5 +1,3 @@
-import React from 'react';
-
 // mock the loadable function to load the module eagarly and expose a preload() function
 function loadable(load) {
   let Component;

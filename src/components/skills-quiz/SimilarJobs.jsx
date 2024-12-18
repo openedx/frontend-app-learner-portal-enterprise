@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Hyperlink } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { SearchContext, setRefinementAction } from '@edx/frontend-enterprise-catalog-search';

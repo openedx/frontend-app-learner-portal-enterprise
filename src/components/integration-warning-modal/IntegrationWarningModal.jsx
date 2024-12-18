@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
 import { Button, AlertModal } from '@openedx/paragon';

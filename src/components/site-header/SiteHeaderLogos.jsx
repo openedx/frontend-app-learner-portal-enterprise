@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import edXLogo from '@edx/brand/logo.svg';
 import { Stack } from '@openedx/paragon';

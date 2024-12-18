@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert } from '@openedx/paragon';
 import { ZoomOut } from '@openedx/paragon/icons';

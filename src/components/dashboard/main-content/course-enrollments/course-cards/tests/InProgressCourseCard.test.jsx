@@ -1,4 +1,3 @@
-import React from 'react';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
@@ -15,6 +14,7 @@ import {
   LICENSE_SUBSIDY_TYPE,
   useCouponCodes,
   useEnterpriseCustomer,
+  useIsBFFEnabled,
 } from '../../../../../app/data';
 import { queryClient } from '../../../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
@@ -49,6 +49,7 @@ jest.mock('../../../../../app/data', () => ({
   ...jest.requireActual('../../../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
   useCouponCodes: jest.fn(),
+  useIsBFFEnabled: jest.fn(),
 }));
 
 const InProgressCourseCardWrapper = ({
@@ -78,6 +79,7 @@ describe('<InProgressCourseCard />', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    useIsBFFEnabled.mockReturnValue(false);
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useCourseUpgradeData.mockReturnValue({
       subsidyForCourse: null,

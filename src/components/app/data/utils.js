@@ -907,3 +907,16 @@ export function isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid) {
   }
   return FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS.includes(enterpriseCustomerUuid);
 }
+
+export function isBFFEnabled(enterpriseCustomerUuid, enterpriseFeatures) {
+  // Check the following conditions:
+  // 1. BFF is enabled for the enterprise customer.
+  // 2. BFF is enabled for the request user via Waffle flag (supporting percentage-based rollout)
+  const isBFFEnabledForCustomer = isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid);
+  if (isBFFEnabledForCustomer || enterpriseFeatures?.enterpriseLearnerBFFEnabled) {
+    return true;
+  }
+
+  // Otherwise, BFF is not enabled.
+  return false;
+}

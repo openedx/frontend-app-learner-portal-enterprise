@@ -1,7 +1,4 @@
-import React from 'react';
-import {
-  render, screen, act,
-} from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import userEvent from '@testing-library/user-event';
 import ToastsProvider, { ToastsContext } from './ToastsProvider';

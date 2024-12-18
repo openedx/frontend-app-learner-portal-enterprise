@@ -1,8 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Container,
-} from '@openedx/paragon';
+import { Container } from '@openedx/paragon';
 import classNames from 'classnames';
 
 /**

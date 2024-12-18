@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Badge, Card } from '@openedx/paragon';
 import { useParams } from 'react-router-dom';

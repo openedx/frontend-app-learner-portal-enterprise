@@ -9,10 +9,10 @@ import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
 import {
-  isBFFEnabledForEnterpriseCustomer,
   queryEnterpriseCourseEnrollments,
   queryEnterpriseLearnerDashboardBFF,
   useEnterpriseCustomer,
+  useIsBFFEnabled,
 } from '../../../../../app/data';
 
 const btnLabels = {
@@ -32,6 +32,8 @@ const UnenrollModal = ({
   const [btnState, setBtnState] = useState('default');
   const [error, setError] = useState(null);
 
+  const isBFFEnabled = useIsBFFEnabled();
+
   const handleClose = () => {
     setBtnState('default');
     setError(null);
@@ -41,7 +43,6 @@ const UnenrollModal = ({
   const updateQueriesAfterUnenrollment = () => {
     const enrollmentForCourseFilter = (enrollment) => enrollment.courseRunId !== courseRunId;
 
-    const isBFFEnabled = isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid);
     if (isBFFEnabled) {
       // Determine which BFF queries need to be updated after unenrolling.
       const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({

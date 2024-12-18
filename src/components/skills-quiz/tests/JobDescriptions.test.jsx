@@ -1,6 +1,5 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, screen, render } from '@testing-library/react';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';

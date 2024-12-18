@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import {
   SelectableBox, Chip, Spinner, Stack, Button,
 } from '@openedx/paragon';

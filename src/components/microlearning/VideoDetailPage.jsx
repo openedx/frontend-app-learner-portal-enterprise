@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import {
@@ -39,7 +39,7 @@ const VideoDetailPage = () => {
   const coursePrice = getCoursePrice(courseMetadata);
   const [pacingType, pacingTypeContent] = useCoursePacingType(courseMetadata?.activeCourseRun);
   const { data: { subscriptionLicense } } = useSubscriptions();
-  const playerRef = React.useRef(null);
+  const playerRef = useRef(null);
   const intl = useIntl();
 
   const customOptions = {

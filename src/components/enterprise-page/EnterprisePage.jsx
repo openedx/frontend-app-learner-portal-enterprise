@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -7,7 +7,7 @@ import { getLoggingService } from '@edx/frontend-platform/logging';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
-import { isBFFEnabledForEnterpriseCustomer, useEnterpriseCustomer } from '../app/data';
+import { useEnterpriseCustomer, useIsBFFEnabled } from '../app/data';
 
 /**
  * Custom hook to set custom attributes for logging service:
@@ -16,6 +16,8 @@ import { isBFFEnabledForEnterpriseCustomer, useEnterpriseCustomer } from '../app
  */
 function useLoggingCustomAttributes() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const isBFFEnabled = useIsBFFEnabled();
+
   useEffect(() => {
     if (isDefinedAndNotNull(enterpriseCustomer)) {
       pushUserCustomerAttributes(enterpriseCustomer);
@@ -23,12 +25,9 @@ function useLoggingCustomAttributes() {
       // Set custom attributes via logging service
       const loggingService = getLoggingService();
       loggingService.setCustomAttribute('enterprise_customer_uuid', enterpriseCustomer.uuid);
-      loggingService.setCustomAttribute(
-        'is_bff_enabled',
-        isBFFEnabledForEnterpriseCustomer(enterpriseCustomer.uuid),
-      );
+      loggingService.setCustomAttribute('is_bff_enabled', isBFFEnabled);
     }
-  }, [enterpriseCustomer]);
+  }, [enterpriseCustomer, isBFFEnabled]);
 }
 
 const EnterprisePage = ({ children }) => {

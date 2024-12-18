@@ -68,6 +68,7 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
       userEmail,
       queryClient,
       requestUrl,
+      enterpriseFeatures: enterpriseCustomer.enterpriseFeatures,
     });
 
     // Redirect to the same URL without a trailing slash, if applicable.

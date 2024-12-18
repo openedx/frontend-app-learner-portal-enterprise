@@ -1,4 +1,3 @@
-import React from 'react';
 import { act, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';

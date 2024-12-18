@@ -1,4 +1,3 @@
-import React from 'react';
 import algoliasearch from 'algoliasearch/lite';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

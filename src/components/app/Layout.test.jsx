@@ -9,7 +9,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import Layout from './Layout';
 import { queryClient, renderWithRouterProvider } from '../../utils/tests';
-import { useEnterpriseCustomer } from './data';
+import { useEnterpriseCustomer, useIsBFFEnabled } from './data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from './data/services/data/__factories__';
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -49,6 +49,7 @@ jest.mock('../../utils/common', () => ({
 jest.mock('./data', () => ({
   ...jest.requireActual('./data'),
   useEnterpriseCustomer: jest.fn(),
+  useIsBFFEnabled: jest.fn(),
 }));
 
 const LayoutWrapper = ({
@@ -67,6 +68,7 @@ describe('Layout', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useIsBFFEnabled.mockReturnValue(false);
   });
 
   it('renders the not found page when the user is not linked to an enterprise customer', () => {
@@ -103,43 +105,61 @@ describe('Layout', () => {
       maintenanceMessage: undefined,
       maintenanceStartTimestamp: undefined,
       maintenanceEndTimestamp: undefined,
+      isBFFEnabled: false,
+    },
+    {
+      isSystemMaintenanceAlertOpen: false,
+      maintenanceMessage: undefined,
+      maintenanceStartTimestamp: undefined,
+      maintenanceEndTimestamp: undefined,
+      isBFFEnabled: true,
     },
     {
       isSystemMaintenanceAlertOpen: true,
       maintenanceMessage: 'Hello World!',
       maintenanceStartTimestamp: undefined,
       maintenanceEndTimestamp: undefined,
+      isBFFEnabled: false,
     },
     {
       isSystemMaintenanceAlertOpen: true,
       maintenanceMessage: 'Hello World!',
       maintenanceStartTimestamp: dayjs().subtract(1, 'm').toISOString(),
       maintenanceEndTimestamp: dayjs().add(2, 'm').toISOString(),
+      isBFFEnabled: false,
     },
     {
       isSystemMaintenanceAlertOpen: false,
       maintenanceMessage: 'Hello World!',
       maintenanceStartTimestamp: dayjs().subtract(1, 'm').toISOString(),
       maintenanceEndTimestamp: dayjs().add(2, 'm').toISOString(),
+      isBFFEnabled: false,
     },
     {
       isSystemMaintenanceAlertOpen: true,
       maintenanceMessage: 'Hello World!',
       maintenanceStartTimestamp: undefined,
       maintenanceEndTimestamp: dayjs().add(2, 'm').toISOString(),
+      isBFFEnabled: false,
     },
     {
       isSystemMaintenanceAlertOpen: true,
       maintenanceMessage: 'Hello World!',
       maintenanceStartTimestamp: dayjs().subtract(1, 'm').toISOString(),
       maintenanceEndTimestamp: undefined,
+      isBFFEnabled: false,
     },
   ])('renders with enterprise customer (%s)', ({
     isSystemMaintenanceAlertOpen,
     maintenanceMessage,
     maintenanceStartTimestamp,
     maintenanceEndTimestamp,
+    isBFFEnabled,
   }) => {
+    // Mock the BFF-enabled status
+    useIsBFFEnabled.mockReturnValue(isBFFEnabled);
+
+    // Merge the config values related to maintenance banner message
     if (maintenanceMessage) {
       mergeConfig({
         IS_MAINTENANCE_ALERT_ENABLED: isSystemMaintenanceAlertOpen,
@@ -151,7 +171,6 @@ describe('Layout', () => {
         MAINTENANCE_ALERT_START_TIMESTAMP: maintenanceStartTimestamp ?? '',
       });
     }
-
     if (maintenanceEndTimestamp) {
       mergeConfig({
         MAINTENANCE_ALERT_END_TIMESTAMP: maintenanceEndTimestamp ?? '',
@@ -168,7 +187,7 @@ describe('Layout', () => {
         },
       ],
     }, {
-      initialEntries: ['/test-enterprise'],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}`],
     });
     expect(screen.getByTestId('site-header')).toBeInTheDocument();
     expect(screen.getByTestId('enterprise-banner')).toBeInTheDocument();
@@ -180,5 +199,9 @@ describe('Layout', () => {
     } else if (maintenanceMessage) {
       expect(screen.queryByText(maintenanceMessage)).not.toBeInTheDocument();
     }
+
+    // Verify logging service is called with the correct custom attributes
+    expect(mockSetCustomAttribute).toHaveBeenCalledWith('enterprise_customer_uuid', mockEnterpriseCustomer.uuid);
+    expect(mockSetCustomAttribute).toHaveBeenCalledWith('is_bff_enabled', isBFFEnabled);
   });
 });

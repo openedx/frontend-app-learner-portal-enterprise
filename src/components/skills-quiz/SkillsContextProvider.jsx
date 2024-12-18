@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useMemo } from 'react';
+import { createContext, useReducer, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
   SET_KEY_VALUE,

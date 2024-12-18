@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Card, Col, Row } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Alert } from '@openedx/paragon';
 import { Error } from '@openedx/paragon/icons';
 
