@@ -7,7 +7,7 @@ interface ExtractEnterpriseCustomerArgs {
 }
 
 /**
- * Extracts the appropriate enterprise ID for the current user and enterprise slug.
+ * Extracts the enterpriseFeatures from the enterpriseLearnerData for the current user and enterprise slug.
  */
 async function extractEnterpriseFeatures({
   queryClient,
