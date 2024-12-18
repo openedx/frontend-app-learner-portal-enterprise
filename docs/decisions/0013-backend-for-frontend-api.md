@@ -1,4 +1,4 @@
-# 0013. Introduction of the backend-for-frontend orchaestration API
+# 0013. Introduction of the Backend-for-Frontend / API Gateway into Learner Portal
 
 ## Status
 
@@ -9,41 +9,58 @@ Accepted (December 2024)
 As part of supporting the feature of auto enrollment of default enrollment intentions ([see ADR](https://github.com/openedx/edx-enterprise/blob/master/docs/decisions/0015-default-enrollments.rst))
 and auto-apply of subscription plan licenses, it was determined the sequencing of API calls to resolve in the existing 
 frontend root loader would result in a new set of waterfall API calls on top of existing reconciliation of the current status of
-the user's subsidies when arriving on the enterprise learner portal. Furthermore, in support of including this feature,
-it required additional business logic to be parsed about the current state of the requester's association to the enterprise,
-the current state of their subsidies (and auto-apply of subscription licenses), and the eventual auto enrollment of a 
-default enrollment intention.
+the user's subsidies when landing on the enterprise learner portal. The waterfall of API request in the `rootLoader` would mutate an
+API response asynchronously being called within the `dashboardLoader` resulting in a potential race conditional and either additional latency
+by re-fetching the modified API or additional complexity in optimistically updating the related caches for the modified response.
+There is also the long term goal of improving the performance of the frontend performance. The feature would potentially add a
+re-fetch on mutated data or require awaiting the mutated API response within the dashboard route contributing to additional latency on page load.
+Furthermore, in support of including this feature, it required additional business logic to be parsed about the current state of
+the requester's association to the enterprise, the current state of their subsidies (and auto-apply of subscription licenses), 
+and the eventual realization of a default enrollment intention.
 
 ## Decision
 
-The recognition of the additional maintenance of business logic with the default enrollment flow along with the overhead
-of resolving the series of API calls required to resolve the requirements of the feature resulted in the creation of a 
-backend-for-frontend (BFF) layer within the enterprise-access service ([see ADR](https://github.com/openedx/enterprise-access/blob/main/docs/decisions/)).
-
-A BFF layer is a accepted architectural consideration when designing for microservices when the consideration of consolidating
+The recognition of the additional maintenance of business logic with the default enrollment flow along with the additional overhead
+of resolving the complexity making API calls within the loaders required to complete the requirements of the feature resulted 
+in the creation of a Backend-for-Frontend (BFF) / API Gateway layer within the enterprise-access service.
+A BFF API Gateway layer is an accepted architectural pattern when designing for microservices when the consideration of consolidating
 business logic dependent on multiple services and an intentional reduction of latency between N number of services required to 
 determine the resultant business logic outcome versus a single API call with the logic already resolved to be used.
 
+Here are links to some relevant external documentation about the architectural pattern of a BFF API Gateway layer
+
+- [The API gateway pattern versus the Direct client-to-microservice communication](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/architect-microservice-container-applications/direct-client-to-microservice-communication-versus-the-api-gateway-pattern)
+- [Gateway Aggregation pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/gateway-aggregation)
+- [Backends for Frontends pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/backends-for-frontends)
+
 For the enterprise learner portal implementation, currently, the dashboard route, `/:enterpriseSlug`, is the only route currently
-implementing the BFF layer on _specific_ API calls for the sole intention of supporting, auto apply licenses and auto enrollment via default intentions.
+implementing the BFF layer on _specific_ API calls for the sole intention of supporting, auto-apply licenses, and realizing default enrollment intentions.
+The long term goal is to gradually migrate API calls currently made in the frontend to the BFF layer in enterprise access and include additional routes to
+depend on the BFF endpoint. This migration would gradually improve performance for the learner portal as a whole as we reduce the 
+number of service calls required for the learner portal. 
 
 ### Making the BFF API call via `useBFF`
 
-At a high level, the implications to the frontend is the inclusion of the following hooks, services, and keys and constraints: 
+At a high level, the implications to the frontend is the inclusion of the following hooks, services, query keys, and constraints: 
 
 - `fetchEnterpriseLearnerDashboard` ([source](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/337a7b44d94d8be5d9233e80e2fa0e2de72d165c/src/components/app/data/services/bffs.ts))
-  - This is the function that makes the service call to the BFF. It requires either a `entepriseSlug` or `enterpriseUuid` to resolve successfully. 
-- Creation of the query key ([source](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/337a7b44d94d8be5d9233e80e2fa0e2de72d165c/src/components/app/data/queries/queryKeyFactory.js#L267))
-  and helper function `queryEnterpriseLearnerDashboardBFF` ([source](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/337a7b44d94d8be5d9233e80e2fa0e2de72d165c/src/components/app/data/queries/queries.ts#L270))
+  - This is the function that makes the service call to the Dashboard BFF API. It only requires am `entepriseSlug` to resolve successfully.
+- `queryEnterpriseLearnerDashboardBFF` ([source](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/337a7b44d94d8be5d9233e80e2fa0e2de72d165c/src/components/app/data/queries/queries.ts#L270))
+  - This helper function is used to pass into a `useQuery` function to make the API call to the BFF. 
+  - Creation of the query key ([source](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/337a7b44d94d8be5d9233e80e2fa0e2de72d165c/src/components/app/data/queries/queryKeyFactory.js#L267))
 - `useBFF` ([source](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/337a7b44d94d8be5d9233e80e2fa0e2de72d165c/src/components/app/data/hooks/useBFF.js#L16))
-  - Since the introduction of React Query and custom hooks, the migration process involved abstracting a generalized `useBFF` hook
-    that determines the following conditionals:
+  - Since the introduction of React Query and custom hooks, the migration process involved abstracting a generalized `useBFF` 
+    hook to aid in the incremental migration to the BFF APIs away from the current service requests:
     - Within `resolveBFFQuery` ([source](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/337a7b44d94d8be5d9233e80e2fa0e2de72d165c/src/components/app/data/queries/utils.js#L11))
-      - Whether a customer is eligible to use the BFF API call by either being explicitly enabled via the configuration API as a defined `enterpriseUuid`,
-        or an individual customer has been selected to resolve the dashboard page with the BFF loader with a gradual rollout process via a Waffle flag.
+      - To determine the "eligibility" of making the BFF call. 
+        - An eligible user to use the BFF API call is either an enterprise customer being explicitly 
+          enabled via the configuration API as a defined `enterpriseUuid` or an individual enterprise learner has been selected to resolve the dashboard page
+          with the BFF loader with a gradual rollout process via a Waffle flag exposed via a `enterpriseCustomer.enterpriseFeatures`.
+        - The enterprise customer based eligibility and Waffle flag are temporary flags until gradual rollout via the waffle flag is complete.
       - Whether the current route the user is on is eligible to make the BFF call, if so, return the query required to call the BFF.
-    - For a matched route where a BFF call can be made, but the user is ineligible to make the call, we fall back to the default query provided by a
-      an argument
+    - For a matched route where a BFF call can be made, but the user is ineligible to make the call, we fallback to the default existing query provided by
+      the option `fallbackQueryConfig`.
+    - Custom Query Hooks modified
       - `useSubscriptions` ([source](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/337a7b44d94d8be5d9233e80e2fa0e2de72d165c/src/components/app/data/hooks/useSubscriptions.js#L11))
         - This is the simplest implementation of migrating existing React query custom hooks to utilize the BFF. It passes an object representing 
           fields typically passed within `useQuery` for the BFF query call within `bffQueryConfig`. This includes the transform to match the
@@ -56,14 +73,16 @@ At a high level, the implications to the frontend is the inclusion of the follow
 
 ### Incremental migration of existing services to the BFF
 
-In the long run, as additional services currently being called in the frontend will eventually be migrated to the BFF
+In the long run, additional services currently being called in the frontend will eventually be migrated to the BFF
 layer. There is no definitive timeline of the migration process, but the intention is to provide a seamless experience
-for feature development by developers and an enjoyable customer experience with continual improvement. 
+for feature development by developers with minimal impact to UI development using existing conventions and an enjoyable 
+customer experience with continual performance improvement.. 
 
 ## Alternatives Considered
 
 The alternative considered was to include the business logic and additional API resolution to return to the user an auto enrolled course
-and an auto-applied license based on just the requester information. This would have resulted in additional latency before loading
-the learner dashboard page adding to an already challenging first contentful paint time based on the additional waterfall request.
-In the effort for continual frontend performance improvements along with building a scalable infrastructure to allow additional features
-and services while still providing a enjoyable experience for the customer, we opted against this implementation method.
+and an auto-applied license. This would have resulted in additional latency before loading the learner dashboard page adding to an already 
+challenging largest contentful paint time based on the additional waterfall request. This would have also added additional complexity between the
+asynchronous loading of the `dashboardLoader` and `rootLoader` where the `rootLoader` would mutate data that the `dashboardLoader` would be fetching. 
+In the effort for continual frontend performance improvements along with building a scalable infrastructure to allow additional features and services 
+while still providing a enjoyable experience for the customer, and maintainability of code we opted against this implementation method.
