@@ -45,7 +45,7 @@ export interface EnterpriseCustomer {
 }
 
 export interface EnterpriseFeatures {
-  enterpriseLearnerBFFEnabled: boolean;
+  enterpriseLearnerBffEnabled: boolean;
   [key: string]: boolean;
 }
 

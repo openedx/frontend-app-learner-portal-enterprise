@@ -913,7 +913,7 @@ export function isBFFEnabled(enterpriseCustomerUuid, enterpriseFeatures) {
   // 1. BFF is enabled for the enterprise customer.
   // 2. BFF is enabled for the request user via Waffle flag (supporting percentage-based rollout)
   const isBFFEnabledForCustomer = isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid);
-  if (isBFFEnabledForCustomer || enterpriseFeatures?.enterpriseLearnerBFFEnabled) {
+  if (isBFFEnabledForCustomer || enterpriseFeatures?.enterpriseLearnerBffEnabled) {
     return true;
   }
 
