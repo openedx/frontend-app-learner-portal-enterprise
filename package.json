@@ -61,7 +61,7 @@
     "videojs-youtube": "3.0.1"
   },
   "devDependencies": {
-    "@edx/browserslist-config": "1.1.1",
+    "@edx/browserslist-config": "1.4.0",
     "@edx/typescript-config": "1.1.0",
     "@faker-js/faker": "8.4.1",
     "@openedx/frontend-build": "14.0.14",
