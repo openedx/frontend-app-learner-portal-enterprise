@@ -2,7 +2,6 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
-
 import _cloneDeep from 'lodash.clonedeep';
 import { fetchEnterpriseCustomerContainsContent } from './content';
 import { getAvailableCourseRuns } from '../utils';
