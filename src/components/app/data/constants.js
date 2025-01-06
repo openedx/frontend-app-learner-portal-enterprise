@@ -1,3 +1,4 @@
+import _cloneDeep from 'lodash.clonedeep';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 export const emptyRedeemableLearnerCreditPolicies = {
@@ -84,7 +85,7 @@ export const getBaseSubscriptionsData = () => {
     customerAgreement: null,
     subscriptionLicense: null,
     subscriptionPlan: null,
-    licensesByStatus: structuredClone(baseLicensesByStatus),
+    licensesByStatus: _cloneDeep(baseLicensesByStatus),
     showExpirationNotifications: false,
   };
   return {
