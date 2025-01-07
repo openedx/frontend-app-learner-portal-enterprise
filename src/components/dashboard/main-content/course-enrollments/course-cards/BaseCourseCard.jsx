@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 
 import {
   Badge,
-  Card,
   Col,
   Dropdown,
   Hyperlink,
@@ -166,7 +165,7 @@ const BaseCourseCard = ({
       className: classNames('h3 mb-0', { 'text-white': isExecutiveEducation2UCourse }),
     };
     if (type === COURSE_STATUSES.upcoming) {
-      return <Card.Header title={title} {...courseTitleComponentProps} />;
+      return <div {...courseTitleComponentProps}>{title}</div>;
     }
     if (externalCourseLink) {
       return <Hyperlink destination={linkToCourse} {...courseTitleComponentProps}>{title}</Hyperlink>;
