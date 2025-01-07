@@ -9,9 +9,9 @@ import ContinueLearningButton from './ContinueLearningButton';
 import { MoveToInProgressModal } from './move-to-in-progress-modal';
 
 import { isCourseEnded } from '../../../../../utils/common';
-import { COURSE_STATUSES } from '../data/constants';
+import { SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE, useUpdateCourseEnrollmentStatus } from '../data';
 import { useEnterpriseCustomer } from '../../../../app/data';
-import { useUpdateCourseEnrollmentStatus } from '../data';
+import { COURSE_STATUSES } from '../../../../../constants';
 
 const messages = defineMessages({
   unsaveCourseForLater: {
@@ -63,12 +63,10 @@ const SavedForLaterCourseCard = (props) => {
       courseRunId: response.courseRunId,
       newStatus: response.courseRunStatus,
     });
+    sessionStorage.removeItem(SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE);
+    sessionStorage.setItem(SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE, COURSE_STATUSES.inProgress);
     navigate('.', {
       replace: true,
-      state: {
-        markedSavedForLaterSuccess: false,
-        markedInProgressSuccess: true,
-      },
     });
   };
 

@@ -10,14 +10,13 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient, renderWithRouter } from '../../../../../utils/tests';
 import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
 
-import { COURSE_SECTION_TITLES } from '../../../data/constants';
+import { COURSE_SECTION_TITLES } from '../../../data';
 import CourseEnrollments from '../CourseEnrollments';
 import {
   MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
 } from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
-import { COURSE_STATUSES } from '../data/constants';
 import {
   ASSIGNMENT_TYPES,
   COURSE_MODES_MAP,
@@ -26,15 +25,16 @@ import {
   useEnterpriseFeatures,
   useIsBFFEnabled,
 } from '../../../../app/data';
-import { sortAssignmentsByAssignmentStatus } from '../data/utils';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
 import {
+  sortAssignmentsByAssignmentStatus,
   useContentAssignments,
   useCourseEnrollments,
   useCourseEnrollmentsBySection,
   useCourseUpgradeData,
   useGroupAssociationsAlert,
-} from '../data/hooks';
+} from '../data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
+import { COURSE_STATUSES } from '../../../../../constants';
 
 jest.mock('@edx/frontend-enterprise-utils');
 

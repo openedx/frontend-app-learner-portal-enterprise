@@ -1,4 +1,4 @@
-import { COURSE_STATUSES } from '../data/constants';
+import { COURSE_STATUSES } from '../../../../../constants';
 
 /**
  * Generate an enrollment with given status.

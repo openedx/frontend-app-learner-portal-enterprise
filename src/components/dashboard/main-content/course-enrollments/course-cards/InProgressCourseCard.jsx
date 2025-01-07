@@ -14,7 +14,11 @@ import Notification from './Notification';
 
 import UpgradeCourseButton from './UpgradeCourseButton';
 import { EXECUTIVE_EDUCATION_COURSE_MODES, LICENSE_SUBSIDY_TYPE, useEnterpriseCustomer } from '../../../../app/data';
-import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
+import {
+  SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE,
+  useCourseUpgradeData,
+  useUpdateCourseEnrollmentStatus,
+} from '../data';
 import { COURSE_STATUSES } from '../../../../../constants';
 
 const messages = defineMessages({
@@ -196,12 +200,10 @@ export const InProgressCourseCard = ({
       courseRunId: response.courseRunId,
       newStatus: response.courseRunStatus,
     });
+    sessionStorage.removeItem(SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE);
+    sessionStorage.setItem(SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE, COURSE_STATUSES.savedForLater);
     navigate('.', {
       replace: true,
-      state: {
-        markedSavedForLaterSuccess: true,
-        markedInProgressSuccess: false,
-      },
     });
   };
 

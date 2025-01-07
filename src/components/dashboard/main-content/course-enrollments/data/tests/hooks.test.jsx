@@ -18,7 +18,7 @@ import {
   useUpdateCourseEnrollmentStatus,
 } from '../hooks';
 import * as service from '../service';
-import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from '../constants';
+import { HAS_USER_DISMISSED_NEW_GROUP_ALERT } from '../constants';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import {
   createEnrollWithCouponCodeUrl,
@@ -50,9 +50,10 @@ import {
   enterpriseCourseEnrollmentFactory,
   enterpriseCustomerFactory,
 } from '../../../../../app/data/services/data/__factories__';
-import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../../data/constants';
+import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../../data';
 import { LICENSE_STATUS } from '../../../../../enterprise-user-subsidy/data/constants';
 import { useStatefulEnroll } from '../../../../../stateful-enroll/data';
+import { COURSE_STATUSES } from '../../../../../../constants';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
