@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 import {
   Badge,
+  Card,
   Col,
   Dropdown,
   Hyperlink,
@@ -160,7 +161,18 @@ const BaseCourseCard = ({
 
   const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
 
-  const CourseTitleComponent = externalCourseLink ? Hyperlink : Link;
+  const renderCourseTitle = () => {
+    const courseTitleComponentProps = {
+      className: classNames('h3 mb-0', { 'text-white': isExecutiveEducation2UCourse }),
+    };
+    if (type === COURSE_STATUSES.upcoming) {
+      return <Card.Header title={title} {...courseTitleComponentProps} />;
+    }
+    if (externalCourseLink) {
+      return <Hyperlink destination={linkToCourse} {...courseTitleComponentProps}>{title}</Hyperlink>;
+    }
+    return <Link to={linkToCourse} {...courseTitleComponentProps}>{title}</Link>;
+  };
 
   const getCoursePaceHyperlink = (chunks) => (
     <Hyperlink
@@ -583,13 +595,7 @@ const BaseCourseCard = ({
                   >
                     <h4 className="course-title mt-n1 mb-0">
                       {renderMicroMastersTitle()}
-                      <CourseTitleComponent
-                        className={classNames('h3 mb-0', { 'text-white': isExecutiveEducation2UCourse })}
-                        destination={externalCourseLink ? linkToCourse : null}
-                        to={!externalCourseLink ? linkToCourse : null}
-                      >
-                        {title}
-                      </CourseTitleComponent>
+                      {renderCourseTitle()}
                     </h4>
                     {renderBadge()}
                   </Stack>
