@@ -17,9 +17,13 @@ import {
   useIsBFFEnabled,
 } from '../../../../../app/data';
 import { queryClient } from '../../../../../../utils/tests';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
+import {
+  authenticatedUserFactory,
+  enterpriseCustomerFactory,
+} from '../../../../../app/data/services/data/__factories__';
 import { useCourseUpgradeData } from '../../data';
 import { messages } from '../../../../../course/EnrollModal';
+import CourseEnrollmentsContext from '../CourseEnrollmentsContext';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -45,6 +49,11 @@ const defaultAppContextValue = {
   authenticatedUser: mockAuthenticatedUser,
 };
 
+const defaultCourseEnrollmentContextValue = {
+  courseEnrollmentStatusChanges: [],
+  addCourseEnrollmentStatusChangeAlert: jest.fn(),
+};
+
 jest.mock('../../../../../app/data', () => ({
   ...jest.requireActual('../../../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
@@ -54,12 +63,15 @@ jest.mock('../../../../../app/data', () => ({
 
 const InProgressCourseCardWrapper = ({
   appContextValue = defaultAppContextValue,
+  courseEnrollmentContextValue = defaultCourseEnrollmentContextValue,
   ...rest
 }) => (
   <QueryClientProvider client={queryClient()}>
     <IntlProvider locale="en">
       <AppContext.Provider value={appContextValue}>
-        <InProgressCourseCard {...rest} />
+        <CourseEnrollmentsContext.Provider value={courseEnrollmentContextValue}>
+          <InProgressCourseCard {...rest} />
+        </CourseEnrollmentsContext.Provider>
       </AppContext.Provider>
     </IntlProvider>
   </QueryClientProvider>

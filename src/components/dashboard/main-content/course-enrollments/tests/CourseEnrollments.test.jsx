@@ -4,7 +4,6 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
-import { useLocation } from 'react-router-dom';
 
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient, renderWithRouter } from '../../../../../utils/tests';
@@ -12,9 +11,6 @@ import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
 
 import { COURSE_SECTION_TITLES } from '../../../data';
 import CourseEnrollments from '../CourseEnrollments';
-import {
-  MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
-} from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
 import {
@@ -35,6 +31,10 @@ import {
 } from '../data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
 import { COURSE_STATUSES } from '../../../../../constants';
+import CourseEnrollmentsContext from '../course-cards/CourseEnrollmentsContext';
+import {
+  MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
+} from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 
 jest.mock('@edx/frontend-enterprise-utils');
 
@@ -59,10 +59,6 @@ jest.mock('../../../../../config', () => ({
   features: {
     FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT: true,
   },
-}));
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn(),
 }));
 jest.mock('../../../../app/data', () => ({
   ...jest.requireActual('../../../../app/data'),
@@ -109,14 +105,24 @@ const assignmentData = {
   state: 'cancelled',
 };
 
+const defaultCourseEnrollmentContextValue = {
+  courseEnrollmentStatusChanges: [],
+  addCourseEnrollmentStatusChangeAlert: jest.fn(),
+};
+
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-const CourseEnrollmentsWrapper = ({ appContextProps = {} }) => (
+const CourseEnrollmentsWrapper = ({
+  appContextProps = {},
+  courseEnrollmentContextValue = defaultCourseEnrollmentContextValue,
+}) => (
   <QueryClientProvider client={queryClient()}>
     <IntlProvider locale="en">
       <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser, ...appContextProps }}>
-        <CourseEnrollments />
+        <CourseEnrollmentsContext.Provider value={courseEnrollmentContextValue}>
+          <CourseEnrollments />
+        </CourseEnrollmentsContext.Provider>
       </AppContext.Provider>
     </IntlProvider>
   </QueryClientProvider>
@@ -134,7 +140,6 @@ const mockHandleAcknowledgeExpiringAssignments = jest.fn();
 describe('Course enrollments', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useLocation.mockReturnValue({});
     useIsBFFEnabled.mockReturnValue(false);
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useEnterpriseCourseEnrollments.mockReturnValue({
@@ -346,12 +351,6 @@ describe('Course enrollments', () => {
   });
 
   it('generates course status update on move to in progress action', async () => {
-    useLocation.mockReturnValue({
-      state: {
-        markedSavedForLaterSuccess: false,
-        markedInProgressSuccess: true,
-      },
-    });
     renderWithRouter(<CourseEnrollmentsWrapper />);
     const { title } = savedForLaterCourseRun;
 
@@ -359,7 +358,7 @@ describe('Course enrollments', () => {
     userEvent.click(screen.getByLabelText(`course settings for ${title}`));
 
     // Wait for the dropdown to be visible and use getByRole with name to find the correct menuitem
-    const moveToInProgressMenuItem = await screen.findByRole('menuitem', { name: /Move to In Progress/i });
+    const moveToInProgressMenuItem = await screen.findByRole('menuitem', { name: /Move to "In Progress"/i });
     userEvent.click(moveToInProgressMenuItem);
 
     // Clicks the "Move course to In Progress" button, moving the course back to in progress status
@@ -372,7 +371,7 @@ describe('Course enrollments', () => {
     await waitFor(() => {
       expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
     });
-    expect(await screen.findByText('Your course was moved to In Progress.')).toBeInTheDocument();
+    expect(await screen.findByText('Your course was moved to "In Progress".')).toBeInTheDocument();
   });
 
   it('generates course status update on move to saved for later action', async () => {
@@ -385,12 +384,6 @@ describe('Course enrollments', () => {
         },
       },
     };
-    useLocation.mockReturnValue({
-      state: {
-        markedSavedForLaterSuccess: true,
-        markedInProgressSuccess: false,
-      },
-    });
     renderWithRouter(<CourseEnrollmentsWrapper appContextProps={appContext} />);
     const { title } = inProgCourseRun;
 
