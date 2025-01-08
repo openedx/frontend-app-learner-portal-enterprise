@@ -14,12 +14,9 @@ import Notification from './Notification';
 
 import UpgradeCourseButton from './UpgradeCourseButton';
 import { EXECUTIVE_EDUCATION_COURSE_MODES, LICENSE_SUBSIDY_TYPE, useEnterpriseCustomer } from '../../../../app/data';
-import {
-  SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE,
-  useCourseUpgradeData,
-  useUpdateCourseEnrollmentStatus,
-} from '../data';
+import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
 import { COURSE_STATUSES } from '../../../../../constants';
+import CourseEnrollmentsContext from './CourseEnrollmentsContext';
 
 const messages = defineMessages({
   saveCourseForLater: {
@@ -95,6 +92,7 @@ export const InProgressCourseCard = ({
     linkToCourse,
     subsidyForCourse,
   });
+  const { addCourseEnrollmentStatusChangeAlert } = useContext(CourseEnrollmentsContext);
 
   const renderButtons = () => (
     <Stack direction="horizontal" gap={1}>
@@ -200,8 +198,7 @@ export const InProgressCourseCard = ({
       courseRunId: response.courseRunId,
       newStatus: response.courseRunStatus,
     });
-    sessionStorage.removeItem(SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE);
-    sessionStorage.setItem(SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE, COURSE_STATUSES.savedForLater);
+    addCourseEnrollmentStatusChangeAlert(COURSE_STATUSES.savedForLater);
     navigate('.', {
       replace: true,
     });

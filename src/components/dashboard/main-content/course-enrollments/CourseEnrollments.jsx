@@ -1,39 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import Cookies from 'universal-cookie';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
-
+import { v4 as uuidv4 } from 'uuid';
 import camelCase from 'lodash.camelcase';
 import CourseSection from './CourseSection';
 import CourseAssignmentAlert from './CourseAssignmentAlert';
 import { features } from '../../../../config';
-import {
-  SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE,
-  useContentAssignments,
-  useCourseEnrollmentsBySection,
-  useGroupAssociationsAlert,
-} from './data';
+import { useContentAssignments, useCourseEnrollmentsBySection, useGroupAssociationsAlert } from './data';
 import { ASSIGNMENT_TYPES, useEnterpriseCourseEnrollments, useEnterpriseFeatures } from '../../../app/data';
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
 import NewGroupAssignmentAlert from './NewGroupAssignmentAlert';
-
-function useIsFirstDashboardVisit() {
-  const [isFirstVisit, setIsFirstVisit] = useState(false);
-  useEffect(() => {
-    const cookies = new Cookies();
-    const hasUserVisitedDashboard = cookies.get('has-user-seen-enrollments');
-    if (!hasUserVisitedDashboard) {
-      cookies.set('has-user-seen-enrollments', true, { path: '/' });
-      setIsFirstVisit(true);
-    }
-  }, []);
-  return isFirstVisit;
-}
+import CourseEnrollmentsContext from './course-cards/CourseEnrollmentsContext';
 
 const messages = defineMessages({
   inProgress: {
     id: 'enterprise.dashboard.course.enrollment.moved.to.in.progress.alert.text',
-    defaultMessage: 'Your course was moved to in progress.',
+    defaultMessage: 'Your course was moved to "In Progress".',
     description: 'Message when a course is moved to in progress.',
   },
   savedForLater: {
@@ -43,26 +25,38 @@ const messages = defineMessages({
   },
 });
 
+/**
+ * Checks if the user has visited the dashboard before, determined by the presence of
+ * localStorage set by the `dashboardLoader`.
+ *
+ * @returns {boolean} - Whether the user has visited the dashboard before.
+ */
+function useIsFirstDashboardVisit() {
+  const hasUserVisited = localStorage.getItem('has-user-visited-learner-dashboard');
+  return !hasUserVisited;
+}
+
 function useEnrollmentStatusChangeAlerts() {
   const intl = useIntl();
-  const alertMessageType = sessionStorage.getItem(SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE);
+  const [courseEnrollmentStatusChanges, setCourseEnrollmentStatusChanges] = useState([]);
+  const addCourseEnrollmentStatusChangeAlert = useCallback((type) => {
+    const message = intl.formatMessage(messages[camelCase(type)]);
+    const uuid = uuidv4();
 
-  const enrollmentStatusChangeAlertMessage = alertMessageType
-    ? intl.formatMessage(messages[camelCase(alertMessageType)])
-    : null;
-  const dismissEnrollmentStatusChangeAlertMessage = () => {
-    sessionStorage.removeItem(
-      SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE,
-    );
-  };
+    const courseEnrollmentChangeAlert = {
+      uuid,
+      message,
+      dismiss: () => {
+        setCourseEnrollmentStatusChanges((prevState) => prevState.filter(alert => alert.uuid !== uuid));
+      },
+    };
+    setCourseEnrollmentStatusChanges((prevState) => [...prevState, courseEnrollmentChangeAlert]);
+  }, [intl]);
 
-  return {
-    shouldShowEnrollmentStatusChangeAlertMessage: sessionStorage.getItem(
-      SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE,
-    ),
-    enrollmentStatusChangeAlertMessage,
-    dismissEnrollmentStatusChangeAlertMessage,
-  };
+  return useMemo(() => ({
+    courseEnrollmentStatusChanges,
+    addCourseEnrollmentStatusChangeAlert,
+  }), [addCourseEnrollmentStatusChangeAlert, courseEnrollmentStatusChanges]);
 }
 
 const CourseEnrollments = ({ children }) => {
@@ -93,11 +87,7 @@ const CourseEnrollments = ({ children }) => {
 
   const isFirstVisit = useIsFirstDashboardVisit();
 
-  const {
-    shouldShowEnrollmentStatusChangeAlertMessage,
-    enrollmentStatusChangeAlertMessage,
-    dismissEnrollmentStatusChangeAlertMessage,
-  } = useEnrollmentStatusChangeAlerts();
+  const courseEnrollmentsContextValue = useEnrollmentStatusChangeAlerts();
 
   const {
     showNewGroupAssociationAlert,
@@ -113,7 +103,7 @@ const CourseEnrollments = ({ children }) => {
   }
 
   return (
-    <>
+    <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
       {enterpriseFeatures.enterpriseGroupsV1 && (
         <NewGroupAssignmentAlert
           showAlert={showNewGroupAssociationAlert}
@@ -121,13 +111,16 @@ const CourseEnrollments = ({ children }) => {
           enterpriseCustomer={enterpriseCustomer}
         />
       )}
-      <CourseEnrollmentsAlert
-        variant="success"
-        show={shouldShowEnrollmentStatusChangeAlertMessage}
-        onClose={dismissEnrollmentStatusChangeAlertMessage}
-      >
-        {enrollmentStatusChangeAlertMessage}
-      </CourseEnrollmentsAlert>
+      {courseEnrollmentsContextValue.courseEnrollmentStatusChanges?.length > 0
+        && courseEnrollmentsContextValue.courseEnrollmentStatusChanges.map(({ uuid, message, dismiss }) => (
+          <CourseEnrollmentsAlert
+            key={uuid}
+            variant="success"
+            onClose={dismiss}
+          >
+            {message}
+          </CourseEnrollmentsAlert>
+        ))}
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
         <>
           <CourseAssignmentAlert
@@ -189,7 +182,7 @@ const CourseEnrollments = ({ children }) => {
         })}
         courseRuns={savedForLaterCourseEnrollments}
       />
-    </>
+    </CourseEnrollmentsContext.Provider>
   );
 };
 

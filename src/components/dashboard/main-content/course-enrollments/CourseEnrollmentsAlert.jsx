@@ -1,4 +1,4 @@
-import { Alert, useToggle } from '@openedx/paragon';
+import { Alert } from '@openedx/paragon';
 import { CheckCircle, WarningFilled } from '@openedx/paragon/icons';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
@@ -11,26 +11,21 @@ const iconByVariant = {
 const CourseEnrollmentsAlert = ({
   children,
   variant,
-  show,
   onClose,
 }) => {
   const icon = iconByVariant[variant];
   const intl = useIntl();
-  const [displayAlert, ,close] = useToggle(!!show);
-  console.log(show);
   const handleCourseEnrollmentsAlertClose = (e) => {
     e.preventDefault();
     onClose();
-    close();
   };
 
   return (
     <Alert
       className="align-items-center"
       variant={variant}
-      show={displayAlert}
       icon={icon}
-      dismissible
+      dismissible={!!onClose}
       onClose={handleCourseEnrollmentsAlertClose}
       closeLabel={intl.formatMessage({
         id: 'enterprise.dashboard.course.enrollment.alert.dismiss.button',
@@ -46,7 +41,6 @@ const CourseEnrollmentsAlert = ({
 CourseEnrollmentsAlert.propTypes = {
   children: PropTypes.node.isRequired,
   variant: PropTypes.string.isRequired,
-  show: PropTypes.bool.isRequired,
   onClose: PropTypes.func,
 };
 

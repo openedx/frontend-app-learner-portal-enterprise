@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   ActionRow, Button, StandardModal, StatefulButton,
@@ -10,7 +10,7 @@ import ModalBody from './ModalBody';
 import { updateCourseCompleteStatusRequest } from '../mark-complete-modal/data/service';
 import { useEnterpriseCustomer } from '../../../../../app/data';
 
-export const MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL = 'Move course to In Progress';
+export const MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL = 'Move course to "In Progress"';
 export const MARK_MOVE_TO_IN_PROGRESS_PENDING_LABEL = 'Moving course to "In Progress"...';
 
 const initialState = {

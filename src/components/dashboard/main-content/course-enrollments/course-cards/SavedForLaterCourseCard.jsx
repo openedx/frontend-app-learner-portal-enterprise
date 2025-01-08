@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -9,14 +9,15 @@ import ContinueLearningButton from './ContinueLearningButton';
 import { MoveToInProgressModal } from './move-to-in-progress-modal';
 
 import { isCourseEnded } from '../../../../../utils/common';
-import { SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE, useUpdateCourseEnrollmentStatus } from '../data';
+import { useUpdateCourseEnrollmentStatus } from '../data';
 import { useEnterpriseCustomer } from '../../../../app/data';
 import { COURSE_STATUSES } from '../../../../../constants';
+import CourseEnrollmentsContext from './CourseEnrollmentsContext';
 
 const messages = defineMessages({
   unsaveCourseForLater: {
     id: 'enterprise.learner_portal.dashboard.enrollments.course.unsave_for_later',
-    defaultMessage: 'Move to In Progress <s>for {courseTitle}</s>',
+    defaultMessage: 'Move to "In Progress" <s>for {courseTitle}</s>',
     description: 'Text for the unsave course for later button in the course card dropdown menu',
   },
 });
@@ -37,6 +38,7 @@ const SavedForLaterCourseCard = (props) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { addCourseEnrollmentStatusChangeAlert } = useContext(CourseEnrollmentsContext);
 
   const handleMoveToInProgressOnClose = () => {
     setIsModalOpen(false);
@@ -63,8 +65,7 @@ const SavedForLaterCourseCard = (props) => {
       courseRunId: response.courseRunId,
       newStatus: response.courseRunStatus,
     });
-    sessionStorage.removeItem(SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE);
-    sessionStorage.setItem(SESSION_STORAGE_KEY_DASHBOARD_ENROLLMENT_CATEGORY_CHANGE, COURSE_STATUSES.inProgress);
+    addCourseEnrollmentStatusChangeAlert(COURSE_STATUSES.inProgress);
     navigate('.', {
       replace: true,
     });
