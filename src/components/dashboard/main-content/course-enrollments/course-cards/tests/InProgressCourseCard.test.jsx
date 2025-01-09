@@ -23,7 +23,7 @@ import {
 } from '../../../../../app/data/services/data/__factories__';
 import { useCourseUpgradeData } from '../../data';
 import { messages } from '../../../../../course/EnrollModal';
-import CourseEnrollmentsContext from '../CourseEnrollmentsContext';
+import CourseEnrollmentsContext from '../../CourseEnrollmentsContext';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),

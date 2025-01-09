@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
@@ -16,7 +15,7 @@ import UpgradeCourseButton from './UpgradeCourseButton';
 import { EXECUTIVE_EDUCATION_COURSE_MODES, LICENSE_SUBSIDY_TYPE, useEnterpriseCustomer } from '../../../../app/data';
 import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
 import { COURSE_STATUSES } from '../../../../../constants';
-import CourseEnrollmentsContext from './CourseEnrollmentsContext';
+import CourseEnrollmentsContext from '../CourseEnrollmentsContext';
 
 const messages = defineMessages({
   saveCourseForLater: {
@@ -72,7 +71,6 @@ export const InProgressCourseCard = ({
   mode,
   ...rest
 }) => {
-  const navigate = useNavigate();
   const intl = useIntl();
   const {
     subsidyForCourse,
@@ -199,8 +197,10 @@ export const InProgressCourseCard = ({
       newStatus: response.courseRunStatus,
     });
     addCourseEnrollmentStatusChangeAlert(COURSE_STATUSES.savedForLater);
-    navigate('.', {
-      replace: true,
+    global.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
     });
   };
 

@@ -10,7 +10,7 @@ import { useContentAssignments, useCourseEnrollmentsBySection, useGroupAssociati
 import { ASSIGNMENT_TYPES, useEnterpriseCourseEnrollments, useEnterpriseFeatures } from '../../../app/data';
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
 import NewGroupAssignmentAlert from './NewGroupAssignmentAlert';
-import CourseEnrollmentsContext from './course-cards/CourseEnrollmentsContext';
+import CourseEnrollmentsContext from './CourseEnrollmentsContext';
 
 const messages = defineMessages({
   inProgress: {

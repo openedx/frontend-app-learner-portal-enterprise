@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { defineMessages, FormattedMessage } from '@edx/frontend-platform/i18n';
 
@@ -12,7 +11,7 @@ import { isCourseEnded } from '../../../../../utils/common';
 import { useUpdateCourseEnrollmentStatus } from '../data';
 import { useEnterpriseCustomer } from '../../../../app/data';
 import { COURSE_STATUSES } from '../../../../../constants';
-import CourseEnrollmentsContext from './CourseEnrollmentsContext';
+import CourseEnrollmentsContext from '../CourseEnrollmentsContext';
 
 const messages = defineMessages({
   unsaveCourseForLater: {
@@ -34,7 +33,6 @@ const SavedForLaterCourseCard = (props) => {
     resumeCourseRunUrl,
   } = props;
 
-  const navigate = useNavigate();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,8 +64,10 @@ const SavedForLaterCourseCard = (props) => {
       newStatus: response.courseRunStatus,
     });
     addCourseEnrollmentStatusChangeAlert(COURSE_STATUSES.inProgress);
-    navigate('.', {
-      replace: true,
+    global.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
     });
   };
 

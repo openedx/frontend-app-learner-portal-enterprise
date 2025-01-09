@@ -31,7 +31,7 @@ import {
 } from '../data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
 import { COURSE_STATUSES } from '../../../../../constants';
-import CourseEnrollmentsContext from '../course-cards/CourseEnrollmentsContext';
+import CourseEnrollmentsContext from '../CourseEnrollmentsContext';
 import {
   MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
 } from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
@@ -372,6 +372,10 @@ describe('Course enrollments', () => {
       expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
     });
     expect(await screen.findByText('Your course was moved to "In Progress".')).toBeInTheDocument();
+
+    userEvent.click(screen.getByText('Dismiss'));
+
+    expect(await screen.queryByText('Your course was moved to "In Progress".')).not.toBeInTheDocument();
   });
 
   it('generates course status update on move to saved for later action', async () => {
@@ -404,6 +408,10 @@ describe('Course enrollments', () => {
 
     // Ensure the success message is displayed
     expect(await screen.findByText('Your course was saved for later.')).toBeInTheDocument();
+
+    userEvent.click(screen.getByText('Dismiss'));
+
+    expect(await screen.queryByText('Your course was saved for later.')).not.toBeInTheDocument();
   });
 
   it('renders in progress, upcoming, and requested course enrollments in the same section', async () => {
