@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { defineMessages, FormattedMessage } from '@edx/frontend-platform/i18n';
 
@@ -9,14 +8,15 @@ import ContinueLearningButton from './ContinueLearningButton';
 import { MoveToInProgressModal } from './move-to-in-progress-modal';
 
 import { isCourseEnded } from '../../../../../utils/common';
-import { COURSE_STATUSES } from '../data/constants';
-import { useEnterpriseCustomer } from '../../../../app/data';
 import { useUpdateCourseEnrollmentStatus } from '../data';
+import { useEnterpriseCustomer } from '../../../../app/data';
+import { COURSE_STATUSES } from '../../../../../constants';
+import CourseEnrollmentsContext from '../CourseEnrollmentsContext';
 
 const messages = defineMessages({
   unsaveCourseForLater: {
     id: 'enterprise.learner_portal.dashboard.enrollments.course.unsave_for_later',
-    defaultMessage: 'Move to In Progress <s>for {courseTitle}</s>',
+    defaultMessage: 'Move to "In Progress" <s>for {courseTitle}</s>',
     description: 'Text for the unsave course for later button in the course card dropdown menu',
   },
 });
@@ -33,10 +33,10 @@ const SavedForLaterCourseCard = (props) => {
     resumeCourseRunUrl,
   } = props;
 
-  const navigate = useNavigate();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { addCourseEnrollmentStatusChangeAlert } = useContext(CourseEnrollmentsContext);
 
   const handleMoveToInProgressOnClose = () => {
     setIsModalOpen(false);
@@ -63,12 +63,10 @@ const SavedForLaterCourseCard = (props) => {
       courseRunId: response.courseRunId,
       newStatus: response.courseRunStatus,
     });
-    navigate('.', {
-      replace: true,
-      state: {
-        markedSavedForLaterSuccess: false,
-        markedInProgressSuccess: true,
-      },
+    addCourseEnrollmentStatusChangeAlert(COURSE_STATUSES.inProgress);
+    global.scrollTo({
+      top: 0,
+      behavior: 'smooth',
     });
   };
 

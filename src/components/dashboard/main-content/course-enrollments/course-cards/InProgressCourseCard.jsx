@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
@@ -16,6 +15,7 @@ import UpgradeCourseButton from './UpgradeCourseButton';
 import { EXECUTIVE_EDUCATION_COURSE_MODES, LICENSE_SUBSIDY_TYPE, useEnterpriseCustomer } from '../../../../app/data';
 import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
 import { COURSE_STATUSES } from '../../../../../constants';
+import CourseEnrollmentsContext from '../CourseEnrollmentsContext';
 
 const messages = defineMessages({
   saveCourseForLater: {
@@ -71,7 +71,6 @@ export const InProgressCourseCard = ({
   mode,
   ...rest
 }) => {
-  const navigate = useNavigate();
   const intl = useIntl();
   const {
     subsidyForCourse,
@@ -91,6 +90,7 @@ export const InProgressCourseCard = ({
     linkToCourse,
     subsidyForCourse,
   });
+  const { addCourseEnrollmentStatusChangeAlert } = useContext(CourseEnrollmentsContext);
 
   const renderButtons = () => (
     <Stack direction="horizontal" gap={1}>
@@ -196,12 +196,10 @@ export const InProgressCourseCard = ({
       courseRunId: response.courseRunId,
       newStatus: response.courseRunStatus,
     });
-    navigate('.', {
-      replace: true,
-      state: {
-        markedSavedForLaterSuccess: true,
-        markedInProgressSuccess: false,
-      },
+    addCourseEnrollmentStatusChangeAlert(COURSE_STATUSES.savedForLater);
+    global.scrollTo({
+      top: 0,
+      behavior: 'smooth',
     });
   };
 

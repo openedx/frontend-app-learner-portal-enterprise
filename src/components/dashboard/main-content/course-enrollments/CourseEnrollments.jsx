@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import Cookies from 'universal-cookie';
-import { useLocation } from 'react-router-dom';
-import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-
+import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
+import { v4 as uuidv4 } from 'uuid';
+import camelCase from 'lodash.camelcase';
 import CourseSection from './CourseSection';
 import CourseAssignmentAlert from './CourseAssignmentAlert';
 import { features } from '../../../../config';
@@ -11,47 +10,53 @@ import { useContentAssignments, useCourseEnrollmentsBySection, useGroupAssociati
 import { ASSIGNMENT_TYPES, useEnterpriseCourseEnrollments, useEnterpriseFeatures } from '../../../app/data';
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
 import NewGroupAssignmentAlert from './NewGroupAssignmentAlert';
+import CourseEnrollmentsContext from './CourseEnrollmentsContext';
 
+const messages = defineMessages({
+  inProgress: {
+    id: 'enterprise.dashboard.course.enrollment.moved.to.in.progress.alert.text',
+    defaultMessage: 'Your course was moved to "In Progress".',
+    description: 'Message when a course is moved to in progress.',
+  },
+  savedForLater: {
+    id: 'enterprise.dashboard.course.enrollment.saved.for.later.alert.text',
+    defaultMessage: 'Your course was saved for later.',
+    description: 'Message when a course is saved for later.',
+  },
+});
+
+/**
+ * Checks if the user has visited the dashboard before, determined by the presence of
+ * localStorage set by the `dashboardLoader`.
+ *
+ * @returns {boolean} - Whether the user has visited the dashboard before.
+ */
 function useIsFirstDashboardVisit() {
-  const [isFirstVisit, setIsFirstVisit] = useState(false);
-  useEffect(() => {
-    const cookies = new Cookies();
-    const hasUserVisitedDashboard = cookies.get('has-user-seen-enrollments');
-    if (!hasUserVisitedDashboard) {
-      cookies.set('has-user-seen-enrollments', true, { path: '/' });
-      setIsFirstVisit(true);
-    }
-  }, []);
-  return isFirstVisit;
+  const hasUserVisited = localStorage.getItem('has-user-visited-learner-dashboard');
+  return !hasUserVisited;
 }
 
-function useSaveForLaterAlerts() {
-  const { state } = useLocation();
-  const [shouldShowMarkSavedForLaterCourseSuccess, setShouldShowMarkSavedForLaterCourseSuccess] = useState(false);
-  const [shouldShowMoveToInProgressCourseSuccess, setShouldShowMoveToInProgressCourseSuccess] = useState(false);
+function useEnrollmentStatusChangeAlerts() {
+  const intl = useIntl();
+  const [courseEnrollmentStatusChanges, setCourseEnrollmentStatusChanges] = useState([]);
+  const addCourseEnrollmentStatusChangeAlert = useCallback((type) => {
+    const message = intl.formatMessage(messages[camelCase(type)]);
+    const uuid = uuidv4();
 
-  useEffect(() => {
-    if (state?.markedSavedForLaterSuccess) {
-      setShouldShowMarkSavedForLaterCourseSuccess(true);
-    } else {
-      setShouldShowMarkSavedForLaterCourseSuccess(false);
-    }
-  }, [state?.markedSavedForLaterSuccess]);
+    const courseEnrollmentChangeAlert = {
+      uuid,
+      message,
+      dismiss: () => {
+        setCourseEnrollmentStatusChanges((prevState) => prevState.filter(alert => alert.uuid !== uuid));
+      },
+    };
+    setCourseEnrollmentStatusChanges((prevState) => [...prevState, courseEnrollmentChangeAlert]);
+  }, [intl]);
 
-  useEffect(() => {
-    if (state?.markedInProgressSuccess) {
-      setShouldShowMoveToInProgressCourseSuccess(true);
-    } else {
-      setShouldShowMoveToInProgressCourseSuccess(false);
-    }
-  }, [state?.markedInProgressSuccess]);
-
-  return {
-    shouldShowMarkSavedForLaterCourseSuccess,
-    setShouldShowMarkSavedForLaterCourseSuccess,
-    shouldShowMoveToInProgressCourseSuccess,
-    setShouldShowMoveToInProgressCourseSuccess,
-  };
+  return useMemo(() => ({
+    courseEnrollmentStatusChanges,
+    addCourseEnrollmentStatusChangeAlert,
+  }), [addCourseEnrollmentStatusChangeAlert, courseEnrollmentStatusChanges]);
 }
 
 const CourseEnrollments = ({ children }) => {
@@ -82,12 +87,7 @@ const CourseEnrollments = ({ children }) => {
 
   const isFirstVisit = useIsFirstDashboardVisit();
 
-  const {
-    shouldShowMarkSavedForLaterCourseSuccess,
-    setShouldShowMarkSavedForLaterCourseSuccess,
-    shouldShowMoveToInProgressCourseSuccess,
-    setShouldShowMoveToInProgressCourseSuccess,
-  } = useSaveForLaterAlerts();
+  const courseEnrollmentsContextValue = useEnrollmentStatusChangeAlerts();
 
   const {
     showNewGroupAssociationAlert,
@@ -103,7 +103,7 @@ const CourseEnrollments = ({ children }) => {
   }
 
   return (
-    <>
+    <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
       {enterpriseFeatures.enterpriseGroupsV1 && (
         <NewGroupAssignmentAlert
           showAlert={showNewGroupAssociationAlert}
@@ -111,24 +111,15 @@ const CourseEnrollments = ({ children }) => {
           enterpriseCustomer={enterpriseCustomer}
         />
       )}
-      {shouldShowMarkSavedForLaterCourseSuccess && (
-        <CourseEnrollmentsAlert variant="success" onClose={() => setShouldShowMarkSavedForLaterCourseSuccess(false)}>
-          <FormattedMessage
-            id="enterprise.dashboard.course.enrollment.saved.for.later.alert.text"
-            defaultMessage="Your course was saved for later."
-            description="Message when a course is saved for later."
-          />
+      {courseEnrollmentsContextValue.courseEnrollmentStatusChanges?.map(({ uuid, message, dismiss }) => (
+        <CourseEnrollmentsAlert
+          key={uuid}
+          variant="success"
+          onClose={dismiss}
+        >
+          {message}
         </CourseEnrollmentsAlert>
-      )}
-      {shouldShowMoveToInProgressCourseSuccess && (
-        <CourseEnrollmentsAlert variant="success" onClose={() => setShouldShowMoveToInProgressCourseSuccess(false)}>
-          <FormattedMessage
-            id="enterprise.dashboard.course.enrollment.moved.to.progress.alert.text"
-            defaultMessage="Your course was moved to In Progress."
-            description="Message when a course is moved to In Progress."
-          />
-        </CourseEnrollmentsAlert>
-      )}
+      ))}
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
         <>
           <CourseAssignmentAlert
@@ -190,7 +181,7 @@ const CourseEnrollments = ({ children }) => {
         })}
         courseRuns={savedForLaterCourseEnrollments}
       />
-    </>
+    </CourseEnrollmentsContext.Provider>
   );
 };
 

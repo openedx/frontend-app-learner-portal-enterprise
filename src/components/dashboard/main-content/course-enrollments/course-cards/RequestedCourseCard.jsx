@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 import BaseCourseCard from './BaseCourseCard';
-import { COURSE_STATUSES } from '../data/constants';
+import { COURSE_STATUSES } from '../../../../../constants';
 
 const RequestedCourseCard = (props) => (
   <BaseCourseCard

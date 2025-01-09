@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import BaseCourseCard from './BaseCourseCard';
-import { COURSE_STATUSES } from '../data';
+import { COURSE_STATUSES } from '../../../../../constants';
 
 const AssignedCourseCard = (props) => {
   const {

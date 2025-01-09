@@ -11,7 +11,7 @@ import _cloneDeep from 'lodash.clonedeep';
 
 import { useLocation } from 'react-router-dom';
 import * as service from './service';
-import { COURSE_STATUSES, HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
+import { HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
 import {
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
@@ -37,14 +37,15 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
+  useIsBFFEnabled,
   useRedeemablePolicies,
   useSubscriptions,
-  useIsBFFEnabled,
 } from '../../../../app/data';
 import { sortAssignmentsByAssignmentStatus, sortedEnrollmentsByEnrollmentDate } from './utils';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../data/constants';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { useStatefulEnroll } from '../../../../stateful-enroll/data';
+import { COURSE_STATUSES } from '../../../../../constants';
 
 export const useCourseEnrollments = ({
   enterpriseUUID,

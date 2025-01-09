@@ -17,9 +17,9 @@ import {
   authenticatedUserFactory,
   enterpriseCustomerFactory,
 } from '../../../../../app/data/services/data/__factories__';
-import { COURSE_STATUSES } from '../../data';
 import { isCourseEnded } from '../../../../../../utils/common';
 import { getNormalizedStartDate } from '../../../../../course/data';
+import { COURSE_STATUSES } from '../../../../../../constants';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
