@@ -630,6 +630,7 @@ export const useUserSubsidyApplicableToCourse = () => {
       userSubsidyApplicableToCourse?.availableCourseRuns || onlyUnrestrictedCourseRuns
     );
   }
+
   return useMemo(() => ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,

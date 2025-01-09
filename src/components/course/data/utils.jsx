@@ -452,13 +452,60 @@ export const getCouponCodesDisabledEnrollmentReasonType = ({
   return undefined;
 };
 
+/**
+ * Determines whether the learner's subscription license is applicable to the course being
+ * viewed, based on the enterprise catalogs associated with the learner's subscription license.
+ * @param {Object} args
+ * @param {array} args.catalogsWithCourse List of catalogs that will be checked against the license.
+ * @param {Object} args.subscriptionLicense Learner's subscription license.
+ * @returns {boolean} True if the learner's subscription license is applicable to the course being viewed.
+ */
+function determineLicenseApplicableToCourse({
+  catalogsWithCourse,
+  subscriptionLicense,
+}) {
+  if (!subscriptionLicense) {
+    return false;
+  }
+  return catalogsWithCourse.includes(
+    subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid,
+  );
+}
+
 export const getSubscriptionDisabledEnrollmentReasonType = ({
   customerAgreement,
   catalogsWithCourse,
   subscriptionLicense,
   hasEnterpriseAdminUsers,
 }) => {
-  if (!subscriptionLicense) { return undefined; }
+  // If customer does not have a subscription plan(s) containing the
+  // course being viewed, return early.
+  const hasSubscriptionPlanApplicableToCourse = !!customerAgreement?.availableSubscriptionCatalogs.some(
+    subscriptionCatalogUuid => catalogsWithCourse.includes(subscriptionCatalogUuid),
+  );
+  if (!hasSubscriptionPlanApplicableToCourse) {
+    return undefined;
+  }
+
+  // If customer has a subscription plan(s) containing the course being viewed that is not expired
+  // nor exhausted but learner has no subscription license application to the course, change `reasonType`
+  // to use the `SUBSCRIPTION_LICENSE_NOT_ASSIGNED` message.
+  const isLicenseApplicableToCourse = determineLicenseApplicableToCourse({
+    catalogsWithCourse,
+    subscriptionLicense,
+  });
+  if (!isLicenseApplicableToCourse) {
+    return parseReasonTypeBasedOnEnterpriseAdmins({
+      hasEnterpriseAdminUsers,
+      reasonTypes: {
+        hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
+      },
+    });
+  }
+
+  // If learner's subscription license is expired, change `reasonType` to use
+  // the `SUBSCRIPTION_EXPIRED` message.
   const hasExpiredSubscriptionLicense = !subscriptionLicense.subscriptionPlan.isCurrent;
   if (hasExpiredSubscriptionLicense) {
     return parseReasonTypeBasedOnEnterpriseAdmins({
@@ -470,32 +517,9 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
     });
   }
 
-  const hasSubscriptionApplicableToCourse = !!customerAgreement?.availableSubscriptionCatalogs.some(
-    subscriptionCatalogUuid => catalogsWithCourse.includes(subscriptionCatalogUuid),
-  );
-  if (!hasSubscriptionApplicableToCourse) {
-    return undefined;
-  }
-
-  const isSubscriptionLicenseApplicable = subscriptionLicense
-    ? catalogsWithCourse.includes(subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid)
-    : false;
-  if (!subscriptionLicense || !isSubscriptionLicenseApplicable) {
-    // If customer has a subscription plan(s) containing the course being viewed that is not expired
-    // nor exhausted but learner has no subscription license, change `reasonType` to use the
-    // `SUBSCRIPTION_LICENSE_NOT_ASSIGNED` message.
-    return parseReasonTypeBasedOnEnterpriseAdmins({
-      hasEnterpriseAdminUsers,
-      reasonTypes: {
-        hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
-        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
-      },
-    });
-  }
-
+  // If learner's subscription license is revoked/deactivated, change `reasonType` to use
+  // the `SUBSCRIPTION_DEACTIVATED` message.
   if (subscriptionLicense.status === LICENSE_STATUS.REVOKED) {
-    // If learner's subscription license is revoked, change `reasonType` to use
-    // the `SUBSCRIPTION_DEACTIVATED` message.
     return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED;
   }
 
@@ -636,7 +660,7 @@ export const getMissingApplicableSubsidyReason = ({
 }) => {
   // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
   let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
-  let userMessage;
+  let userMessage = null;
   const hasEnterpriseAdminUsers = !!enterpriseAdminUsers?.length > 0;
   // If there are admin users, change `reasonType` to use the
   // `DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY` message.
@@ -668,22 +692,32 @@ export const getMissingApplicableSubsidyReason = ({
    * 4. Learner Credit related disabled enrollment reason.
    * 5. Enterprise offers related disabled enrollment reason
    */
-  if (enterpriseOffersDisabledEnrollmentReasonType) {
-    reasonType = enterpriseOffersDisabledEnrollmentReasonType;
+  switch (true) {
+    case !containsContentItems:
+      reasonType = DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG;
+      break;
+
+    case !!subscriptionsDisabledEnrollmentReasonType:
+      reasonType = subscriptionsDisabledEnrollmentReasonType;
+      break;
+
+    case !!couponCodesDisabledEnrollmentReasonType:
+      reasonType = couponCodesDisabledEnrollmentReasonType;
+      break;
+
+    case !!missingSubsidyAccessPolicyReason:
+      reasonType = missingSubsidyAccessPolicyReason.reason;
+      userMessage = missingSubsidyAccessPolicyReason.userMessage || null;
+      break;
+
+    case !!enterpriseOffersDisabledEnrollmentReasonType:
+      reasonType = enterpriseOffersDisabledEnrollmentReasonType;
+      break;
+
+    default:
+      break;
   }
-  if (missingSubsidyAccessPolicyReason) {
-    reasonType = missingSubsidyAccessPolicyReason.reason;
-    userMessage = missingSubsidyAccessPolicyReason.userMessage;
-  }
-  if (couponCodesDisabledEnrollmentReasonType) {
-    reasonType = couponCodesDisabledEnrollmentReasonType;
-  }
-  if (subscriptionsDisabledEnrollmentReasonType) {
-    reasonType = subscriptionsDisabledEnrollmentReasonType;
-  }
-  if (!containsContentItems) {
-    reasonType = DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG;
-  }
+
   return {
     reason: reasonType,
     userMessage: userMessage || DISABLED_ENROLL_USER_MESSAGES[reasonType],
