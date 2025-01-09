@@ -445,66 +445,124 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
   const mockCatalogUuid = 'test-catalog-uuid';
 
   it.each([
+    // No subscriptions for customer. Expected: undefined
     {
+      customerAgreement: null,
+      catalogsWithCourse: [mockCatalogUuid],
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: undefined,
+    },
+    // No applicable subscription plan for the course, mismatching catalogs. Expected: undefined
+    {
+      customerAgreement: {
+        availableSubscriptionCatalogs: ['another-catalog-uuid'],
+      },
+      catalogsWithCourse: [mockCatalogUuid],
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: undefined,
+    },
+    // License not assigned. Expected: SUBSCRIPTION_LICENSE_NOT_ASSIGNED
+    {
+      customerAgreement: {
+        availableSubscriptionCatalogs: [mockCatalogUuid],
+      },
+      catalogsWithCourse: [mockCatalogUuid],
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+    },
+    // License not assigned, no admins. Expected: SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS
+    {
+      customerAgreement: {
+        availableSubscriptionCatalogs: [mockCatalogUuid],
+      },
+      catalogsWithCourse: [mockCatalogUuid],
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers: false,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
+    },
+  ])('handles no subscriptions and/or license: %s', ({
+    customerAgreement,
+    catalogsWithCourse,
+    subscriptionLicense,
+    hasEnterpriseAdminUsers,
+    expectedReasonType,
+  }) => {
+    const reasonType = getSubscriptionDisabledEnrollmentReasonType({
+      customerAgreement,
+      catalogsWithCourse,
+      subscriptionLicense,
+      hasEnterpriseAdminUsers,
+    });
+    expect(reasonType).toEqual(expectedReasonType);
+  });
+
+  it.each([
+    // Expired license, with admins. Expected: SUBSCRIPTION_EXPIRED
+    {
+      customerAgreement: {
+        availableSubscriptionCatalogs: [mockCatalogUuid],
+      },
+      catalogsWithCourse: [mockCatalogUuid],
       subscriptionLicense: {
+        status: LICENSE_STATUS.ACTIVATED,
         subscriptionPlan: {
           isCurrent: false,
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
-      catalogsWithCourse: [mockCatalogUuid],
     },
+    // Expired license, without admins. Expected: SUBSCRIPTION_EXPIRED_NO_ADMINS
     {
+      customerAgreement: {
+        availableSubscriptionCatalogs: [mockCatalogUuid],
+      },
+      catalogsWithCourse: [mockCatalogUuid],
       subscriptionLicense: {
+        status: LICENSE_STATUS.ACTIVATED,
         subscriptionPlan: {
           isCurrent: false,
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
       hasEnterpriseAdminUsers: false,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
-      catalogsWithCourse: [mockCatalogUuid],
     },
+    // Current license, with admins. Expected: undefined
     {
       subscriptionLicense: {
-        subscriptionPlan: {
-          isCurrent: false,
-        },
-      },
-      hasEnterpriseAdminUsers: true,
-      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
-      catalogsWithCourse: ['fake-catalog-uuid'],
-    },
-    {
-      subscriptionLicense: {
+        status: LICENSE_STATUS.ACTIVATED,
         subscriptionPlan: {
           isCurrent: true,
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
-      catalogsWithCourse: [mockCatalogUuid],
     },
+    // Current license, no admins. Expected: undefined
     {
       subscriptionLicense: {
+        status: LICENSE_STATUS.ACTIVATED,
         subscriptionPlan: {
           isCurrent: true,
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
-      hasEnterpriseAdminUsers: true,
+      hasEnterpriseAdminUsers: false,
       expectedReasonType: undefined,
-      catalogsWithCourse: [mockCatalogUuid],
     },
   ])('handles expired subscription: %s', ({
+    customerAgreement,
+    catalogsWithCourse,
     subscriptionLicense,
     hasEnterpriseAdminUsers,
     expectedReasonType,
-    catalogsWithCourse,
   }) => {
-    const customerAgreement = {
-      availableSubscriptionCatalogs: [],
-    };
-
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
       customerAgreement,
       catalogsWithCourse,
@@ -552,7 +610,7 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
           },
         },
       ],
-      availableSubscriptionCatalogs: [],
+      availableSubscriptionCatalogs: [mockCatalogUuid],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
