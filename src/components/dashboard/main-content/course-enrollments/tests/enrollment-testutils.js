@@ -31,7 +31,7 @@ const createCourseEnrollmentWithStatus = (
 };
 
 const createRawCourseEnrollment = (options) => ({
-  courseRunId: 'course-v1:Best+course',
+  courseRunId: 'course-v1:Best+course+2T2025',
   displayName: 'Best course',
   micromastersTitle: 'Greatest Micromasters',
   resumeCourseRunUrl: 'http://www.resumecourserun.com',

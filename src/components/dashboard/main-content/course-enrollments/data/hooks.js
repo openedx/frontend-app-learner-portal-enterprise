@@ -37,9 +37,9 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
+  useIsBFFEnabled,
   useRedeemablePolicies,
   useSubscriptions,
-  useIsBFFEnabled,
 } from '../../../../app/data';
 import { sortAssignmentsByAssignmentStatus, sortedEnrollmentsByEnrollmentDate } from './utils';
 import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../data/constants';
@@ -443,7 +443,7 @@ export function useContentAssignments() {
 
     const upgradeableAuditEnrollmentCourseKeys = [...allEnrollmentsByStatus.inProgress]
       .filter(enrollment => isEnrollmentUpgradeable(enrollment))
-      .map((enrollment) => enrollment.courseKey);
+      .map((enrollment) => enrollment.courseRunId);
 
     // Filter out any assignments that have a corresponding potentially upgradeable
     // audit enrollment. Note: all enrollment cards currently assume content key is

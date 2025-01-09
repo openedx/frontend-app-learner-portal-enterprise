@@ -589,11 +589,15 @@ describe('useCourseUpgradeData', () => {
 });
 
 describe('useContentAssignments', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   const mockRedeemableLearnerCreditPolicies = emptyRedeemableLearnerCreditPolicies;
   const mockSubsidyExpirationDateStr = dayjs().add(ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS + 1, 'days').toISOString();
   const mockAssignmentConfigurationId = 'test-assignment-configuration-id';
   const mockAssignment = {
-    contentKey: 'edX+DemoX',
+    courseKey: 'edX+DemoX',
+    courseRunId: 'course-v1:Best+course+2T2025',
     contentTitle: 'edX Demo Course',
     subsidyExpirationDate: mockSubsidyExpirationDateStr,
     assignmentConfiguration: mockAssignmentConfigurationId,
@@ -929,10 +933,13 @@ describe('useContentAssignments', () => {
       ...mockTransformedMockCourseEnrollment,
       mode,
       enrollBy,
+      isAssignedCourseRun: true,
     };
+
     const mockAssignmentForExistingEnrollment = {
       ...mockAllocatedAssignment,
-      contentKey: mockEnrollment.courseRunKey,
+      contentKey: mockEnrollment.courseRunId,
+      isAssignedCourseRun: true,
     };
     const mockPoliciesWithInProgressEnrollment = {
       ...mockPoliciesWithAssignments,
@@ -949,6 +956,7 @@ describe('useContentAssignments', () => {
       },
     });
     const { result } = renderHook(() => useContentAssignments(), { wrapper });
+
     if (isAssignmentExcluded) {
       expect(result.current.assignments).toHaveLength(0);
     } else {
