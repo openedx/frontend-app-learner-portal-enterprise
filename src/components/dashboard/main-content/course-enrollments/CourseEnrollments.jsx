@@ -111,16 +111,15 @@ const CourseEnrollments = ({ children }) => {
           enterpriseCustomer={enterpriseCustomer}
         />
       )}
-      {courseEnrollmentsContextValue.courseEnrollmentStatusChanges?.length > 0
-        && courseEnrollmentsContextValue.courseEnrollmentStatusChanges.map(({ uuid, message, dismiss }) => (
-          <CourseEnrollmentsAlert
-            key={uuid}
-            variant="success"
-            onClose={dismiss}
-          >
-            {message}
-          </CourseEnrollmentsAlert>
-        ))}
+      {courseEnrollmentsContextValue.courseEnrollmentStatusChanges?.map(({ uuid, message, dismiss }) => (
+        <CourseEnrollmentsAlert
+          key={uuid}
+          variant="success"
+          onClose={dismiss}
+        >
+          {message}
+        </CourseEnrollmentsAlert>
+      ))}
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
         <>
           <CourseAssignmentAlert
