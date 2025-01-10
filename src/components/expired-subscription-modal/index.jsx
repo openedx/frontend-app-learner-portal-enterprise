@@ -1,11 +1,11 @@
 import {
-  useToggle, AlertModal, ActionRow, StatefulButton,
+  ActionRow, AlertModal, StatefulButton, useToggle,
 } from '@openedx/paragon';
 import DOMPurify from 'dompurify';
 import { useState } from 'react';
 import { postUnlinkUserFromEnterprise, useEnterpriseCustomer, useSubscriptions } from '../app/data';
 
-const ExpiredSubscriptionModal = () => {
+const BlockingSubscriptionExpirationModal = () => {
   const [buttonState, setButtonState] = useState('default');
   const { data: { customerAgreement, subscriptionLicense, subscriptionPlan } } = useSubscriptions();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -63,4 +63,4 @@ const ExpiredSubscriptionModal = () => {
   );
 };
 
-export default ExpiredSubscriptionModal;
+export default BlockingSubscriptionExpirationModal;

@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { AppContext } from '@edx/frontend-platform/react';
-import ExpiredSubscriptionModal from '../index';
+import BlockingSubscriptionExpirationModal from '../index';
 import { postUnlinkUserFromEnterprise, useEnterpriseCustomer, useSubscriptions } from '../../app/data';
 import { renderWithRouter } from '../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
@@ -19,13 +19,13 @@ const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const defaultAppContextValue = { authenticatedUser: mockAuthenticatedUser };
 const ExpiredSubscriptionModalWrapper = ({ children, appContextValue = defaultAppContextValue }) => (
   <AppContext.Provider value={appContextValue}>
-    <ExpiredSubscriptionModal>
+    <BlockingSubscriptionExpirationModal>
       {children}
-    </ExpiredSubscriptionModal>
+    </BlockingSubscriptionExpirationModal>
   </AppContext.Provider>
 );
 
-describe('<ExpiredSubscriptionModal />', () => {
+describe('<BlockingSubscriptionExpirationModal />', () => {
   beforeEach(() => {
     useSubscriptions.mockReturnValue({
       data: {
