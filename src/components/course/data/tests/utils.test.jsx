@@ -20,6 +20,7 @@ import {
   processCourseSubjects,
   transformedCourseMetadata,
 } from '../utils';
+import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 
 jest.mock('@edx/frontend-platform', () => ({
   ensureConfig: jest.fn(),
@@ -38,6 +39,8 @@ jest.mock('@edx/frontend-platform', () => ({
     },
   }),
 }));
+
+const mockCatalogUuid = 'test-catalog-uuid';
 
 describe('findCouponCodeForCourse', () => {
   const couponCodes = [{
@@ -441,69 +444,125 @@ describe('getMissingSubsidyReasonActions', () => {
 });
 
 describe('getSubscriptionDisabledEnrollmentReasonType', () => {
-  const mockCatalogUuid = 'test-catalog-uuid';
+  it.each([
+    // No subscriptions for customer. Expected: undefined
+    {
+      customerAgreement: null,
+      catalogsWithCourse: [mockCatalogUuid],
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: undefined,
+    },
+    // No applicable subscription plan for the course, mismatching catalogs. Expected: undefined
+    {
+      customerAgreement: {
+        availableSubscriptionCatalogs: ['another-catalog-uuid'],
+      },
+      catalogsWithCourse: [mockCatalogUuid],
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: undefined,
+    },
+    // License not assigned. Expected: SUBSCRIPTION_LICENSE_NOT_ASSIGNED
+    {
+      customerAgreement: {
+        availableSubscriptionCatalogs: [mockCatalogUuid],
+      },
+      catalogsWithCourse: [mockCatalogUuid],
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+    },
+    // License not assigned, no admins. Expected: SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS
+    {
+      customerAgreement: {
+        availableSubscriptionCatalogs: [mockCatalogUuid],
+      },
+      catalogsWithCourse: [mockCatalogUuid],
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers: false,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
+    },
+  ])('handles no subscriptions and/or license: %s', ({
+    customerAgreement,
+    catalogsWithCourse,
+    subscriptionLicense,
+    hasEnterpriseAdminUsers,
+    expectedReasonType,
+  }) => {
+    const reasonType = getSubscriptionDisabledEnrollmentReasonType({
+      customerAgreement,
+      catalogsWithCourse,
+      subscriptionLicense,
+      hasEnterpriseAdminUsers,
+    });
+    expect(reasonType).toEqual(expectedReasonType);
+  });
 
   it.each([
+    // Expired license, with admins. Expected: SUBSCRIPTION_EXPIRED
     {
+      customerAgreement: {
+        availableSubscriptionCatalogs: [mockCatalogUuid],
+      },
+      catalogsWithCourse: [mockCatalogUuid],
       subscriptionLicense: {
+        status: LICENSE_STATUS.ACTIVATED,
         subscriptionPlan: {
           isCurrent: false,
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
-      catalogsWithCourse: [mockCatalogUuid],
     },
+    // Expired license, without admins. Expected: SUBSCRIPTION_EXPIRED_NO_ADMINS
     {
+      customerAgreement: {
+        availableSubscriptionCatalogs: [mockCatalogUuid],
+      },
+      catalogsWithCourse: [mockCatalogUuid],
       subscriptionLicense: {
+        status: LICENSE_STATUS.ACTIVATED,
         subscriptionPlan: {
           isCurrent: false,
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
       hasEnterpriseAdminUsers: false,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
-      catalogsWithCourse: [mockCatalogUuid],
     },
+    // Current license, with admins. Expected: undefined
     {
       subscriptionLicense: {
-        subscriptionPlan: {
-          isCurrent: false,
-        },
-      },
-      hasEnterpriseAdminUsers: true,
-      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
-      catalogsWithCourse: ['fake-catalog-uuid'],
-    },
-    {
-      subscriptionLicense: {
+        status: LICENSE_STATUS.ACTIVATED,
         subscriptionPlan: {
           isCurrent: true,
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
-      catalogsWithCourse: [mockCatalogUuid],
     },
+    // Current license, no admins. Expected: undefined
     {
       subscriptionLicense: {
+        status: LICENSE_STATUS.ACTIVATED,
         subscriptionPlan: {
           isCurrent: true,
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
-      hasEnterpriseAdminUsers: true,
+      hasEnterpriseAdminUsers: false,
       expectedReasonType: undefined,
-      catalogsWithCourse: [mockCatalogUuid],
     },
   ])('handles expired subscription: %s', ({
+    customerAgreement,
+    catalogsWithCourse,
     subscriptionLicense,
     hasEnterpriseAdminUsers,
     expectedReasonType,
-    catalogsWithCourse,
   }) => {
-    const customerAgreement = {
-      availableSubscriptionCatalogs: [],
-    };
-
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
       customerAgreement,
       catalogsWithCourse,
@@ -551,7 +610,7 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
           },
         },
       ],
-      availableSubscriptionCatalogs: [],
+      availableSubscriptionCatalogs: [mockCatalogUuid],
     };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
@@ -760,8 +819,6 @@ describe('isCurrentCoupon', () => {
 });
 
 describe('getCouponCodesDisabledEnrollmentReasonType', () => {
-  const testCatalogUuid = 'test-catalog-uuid';
-
   afterEach(() => {
     MockDate.reset();
   });
@@ -776,9 +833,9 @@ describe('getCouponCodesDisabledEnrollmentReasonType', () => {
     },
     {
       todaysDate: '2023-08-02T12:00:00Z',
-      catalogsWithCourse: [testCatalogUuid],
+      catalogsWithCourse: [mockCatalogUuid],
       couponsOverview: [{
-        enterpriseCatalogUuid: testCatalogUuid,
+        enterpriseCatalogUuid: mockCatalogUuid,
         startDate: '2023-08-01T12:00:00Z',
         endDate: '2024-08-01T12:00:00Z',
         numUnassigned: 100,
@@ -788,9 +845,9 @@ describe('getCouponCodesDisabledEnrollmentReasonType', () => {
     },
     {
       todaysDate: '2023-08-02T12:00:00Z',
-      catalogsWithCourse: [testCatalogUuid],
+      catalogsWithCourse: [mockCatalogUuid],
       couponsOverview: [{
-        enterpriseCatalogUuid: testCatalogUuid,
+        enterpriseCatalogUuid: mockCatalogUuid,
         startDate: '2023-08-01T12:00:00Z',
         endDate: '2024-08-01T12:00:00Z',
         numUnassigned: 0,
@@ -800,9 +857,9 @@ describe('getCouponCodesDisabledEnrollmentReasonType', () => {
     },
     {
       todaysDate: '2023-10-31T12:00:00Z',
-      catalogsWithCourse: [testCatalogUuid],
+      catalogsWithCourse: [mockCatalogUuid],
       couponsOverview: [{
-        enterpriseCatalogUuid: testCatalogUuid,
+        enterpriseCatalogUuid: mockCatalogUuid,
         startDate: '2023-08-01T12:00:00Z',
         endDate: '2023-08-31T12:00:00Z',
         numUnassigned: 100,
@@ -832,7 +889,10 @@ describe('getCouponCodesDisabledEnrollmentReasonType', () => {
 
 describe('getMissingApplicableSubsidyReason', () => {
   const baseMockData = {
-    enterpriseAdminUsers: [{}],
+    enterpriseAdminUsers: [{
+      email: 'edx@example.com',
+      lmsUserId: 3,
+    }],
     catalogsWithCourse: [],
     couponsOverview: {},
     customerAgreement: {
@@ -843,12 +903,18 @@ describe('getMissingApplicableSubsidyReason', () => {
     missingSubsidyAccessPolicyReason: null,
     enterpriseOffers: [],
   };
+
   it('returns NO_SUBSIDY_NO_ADMINS if there are no admins', () => {
     const result = getMissingApplicableSubsidyReason({
       ...baseMockData,
       enterpriseAdminUsers: [],
     });
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS);
+  });
+
+  it('returns NO_SUBSIDY if there are admins but no subsidy', () => {
+    const result = getMissingApplicableSubsidyReason(baseMockData);
+    expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY);
   });
 
   it('returns CONTENT_NOT_IN_CATALOG if containsContentItems is false', () => {
@@ -865,12 +931,12 @@ describe('getMissingApplicableSubsidyReason', () => {
     };
     const mockData = {
       ...baseMockData,
-      catalogsWithCourse: ['test-catalog-uuid'],
+      catalogsWithCourse: [mockCatalogUuid],
       couponsOverview:
       {
         data: {
           results: [{
-            enterpriseCatalogUuid: 'test-catalog-uuid',
+            enterpriseCatalogUuid: mockCatalogUuid,
             numUnassigned: 100,
             ...couponProperties,
           }],
@@ -884,15 +950,41 @@ describe('getMissingApplicableSubsidyReason', () => {
   it('returns SUBSCRIPTION_EXPIRED if there is an expired subscription', () => {
     const mockData = {
       ...baseMockData,
+      customerAgreement: {
+        availableSubscriptionCatalogs: [mockCatalogUuid],
+      },
       subscriptionLicense: {
+        // Subscription license is activated, but expired.
+        status: LICENSE_STATUS.ACTIVATED,
         subscriptionPlan: {
           isCurrent: false,
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
-      catalogsWithCourse: ['test-catalog-uuid'],
+      catalogsWithCourse: [mockCatalogUuid],
     };
     const result = getMissingApplicableSubsidyReason(mockData);
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED);
+  });
+
+  it('returns SUBSCRIPTION_DEACTIVATED if the subscription is deactivated', () => {
+    const mockData = {
+      ...baseMockData,
+      customerAgreement: {
+        availableSubscriptionCatalogs: [mockCatalogUuid],
+      },
+      subscriptionLicense: {
+        // Subscription license is current but deactivated (revoked).
+        status: LICENSE_STATUS.REVOKED,
+        subscriptionPlan: {
+          isCurrent: true,
+          enterpriseCatalogUuid: mockCatalogUuid,
+        },
+      },
+      catalogsWithCourse: [mockCatalogUuid],
+    };
+    const result = getMissingApplicableSubsidyReason(mockData);
+    expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED);
   });
 
   it('returns ENTERPRISE_OFFER_EXPIRED if there is an expired enterprise offer', () => {
@@ -909,6 +1001,19 @@ describe('getMissingApplicableSubsidyReason', () => {
     };
     const result = getMissingApplicableSubsidyReason(mockData);
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED);
+  });
+
+  it('returns MISSING_SUBSIDY_ACCESS_POLICY if missingSubsidyAccessPolicyReason is present', () => {
+    const mockData = {
+      ...baseMockData,
+      missingSubsidyAccessPolicyReason: {
+        reason: DISABLED_ENROLL_REASON_TYPES.MISSING_SUBSIDY_ACCESS_POLICY,
+        userMessage: 'Custom user message.',
+      },
+    };
+    const result = getMissingApplicableSubsidyReason(mockData);
+    expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.MISSING_SUBSIDY_ACCESS_POLICY);
+    expect(result.userMessage).toEqual('Custom user message.');
   });
 });
 
