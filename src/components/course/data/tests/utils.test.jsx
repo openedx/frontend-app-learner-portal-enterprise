@@ -40,6 +40,8 @@ jest.mock('@edx/frontend-platform', () => ({
   }),
 }));
 
+const mockCatalogUuid = 'test-catalog-uuid';
+
 describe('findCouponCodeForCourse', () => {
   const couponCodes = [{
     code: 'bearsRus',
@@ -442,8 +444,6 @@ describe('getMissingSubsidyReasonActions', () => {
 });
 
 describe('getSubscriptionDisabledEnrollmentReasonType', () => {
-  const mockCatalogUuid = 'test-catalog-uuid';
-
   it.each([
     // No subscriptions for customer. Expected: undefined
     {
@@ -819,8 +819,6 @@ describe('isCurrentCoupon', () => {
 });
 
 describe('getCouponCodesDisabledEnrollmentReasonType', () => {
-  const testCatalogUuid = 'test-catalog-uuid';
-
   afterEach(() => {
     MockDate.reset();
   });
@@ -835,9 +833,9 @@ describe('getCouponCodesDisabledEnrollmentReasonType', () => {
     },
     {
       todaysDate: '2023-08-02T12:00:00Z',
-      catalogsWithCourse: [testCatalogUuid],
+      catalogsWithCourse: [mockCatalogUuid],
       couponsOverview: [{
-        enterpriseCatalogUuid: testCatalogUuid,
+        enterpriseCatalogUuid: mockCatalogUuid,
         startDate: '2023-08-01T12:00:00Z',
         endDate: '2024-08-01T12:00:00Z',
         numUnassigned: 100,
@@ -847,9 +845,9 @@ describe('getCouponCodesDisabledEnrollmentReasonType', () => {
     },
     {
       todaysDate: '2023-08-02T12:00:00Z',
-      catalogsWithCourse: [testCatalogUuid],
+      catalogsWithCourse: [mockCatalogUuid],
       couponsOverview: [{
-        enterpriseCatalogUuid: testCatalogUuid,
+        enterpriseCatalogUuid: mockCatalogUuid,
         startDate: '2023-08-01T12:00:00Z',
         endDate: '2024-08-01T12:00:00Z',
         numUnassigned: 0,
@@ -859,9 +857,9 @@ describe('getCouponCodesDisabledEnrollmentReasonType', () => {
     },
     {
       todaysDate: '2023-10-31T12:00:00Z',
-      catalogsWithCourse: [testCatalogUuid],
+      catalogsWithCourse: [mockCatalogUuid],
       couponsOverview: [{
-        enterpriseCatalogUuid: testCatalogUuid,
+        enterpriseCatalogUuid: mockCatalogUuid,
         startDate: '2023-08-01T12:00:00Z',
         endDate: '2023-08-31T12:00:00Z',
         numUnassigned: 100,
@@ -933,12 +931,12 @@ describe('getMissingApplicableSubsidyReason', () => {
     };
     const mockData = {
       ...baseMockData,
-      catalogsWithCourse: ['test-catalog-uuid'],
+      catalogsWithCourse: [mockCatalogUuid],
       couponsOverview:
       {
         data: {
           results: [{
-            enterpriseCatalogUuid: 'test-catalog-uuid',
+            enterpriseCatalogUuid: mockCatalogUuid,
             numUnassigned: 100,
             ...couponProperties,
           }],
@@ -953,17 +951,17 @@ describe('getMissingApplicableSubsidyReason', () => {
     const mockData = {
       ...baseMockData,
       customerAgreement: {
-        availableSubscriptionCatalogs: ['test-catalog-uuid'],
+        availableSubscriptionCatalogs: [mockCatalogUuid],
       },
       subscriptionLicense: {
         // Subscription license is activated, but expired.
         status: LICENSE_STATUS.ACTIVATED,
         subscriptionPlan: {
           isCurrent: false,
-          enterpriseCatalogUuid: 'test-catalog-uuid',
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
-      catalogsWithCourse: ['test-catalog-uuid'],
+      catalogsWithCourse: [mockCatalogUuid],
     };
     const result = getMissingApplicableSubsidyReason(mockData);
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED);
@@ -973,17 +971,17 @@ describe('getMissingApplicableSubsidyReason', () => {
     const mockData = {
       ...baseMockData,
       customerAgreement: {
-        availableSubscriptionCatalogs: ['test-catalog-uuid'],
+        availableSubscriptionCatalogs: [mockCatalogUuid],
       },
       subscriptionLicense: {
         // Subscription license is current but deactivated (revoked).
         status: LICENSE_STATUS.REVOKED,
         subscriptionPlan: {
           isCurrent: true,
-          enterpriseCatalogUuid: 'test-catalog-uuid',
+          enterpriseCatalogUuid: mockCatalogUuid,
         },
       },
-      catalogsWithCourse: ['test-catalog-uuid'],
+      catalogsWithCourse: [mockCatalogUuid],
     };
     const result = getMissingApplicableSubsidyReason(mockData);
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED);
