@@ -10,7 +10,7 @@ import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { Person, Speed, Timelapse } from '@openedx/paragon/icons';
 import { Link } from 'react-router-dom';
 import {
-  useEnterpriseCustomer, useSubscriptions, useVideoCourseMetadata, useVideoDetails,
+  useEnterpriseCustomer, useHasValidLicenseOrSubscriptionRequestsEnabled, useVideoCourseMetadata, useVideoDetails,
 } from '../app/data';
 import './styles/VideoDetailPage.scss';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
@@ -19,7 +19,6 @@ import { getContentPriceDisplay, getCoursePrice, useCoursePacingType } from '../
 import VideoCourseReview from './VideoCourseReview';
 import { hasTruthyValue, isDefinedAndNotNull } from '../../utils/common';
 import { getLevelType } from './data/utils';
-import { hasActivatedAndCurrentSubscription } from '../search/utils';
 import { features } from '../../config';
 import VideoFeedbackCard from './VideoFeedbackCard';
 
@@ -38,7 +37,7 @@ const VideoDetailPage = () => {
   const { data: courseMetadata } = useVideoCourseMetadata(videoData?.courseKey);
   const coursePrice = getCoursePrice(courseMetadata);
   const [pacingType, pacingTypeContent] = useCoursePacingType(courseMetadata?.activeCourseRun);
-  const { data: { subscriptionLicense } } = useSubscriptions();
+  const hasValidLicenseOrSubRequest = useHasValidLicenseOrSubscriptionRequestsEnabled();
   const playerRef = useRef(null);
   const intl = useIntl();
 
@@ -49,7 +48,7 @@ const VideoDetailPage = () => {
   };
   const enableVideos = (
     features.FEATURE_ENABLE_VIDEO_CATALOG
-    && hasActivatedAndCurrentSubscription(subscriptionLicense, enterpriseCustomer.enableBrowseAndRequest)
+    && hasValidLicenseOrSubRequest
   );
 
   useEffect(() => {

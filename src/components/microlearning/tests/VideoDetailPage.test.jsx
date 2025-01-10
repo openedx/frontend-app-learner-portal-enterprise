@@ -15,6 +15,7 @@ import {
   useVideoCourseMetadata,
   useVideoCourseReviews,
   useVideoDetails,
+  useHasValidLicenseOrSubscriptionRequestsEnabled,
 } from '../../app/data';
 import { COURSE_PACING_MAP } from '../../course/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
@@ -54,6 +55,7 @@ jest.mock('../../app/data', () => ({
   useVideoCourseMetadata: jest.fn(() => ({ data: { courseKey: 'test-course-key' } })),
   useVideoCourseReviews: jest.fn(() => ({ data: { courseKey: 'test-course-key' } })),
   useSubscriptions: jest.fn(),
+  useHasValidLicenseOrSubscriptionRequestsEnabled: jest.fn(),
 }));
 
 jest.mock('react-router-dom', () => ({
@@ -140,6 +142,7 @@ describe('VideoDetailPage', () => {
       },
     });
     features.FEATURE_ENABLE_VIDEO_CATALOG = true;
+    useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(true);
   });
 
   it('Renders video details when data is available', () => {
@@ -197,17 +200,7 @@ describe('VideoDetailPage', () => {
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });
   it('renders a not found page when user do not have active subscription', () => {
-    useSubscriptions.mockReturnValue({
-      data: {
-        subscriptionLicense: {
-          status: LICENSE_STATUS.ACTIVATED,
-          subscriptionPlan: {
-            enterpriseCatalogUuid: 'test-catalog-uuid',
-            isCurrent: false,
-          },
-        },
-      },
-    });
+    useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(false);
     renderWithRouter(<VideoDetailPageWrapper />);
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });

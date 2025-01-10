@@ -24,13 +24,12 @@ import {
   useDefaultSearchFilters,
   useEnterpriseCustomer,
   useEnterpriseOffers,
+  useHasValidLicenseOrSubscriptionRequestsEnabled,
   useIsAssignmentsOnlyLearner,
-  useSubscriptions,
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
 import SearchVideo from './SearchVideo';
-import { hasActivatedAndCurrentSubscription } from './utils';
 import VideoBanner from '../microlearning/VideoBanner';
 import ExpiredSubscriptionModal from '../expired-subscription-modal';
 
@@ -54,6 +53,7 @@ function useSearchPathwayModal() {
 const Search = () => {
   const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const hasValidLicenseOrSubRequest = useHasValidLicenseOrSubscriptionRequestsEnabled();
   const intl = useIntl();
   const navigate = useNavigate();
 
@@ -79,11 +79,10 @@ const Search = () => {
     closePathwayModal,
   } = useSearchPathwayModal();
 
-  const { data: { subscriptionLicense } } = useSubscriptions();
   const enableVideos = (
     canOnlyViewHighlightSets === false
     && features.FEATURE_ENABLE_VIDEO_CATALOG
-    && hasActivatedAndCurrentSubscription(subscriptionLicense, enterpriseCustomer.enableBrowseAndRequest)
+    && hasValidLicenseOrSubRequest
   );
 
   const PAGE_TITLE = intl.formatMessage({

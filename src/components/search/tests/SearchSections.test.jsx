@@ -10,7 +10,9 @@ import '@testing-library/jest-dom';
 import SearchProgram from '../SearchProgram';
 import SearchPathway from '../SearchPathway';
 import Search from '../Search';
-import { useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
+import {
+  useDefaultSearchFilters, useEnterpriseCustomer, useHasValidLicenseOrSubscriptionRequestsEnabled,
+} from '../../app/data';
 import { useAlgoliaSearch } from '../../../utils/hooks';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import SearchVideo from '../SearchVideo';
@@ -28,6 +30,7 @@ jest.mock('../../app/data', () => ({
   useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
   useEnterpriseFeatures: jest.fn().mockReturnValue({ data: undefined }),
   useDefaultSearchFilters: jest.fn(),
+  useHasValidLicenseOrSubscriptionRequestsEnabled: jest.fn(),
 }));
 
 jest.mock('../../../utils/hooks', () => ({
@@ -85,6 +88,7 @@ describe('<Search />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useDefaultSearchFilters.mockReturnValue(mockFilter);
+    useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(true);
     useAlgoliaSearch.mockReturnValue([{ search: jest.fn(), appId: 'test-app-id' }, { indexName: 'mock-index-name' }]);
   });
 

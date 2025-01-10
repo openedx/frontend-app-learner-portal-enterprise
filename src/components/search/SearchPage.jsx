@@ -1,20 +1,19 @@
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { useEnterpriseCustomer, useSubscriptions } from '../app/data';
 import Search from './Search';
 import { SEARCH_TRACKING_NAME } from './constants';
-import { getSearchFacetFilters, hasActivatedAndCurrentSubscription } from './utils';
+import { getSearchFacetFilters } from './utils';
 import { features } from '../../config';
+import { useHasValidLicenseOrSubscriptionRequestsEnabled } from '../app/data';
 
 const SearchPage = () => {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const intl = useIntl();
+  const hasValidLicenseOrSubRequest = useHasValidLicenseOrSubscriptionRequestsEnabled();
 
-  const { data: { subscriptionLicense } } = useSubscriptions();
+  const intl = useIntl();
   const enableVideos = (
     features.FEATURE_ENABLE_VIDEO_CATALOG
-    && hasActivatedAndCurrentSubscription(subscriptionLicense, enterpriseCustomer.enableBrowseAndRequest)
+    && hasValidLicenseOrSubRequest
   );
 
   return (
