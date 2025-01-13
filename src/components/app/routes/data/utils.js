@@ -70,9 +70,9 @@ export async function ensureEnterpriseAppData({
           requestUrl,
         });
         if (activatedOrAutoAppliedLicense) {
-          const { licensesByStatus } = subscriptionsData;
-          const updatedLicensesByStatus = { ...licensesByStatus };
-          Object.entries(licensesByStatus).forEach(([status, licenses]) => {
+          const { subscriptionLicensesByStatus } = subscriptionsData;
+          const updatedLicensesByStatus = { ...subscriptionLicensesByStatus };
+          Object.entries(subscriptionLicensesByStatus).forEach(([status, licenses]) => {
             const licensesIncludesActivatedOrAutoAppliedLicense = licenses.some(
               (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
             );
@@ -99,7 +99,7 @@ export async function ensureEnterpriseAppData({
 
           queryClient.setQueryData(subscriptionsQuery.queryKey, {
             ...queryClient.getQueryData(subscriptionsQuery.queryKey),
-            licensesByStatus: updatedLicensesByStatus,
+            subscriptionLicensesByStatus: updatedLicensesByStatus,
             subscriptionPlan: activatedOrAutoAppliedLicense.subscriptionPlan,
             subscriptionLicense: activatedOrAutoAppliedLicense,
             subscriptionLicenses: updatedSubscriptionLicenses,

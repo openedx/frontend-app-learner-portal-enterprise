@@ -7,6 +7,7 @@ import makeRootLoader from '../rootLoader';
 import { ensureAuthenticatedUser } from '../../data';
 import {
   extractEnterpriseCustomer,
+  getBaseSubscriptionsData,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
@@ -191,16 +192,13 @@ describe('rootLoader', () => {
     ).mockResolvedValue(mockRedeemablePolicies);
 
     // Mock subscriptions query
-    const mockSubscriptionsData = {
-      customerAgreement: null,
-      licensesByStatus: {},
-    };
+    const { baseSubscriptionsData } = getBaseSubscriptionsData();
     const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: subscriptionsQuery.queryKey,
       }),
-    ).mockResolvedValue(mockSubscriptionsData);
+    ).mockResolvedValue(baseSubscriptionsData);
 
     renderWithRouterProvider({
       path: '/:enterpriseSlug',
