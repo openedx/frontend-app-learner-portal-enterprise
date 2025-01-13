@@ -61,7 +61,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -103,7 +103,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -146,7 +146,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -186,7 +186,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
       },
       hasCurrentEnterpriseOffers: true,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -226,7 +226,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: true,
+        isCurrent: true,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -266,7 +266,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
       licenseRequests: [],
@@ -306,7 +306,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: true,
+        isCurrent: true,
       },
       subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
       licenseRequests: [],
@@ -346,7 +346,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [{ id: 1 }],
@@ -424,7 +424,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -446,7 +446,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
       redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],

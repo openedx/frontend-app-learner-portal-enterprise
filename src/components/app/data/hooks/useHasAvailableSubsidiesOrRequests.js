@@ -32,7 +32,7 @@ function getLearnerCreditSummaryCardData({ enterpriseOffers, expiredPolicies, un
  * }}
  */
 export default function useHasAvailableSubsidiesOrRequests() {
-  const { data: subscriptions } = useSubscriptions();
+  const { data: subscriptionPlan, subscriptionLicense } = useSubscriptions();
   const { data: { requests } } = useBrowseAndRequest();
   const { data: couponCodes } = useCouponCodes();
   const { data: { expiredPolicies, unexpiredPolicies, redeemablePolicies } } = useRedeemablePolicies();
@@ -43,9 +43,10 @@ export default function useHasAvailableSubsidiesOrRequests() {
     unexpiredPolicies,
   }), [enterpriseOffersData.currentEnterpriseOffers, expiredPolicies, unexpiredPolicies]);
 
-  const hasActiveLicenseOrLicenseRequest = (
-    subscriptions.subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
-    || requests.subscriptionLicenses.length > 0
+  const hasActiveLicenseOrLicenseRequest = !!(
+    (
+      subscriptionPlan?.isCurrent && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
+    ) || requests.subscriptionLicenses.length > 0
   );
   const hasAssignedCodesOrCodeRequests = (
     couponCodes.couponCodeRedemptionCount > 0

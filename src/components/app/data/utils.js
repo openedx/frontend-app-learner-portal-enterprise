@@ -57,8 +57,8 @@ export function isSystemMaintenanceAlertOpen(config) {
 }
 
 export const hasActiveLicenseOrLicenseRequest = ({ subscriptionPlan, subscriptionLicense, licenseRequests }) => (
-  !!(
-    subscriptionPlan?.isActive && subscriptionPlan.isCurrent && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
+  (
+    subscriptionPlan?.isCurrent && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
   ) || licenseRequests.length > 0
 );
 
@@ -82,13 +82,6 @@ export const hasAllocatedOrAcceptedAssignments = ({ redeemableLearnerCreditPolic
     || redeemableLearnerCreditPolicies.learnerContentAssignments.hasAcceptedAssignments
   )
 );
-
-export const determineLearnerSubsidies = {
-  hasActiveLicenseOrLicenseRequest,
-  hasAssignedCodesOrCodeRequests,
-  hasAutoAppliedLearnerCreditPolicies,
-  hasAllocatedOrAcceptedAssignments,
-};
 
 /**
  * Determine whether learner has only content assignments available to them, based on the presence of:
@@ -131,6 +124,8 @@ export function determineLearnerHasContentAssignmentsOnly({
     case hasCurrentEnterpriseOffers:
       return false;
     case hasActiveLicenseOrLicenseRequest({ subscriptionPlan, subscriptionLicense, licenseRequests }):
+      return false;
+    case hasAutoAppliedLearnerCreditPolicies({ redeemableLearnerCreditPolicies }):
       return false;
     case hasAssignedCodesOrCodeRequests({ couponCodeRequests, couponCodesCount }):
       return false;

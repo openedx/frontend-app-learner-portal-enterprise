@@ -104,10 +104,10 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         couponCodeRedemptionCount: 0,
       },
       expectedResult: {
-        hasActiveLicenseOrLicenseRequest: true,
+        hasActiveLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: false,
-        hasAvailableSubsidyOrRequests: true,
+        hasAvailableSubsidyOrRequests: undefined,
         learnerCreditSummaryCardData: undefined,
       },
     },
@@ -327,7 +327,6 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     useRedeemablePolicies.mockReturnValue({ data: mockRedeemableLearnerCreditPolicies });
     useCouponCodes.mockReturnValue({ data: mockCouponCodes });
     useEnterpriseOffers.mockReturnValue({ data: mockEnterpriseOffers });
-
     const { result } = renderHook(() => useHasAvailableSubsidiesOrRequests(), { wrapper });
 
     expect(result.current).toEqual(expectedResult);
