@@ -26,13 +26,13 @@ const SubscriptionStatusCardWrapper = () => (
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockHasAvailableSubsidiesOrRequests = {
-  hasActiveLicenseOrLicenseRequest: false,
+  hasActivatedCurrentLicenseOrLicenseRequest: false,
 };
 const mockSubscriptionPlan = {
   expirationDate: dayjs().add(70, 'days').toISOString(),
 };
 const mockActiveLicense = {
-  hasActiveLicenseOrLicenseRequest: true,
+  hasActivatedCurrentLicenseOrLicenseRequest: true,
 };
 const mockExpiredSubscriptionPlan = {
   expirationDate: dayjs().subtract(70, 'days').toISOString(),

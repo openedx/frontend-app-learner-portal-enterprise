@@ -32,7 +32,7 @@ import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContain
 import SearchVideo from './SearchVideo';
 import { hasActivatedAndCurrentSubscription } from './utils';
 import VideoBanner from '../microlearning/VideoBanner';
-import BlockingSubscriptionExpirationModal from '../expired-subscription-modal';
+import CustomSubscriptionExpirationModal from '../custom-expired-subscription-modal';
 
 function useSearchPathwayModal() {
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, close] = useToggle(false);
@@ -114,7 +114,7 @@ const Search = () => {
 
   return (
     <>
-      <BlockingSubscriptionExpirationModal />
+      <CustomSubscriptionExpirationModal />
       <Helmet title={PAGE_TITLE} />
       <InstantSearch
         indexName={config.ALGOLIA_INDEX_NAME}

@@ -1,7 +1,5 @@
 import PropTypes from 'prop-types';
-import {
-  Form, Col, Row,
-} from '@openedx/paragon';
+import { Col, Form, Row } from '@openedx/paragon';
 import { CheckCircle } from '@openedx/paragon/icons';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
@@ -18,10 +16,10 @@ import { useEnterpriseCustomer, useHasAvailableSubsidiesOrRequests } from '../ap
 const ProgramProgressCourses = ({ courseData }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
-    hasActiveLicenseOrLicenseRequest,
+    hasActivatedCurrentLicenseOrLicenseRequest,
     hasAssignedCodesOrCodeRequests,
   } = useHasAvailableSubsidiesOrRequests();
-  const userHasLicenseOrCoupon = hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
+  const userHasLicenseOrCoupon = hasActivatedCurrentLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 
   let coursesCompleted = [];
   let coursesInProgress = [];

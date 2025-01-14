@@ -5,7 +5,7 @@ import DOMPurify from 'dompurify';
 import { useState } from 'react';
 import { postUnlinkUserFromEnterprise, useEnterpriseCustomer, useSubscriptions } from '../app/data';
 
-const BlockingSubscriptionExpirationModal = () => {
+const CustomSubscriptionExpirationModal = () => {
   const [buttonState, setButtonState] = useState('default');
   const { data: { customerAgreement, subscriptionLicense, subscriptionPlan } } = useSubscriptions();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -63,4 +63,4 @@ const BlockingSubscriptionExpirationModal = () => {
   );
 };
 
-export default BlockingSubscriptionExpirationModal;
+export default CustomSubscriptionExpirationModal;

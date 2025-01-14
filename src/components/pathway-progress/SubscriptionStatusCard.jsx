@@ -5,7 +5,7 @@ import { useHasAvailableSubsidiesOrRequests, useSubscriptions } from '../app/dat
 import { i18nFormatTimestamp } from '../../utils/common';
 
 const SubscriptionStatusCard = () => {
-  const { hasActiveLicenseOrLicenseRequest } = useHasAvailableSubsidiesOrRequests();
+  const { hasActivatedCurrentLicenseOrLicenseRequest } = useHasAvailableSubsidiesOrRequests();
   const { data: { subscriptionPlan } } = useSubscriptions();
   const expirationDate = subscriptionPlan?.expirationDate;
   const intl = useIntl();
@@ -24,8 +24,8 @@ const SubscriptionStatusCard = () => {
                 description="Subscription status label displayed on the pathway progress page."
               />
             </span>
-            <Badge variant={hasActiveLicenseOrLicenseRequest ? 'success' : 'danger'}>
-              {hasActiveLicenseOrLicenseRequest
+            <Badge variant={hasActivatedCurrentLicenseOrLicenseRequest ? 'success' : 'danger'}>
+              {hasActivatedCurrentLicenseOrLicenseRequest
                 ? (
                   <FormattedMessage
                     id="enterprise.dashboard.pathways.progress.page.active.subscription.badge.label"
@@ -42,7 +42,7 @@ const SubscriptionStatusCard = () => {
                 )}
             </Badge>
           </div>
-          {hasActiveLicenseOrLicenseRequest && expirationDate && (
+          {hasActivatedCurrentLicenseOrLicenseRequest && expirationDate && (
             <div className="subscription-expiry">
               <FormattedMessage
                 id="enterprise.dashboard.pathways.progress.page.subscription.card.available.until.date"

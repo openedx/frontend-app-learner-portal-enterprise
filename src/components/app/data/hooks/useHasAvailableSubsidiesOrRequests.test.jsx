@@ -71,7 +71,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
   it('returns an object with false and undefined values when no data is returned', () => {
     const { result } = renderHook(() => useHasAvailableSubsidiesOrRequests(), { wrapper });
     expect(result.current).toEqual({
-      hasActiveLicenseOrLicenseRequest: false,
+      hasActivatedCurrentLicenseOrLicenseRequest: false,
       hasAssignedCodesOrCodeRequests: false,
       hasAvailableLearnerCreditPolicies: false,
       hasAvailableSubsidyOrRequests: undefined,
@@ -91,7 +91,9 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         subscriptionLicense: {
           status: LICENSE_STATUS.ACTIVATED,
         },
-        subscriptionPlan: undefined,
+        subscriptionPlan: {
+          isCurrent: true,
+        },
       },
       mockBrowseAndRequests: {
         requests: {
@@ -104,10 +106,10 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         couponCodeRedemptionCount: 0,
       },
       expectedResult: {
-        hasActiveLicenseOrLicenseRequest: false,
+        hasActivatedCurrentLicenseOrLicenseRequest: true,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: false,
-        hasAvailableSubsidyOrRequests: undefined,
+        hasAvailableSubsidyOrRequests: true,
         learnerCreditSummaryCardData: undefined,
       },
     },
@@ -123,7 +125,9 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         subscriptionLicense: {
           status: LICENSE_STATUS.ASSIGNED,
         },
-        subscriptionPlan: undefined,
+        subscriptionPlan: {
+          isCurrent: true,
+        },
       },
       mockBrowseAndRequests: {
         requests: {
@@ -136,7 +140,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         couponCodeRedemptionCount: 0,
       },
       expectedResult: {
-        hasActiveLicenseOrLicenseRequest: true,
+        hasActivatedCurrentLicenseOrLicenseRequest: true,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: false,
         hasAvailableSubsidyOrRequests: true,
@@ -169,7 +173,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         couponCodeRedemptionCount: 3,
       },
       expectedResult: {
-        hasActiveLicenseOrLicenseRequest: false,
+        hasActivatedCurrentLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: true,
         hasAvailableLearnerCreditPolicies: false,
         hasAvailableSubsidyOrRequests: true,
@@ -199,7 +203,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         couponCodeRedemptionCount: 0,
       },
       expectedResult: {
-        hasActiveLicenseOrLicenseRequest: false,
+        hasActivatedCurrentLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: true,
         hasAvailableLearnerCreditPolicies: false,
         hasAvailableSubsidyOrRequests: true,
@@ -240,7 +244,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         couponCodeRedemptionCount: 0,
       },
       expectedResult: {
-        hasActiveLicenseOrLicenseRequest: false,
+        hasActivatedCurrentLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: false,
         hasAvailableSubsidyOrRequests: {
@@ -303,7 +307,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         couponCodeRedemptionCount: 0,
       },
       expectedResult: {
-        hasActiveLicenseOrLicenseRequest: false,
+        hasActivatedCurrentLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: true,
         hasAvailableSubsidyOrRequests: {
@@ -327,6 +331,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
     useRedeemablePolicies.mockReturnValue({ data: mockRedeemableLearnerCreditPolicies });
     useCouponCodes.mockReturnValue({ data: mockCouponCodes });
     useEnterpriseOffers.mockReturnValue({ data: mockEnterpriseOffers });
+
     const { result } = renderHook(() => useHasAvailableSubsidiesOrRequests(), { wrapper });
 
     expect(result.current).toEqual(expectedResult);

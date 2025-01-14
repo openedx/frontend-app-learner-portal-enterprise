@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/extend-expect';
-import { screen, render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { AppContext } from '@edx/frontend-platform/react';
@@ -31,20 +31,20 @@ const ProgramProgressCoursesWrapper = ({
 
 const mockUseActiveSubsidiesOrRequestsData = {
   mockHasAssignedCodesOrCodeRequests: false,
-  mockHasActiveLicenseOrLicenseRequest: false,
+  mockHasActivatedCurrentLicenseOrLicenseRequest: false,
   mockLearnerCreditSummaryCardData: {},
 };
 const mockUseHasAvailableSubsidiesOrRequests = ({
   mockHasAssignedCodesOrCodeRequests,
-  mockHasActiveLicenseOrLicenseRequest,
+  mockHasActivatedCurrentLicenseOrLicenseRequest,
   mockLearnerCreditSummaryCardData,
 }) => ({
   hasAvailableLearnerCreditPolicies: false,
   hasAssignedCodesOrCodeRequests: mockHasAssignedCodesOrCodeRequests,
   learnerCreditSummaryCardData: mockLearnerCreditSummaryCardData,
-  hasActiveLicenseOrLicenseRequest: mockHasActiveLicenseOrLicenseRequest,
+  hasActivatedCurrentLicenseOrLicenseRequest: mockHasActivatedCurrentLicenseOrLicenseRequest,
   hasAvailableSubsidyOrRequests: mockHasAssignedCodesOrCodeRequests
-    || mockHasActiveLicenseOrLicenseRequest
+    || mockHasActivatedCurrentLicenseOrLicenseRequest
     || mockLearnerCreditSummaryCardData,
 });
 
@@ -239,7 +239,7 @@ describe('<ProgramProgressCourses />', () => {
     };
 
     useHasAvailableSubsidiesOrRequests.mockReturnValue(mockUseHasAvailableSubsidiesOrRequests({
-      mockHasActiveLicenseOrLicenseRequest: true,
+      mockHasActivatedCurrentLicenseOrLicenseRequest: true,
     }));
     render((
       <ProgramProgressCoursesWrapper courseData={courseDataCompletedCourse} />
