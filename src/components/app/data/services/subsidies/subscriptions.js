@@ -216,6 +216,9 @@ export function transformSubscriptionsData({ customerAgreement, subscriptionLice
     if (license.status === LICENSE_STATUS.UNASSIGNED) {
       return;
     }
+    if (!subscriptionsData.subscriptionLicensesByStatus[license.status]) {
+      subscriptionsData.subscriptionLicensesByStatus[license.status] = [];
+    }
     subscriptionsData.subscriptionLicensesByStatus[license.status].push(license);
   });
 
