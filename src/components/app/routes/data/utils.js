@@ -70,33 +70,35 @@ export async function ensureEnterpriseAppData({
           requestUrl,
         });
         if (activatedOrAutoAppliedLicense) {
-          const { subscriptionLicensesByStatus } = subscriptionsData;
-          const updatedLicensesByStatus = { ...subscriptionLicensesByStatus };
-          Object.entries(subscriptionLicensesByStatus).forEach(([status, licenses]) => {
-            const licensesIncludesActivatedOrAutoAppliedLicense = licenses.some(
-              (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
-            );
-            const isCurrentStatusMatchingLicenseStatus = status === activatedOrAutoAppliedLicense.status;
-            if (licensesIncludesActivatedOrAutoAppliedLicense) {
-              updatedLicensesByStatus[status] = licenses.filter(
-                (license) => license.uuid !== activatedOrAutoAppliedLicense.uuid,
-              );
-            } else if (isCurrentStatusMatchingLicenseStatus) {
-              updatedLicensesByStatus[status] = [activatedOrAutoAppliedLicense];
-            }
-          });
-          // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
-          const updatedSubscriptionLicenses = subscriptionsData.subscriptionLicenses.length > 0
-            ? subscriptionsData.subscriptionLicenses.map((license) => {
-            // Ensures an auto-activated license is updated in the query cache to change
-            // its status from "assigned" to "activated".
-              if (license.uuid === activatedOrAutoAppliedLicense.uuid) {
-                return activatedOrAutoAppliedLicense;
-              }
-              return license;
-            })
-            : [activatedOrAutoAppliedLicense];
+          const { subscriptionLicensesByStatus, subscriptionLicenses } = subscriptionsData;
+          // Create a deep copy of the structure using .map for immutability, removing
+          // the `activatedOrAutoAppliedLicense` from each list. Then, re-add the license
+          // to the correct status list.
+          const updatedLicensesByStatus = Object.fromEntries(
+            Object.entries(subscriptionLicensesByStatus).map(([key, licenses]) => [
+              key,
+              licenses.filter(
+                (existingLicense) => existingLicense.uuid !== activatedOrAutoAppliedLicense.uuid,
+              ), // Remove license immutably
+            ]),
+          );
+          if (!updatedLicensesByStatus[activatedOrAutoAppliedLicense.status]) {
+            updatedLicensesByStatus[activatedOrAutoAppliedLicense.status] = [];
+          }
+          updatedLicensesByStatus[activatedOrAutoAppliedLicense.status].push(activatedOrAutoAppliedLicense);
 
+          // Update the flat subscription licenses list
+          const updatedSubscriptionLicenses = subscriptionLicenses.some(
+            (existingLicense) => existingLicense.uuid === activatedOrAutoAppliedLicense.uuid,
+          )
+            ? subscriptionLicenses.map((existingLicense) => (
+              existingLicense.uuid === activatedOrAutoAppliedLicense.uuid
+                ? activatedOrAutoAppliedLicense
+                : existingLicense
+            ))
+            : [...subscriptionLicenses, activatedOrAutoAppliedLicense];
+
+          // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
           queryClient.setQueryData(subscriptionsQuery.queryKey, {
             ...queryClient.getQueryData(subscriptionsQuery.queryKey),
             subscriptionLicensesByStatus: updatedLicensesByStatus,
