@@ -7,10 +7,7 @@ import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { fetchPaginatedData } from '../utils';
-import {
-  SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE,
-  getBaseSubscriptionsData,
-} from '../../constants';
+import { getBaseSubscriptionsData, SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE } from '../../constants';
 
 // Subscriptions
 

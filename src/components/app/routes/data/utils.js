@@ -60,9 +60,9 @@ export async function ensureEnterpriseAppData({
   if (!matchedBFFQuery) {
     const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
     enterpriseAppDataQueries.push(
-    // Enterprise Customer User Subsidies
+      // Enterprise Customer User Subsidies
       queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
-      // Auto-activate the user's subscription license, if applicable.
+        // Auto-activate the user's subscription license, if applicable.
         const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
           enterpriseCustomer,
           allLinkedEnterpriseCustomerUsers,
@@ -78,11 +78,11 @@ export async function ensureEnterpriseAppData({
             );
             const isCurrentStatusMatchingLicenseStatus = status === activatedOrAutoAppliedLicense.status;
             if (licensesIncludesActivatedOrAutoAppliedLicense) {
-              updatedLicensesByStatus[status] = isCurrentStatusMatchingLicenseStatus
-                ? licenses.filter((license) => license.uuid !== activatedOrAutoAppliedLicense.uuid)
-                : [...licenses, activatedOrAutoAppliedLicense];
+              updatedLicensesByStatus[status] = licenses.filter(
+                (license) => license.uuid !== activatedOrAutoAppliedLicense.uuid,
+              );
             } else if (isCurrentStatusMatchingLicenseStatus) {
-              updatedLicensesByStatus[activatedOrAutoAppliedLicense.status].push(activatedOrAutoAppliedLicense);
+              updatedLicensesByStatus[status] = [activatedOrAutoAppliedLicense];
             }
           });
           // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
