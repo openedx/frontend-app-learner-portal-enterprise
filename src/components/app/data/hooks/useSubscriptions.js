@@ -1,7 +1,6 @@
 import { querySubscriptions } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useBFF from './useBFF';
-import { transformSubscriptionsData } from '../services';
 
 /**
  * Custom hook to get subscriptions data for the enterprise.
@@ -16,10 +15,7 @@ export default function useSubscriptions(queryOptions = {}) {
     bffQueryOptions: {
       ...queryOptionsRest,
       select: (data) => {
-        const transformedData = transformSubscriptionsData(
-          data?.enterpriseCustomerUserSubsidies?.subscriptions,
-          { isBFFData: true },
-        );
+        const transformedData = data?.enterpriseCustomerUserSubsidies?.subscriptions;
 
         // When custom `select` function is provided in `queryOptions`, call it with original and transformed data.
         if (select) {

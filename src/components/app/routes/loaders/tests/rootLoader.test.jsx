@@ -6,7 +6,9 @@ import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeRootLoader from '../rootLoader';
 import { ensureAuthenticatedUser } from '../../data';
 import {
+  activateOrAutoApplySubscriptionLicense,
   extractEnterpriseCustomer,
+  getBaseSubscriptionsData,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
@@ -19,6 +21,8 @@ import {
   updateUserActiveEnterprise,
 } from '../../../data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../data/services/data/__factories__';
+import { isBFFEnabled } from '../../../data/utils';
+import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
@@ -28,6 +32,11 @@ jest.mock('../../../data', () => ({
   ...jest.requireActual('../../../data'),
   extractEnterpriseCustomer: jest.fn(),
   updateUserActiveEnterprise: jest.fn(),
+  activateOrAutoApplySubscriptionLicense: jest.fn(),
+}));
+jest.mock('../../../data/utils', () => ({
+  ...jest.requireActual('../../../data/utils'),
+  isBFFEnabled: jest.fn(),
 }));
 
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -36,6 +45,8 @@ const mockEnterpriseCustomerTwo = enterpriseCustomerFactory();
 
 const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue(),
+  getQueryData: jest.fn(),
+  setQueryData: jest.fn(),
 };
 
 describe('rootLoader', () => {
@@ -86,8 +97,40 @@ describe('rootLoader', () => {
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
   });
 
-  // TODO: include tests related to resolveBFFQuery within ensureEnterpriseAppData
   it.each([
+    // BFF disabled, non-staff user is linked to requested customer, resolves
+    // requested customer, does not need to update active enterprise, does not
+    // need to activate subscription license
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomerTwo,
+      activeEnterpriseCustomer: mockEnterpriseCustomerTwo,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+        { enterpriseCustomer: mockEnterpriseCustomerTwo },
+      ],
+      isStaffUser: false,
+      shouldActivateSubscriptionLicense: false,
+      hasResolvedBFFQuery: false,
+    },
+    // BFF disabled, non-staff user is linked to requested customer, resolves
+    // requested customer, does not need to update active enterprise, needs
+    // to activate subscription license
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomerTwo,
+      activeEnterpriseCustomer: mockEnterpriseCustomerTwo,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+        { enterpriseCustomer: mockEnterpriseCustomerTwo },
+      ],
+      isStaffUser: false,
+      shouldActivateSubscriptionLicense: true,
+      hasResolvedBFFQuery: false,
+    },
+    // BFF disabled, non-staff user is linked to requested customer, resolves
+    // requested customer, needs update to active enterprise, does not
+    // need to activate subscription license
     {
       enterpriseSlug: mockEnterpriseCustomerTwo.slug,
       enterpriseCustomer: mockEnterpriseCustomerTwo,
@@ -97,7 +140,55 @@ describe('rootLoader', () => {
         { enterpriseCustomer: mockEnterpriseCustomerTwo },
       ],
       isStaffUser: false,
+      shouldActivateSubscriptionLicense: false,
+      hasResolvedBFFQuery: false,
     },
+    // BFF disabled, non-staff user is not linked to requested customer, resolves
+    // linked customer, does not need to update active enterprise, does not
+    // need to activate subscription license
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomer,
+      activeEnterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+      ],
+      isStaffUser: false,
+      shouldActivateSubscriptionLicense: false,
+      hasResolvedBFFQuery: false,
+    },
+    // BFF disabled, staff user is not linked to requested customer, resolves
+    // requested customer, does not need to update active enterprise, does not
+    // need to activate subscription license
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomerTwo,
+      activeEnterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+      ],
+      isStaffUser: true,
+      shouldActivateSubscriptionLicense: false,
+      hasResolvedBFFQuery: false,
+    },
+    // BFF disabled, staff user is linked to requested customer, resolves
+    // requested customer, needs update to active enterprise, does not
+    // need to activate subscription license
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomerTwo,
+      activeEnterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+        { enterpriseCustomer: mockEnterpriseCustomerTwo },
+      ],
+      isStaffUser: true,
+      shouldActivateSubscriptionLicense: false,
+      hasResolvedBFFQuery: false,
+    },
+    // BFF enabled, non-staff user is linked to requested customer, resolves
+    // requested customer, needs update to active enterprise, does not
+    // need to activate subscription license
     {
       enterpriseSlug: mockEnterpriseCustomerTwo.slug,
       enterpriseCustomer: mockEnterpriseCustomerTwo,
@@ -107,42 +198,8 @@ describe('rootLoader', () => {
         { enterpriseCustomer: mockEnterpriseCustomerTwo },
       ],
       isStaffUser: false,
-    },
-    {
-      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
-      enterpriseCustomer: mockEnterpriseCustomer,
-      activeEnterpriseCustomer: mockEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers: [
-        { enterpriseCustomer: mockEnterpriseCustomer },
-      ],
-      isStaffUser: false,
-    },
-    {
-      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
-      enterpriseCustomer: mockEnterpriseCustomer,
-      activeEnterpriseCustomer: mockEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers: [
-        { enterpriseCustomer: mockEnterpriseCustomer },
-      ],
-      isStaffUser: false,
-    },
-    {
-      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
-      enterpriseCustomer: mockEnterpriseCustomerTwo,
-      activeEnterpriseCustomer: mockEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers: [
-        { enterpriseCustomer: mockEnterpriseCustomer },
-      ],
-      isStaffUser: true,
-    },
-    {
-      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
-      enterpriseCustomer: mockEnterpriseCustomerTwo,
-      activeEnterpriseCustomer: mockEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers: [
-        { enterpriseCustomer: mockEnterpriseCustomer },
-      ],
-      isStaffUser: true,
+      shouldActivateSubscriptionLicense: false,
+      hasResolvedBFFQuery: true,
     },
   ])('ensures all requisite root loader queries are resolved with an active enterprise customer user (%s)', async ({
     isStaffUser,
@@ -150,7 +207,12 @@ describe('rootLoader', () => {
     enterpriseCustomer,
     activeEnterpriseCustomer,
     allLinkedEnterpriseCustomerUsers,
+    shouldActivateSubscriptionLicense,
+    hasResolvedBFFQuery,
   }) => {
+    // Mock whether BFF enabled for enterprise customer and/or user
+    isBFFEnabled.mockReturnValue(hasResolvedBFFQuery);
+
     const enterpriseLearnerQuery = queryEnterpriseLearner(mockAuthenticatedUser.username, enterpriseSlug);
     const enterpriseLearnerQueryTwo = queryEnterpriseLearner(mockAuthenticatedUser.username, enterpriseCustomer.slug);
 
@@ -191,10 +253,33 @@ describe('rootLoader', () => {
     ).mockResolvedValue(mockRedeemablePolicies);
 
     // Mock subscriptions query
-    const mockSubscriptionsData = {
-      customerAgreement: null,
-      licensesByStatus: {},
-    };
+    const { baseSubscriptionsData, baseLicensesByStatus } = getBaseSubscriptionsData();
+    const mockSubscriptionsData = { ...baseSubscriptionsData };
+    if (shouldActivateSubscriptionLicense) {
+      const mockAssignedLicense = {
+        uuid: 'assigned-license-uuid',
+        status: LICENSE_STATUS.ASSIGNED,
+        activationKey: 'assigned-license-activation-key',
+        subscriptionPlan: {
+          uuid: 'subscription-plan-uuid',
+          isCurrent: true,
+        },
+      };
+      mockSubscriptionsData.customerAgreement = {
+        uuid: 'customer-agreement-uuid',
+        netDaysUntilExpiration: 30,
+      };
+      mockSubscriptionsData.subscriptionLicenses = [mockAssignedLicense];
+      mockSubscriptionsData.subscriptionLicensesByStatus[LICENSE_STATUS.ASSIGNED] = [mockAssignedLicense];
+      mockSubscriptionsData.subscriptionLicense = mockAssignedLicense;
+      mockSubscriptionsData.subscriptionPlan = mockAssignedLicense.subscriptionPlan;
+
+      // Mock the `activateOrAutoApplySubscriptionLicense` mutation
+      activateOrAutoApplySubscriptionLicense.mockResolvedValue({
+        ...mockAssignedLicense,
+        status: LICENSE_STATUS.ACTIVATED,
+      });
+    }
     const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
@@ -214,15 +299,15 @@ describe('rootLoader', () => {
 
     await waitFor(() => {
       // Assert that the expected number of queries were made.
+      let expectedQueryCount = 9;
       if (enterpriseSlug !== activeEnterpriseCustomer.slug) {
-        if (isLinked || isStaffUser) {
-          expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
-        } else {
-          expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(2);
+        if (!(isLinked || isStaffUser)) {
+          expectedQueryCount = 2;
         }
-      } else {
-        expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
+      } else if (hasResolvedBFFQuery) {
+        expectedQueryCount = 8;
       }
+      expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(expectedQueryCount);
     });
 
     // Enterprise learner query
@@ -249,13 +334,48 @@ describe('rootLoader', () => {
       }),
     );
 
-    // Subscriptions query
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
-      expect.objectContaining({
-        queryKey: subscriptionsQuery.queryKey,
-        queryFn: expect.any(Function),
-      }),
-    );
+    // Subscriptions query (only called with BFF disabled)
+    if (!hasResolvedBFFQuery) {
+      expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: subscriptionsQuery.queryKey,
+          queryFn: expect.any(Function),
+        }),
+      );
+      if (shouldActivateSubscriptionLicense) {
+        expect(activateOrAutoApplySubscriptionLicense).toHaveBeenCalledTimes(1);
+        expect(activateOrAutoApplySubscriptionLicense).toHaveBeenCalledWith({
+          enterpriseCustomer,
+          allLinkedEnterpriseCustomerUsers,
+          subscriptionsData: mockSubscriptionsData,
+          requestUrl: new URL(`http://localhost/${enterpriseSlug}`),
+        });
+
+        // Assert the subscriptions query cache is optimistically updated
+        expect(mockQueryClient.setQueryData).toHaveBeenCalledWith(subscriptionsQuery.queryKey, {
+          subscriptionLicenses: [
+            {
+              ...mockSubscriptionsData.subscriptionLicense,
+              status: LICENSE_STATUS.ACTIVATED,
+            },
+          ],
+          subscriptionLicensesByStatus: {
+            ...baseLicensesByStatus,
+            [LICENSE_STATUS.ACTIVATED]: [
+              {
+                ...mockSubscriptionsData.subscriptionLicense,
+                status: LICENSE_STATUS.ACTIVATED,
+              },
+            ],
+          },
+          subscriptionLicense: {
+            ...mockSubscriptionsData.subscriptionLicense,
+            status: LICENSE_STATUS.ACTIVATED,
+          },
+          subscriptionPlan: mockSubscriptionsData.subscriptionPlan,
+        });
+      }
+    }
 
     // Coupon codes query
     const couponCodesQuery = queryCouponCodes(enterpriseCustomer.uuid);

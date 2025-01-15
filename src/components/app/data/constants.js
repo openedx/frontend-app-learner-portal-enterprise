@@ -85,7 +85,7 @@ export const getBaseSubscriptionsData = () => {
     customerAgreement: null,
     subscriptionLicense: null,
     subscriptionPlan: null,
-    licensesByStatus: _cloneDeep(baseLicensesByStatus),
+    subscriptionLicensesByStatus: _cloneDeep(baseLicensesByStatus),
     showExpirationNotifications: false,
   };
   return {

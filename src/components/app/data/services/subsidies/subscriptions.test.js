@@ -6,7 +6,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { activateOrAutoApplySubscriptionLicense, fetchSubscriptions } from '.';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
-import { hasValidStartExpirationDates } from '../../../../../utils/common';
+import { getBaseSubscriptionsData } from '../../constants';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -57,10 +57,13 @@ describe('fetchSubscriptions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+  afterEach(() => {
+    axiosMock.reset();
+  });
   it.each([
+    // Activated license with current subscription plan
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
-      isSubscriptionPlanActive: true,
       isSubscriptionPlanCurrent: true,
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
@@ -69,20 +72,9 @@ describe('fetchSubscriptions', () => {
       hasCustomLicenseExpirationMessagingV2: false,
       expectedShowExpirationNotifications: true,
     },
+    // Activated license with expired subscription plan
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
-      isSubscriptionPlanActive: false,
-      isSubscriptionPlanCurrent: true,
-      daysUntilExpiration: 30,
-      startDate: dayjs().subtract(15, 'days').toISOString(),
-      expirationDate: dayjs().add(30, 'days').toISOString(),
-      disableExpirationNotifications: false,
-      hasCustomLicenseExpirationMessagingV2: false,
-      expectedShowExpirationNotifications: true,
-    },
-    {
-      licenseStatus: LICENSE_STATUS.ACTIVATED,
-      isSubscriptionPlanActive: true,
       isSubscriptionPlanCurrent: false,
       daysUntilExpiration: 0,
       startDate: dayjs().subtract(15, 'days').toISOString(),
@@ -91,9 +83,9 @@ describe('fetchSubscriptions', () => {
       hasCustomLicenseExpirationMessagingV2: false,
       expectedShowExpirationNotifications: true,
     },
+    // Unassigned license (should be ignored)
     {
       licenseStatus: LICENSE_STATUS.UNASSIGNED,
-      isSubscriptionPlanActive: true,
       isSubscriptionPlanCurrent: true,
       daysUntilExpiration: 30,
       startDate: dayjs().subtract(15, 'days').toISOString(),
@@ -105,7 +97,6 @@ describe('fetchSubscriptions', () => {
     // Custom subs messaging with standard expiration still enabled
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
-      isSubscriptionPlanActive: true,
       isSubscriptionPlanCurrent: false,
       daysUntilExpiration: -10,
       startDate: dayjs().subtract(15, 'days').toISOString(),
@@ -117,7 +108,6 @@ describe('fetchSubscriptions', () => {
     // Disabled standard expiration, with custom subs expiration enabled
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
-      isSubscriptionPlanActive: true,
       isSubscriptionPlanCurrent: false,
       daysUntilExpiration: -10,
       startDate: dayjs().subtract(15, 'days').toISOString(),
@@ -129,7 +119,6 @@ describe('fetchSubscriptions', () => {
     // Disabled standard expiration, no custom subs expiration
     {
       licenseStatus: LICENSE_STATUS.ACTIVATED,
-      isSubscriptionPlanActive: true,
       isSubscriptionPlanCurrent: false,
       daysUntilExpiration: -10,
       startDate: dayjs().subtract(15, 'days').toISOString(),
@@ -140,7 +129,6 @@ describe('fetchSubscriptions', () => {
     },
   ])('returns subscriptions (%s)', async ({
     licenseStatus,
-    isSubscriptionPlanActive,
     isSubscriptionPlanCurrent,
     daysUntilExpiration,
     startDate,
@@ -154,7 +142,7 @@ describe('fetchSubscriptions', () => {
       status: licenseStatus,
       subscriptionPlan: {
         uuid: 'test-subscription-plan-uuid',
-        isActive: isSubscriptionPlanActive,
+        isActive: true,
         isCurrent: isSubscriptionPlanCurrent,
         daysUntilExpiration,
         startDate,
@@ -177,38 +165,22 @@ describe('fetchSubscriptions', () => {
     const SUBSCRIPTIONS_URL = `${APP_CONFIG.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
     axiosMock.onGet(SUBSCRIPTIONS_URL).reply(200, mockResponse);
     const response = await fetchSubscriptions(mockEnterpriseId);
-    const expectedLicensesByStatus = {
-      [LICENSE_STATUS.ACTIVATED]: [],
-      [LICENSE_STATUS.ASSIGNED]: [],
-      [LICENSE_STATUS.REVOKED]: [],
-    };
-    const isLicenseApplicable = (
-      licenseStatus !== LICENSE_STATUS.UNASSIGNED
-      && isSubscriptionPlanActive
-    );
-    const updatedMockSubscriptionLicense = {
-      ...mockSubscriptionLicense,
-      subscriptionPlan: {
-        ...mockSubscriptionLicense.subscriptionPlan,
-        isCurrent: hasValidStartExpirationDates({ startDate, expirationDate }),
-      },
-    };
-    if (isLicenseApplicable) {
-      expectedLicensesByStatus[licenseStatus].push(updatedMockSubscriptionLicense);
-    }
 
-    const updatedCustomerAgreement = {
-      customerAgreement: { ...mockResponse.customerAgreement },
-      results: [updatedMockSubscriptionLicense],
-    };
+    const { baseLicensesByStatus } = getBaseSubscriptionsData();
+    const expectedLicensesByStatus = { ...baseLicensesByStatus };
+    const isValidLicenseStatus = licenseStatus !== LICENSE_STATUS.UNASSIGNED;
+    if (isValidLicenseStatus) {
+      expectedLicensesByStatus[licenseStatus].push(mockSubscriptionLicense);
+    }
     const expectedResult = {
-      customerAgreement: updatedCustomerAgreement.customerAgreement,
-      licensesByStatus: expectedLicensesByStatus,
-      subscriptionPlan: isLicenseApplicable ? updatedMockSubscriptionLicense.subscriptionPlan : null,
-      subscriptionLicense: isLicenseApplicable ? updatedMockSubscriptionLicense : null,
-      subscriptionLicenses: [updatedMockSubscriptionLicense],
+      customerAgreement: mockResponse.customerAgreement,
+      subscriptionLicensesByStatus: expectedLicensesByStatus,
+      subscriptionPlan: isValidLicenseStatus ? mockSubscriptionLicense.subscriptionPlan : null,
+      subscriptionLicense: isValidLicenseStatus ? mockSubscriptionLicense : null,
+      subscriptionLicenses: [mockSubscriptionLicense],
       showExpirationNotifications: expectedShowExpirationNotifications,
     };
+
     expect(response).toEqual(expectedResult);
   });
 
@@ -265,7 +237,7 @@ describe('fetchSubscriptions', () => {
 
     const expectedResult = {
       customerAgreement: mockResponse.customerAgreement,
-      licensesByStatus: expectedLicensesByStatus,
+      subscriptionLicensesByStatus: expectedLicensesByStatus,
       subscriptionPlan: mockSubscriptionLicenseCurrent.subscriptionPlan,
       subscriptionLicense: mockSubscriptionLicenseCurrent,
       subscriptionLicenses: [mockSubscriptionLicenseCurrent, mockSubscriptionLicenseRenewal],
@@ -315,20 +287,19 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
   });
 
   it('returns null with already activated license', async () => {
+    const mockSubscriptionLicense = {
+      uuid: 'test-license-uuid',
+      status: LICENSE_STATUS.ACTIVATED,
+      subscriptionPlan: { isCurrent: true },
+    };
+    const { baseLicensesByStatus } = getBaseSubscriptionsData();
     const mockLicensesByStatus = {
-      [LICENSE_STATUS.ACTIVATED]: [
-        {
-          uuid: 'test-license-uuid',
-          status: LICENSE_STATUS.ACTIVATED,
-          subscriptionPlan: { isCurrent: true },
-        },
-      ],
-      [LICENSE_STATUS.ASSIGNED]: [],
-      [LICENSE_STATUS.REVOKED]: [],
+      ...baseLicensesByStatus,
+      [LICENSE_STATUS.ACTIVATED]: [mockSubscriptionLicense],
     };
     const mockSubscriptionsData = {
       customerAgreement: mockCustomerAgreement,
-      licensesByStatus: mockLicensesByStatus,
+      subscriptionLicensesByStatus: mockLicensesByStatus,
     };
     const result = await activateOrAutoApplySubscriptionLicense({
       enterpriseCustomer: mockEnterpriseCustomer,
@@ -357,7 +328,7 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     };
     const mockSubscriptionsData = {
       customerAgreement: mockCustomerAgreement,
-      licensesByStatus: mockLicensesByStatus,
+      subscriptionLicensesByStatus: mockLicensesByStatus,
     };
     const result = await activateOrAutoApplySubscriptionLicense({
       enterpriseCustomer: mockEnterpriseCustomer,
@@ -393,7 +364,7 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     };
     const mockSubscriptionsData = {
       customerAgreement: mockCustomerAgreement,
-      licensesByStatus: mockLicensesByStatus,
+      subscriptionLicensesByStatus: mockLicensesByStatus,
     };
     axiosMock.onPost(ACTIVATE_LICENSE_URL).reply(200, {});
     const mockRequestUrl = {
@@ -512,7 +483,7 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     };
     const mockSubscriptionsData = {
       customerAgreement: mockCustomerAgreementWithAutoApplied,
-      licensesByStatus: mockLicensesByStatus,
+      subscriptionLicensesByStatus: mockLicensesByStatus,
       subscriptionLicense: {
         subscriptionPlan: {
           isCurrent: true,

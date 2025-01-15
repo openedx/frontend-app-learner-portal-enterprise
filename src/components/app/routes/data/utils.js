@@ -16,6 +16,7 @@ import Cookies from 'universal-cookie';
 
 import {
   activateOrAutoApplySubscriptionLicense,
+  addLicenseToSubscriptionLicensesByStatus,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
@@ -60,9 +61,9 @@ export async function ensureEnterpriseAppData({
   if (!matchedBFFQuery) {
     const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
     enterpriseAppDataQueries.push(
-    // Enterprise Customer User Subsidies
+      // Enterprise Customer User Subsidies
       queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
-      // Auto-activate the user's subscription license, if applicable.
+        // Auto-activate the user's subscription license, if applicable.
         const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
           enterpriseCustomer,
           allLinkedEnterpriseCustomerUsers,
@@ -70,36 +71,40 @@ export async function ensureEnterpriseAppData({
           requestUrl,
         });
         if (activatedOrAutoAppliedLicense) {
-          const { licensesByStatus } = subscriptionsData;
-          const updatedLicensesByStatus = { ...licensesByStatus };
-          Object.entries(licensesByStatus).forEach(([status, licenses]) => {
-            const licensesIncludesActivatedOrAutoAppliedLicense = licenses.some(
-              (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
-            );
-            const isCurrentStatusMatchingLicenseStatus = status === activatedOrAutoAppliedLicense.status;
-            if (licensesIncludesActivatedOrAutoAppliedLicense) {
-              updatedLicensesByStatus[status] = isCurrentStatusMatchingLicenseStatus
-                ? licenses.filter((license) => license.uuid !== activatedOrAutoAppliedLicense.uuid)
-                : [...licenses, activatedOrAutoAppliedLicense];
-            } else if (isCurrentStatusMatchingLicenseStatus) {
-              updatedLicensesByStatus[activatedOrAutoAppliedLicense.status].push(activatedOrAutoAppliedLicense);
-            }
+          const { subscriptionLicensesByStatus, subscriptionLicenses } = subscriptionsData;
+          // Create a deep copy of the structure using .map for immutability, removing
+          // the `activatedOrAutoAppliedLicense` from each list. Then, re-add the license
+          // to the correct status list.
+          const licensesByStatusWithoutExistingLicense = Object.fromEntries(
+            Object.entries(subscriptionLicensesByStatus).map(([key, licenses]) => [
+              key,
+              licenses.filter(
+                (existingLicense) => existingLicense.uuid !== activatedOrAutoAppliedLicense.uuid,
+              ), // Remove license immutably
+            ]),
+          );
+          const updatedLicensesByStatus = addLicenseToSubscriptionLicensesByStatus({
+            subscriptionLicensesByStatus: licensesByStatusWithoutExistingLicense,
+            subscriptionLicense: activatedOrAutoAppliedLicense,
           });
-          // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
-          const updatedSubscriptionLicenses = subscriptionsData.subscriptionLicenses.length > 0
-            ? subscriptionsData.subscriptionLicenses.map((license) => {
-            // Ensures an auto-activated license is updated in the query cache to change
-            // its status from "assigned" to "activated".
-              if (license.uuid === activatedOrAutoAppliedLicense.uuid) {
-                return activatedOrAutoAppliedLicense;
-              }
-              return license;
-            })
-            : [activatedOrAutoAppliedLicense];
 
+          // Update the flat subscription licenses list
+          const updatedSubscriptionLicenses = [...subscriptionLicenses];
+          const licenseIndex = subscriptionLicenses.findIndex(
+            (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
+          );
+          if (licenseIndex >= 0) {
+            // Replace the existing license
+            updatedSubscriptionLicenses[licenseIndex] = activatedOrAutoAppliedLicense;
+          } else {
+            // Add the new license
+            updatedSubscriptionLicenses.push(activatedOrAutoAppliedLicense);
+          }
+
+          // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
           queryClient.setQueryData(subscriptionsQuery.queryKey, {
             ...queryClient.getQueryData(subscriptionsQuery.queryKey),
-            licensesByStatus: updatedLicensesByStatus,
+            subscriptionLicensesByStatus: updatedLicensesByStatus,
             subscriptionPlan: activatedOrAutoAppliedLicense.subscriptionPlan,
             subscriptionLicense: activatedOrAutoAppliedLicense,
             subscriptionLicenses: updatedSubscriptionLicenses,

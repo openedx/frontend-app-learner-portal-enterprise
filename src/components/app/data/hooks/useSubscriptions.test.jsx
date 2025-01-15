@@ -9,6 +9,7 @@ import useSubscriptions from './useSubscriptions';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { queryEnterpriseLearnerDashboardBFF, resolveBFFQuery } from '../queries';
 import useEnterpriseFeatures from './useEnterpriseFeatures';
+import { getBaseSubscriptionsData } from '../constants';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useEnterpriseFeatures');
@@ -28,19 +29,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
-const licensesByStatus = {
-  [LICENSE_STATUS.ACTIVATED]: [],
-  [LICENSE_STATUS.ASSIGNED]: [],
-  [LICENSE_STATUS.REVOKED]: [],
-};
-const mockSubscriptionsData = {
-  subscriptionLicenses: [],
-  customerAgreement: null,
-  subscriptionLicense: null,
-  subscriptionPlan: null,
-  licensesByStatus,
-  showExpirationNotifications: false,
-};
+const { baseSubscriptionsData, baseLicensesByStatus } = getBaseSubscriptionsData();
 
 describe('useSubscriptions', () => {
   const Wrapper = ({ children }) => (
@@ -53,7 +42,7 @@ describe('useSubscriptions', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useEnterpriseFeatures.mockReturnValue({ data: undefined });
-    fetchSubscriptions.mockResolvedValue(mockSubscriptionsData);
+    fetchSubscriptions.mockResolvedValue(baseSubscriptionsData);
     useLocation.mockReturnValue({ pathname: '/test-enterprise' });
     useParams.mockReturnValue({ enterpriseSlug: 'test-enterprise' });
     resolveBFFQuery.mockReturnValue(null);
@@ -90,11 +79,11 @@ describe('useSubscriptions', () => {
     }
     const queryOptions = hasQueryOptions ? { select: mockSelect } : undefined;
     const mockSubscriptionLicensesByStatus = {
-      ...mockSubscriptionsData.licensesByStatus,
+      ...baseLicensesByStatus,
       [mockSubscriptionLicense.status]: [mockSubscriptionLicense],
     };
     const mockSubscriptionsDataWithLicense = {
-      ...mockSubscriptionsData,
+      ...baseSubscriptionsData,
       subscriptionLicenses: [mockSubscriptionLicense],
       customerAgreement: {
         uuid: 'mock-customer-agreement-uuid',
@@ -102,12 +91,11 @@ describe('useSubscriptions', () => {
       },
       subscriptionLicense: mockSubscriptionLicense,
       subscriptionPlan: mockSubscriptionLicense.subscriptionPlan,
-      licensesByStatus: mockSubscriptionLicensesByStatus,
+      subscriptionLicensesByStatus: mockSubscriptionLicensesByStatus,
       showExpirationNotifications: false,
     };
     if (isBFFQueryEnabled) {
       mockSubscriptionsDataWithLicense.subscriptionLicensesByStatus = mockSubscriptionLicensesByStatus;
-      delete mockSubscriptionsDataWithLicense.licensesByStatus;
       resolveBFFQuery.mockReturnValue(queryEnterpriseLearnerDashboardBFF);
       fetchEnterpriseLearnerDashboard.mockResolvedValue({
         enterpriseCustomerUserSubsidies: {
@@ -131,9 +119,8 @@ describe('useSubscriptions', () => {
 
     const expectedSubscriptionsdata = {
       ...mockSubscriptionsDataWithLicense,
-      licensesByStatus: mockSubscriptionLicensesByStatus,
+      subscriptionLicensesByStatus: mockSubscriptionLicensesByStatus,
     };
-    delete expectedSubscriptionsdata.subscriptionLicensesByStatus;
 
     if (hasQueryOptions && isBFFQueryEnabled) {
       expect(mockSelect).toHaveBeenCalledWith({
