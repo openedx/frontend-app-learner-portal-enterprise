@@ -8,6 +8,7 @@ import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { fetchPaginatedData } from '../utils';
 import { getBaseSubscriptionsData, SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE } from '../../constants';
+import { addLicenseToSubscriptionLicensesByStatus } from '../../utils';
 
 // Subscriptions
 
@@ -216,10 +217,11 @@ export function transformSubscriptionsData({ customerAgreement, subscriptionLice
     if (license.status === LICENSE_STATUS.UNASSIGNED) {
       return;
     }
-    if (!subscriptionsData.subscriptionLicensesByStatus[license.status]) {
-      subscriptionsData.subscriptionLicensesByStatus[license.status] = [];
-    }
-    subscriptionsData.subscriptionLicensesByStatus[license.status].push(license);
+    const updatedLicensesByStatus = addLicenseToSubscriptionLicensesByStatus({
+      subscriptionLicensesByStatus: subscriptionsData.subscriptionLicensesByStatus,
+      subscriptionLicense: license,
+    });
+    subscriptionsData.subscriptionLicensesByStatus = updatedLicensesByStatus;
   });
 
   // Extracts a single subscription license for the user, from the ordered licenses by status.

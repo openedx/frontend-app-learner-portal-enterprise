@@ -920,3 +920,20 @@ export function isBFFEnabled(enterpriseCustomerUuid, enterpriseFeatures) {
   // Otherwise, BFF is not enabled.
   return false;
 }
+
+/**
+ * Adds a subscription license to the subscription licenses grouped by status.
+ * @param {Oject} args
+ * @param {Object} args.subscriptionLicensesByStatus - The subscription licenses grouped by status.
+ * @param {Object} args.subscriptionLicense - The subscription license to add to the subscription licenses by status.
+ * @returns {Object} - Returns the updated subscription licenses grouped by status.
+ */
+export function addLicenseToSubscriptionLicensesByStatus({ subscriptionLicensesByStatus, subscriptionLicense }) {
+  const licenseStatus = subscriptionLicense.status;
+  const updatedLicensesByStatus = { ...subscriptionLicensesByStatus };
+  if (!updatedLicensesByStatus[licenseStatus]) {
+    updatedLicensesByStatus[licenseStatus] = [];
+  }
+  updatedLicensesByStatus[licenseStatus].push(subscriptionLicense);
+  return updatedLicensesByStatus;
+}
