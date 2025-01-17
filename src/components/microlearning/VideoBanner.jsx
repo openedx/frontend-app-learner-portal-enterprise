@@ -6,6 +6,7 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import BetaBadge from './BetaBadge';
 import { useEnterpriseCustomer } from '../app/data';
 import './styles/VideoDetailPage.scss';
+import { SEARCH_INDEX_IDS } from '../../constants';
 
 const VideoBanner = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -55,7 +56,7 @@ const VideoBanner = () => {
         <Card.Footer className="col-3 justify-content-end">
           <Button
             as={Link}
-            to="#videos-section"
+            to={`#${SEARCH_INDEX_IDS.VIDEOS}`}
             variant="outline-primary"
             onClick={sendPushEvent}
           >

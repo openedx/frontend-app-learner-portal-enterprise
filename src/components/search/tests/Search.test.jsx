@@ -3,7 +3,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import '../../skills-quiz/__mocks__/react-instantsearch-dom';
+import * as MockReactInstantSearch from '../../skills-quiz/__mocks__/react-instantsearch-dom';
 import { queryClient, renderWithRouter } from '../../../utils/tests';
 import '@testing-library/jest-dom';
 import Search from '../Search';
@@ -78,6 +78,7 @@ describe('<Search />', () => {
     useDefaultSearchFilters.mockReturnValue(mockFilter);
     useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(true);
     useAlgoliaSearch.mockReturnValue([{ search: jest.fn(), appId: 'test-app-id' }, { indexName: 'mock-index-name' }]);
+    MockReactInstantSearch.configure.nbHits = 2;
   });
   test('renders the video beta banner component', () => {
     features.FEATURE_ENABLE_VIDEO_CATALOG = true;
@@ -87,5 +88,16 @@ describe('<Search />', () => {
       </SearchWrapper>,
     );
     expect(screen.getByText('Videos Now Available with Your Subscription')).toBeInTheDocument();
+  });
+  test('renders correctly when no search results are found', () => {
+    MockReactInstantSearch.configure.nbHits = 0;
+
+    renderWithRouter(
+      <SearchWrapper>
+        <Search />
+      </SearchWrapper>,
+    );
+
+    expect(screen.queryByText('Videos Now Available with Your Subscription')).toBeNull();
   });
 });

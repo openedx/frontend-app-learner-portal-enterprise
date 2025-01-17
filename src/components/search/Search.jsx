@@ -1,4 +1,6 @@
-import { useContext, useEffect } from 'react';
+import {
+  useCallback, useContext, useEffect, useState,
+} from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
@@ -79,11 +81,21 @@ const Search = () => {
     closePathwayModal,
   } = useSearchPathwayModal();
 
+  const [shouldShowVideosBanner, setShouldShowVideosBanner] = useState(false);
+
   const enableVideos = (
     canOnlyViewHighlightSets === false
     && features.FEATURE_ENABLE_VIDEO_CATALOG
     && hasValidLicenseOrSubRequest
   );
+
+  const showVideosBanner = useCallback(() => {
+    setShouldShowVideosBanner(true);
+  }, []);
+
+  const hideVideosBanner = useCallback(() => {
+    setShouldShowVideosBanner(false);
+  }, []);
 
   const PAGE_TITLE = intl.formatMessage({
     id: 'enterprise.search.page.title',
@@ -153,13 +165,15 @@ const Search = () => {
         {/* No content type refinement  */}
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
-            {enableVideos && <VideoBanner />}
+            {shouldShowVideosBanner && <VideoBanner />}
             {!hasRefinements && <ContentHighlights />}
             {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <SearchAcademy />}
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
             {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} />}
-            {enableVideos && <SearchVideo filter={filters} />}
+            {enableVideos && (
+              <SearchVideo filter={filters} showVideosBanner={showVideosBanner} hideVideosBanner={hideVideosBanner} />
+            )}
           </Stack>
         )}
         {/* render a single contentType if the refinement exist and is either a course, program or learnerpathway */}
