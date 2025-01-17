@@ -1,16 +1,9 @@
 import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform';
 import {
-  AxiosJwtAuthService,
-  configure as configureAuth,
   fetchAuthenticatedUser,
   getLoginRedirectUrl,
 } from '@edx/frontend-platform/auth';
-import {
-  configure as configureLogging,
-  getLoggingService,
-  NewRelicLoggingService,
-} from '@edx/frontend-platform/logging';
 import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 
@@ -206,17 +199,6 @@ export function redirectToRemoveTrailingSlash(requestUrl) {
     return;
   }
   throw redirect(requestUrl.pathname.slice(0, -1));
-}
-
-// Configure the logging and authentication services, only for non-test environments.
-if (process.env.NODE_ENV !== 'test') {
-  configureLogging(NewRelicLoggingService, {
-    config: getConfig(),
-  });
-  configureAuth(AxiosJwtAuthService, {
-    loggingService: getLoggingService(),
-    config: getConfig(),
-  });
 }
 
 /**

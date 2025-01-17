@@ -63,13 +63,15 @@ const queryClient = new QueryClient({
   },
 });
 
-const router = createAppRouter(queryClient);
-
 const App = () => {
   const [showReactQueryDevtools, setShowReactQueryDevtools] = useState(false);
   useEffect(() => {
     window.toggleReactQueryDevtools = () => setShowReactQueryDevtools((prevState) => !prevState);
   });
+
+  // Create the app router during render vs. at the top-level of the module to ensure
+  // the logging and auth modules are initialized before the router is created.
+  const router = createAppRouter(queryClient);
 
   return (
     <QueryClientProvider client={queryClient}>
