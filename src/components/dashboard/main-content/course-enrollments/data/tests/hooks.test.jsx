@@ -596,8 +596,8 @@ describe('useContentAssignments', () => {
   const mockSubsidyExpirationDateStr = dayjs().add(ENROLL_BY_DATE_WARNING_THRESHOLD_DAYS + 1, 'days').toISOString();
   const mockAssignmentConfigurationId = 'test-assignment-configuration-id';
   const mockAssignment = {
-    courseKey: 'edX+DemoX',
-    courseRunId: 'course-v1:Best+course+2T2025',
+    contentKey: 'edX+DemoX',
+    parentContentKey: null,
     contentTitle: 'edX Demo Course',
     subsidyExpirationDate: mockSubsidyExpirationDateStr,
     assignmentConfiguration: mockAssignmentConfigurationId,
@@ -888,58 +888,117 @@ describe('useContentAssignments', () => {
   });
 
   it.each([
+    // isCourseRunAssignment false
     // Audit, no enrollBy date
     {
       mode: COURSE_MODES_MAP.AUDIT,
       enrollBy: undefined,
+      isCourseRunAssignment: false,
       isAssignmentExcluded: true,
     },
     // Audit, with elapsed enrollBy date
     {
       mode: COURSE_MODES_MAP.AUDIT,
       enrollBy: dayjs().subtract(1, 'd').toISOString(), // yesterday
+      isCourseRunAssignment: false,
       isAssignmentExcluded: false,
     },
     // Audit, with not-yet-elapsed enrollBy date
     {
       mode: COURSE_MODES_MAP.AUDIT,
       enrollBy: dayjs().add(1, 'd').toISOString(), // tomorrow
+      isCourseRunAssignment: false,
       isAssignmentExcluded: true,
     },
     // Verified, no enrollBy date
     {
       mode: COURSE_MODES_MAP.VERIFIED,
       enrollBy: undefined,
+      isCourseRunAssignment: false,
       isAssignmentExcluded: false,
     },
     // Verified, with elapsed enrollBy date
     {
       mode: COURSE_MODES_MAP.VERIFIED,
       enrollBy: dayjs().subtract(1, 'd').toISOString(), // yesterday
+      isCourseRunAssignment: false,
       isAssignmentExcluded: false,
     },
     // Verified, with not-yet-elapsed enrollBy date
     {
       mode: COURSE_MODES_MAP.VERIFIED,
       enrollBy: dayjs().add(1, 'd').toISOString(), // tomorrow
+      isCourseRunAssignment: false,
+      isAssignmentExcluded: false,
+    },
+    // isCourseRunAssignment true
+    // Audit, no enrollBy date
+    {
+      mode: COURSE_MODES_MAP.AUDIT,
+      enrollBy: undefined,
+      isCourseRunAssignment: true,
+      isAssignmentExcluded: true,
+    },
+    // Audit, with elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.AUDIT,
+      enrollBy: dayjs().subtract(1, 'd').toISOString(), // yesterday
+      isCourseRunAssignment: true,
+      isAssignmentExcluded: false,
+    },
+    // Audit, with not-yet-elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.AUDIT,
+      enrollBy: dayjs().add(1, 'd').toISOString(), // tomorrow
+      isCourseRunAssignment: true,
+      isAssignmentExcluded: true,
+    },
+    // Verified, no enrollBy date
+    {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      enrollBy: undefined,
+      isCourseRunAssignment: true,
+      isAssignmentExcluded: false,
+    },
+    // Verified, with elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      enrollBy: dayjs().subtract(1, 'd').toISOString(), // yesterday
+      isCourseRunAssignment: true,
+      isAssignmentExcluded: false,
+    },
+    // Verified, with not-yet-elapsed enrollBy date
+    {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      enrollBy: dayjs().add(1, 'd').toISOString(), // tomorrow
+      isCourseRunAssignment: true,
       isAssignmentExcluded: false,
     },
   ])('should exclude assignments that have an upgradeable in-progress course enrollment (%s)', ({
     mode,
     enrollBy,
     isAssignmentExcluded,
+    isCourseRunAssignment,
   }) => {
     const mockEnrollment = {
       ...mockTransformedMockCourseEnrollment,
       mode,
       enrollBy,
-      isAssignedCourseRun: true,
     };
-
+    const assignmentKeys = isCourseRunAssignment
+      ? {
+        contentKey: mockEnrollment.courseRunId,
+        parentContentKey: mockEnrollment.courseKey,
+      }
+      : {
+        contentKey: mockEnrollment.courseKey,
+        parentContentKey: null,
+      };
     const mockAssignmentForExistingEnrollment = {
       ...mockAllocatedAssignment,
-      contentKey: mockEnrollment.courseRunId,
-      isAssignedCourseRun: true,
+      contentKey: assignmentKeys.contentKey,
+      parentContentKey: assignmentKeys.parentContentKey,
+      isAssignedCourseRun: isCourseRunAssignment,
     };
     const mockPoliciesWithInProgressEnrollment = {
       ...mockPoliciesWithAssignments,
@@ -956,7 +1015,6 @@ describe('useContentAssignments', () => {
       },
     });
     const { result } = renderHook(() => useContentAssignments(), { wrapper });
-
     if (isAssignmentExcluded) {
       expect(result.current.assignments).toHaveLength(0);
     } else {

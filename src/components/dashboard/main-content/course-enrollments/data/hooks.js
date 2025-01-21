@@ -441,16 +441,21 @@ export function useContentAssignments() {
       expiredAssignments,
     } = allEnrollmentsByStatus.assigned;
 
-    const upgradeableAuditEnrollmentCourseKeys = [...allEnrollmentsByStatus.inProgress]
+    const potentiallyUpgradeableAuditEnrollmentCourses = [...allEnrollmentsByStatus.inProgress]
       .filter(enrollment => isEnrollmentUpgradeable(enrollment))
-      .map((enrollment) => enrollment.courseRunId);
+      .map((enrollment) => ({
+        courseKey: enrollment.courseKey,
+        courseRunId: enrollment.courseRunId,
+      }));
 
     // Filter out any assignments that have a corresponding potentially upgradeable
     // audit enrollment. Note: all enrollment cards currently assume content key is
     // a course run id despite the current assignment's content key referring to a
-    // top-level course key.
+    // top-level course key or a specific course run identifier as assignment.courseRunId.
     const filteredAssignmentsForDisplay = assignmentsForDisplay.filter((assignment) => (
-      !upgradeableAuditEnrollmentCourseKeys.includes(assignment.courseRunId)
+      !potentiallyUpgradeableAuditEnrollmentCourses.some(({ courseKey, courseRunId }) => (
+        [courseKey, courseRunId].includes(assignment.courseRunId)
+      ))
     ));
 
     // Sort and transform the list of assignments for display.
@@ -463,14 +468,14 @@ export function useContentAssignments() {
 
     // Determine whether there are unacknowledged canceled assignments. If so, display alert.
     const filteredCanceledAssignments = canceledAssignments.filter((assignment) => (
-      !upgradeableAuditEnrollmentCourseKeys.includes(assignment.courseRunId)
+      !potentiallyUpgradeableAuditEnrollmentCourses.includes(assignment.courseRunId)
     ));
     const hasUnacknowledgedCanceledAssignments = getHasUnacknowledgedAssignments(filteredCanceledAssignments);
     setShowCanceledAssignmentsAlert(hasUnacknowledgedCanceledAssignments);
 
     // Determine whether there are unacknowledged expired assignments. If so, display alert.
     const filteredExpiredAssignments = expiredAssignments.filter((assignment) => (
-      !upgradeableAuditEnrollmentCourseKeys.includes(assignment.courseRunId)
+      !potentiallyUpgradeableAuditEnrollmentCourses.includes(assignment.courseRunId)
     ));
     const hasUnacknowledgedExpiredAssignments = getHasUnacknowledgedAssignments(filteredExpiredAssignments);
     setShowExpiredAssignmentsAlert(hasUnacknowledgedExpiredAssignments);

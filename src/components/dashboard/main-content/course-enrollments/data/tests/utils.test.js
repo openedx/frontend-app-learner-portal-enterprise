@@ -15,6 +15,7 @@ describe('transformCourseEnrollment', () => {
     const originalCourseEnrollment = createRawCourseEnrollment();
 
     const transformedCourseEnrollment = {
+      courseKey: originalCourseEnrollment.courseKey,
       completed: originalCourseEnrollment.completed,
       courseRunId: originalCourseEnrollment.courseRunId,
       courseRunStatus: originalCourseEnrollment.courseRunStatus,
@@ -44,6 +45,7 @@ describe('transformCourseEnrollment', () => {
       certificateDownloadUrl: certificateUrl,
     });
     const transformedCourseEnrollment = {
+      courseKey: originalCourseEnrollment.courseKey,
       completed: originalCourseEnrollment.completed,
       courseRunId: originalCourseEnrollment.courseRunId,
       courseRunStatus: originalCourseEnrollment.courseRunStatus,
