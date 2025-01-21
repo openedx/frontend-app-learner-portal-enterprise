@@ -50,23 +50,23 @@ export default function useHasAvailableSubsidiesOrRequests() {
     unexpiredPolicies,
   }), [enterpriseOffersData.currentEnterpriseOffers, expiredPolicies, unexpiredPolicies]);
 
-  const isActivatedCurrentLicenseOrLicenseRequest = hasActivatedCurrentLicenseOrLicenseRequest({
+  const hasLicenseSubsidyOrRequests = hasActivatedCurrentLicenseOrLicenseRequest({
     subscriptionPlan, subscriptionLicense, licenseRequests,
   });
-  const isAssignedCodesOrCodeRequests = hasAssignedCodesOrCodeRequests({
+  const hasCodesSubsidyOrRequests = hasAssignedCodesOrCodeRequests({
     couponCodesCount: couponCodeRedemptionCount, couponCodeRequests,
   });
   const hasAvailableLearnerCreditPolicies = redeemablePolicies.length > 0;
 
-  const hasAvailableSubsidyOrRequests = (
-    isActivatedCurrentLicenseOrLicenseRequest || isAssignedCodesOrCodeRequests || learnerCreditSummaryCardData
+  const hasAvailableSubsidyOrRequests = !!(
+    hasLicenseSubsidyOrRequests || hasCodesSubsidyOrRequests || learnerCreditSummaryCardData
   );
 
   return {
     hasAvailableSubsidyOrRequests,
     hasAvailableLearnerCreditPolicies,
-    hasAssignedCodesOrCodeRequests: isAssignedCodesOrCodeRequests,
-    hasActivatedCurrentLicenseOrLicenseRequest: isActivatedCurrentLicenseOrLicenseRequest,
+    hasAssignedCodesOrCodeRequests: hasCodesSubsidyOrRequests,
+    hasActivatedCurrentLicenseOrLicenseRequest: hasLicenseSubsidyOrRequests,
     learnerCreditSummaryCardData,
   };
 }

@@ -74,7 +74,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
       hasActivatedCurrentLicenseOrLicenseRequest: false,
       hasAssignedCodesOrCodeRequests: false,
       hasAvailableLearnerCreditPolicies: false,
-      hasAvailableSubsidyOrRequests: undefined,
+      hasAvailableSubsidyOrRequests: false,
       learnerCreditSummaryCardData: undefined,
     });
   });
@@ -247,9 +247,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         hasActivatedCurrentLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: false,
-        hasAvailableSubsidyOrRequests: {
-          expirationDate: mockEndDateTimeOneDayOff,
-        },
+        hasAvailableSubsidyOrRequests: true,
         learnerCreditSummaryCardData: {
           expirationDate: mockEndDateTimeOneDayOff,
         },
@@ -310,9 +308,7 @@ describe('useHasAvailableSubsidiesOrRequests', () => {
         hasActivatedCurrentLicenseOrLicenseRequest: false,
         hasAssignedCodesOrCodeRequests: false,
         hasAvailableLearnerCreditPolicies: true,
-        hasAvailableSubsidyOrRequests: {
-          expirationDate: mockEndDateTimeOneDayOff,
-        },
+        hasAvailableSubsidyOrRequests: true,
         learnerCreditSummaryCardData: {
           expirationDate: mockEndDateTimeOneDayOff,
         },

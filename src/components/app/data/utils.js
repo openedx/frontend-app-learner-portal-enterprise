@@ -75,9 +75,9 @@ export const hasAutoAppliedLearnerCreditPolicies = (redeemableLearnerCreditPolic
     POLICY_TYPES.PER_LEARNER_CREDIT,
     POLICY_TYPES.PER_ENROLLMENT_CREDIT,
   ];
-  return redeemableLearnerCreditPolicies.redeemablePolicies.filter(
+  return redeemableLearnerCreditPolicies.redeemablePolicies.some(
     policy => autoAppliedPolicyTypes.includes(policy.policyType),
-  ).length > 0;
+  );
 };
 
 export const hasAllocatedOrAcceptedAssignments = (redeemableLearnerCreditPolicies) => (
@@ -118,8 +118,9 @@ export function determineLearnerHasContentAssignmentsOnly({
     return false;
   }
 
-  // We check for any true values for the following cases. If any cases return true, this indicates that the
-  // enterprise learner is not an assignment only learner. We default return to true when no other subsidy exist
+  // We check for any true values for the following cases. If any cases return true, this
+  // indicates that the enterprise learner is not an assignment only learner. We default
+  // return to true when no other subsidy or subsidy requests exist
   switch (true) {
     case hasCurrentEnterpriseOffers:
       return false;
