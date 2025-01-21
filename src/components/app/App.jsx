@@ -1,5 +1,5 @@
 import {
-  Suspense, lazy, useEffect, useState,
+  Suspense, lazy, useEffect, useMemo, useState,
 } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { AppProvider } from '@edx/frontend-platform/react';
@@ -15,7 +15,7 @@ import {
   defaultQueryClientRetryHandler,
 } from '../../utils/common';
 
-import { AppSuspenseFallback, RouterFallback, createAppRouter } from './routes';
+import { RouterFallback, createAppRouter } from './routes';
 
 // eslint-disable-next-line import/no-unresolved
 const ReactQueryDevtoolsProduction = lazy(() => import('@tanstack/react-query-devtools/production').then((d) => ({
@@ -71,7 +71,7 @@ const App = () => {
 
   // Create the app router during render vs. at the top-level of the module to ensure
   // the logging and auth modules are initialized before the router is created.
-  const router = createAppRouter(queryClient);
+  const router = useMemo(() => createAppRouter(queryClient), []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -82,12 +82,10 @@ const App = () => {
         </Suspense>
       )}
       <AppProvider wrapWithRouter={false}>
-        <Suspense fallback={<AppSuspenseFallback />}>
-          <RouterProvider
-            router={router}
-            fallbackElement={<RouterFallback />}
-          />
-        </Suspense>
+        <RouterProvider
+          router={router}
+          fallbackElement={<RouterFallback />}
+        />
       </AppProvider>
     </QueryClientProvider>
   );

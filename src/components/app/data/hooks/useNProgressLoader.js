@@ -18,7 +18,9 @@ function useNProgressLoader() {
   const {
     data: noticeRedirectUrl,
     isLoading: isLoadingNotices,
-  } = useNotices();
+  } = useNotices({
+    suspense: false,
+  });
 
   const hasNoticeRedirectUrl = !isLoadingNotices && !!noticeRedirectUrl;
   const isAppDataHydrated = isAuthenticatedUserHydrated && !hasNoticeRedirectUrl;

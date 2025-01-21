@@ -10,6 +10,7 @@ import Cookies from 'universal-cookie';
 import {
   activateOrAutoApplySubscriptionLicense,
   addLicenseToSubscriptionLicensesByStatus,
+  queryAcademiesList,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
@@ -109,24 +110,30 @@ export async function ensureEnterpriseAppData({
     );
   }
   enterpriseAppDataQueries.push(...[
+    // Redeemable Learner Credit Policies
     queryClient.ensureQueryData(
       queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: userId,
       }),
     ),
+    // Enterprise Coupon Codes
     queryClient.ensureQueryData(
       queryCouponCodes(enterpriseCustomer.uuid),
     ),
+    // Enterprise Learner Offers
     queryClient.ensureQueryData(
       queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
     ),
+    // Browse and Request Configuration
     queryClient.ensureQueryData(
       queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
     ),
+    // License Requests
     queryClient.ensureQueryData(
       queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
     ),
+    // Coupon Code Requests
     queryClient.ensureQueryData(
       queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
     ),
@@ -134,13 +141,20 @@ export async function ensureEnterpriseAppData({
     queryClient.ensureQueryData(
       queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
     ),
+    // Academies List
+    queryClient.ensureQueryData(
+      queryAcademiesList(enterpriseCustomer.uuid),
+    ),
   ]);
 
   if (getConfig().ENABLE_NOTICES) {
     enterpriseAppDataQueries.push(
+      // Notices
       queryClient.ensureQueryData(queryNotices()),
     );
   }
+
+  // Ensure all enterprise app data queries are resolved.
   await Promise.all(enterpriseAppDataQueries);
 }
 

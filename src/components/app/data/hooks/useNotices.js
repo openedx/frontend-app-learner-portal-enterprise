@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import { queryNotices } from '../queries';
 
@@ -10,7 +11,8 @@ import { queryNotices } from '../queries';
 function useNotices(queryOptions = {}) {
   const queryResults = useQuery({
     ...queryNotices(),
-    queryOptions,
+    enabled: !!getConfig().ENABLE_NOTICES,
+    ...queryOptions,
   });
 
   useEffect(() => {

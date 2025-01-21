@@ -191,6 +191,19 @@ function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
       loader: getRouteLoader(makeRootLoader, queryClient),
       element: <Layout />,
       children: enterpriseSlugChildRoutes,
+      shouldRevalidate: ({ currentUrl, nextUrl }) => {
+        const currentPathname = currentUrl.pathname;
+        const nextPathname = nextUrl.pathname;
+        if (currentPathname === nextPathname) {
+          // If the pathname hasn't changed, we don't need to revalidate.
+          return false;
+        }
+
+        // Check if the next pathname is a sub-route of the enterprise slug route.
+        // If it is, we should revalidate the route; otherwise, it shouldn't revalidate.
+        const matchedSubRoute = matchPath({ path: ':enterpriseSlug?/*' }, nextPathname);
+        return !!matchedSubRoute;
+      },
     },
   ];
   return enterpriseSlugRoutes;
