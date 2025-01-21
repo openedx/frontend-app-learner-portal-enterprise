@@ -85,7 +85,7 @@ const SubsidiesSummary = ({
     hasAvailableSubsidyOrRequests,
     hasAvailableLearnerCreditPolicies,
     hasAssignedCodesOrCodeRequests,
-    hasActiveLicenseOrLicenseRequest,
+    hasActivatedCurrentLicenseOrLicenseRequest,
     learnerCreditSummaryCardData,
   } = useHasAvailableSubsidiesOrRequests();
   const hasApplicableLearnerCredit = (
@@ -122,7 +122,7 @@ const SubsidiesSummary = ({
       className={classNames('mb-5', { 'col-8 border-0 shadow-none': programProgressPage })}
     >
       <div className={className} data-testid="subsidies-summary">
-        {hasActiveLicenseOrLicenseRequest && (
+        {hasActivatedCurrentLicenseOrLicenseRequest && (
           <SubscriptionSummaryCard
             courseEndDate={courseEndDate}
             programProgressPage={programProgressPage}

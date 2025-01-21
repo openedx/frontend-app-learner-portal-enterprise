@@ -75,7 +75,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -117,7 +117,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -160,7 +160,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -200,7 +200,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       },
       hasCurrentEnterpriseOffers: true,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -240,7 +240,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: true,
+        isCurrent: true,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -280,7 +280,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
       licenseRequests: [],
@@ -320,7 +320,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: true,
+        isCurrent: true,
       },
       subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
       licenseRequests: [],
@@ -360,7 +360,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [{ id: 1 }],
@@ -400,7 +400,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -440,7 +440,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       },
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],
@@ -462,7 +462,7 @@ describe('determineLearnerHasContentAssignmentsOnly', () => {
       redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
       hasCurrentEnterpriseOffers: false,
       subscriptionPlan: {
-        isActive: false,
+        isCurrent: false,
       },
       subscriptionLicense: undefined,
       licenseRequests: [],

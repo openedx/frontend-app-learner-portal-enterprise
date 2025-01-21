@@ -161,21 +161,21 @@ const defaultRedeemablePoliciesState = {
 const mockUseActiveSubsidyOrRequestsData = {
   mockHasAvailableLearnerCreditPolicies: false,
   mockHasAssignedCodesOrCodeRequests: false,
-  mockHasActiveLicenseOrLicenseRequest: false,
+  mockHasActivatedCurrentLicenseOrLicenseRequest: false,
   mockLearnerCreditSummaryCardData: null,
 };
 const useMockHasAvailableSubsidyOrRequests = ({
   mockHasAvailableLearnerCreditPolicies,
   mockHasAssignedCodesOrCodeRequests,
-  mockHasActiveLicenseOrLicenseRequest,
+  mockHasActivatedCurrentLicenseOrLicenseRequest,
   mockLearnerCreditSummaryCardData,
 }) => ({
   hasAvailableLearnerCreditPolicies: mockHasAvailableLearnerCreditPolicies,
   hasAssignedCodesOrCodeRequests: mockHasAssignedCodesOrCodeRequests,
   learnerCreditSummaryCardData: mockLearnerCreditSummaryCardData,
-  hasActiveLicenseOrLicenseRequest: mockHasActiveLicenseOrLicenseRequest,
+  hasActivatedCurrentLicenseOrLicenseRequest: mockHasActivatedCurrentLicenseOrLicenseRequest,
   hasAvailableSubsidyOrRequests: mockHasAssignedCodesOrCodeRequests
-    || mockHasActiveLicenseOrLicenseRequest
+    || mockHasActivatedCurrentLicenseOrLicenseRequest
     || mockLearnerCreditSummaryCardData,
 });
 
@@ -360,7 +360,7 @@ describe('<Dashboard />', () => {
       },
     });
     useHasAvailableSubsidiesOrRequests.mockReturnValue(
-      useMockHasAvailableSubsidyOrRequests({ mockHasActiveLicenseOrLicenseRequest: true }),
+      useMockHasAvailableSubsidyOrRequests({ mockHasActivatedCurrentLicenseOrLicenseRequest: true }),
     );
     renderWithRouter(
       <DashboardWithContext />,

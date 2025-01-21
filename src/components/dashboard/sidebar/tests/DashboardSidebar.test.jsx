@@ -68,21 +68,21 @@ const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockUseActiveSubsidyOrRequestsData = {
   mockHasAvailableLearnerCreditPolicies: false,
   mockHasAssignedCodesOrCodeRequests: false,
-  mockHasActiveLicenseOrLicenseRequest: false,
+  mockHasActivatedCurrentLicenseOrLicenseRequest: false,
   mockLearnerCreditSummaryCardData: null,
 };
 const useMockHasAvailableSubsidyOrRequests = ({
   mockHasAvailableLearnerCreditPolicies,
   mockHasAssignedCodesOrCodeRequests,
-  mockHasActiveLicenseOrLicenseRequest,
+  mockHasActivatedCurrentLicenseOrLicenseRequest,
   mockLearnerCreditSummaryCardData,
 }) => ({
   hasAvailableLearnerCreditPolicies: mockHasAvailableLearnerCreditPolicies,
   hasAssignedCodesOrCodeRequests: mockHasAssignedCodesOrCodeRequests,
   learnerCreditSummaryCardData: mockLearnerCreditSummaryCardData,
-  hasActiveLicenseOrLicenseRequest: mockHasActiveLicenseOrLicenseRequest,
+  hasActivatedCurrentLicenseOrLicenseRequest: mockHasActivatedCurrentLicenseOrLicenseRequest,
   hasAvailableSubsidyOrRequests: mockHasAssignedCodesOrCodeRequests
-    || mockHasActiveLicenseOrLicenseRequest
+    || mockHasActivatedCurrentLicenseOrLicenseRequest
     || mockLearnerCreditSummaryCardData,
 });
 
@@ -182,7 +182,7 @@ describe('<DashboardSidebar />', () => {
       },
     });
     useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
-      mockHasActiveLicenseOrLicenseRequest: true,
+      mockHasActivatedCurrentLicenseOrLicenseRequest: true,
     }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText(SUBSCRIPTION_SUMMARY_CARD_TITLE));
@@ -203,7 +203,7 @@ describe('<DashboardSidebar />', () => {
       },
     });
     useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
-      mockHasActiveLicenseOrLicenseRequest: true,
+      mockHasActivatedCurrentLicenseOrLicenseRequest: true,
     }));
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText(SUBSCRIPTION_SUMMARY_CARD_TITLE));
@@ -245,7 +245,7 @@ describe('<DashboardSidebar />', () => {
       },
     });
     useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
-      mockHasActiveLicenseOrLicenseRequest: true,
+      mockHasActivatedCurrentLicenseOrLicenseRequest: true,
       mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
     }));
     renderWithRouter(<DashboardSidebarWithContext />);
@@ -400,7 +400,7 @@ describe('<DashboardSidebar />', () => {
   });
   test('Find a course button is not rendered when user has subsidy but customer has search disabled', () => {
     useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
-      mockHasActiveLicenseOrLicenseRequest: true,
+      mockHasActivatedCurrentLicenseOrLicenseRequest: true,
     }));
     useEnterpriseCustomer.mockReturnValue({ data: enterpriseCustomerFactory({ disable_search: true }) });
     renderWithRouter(<DashboardSidebarWithContext />);
@@ -426,7 +426,7 @@ describe('<DashboardSidebar />', () => {
     // Only find a course visible
     {
       useHasAvailableSubsidiesOrRequestsValues: {
-        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasActivatedCurrentLicenseOrLicenseRequest: true,
         mockHasAvailableLearnerCreditPolicies: true,
         mockHasAssignedCodesOrCodeRequests: true,
         mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
@@ -442,7 +442,7 @@ describe('<DashboardSidebar />', () => {
     // both disable expiration flags enabled, dates are expired
     {
       useHasAvailableSubsidiesOrRequestsValues: {
-        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasActivatedCurrentLicenseOrLicenseRequest: true,
         mockHasAvailableLearnerCreditPolicies: true,
         mockHasAssignedCodesOrCodeRequests: false,
         mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
@@ -458,7 +458,7 @@ describe('<DashboardSidebar />', () => {
     // learner credit disable expiration flags enabled, dates are expired
     {
       useHasAvailableSubsidiesOrRequestsValues: {
-        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasActivatedCurrentLicenseOrLicenseRequest: true,
         mockHasAvailableLearnerCreditPolicies: true,
         mockHasAssignedCodesOrCodeRequests: false,
         mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
@@ -474,7 +474,7 @@ describe('<DashboardSidebar />', () => {
     // subscription disable expiration flag enabled, dates are expired
     {
       useHasAvailableSubsidiesOrRequestsValues: {
-        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasActivatedCurrentLicenseOrLicenseRequest: true,
         mockHasAvailableLearnerCreditPolicies: true,
         mockHasAssignedCodesOrCodeRequests: false,
         mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
@@ -490,7 +490,7 @@ describe('<DashboardSidebar />', () => {
     // active learner credit plan with disabled subscription, dates are expired
     {
       useHasAvailableSubsidiesOrRequestsValues: {
-        mockHasActiveLicenseOrLicenseRequest: false,
+        mockHasActivatedCurrentLicenseOrLicenseRequest: false,
         mockHasAvailableLearnerCreditPolicies: true,
         mockHasAssignedCodesOrCodeRequests: false,
         mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
@@ -506,7 +506,7 @@ describe('<DashboardSidebar />', () => {
     // active subscription with disabled learner credit plan, dates are expired
     {
       useHasAvailableSubsidiesOrRequestsValues: {
-        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasActivatedCurrentLicenseOrLicenseRequest: true,
         mockHasAvailableLearnerCreditPolicies: false,
         mockHasAssignedCodesOrCodeRequests: false,
         mockLearnerCreditSummaryCardData: { expirationDate: dayjs().subtract(10, 'days').toISOString() },
@@ -522,7 +522,7 @@ describe('<DashboardSidebar />', () => {
     // learner credit disable expiration flags enabled, dates are expiring
     {
       useHasAvailableSubsidiesOrRequestsValues: {
-        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasActivatedCurrentLicenseOrLicenseRequest: true,
         mockHasAvailableLearnerCreditPolicies: true,
         mockHasAssignedCodesOrCodeRequests: false,
         mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(10, 'days').toISOString() },
@@ -538,7 +538,7 @@ describe('<DashboardSidebar />', () => {
     // subscription disable expiration flag enabled, dates are expiring
     {
       useHasAvailableSubsidiesOrRequestsValues: {
-        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasActivatedCurrentLicenseOrLicenseRequest: true,
         mockHasAvailableLearnerCreditPolicies: true,
         mockHasAssignedCodesOrCodeRequests: false,
         mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(10, 'days').toISOString() },
@@ -554,7 +554,7 @@ describe('<DashboardSidebar />', () => {
     // active learner credit plan with disabled subscription, dates are expiring
     {
       useHasAvailableSubsidiesOrRequestsValues: {
-        mockHasActiveLicenseOrLicenseRequest: false,
+        mockHasActivatedCurrentLicenseOrLicenseRequest: false,
         mockHasAvailableLearnerCreditPolicies: true,
         mockHasAssignedCodesOrCodeRequests: false,
         mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(10, 'days').toISOString() },
@@ -570,7 +570,7 @@ describe('<DashboardSidebar />', () => {
     // active subscription with disabled learner credit plan, dates are expiring
     {
       useHasAvailableSubsidiesOrRequestsValues: {
-        mockHasActiveLicenseOrLicenseRequest: true,
+        mockHasActivatedCurrentLicenseOrLicenseRequest: true,
         mockHasAvailableLearnerCreditPolicies: false,
         mockHasAssignedCodesOrCodeRequests: false,
         mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(10, 'days').toISOString() },
@@ -606,7 +606,7 @@ describe('<DashboardSidebar />', () => {
     });
     const {
       mockHasAvailableLearnerCreditPolicies,
-      mockHasActiveLicenseOrLicenseRequest,
+      mockHasActivatedCurrentLicenseOrLicenseRequest,
     } = useHasAvailableSubsidiesOrRequestsValues;
     renderWithRouter(<DashboardSidebarWithContext />);
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
@@ -618,9 +618,9 @@ describe('<DashboardSidebar />', () => {
     } else if (mockHasAvailableLearnerCreditPolicies && disableExpiryMessagingForLearnerCredit) {
       expect(expiredLearnerCreditText).toBeFalsy();
     }
-    if (mockHasActiveLicenseOrLicenseRequest && showExpirationNotifications) {
+    if (mockHasActivatedCurrentLicenseOrLicenseRequest && showExpirationNotifications) {
       expect(expiredSubscriptionText).toBeTruthy();
-    } else if (mockHasActiveLicenseOrLicenseRequest && !showExpirationNotifications) {
+    } else if (mockHasActivatedCurrentLicenseOrLicenseRequest && !showExpirationNotifications) {
       expect(expiredSubscriptionText).toBeFalsy();
     }
   });

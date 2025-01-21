@@ -56,6 +56,35 @@ export function isSystemMaintenanceAlertOpen(config) {
   return true;
 }
 
+export const hasActivatedCurrentLicenseOrLicenseRequest = ({
+  subscriptionPlan,
+  subscriptionLicense,
+  licenseRequests,
+}) => {
+  const hasActivatedCurrentLicense = subscriptionPlan?.isCurrent
+    && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
+  return hasActivatedCurrentLicense || licenseRequests.length > 0;
+};
+
+export const hasAssignedCodesOrCodeRequests = ({ couponCodesCount, couponCodeRequests }) => (
+  couponCodesCount > 0 || couponCodeRequests.length > 0
+);
+
+export const hasAutoAppliedLearnerCreditPolicies = (redeemableLearnerCreditPolicies) => {
+  const autoAppliedPolicyTypes = [
+    POLICY_TYPES.PER_LEARNER_CREDIT,
+    POLICY_TYPES.PER_ENROLLMENT_CREDIT,
+  ];
+  return redeemableLearnerCreditPolicies.redeemablePolicies.some(
+    policy => autoAppliedPolicyTypes.includes(policy.policyType),
+  );
+};
+
+export const hasAllocatedOrAcceptedAssignments = (redeemableLearnerCreditPolicies) => (
+  redeemableLearnerCreditPolicies.learnerContentAssignments.hasAllocatedAssignments
+    || redeemableLearnerCreditPolicies.learnerContentAssignments.hasAcceptedAssignments
+);
+
 /**
  * Determine whether learner has only content assignments available to them, based on the presence of:
  * - content assignments for display (allocated or canceled)
@@ -83,29 +112,28 @@ export function determineLearnerHasContentAssignmentsOnly({
   redeemableLearnerCreditPolicies,
   hasCurrentEnterpriseOffers,
 }) {
-  const hasActiveLicense = !!(subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED);
-  const hasActiveLicenseOrLicenseRequest = hasActiveLicense || licenseRequests.length > 0;
+  const hasAssignments = hasAllocatedOrAcceptedAssignments(redeemableLearnerCreditPolicies);
+  // If the enterprise learner does not have any applicable assignments, we can return early to avoid additional checks
+  if (!hasAssignments) {
+    return false;
+  }
 
-  const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
-  const autoAppliedPolicyTypes = [
-    POLICY_TYPES.PER_LEARNER_CREDIT,
-    POLICY_TYPES.PER_ENROLLMENT_CREDIT,
-  ];
-  const hasAutoAppliedLearnerCreditPolicies = !!redeemableLearnerCreditPolicies.redeemablePolicies.filter(
-    policy => autoAppliedPolicyTypes.includes(policy.policyType),
-  ).length > 0;
-  const hasAllocatedOrAcceptedAssignments = !!(
-    redeemableLearnerCreditPolicies.learnerContentAssignments.hasAllocatedAssignments
-    || redeemableLearnerCreditPolicies.learnerContentAssignments.hasAcceptedAssignments
-  );
-
-  return (
-    hasAllocatedOrAcceptedAssignments
-    && !hasCurrentEnterpriseOffers
-    && !hasActiveLicenseOrLicenseRequest
-    && !hasAssignedCodesOrCodeRequests
-    && !hasAutoAppliedLearnerCreditPolicies
-  );
+  // We check for any true values for the following cases. If any cases return true, this
+  // indicates that the enterprise learner is not an assignment only learner. We default
+  // return to true when no other subsidy or subsidy requests exist
+  switch (true) {
+    case hasCurrentEnterpriseOffers:
+      return false;
+    case hasActivatedCurrentLicenseOrLicenseRequest({ subscriptionPlan, subscriptionLicense, licenseRequests }):
+      return false;
+    case hasAutoAppliedLearnerCreditPolicies(redeemableLearnerCreditPolicies):
+      return false;
+    case hasAssignedCodesOrCodeRequests({ couponCodeRequests, couponCodesCount }):
+      return false;
+    default:
+      // The default 'true' value indicates that the learner is an assignment only learner
+      return true;
+  }
 }
 
 /**

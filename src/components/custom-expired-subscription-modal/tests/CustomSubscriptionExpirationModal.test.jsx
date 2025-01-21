@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { AppContext } from '@edx/frontend-platform/react';
-import ExpiredSubscriptionModal from '../index';
+import CustomSubscriptionExpirationModal from '../index';
 import { postUnlinkUserFromEnterprise, useEnterpriseCustomer, useSubscriptions } from '../../app/data';
 import { renderWithRouter } from '../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
@@ -17,15 +17,15 @@ const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const defaultAppContextValue = { authenticatedUser: mockAuthenticatedUser };
-const ExpiredSubscriptionModalWrapper = ({ children, appContextValue = defaultAppContextValue }) => (
+const CustomSubscriptionExpirationModalWrapper = ({ children, appContextValue = defaultAppContextValue }) => (
   <AppContext.Provider value={appContextValue}>
-    <ExpiredSubscriptionModal>
+    <CustomSubscriptionExpirationModal>
       {children}
-    </ExpiredSubscriptionModal>
+    </CustomSubscriptionExpirationModal>
   </AppContext.Provider>
 );
 
-describe('<ExpiredSubscriptionModal />', () => {
+describe('<CustomSubscriptionExpirationModal />', () => {
   beforeEach(() => {
     useSubscriptions.mockReturnValue({
       data: {
@@ -48,7 +48,7 @@ describe('<ExpiredSubscriptionModal />', () => {
   });
 
   test('does not renderwithrouter if `hasCustomLicenseExpirationMessagingV2` is false', () => {
-    const { container } = renderWithRouter(<ExpiredSubscriptionModalWrapper />);
+    const { container } = renderWithRouter(<CustomSubscriptionExpirationModalWrapper />);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -71,7 +71,7 @@ describe('<ExpiredSubscriptionModal />', () => {
       },
     });
 
-    const { container } = renderWithRouter(<ExpiredSubscriptionModalWrapper />);
+    const { container } = renderWithRouter(<CustomSubscriptionExpirationModalWrapper />);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -90,7 +90,7 @@ describe('<ExpiredSubscriptionModal />', () => {
       },
     });
 
-    const { container } = renderWithRouter(<ExpiredSubscriptionModalWrapper />);
+    const { container } = renderWithRouter(<CustomSubscriptionExpirationModalWrapper />);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -113,7 +113,7 @@ describe('<ExpiredSubscriptionModal />', () => {
       },
     });
 
-    renderWithRouter(<ExpiredSubscriptionModalWrapper />);
+    renderWithRouter(<CustomSubscriptionExpirationModalWrapper />);
 
     expect(screen.getByText('Expired Subscription')).toBeInTheDocument();
     expect(screen.getByText('Continue learning')).toBeInTheDocument();
@@ -121,7 +121,7 @@ describe('<ExpiredSubscriptionModal />', () => {
 
   test('does not renderwithrouter modal if no customer agreement data is present', () => {
     useSubscriptions.mockReturnValue({ data: { customerAgreement: null } });
-    const { container } = renderWithRouter(<ExpiredSubscriptionModalWrapper />);
+    const { container } = renderWithRouter(<CustomSubscriptionExpirationModalWrapper />);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -144,7 +144,7 @@ describe('<ExpiredSubscriptionModal />', () => {
       },
     });
 
-    renderWithRouter(<ExpiredSubscriptionModalWrapper />);
+    renderWithRouter(<CustomSubscriptionExpirationModalWrapper />);
     expect(screen.queryByLabelText(/close/i)).not.toBeInTheDocument();
   });
   test('clicks on Continue learning button', () => {
@@ -168,7 +168,7 @@ describe('<ExpiredSubscriptionModal />', () => {
     });
 
     // Render the component
-    renderWithRouter(<ExpiredSubscriptionModalWrapper />);
+    renderWithRouter(<CustomSubscriptionExpirationModalWrapper />);
 
     // Find the Continue Learning button
     const continueButton = screen.getByText('Continue learning');
@@ -199,7 +199,7 @@ describe('<ExpiredSubscriptionModal />', () => {
     });
     postUnlinkUserFromEnterprise.mockResolvedValueOnce();
 
-    renderWithRouter(<ExpiredSubscriptionModalWrapper />);
+    renderWithRouter(<CustomSubscriptionExpirationModalWrapper />);
 
     const continueButton = screen.getByText('Continue learning');
 

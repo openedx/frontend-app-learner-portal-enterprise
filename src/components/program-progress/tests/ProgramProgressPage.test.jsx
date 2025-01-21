@@ -3,19 +3,23 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { screen } from '@testing-library/react';
 import { ProgramProgressPage } from '../index';
-import { authenticatedUserFactory, enterpriseCustomerFactory, academiesFactory } from '../../app/data/services/data/__factories__';
 import {
+  academiesFactory,
+  authenticatedUserFactory,
+  enterpriseCustomerFactory,
+} from '../../app/data/services/data/__factories__';
+import {
+  useAcademies,
   useBrowseAndRequest,
   useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseOffers,
+  useHasAvailableSubsidiesOrRequests,
   useIsAssignmentsOnlyLearner,
   useLearnerProgramProgressData,
   useRedeemablePolicies,
   useSubscriptions,
-  useHasAvailableSubsidiesOrRequests,
-  useAcademies,
 } from '../../app/data';
 
 jest.mock('../../app/data', () => ({
@@ -44,20 +48,20 @@ const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const mockUseActiveSubsidyOrRequestsData = {
   mockHasAssignedCodesOrCodeRequests: false,
-  mockHasActiveLicenseOrLicenseRequest: false,
+  mockHasActivatedCurrentLicenseOrLicenseRequest: false,
   mockLearnerCreditSummaryCardData: {},
 };
 const useMockHasAvailableSubsidyOrRequests = ({
   mockHasAssignedCodesOrCodeRequests,
-  mockHasActiveLicenseOrLicenseRequest,
+  mockHasActivatedCurrentLicenseOrLicenseRequest,
   mockLearnerCreditSummaryCardData,
 }) => ({
   hasAvailableLearnerCreditPolicies: false,
   hasAssignedCodesOrCodeRequests: mockHasAssignedCodesOrCodeRequests,
   learnerCreditSummaryCardData: mockLearnerCreditSummaryCardData,
-  hasActiveLicenseOrLicenseRequest: mockHasActiveLicenseOrLicenseRequest,
+  hasActivatedCurrentLicenseOrLicenseRequest: mockHasActivatedCurrentLicenseOrLicenseRequest,
   hasAvailableSubsidyOrRequests: mockHasAssignedCodesOrCodeRequests
-    || mockHasActiveLicenseOrLicenseRequest
+    || mockHasActivatedCurrentLicenseOrLicenseRequest
     || mockLearnerCreditSummaryCardData,
 });
 
