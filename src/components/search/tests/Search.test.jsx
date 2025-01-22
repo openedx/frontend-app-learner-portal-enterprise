@@ -7,7 +7,7 @@ import '../../skills-quiz/__mocks__/react-instantsearch-dom';
 import { queryClient, renderWithRouter } from '../../../utils/tests';
 import '@testing-library/jest-dom';
 import Search from '../Search';
-import { useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
+import { useDefaultSearchFilters, useEnterpriseCustomer, useHasValidLicenseOrSubscriptionRequestsEnabled } from '../../app/data';
 import { useAlgoliaSearch } from '../../../utils/hooks';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import { features } from '../../../config';
@@ -31,6 +31,7 @@ jest.mock('../../app/data', () => ({
   useCanOnlyViewHighlights: jest.fn(() => ({ data: false })),
   useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
   useDefaultSearchFilters: jest.fn(),
+  useHasValidLicenseOrSubscriptionRequestsEnabled: jest.fn(),
 }));
 jest.mock('../../../utils/hooks', () => ({
   ...jest.requireActual('../../../utils/hooks'),
@@ -75,6 +76,7 @@ describe('<Search />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useDefaultSearchFilters.mockReturnValue(mockFilter);
+    useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(true);
     useAlgoliaSearch.mockReturnValue([{ search: jest.fn(), appId: 'test-app-id' }, { indexName: 'mock-index-name' }]);
   });
   test('renders the video beta banner component', () => {
