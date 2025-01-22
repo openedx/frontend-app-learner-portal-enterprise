@@ -122,7 +122,19 @@ describe('useNProgressLoader', () => {
     expect(result.current).toBe(true);
   });
 
-  it('should call nprogress done with hydrated user and no notices', async () => {
+  it.each([
+    { hasNoticesEnabled: true },
+    { hasNoticesEnabled: false },
+  ])('should call nprogress done with hydrated user and no notices (%s)', async ({ hasNoticesEnabled }) => {
+    const noticesQueryResult = {
+      data: undefined,
+      isLoading: true,
+    };
+    if (hasNoticesEnabled) {
+      noticesQueryResult.data = null;
+      noticesQueryResult.isLoading = false;
+    }
+    useNotices.mockReturnValue(noticesQueryResult);
     const Wrapper = ({ children }) => (
       <AppContext.Provider value={appContextValueWithHydratedUser}>
         {children}
