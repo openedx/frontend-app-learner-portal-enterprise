@@ -500,9 +500,7 @@ export function retrieveErrorMessage(error) {
   if (!error) {
     return null;
   }
-  if (error.customAttributes) {
-    return error.customAttributes.httpErrorResponseData;
-  }
+  let errorMessage = error.message;
   // Identify development suspense error
   const isDeveloperSuspenseError = (
     process.env.NODE_ENV === 'development'
@@ -511,8 +509,7 @@ export function retrieveErrorMessage(error) {
     )
   );
   if (isDeveloperSuspenseError) {
-    const errorMessage = error.message;
-    return (
+    errorMessage = (
       `A component or hook triggered suspense, possibly due to
       missing pre-fetched data. Since \`suspense: true\` is configured
       by default for all React Query queries, ensure that any necessary
@@ -522,7 +519,10 @@ export function retrieveErrorMessage(error) {
       ${errorMessage.split('\n')[0]}`
     );
   }
-  return error.message;
+  if (error.customAttributes) {
+    errorMessage += `\nCustom attributes: ${error.customAttributes.httpErrorResponseData}`;
+  }
+  return errorMessage;
 }
 
 /**
