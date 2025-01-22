@@ -10,7 +10,7 @@ import useNotices from './useNotices';
 // for quick route transitions.
 export const NPROGRESS_DELAY_MS = 300;
 
-function useNProgressLoader() {
+function useNProgressLoader(queryOptions = {}) {
   const { authenticatedUser } = useContext(AppContext);
   const isAuthenticatedUserHydrated = !!authenticatedUser?.extendedProfile;
   const navigation = useNavigation();
@@ -18,9 +18,7 @@ function useNProgressLoader() {
   const {
     data: noticeRedirectUrl,
     isLoading: isLoadingNotices,
-  } = useNotices({
-    suspense: false,
-  });
+  } = useNotices(queryOptions.useNotices);
 
   const hasNoticeRedirectUrl = !isLoadingNotices && !!noticeRedirectUrl;
   const isAppDataHydrated = isAuthenticatedUserHydrated && !hasNoticeRedirectUrl;
