@@ -18,7 +18,7 @@
     "@edx/reactifex": "2.2.0",
     "@loadable/component": "5.16.3",
     "@lukemorales/query-key-factory": "1.3.4",
-    "@openedx/frontend-slot-footer": "1.0.3",
+    "@openedx/frontend-slot-footer": "1.0.7",
     "@openedx/paragon": "21.13.1",
     "@tanstack/react-query": "4.28.0",
     "@tanstack/react-query-devtools": "4.29.0",
