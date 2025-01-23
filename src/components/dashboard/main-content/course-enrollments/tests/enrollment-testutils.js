@@ -15,7 +15,7 @@ const createCourseEnrollmentWithStatus = (
 ) => {
   const randomNumber = Math.random();
   return ({
-    courseKey: 'edX+DemoX',
+    courseKey: 'Best+course',
     courseRunId: `$course-v1:edX+DemoX+Demo_Course-${randomNumber}`,
     courseRunStatus: status,
     linkToCourse: 'https://edx.org/',
@@ -32,7 +32,7 @@ const createCourseEnrollmentWithStatus = (
 };
 
 const createRawCourseEnrollment = (options) => ({
-  courseKey: 'edX+DemoX',
+  courseKey: 'Best+course',
   courseRunId: 'course-v1:Best+course+2T2025',
   displayName: 'Best course',
   micromastersTitle: 'Greatest Micromasters',
