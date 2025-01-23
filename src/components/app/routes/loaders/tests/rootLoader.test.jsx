@@ -9,6 +9,7 @@ import {
   activateOrAutoApplySubscriptionLicense,
   extractEnterpriseCustomer,
   getBaseSubscriptionsData,
+  queryAcademiesList,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
@@ -299,13 +300,13 @@ describe('rootLoader', () => {
 
     await waitFor(() => {
       // Assert that the expected number of queries were made.
-      let expectedQueryCount = 9;
+      let expectedQueryCount = 10;
       if (enterpriseSlug !== activeEnterpriseCustomer.slug) {
         if (!(isLinked || isStaffUser)) {
           expectedQueryCount = 2;
         }
       } else if (hasResolvedBFFQuery) {
-        expectedQueryCount = 8;
+        expectedQueryCount = 9;
       }
       expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(expectedQueryCount);
     });
@@ -427,6 +428,15 @@ describe('rootLoader', () => {
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: contentHighlightsConfigQuery.queryKey,
+        queryFn: expect.any(Function),
+      }),
+    );
+
+    // Academies list query
+    const academiesListQuery = queryAcademiesList(enterpriseCustomer.uuid);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: academiesListQuery.queryKey,
         queryFn: expect.any(Function),
       }),
     );

@@ -8,9 +8,8 @@ import { features } from '../../config';
 import { useHasValidLicenseOrSubscriptionRequestsEnabled } from '../app/data';
 
 const SearchPage = () => {
-  const hasValidLicenseOrSubRequest = useHasValidLicenseOrSubscriptionRequestsEnabled();
-
   const intl = useIntl();
+  const hasValidLicenseOrSubRequest = useHasValidLicenseOrSubscriptionRequestsEnabled();
   const enableVideos = (
     features.FEATURE_ENABLE_VIDEO_CATALOG
     && hasValidLicenseOrSubRequest

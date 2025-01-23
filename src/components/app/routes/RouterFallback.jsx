@@ -1,7 +1,12 @@
 import { useNProgressLoader } from '../data';
 
 const RouterFallback = () => {
-  useNProgressLoader();
+  const queryOptions = {
+    useNotices: {
+      suspense: false,
+    },
+  };
+  useNProgressLoader(queryOptions);
   return null;
 };
 

@@ -18,9 +18,10 @@ const RouteErrorBoundaryWrapper = () => (
     <RouteErrorBoundary />
   </IntlProvider>
 );
-
+const originalNodeEnv = process.env.NODE_ENV;
 describe('RouteErrorBoundary', () => {
   beforeEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
     useRouteError.mockReturnValue(null);
     useAsyncError.mockReturnValue(null);
 
@@ -41,6 +42,32 @@ describe('RouteErrorBoundary', () => {
     renderWithRouterProvider(<RouteErrorBoundaryWrapper />);
     expect(screen.getByText('An error occurred while processing your request')).toBeInTheDocument();
     expect(screen.getByText('We apologize for the inconvenience. Please try again later.')).toBeInTheDocument();
+  });
+
+  it('overrides default error message for development suspense errors', () => {
+    useRouteError.mockReturnValue(new Error('A React component suspended while rendering, but no fallback UI was specified'));
+    process.env.NODE_ENV = 'development';
+    renderWithRouterProvider(<RouteErrorBoundaryWrapper />);
+    expect(screen.getByText('An error occurred while processing your request')).toBeInTheDocument();
+    expect(screen.getByText('We apologize for the inconvenience. Please try again later.')).toBeInTheDocument();
+    expect(screen.getByText(
+      'A component or hook triggered suspense, possibly due to missing pre-fetched data.',
+      { exact: false },
+    )).toBeInTheDocument();
+  });
+
+  it('uses customAttributes.httpErrorResponseData for axios errors', () => {
+    const error = new Error('RouteErrorWithCustomAttributes');
+    error.customAttributes = {
+      httpErrorResponseData: {
+        status: 404,
+      },
+    };
+    useRouteError.mockReturnValue(error);
+    renderWithRouterProvider(<RouteErrorBoundaryWrapper />);
+    expect(screen.getByText('An error occurred while processing your request')).toBeInTheDocument();
+    expect(screen.getByText('We apologize for the inconvenience. Please try again later.')).toBeInTheDocument();
+    expect(screen.getByText('Custom attributes:', { exact: false })).toBeInTheDocument();
   });
 
   it('displays the update available modal correctly when there is a ChunkLoadError route error', async () => {

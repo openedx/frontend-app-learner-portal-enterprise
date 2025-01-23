@@ -20,6 +20,7 @@ export type RouteLoaderFunctionArgs = import('react-router-dom').LoaderFunctionA
 export type MakeRouteLoaderFunction = (queryClient?: QueryClient) => RouteLoaderFunction;
 export type MakeRouteLoaderFunctionWithQueryClient = (queryClient: QueryClient) => RouteLoaderFunction;
 export type RouteObject = import('react-router-dom').RouteObject;
+export type Router = import('@remix-run/router').Router;
 
 // Application Data (general)
 export interface AuthenticatedUser {

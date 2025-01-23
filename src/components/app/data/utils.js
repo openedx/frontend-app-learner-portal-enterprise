@@ -500,10 +500,29 @@ export function retrieveErrorMessage(error) {
   if (!error) {
     return null;
   }
-  if (error.customAttributes) {
-    return error.customAttributes.httpErrorResponseData;
+  let errorMessage = error.message;
+  // Identify development suspense error
+  const isDeveloperSuspenseError = (
+    process.env.NODE_ENV === 'development'
+    && ['suspended while rendering', 'no fallback UI was specified'].every(
+      (str) => error.message.includes(str),
+    )
+  );
+  if (isDeveloperSuspenseError) {
+    errorMessage = (
+      `A component or hook triggered suspense, possibly due to
+      missing pre-fetched data. Since \`suspense: true\` is configured
+      by default for all React Query queries, ensure that any necessary
+      API data accessed via \`useQuery\` is pre-fetched in a route loader
+      to avoid triggering suspense (loading states) unexpectedly.
+      Error:
+      ${errorMessage.split('\n')[0]}`
+    );
   }
-  return error.message;
+  if (error.customAttributes) {
+    errorMessage += `\nCustom attributes: ${error.customAttributes.httpErrorResponseData}`;
+  }
+  return errorMessage;
 }
 
 /**

@@ -191,6 +191,15 @@ function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
       loader: getRouteLoader(makeRootLoader, queryClient),
       element: <Layout />,
       children: enterpriseSlugChildRoutes,
+      shouldRevalidate: ({ currentUrl, nextUrl, defaultShouldRevalidate }) => {
+        // If the pathname changed, we should revalidate
+        if (currentUrl.pathname !== nextUrl.pathname) {
+          return true;
+        }
+
+        // If the pathname didn't change, fallback to the default behavior
+        return defaultShouldRevalidate;
+      },
     },
   ];
   return enterpriseSlugRoutes;

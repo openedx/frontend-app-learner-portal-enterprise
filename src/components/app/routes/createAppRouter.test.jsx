@@ -1,5 +1,6 @@
 import {
-  act, render, screen, waitFor,
+  act,
+  render, screen, waitFor,
 } from '@testing-library/react';
 import { Outlet, RouterProvider } from 'react-router-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
@@ -248,6 +249,10 @@ describe('createAppRouter', () => {
     expectedRouteTestId,
     expectedRouteLoaders,
   }) => {
+    // Update the current route path
+    window.history.pushState({}, '', currentRoutePath);
+
+    // Render the app router
     const router = createAppRouter(mockQueryClient);
     render(
       <IntlProvider locale="en">
@@ -259,15 +264,11 @@ describe('createAppRouter', () => {
       expect(makeRootLoader).toHaveBeenCalledTimes(1);
       expect(makeRootLoader).toHaveBeenCalledWith(mockQueryClient);
       expect(screen.getByTestId('root')).toBeInTheDocument();
-      expect(screen.getByTestId('layout')).toBeInTheDocument();
-    });
-
-    act(() => {
-      router.navigate(currentRoutePath);
-    });
-
-    await waitFor(() => {
       expect(screen.getByTestId(expectedRouteTestId)).toBeInTheDocument();
+      if (expectedRouteTestId !== 'invite') {
+        // The invite routes are not associated with the `rootLoader` and `Layout` route
+        expect(screen.getByTestId('layout')).toBeInTheDocument();
+      }
     });
 
     if (expectedRouteLoaders.length > 0) {
@@ -278,6 +279,37 @@ describe('createAppRouter', () => {
         }
       });
     }
+  });
+
+  it('renders and revalidates rootLoader appropriately when navigating sub-routes (%s)', async () => {
+    // Create custom mocks
+    const rootLoaderFn = jest.fn().mockReturnValue(null);
+    makeRootLoader.mockReturnValue(rootLoaderFn);
+
+    // Render the app router
+    const router = createAppRouter(mockQueryClient);
+    render(
+      <IntlProvider locale="en">
+        <RouterProvider router={router} />
+      </IntlProvider>,
+    );
+
+    // Assert initial load
+    await waitFor(() => {
+      expect(makeRootLoader).toHaveBeenCalledTimes(1);
+      expect(makeRootLoader).toHaveBeenCalledWith(mockQueryClient);
+      expect(rootLoaderFn).toHaveBeenCalledTimes(1);
+    });
+
+    // Trigger navigation to the next route
+    act(() => {
+      router.navigate('/test-enterprise/search');
+    });
+
+    // Assert revalidation behavior
+    await waitFor(() => {
+      expect(rootLoaderFn).toHaveBeenCalledTimes(2); // Called again
+    });
   });
 });
 
