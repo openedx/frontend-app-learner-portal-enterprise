@@ -1,29 +1,40 @@
-/* eslint-disable react/jsx-filename-extension */
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../utils/tests';
 import makeProgramProgressLoader from '../programProgressLoader';
 import { ensureAuthenticatedUser } from '../../../app/routes/data';
-import { queryLearnerProgramProgressData } from '../../../app/data';
+import {
+  extractEnterpriseCustomer,
+  queryEnterpriseCourseEnrollments,
+  queryLearnerProgramProgressData,
+} from '../../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('../../../app/routes/data', () => ({
   ...jest.requireActual('../../../app/routes/data'),
   ensureAuthenticatedUser: jest.fn(),
 }));
 
-const mockEnterpriseId = 'test-enterprise-uuid';
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  extractEnterpriseCustomer: jest.fn(),
+}));
+
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockProgramUUID = 'test-program-uuid';
-const mockProgramProgressURL = `/${mockEnterpriseId}/program/${mockProgramUUID}/progress`;
+const mockProgramProgressURL = `/${mockEnterpriseCustomer.slug}/program/${mockProgramUUID}/progress`;
 
 const mockQueryClient = {
-  ensureQueryData: jest.fn().mockResolvedValue({}),
+  ensureQueryData: jest.fn().mockResolvedValue(),
 };
 
 describe('programProgressLoader', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    ensureAuthenticatedUser.mockResolvedValue({ userId: 3 });
+    ensureAuthenticatedUser.mockResolvedValue(mockAuthenticatedUser);
+    extractEnterpriseCustomer.mockResolvedValue(mockEnterpriseCustomer);
   });
 
   it('does nothing with unauthenticated users', async () => {
@@ -58,10 +69,16 @@ describe('programProgressLoader', () => {
 
     expect(await screen.findByText('hello world')).toBeInTheDocument();
 
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(2);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: queryLearnerProgramProgressData(mockProgramUUID).queryKey,
+        queryFn: expect.any(Function),
+      }),
+    );
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey,
         queryFn: expect.any(Function),
       }),
     );

@@ -1,5 +1,10 @@
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import { extractEnterpriseCustomer, queryVideoDetail } from '../../app/data';
+import {
+  extractEnterpriseCustomer,
+  queryCourseMetadata,
+  queryCourseReviews,
+  queryVideoDetail,
+} from '../../app/data';
 
 type VideoRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
   readonly videoUUID: string;
@@ -25,7 +30,14 @@ const makeVideosLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
       enterpriseSlug,
     });
 
-    await queryClient.ensureQueryData(queryVideoDetail(videoUUID, enterpriseCustomer.uuid));
+    const videoData = await queryClient.ensureQueryData(queryVideoDetail(videoUUID, enterpriseCustomer.uuid));
+    if (videoData) {
+      const { courseKey } = videoData;
+      await Promise.all([
+        queryClient.ensureQueryData(queryCourseMetadata(courseKey)),
+        queryClient.ensureQueryData(queryCourseReviews(courseKey)),
+      ]);
+    }
 
     return null;
   };
