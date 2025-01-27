@@ -43,7 +43,7 @@ const PopularResults = ({
         </>
       )}
       {!isSearchStalled && isDefinedAndNotNull(error) && (
-        <SearchError />
+        <SearchError title={title} />
       )}
     </>
   );
