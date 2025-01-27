@@ -27,9 +27,13 @@ The `shouldRevalidate` function will determine whether the loader should re-exec
 
 This logic ensures that revalidation is scoped specifically to relevant sub-route transitions, avoiding unnecessary data fetching while ensuring consistent query cache availability.
 
-### 2. Introduce Error Logging in the Parent `Suspense` and `AppSuspenseFallback` Component
+### 2. Move parent `Suspense` component and its fallback UI into `Root`
 
-While the parent `Suspense` boundary and its fallback (`AppSuspenseFallback`) will remain to prevent suspense errors from raising, the `AppSuspenseFallback` component will be modified to include additional logging to improve observability for when components/hooks are suspended during render.  removed from the `App` component. By default, the query client configuration uses `suspense: true`, which masks the issue of missing pre-fetched query data by suspending components and displaying the fallback while queries resolve asynchronously. Removing this fallback ensures that missing query data triggers explicit errors instead of silently deferring to the fallback. This change improves the navigation experience and makes it easier to debug and fix data-loading issues during development.
+The existing `Suspense` wrapping the `RouterProvider` will be moved to be nested under the router, implemented within the `Root` component instead. By moving this parent `Suspense` component into `Root`, its fallback component `AuthenticatedRootFallback` (previously `AppSuspenseFallback`) can simply implement the `useNProgressLoader` hook, instead of the previously used hook (`useNProgressLoaderWithoutRouter`) to manage the animated loading bar in the suspended fallback component.
+
+Keeping this `Suspense` boundary and its fallback will remain to prevent suspense errors from raising. However, the fallback component `AuthenticatedRootFallback` will include additional logging to improve observability for when components/hooks are suspended during render. The `logError` function will be called upon render.
+
+By default, the `@tanstack/react-query` query client configuration utilizes `suspense: true`, which largely masks the issue of missing pre-fetched query data during render by suspending components, displaying the fallback while queries resolve asynchronously. Modifying the fallback to include additional logging via `logError` ensures that missing query data at render time triggers explicit errors instead of silently deferring to the fallback. This change affords more discoverability for the when the error occurs, both during development and in production, while not affecting the user experience.
 
 ### Benefits of this Approach
 

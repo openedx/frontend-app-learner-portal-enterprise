@@ -177,12 +177,12 @@ function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
     }
     return {
       ...enterpriseSlugRoute,
-      errorElement: (
-        <RouteErrorBoundary
-          showSiteHeader={false}
-          showSiteFooter={false}
-        />
-      ),
+      // errorElement: (
+      //   <RouteErrorBoundary
+      //     showSiteHeader={false}
+      //     showSiteFooter={false}
+      //   />
+      // ),
     };
   });
   const enterpriseSlugRoutes: Types.RouteObject[] = [
@@ -268,7 +268,7 @@ export function getRoutes(queryClient?: Types.QueryClient) {
     {
       path: '/',
       element: <PageWrap><Root /></PageWrap>,
-      errorElement: <RouteErrorBoundary />,
+      // errorElement: <RouteErrorBoundary />,
       children: rootChildRoutes,
     },
   ];
