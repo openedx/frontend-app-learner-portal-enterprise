@@ -28,6 +28,10 @@ export interface AuthenticatedUser {
   username: string;
   roles: string[];
   administrator: boolean;
+  extendedProfile?: Record<string, any>;
+}
+export interface AppContextValue {
+  authenticatedUser: AuthenticatedUser;
 }
 
 export interface BFFRequestAdditionalOptions {

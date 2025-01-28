@@ -116,11 +116,20 @@ class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorBoundary
       // If there is no error, render the children.
       return this.props.children;
     }
+
     if (this.state.hasSuspenseError) {
       // If there is a suspense error, wrap the children in
       // a Suspense component with a fallback UI.
       return (
-        <Suspense fallback={<RouterFallback />}>
+        <Suspense
+          fallback={(
+            <RouterFallback
+              loaderOptions={{
+                shouldCompleteBeforeUnmount: false,
+              }}
+            />
+          )}
+        >
           {this.props.children}
         </Suspense>
       );
