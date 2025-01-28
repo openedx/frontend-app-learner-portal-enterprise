@@ -8,6 +8,7 @@ import Root from './components/app/Root';
 import Layout from './components/app/Layout';
 import { makeRootLoader } from './components/app/routes/loaders';
 import NotFoundPage from './components/NotFoundPage';
+import AppErrorBoundary from './components/app/AppErrorBoundary';
 
 /**
  * Returns the route loader function if a queryClient is available; otherwise, returns null.
@@ -171,20 +172,7 @@ function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
       path: '*',
       element: <NotFoundPage />,
     },
-  ].map((enterpriseSlugRoute) => {
-    if (enterpriseSlugRoute.path === '*') {
-      return enterpriseSlugRoute;
-    }
-    return {
-      ...enterpriseSlugRoute,
-      // errorElement: (
-      //   <RouteErrorBoundary
-      //     showSiteHeader={false}
-      //     showSiteFooter={false}
-      //   />
-      // ),
-    };
-  });
+  ];
   const enterpriseSlugRoutes: Types.RouteObject[] = [
     {
       path: ':enterpriseSlug?',
@@ -267,9 +255,15 @@ export function getRoutes(queryClient?: Types.QueryClient) {
   const routes: Types.RouteObject[] = [
     {
       path: '/',
-      element: <PageWrap><Root /></PageWrap>,
-      // errorElement: <RouteErrorBoundary />,
+      element: (
+        <PageWrap>
+          <AppErrorBoundary>
+            <Root />
+          </AppErrorBoundary>
+        </PageWrap>
+      ),
       children: rootChildRoutes,
+      errorElement: <RouteErrorBoundary />,
     },
   ];
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useAsyncError, useRouteError } from 'react-router-dom';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
@@ -8,7 +8,7 @@ import {
 } from '@openedx/paragon';
 
 import { ErrorPage } from '../../error-page';
-import { retrieveErrorMessage } from '../data';
+import { retrieveErrorMessageForDisplay } from '../data';
 
 const messages = defineMessages({
   errorTitle: {
@@ -43,6 +43,58 @@ const messages = defineMessages({
   },
 });
 
+function useHandleRouteError() {
+  const routeError = useRouteError();
+  const [isAppUpdateAvailable, openAppUpdateAvailableModal] = useToggle(false);
+
+  useEffect(() => {
+    if (!routeError) {
+      return;
+    }
+    if (routeError.name === 'ChunkLoadError') {
+      logInfo(`[RouteErrorBoundary] routeError (ChunkLoadError): ${routeError}`);
+      openAppUpdateAvailableModal();
+      return;
+    }
+    logError(`[RouteErrorBoundary] routeError: ${routeError.message}`);
+  }, [routeError, openAppUpdateAvailableModal]);
+
+  return useMemo(() => ({
+    error: routeError,
+    isAppUpdateAvailable,
+  }), [routeError, isAppUpdateAvailable]);
+}
+
+function useHandleAsyncError() {
+  const asyncError = useAsyncError();
+
+  useEffect(() => {
+    if (!asyncError) {
+      return;
+    }
+    logError(`[RouteErrorBoundary] asyncError: ${asyncError}`);
+  }, [asyncError]);
+
+  return asyncError;
+}
+
+function useHandleErrorsOrAppUpdate() {
+  const {
+    error: routeError,
+    isAppUpdateAvailable,
+  } = useHandleRouteError();
+  const asyncError = useHandleAsyncError();
+
+  const error = routeError || asyncError;
+  const errorMessageForDisplay = retrieveErrorMessageForDisplay(error);
+
+  return useMemo(() => ({
+    error,
+    errorMessageForDisplay,
+    isAppUpdateAvailable,
+  }), [error, errorMessageForDisplay, isAppUpdateAvailable]);
+}
+
 const RouteErrorBoundary = ({
   title,
   subtitle,
@@ -51,37 +103,10 @@ const RouteErrorBoundary = ({
   showSiteFooter,
 }) => {
   const intl = useIntl();
-  const routeError = useRouteError();
-  const asyncError = useAsyncError();
-
-  const [isAppUpdateAvailable, openAppUpdateAvailableModal] = useToggle(false);
-
-  useEffect(() => {
-    if (!routeError) {
-      return;
-    }
-    // eslint-disable-next-line no-console
-    console.error('[RouteErrorBoundary] routeError:', routeError);
-    if (routeError.name === 'ChunkLoadError') {
-      logInfo(routeError);
-      openAppUpdateAvailableModal();
-      return;
-    }
-    logError(routeError);
-  }, [routeError, openAppUpdateAvailableModal]);
-
-  useEffect(() => {
-    if (!asyncError) {
-      return;
-    }
-    // eslint-disable-next-line no-console
-    console.error('[RouteErrorBoundary] asyncError:', asyncError);
-    logError(asyncError);
-  }, [asyncError]);
-
-  const error = routeError || asyncError;
-
-  const errorMessage = retrieveErrorMessage(error);
+  const {
+    errorMessageForDisplay,
+    isAppUpdateAvailable,
+  } = useHandleErrorsOrAppUpdate();
 
   if (isAppUpdateAvailable) {
     return (
@@ -118,7 +143,7 @@ const RouteErrorBoundary = ({
       showSiteHeader={showSiteHeader}
       showSiteFooter={showSiteFooter}
     >
-      <pre className="py-4">{errorMessage}</pre>
+      <pre className="py-4">{errorMessageForDisplay}</pre>
       <Button
         href={global.location.href}
         variant="primary"

@@ -496,7 +496,7 @@ export const getTransformedAllocatedAssignments = (assignments, enterpriseSlug) 
   return updatedAssignments;
 };
 
-export function retrieveErrorMessage(error) {
+export function retrieveErrorMessageForDisplay(error) {
   if (!error) {
     return null;
   }

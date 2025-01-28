@@ -142,9 +142,9 @@ export async function ensureEnterpriseAppData({
       queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
     ),
     // Academies List
-    // queryClient.ensureQueryData(
-    //   queryAcademiesList(enterpriseCustomer.uuid),
-    // ),
+    queryClient.ensureQueryData(
+      queryAcademiesList(enterpriseCustomer.uuid),
+    ),
   ]);
 
   if (getConfig().ENABLE_NOTICES) {
