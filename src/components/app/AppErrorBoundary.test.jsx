@@ -1,10 +1,8 @@
-import { lazy } from 'react';
+import { QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import AppErrorBoundary from './AppErrorBoundary';
-import { RouterFallback } from './routes/RouterFallback';
-import { QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { queryClient } from '../../utils/tests';
 
 jest.mock('./routes/RouterFallback', () => function MockRouterFallback() { return <div>Router Fallback Loading...</div>; });
