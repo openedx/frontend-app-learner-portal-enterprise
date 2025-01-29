@@ -939,7 +939,7 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
       courseRuns: courseMetadata.courseRuns.filter(
         courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
       ),
-      availableCourseRuns: courseMetadata.availableCourseRuns.filter(
+      availableCourseRuns: courseMetadata.availableCourseRuns?.filter(
         courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
       ),
     };
