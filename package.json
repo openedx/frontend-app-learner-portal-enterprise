@@ -85,7 +85,7 @@
     "reactifex": "1.1.1",
     "resize-observer-polyfill": "1.5.1",
     "rosie": "2.1.1",
-    "ts-loader": "9.5.1"
+    "ts-loader": "9.5.2"
   },
   "keywords": [],
   "license": "AGPL-3.0",
