@@ -1,6 +1,5 @@
 import { matchPath } from 'react-router-dom';
 import { queryEnterpriseLearnerDashboardBFF } from './queries';
-import { isBFFEnabled } from '../utils';
 
 /**
  * Resolves the appropriate BFF query function to use for the current route.
@@ -12,9 +11,9 @@ export function resolveBFFQuery(pathname, options = {}) {
   const { enterpriseCustomerUuid, enterpriseFeatures } = options;
 
   // Exit early if BFF is not enabled for the enterprise customer and/or request user
-  if (!isBFFEnabled(enterpriseCustomerUuid, enterpriseFeatures)) {
-    return null;
-  }
+  // if (!isBFFEnabled(enterpriseCustomerUuid, enterpriseFeatures)) {
+  //   return null;
+  // }
 
   // Define route patterns and their corresponding query functions
   const routeToBFFQueryMap = [

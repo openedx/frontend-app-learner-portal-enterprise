@@ -1,5 +1,5 @@
-import { getConfig } from '@edx/frontend-platform/config';
-import { queryEnterpriseLearner, queryNotices } from '../../data';
+import {getConfig} from '@edx/frontend-platform/config';
+import {queryEnterpriseLearner, queryNotices, resolveBFFQuery, updateUserActiveEnterprise} from '../../data';
 import {
   ensureActiveEnterpriseCustomerUser,
   ensureAuthenticatedUser,
@@ -33,33 +33,55 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
 
     // Retrieve linked enterprise customers for the current user from query cache
     // or fetch from the server if not available.
-    const enterpriseLearnerData = await queryClient.ensureQueryData<Types.EnterpriseLearnerData>(
-      queryEnterpriseLearner(username, enterpriseSlug),
+    const matchedBFFQuery = resolveBFFQuery(
+      requestUrl.pathname,
     );
+    let enterpriseLearnerData;
+    if (matchedBFFQuery) {
+      enterpriseLearnerData = await queryClient.ensureQueryData(
+        matchedBFFQuery({ enterpriseSlug }),
+      );
+    } else {
+      enterpriseLearnerData = await queryClient.ensureQueryData<Types.EnterpriseLearnerData>(
+        // @ts-ignore
+        queryEnterpriseLearner(username, enterpriseSlug),
+      );
+    }
+
     let {
       enterpriseCustomer,
       activeEnterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
     } = enterpriseLearnerData;
-    const { staffEnterpriseCustomer, enterpriseFeatures } = enterpriseLearnerData;
+    const { staffEnterpriseCustomer, enterpriseFeatures, shouldUpdateActiveEnterpriseCustomer } = enterpriseLearnerData;
 
     // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
     if (!enterpriseCustomer) {
       return null;
     }
 
+    let updateActiveEnterpriseCustomerUserResult: {
+      enterpriseCustomer: any; updatedLinkedEnterpriseCustomerUsers: any;
+    } | null = null;
     // Ensure the active enterprise customer user is updated, when applicable (e.g., the
     // current enterprise slug in the URL does not match the active enterprise customer's slug).
-    const updateActiveEnterpriseCustomerUserResult = await ensureActiveEnterpriseCustomerUser({
-      enterpriseSlug,
-      activeEnterpriseCustomer,
-      staffEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers,
-      requestUrl,
-    });
+    // The logic to ensure active enterprise customer user is done in the BFF, but updating the
+    // active enterprise customer is still required
+    if (matchedBFFQuery && shouldUpdateActiveEnterpriseCustomer) {
+      await updateUserActiveEnterprise({ enterpriseCustomer });
+    } else {
+      updateActiveEnterpriseCustomerUserResult = await ensureActiveEnterpriseCustomerUser({
+        enterpriseSlug,
+        activeEnterpriseCustomer,
+        staffEnterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers,
+        requestUrl,
+      });
+    }
+
     // If the active enterprise customer user was updated, override the previous active
     // enterprise customer user data with the new active enterprise customer user data
-    // for subsequent queries.
+    // for subsequent queries. This action is already completed in the BFF.
     if (updateActiveEnterpriseCustomerUserResult) {
       const {
         enterpriseCustomer: nextActiveEnterpriseCustomer,

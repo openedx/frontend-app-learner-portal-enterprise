@@ -71,7 +71,6 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
       response: enterpriseCustomerUsersResponse,
     } = await fetchPaginatedData(url);
     const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
-
     // Transform enterprise customer user results
     const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers.map(
       enterpriseCustomerUser => ({
@@ -113,6 +112,9 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
       foundEnterpriseCustomerUserForCurrentSlug,
       staffEnterpriseCustomer,
     });
+
+    // shouldUpdateActiveEnterpriseCustomer should always be null since its generated primarily from the BFF
+    // layer to act as a flag on whether to update the active enterprise customer
     return {
       enterpriseCustomer,
       enterpriseCustomerUserRoleAssignments: roleAssignments,
@@ -121,6 +123,7 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
       allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
       enterpriseFeatures,
       staffEnterpriseCustomer,
+      shouldUpdateActiveEnterpriseCustomer: null,
     };
   } catch (error) {
     logError(error);
@@ -132,6 +135,7 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
       allLinkedEnterpriseCustomerUsers: [],
       enterpriseFeatures: {},
       staffEnterpriseCustomer: null,
+      shouldUpdateActiveEnterpriseCustomer: null,
     };
   }
 }

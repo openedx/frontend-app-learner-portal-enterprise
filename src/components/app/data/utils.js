@@ -941,6 +941,7 @@ export function isBFFEnabled(enterpriseCustomerUuid, enterpriseFeatures) {
   // Check the following conditions:
   // 1. BFF is enabled for the enterprise customer.
   // 2. BFF is enabled for the request user via Waffle flag (supporting percentage-based rollout)
+  return true;
   const isBFFEnabledForCustomer = isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid);
   if (isBFFEnabledForCustomer || enterpriseFeatures?.enterpriseLearnerBffEnabled) {
     return true;
