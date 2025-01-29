@@ -573,7 +573,7 @@ export function getAvailableCourseRuns({ course, lateEnrollmentBufferDays }) {
   }
   // These are the standard rules used for determining whether a run is "available".
   const standardAvailableCourseRunsFilter = (courseRun) => (
-    courseRun.isMarketable && !isArchived(courseRun) && courseRun.isEnrollable
+    (courseRun.isMarketable || courseRun?.isMarketableExternal) && !isArchived(courseRun) && courseRun.isEnrollable
   );
 
   // These are more relaxed availability rules when late enrollment is applicable. We still never show archived courses,
