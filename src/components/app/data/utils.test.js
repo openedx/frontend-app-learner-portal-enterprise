@@ -805,6 +805,141 @@ describe('getAvailableCourseRuns', () => {
       { course: sampleCourseRunDataWithRecentRuns.courseData, lateEnrollmentBufferDays },
     )).toEqual(expectedOutputWithLateEnrollment);
   });
+  it.each([
+    // enrollable with not marketable and marketable external true 3/3 passing
+    {
+      courseData: {
+        courseRuns: [
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course7',
+            title: 'Demo Course',
+            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+            isMarketable: false,
+            isMarketableExternal: true,
+            seats: [{ sku: '835BEA7' }],
+            marketingUrl: 'https://foo.bar/',
+            isEnrollable: true, // enrollment hasn't officially opened yet.
+            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+            enrollmentEnd: '2023-08-01T00:00:00Z',
+          },
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course7',
+            title: 'Demo Course',
+            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+            isMarketable: false,
+            isMarketableExternal: true,
+            seats: [{ sku: '835BEA7' }],
+            marketingUrl: 'https://foo.bar/',
+            isEnrollable: true, // enrollment hasn't officially opened yet.
+            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+            enrollmentEnd: '2023-08-01T00:00:00Z',
+          },
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course7',
+            title: 'Demo Course',
+            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+            isMarketable: false,
+            isMarketableExternal: true,
+            seats: [{ sku: '835BEA7' }],
+            marketingUrl: 'https://foo.bar/',
+            isEnrollable: true, // enrollment hasn't officially opened yet.
+            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+            enrollmentEnd: '2023-08-01T00:00:00Z',
+          },
+        ],
+      },
+    },
+    // enrollable with not marketable and marketable external false 0/3 passing
+    {
+      courseData: {
+        courseRuns: [
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course7',
+            title: 'Demo Course',
+            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+            isMarketable: false,
+            isMarketableExternal: false,
+            seats: [{ sku: '835BEA7' }],
+            marketingUrl: 'https://foo.bar/',
+            isEnrollable: true, // enrollment hasn't officially opened yet.
+            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+            enrollmentEnd: '2023-08-01T00:00:00Z',
+          },
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course7',
+            title: 'Demo Course',
+            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+            isMarketable: false,
+            isMarketableExternal: false,
+            seats: [{ sku: '835BEA7' }],
+            marketingUrl: 'https://foo.bar/',
+            isEnrollable: true, // enrollment hasn't officially opened yet.
+            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+            enrollmentEnd: '2023-08-01T00:00:00Z',
+          },
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course7',
+            title: 'Demo Course',
+            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+            isMarketable: false,
+            isMarketableExternal: false,
+            seats: [{ sku: '835BEA7' }],
+            marketingUrl: 'https://foo.bar/',
+            isEnrollable: true, // enrollment hasn't officially opened yet.
+            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+            enrollmentEnd: '2023-08-01T00:00:00Z',
+          },
+        ],
+      },
+    },
+    // Not enrollable with not marketable and marketable external true 0/3 passing
+    {
+      courseData: {
+        courseRuns: [
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course7',
+            title: 'Demo Course',
+            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+            isMarketable: false,
+            isMarketableExternal: true,
+            seats: [{ sku: '835BEA7' }],
+            marketingUrl: 'https://foo.bar/',
+            isEnrollable: false, // enrollment hasn't officially opened yet.
+            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+            enrollmentEnd: '2023-08-01T00:00:00Z',
+          },
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course7',
+            title: 'Demo Course',
+            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+            isMarketable: false,
+            isMarketableExternal: true,
+            seats: [{ sku: '835BEA7' }],
+            marketingUrl: 'https://foo.bar/',
+            isEnrollable: false, // enrollment hasn't officially opened yet.
+            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+            enrollmentEnd: '2023-08-01T00:00:00Z',
+          },
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course7',
+            title: 'Demo Course',
+            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+            isMarketable: false,
+            isMarketableExternal: true,
+            seats: [{ sku: '835BEA7' }],
+            marketingUrl: 'https://foo.bar/',
+            isEnrollable: false, // enrollment hasn't officially opened yet.
+            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+            enrollmentEnd: '2023-08-01T00:00:00Z',
+          },
+        ],
+      },
+    },
+  ])('returns future or upcoming course run based on isMarketableExternal', ({ courseData }) => {
+    expect(getAvailableCourseRuns({
+      course: courseData,
+    })).toEqual(courseData.courseRuns.filter(standardAvailableCourseRunsFilter));
+  });
   it('returns empty array if course runs are not available', () => {
     sampleCourseRunData.courseData.courseRuns = [];
     expect(getAvailableCourseRuns({ course: sampleCourseRunData.courseData }).length).toEqual(0);
