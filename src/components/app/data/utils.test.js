@@ -11,6 +11,8 @@ import {
   filterPoliciesByExpirationAndActive,
   getAvailableCourseRuns,
   getSubsidyToApplyForCourse,
+  isArchived,
+  standardAvailableCourseRunsFilter,
   transformGroupMembership,
   transformLearnerContentAssignment,
 } from './utils';
@@ -503,24 +505,56 @@ describe('getAvailableCourseRuns', () => {
           key: 'course-v1:edX+DemoX+Demo_Course',
           title: 'Demo Course',
           isMarketable: true,
+          isMarketableExternal: true,
           isEnrollable: true,
         },
         {
           key: 'course-v1:edX+DemoX+Demo_Course',
           title: 'Demo Course',
           isMarketable: false,
+          isMarketableExternal: true,
           isEnrollable: true,
         },
         {
           key: 'course-v1:edX+DemoX+Demo_Course',
           title: 'Demo Course',
           isMarketable: true,
+          isMarketableExternal: true,
           isEnrollable: false,
         },
         {
           key: 'course-v1:edX+DemoX+Demo_Course',
           title: 'Demo Course',
           isMarketable: false,
+          isMarketableExternal: true,
+          isEnrollable: false,
+        },
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course',
+          title: 'Demo Course',
+          isMarketable: true,
+          isMarketableExternal: false,
+          isEnrollable: true,
+        },
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course',
+          title: 'Demo Course',
+          isMarketable: false,
+          isMarketableExternal: false,
+          isEnrollable: true,
+        },
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course',
+          title: 'Demo Course',
+          isMarketable: true,
+          isMarketableExternal: false,
+          isEnrollable: false,
+        },
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course',
+          title: 'Demo Course',
+          isMarketable: false,
+          isMarketableExternal: false,
           isEnrollable: false,
         },
       ],
@@ -548,12 +582,14 @@ describe('getAvailableCourseRuns', () => {
   const sampleCourseRunDataWithRecentRuns = {
     courseData: {
       courseRuns: [
+        // isMarketableExternal = true
         // Run with normally open enrollment.
         {
           key: 'course-v1:edX+DemoX+Demo_Course1',
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
           isMarketable: true,
+          isMarketableExternal: true,
           seats: [{ sku: '835BEA7' }],
           marketingUrl: 'https://foo.bar/',
           isEnrollable: true,
@@ -566,6 +602,7 @@ describe('getAvailableCourseRuns', () => {
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
           isMarketable: true,
+          isMarketableExternal: true,
           seats: [{ sku: '835BEA7' }],
           marketingUrl: 'https://foo.bar/',
           isEnrollable: false,
@@ -579,6 +616,7 @@ describe('getAvailableCourseRuns', () => {
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
           isMarketable: false,
+          isMarketableExternal: true,
           seats: [{ sku: '835BEA7' }],
           marketingUrl: 'https://foo.bar/',
           isEnrollable: false,
@@ -591,6 +629,7 @@ describe('getAvailableCourseRuns', () => {
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
           isMarketable: false,
+          isMarketableExternal: true,
           seats: [],
           marketingUrl: undefined,
           isEnrollable: false,
@@ -603,6 +642,7 @@ describe('getAvailableCourseRuns', () => {
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
           isMarketable: true,
+          isMarketableExternal: true,
           seats: [{ sku: '835BEA7' }],
           marketingUrl: 'https://foo.bar/',
           isEnrollable: false,
@@ -615,6 +655,7 @@ describe('getAvailableCourseRuns', () => {
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.CURRENT,
           isMarketable: true,
+          isMarketableExternal: true,
           seats: [{ sku: '835BEA7' }],
           marketingUrl: 'https://foo.bar/',
           isEnrollable: false,
@@ -627,6 +668,100 @@ describe('getAvailableCourseRuns', () => {
           title: 'Demo Course',
           availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
           isMarketable: true,
+          isMarketableExternal: true,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: false, // enrollment hasn't officially opened yet.
+          enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
+          enrollmentEnd: '2023-08-01T00:00:00Z',
+        },
+        // isMarketableExternal = false
+        // Run with normally open enrollment.
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course1',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: true,
+          isMarketableExternal: false,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: true,
+          enrollmentStart: '2023-07-01T00:00:00Z',
+          enrollmentEnd: '2023-08-01T00:00:00Z',
+        },
+        // Run with recently closed enrollment.
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course2',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: true,
+          isMarketableExternal: false,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: false,
+          enrollmentStart: '2023-06-01T00:00:00Z',
+          enrollmentEnd: '2023-07-01T00:00:00Z',
+        },
+        // Run with recently closed enrollment, but is not marketable because the course became unpublished. This should
+        // still be redeemable under late enrollment.
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course3',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: false,
+          isMarketableExternal: false,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: false,
+          enrollmentStart: '2023-06-01T00:00:00Z',
+          enrollmentEnd: '2023-07-01T00:00:00Z',
+        },
+        // Run with recently closed enrollment, but is not really not marketable.
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course4',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: false,
+          isMarketableExternal: false,
+          seats: [],
+          marketingUrl: undefined,
+          isEnrollable: false,
+          enrollmentStart: '2023-06-01T00:00:00Z',
+          enrollmentEnd: '2023-07-01T00:00:00Z',
+        },
+        // Run with long-ago closed enrollment, but somehow still "Starting Soon".  This is very edge-casey.
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course5',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: true,
+          isMarketableExternal: false,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: false,
+          enrollmentStart: '2023-01-01T00:00:00Z',
+          enrollmentEnd: '2023-02-01T00:00:00Z',
+        },
+        // Run with long-ago closed enrollment, and now running.
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course6',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.CURRENT,
+          isMarketable: true,
+          isMarketableExternal: false,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: false,
+          enrollmentStart: '2023-01-01T00:00:00Z',
+          enrollmentEnd: '2023-02-01T00:00:00Z',
+        },
+        // Run with the enrollment window still in the future.
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course7',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: true,
+          isMarketableExternal: false,
           seats: [{ sku: '835BEA7' }],
           marketingUrl: 'https://foo.bar/',
           isEnrollable: false, // enrollment hasn't officially opened yet.
@@ -638,11 +773,37 @@ describe('getAvailableCourseRuns', () => {
   };
   it('returns object with available course runs', () => {
     MockDate.set('2023-07-05T00:00:00Z');
+    const lateEnrollmentBufferDays = 60;
+    const expectedOutputStandardFilter = sampleCourseRunDataWithRecentRuns.courseData.courseRuns.filter(
+      standardAvailableCourseRunsFilter,
+    );
     expect(getAvailableCourseRuns({ course: sampleCourseRunDataWithRecentRuns.courseData }))
-      .toEqual(sampleCourseRunDataWithRecentRuns.courseData.courseRuns.slice(0, 1));
+      .toEqual(expectedOutputStandardFilter);
+    const expectedOutputWithLateEnrollment = sampleCourseRunDataWithRecentRuns.courseData.courseRuns.filter(
+      courseRun => {
+        if (
+          isArchived(courseRun)
+        // The next two checks are in lieu of isMarketable which is otherwise overly sensitive to courserun state.
+        || !courseRun.seats?.length
+        || !courseRun.marketingUrl
+        ) {
+          return false;
+        }
+        // Finally, check against an expanded enrollment window.
+        const today = dayjs();
+        if (
+          !courseRun.enrollmentEnd || (courseRun.enrollmentStart && today.isBefore(dayjs(courseRun.enrollmentStart)))
+        ) {
+        // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
+          return standardAvailableCourseRunsFilter(courseRun);
+        }
+        const bufferedEnrollDeadline = dayjs(courseRun.enrollmentEnd).add(lateEnrollmentBufferDays, 'day');
+        return today.isBefore(bufferedEnrollDeadline);
+      },
+    );
     expect(getAvailableCourseRuns(
-      { course: sampleCourseRunDataWithRecentRuns.courseData, lateEnrollmentBufferDays: 60 },
-    )).toEqual(sampleCourseRunDataWithRecentRuns.courseData.courseRuns.slice(0, 3));
+      { course: sampleCourseRunDataWithRecentRuns.courseData, lateEnrollmentBufferDays },
+    )).toEqual(expectedOutputWithLateEnrollment);
   });
   it('returns empty array if course runs are not available', () => {
     sampleCourseRunData.courseData.courseRuns = [];
