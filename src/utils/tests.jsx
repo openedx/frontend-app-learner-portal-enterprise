@@ -111,10 +111,11 @@ export function queryClient(defaultOptions = {}) {
       onError: queryCacheOnErrorHandler,
     }),
     defaultOptions: {
+      ...defaultOptions,
       queries: {
         retry: false,
+        ...defaultOptions.queries,
       },
-      ...defaultOptions,
     },
   });
 }

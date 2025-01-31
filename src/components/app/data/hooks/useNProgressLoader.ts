@@ -10,15 +10,19 @@ import useNotices from './useNotices';
 // for quick route transitions.
 export const NPROGRESS_DELAY_MS = 300;
 
-function useNProgressLoader(queryOptions = {}) {
-  const { authenticatedUser } = useContext(AppContext);
+export interface UseNProgressLoaderOptions {
+  shouldCompleteBeforeUnmount?: boolean;
+}
+
+function useNProgressLoader({ shouldCompleteBeforeUnmount = true }: UseNProgressLoaderOptions = {}) {
+  const { authenticatedUser }: Types.AppContextValue = useContext(AppContext);
   const isAuthenticatedUserHydrated = !!authenticatedUser?.extendedProfile;
   const navigation = useNavigation();
   const fetchers = useFetchers();
   const {
     data: noticeRedirectUrl,
     isLoading: isLoadingNotices,
-  } = useNotices(queryOptions.useNotices);
+  } = useNotices();
 
   const hasNoticeRedirectUrl = !isLoadingNotices && !!noticeRedirectUrl;
   const isAppDataHydrated = isAuthenticatedUserHydrated && !hasNoticeRedirectUrl;
@@ -26,14 +30,17 @@ function useNProgressLoader(queryOptions = {}) {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const fetchersIdle = fetchers.every((f) => f.state === 'idle');
-      if (navigation.state === 'idle' && fetchersIdle && isAppDataHydrated) {
+      if (shouldCompleteBeforeUnmount && navigation.state === 'idle' && fetchersIdle && isAppDataHydrated) {
         nprogress.done();
       } else {
         nprogress.start();
       }
     }, NPROGRESS_DELAY_MS);
-    return () => clearTimeout(timeoutId);
-  }, [navigation, fetchers, isAppDataHydrated]);
+    return () => {
+      nprogress.done();
+      clearTimeout(timeoutId);
+    };
+  }, [navigation, fetchers, isAppDataHydrated, shouldCompleteBeforeUnmount]);
 
   return isAppDataHydrated;
 }

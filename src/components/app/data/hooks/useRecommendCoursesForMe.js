@@ -9,7 +9,7 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
  * @returns {Object} An object containing the current value of `shouldRecommendCourses` and functions to update it.
  */
 export default function useRecommendCoursesForMe() {
-  const isSearchPage = useMatch('/:enterpriseSlug/search/*');
+  const isSearchPage = !!useMatch('/:enterpriseSlug/search/*');
   const { data: contentHighlightsConfiguration } = useContentHighlightsConfiguration();
   const canOnlyViewHighlightSets = !!contentHighlightsConfiguration?.canOnlyViewHighlightSets;
   const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();

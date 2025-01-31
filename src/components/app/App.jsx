@@ -14,7 +14,6 @@ import {
   queryCacheOnErrorHandler,
   defaultQueryClientRetryHandler,
 } from '../../utils/common';
-
 import { RouterFallback, createAppRouter } from './routes';
 
 // eslint-disable-next-line import/no-unresolved

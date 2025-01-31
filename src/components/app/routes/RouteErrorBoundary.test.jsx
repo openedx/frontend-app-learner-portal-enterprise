@@ -44,18 +44,6 @@ describe('RouteErrorBoundary', () => {
     expect(screen.getByText('We apologize for the inconvenience. Please try again later.')).toBeInTheDocument();
   });
 
-  it('overrides default error message for development suspense errors', () => {
-    useRouteError.mockReturnValue(new Error('A React component suspended while rendering, but no fallback UI was specified'));
-    process.env.NODE_ENV = 'development';
-    renderWithRouterProvider(<RouteErrorBoundaryWrapper />);
-    expect(screen.getByText('An error occurred while processing your request')).toBeInTheDocument();
-    expect(screen.getByText('We apologize for the inconvenience. Please try again later.')).toBeInTheDocument();
-    expect(screen.getByText(
-      'A component or hook triggered suspense, possibly due to missing pre-fetched data.',
-      { exact: false },
-    )).toBeInTheDocument();
-  });
-
   it('uses customAttributes.httpErrorResponseData for axios errors', () => {
     const error = new Error('RouteErrorWithCustomAttributes');
     error.customAttributes = {

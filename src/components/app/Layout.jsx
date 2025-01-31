@@ -10,6 +10,7 @@ import { SiteHeader } from '../site-header';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { SystemWideWarningBanner } from '../system-wide-banner';
 import { EnterprisePage } from '../enterprise-page';
+import AppErrorBoundary from './AppErrorBoundary';
 
 export const TITLE_TEMPLATE = '%s - edX';
 export const DEFAULT_TITLE = 'edX';
@@ -46,9 +47,14 @@ const Layout = () => {
       )}
       <SiteHeader />
       <EnterpriseBanner />
-      <main id="content" className="fill-vertical-space">
-        <Outlet />
-      </main>
+      <AppErrorBoundary
+        showSiteHeader={false}
+        showSiteFooter={false}
+      >
+        <main id="content" className="fill-vertical-space">
+          <Outlet />
+        </main>
+      </AppErrorBoundary>
       <FooterSlot />
     </EnterprisePage>
   );

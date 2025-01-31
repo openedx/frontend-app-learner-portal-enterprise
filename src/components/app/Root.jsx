@@ -1,20 +1,34 @@
-import {
-  Outlet, ScrollRestoration, useParams, Link,
-} from 'react-router-dom';
 import { useContext } from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
-import { getConfig } from '@edx/frontend-platform';
+import { Outlet, ScrollRestoration } from 'react-router-dom';
 import { getLoginRedirectUrl } from '@edx/frontend-platform/auth';
+import { AppContext } from '@edx/frontend-platform/react';
 import { Hyperlink } from '@openedx/paragon';
 
 import { Toasts, ToastsProvider } from '../Toasts';
 import { ErrorPage } from '../error-page';
 import { useNProgressLoader } from './data';
 
+const UnauthenticatedRoot = () => (
+  <ErrorPage title="You are now logged out." showSiteFooter={false}>
+    Please log back in {' '}
+    <Hyperlink destination={getLoginRedirectUrl(global.location.href)}>
+      here.
+    </Hyperlink>
+  </ErrorPage>
+);
+
+const AuthenticatedRoot = () => (
+  <>
+    <ToastsProvider>
+      <Toasts />
+      <Outlet />
+    </ToastsProvider>
+    <ScrollRestoration />
+  </>
+);
+
 const Root = () => {
   const { authenticatedUser } = useContext(AppContext);
-  const { enterpriseSlug } = useParams();
-
   const isAppDataHydrated = useNProgressLoader();
 
   // In the special case where there is not authenticated user and we are being told it's the logout
@@ -22,20 +36,7 @@ const Root = () => {
   // not rendering the SiteFooter here since it looks like it requires additional setup
   // not available in the logged out state (errors with InjectIntl errors)
   if (!authenticatedUser) {
-    return (
-      <ErrorPage title="You are now logged out." showSiteFooter={false}>
-        Please log back in {' '}
-        {enterpriseSlug ? (
-          <Link to={`${getConfig().BASE_URL}/${enterpriseSlug}`}>
-            here
-          </Link>
-        ) : (
-          <Hyperlink destination={getLoginRedirectUrl(global.location.href)}>
-            here.
-          </Hyperlink>
-        )}
-      </ErrorPage>
-    );
+    return <UnauthenticatedRoot />;
   }
 
   if (!isAppDataHydrated) {
@@ -43,15 +44,7 @@ const Root = () => {
   }
 
   // User is authenticated, so render the child routes (rest of the app).
-  return (
-    <>
-      <ToastsProvider>
-        <Toasts />
-        <Outlet />
-      </ToastsProvider>
-      <ScrollRestoration />
-    </>
-  );
+  return <AuthenticatedRoot />;
 };
 
 export default Root;
