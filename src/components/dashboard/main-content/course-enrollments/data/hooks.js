@@ -6,8 +6,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
-import _camelCase from 'lodash.camelcase';
-import _cloneDeep from 'lodash.clonedeep';
 
 import { useLocation } from 'react-router-dom';
 import * as service from './service';
@@ -23,14 +21,12 @@ import {
   ASSIGNMENT_TYPES,
   COUPON_CODE_SUBSIDY_TYPE,
   getSubsidyToApplyForCourse,
-  groupCourseEnrollmentsByStatus,
   isEnrollmentUpgradeable,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
   queryEnterpriseCourseEnrollments,
   queryEnterpriseLearnerDashboardBFF,
   queryRedeemablePolicies,
-  transformCourseEnrollment,
   useCanUpgradeWithLearnerCredit,
   useCouponCodes,
   useCourseRunMetadata,
