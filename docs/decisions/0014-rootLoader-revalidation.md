@@ -59,3 +59,5 @@ To enable this approach, the `useNProgressLoader` hook that manages the state of
 ## Alternatives Considered
 
 * Removing the parent `Suspense` and its fallback component (`AppSuspenseFallback`) in the `App` component altogether would prevent the application to handle missing query pre-fetches silently, where suspended components would no longer have a fallback UI, raising an error in the UI. While surfacing the error in the UI to users helps developers more quickly identify affected routes and code paths, we would rather prevent the error from appearing in the UI, prioritizing a functional UX, while having better observability regarding when the `AppSuspenseFallback` component is rendered.
+
+test
