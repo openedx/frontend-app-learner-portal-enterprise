@@ -31,7 +31,6 @@ export {
 } from './useBrowseAndRequest';
 export { default as useIsAssignmentsOnlyLearner } from './useIsAssignmentsOnlyLearner';
 export { default as useNProgressLoader, type UseNProgressLoaderOptions } from './useNProgressLoader';
-export { default as useNotices } from './useNotices';
 export { default as useLearnerSkillLevels } from './useLearnerSkillLevels';
 export { default as useLateEnrollmentBufferDays } from './useLateEnrollmentBufferDays';
 export { default as useProgramDetails } from './useProgramDetails';
