@@ -101,6 +101,7 @@ class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorBoundary
           componentStack: errorInfo.componentStack,
         },
       );
+      return;
     }
     logError(
       '[AppErrorBoundary]: A component/hook threw the following error.',
