@@ -18,8 +18,8 @@ export const transformAllEnrollmentsByStatus = ({
   requests,
   contentAssignments,
 }) => {
-  const enrollmentsByStatus = groupCourseEnrollmentsByStatus(enterpriseCourseEnrollments);
-  const licenseRequests = requests?.subscriptionLicenses || [];
+  const { enrollmentsByStatus } = enterpriseCourseEnrollments;
+  const licenseRequests = requests.subscriptionLicenses || [];
   const couponCodeRequests = requests.couponCodes || [];
   const subsidyRequests = [].concat(licenseRequests).concat(couponCodeRequests);
   enrollmentsByStatus[COURSE_STATUSES.requested] = subsidyRequests;
@@ -51,7 +51,10 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
     bffQueryOptions: {
       ...queryOptions,
       select: (data) => {
-        const transformedData = data.enterpriseCourseEnrollments.map(transformCourseEnrollment);
+        const transformedData = {
+          enrollments: data.enterpriseCourseEnrollments,
+          enrollmentsByStatus: data.allEnrollmentsByStatus,
+        };
         if (selectEnrollment) {
           return selectEnrollment({
             original: data,
@@ -66,7 +69,11 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
       ...queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
       ...queryOptions,
       select: (data) => {
-        const transformedData = data.map(transformCourseEnrollment);
+        const enrollments = data.map(transformCourseEnrollment);
+        const transformedData = {
+          enrollments,
+          enrollmentsByStatus: groupCourseEnrollmentsByStatus(enrollments),
+        };
         if (selectEnrollment) {
           return selectEnrollment({
             original: data,
@@ -148,13 +155,13 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
   return useMemo(() => ({
     data: {
       allEnrollmentsByStatus,
-      enterpriseCourseEnrollments,
+      enterpriseCourseEnrollments: enterpriseCourseEnrollments.enrollments,
       contentAssignments,
       requests,
     },
   }), [
     allEnrollmentsByStatus,
-    enterpriseCourseEnrollments,
+    enterpriseCourseEnrollments.enrollments,
     contentAssignments,
     requests,
   ]);

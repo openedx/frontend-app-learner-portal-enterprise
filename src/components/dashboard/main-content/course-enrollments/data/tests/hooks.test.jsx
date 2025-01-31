@@ -11,7 +11,6 @@ import { MemoryRouter } from 'react-router-dom';
 import { queryClient } from '../../../../../../utils/tests';
 import {
   useContentAssignments,
-  useCourseEnrollments,
   useCourseEnrollmentsBySection,
   useCourseUpgradeData,
   useGroupAssociationsAlert,
@@ -113,104 +112,6 @@ const wrapper = ({ children }) => (
     </MemoryRouter>
   </QueryClientProvider>
 );
-
-describe('useCourseEnrollments', () => {
-  it('should fetch and set course enrollments', async () => {
-    service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
-    const baseArgs = {
-      enterpriseUUID: 'uuid',
-      requestedCourseEnrollments: [],
-    };
-    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(baseArgs));
-    await waitForNextUpdate();
-    expect(service.fetchEnterpriseCourseEnrollments).toHaveBeenCalled();
-    expect(result.current.courseEnrollmentsByStatus).toEqual({
-      inProgress: [mockTransformedMockCourseEnrollment],
-      upcoming: [],
-      completed: [],
-      savedForLater: [],
-      requested: [],
-      assigned: [],
-    });
-    expect(result.current.fetchError).toBeUndefined();
-  });
-
-  it('should set fetchError if an error occurs', async () => {
-    const error = Error('something went wrong');
-    service.fetchEnterpriseCourseEnrollments.mockRejectedValue(error);
-    const baseArgs = {
-      enterpriseUUID: 'uuid',
-      requestedCourseEnrollments: [],
-    };
-    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(baseArgs));
-    await waitForNextUpdate();
-    expect(result.current.fetchError).toBe(error);
-  });
-
-  describe('updateCourseEnrollmentStatus', () => {
-    it('should move a course enrollment to the correct status group', async () => {
-      service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
-      const baseArgs = {
-        enterpriseUUID: 'uuid',
-        requestedCourseEnrollments: [],
-      };
-      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(baseArgs));
-      await waitForNextUpdate();
-
-      act(() => result.current.updateCourseEnrollmentStatus({
-        courseRunId: mockRawCourseEnrollment.courseRunId,
-        originalStatus: COURSE_STATUSES.inProgress,
-        newStatus: COURSE_STATUSES.savedForLater,
-        savedForLater: true,
-      }));
-
-      expect(result.current.courseEnrollmentsByStatus).toEqual(
-        {
-          assigned: [],
-          inProgress: [],
-          upcoming: [],
-          completed: [],
-          savedForLater: [{
-            ...mockTransformedMockCourseEnrollment,
-            courseRunStatus: COURSE_STATUSES.savedForLater,
-            savedForLater: true,
-          }],
-          requested: [],
-        },
-      );
-    });
-  });
-
-  describe('removeCourseEnrollment', () => {
-    it('should remove a course enrollment', async () => {
-      service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
-      const baseArgs = {
-        enterpriseUUID: 'uuid',
-        requestedCourseEnrollments: [],
-      };
-      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(baseArgs));
-      await waitForNextUpdate();
-
-      expect(result.current.courseEnrollmentsByStatus.inProgress).toHaveLength(1);
-
-      act(() => result.current.removeCourseEnrollment({
-        courseRunId: mockRawCourseEnrollment.courseRunId,
-        enrollmentType: camelCase(mockRawCourseEnrollment.courseRunStatus),
-      }));
-
-      expect(result.current.courseEnrollmentsByStatus).toEqual(
-        {
-          assigned: [],
-          inProgress: [],
-          upcoming: [],
-          completed: [],
-          savedForLater: [],
-          requested: [],
-        },
-      );
-    });
-  });
-});
 
 describe('useCourseUpgradeData', () => {
   const courseRunKey = 'course-run-key';
