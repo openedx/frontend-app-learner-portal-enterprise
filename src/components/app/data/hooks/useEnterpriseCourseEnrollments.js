@@ -14,17 +14,17 @@ import { COURSE_STATUSES } from '../../../../constants';
 import useBFF from './useBFF';
 
 export const transformAllEnrollmentsByStatus = ({
-  enterpriseCourseEnrollments,
+  enrollmentsByStatus,
   requests,
   contentAssignments,
 }) => {
-  const { enrollmentsByStatus } = enterpriseCourseEnrollments;
+  const allEnrollmentsByStatus = { ...enrollmentsByStatus };
   const licenseRequests = requests.subscriptionLicenses || [];
   const couponCodeRequests = requests.couponCodes || [];
   const subsidyRequests = [].concat(licenseRequests).concat(couponCodeRequests);
-  enrollmentsByStatus[COURSE_STATUSES.requested] = subsidyRequests;
-  enrollmentsByStatus[COURSE_STATUSES.assigned] = contentAssignments || [];
-  return enrollmentsByStatus;
+  allEnrollmentsByStatus[COURSE_STATUSES.requested] = subsidyRequests;
+  allEnrollmentsByStatus[COURSE_STATUSES.assigned] = contentAssignments || [];
+  return allEnrollmentsByStatus;
 };
 
 /**
@@ -51,10 +51,15 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
     bffQueryOptions: {
       ...queryOptions,
       select: (data) => {
+        const enrollments = data.enterpriseCourseEnrollments.map(transformCourseEnrollment);
         const transformedData = {
-          enrollments: data.enterpriseCourseEnrollments,
-          enrollmentsByStatus: data.allEnrollmentsByStatus,
+          enrollments,
+          enrollmentsByStatus: groupCourseEnrollmentsByStatus(enrollments),
         };
+        // const transformedData = {
+        //   enrollments: data.enterpriseCourseEnrollments,
+        //   enrollmentsByStatus: data.allEnrollmentsByStatus,
+        // };
         if (selectEnrollment) {
           return selectEnrollment({
             original: data,
@@ -147,10 +152,10 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
 
   // TODO: Talk about how we don't have access to weeksToComplete on the dashboard page.
   const allEnrollmentsByStatus = useMemo(() => transformAllEnrollmentsByStatus({
-    enterpriseCourseEnrollments,
+    enrollmentsByStatus: enterpriseCourseEnrollments.enrollmentsByStatus,
     requests,
     contentAssignments,
-  }), [contentAssignments, enterpriseCourseEnrollments, requests]);
+  }), [contentAssignments, enterpriseCourseEnrollments.enrollmentsByStatus, requests]);
 
   return useMemo(() => ({
     data: {
