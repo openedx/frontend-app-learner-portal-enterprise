@@ -1,4 +1,3 @@
-import { redirect } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { queryEnterpriseLearner, queryNotices } from '../../data';
 import {
