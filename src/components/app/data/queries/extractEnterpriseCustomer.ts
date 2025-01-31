@@ -18,11 +18,15 @@ async function extractEnterpriseCustomer({
   // fetch from the server if not available.
   const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug);
   const enterpriseLearnerData = await queryClient.ensureQueryData<Types.EnterpriseLearnerData>(
+    // @ts-ignore
     linkedEnterpriseCustomersQuery,
   );
   const {
+    // @ts-ignore
     activeEnterpriseCustomer,
+    // @ts-ignore
     allLinkedEnterpriseCustomerUsers,
+    // @ts-ignore
     staffEnterpriseCustomer,
   } = enterpriseLearnerData;
 
