@@ -48,7 +48,7 @@ describe('AppErrorBoundary', () => {
   it('renders fallback UI for suspense errors', async () => {
     const LazyComponent = () => {
       const { data } = useQuery({
-        queryKey: 'test',
+        queryKey: ['test'],
         queryFn: async () => new Promise((resolve) => {
           setTimeout(() => {
             resolve({ result: 'Test Data' });
