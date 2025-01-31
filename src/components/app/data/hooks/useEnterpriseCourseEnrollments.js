@@ -51,15 +51,10 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
     bffQueryOptions: {
       ...queryOptions,
       select: (data) => {
-        const enrollments = data.enterpriseCourseEnrollments.map(transformCourseEnrollment);
         const transformedData = {
-          enrollments,
-          enrollmentsByStatus: groupCourseEnrollmentsByStatus(enrollments),
+          enrollments: data.enterpriseCourseEnrollments,
+          enrollmentsByStatus: data.allEnrollmentsByStatus,
         };
-        // const transformedData = {
-        //   enrollments: data.enterpriseCourseEnrollments,
-        //   enrollmentsByStatus: data.allEnrollmentsByStatus,
-        // };
         if (selectEnrollment) {
           return selectEnrollment({
             original: data,
