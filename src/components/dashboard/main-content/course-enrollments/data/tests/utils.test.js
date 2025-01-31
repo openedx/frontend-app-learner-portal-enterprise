@@ -24,7 +24,6 @@ describe('transformCourseEnrollment', () => {
       linkToCourse: originalCourseEnrollment.resumeCourseRunUrl,
       linkToCertificate: originalCourseEnrollment.certificateDownloadUrl,
       hasEmailsEnabled: originalCourseEnrollment.emailsEnabled,
-      isCourseAssigned: false,
       isRevoked: originalCourseEnrollment.isRevoked,
       notifications: originalCourseEnrollment.dueDates,
       canUnenroll: false,
