@@ -3,8 +3,6 @@ import { useFetchers, useNavigation } from 'react-router-dom';
 import nprogress from 'accessible-nprogress';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import useNotices from './useNotices';
-
 // Determines amount of time that must elapse before the
 // NProgress loader is shown in the UI. No need to show it
 // for quick route transitions.
@@ -19,18 +17,11 @@ function useNProgressLoader({ shouldCompleteBeforeUnmount = true }: UseNProgress
   const isAuthenticatedUserHydrated = !!authenticatedUser?.extendedProfile;
   const navigation = useNavigation();
   const fetchers = useFetchers();
-  const {
-    data: noticeRedirectUrl,
-    isLoading: isLoadingNotices,
-  } = useNotices();
-
-  const hasNoticeRedirectUrl = !isLoadingNotices && !!noticeRedirectUrl;
-  const isAppDataHydrated = isAuthenticatedUserHydrated && !hasNoticeRedirectUrl;
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const fetchersIdle = fetchers.every((f) => f.state === 'idle');
-      if (shouldCompleteBeforeUnmount && navigation.state === 'idle' && fetchersIdle && isAppDataHydrated) {
+      if (shouldCompleteBeforeUnmount && navigation.state === 'idle' && fetchersIdle && isAuthenticatedUserHydrated) {
         nprogress.done();
       } else {
         nprogress.start();
@@ -40,9 +31,9 @@ function useNProgressLoader({ shouldCompleteBeforeUnmount = true }: UseNProgress
       nprogress.done();
       clearTimeout(timeoutId);
     };
-  }, [navigation, fetchers, isAppDataHydrated, shouldCompleteBeforeUnmount]);
+  }, [navigation, fetchers, isAuthenticatedUserHydrated, shouldCompleteBeforeUnmount]);
 
-  return isAppDataHydrated;
+  return isAuthenticatedUserHydrated;
 }
 
 export default useNProgressLoader;

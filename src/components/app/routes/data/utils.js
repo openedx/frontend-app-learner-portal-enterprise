@@ -17,7 +17,6 @@ import {
   queryCouponCodes,
   queryEnterpriseLearnerOffers,
   queryLicenseRequests,
-  queryNotices,
   queryRedeemablePolicies,
   querySubscriptions,
   resolveBFFQuery,
@@ -146,13 +145,6 @@ export async function ensureEnterpriseAppData({
       queryAcademiesList(enterpriseCustomer.uuid),
     ),
   ]);
-
-  if (getConfig().ENABLE_NOTICES) {
-    enterpriseAppDataQueries.push(
-      // Notices
-      queryClient.ensureQueryData(queryNotices()),
-    );
-  }
 
   // Ensure all enterprise app data queries are resolved.
   await Promise.all(enterpriseAppDataQueries);
