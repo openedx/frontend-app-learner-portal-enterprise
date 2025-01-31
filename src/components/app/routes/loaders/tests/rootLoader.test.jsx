@@ -1,5 +1,6 @@
-import { screen, waitFor } from '@testing-library/react';
+import { getConfig } from '@edx/frontend-platform/config';
 import { when } from 'jest-when';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
@@ -19,12 +20,17 @@ import {
   queryLicenseRequests,
   queryRedeemablePolicies,
   querySubscriptions,
+  queryNotices,
   updateUserActiveEnterprise,
 } from '../../../data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../data/services/data/__factories__';
 import { isBFFEnabled } from '../../../data/utils';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: jest.fn(),
+}));
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
   ensureAuthenticatedUser: jest.fn(),
@@ -40,6 +46,8 @@ jest.mock('../../../data/utils', () => ({
   isBFFEnabled: jest.fn(),
 }));
 
+const mockLocationAssign = jest.fn();
+
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseCustomerTwo = enterpriseCustomerFactory();
@@ -51,8 +59,22 @@ const mockQueryClient = {
 };
 
 describe('rootLoader', () => {
+  // Preserves original window location, and swaps it back after test is completed
+  const currentLocation = global.location;
+
+  beforeAll(() => {
+    delete global.location;
+    global.location = { ...currentLocation, assign: mockLocationAssign };
+  });
+  afterAll(() => {
+    global.location = currentLocation;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+    getConfig.mockReturnValue({
+      ENABLE_NOTICES: null,
+    });
     ensureAuthenticatedUser.mockResolvedValue(mockAuthenticatedUser);
     extractEnterpriseCustomer.mockResolvedValue(mockEnterpriseCustomer);
   });
@@ -71,6 +93,30 @@ describe('rootLoader', () => {
 
     // Assert that the expected number of queries were made.
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(0);
+  });
+
+  it('redirects to notice if the user has unacknowledged notices', async () => {
+    getConfig.mockReturnValue({
+      ENABLE_NOTICES: true,
+    });
+    const mockNoticeRedirectUrl = 'http://notices.example.com';
+    when(mockQueryClient.ensureQueryData).calledWith(
+      expect.objectContaining({
+        queryKey: queryNotices().queryKey,
+      }),
+    ).mockResolvedValue(mockNoticeRedirectUrl);
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug',
+      element: <div>hello world</div>,
+      loader: makeRootLoader(mockQueryClient),
+    }, {
+      initialEntries: [`/${mockEnterpriseCustomer.slug}`],
+    });
+    await waitFor(() => {
+      expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
+      expect(mockLocationAssign).toHaveBeenCalledTimes(1);
+      expect(mockLocationAssign).toHaveBeenCalledWith(mockNoticeRedirectUrl);
+    });
   });
 
   it('ensures only the enterprise-learner query is called if there is no active enterprise customer user', async () => {

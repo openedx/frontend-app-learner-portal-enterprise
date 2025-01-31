@@ -1,4 +1,6 @@
-import { queryEnterpriseLearner } from '../../data';
+import { redirect } from 'react-router-dom';
+import { getConfig } from '@edx/frontend-platform/config';
+import { queryEnterpriseLearner, queryNotices } from '../../data';
 import {
   ensureActiveEnterpriseCustomerUser,
   ensureAuthenticatedUser,
@@ -16,6 +18,15 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
     // User is not authenticated, so we can't do anything in this loader.
     if (!authenticatedUser) {
       return null;
+    }
+
+    if (getConfig().ENABLE_NOTICES) {
+      // Handle any notices before proceeding.
+      const noticesRedirectUrl = await queryClient.ensureQueryData(queryNotices());
+      if (noticesRedirectUrl) {
+        global.location.assign(noticesRedirectUrl);
+        return null;
+      }
     }
 
     const { username, userId, email: userEmail } = authenticatedUser;
