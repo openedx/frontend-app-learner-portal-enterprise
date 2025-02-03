@@ -3,11 +3,11 @@
     "config:recommended",
     "group:allNonMajor"
   ],
-  "major": {
-    "dependencyDashboardApproval": true
-  },
   "patch": {
     "automerge": true
+  },
+  "major": {
+    "dependencyDashboardApproval": true
   },
   "rebaseWhen": "behind-base-branch",
   "packageRules": [
