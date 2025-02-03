@@ -103,17 +103,35 @@ describe('groupCourseEnrollmentsByStatus', () => {
   const upcomingCourseEnrollment = { courseRunStatus: COURSE_STATUSES.upcoming };
   const completedCourseEnrollment = { courseRunStatus: COURSE_STATUSES.completed };
   const savedForLaterCourseEnrollment = { courseRunStatus: COURSE_STATUSES.savedForLater };
-  it('should group course enrollments by their status', () => {
-    const courseEnrollmentsByStatus = groupCourseEnrollmentsByStatus(
-      [savedForLaterCourseEnrollment, completedCourseEnrollment, upcomingCourseEnrollment, inProgressCourseEnrollment],
-    );
 
+  it('should group course enrollments by their status', () => {
+    const courseEnrollmentsByStatus = groupCourseEnrollmentsByStatus([
+      savedForLaterCourseEnrollment,
+      completedCourseEnrollment,
+      upcomingCourseEnrollment,
+      inProgressCourseEnrollment,
+    ]);
     expect(courseEnrollmentsByStatus).toEqual(
       {
         inProgress: [inProgressCourseEnrollment],
         upcoming: [upcomingCourseEnrollment],
         completed: [completedCourseEnrollment],
         savedForLater: [savedForLaterCourseEnrollment],
+      },
+    );
+  });
+
+  it.each([
+    { enrollments: undefined },
+    { enrollments: [] },
+  ])('should return empty arrays when there are no course enrollments (%s)', ({ enrollments }) => {
+    const courseEnrollmentsByStatus = groupCourseEnrollmentsByStatus(enrollments);
+    expect(courseEnrollmentsByStatus).toEqual(
+      {
+        inProgress: [],
+        upcoming: [],
+        completed: [],
+        savedForLater: [],
       },
     );
   });
