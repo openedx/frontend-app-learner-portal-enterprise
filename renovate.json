@@ -3,6 +3,9 @@
     "config:recommended",
     "group:allNonMajor"
   ],
+  "major": {
+    "dependencyDashboardApproval": true
+  },
   "patch": {
     "automerge": true
   },
