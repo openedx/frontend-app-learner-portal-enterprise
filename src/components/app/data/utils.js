@@ -560,7 +560,7 @@ export function isArchived(courseRun) {
 
 // These are the standard rules used for determining whether a run is "available".
 export const standardAvailableCourseRunsFilter = (courseRun) => (
-  (courseRun.isMarketable || courseRun?.isMarketableExternal) && !isArchived(courseRun) && courseRun.isEnrollable
+  (courseRun.isMarketable || courseRun.isMarketableExternal) && !isArchived(courseRun) && courseRun.isEnrollable
 );
 
 /**

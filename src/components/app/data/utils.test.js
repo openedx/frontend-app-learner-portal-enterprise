@@ -11,8 +11,6 @@ import {
   filterPoliciesByExpirationAndActive,
   getAvailableCourseRuns,
   getSubsidyToApplyForCourse,
-  isArchived,
-  standardAvailableCourseRunsFilter,
   transformGroupMembership,
   transformLearnerContentAssignment,
 } from './utils';
@@ -28,6 +26,7 @@ import {
 } from './constants';
 import { resolveBFFQuery } from './queries';
 import { enterpriseCustomerFactory } from './services/data/__factories__';
+import { DATE_FORMAT } from '../../course/data';
 
 jest.mock('react-router-dom', () => ({
   matchPath: jest.fn(),
@@ -595,6 +594,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: true,
           enrollmentStart: '2023-07-01T00:00:00Z',
           enrollmentEnd: '2023-08-01T00:00:00Z',
+          shouldDisplayCourseRun: true,
+          shouldDisplayCourseRunLateEnrollment: true,
         },
         // Run with recently closed enrollment.
         {
@@ -608,6 +609,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false,
           enrollmentStart: '2023-06-01T00:00:00Z',
           enrollmentEnd: '2023-07-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: true,
         },
         // Run with recently closed enrollment, but is not marketable because the course became unpublished. This should
         // still be redeemable under late enrollment.
@@ -622,6 +625,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false,
           enrollmentStart: '2023-06-01T00:00:00Z',
           enrollmentEnd: '2023-07-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: true,
         },
         // Run with recently closed enrollment, but is not really not marketable.
         {
@@ -635,6 +640,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false,
           enrollmentStart: '2023-06-01T00:00:00Z',
           enrollmentEnd: '2023-07-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: false,
         },
         // Run with long-ago closed enrollment, but somehow still "Starting Soon".  This is very edge-casey.
         {
@@ -648,6 +655,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false,
           enrollmentStart: '2023-01-01T00:00:00Z',
           enrollmentEnd: '2023-02-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: false,
         },
         // Run with long-ago closed enrollment, and now running.
         {
@@ -661,6 +670,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false,
           enrollmentStart: '2023-01-01T00:00:00Z',
           enrollmentEnd: '2023-02-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: false,
         },
         // Run with the enrollment window still in the future.
         {
@@ -674,6 +685,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false, // enrollment hasn't officially opened yet.
           enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
           enrollmentEnd: '2023-08-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: false,
         },
         // isMarketableExternal = false
         // Run with normally open enrollment.
@@ -688,6 +701,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: true,
           enrollmentStart: '2023-07-01T00:00:00Z',
           enrollmentEnd: '2023-08-01T00:00:00Z',
+          shouldDisplayCourseRun: true,
+          shouldDisplayCourseRunLateEnrollment: true,
         },
         // Run with recently closed enrollment.
         {
@@ -701,6 +716,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false,
           enrollmentStart: '2023-06-01T00:00:00Z',
           enrollmentEnd: '2023-07-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: true,
         },
         // Run with recently closed enrollment, but is not marketable because the course became unpublished. This should
         // still be redeemable under late enrollment.
@@ -715,6 +732,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false,
           enrollmentStart: '2023-06-01T00:00:00Z',
           enrollmentEnd: '2023-07-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: true,
         },
         // Run with recently closed enrollment, but is not really not marketable.
         {
@@ -728,6 +747,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false,
           enrollmentStart: '2023-06-01T00:00:00Z',
           enrollmentEnd: '2023-07-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: false,
         },
         // Run with long-ago closed enrollment, but somehow still "Starting Soon".  This is very edge-casey.
         {
@@ -741,6 +762,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false,
           enrollmentStart: '2023-01-01T00:00:00Z',
           enrollmentEnd: '2023-02-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: false,
         },
         // Run with long-ago closed enrollment, and now running.
         {
@@ -754,6 +777,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false,
           enrollmentStart: '2023-01-01T00:00:00Z',
           enrollmentEnd: '2023-02-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: false,
         },
         // Run with the enrollment window still in the future.
         {
@@ -767,6 +792,8 @@ describe('getAvailableCourseRuns', () => {
           isEnrollable: false, // enrollment hasn't officially opened yet.
           enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
           enrollmentEnd: '2023-08-01T00:00:00Z',
+          shouldDisplayCourseRun: false,
+          shouldDisplayCourseRunLateEnrollment: false,
         },
       ],
     },
@@ -775,32 +802,13 @@ describe('getAvailableCourseRuns', () => {
     MockDate.set('2023-07-05T00:00:00Z');
     const lateEnrollmentBufferDays = 60;
     const expectedOutputStandardFilter = sampleCourseRunDataWithRecentRuns.courseData.courseRuns.filter(
-      standardAvailableCourseRunsFilter,
+      courseRun => !!courseRun.shouldDisplayCourseRun,
+    );
+    const expectedOutputWithLateEnrollment = sampleCourseRunDataWithRecentRuns.courseData.courseRuns.filter(
+      courseRun => !!courseRun.shouldDisplayCourseRunLateEnrollment,
     );
     expect(getAvailableCourseRuns({ course: sampleCourseRunDataWithRecentRuns.courseData }))
       .toEqual(expectedOutputStandardFilter);
-    const expectedOutputWithLateEnrollment = sampleCourseRunDataWithRecentRuns.courseData.courseRuns.filter(
-      courseRun => {
-        if (
-          isArchived(courseRun)
-        // The next two checks are in lieu of isMarketable which is otherwise overly sensitive to courserun state.
-        || !courseRun.seats?.length
-        || !courseRun.marketingUrl
-        ) {
-          return false;
-        }
-        // Finally, check against an expanded enrollment window.
-        const today = dayjs();
-        if (
-          !courseRun.enrollmentEnd || (courseRun.enrollmentStart && today.isBefore(dayjs(courseRun.enrollmentStart)))
-        ) {
-        // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
-          return standardAvailableCourseRunsFilter(courseRun);
-        }
-        const bufferedEnrollDeadline = dayjs(courseRun.enrollmentEnd).add(lateEnrollmentBufferDays, 'day');
-        return today.isBefore(bufferedEnrollDeadline);
-      },
-    );
     expect(getAvailableCourseRuns(
       { course: sampleCourseRunDataWithRecentRuns.courseData, lateEnrollmentBufferDays },
     )).toEqual(expectedOutputWithLateEnrollment);
@@ -819,8 +827,20 @@ describe('getAvailableCourseRuns', () => {
             seats: [{ sku: '835BEA7' }],
             marketingUrl: 'https://foo.bar/',
             isEnrollable: true, // enrollment hasn't officially opened yet.
-            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
-            enrollmentEnd: '2023-08-01T00:00:00Z',
+            enrollmentStart: dayjs().add(-5, 'days').format(DATE_FORMAT),
+            enrollmentEnd: dayjs().add(50, 'days').format(DATE_FORMAT),
+          },
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course7',
+            title: 'Demo Course',
+            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+            isMarketable: false,
+            isMarketableExternal: true,
+            seats: [{ sku: '835BEA7' }],
+            marketingUrl: 'https://foo.bar/',
+            isEnrollable: true,
+            enrollmentStart: dayjs().add(-5, 'days').format(DATE_FORMAT),
+            enrollmentEnd: dayjs().add(50, 'days').format(DATE_FORMAT),
           },
           {
             key: 'course-v1:edX+DemoX+Demo_Course7',
@@ -831,23 +851,49 @@ describe('getAvailableCourseRuns', () => {
             seats: [{ sku: '835BEA7' }],
             marketingUrl: 'https://foo.bar/',
             isEnrollable: true, // enrollment hasn't officially opened yet.
-            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
-            enrollmentEnd: '2023-08-01T00:00:00Z',
-          },
-          {
-            key: 'course-v1:edX+DemoX+Demo_Course7',
-            title: 'Demo Course',
-            availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
-            isMarketable: false,
-            isMarketableExternal: true,
-            seats: [{ sku: '835BEA7' }],
-            marketingUrl: 'https://foo.bar/',
-            isEnrollable: true, // enrollment hasn't officially opened yet.
-            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
-            enrollmentEnd: '2023-08-01T00:00:00Z',
+            enrollmentStart: dayjs().add(-5, 'days').format(DATE_FORMAT),
+            enrollmentEnd: dayjs().add(50, 'days').format(DATE_FORMAT),
           },
         ],
       },
+      expectedOutput: [
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course7',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: false,
+          isMarketableExternal: true,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: true, // enrollment hasn't officially opened yet.
+          enrollmentStart: dayjs().add(-5, 'days').format(DATE_FORMAT),
+          enrollmentEnd: dayjs().add(50, 'days').format(DATE_FORMAT),
+        },
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course7',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: false,
+          isMarketableExternal: true,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: true, // enrollment hasn't officially opened yet.
+          enrollmentStart: dayjs().add(-5, 'days').format(DATE_FORMAT),
+          enrollmentEnd: dayjs().add(50, 'days').format(DATE_FORMAT),
+        },
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course7',
+          title: 'Demo Course',
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+          isMarketable: false,
+          isMarketableExternal: true,
+          seats: [{ sku: '835BEA7' }],
+          marketingUrl: 'https://foo.bar/',
+          isEnrollable: true, // enrollment hasn't officially opened yet.
+          enrollmentStart: dayjs().add(-5, 'days').format(DATE_FORMAT),
+          enrollmentEnd: dayjs().add(50, 'days').format(DATE_FORMAT),
+        },
+      ],
     },
     // enrollable with not marketable and marketable external false 0/3 passing
     {
@@ -861,9 +907,9 @@ describe('getAvailableCourseRuns', () => {
             isMarketableExternal: false,
             seats: [{ sku: '835BEA7' }],
             marketingUrl: 'https://foo.bar/',
-            isEnrollable: true, // enrollment hasn't officially opened yet.
-            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
-            enrollmentEnd: '2023-08-01T00:00:00Z',
+            isEnrollable: true,
+            enrollmentStart: dayjs().add(-5, 'days').toISOString(),
+            enrollmentEnd: dayjs().add(50, 'days').toISOString(),
           },
           {
             key: 'course-v1:edX+DemoX+Demo_Course7',
@@ -873,9 +919,9 @@ describe('getAvailableCourseRuns', () => {
             isMarketableExternal: false,
             seats: [{ sku: '835BEA7' }],
             marketingUrl: 'https://foo.bar/',
-            isEnrollable: true, // enrollment hasn't officially opened yet.
-            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
-            enrollmentEnd: '2023-08-01T00:00:00Z',
+            isEnrollable: true,
+            enrollmentStart: dayjs().add(5, 'days').toISOString(),
+            enrollmentEnd: dayjs().add(50, 'days').toISOString(),
           },
           {
             key: 'course-v1:edX+DemoX+Demo_Course7',
@@ -885,12 +931,13 @@ describe('getAvailableCourseRuns', () => {
             isMarketableExternal: false,
             seats: [{ sku: '835BEA7' }],
             marketingUrl: 'https://foo.bar/',
-            isEnrollable: true, // enrollment hasn't officially opened yet.
-            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
-            enrollmentEnd: '2023-08-01T00:00:00Z',
+            isEnrollable: false,
+            enrollmentStart: dayjs().add(5, 'days').toISOString(),
+            enrollmentEnd: dayjs().add(50, 'days').toISOString(),
           },
         ],
       },
+      expectedOutput: [],
     },
     // Not enrollable with not marketable and marketable external true 0/3 passing
     {
@@ -905,8 +952,8 @@ describe('getAvailableCourseRuns', () => {
             seats: [{ sku: '835BEA7' }],
             marketingUrl: 'https://foo.bar/',
             isEnrollable: false, // enrollment hasn't officially opened yet.
-            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
-            enrollmentEnd: '2023-08-01T00:00:00Z',
+            enrollmentStart: dayjs().add(5, 'days').toISOString(), // enrollment hasn't officially opened yet.
+            enrollmentEnd: dayjs().add(50, 'days').toISOString(),
           },
           {
             key: 'course-v1:edX+DemoX+Demo_Course7',
@@ -917,8 +964,8 @@ describe('getAvailableCourseRuns', () => {
             seats: [{ sku: '835BEA7' }],
             marketingUrl: 'https://foo.bar/',
             isEnrollable: false, // enrollment hasn't officially opened yet.
-            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
-            enrollmentEnd: '2023-08-01T00:00:00Z',
+            enrollmentStart: dayjs().add(5, 'days').toISOString(), // enrollment hasn't officially opened yet.
+            enrollmentEnd: dayjs().add(50, 'days').toISOString(),
           },
           {
             key: 'course-v1:edX+DemoX+Demo_Course7',
@@ -929,16 +976,17 @@ describe('getAvailableCourseRuns', () => {
             seats: [{ sku: '835BEA7' }],
             marketingUrl: 'https://foo.bar/',
             isEnrollable: false, // enrollment hasn't officially opened yet.
-            enrollmentStart: '2023-07-10T00:00:00Z', // enrollment hasn't officially opened yet.
-            enrollmentEnd: '2023-08-01T00:00:00Z',
+            enrollmentStart: dayjs().add(5, 'days').toISOString(), // enrollment hasn't officially opened yet.
+            enrollmentEnd: dayjs().add(50, 'days').toISOString(),
           },
         ],
       },
+      expectedOutput: [],
     },
-  ])('returns future or upcoming course run based on isMarketableExternal', ({ courseData }) => {
+  ])('returns future or upcoming course run based on isMarketableExternal, (%s)', ({ courseData, expectedOutput }) => {
     expect(getAvailableCourseRuns({
       course: courseData,
-    })).toEqual(courseData.courseRuns.filter(standardAvailableCourseRunsFilter));
+    })).toEqual(expectedOutput);
   });
   it('returns empty array if course runs are not available', () => {
     sampleCourseRunData.courseData.courseRuns = [];
