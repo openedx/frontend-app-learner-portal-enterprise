@@ -1,5 +1,5 @@
 import { QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import AppErrorBoundary from './AppErrorBoundary';
@@ -63,6 +63,9 @@ describe('AppErrorBoundary', () => {
       </AppErrorBoundaryWrapper>,
     );
     expect(screen.getByText('Router Fallback Loading...')).toBeInTheDocument();
-    await screen.findByText('Test Data');
+    await waitFor(() => {
+      const resultData = screen.getByText('Test Data');
+      expect(resultData).toBeInTheDocument();
+    });
   });
 });

@@ -159,7 +159,7 @@ CourseSection.propTypes = {
       name: PropTypes.string.isRequired,
       date: PropTypes.string.isRequired,
     })).isRequired,
-    microMastersTitle: PropTypes.string,
+    micromastersTitle: PropTypes.string,
     mode: PropTypes.oneOf(Object.values(COURSE_MODES_MAP)),
     startDate: PropTypes.string,
     endDate: PropTypes.string,

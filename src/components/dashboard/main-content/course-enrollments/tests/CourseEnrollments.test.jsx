@@ -24,7 +24,6 @@ import {
 import {
   sortAssignmentsByAssignmentStatus,
   useContentAssignments,
-  useCourseEnrollments,
   useCourseEnrollmentsBySection,
   useCourseUpgradeData,
   useGroupAssociationsAlert,
@@ -47,12 +46,12 @@ jest.mock('../../../data/utils', () => ({
 }));
 
 jest.mock('../data/service');
+
 jest.mock('../data/hooks', () => ({
   ...jest.requireActual('../data/hooks'),
   useCourseUpgradeData: jest.fn(),
   useContentAssignments: jest.fn(),
   useCourseEnrollmentsBySection: jest.fn(),
-  useCourseEnrollments: jest.fn(),
   useGroupAssociationsAlert: jest.fn(),
 }));
 jest.mock('../../../../../config', () => ({
@@ -178,17 +177,6 @@ describe('Course enrollments', () => {
       showExpiredAssignmentsAlert: false,
       handleOnCloseCancelAlert: jest.fn(),
       handleOnCloseExpiredAlert: jest.fn(),
-    });
-    useCourseEnrollments.mockReturnValue({
-      courseEnrollmentsByStatus: {
-        inProgress: [inProgCourseRun],
-        upcoming: [upcomingCourseRun],
-        completed: [completedCourseRun],
-        assigned: [cancelledAssignedCourseRun],
-        savedForLater: [savedForLaterCourseRun],
-        requested: [transformedLicenseRequest],
-      },
-      updateCourseEnrollmentStatus: jest.fn(),
     });
     useCourseUpgradeData.mockReturnValue({
       licenseUpgradeUrl: undefined,
@@ -447,15 +435,6 @@ describe('Course enrollments', () => {
       title: 'third enrollment',
       created: now.add(1, 's').toISOString(),
     };
-    useCourseEnrollments.mockReturnValueOnce({
-      courseEnrollmentsByStatus: {
-        inProgress: [mockSecondEnrollment],
-        upcoming: [mockThirdEnrollment, mockFirstEnrollment],
-        completed: [],
-        savedForLater: [],
-        requested: [],
-      },
-    });
     useCourseEnrollmentsBySection.mockReturnValueOnce({
       hasCourseEnrollments: true,
       currentCourseEnrollments: [mockFirstEnrollment, mockSecondEnrollment, mockThirdEnrollment],

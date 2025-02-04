@@ -2,6 +2,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, snakeCaseObject } from '@edx/frontend-platform/utils';
+import { COURSE_STATUSES } from '../../../../constants';
 
 export const baseLearnerBFFResponse = {
   enterpriseCustomerUserSubsidies: {
@@ -18,6 +19,12 @@ export const baseLearnerBFFResponse = {
 export const learnerDashboardBFFResponse = {
   ...baseLearnerBFFResponse,
   enterpriseCourseEnrollments: [],
+  allEnrollmentsByStatus: {
+    [COURSE_STATUSES.inProgress]: [],
+    [COURSE_STATUSES.upcoming]: [],
+    [COURSE_STATUSES.completed]: [],
+    [COURSE_STATUSES.savedForLater]: [],
+  },
 };
 
 /**

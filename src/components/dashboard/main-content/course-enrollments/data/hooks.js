@@ -6,8 +6,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
-import _camelCase from 'lodash.camelcase';
-import _cloneDeep from 'lodash.clonedeep';
 
 import { useLocation } from 'react-router-dom';
 import * as service from './service';
@@ -23,14 +21,12 @@ import {
   ASSIGNMENT_TYPES,
   COUPON_CODE_SUBSIDY_TYPE,
   getSubsidyToApplyForCourse,
-  groupCourseEnrollmentsByStatus,
   isEnrollmentUpgradeable,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
   queryEnterpriseCourseEnrollments,
   queryEnterpriseLearnerDashboardBFF,
   queryRedeemablePolicies,
-  transformCourseEnrollment,
   useCanUpgradeWithLearnerCredit,
   useCouponCodes,
   useCourseRunMetadata,
@@ -46,80 +42,6 @@ import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../data/con
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { useStatefulEnroll } from '../../../../stateful-enroll/data';
 import { COURSE_STATUSES } from '../../../../../constants';
-
-export const useCourseEnrollments = ({
-  enterpriseUUID,
-  requestedCourseEnrollments,
-}) => {
-  const [courseEnrollmentsByStatus, setCourseEnrollmentsByStatus] = useState(groupCourseEnrollmentsByStatus([]));
-  const [isLoading, setIsLoading] = useState(true);
-  const [fetchError, setFetchError] = useState();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const resp = await service.fetchEnterpriseCourseEnrollments(enterpriseUUID);
-        const enrollments = camelCaseObject(resp.data).map(transformCourseEnrollment);
-        const enrollmentsByStatus = groupCourseEnrollmentsByStatus(enrollments);
-        enrollmentsByStatus[COURSE_STATUSES.requested] = requestedCourseEnrollments;
-        setCourseEnrollmentsByStatus(enrollmentsByStatus);
-      } catch (error) {
-        logError(error);
-        setFetchError(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [enterpriseUUID, requestedCourseEnrollments]);
-
-  const updateCourseEnrollmentStatus = useCallback(({
-    courseRunId,
-    originalStatus,
-    newStatus,
-    savedForLater,
-  }) => {
-    const originalStatusCamelCased = _camelCase(originalStatus);
-    const newStatusCamelCased = _camelCase(newStatus);
-
-    const newCourseEnrollmentsByStatus = _cloneDeep(courseEnrollmentsByStatus);
-    const courseEnrollmentToUpdate = newCourseEnrollmentsByStatus[originalStatusCamelCased].find(
-      ce => ce.courseRunId === courseRunId,
-    );
-    newCourseEnrollmentsByStatus[
-      originalStatusCamelCased
-    ] = newCourseEnrollmentsByStatus[originalStatusCamelCased].filter(
-      ce => ce.courseRunId !== courseRunId,
-    );
-    newCourseEnrollmentsByStatus[newStatusCamelCased].push({
-      ...courseEnrollmentToUpdate,
-      courseRunStatus: newStatus,
-      savedForLater,
-    });
-
-    setCourseEnrollmentsByStatus(newCourseEnrollmentsByStatus);
-  }, [courseEnrollmentsByStatus]);
-
-  const removeCourseEnrollment = useCallback(({ courseRunId, enrollmentType }) => {
-    const enrollmentIndex = courseEnrollmentsByStatus[enrollmentType].findIndex(
-      ce => ce.courseRunId === courseRunId,
-    );
-    if (enrollmentIndex > -1) {
-      const newCourseEnrollmentsByStatus = _cloneDeep(courseEnrollmentsByStatus);
-      newCourseEnrollmentsByStatus[enrollmentType].splice(enrollmentIndex, 1);
-      setCourseEnrollmentsByStatus(newCourseEnrollmentsByStatus);
-    }
-  }, [courseEnrollmentsByStatus]);
-
-  return {
-    courseEnrollmentsByStatus,
-    isLoading,
-    fetchError,
-    updateCourseEnrollmentStatus,
-    removeCourseEnrollment,
-  };
-};
 
 /**
  * Return data for upgrading a course using the user's subsidies

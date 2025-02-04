@@ -20,11 +20,10 @@ describe('transformCourseEnrollment', () => {
       courseRunId: originalCourseEnrollment.courseRunId,
       courseRunStatus: originalCourseEnrollment.courseRunStatus,
       title: originalCourseEnrollment.displayName,
-      microMastersTitle: originalCourseEnrollment.micromastersTitle,
+      micromastersTitle: originalCourseEnrollment.micromastersTitle,
       linkToCourse: originalCourseEnrollment.resumeCourseRunUrl,
       linkToCertificate: originalCourseEnrollment.certificateDownloadUrl,
       hasEmailsEnabled: originalCourseEnrollment.emailsEnabled,
-      isCourseAssigned: false,
       isRevoked: originalCourseEnrollment.isRevoked,
       notifications: originalCourseEnrollment.dueDates,
       canUnenroll: false,
@@ -50,11 +49,10 @@ describe('transformCourseEnrollment', () => {
       courseRunId: originalCourseEnrollment.courseRunId,
       courseRunStatus: originalCourseEnrollment.courseRunStatus,
       title: originalCourseEnrollment.displayName,
-      microMastersTitle: originalCourseEnrollment.micromastersTitle,
+      micromastersTitle: originalCourseEnrollment.micromastersTitle,
       linkToCourse: originalCourseEnrollment.resumeCourseRunUrl,
       linkToCertificate: originalCourseEnrollment.certificateDownloadUrl,
       hasEmailsEnabled: originalCourseEnrollment.emailsEnabled,
-      isCourseAssigned: false,
       isRevoked: originalCourseEnrollment.isRevoked,
       notifications: originalCourseEnrollment.dueDates,
       canUnenroll,
@@ -105,19 +103,35 @@ describe('groupCourseEnrollmentsByStatus', () => {
   const upcomingCourseEnrollment = { courseRunStatus: COURSE_STATUSES.upcoming };
   const completedCourseEnrollment = { courseRunStatus: COURSE_STATUSES.completed };
   const savedForLaterCourseEnrollment = { courseRunStatus: COURSE_STATUSES.savedForLater };
-  it('should group course enrollments by their status', () => {
-    const courseEnrollmentsByStatus = groupCourseEnrollmentsByStatus(
-      [savedForLaterCourseEnrollment, completedCourseEnrollment, upcomingCourseEnrollment, inProgressCourseEnrollment],
-    );
 
+  it('should group course enrollments by their status', () => {
+    const courseEnrollmentsByStatus = groupCourseEnrollmentsByStatus([
+      savedForLaterCourseEnrollment,
+      completedCourseEnrollment,
+      upcomingCourseEnrollment,
+      inProgressCourseEnrollment,
+    ]);
     expect(courseEnrollmentsByStatus).toEqual(
       {
         inProgress: [inProgressCourseEnrollment],
         upcoming: [upcomingCourseEnrollment],
         completed: [completedCourseEnrollment],
         savedForLater: [savedForLaterCourseEnrollment],
-        requested: [],
-        assigned: [],
+      },
+    );
+  });
+
+  it.each([
+    { enrollments: undefined },
+    { enrollments: [] },
+  ])('should return empty arrays when there are no course enrollments (%s)', ({ enrollments }) => {
+    const courseEnrollmentsByStatus = groupCourseEnrollmentsByStatus(enrollments);
+    expect(courseEnrollmentsByStatus).toEqual(
+      {
+        inProgress: [],
+        upcoming: [],
+        completed: [],
+        savedForLater: [],
       },
     );
   });

@@ -133,7 +133,7 @@ const BaseCourseCard = ({
   endDate,
   courseRunId,
   type,
-  microMastersTitle,
+  micromastersTitle,
   orgName,
   children,
   courseUpgradePrice,
@@ -375,12 +375,12 @@ const BaseCourseCard = ({
   };
 
   const renderMicroMastersTitle = () => {
-    if (!microMastersTitle) {
+    if (!micromastersTitle) {
       return null;
     }
     return (
       <div className="font-weight-bold small mb-1">
-        {microMastersTitle}
+        {micromastersTitle}
       </div>
     );
   };
@@ -646,7 +646,7 @@ BaseCourseCard.propTypes = {
   endDate: PropTypes.string,
   hasEmailsEnabled: PropTypes.bool,
   canUnenroll: PropTypes.bool,
-  microMastersTitle: PropTypes.string,
+  micromastersTitle: PropTypes.string,
   orgName: PropTypes.string,
   pacing: PropTypes.oneOf(Object.values(COURSE_PACING)),
   linkToCertificate: PropTypes.string,
@@ -670,7 +670,7 @@ BaseCourseCard.defaultProps = {
   endDate: null,
   hasEmailsEnabled: null,
   canUnenroll: null,
-  microMastersTitle: null,
+  micromastersTitle: null,
   orgName: null,
   pacing: null,
   buttons: null,

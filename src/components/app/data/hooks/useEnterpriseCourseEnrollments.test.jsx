@@ -12,9 +12,8 @@ import {
   fetchLicenseRequests,
   fetchRedeemablePolicies,
 } from '../services';
-import useEnterpriseCourseEnrollments, { transformAllEnrollmentsByStatus } from './useEnterpriseCourseEnrollments';
+import useEnterpriseCourseEnrollments from './useEnterpriseCourseEnrollments';
 import { COURSE_STATUSES } from '../../../../constants';
-import { canUnenrollCourseEnrollment, transformCourseEnrollment } from '../utils';
 import useBFF from './useBFF';
 
 jest.mock('./useEnterpriseCustomer');
@@ -31,23 +30,38 @@ jest.mock('./useBFF');
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockCourseEnrollment = {
+  courseRunId: 'test-course-run-id',
+  courseRunStatus: COURSE_STATUSES.inProgress,
+  courseKey: 'test-course-key',
   displayName: 'Education',
   micromastersTitle: 'Demo in higher education',
   courseRunUrl: 'test-course-url',
-  certificateDownloadUrl: 'test-certificate-download-url',
+  certificateDownloadUrl: null,
   emailsEnabled: false,
-  dueDates: ['Finish your course soon'],
+  dueDates: [],
+};
+const mockTransformedCourseEnrollment = {
+  courseRunId: mockCourseEnrollment.courseRunId,
+  courseRunStatus: mockCourseEnrollment.courseRunStatus,
+  courseKey: mockCourseEnrollment.courseKey,
+  title: mockCourseEnrollment.displayName,
+  micromastersTitle: mockCourseEnrollment.micromastersTitle,
+  linkToCourse: mockCourseEnrollment.courseRunUrl,
+  linkToCertificate: mockCourseEnrollment.certificateDownloadUrl,
+  hasEmailsEnabled: mockCourseEnrollment.emailsEnabled,
+  notifications: mockCourseEnrollment.dueDates,
+  canUnenroll: true,
 };
 const mockBrowseAndRequestConfiguration = {
   id: 123,
 };
-const mockLicenseRequests = {
+const mockLicenseRequest = {
   courseId: 'test-course-id-1',
   courseTitle: 'Test Course Title 1',
   coursePartners: [{ name: 'edx' }],
   created: true,
 };
-const mockCouponCodeRequests = {
+const mockCouponCodeRequest = {
   courseId: 'test-course-id-2',
   courseTitle: 'Test Course Title 2',
   coursePartners: [{ name: 'edx' }, { name: '2U' }],
@@ -70,6 +84,7 @@ const mockContentAssignment = {
   },
   assignmentConfiguration: 'test-configuration',
   learnerAcknowledged: true,
+  isAssignedCourseRun: false,
 };
 const redeemablePolicies = [
   {
@@ -114,7 +129,7 @@ const mockRedeemablePolicies = {
   },
 };
 
-const expectedTransformedRequests = (request) => ({
+const expectedTransformedRequest = (request) => ({
   courseRunId: request.courseId,
   title: request.courseTitle,
   orgName: request.coursePartners?.map(partner => partner.name).join(', '),
@@ -137,29 +152,38 @@ describe('useEnterpriseCourseEnrollments', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     fetchEnterpriseCourseEnrollments.mockResolvedValue([mockCourseEnrollment]);
     fetchBrowseAndRequestConfiguration.mockResolvedValue(mockBrowseAndRequestConfiguration);
-    fetchLicenseRequests.mockResolvedValue([mockLicenseRequests]);
-    fetchCouponCodeRequests.mockResolvedValue([mockCouponCodeRequests]);
+    fetchLicenseRequests.mockResolvedValue([mockLicenseRequest]);
+    fetchCouponCodeRequests.mockResolvedValue([mockCouponCodeRequest]);
     fetchRedeemablePolicies.mockResolvedValue(mockRedeemablePolicies);
-    useBFF.mockReturnValue({ data: [mockCourseEnrollment].map(transformCourseEnrollment) });
+    useBFF.mockReturnValue({
+      data: {
+        enrollments: [mockTransformedCourseEnrollment],
+        enrollmentsByStatus: {
+          [COURSE_STATUSES.inProgress]: [mockTransformedCourseEnrollment],
+          [COURSE_STATUSES.upcoming]: [],
+          [COURSE_STATUSES.completed]: [],
+          [COURSE_STATUSES.savedForLater]: [],
+        },
+      },
+    });
   });
 
   it.each([
     { hasQueryOptions: false },
     { hasQueryOptions: true },
   ])('should return transformed enrollments data (%s)', async ({ hasQueryOptions }) => {
-    const expectedEnterpriseCourseEnrollments = [{
-      title: mockCourseEnrollment.displayName,
-      microMastersTitle: mockCourseEnrollment.micromastersTitle,
-      linkToCourse: mockCourseEnrollment.courseRunUrl,
-      linkToCertificate: mockCourseEnrollment.certificateDownloadUrl,
-      hasEmailsEnabled: mockCourseEnrollment.emailsEnabled,
-      notifications: mockCourseEnrollment.dueDates,
-      canUnenroll: canUnenrollCourseEnrollment(mockCourseEnrollment),
-      isCourseAssigned: false,
-    }];
+    const expectedEnterpriseCourseEnrollmentsData = {
+      enrollments: [mockTransformedCourseEnrollment],
+      enrollmentsByStatus: {
+        inProgress: [mockTransformedCourseEnrollment],
+        upcoming: [],
+        completed: [],
+        savedForLater: [],
+      },
+    };
     const expectedRequests = {
-      couponCodes: [expectedTransformedRequests(mockCouponCodeRequests)],
-      subscriptionLicenses: [expectedTransformedRequests(mockLicenseRequests)],
+      couponCodes: [expectedTransformedRequest(mockCouponCodeRequest)],
+      subscriptionLicenses: [expectedTransformedRequest(mockLicenseRequest)],
     };
     const expectedTransformedLearnerContentAssignment = {
       linkToCourse: `/${mockEnterpriseCustomer.slug}/course/${mockContentAssignment.contentKey}`,
@@ -179,6 +203,7 @@ describe('useEnterpriseCourseEnrollments', () => {
       assignmentConfiguration: mockContentAssignment.assignmentConfiguration,
       uuid: mockContentAssignment.uuid,
       learnerAcknowledged: mockContentAssignment.learnerAcknowledged,
+      isAssignedCourseRun: mockContentAssignment.isAssignedCourseRun,
     };
     const expectedContentAssignmentData = {
       acceptedAssignments: [],
@@ -189,8 +214,20 @@ describe('useEnterpriseCourseEnrollments', () => {
       erroredAssignments: [],
       expiredAssignments: [],
     };
+    const expectedTransformedAllEnrollmentsByStatus = {
+      [COURSE_STATUSES.inProgress]: (
+        expectedEnterpriseCourseEnrollmentsData.enrollmentsByStatus[COURSE_STATUSES.inProgress]
+      ),
+      [COURSE_STATUSES.upcoming]: [],
+      [COURSE_STATUSES.completed]: [],
+      [COURSE_STATUSES.savedForLater]: [],
+      [COURSE_STATUSES.requested]: [mockLicenseRequest, mockCouponCodeRequest],
+      [COURSE_STATUSES.assigned]: expect.objectContaining({
+        allocatedAssignments: [mockContentAssignment],
+      }),
+    };
 
-    const mockSelectEnrollment = jest.fn().mockReturnValue(expectedEnterpriseCourseEnrollments);
+    const mockSelectEnrollment = jest.fn().mockReturnValue(expectedEnterpriseCourseEnrollmentsData);
     const mockSelectLicenseRequest = jest.fn().mockReturnValue(expectedRequests.subscriptionLicenses);
     const mockSelectCouponCodeRequest = jest.fn().mockReturnValue(expectedRequests.couponCodes);
     const mockSelectContentAssignment = jest.fn().mockReturnValue(expectedContentAssignmentData);
@@ -212,42 +249,71 @@ describe('useEnterpriseCourseEnrollments', () => {
     );
     await waitForNextUpdate();
 
-    // Call the mocked useBFF's input select functions
+    // Call the useBFF's select functions
     const useBFFArgs = useBFF.mock.calls[0][0];
     const { select: selectBFFQuery } = useBFFArgs.bffQueryOptions;
     const { select: selectFallbackBFFQuery } = useBFFArgs.fallbackQueryConfig;
-    selectBFFQuery({ enterpriseCourseEnrollments: [mockCourseEnrollment] });
+    selectBFFQuery({
+      enterpriseCourseEnrollments: expectedEnterpriseCourseEnrollmentsData.enrollments,
+      allEnrollmentsByStatus: expectedEnterpriseCourseEnrollmentsData.enrollmentsByStatus,
+    });
     selectFallbackBFFQuery([mockCourseEnrollment]);
 
     // Assert that passed select fn query options were called with the correct arguments
     if (hasQueryOptions) {
       expect(mockSelectLicenseRequest).toHaveBeenCalledWith({
-        original: [mockLicenseRequests],
+        original: [mockLicenseRequest],
         transformed: expectedRequests.subscriptionLicenses,
       });
       expect(mockSelectCouponCodeRequest).toHaveBeenCalledWith({
-        original: [mockCouponCodeRequests],
+        original: [mockCouponCodeRequest],
         transformed: expectedRequests.couponCodes,
       });
       expect(mockSelectContentAssignment).toHaveBeenCalledWith({
         original: mockRedeemablePolicies,
         transformed: expectedContentAssignmentData,
       });
+      expect(mockSelectEnrollment).toHaveBeenCalledTimes(2);
+      expect(mockSelectEnrollment).toHaveBeenCalledWith({
+        original: {
+          enterpriseCourseEnrollments: expectedEnterpriseCourseEnrollmentsData.enrollments,
+          allEnrollmentsByStatus: expectedEnterpriseCourseEnrollmentsData.enrollmentsByStatus,
+        },
+        transformed: expectedEnterpriseCourseEnrollmentsData,
+      });
       expect(mockSelectEnrollment).toHaveBeenCalledWith({
         original: [mockCourseEnrollment],
-        transformed: expectedEnterpriseCourseEnrollments,
+        transformed: expectedEnterpriseCourseEnrollmentsData,
       });
     }
 
-    const expectedTransformedAllEnrollmentsByStatus = transformAllEnrollmentsByStatus({
-      enterpriseCourseEnrollments: expectedEnterpriseCourseEnrollments,
-      requests: expectedRequests,
-      contentAssignments: expectedContentAssignmentData,
-    });
+    const {
+      allEnrollmentsByStatus,
+      enterpriseCourseEnrollments,
+    } = result.current.data;
 
-    expect(result.current.data.allEnrollmentsByStatus).toEqual(expectedTransformedAllEnrollmentsByStatus);
-    expect(result.current.data.enterpriseCourseEnrollments).toEqual(expectedEnterpriseCourseEnrollments);
+    // Verify enrollments by status
+    expect(allEnrollmentsByStatus.inProgress).toEqual(
+      expectedTransformedAllEnrollmentsByStatus.inProgress,
+    );
+    expect(allEnrollmentsByStatus.upcoming).toEqual(
+      expectedTransformedAllEnrollmentsByStatus.upcoming,
+    );
+    expect(allEnrollmentsByStatus.completed).toEqual(
+      expectedTransformedAllEnrollmentsByStatus.completed,
+    );
+    expect(allEnrollmentsByStatus.savedForLater).toEqual(
+      expectedTransformedAllEnrollmentsByStatus.savedForLater,
+    );
+
+    // Verify enrollments
+    expect(enterpriseCourseEnrollments).toEqual(expectedEnterpriseCourseEnrollmentsData.enrollments);
+
+    // Verify requests
+    expect(result.current.data.requests.subscriptionLicenses).toEqual(expectedRequests.subscriptionLicenses);
+    expect(result.current.data.requests.couponCodes).toEqual(expectedRequests.couponCodes);
+
+    // Verify content assignments
     expect(result.current.data.contentAssignments).toEqual(expectedContentAssignmentData);
-    expect(result.current.data.requests).toEqual(expectedRequests);
   });
 });
