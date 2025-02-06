@@ -1,25 +1,31 @@
 import { useLocation, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { logError } from '@edx/frontend-platform/logging';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { resolveBFFQuery } from '../queries';
 import useEnterpriseFeatures from './useEnterpriseFeatures';
 
+export interface UseBFFArgs {
+  /* additional fields to pass into the matched BFF query function */
+  bffQueryAdditionalParams?: Record<string, unknown>;
+  /* queryOptions specifically for the matched BFF query call */
+  bffQueryOptions?: Omit<UseQueryOptions, 'queryFn' | 'queryKey'>;
+  /* if a route is not compatible with the BFF layer, this field
+  allows you to pass a fallback query endpoint to call in lieu of
+  an unmatched BFF query */
+  fallbackQueryConfig?: Partial<UseQueryOptions> | null;
+}
+
 /**
- * Uses the route to determine which API call to make for the BFF
- *
- * @param bffQueryAdditionalParams - additional fields to pass into a matched BFF query call
- * @param bffQueryOptions - the queryOptions specifically for the matched BFF query call
- * @param fallbackQueryConfig - if a route is not compatible with the BFF layer, this field
- * allows you to pass a fallback query endpoint to call in lieu of an unmatched BFF query
- * @returns  {Types.UseQueryResult}} The query results for the routes BFF.
+ * Uses the current page route to determine which API call to make for the BFF, if any.
  */
 export default function useBFF({
   bffQueryAdditionalParams = {},
   bffQueryOptions = {},
   fallbackQueryConfig = null,
-}) {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+}: UseBFFArgs) {
+  const enterpriseCustomerQueryResult = useEnterpriseCustomer();
+  const enterpriseCustomer = enterpriseCustomerQueryResult.data!;
   const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const { enterpriseSlug } = useParams();
   const location = useLocation();
@@ -34,7 +40,7 @@ export default function useBFF({
   );
 
   // Determine which query to call, the original hook or the new BFF
-  let queryConfig = {};
+  let queryConfig: Partial<UseQueryOptions> = {};
   if (matchedBFFQuery) {
     queryConfig = {
       ...matchedBFFQuery({ enterpriseSlug, ...bffQueryAdditionalParams }),

@@ -450,9 +450,10 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
 /**
  * Returns a function to be used as a click handler that emits an optimizely enrollment click event.
  *
+ * @param {Object} args
  * @param {string} [args.href] Optional: If click handler is used on a hyperlink, this is the destination url.
  * @param {string} args.courseRunKey Id of the course run
- * @param {string} args.userEnrollments Array of user enrollments
+ * @param {Object[]} args.userEnrollments Array of user enrollments
  *
  * @returns Click handler function for clicks on enrollment buttons.
  */
@@ -543,17 +544,16 @@ export function useCourseListPrice() {
 export const useUserSubsidyApplicableToCourse = () => {
   const { courseKey } = useParams();
   const { data: courseMetadata } = useCourseMetadata();
-  const resolvedTransformedEnterpriseCustomerData = ({ transformed }) => ({
-    fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
-    contactEmail: transformed.contactEmail,
-  });
   const {
     data: {
       fallbackAdminUsers,
       contactEmail,
     },
   } = useEnterpriseCustomer({
-    select: resolvedTransformedEnterpriseCustomerData,
+    select: ({ transformed }) => ({
+      fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
+      contactEmail: transformed.contactEmail,
+    }),
   });
   const { data: courseListPrice } = useCourseListPrice();
   const {

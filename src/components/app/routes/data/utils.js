@@ -296,7 +296,7 @@ export async function ensureActiveEnterpriseCustomerUser({
     } = foundEnterpriseCustomerUserForSlug;
     // Makes the POST API request to update the active enterprise customer
     // for the learner in the backend for future sessions.
-    await updateUserActiveEnterprise({ enterpriseCustomer: nextActiveEnterpriseCustomer });
+    await updateUserActiveEnterprise(nextActiveEnterpriseCustomer);
     const updatedLinkedEnterpriseCustomerUsers = allLinkedEnterpriseCustomerUsers.map(
       ecu => ({
         ...ecu,

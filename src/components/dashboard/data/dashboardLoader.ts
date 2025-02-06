@@ -39,6 +39,10 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      // If the enterprise customer is not found, we can't do anything in this loader.
+      return null;
+    }
 
     // Extract enterprise features.
     const enterpriseFeatures = await extractEnterpriseFeatures({

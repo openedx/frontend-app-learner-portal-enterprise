@@ -2,7 +2,7 @@ import _cloneDeep from 'lodash.clonedeep';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 export const emptyRedeemableLearnerCreditPolicies = {
-  redeemablePolicies: [],
+  redeemablePolicies: [] as Types.SubsidyAccessPolicy[],
   learnerContentAssignments: {
     assignments: [],
     hasAssignments: false,
@@ -74,11 +74,16 @@ export const START_DATE_DEFAULT_TO_TODAY_THRESHOLD_DAYS = 14;
 
 export const SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE = 'shouldShowLicenseActivationSuccessMessage';
 
-export const getBaseSubscriptionsData = () => {
+interface GetBaseSubscriptionsDataResult {
+  baseLicensesByStatus: Record<string, Types.SubscriptionLicense[]>;
+  baseSubscriptionsData: Types.SubscriptionsQueryData;
+}
+
+export const getBaseSubscriptionsData = (): GetBaseSubscriptionsDataResult => {
   const baseLicensesByStatus = {
-    [LICENSE_STATUS.ACTIVATED]: [],
-    [LICENSE_STATUS.ASSIGNED]: [],
-    [LICENSE_STATUS.REVOKED]: [],
+    [LICENSE_STATUS.ACTIVATED]: [] as Types.SubscriptionLicense[],
+    [LICENSE_STATUS.ASSIGNED]: [] as Types.SubscriptionLicense[],
+    [LICENSE_STATUS.REVOKED]: [] as Types.SubscriptionLicense[],
   };
   const baseSubscriptionsData = {
     subscriptionLicenses: [],

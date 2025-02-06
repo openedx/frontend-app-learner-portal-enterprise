@@ -7,7 +7,8 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
 const usePassLearnerCsodParams = () => {
   const location = useLocation();
   const { courseKey } = useParams();
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const enterpriseCustomerQueryResult = useEnterpriseCustomer();
+  const enterpriseCustomer = enterpriseCustomerQueryResult.data!;
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);

@@ -1,21 +1,23 @@
+import { UseQueryOptions } from '@tanstack/react-query';
 import { querySubscriptions } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useBFF from './useBFF';
 
+export type UseSubscriptionsQueryOptions = Omit<UseQueryOptions, 'queryKey' | 'queryFn'>;
+
 /**
  * Custom hook to get subscriptions data for the enterprise.
- * @param {Types.UseQueryOptions} queryOptions
- * @returns {Types.UseQueryResults} The query results for the subscriptions.
  */
-export default function useSubscriptions(queryOptions = {}) {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+export default function useSubscriptions(queryOptions: UseSubscriptionsQueryOptions = {}) {
+  const enterpriseCustomerQueryResult = useEnterpriseCustomer();
+  const enterpriseCustomer = enterpriseCustomerQueryResult.data!;
   const { select, ...queryOptionsRest } = queryOptions;
 
   return useBFF({
     bffQueryOptions: {
       ...queryOptionsRest,
-      select: (data) => {
-        const transformedData = data?.enterpriseCustomerUserSubsidies?.subscriptions;
+      select: (data: Types.BaseBFFResponse) => {
+        const transformedData = data.enterpriseCustomerUserSubsidies?.subscriptions;
 
         // When custom `select` function is provided in `queryOptions`, call it with original and transformed data.
         if (select) {

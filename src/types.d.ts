@@ -47,22 +47,31 @@ export interface EnterpriseCustomer {
   slug: string;
   name: string;
   enableOneAcademy: boolean;
+  identityProvider: string;
 }
 
 export interface EnterpriseFeatures {
-  enterpriseLearnerBffEnabled: boolean;
+  enterpriseLearnerBffEnabled?: boolean;
   [key: string]: boolean;
 }
 
+export interface EnterpriseCustomerUser {
+  id: number;
+  enterpriseCustomer: EnterpriseCustomer;
+  active: boolean;
+}
+
 export interface EnterpriseLearnerData {
-  enterpriseCustomer: Types.EnterpriseCustomer;
-  activeEnterpriseCustomer: Types.EnterpriseCustomer;
-  allLinkedEnterpriseCustomerUsers: any[];
-  staffEnterpriseCustomer: Types.EnterpriseCustomer;
+  enterpriseCustomer: Types.EnterpriseCustomer | null;
+  activeEnterpriseCustomer: Types.EnterpriseCustomer | null;
+  activeEnterpriseCustomerUserRoleAssignments: any[];
+  allLinkedEnterpriseCustomerUsers: EnterpriseCustomerUser[];
+  enterpriseCustomerUserRoleAssignments: any[];
+  staffEnterpriseCustomer: Types.EnterpriseCustomer | null;
   enterpriseFeatures: Types.EnterpriseFeatures;
 }
 
-interface EnrollmentDueDate {
+export interface EnrollmentDueDate {
   name: string;
   date: string;
   url: string;
@@ -93,5 +102,71 @@ export interface EnterpriseCourseEnrollment {
 
 // Application Data (subsidy)
 export type SubsidyRequestState = typeof SUBSIDY_REQUEST_STATE[keyof typeof SUBSIDY_REQUEST_STATE];
+
+export interface SubsidyAccessPolicy {
+  uuid: string;
+  policyRedemptionUrl: string;
+}
+export interface SubsidyTransaction {
+  uuid: string;
+  state: 'created' | 'pending' | 'committed' | 'failed';
+  lmsUserId: number;
+  lmsUserEmail?: string;
+  contentKey: string;
+  parentContentKey: string;
+  contentTitle: string;
+  quantity: number;
+  unit: any;
+  fulfillmentIdentifier: string;
+  subsidyAccessPolicyUuid: string;
+  metadata: Record<string, any>;
+  created: string;
+  modified: string;
+  reversal?: any;
+  externalReference?: any;
+  transactionStatusApiUrl: string;
+  coursewareUrl: string;
+}
+
+export interface CustomerAgreement {
+  uuid: string;
+  netDaysUntilExpiration: number;
+  disableExpirationNotifications: boolean;
+  hasCustomLicenseExpirationMessagingV2: boolean;
+  /* subscription plan UUID */
+  subscriptionForAutoAppliedLicenses: string;
+  enableAutoAppliedSubscriptionsWithUniversalLink: boolean;
+}
+
+export interface SubscriptionPlan {
+  uuid: string;
+  isCurrent: boolean;
+}
+
+export interface SubscriptionLicense {
+  uuid: string;
+  subscriptionPlan: SubscriptionPlan;
+  status: 'activated' | 'assigned' | 'revoked' | 'unassigned';
+  activationKey: string;
+}
+
+export interface SubscriptionsQueryData {
+  subscriptionLicenses: Types.SubscriptionLicense[];
+  customerAgreement: Types.CustomerAgreement | null;
+  subscriptionLicense: Types.SubscriptionLicense | null;
+  subscriptionPlan: Types.SubscriptionPlan | null;
+  subscriptionLicensesByStatus: Record<LICENSE_STATUS, Types.SubscriptionLicense[]>;
+  showExpirationNotifications: boolean;
+}
+
+// BFF Responses
+
+export interface EnterpriseCustomerUserSubsidies {
+  subscriptions: Types.SubscriptionsQueryData;
+}
+
+export interface BaseBFFResponse {
+  enterpriseCustomerUserSubsidies: EnterpriseCustomerUserSubsidies;
+}
 
 export as namespace Types;

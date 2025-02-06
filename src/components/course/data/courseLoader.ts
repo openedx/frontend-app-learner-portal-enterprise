@@ -59,6 +59,10 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      // If the enterprise customer is not found, we can't do anything in this loader.
+      return null;
+    }
     const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
       enterpriseUuid: enterpriseCustomer.uuid,
       lmsUserId: authenticatedUser.userId,

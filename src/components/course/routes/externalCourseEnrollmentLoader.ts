@@ -42,6 +42,10 @@ const makeExternalCourseEnrollmentLoader: Types.MakeRouteLoaderFunctionWithQuery
         authenticatedUser,
         enterpriseSlug,
       });
+      if (!enterpriseCustomer) {
+        // If the enterprise customer is not found, we can't do anything in this loader.
+        return null;
+      }
 
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently

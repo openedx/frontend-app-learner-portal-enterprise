@@ -13,7 +13,7 @@ async function extractEnterpriseCustomer({
   queryClient,
   authenticatedUser,
   enterpriseSlug,
-} : ExtractEnterpriseCustomerArgs) : Promise<Types.EnterpriseCustomer> {
+} : ExtractEnterpriseCustomerArgs) : Promise<Types.EnterpriseCustomer | null> {
   // Retrieve linked enterprise customers for the current user from query cache, or
   // fetch from the server if not available.
   const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug);
@@ -33,7 +33,7 @@ async function extractEnterpriseCustomer({
   }
 
   const foundEnterpriseCustomerForSlug = allLinkedEnterpriseCustomerUsers.find(
-    (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
+    (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
   )?.enterpriseCustomer;
 
   // Otherwise, there is a slug provided for a specific enterprise customer. If the

@@ -3,4 +3,4 @@ export const LICENSE_STATUS = {
   ASSIGNED: 'assigned',
   REVOKED: 'revoked',
   UNASSIGNED: 'unassigned',
-};
+} as const;

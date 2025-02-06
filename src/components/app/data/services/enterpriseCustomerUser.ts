@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
@@ -9,11 +10,8 @@ import { getErrorResponseStatusCode } from '../../../../utils/common';
 /**
  * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
  * request, updating the active enterprise customer for the learner.
- * @param {Object} params - The parameters object.
- * @param {Object} params.enterpriseCustomer - The enterprise customer that should be made active.
- * @returns {Promise} - A promise that resolves when the active enterprise customer is updated.
  */
-export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
+export async function updateUserActiveEnterprise(enterpriseCustomer: Types.EnterpriseCustomer) {
   const url = `${getConfig().LMS_BASE_URL}/enterprise/select/active/`;
   const formData = new FormData();
   formData.append('enterprise', enterpriseCustomer.uuid);
@@ -21,11 +19,9 @@ export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
 }
 
 /**
- * TODO
- * @param {*} inviteKeyUUID
- * @returns
+ * Helper function to link an enterprise customer user by making a POST API request.
  */
-export async function postLinkEnterpriseLearner(inviteKeyUUID) {
+export async function postLinkEnterpriseLearner(inviteKeyUUID: string) {
   const config = getConfig();
   const url = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-customer-invite-key/${inviteKeyUUID}/link-user/`;
   const response = await getAuthenticatedHttpClient().post(url);
@@ -33,14 +29,14 @@ export async function postLinkEnterpriseLearner(inviteKeyUUID) {
 }
 
 /**
- * TODO
+ * Fetches the enterprise customer data for the given enterprise slug.
  */
-export async function fetchEnterpriseCustomerForSlug(enterpriseSlug) {
+export async function fetchEnterpriseCustomerForSlug(enterpriseSlug: string): Promise<Types.EnterpriseCustomer | null> {
   const queryParams = new URLSearchParams({ slug: enterpriseSlug });
   const url = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/?${queryParams.toString()}`;
   try {
-    const response = await getAuthenticatedHttpClient().get(url);
-    const { results } = camelCaseObject(response.data);
+    const response: AxiosResponse = await getAuthenticatedHttpClient().get(url);
+    const { results } = camelCaseObject(response.data) as { results: Types.EnterpriseCustomer[] };
     return results[0] ?? null;
   } catch (error) {
     logError(error);
@@ -51,17 +47,16 @@ export async function fetchEnterpriseCustomerForSlug(enterpriseSlug) {
 /**
  * Fetches the enterprise learner data for the authenticated user, including all
  * linked enterprise customer users.
- *
- * @param {string} username The username of the authenticated user.
- * @param {string} enterpriseSlug The slug of the enterprise customer to display.
- * @param {Object} [options] Additional query options.
- * @returns
  */
-export async function fetchEnterpriseLearnerData(username, enterpriseSlug, options = {}) {
+export async function fetchEnterpriseLearnerData(
+  username: string,
+  enterpriseSlug?: string,
+  options: Record<any, string> = {},
+): Promise<Types.EnterpriseLearnerData> {
   const enterpriseLearnerUrl = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
   const queryParams = new URLSearchParams({
     username,
-    page: 1,
+    page: '1',
     ...options,
   });
   const url = `${enterpriseLearnerUrl}?${queryParams.toString()}`;
@@ -137,23 +132,20 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
 }
 
 /**
- * TODO
- * @param {*} enterpriseId
- * @param {*} options
- * @returns
+ * Fetches the enterprise course enrollments for the given enterprise ID.
  */
-export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {}) {
+export async function fetchEnterpriseCourseEnrollments(enterpriseId: string, options: Record<any, string> = {}) {
   const queryParams = new URLSearchParams({
     enterprise_id: enterpriseId,
-    is_active: true,
+    is_active: 'true',
     ...options,
   });
   const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);
-  } catch (error) {
-    if (getErrorResponseStatusCode(error) !== 404) {
+  } catch (error: unknown) {
+    if (getErrorResponseStatusCode(error as Error) !== 404) {
       logError(error);
     }
     return [];
@@ -161,11 +153,9 @@ export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {
 }
 
 /**
- * TODO
- * @param {*} enterpriseUUID
- * @returns
+ * Fetches the enterprise programs list for the given enterprise UUID.
  */
-export async function fetchLearnerProgramsList(enterpriseUUID) {
+export async function fetchLearnerProgramsList(enterpriseUUID: string) {
   const url = `${getConfig().LMS_BASE_URL}/api/dashboard/v0/programs/${enterpriseUUID}/`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
@@ -179,7 +169,6 @@ export async function fetchLearnerProgramsList(enterpriseUUID) {
 /**
  * Fetches in-progress pathways for the authenticated user. Note, it should be
  * filtered based on the enterpriseUUID, but is not currently.
- * @returns
  */
 export async function fetchInProgressPathways() {
   // TODO: after adding support of filtering on enterprise UUID, send the uuid to endpoint as well
@@ -193,25 +182,32 @@ export async function fetchInProgressPathways() {
   }
 }
 
+interface UpdateUserCsodParams {
+  data: {
+    userGuid: string;
+    sessionToken: string;
+    courseKey: string;
+    enterpriseUUID: string;
+    callbackUrl: string | null;
+    subdomain: string | null;
+  }
+}
+
 /**
  * Helper function to update the CSOD parameters for the learner by making a POST API request.
  * request, updating the CSOD params for the learner.
- * @param {Object} params - The parameters object.
- * @param {Object} params.data - The CSOD parameters data to be updated.
  * @returns {Promise} - A promise that resolves when the parameters are updated.
  */
-export async function updateUserCsodParams({ data }) {
+export async function updateUserCsodParams({ data }: UpdateUserCsodParams) {
   const url = `${getConfig().LMS_BASE_URL}/integrated_channels/api/v1/cornerstone/save-learner-information`;
   return getAuthenticatedHttpClient().post(url, data);
 }
 
 /**
  * Helper function to unlink an enterprise customer user by making a POST API request.
- * @param {string} enterpriseCustomerUserUUID - The UUID of the enterprise customer user to be unlinked.
- * @returns {Promise} - A promise that resolves when the user is successfully unlinked from the enterprise customer.
  */
-export async function postUnlinkUserFromEnterprise(enterpriseCustomerUserUUID) {
-  const url = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/${enterpriseCustomerUserUUID}/unlink_self/`;
+export async function postUnlinkUserFromEnterprise(enterpriseCustomerUUID: string) {
+  const url = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/${enterpriseCustomerUUID}/unlink_self/`;
   try {
     await getAuthenticatedHttpClient().post(url);
   } catch (error) {

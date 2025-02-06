@@ -30,6 +30,10 @@ const makeSearchLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      // If the enterprise customer is not found, we can't do anything in this loader.
+      return null;
+    }
 
     const academiesListQuery = queryAcademiesList(enterpriseCustomer.uuid);
 

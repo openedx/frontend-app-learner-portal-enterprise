@@ -10,30 +10,31 @@ import { fetchPaginatedData } from '../utils';
 import { getBaseSubscriptionsData, SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE } from '../../constants';
 import { addLicenseToSubscriptionLicensesByStatus } from '../../utils';
 
-// Subscriptions
-
 /**
- * TODO
- * @param {*} activationKey
- * @returns
+ * Activates a license, given an activation key.
  */
-export async function activateLicense(activationKey) {
+export async function activateLicense(activationKey: string) {
   const queryParams = new URLSearchParams({ activation_key: activationKey });
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/license-activation/?${queryParams.toString()}`;
   return getAuthenticatedHttpClient().post(url);
 }
 
+interface ActivateSubscriptionLicenseArgs {
+  enterpriseCustomer: Types.EnterpriseCustomer;
+  subscriptionLicenseToActivate: Types.SubscriptionLicense;
+  licenseActivationRouteMatch: any;
+  dashboardRedirectPath: string;
+}
+
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Activates a subscription license for the authenticated user.
  */
 export async function activateSubscriptionLicense({
   enterpriseCustomer,
   subscriptionLicenseToActivate,
   licenseActivationRouteMatch,
   dashboardRedirectPath,
-}) {
+}: ActivateSubscriptionLicenseArgs) {
   try {
     // Activate the user's assigned subscription license.
     await activateLicense(subscriptionLicenseToActivate.activationKey);
@@ -41,7 +42,7 @@ export async function activateSubscriptionLicense({
       ...subscriptionLicenseToActivate,
       status: 'activated',
       activationDate: dayjs().toISOString(),
-    };
+    } as Types.SubscriptionLicense;
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.license-activation.license-activated',
@@ -68,24 +69,25 @@ export async function activateSubscriptionLicense({
 
 /**
  * Attempts to auto-apply a license for the authenticated user and the specified customer agreement.
- *
- * @param {string} customerAgreementId The UUID of the customer agreement.
- * @returns An object representing the auto-applied license or null if no license was auto-applied.
  */
-export async function requestAutoAppliedUserLicense(customerAgreementId) {
+export async function requestAutoAppliedUserLicense(customerAgreementId: string): Promise<Types.SubscriptionLicense> {
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/customer-agreement/${customerAgreementId}/auto-apply/`;
   const response = await getAuthenticatedHttpClient().post(url);
   return camelCaseObject(response.data);
 }
 
+interface GetAutoAppliedSubscriptionLicenseArgs {
+  enterpriseCustomer: Types.EnterpriseCustomer;
+  customerAgreement: Types.CustomerAgreement;
+}
+
 /**
- * TODO
- * @param {*} param0
+ * Attempts to auto-apply a license for the authenticated user and the specified customer agreement.
  */
 export async function getAutoAppliedSubscriptionLicense({
   enterpriseCustomer,
   customerAgreement,
-}) {
+}: GetAutoAppliedSubscriptionLicenseArgs) {
   // If the feature flag for auto-applied licenses is not enabled, return early.
   if (!features.ENABLE_AUTO_APPLIED_LICENSES) {
     return null;
@@ -112,17 +114,22 @@ export async function getAutoAppliedSubscriptionLicense({
   }
 }
 
+interface ActivateOrAutoApplySubscriptionLicenseArgs {
+  enterpriseCustomer: Types.EnterpriseCustomer;
+  allLinkedEnterpriseCustomerUsers: Types.EnterpriseCustomerUser[];
+  subscriptionsData: Types.SubscriptionsQueryData;
+  requestUrl: URL;
+}
+
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Activates or auto-applies a subscription license for the authenticated user.
  */
 export async function activateOrAutoApplySubscriptionLicense({
   enterpriseCustomer,
   allLinkedEnterpriseCustomerUsers,
   subscriptionsData,
   requestUrl,
-}) {
+}: ActivateOrAutoApplySubscriptionLicenseArgs) {
   const licenseActivationRouteMatch = matchPath('/:enterpriseSlug/licenses/:activationKey/activate', requestUrl.pathname);
   const dashboardRedirectPath = generatePath('/:enterpriseSlug', { enterpriseSlug: enterpriseCustomer.slug });
 
@@ -166,7 +173,7 @@ export async function activateOrAutoApplySubscriptionLicense({
   // Otherwise, check if there is an assigned subscription license to
   // activate OR if the user should request an auto-applied subscription
   // license.
-  let activatedOrAutoAppliedLicense = null;
+  let activatedOrAutoAppliedLicense = null as Types.SubscriptionLicense | null;
   if (subscriptionLicenseToActivate) {
     activatedOrAutoAppliedLicense = await activateSubscriptionLicense({
       enterpriseCustomer,
@@ -186,7 +193,15 @@ export async function activateOrAutoApplySubscriptionLicense({
   return activatedOrAutoAppliedLicense;
 }
 
-export function transformSubscriptionsData({ customerAgreement, subscriptionLicenses }) {
+interface TransformSubscriptionsDataArgs {
+  customerAgreement: Types.CustomerAgreement;
+  subscriptionLicenses: Types.SubscriptionLicense[];
+}
+
+export function transformSubscriptionsData({
+  customerAgreement,
+  subscriptionLicenses,
+}: TransformSubscriptionsDataArgs) {
   const { baseSubscriptionsData } = getBaseSubscriptionsData();
   const subscriptionsData = { ...baseSubscriptionsData };
 
@@ -237,14 +252,12 @@ export function transformSubscriptionsData({ customerAgreement, subscriptionLice
 
 /**
  * Fetches subscriptions data for the enterprise customer
- * @returns
- * @param enterpriseUUID
  */
-export async function fetchSubscriptions(enterpriseUUID) {
+export async function fetchSubscriptions(enterpriseUUID: string): Promise<Types.SubscriptionsQueryData> {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,
-    include_revoked: true,
-    current_plans_only: false,
+    include_revoked: 'true',
+    current_plans_only: 'false',
   });
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
   /**

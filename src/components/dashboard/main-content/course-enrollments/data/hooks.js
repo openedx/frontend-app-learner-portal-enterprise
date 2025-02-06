@@ -123,7 +123,7 @@ export const useCourseUpgradeData = ({
     enabled: canUpgradeToVerifiedEnrollment,
   });
 
-  const { redeem: redeemLearnerCredit } = useStatefulEnroll({
+  const redeemLearnerCredit = useStatefulEnroll({
     contentKey: courseRunKey,
     subsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy,
     onBeginRedeem: onRedeem,
