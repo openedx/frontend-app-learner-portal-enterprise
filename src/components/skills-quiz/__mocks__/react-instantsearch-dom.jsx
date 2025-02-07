@@ -29,13 +29,17 @@ const fakeHits = [
   },
 ];
 
+MockReactInstantSearch.configure = {
+  nbHits: 2,
+};
+
 MockReactInstantSearch.connectStateResults = Component => (props) => (
   <Component
     searchResults={{
-      hits: fakeHits,
+      hits: MockReactInstantSearch.configure.nbHits === 0 ? [] : fakeHits,
       hitsPerPage: 25,
-      nbHits: 2,
-      nbPages: 1,
+      nbHits: MockReactInstantSearch.configure.nbHits,
+      nbPages: MockReactInstantSearch.configure.nbHits === 0 ? 0 : 1,
       page: 1,
     }}
     isSearchStalled={false}
@@ -48,7 +52,7 @@ MockReactInstantSearch.connectStateResults = Component => (props) => (
 
 MockReactInstantSearch.connectPagination = Component => (props) => (
   <Component
-    nbPages={1}
+    nbPages={MockReactInstantSearch.configure.nbHits === 0 ? 0 : 1}
     currentRefinement={1}
     maxPagesDisplayed={5}
     {...props}

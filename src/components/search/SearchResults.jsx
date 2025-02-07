@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connectStateResults } from 'react-instantsearch-dom';
@@ -34,6 +34,8 @@ const SearchResults = ({
   translatedTitle,
   isPathwaySearchResults,
   showBetaBadge,
+  componentId,
+  handlers,
 }) => {
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
@@ -102,7 +104,7 @@ const SearchResults = ({
       //  Theses changes are temporary and will be removed once the BetaBadge component is removed from
       // the SearchResults component
       return (
-        <div className="d-flex align-items-center" id={showBetaBadge ? 'videos-section' : 'some-other-section'}>
+        <div className="d-flex align-items-center" id={componentId}>
           {translatedTitle || title} ({nbHits} {resultsLabel}) {showBetaBadge && <BetaBadge />}
           {query && <>{' '}for &quot;{query}&quot;</>}
         </div>
@@ -111,6 +113,14 @@ const SearchResults = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [nbHits, query, title],
   );
+
+  useEffect(() => {
+    if (nbHits > 0) {
+      handlers.searchResults?.();
+    } else {
+      handlers.noSearchResults?.();
+    }
+  }, [nbHits, handlers]);
 
   const SkeletonCard = getSkeletonCardFromTitle(title);
 
@@ -202,6 +212,11 @@ SearchResults.propTypes = {
   translatedTitle: PropTypes.string,
   isPathwaySearchResults: PropTypes.bool,
   showBetaBadge: PropTypes.bool,
+  componentId: PropTypes.string.isRequired,
+  handlers: PropTypes.shape({
+    searchResults: PropTypes.func,
+    noSearchResults: PropTypes.func,
+  }),
 };
 
 SearchResults.defaultProps = {
@@ -213,6 +228,10 @@ SearchResults.defaultProps = {
   translatedTitle: undefined,
   isPathwaySearchResults: false,
   showBetaBadge: false,
+  handlers: {
+    searchResults: () => {},
+    noSearchResults: () => {},
+  },
 };
 
 export default connectStateResults(SearchResults);

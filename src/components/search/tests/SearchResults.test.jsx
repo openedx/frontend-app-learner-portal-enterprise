@@ -430,4 +430,26 @@ describe('<SearchResults />', () => {
     expect(screen.queryByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeNull();
     expect(screen.queryByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeNull();
   });
+
+  test('calls noSearchResults handler when no results are found', async () => {
+    const noSearchResultsMock = jest.fn();
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForNoVideoResults} handlers={{ noSearchResults: noSearchResultsMock }} />,
+    );
+
+    await waitFor(() => {
+      expect(noSearchResultsMock).toHaveBeenCalled();
+    });
+  });
+
+  test('calls searchResults handler when results are found', async () => {
+    const searchResultsMock = jest.fn();
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForVideoResults} handlers={{ searchResults: searchResultsMock }} />,
+    );
+
+    await waitFor(() => {
+      expect(searchResultsMock).toHaveBeenCalled();
+    });
+  });
 });
