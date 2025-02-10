@@ -55,7 +55,7 @@ describe('updateUserActiveEnterprise', () => {
     const formData = new FormData();
     formData.append('enterprise', enterpriseCustomer.uuid);
     axiosMock.onPost(updateUserActiveEnterpriseUrl).reply(200, {});
-    await updateUserActiveEnterprise({ enterpriseCustomer });
+    await updateUserActiveEnterprise(enterpriseCustomer);
     expect(axiosMock.history.post[0].data).toEqual(formData);
   });
 });

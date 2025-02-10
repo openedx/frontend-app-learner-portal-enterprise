@@ -3,7 +3,7 @@ import {
 } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
-import { logError } from '@edx/frontend-platform/logging';
+import { logInfo, logError } from '@edx/frontend-platform/logging';
 import { useOptimizelyEnrollmentClickHandler, useTrackSearchConversionClickHandler } from '../../../course/data/hooks';
 import { EVENT_NAMES } from '../../../course/data/constants';
 import { queryPolicyTransaction, useEnterpriseCustomer } from '../../../app/data';
@@ -12,10 +12,10 @@ import { submitRedemptionRequest } from '../service';
 
 interface BaseArgs {
   contentKey: string;
-  subsidyAccessPolicy: Types.SubsidyAccessPolicy;
+  subsidyAccessPolicy?: Types.SubsidyAccessPolicy;
   onBeginRedeem?: () => void;
   onSuccess: (transaction: Types.SubsidyTransaction) => void;
-  onError: (error: unknown) => void;
+  onError: (error: Error) => void;
 }
 
 interface UseStatefulEnrollArgs extends BaseArgs {
@@ -29,11 +29,12 @@ interface UseRedemptionArgs extends BaseArgs {
 interface UseTransactionStatusArgs {
   transaction?: Types.SubsidyTransaction;
   onSuccess: (transaction: Types.SubsidyTransaction) => void;
-  onError: (error: unknown) => void;
+  onError: (error: Error) => void;
 }
 
 /**
- * Returns whether the transaction state should be polled.
+ * Returns whether the transaction state should be polled (i.e., the transaction
+ * is pending).
  */
 const shouldPollTransactionState = (transaction?: Types.SubsidyTransaction) => {
   const transactionState = transaction?.state;
@@ -75,22 +76,21 @@ const useRedemption = ({
 
   return useCallback(({ metadata } = {}) => {
     if (!subsidyAccessPolicy) {
-      logError('`redeem` was called but no subsidy access policy was given.');
+      logError(`Redemption without subsidy access policy attempted by ${authenticatedUser.userId} for ${contentKey}.`);
       return;
     }
     const makeRedemption = async () => {
       try {
-        await redemptionMutation.mutateAsync({
+        logInfo(`User ${authenticatedUser.userId} attempted to redeem ${contentKey} using subsidy access policy ${subsidyAccessPolicy.uuid}`);
+        const transaction = await redemptionMutation.mutateAsync({
           userId: authenticatedUser.userId,
           contentKey,
           policyRedemptionUrl: subsidyAccessPolicy.policyRedemptionUrl,
           metadata,
-        }, {
-          onSuccess,
-          onError,
         });
+        await onSuccess(transaction);
       } catch (error) {
-        onError(error);
+        await onError(error as Error);
       }
     };
     makeRedemption();
@@ -119,18 +119,26 @@ const useTransactionStatus = ({
     data: updatedTransaction,
     isSuccess: isTransactionQuerySuccess,
     error: transactionQueryError,
-  } = useQuery({
+  } = useQuery<Types.SubsidyTransaction, Error>({
     ...queryPolicyTransaction(enterpriseCustomer.uuid, transaction),
     enabled: shouldPollTransactionState(transaction),
     refetchInterval: getRefetchInterval,
   });
 
+  // Handle transaction status updates
   useEffect(() => {
-    if (isTransactionQuerySuccess) {
-      onSuccess(updatedTransaction);
+    if (!isTransactionQuerySuccess) {
+      return;
     }
-  }, [updatedTransaction, isTransactionQuerySuccess, onSuccess]);
+    if (updatedTransaction.state === 'failed') {
+      const failedTransactionError = new Error(`Transaction ${updatedTransaction.uuid} failed during redemption.`);
+      onError(failedTransactionError);
+      return;
+    }
+    onSuccess(updatedTransaction);
+  }, [updatedTransaction, isTransactionQuerySuccess, onSuccess, onError]);
 
+  // Handle transaction query errors
   useEffect(() => {
     if (transactionQueryError) {
       onError(transactionQueryError);
@@ -150,6 +158,7 @@ const useStatefulEnroll = ({
   onBeginRedeem,
   userEnrollments,
 }: UseStatefulEnrollArgs) => {
+  const { authenticatedUser }: Types.AppContextValue = useContext(AppContext);
   const [transaction, setTransaction] = useState<Types.SubsidyTransaction>();
 
   // Analytics handlers
@@ -165,20 +174,24 @@ const useStatefulEnroll = ({
   const handleSuccess = useCallback(async (newTransaction: Types.SubsidyTransaction) => {
     setTransaction(newTransaction);
     if (newTransaction.state === 'committed') {
+      logInfo(`User ${newTransaction.lmsUserId} successfully redeemed ${newTransaction.contentKey} using subsidy access policy ${newTransaction.subsidyAccessPolicyUuid}.`);
       if (onSuccess) {
         optimizelyHandler();
         searchHandler();
         await onSuccess(newTransaction);
       }
+    } else {
+      logInfo(`User ${newTransaction.lmsUserId} successfully initiated redemption of ${newTransaction.contentKey} using subsidy access policy ${newTransaction.subsidyAccessPolicyUuid}. Current state: ${newTransaction.state}`);
     }
   }, [onSuccess, optimizelyHandler, searchHandler]);
 
   // Handle errors for both redemption AND transaction status
   const handleError = useCallback((error) => {
+    logError(`Redemption failed for user ${authenticatedUser.userId} and ${contentKey} using subsidy access policy ${subsidyAccessPolicy?.uuid}: ${error}`);
     if (onError) {
       onError(error);
     }
-  }, [onError]);
+  }, [onError, authenticatedUser.userId, contentKey, subsidyAccessPolicy?.uuid]);
 
   // Handle transaction status
   useTransactionStatus({

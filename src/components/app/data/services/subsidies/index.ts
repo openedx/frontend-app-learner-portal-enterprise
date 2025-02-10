@@ -29,9 +29,9 @@ export * from './couponCodes';
 export async function fetchEnterpriseOffers(enterpriseId, options = {}) {
   const queryParams = new URLSearchParams({
     usage_type: ENTERPRISE_OFFER_USAGE_TYPE.PERCENTAGE,
-    discount_value: 100,
+    discount_value: '100',
     status: ENTERPRISE_OFFER_STATUS.OPEN,
-    page_size: 100,
+    page_size: '100',
     ...options,
   });
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/${enterpriseId}/enterprise-learner-offers/?${queryParams.toString()}`;
@@ -122,9 +122,8 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
  * Makes an API request to retrieve the most recent payload for the
  * specified transaction. The transaction may be in various states such
  * as pending, committed, etc.
- * @param {Object} transaction
  */
-export async function checkTransactionStatus(transaction) {
+export async function checkTransactionStatus(transaction: Types.SubsidyTransaction) {
   const { transactionStatusApiUrl } = transaction;
   const response = await getAuthenticatedHttpClient().get(transactionStatusApiUrl);
   return camelCaseObject(response.data);

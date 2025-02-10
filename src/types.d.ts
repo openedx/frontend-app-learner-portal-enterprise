@@ -107,9 +107,12 @@ export interface SubsidyAccessPolicy {
   uuid: string;
   policyRedemptionUrl: string;
 }
+
+export type SubsidyTransactionState = 'created' | 'pending' | 'committed' | 'failed';
+
 export interface SubsidyTransaction {
   uuid: string;
-  state: 'created' | 'pending' | 'committed' | 'failed';
+  state: SubsidyTransactionState;
   lmsUserId: number;
   lmsUserEmail?: string;
   contentKey: string;
@@ -117,7 +120,7 @@ export interface SubsidyTransaction {
   contentTitle: string;
   quantity: number;
   unit: any;
-  fulfillmentIdentifier: string;
+  fulfillmentIdentifier?: string;
   subsidyAccessPolicyUuid: string;
   metadata: Record<string, any>;
   created: string;
