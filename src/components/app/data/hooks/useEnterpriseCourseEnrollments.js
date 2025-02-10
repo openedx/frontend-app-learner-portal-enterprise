@@ -53,7 +53,7 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
       select: (data) => {
         const transformedData = {
           enrollments: data.enterpriseCourseEnrollments,
-          enrollmentsByStatus: undefined,
+          enrollmentsByStatus: data.allEnrollmentsByStatus,
         };
         if (selectEnrollment) {
           return selectEnrollment({
