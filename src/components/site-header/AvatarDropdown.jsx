@@ -96,7 +96,7 @@ const AvatarDropdown = ({ showLabel }) => {
             description: 'My profile link title in avatar dropdown.',
           })}
         </Dropdown.Item>
-       <Dropdown.Item href={ACCOUNT_SETTINGS_URL}>
+        <Dropdown.Item href={ACCOUNT_SETTINGS_URL}>
           {intl.formatMessage({
             id: 'site.header.avatar.dropdown.account.settings.title',
             defaultMessage: 'Account settings',
