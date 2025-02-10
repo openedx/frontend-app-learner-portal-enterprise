@@ -52,7 +52,7 @@ const CompletedCourseCard = (props) => {
           <div className="mb-0 small">
             View your certificate on{' '}
             <Hyperlink
-              destination={`${config.LMS_BASE_URL}/u/${username}`}
+              destination={`${config.ACCOUNT_PROFILE_URL}/u/${username}`}
               target="_blank"
               className={classNames('text-underline', {
                 'text-light-200': isExecutiveEducation2UCourse,

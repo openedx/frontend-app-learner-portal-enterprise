@@ -43,7 +43,7 @@ const LicenseActivationRoute = () => {
           </li>
           <li>
             <Hyperlink
-              destination={`${getConfig().LMS_BASE_URL}/account/settings`}
+              destination={`${getConfig().ACCOUNT_SETTINGS_URL}`}
               variant="muted"
               isInline
             >
