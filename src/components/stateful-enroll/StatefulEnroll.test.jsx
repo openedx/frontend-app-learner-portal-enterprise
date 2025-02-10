@@ -9,7 +9,7 @@ import { useStatefulEnroll } from './data';
 const mockRedeem = jest.fn();
 jest.mock('./data', () => ({
   ...jest.requireActual('./data'),
-  useStatefulEnroll: jest.fn(() => ({ redeem: mockRedeem })),
+  useStatefulEnroll: jest.fn(() => mockRedeem),
 }));
 
 const mockCallbackProps = {
