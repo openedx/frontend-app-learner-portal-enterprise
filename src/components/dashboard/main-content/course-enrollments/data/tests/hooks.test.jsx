@@ -157,9 +157,7 @@ describe('useCourseUpgradeData', () => {
     useCouponCodes.mockReturnValue({ data: null });
     useCourseRunMetadata.mockReturnValue({ data: null });
     useEnterpriseCourseEnrollments.mockReturnValue({ data: null });
-    useStatefulEnroll.mockReturnValue({
-      redeem: mockStatefulRedeem,
-    });
+    useStatefulEnroll.mockReturnValue(mockStatefulRedeem);
   });
 
   afterAll(() => {

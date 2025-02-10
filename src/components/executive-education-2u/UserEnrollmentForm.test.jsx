@@ -53,7 +53,7 @@ jest.mock('./data', () => ({
 const mockRedeem = jest.fn();
 jest.mock('../stateful-enroll/data', () => ({
   ...jest.requireActual('../stateful-enroll/data'),
-  useStatefulEnroll: jest.fn(() => ({ redeem: mockRedeem })),
+  useStatefulEnroll: jest.fn(() => mockRedeem),
 }));
 
 jest.mock('../app/data', () => ({
