@@ -10,6 +10,8 @@ import { useEnterpriseLearner } from '../app/data';
 
 const AvatarDropdown = ({ showLabel }) => {
   const {
+    ACCOUNT_PROFILE_URL,
+    ACCOUNT_SETTINGS_URL,
     BASE_URL,
     LMS_BASE_URL,
     LOGOUT_URL,
@@ -87,14 +89,14 @@ const AvatarDropdown = ({ showLabel }) => {
             );
           })}
         <Dropdown.Divider className="border-light" />
-        <Dropdown.Item href={`${LMS_BASE_URL}/u/${username}`}>
+        <Dropdown.Item href={`${ACCOUNT_PROFILE_URL}/u/${username}`}>
           {intl.formatMessage({
             id: 'site.header.avatar.dropdown.my.profile.title',
             defaultMessage: 'My profile',
             description: 'My profile link title in avatar dropdown.',
           })}
         </Dropdown.Item>
-        <Dropdown.Item href={`${LMS_BASE_URL}/account/settings`}>
+       <Dropdown.Item href={ACCOUNT_SETTINGS_URL}>
           {intl.formatMessage({
             id: 'site.header.avatar.dropdown.account.settings.title',
             defaultMessage: 'Account settings',
