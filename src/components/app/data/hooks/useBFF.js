@@ -24,7 +24,6 @@ export default function useBFF({
   const matchedBFFQuery = resolveBFFQuery(
     location.pathname,
   );
-  console.log(enterpriseSlug, 'slug');
   // Determine which query to call, the original hook or the new BFF
   let queryConfig = {};
   if (matchedBFFQuery) {

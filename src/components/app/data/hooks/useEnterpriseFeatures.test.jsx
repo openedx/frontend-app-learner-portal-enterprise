@@ -29,6 +29,7 @@ const mockEnterpriseLearnerData = {
     enterpriseFeatures: {
       isBFFEnabled: false,
     },
+    shouldUpdateActiveEnterpriseCustomerUser: null,
   },
 };
 
@@ -38,6 +39,7 @@ const mockBFFDashboardData = {
   enterpriseFeatures: {
     isBFFEnabled: true,
   },
+  shouldUpdateActiveEnterpriseCustomerUser: false,
   enterpriseCustomerUserSubsidies: {
     subscriptions: {
       customerAgreement: {},

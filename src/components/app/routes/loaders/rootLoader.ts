@@ -50,8 +50,6 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
       );
     }
 
-    console.log(enterpriseLearnerData);
-
     let {
       enterpriseCustomer,
       activeEnterpriseCustomer,
