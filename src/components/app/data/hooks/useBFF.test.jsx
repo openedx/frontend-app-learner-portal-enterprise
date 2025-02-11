@@ -1,14 +1,12 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
-import { useLocation, useParams } from 'react-router-dom';
-import { getConfig } from '@edx/frontend-platform/config';
+import { MemoryRouter, useParams } from 'react-router-dom';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import { queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseLearnerDashboard } from '../services';
 import useBFF from './useBFF';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
-import useEnterpriseFeatures from './useEnterpriseFeatures';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useEnterpriseFeatures');
@@ -18,14 +16,7 @@ jest.mock('../services', () => ({
 }));
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn(),
   useParams: jest.fn(),
-}));
-jest.mock('@edx/frontend-platform/config', () => ({
-  ...jest.requireActual('@edx/frontend-platform/config'),
-  getConfig: jest.fn(() => ({
-    FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [],
-  })),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -129,90 +120,50 @@ const mockBFFDashboardData = {
 };
 
 describe('useBFF', () => {
-  const Wrapper = ({ children }) => (
+  const Wrapper = ({ routes = null, children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <MemoryRouter initialEntries={[routes]}>
+        {children}
+      </MemoryRouter>
     </QueryClientProvider>
   );
 
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useEnterpriseFeatures.mockReturnValue({ data: { enterpriseLearnerBffEnabled: false } });
     fetchEnterpriseLearnerDashboard.mockResolvedValue(mockBFFDashboardData);
-    useLocation.mockReturnValue({ pathname: '/test-enterprise' });
     useParams.mockReturnValue({ enterpriseSlug: 'test-enterprise' });
-    getConfig.mockReturnValue({
-      FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [mockEnterpriseCustomer.uuid],
-    });
   });
 
   it.each([
-    // BFF enabled via customer opt-in (without query options)
+    // BFF disabled route (without query options)
     {
-      isBFFEnabledForCustomer: true,
-      isBFFEnabledForUser: false,
+      isMatchedRoute: false,
       hasQueryOptions: false,
     },
-    // BFF enabled via customer opt-in (with query options)
+    // BFF enabled route (without query options)
     {
-      isBFFEnabledForCustomer: true,
-      isBFFEnabledForUser: false,
-      hasQueryOptions: true,
-    },
-    // BFF enabled via Waffle flag (without query options)
-    {
-      isBFFEnabledForCustomer: false,
-      isBFFEnabledForUser: true,
+      isMatchedRoute: true,
       hasQueryOptions: false,
     },
-    // BFF enabled via Waffle flag (with query options)
+    // BFF enabled route (with query options)
     {
-      isBFFEnabledForCustomer: false,
-      isBFFEnabledForUser: true,
+      isMatchedRoute: true,
       hasQueryOptions: true,
     },
-    // BFF enabled via customer opt-in and Waffle flag (without query options)
+
+    // BFF disabled route(with query options)
     {
-      isBFFEnabledForCustomer: true,
-      isBFFEnabledForUser: true,
-      hasQueryOptions: false,
-    },
-    // BFF enabled via customer opt-in and Waffle flag (with query options)
-    {
-      isBFFEnabledForCustomer: true,
-      isBFFEnabledForUser: true,
+      isMatchedRoute: false,
       hasQueryOptions: true,
     },
-    // BFF disabled (without query options)
-    {
-      isBFFEnabledForCustomer: false,
-      isBFFEnabledForUser: false,
-      hasQueryOptions: false,
-    },
-    // BFF disabled (with query options)
-    {
-      isBFFEnabledForCustomer: false,
-      isBFFEnabledForUser: false,
-      hasQueryOptions: true,
-    },
-  ])('should handle resolved value correctly for the dashboard route, and the config enabled (%s)', async ({
-    isBFFEnabledForCustomer,
-    isBFFEnabledForUser,
+  ])('should handle resolved value correctly for based on route (%s)', async ({
+    isMatchedRoute,
     hasQueryOptions,
   }) => {
-    if (!isBFFEnabledForCustomer) {
-      getConfig.mockReturnValue({
-        FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [],
-      });
-    }
-    if (isBFFEnabledForUser) {
-      useEnterpriseFeatures.mockReturnValue({ data: { enterpriseLearnerBffEnabled: true } });
-    }
-    const isBFFEnabled = isBFFEnabledForCustomer || isBFFEnabledForUser;
     const mockFallbackData = { fallback: 'data' };
     const mockSelect = jest.fn(() => {
-      if (isBFFEnabled) {
+      if (isMatchedRoute) {
         return mockBFFDashboardData;
       }
       return mockFallbackData;
@@ -234,11 +185,16 @@ describe('useBFF', () => {
         },
         fallbackQueryConfig: mockFallbackQueryConfig,
       }),
-      { wrapper: Wrapper },
+      {
+        wrapper: ({ children }) => Wrapper({
+          routes: isMatchedRoute ? '/test-enterprise' : '/test-enterprise/search',
+          children,
+        }),
+      },
     );
     await waitForNextUpdate();
 
-    const expectedData = isBFFEnabled ? mockBFFDashboardData : mockFallbackData;
+    const expectedData = isMatchedRoute ? mockBFFDashboardData : mockFallbackData;
     expect(result.current).toEqual(
       expect.objectContaining({
         data: expectedData,
@@ -249,7 +205,7 @@ describe('useBFF', () => {
 
     if (hasQueryOptions) {
       expect(mockSelect).toHaveBeenCalledTimes(1);
-      if (isBFFEnabled) {
+      if (isMatchedRoute) {
         // Expects the select function to be called with the resolved BFF data
         expect(mockSelect).toHaveBeenCalledWith(mockBFFDashboardData);
       } else {
@@ -258,7 +214,7 @@ describe('useBFF', () => {
       }
     }
 
-    if (isBFFEnabled) {
+    if (isMatchedRoute) {
       expect(fetchEnterpriseLearnerDashboard).toHaveBeenCalledTimes(1);
       expect(fetchEnterpriseLearnerDashboard).toHaveBeenCalledWith(
         expect.objectContaining({
