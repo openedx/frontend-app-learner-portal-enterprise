@@ -5,6 +5,7 @@ export default function useEnterpriseFeatures(queryOptions = {}) {
   return useEnterpriseLearner({
     ...queryOptionsRest,
     select: (data) => {
+      console.log(data, 'features');
       const transformedData = data.enterpriseFeatures || data.transformed.enterpriseFeatures;
       if (select) {
         return select({

@@ -60,7 +60,7 @@ export interface EnterpriseLearnerData {
   allLinkedEnterpriseCustomerUsers: any[];
   staffEnterpriseCustomer: Types.EnterpriseCustomer;
   enterpriseFeatures: Types.EnterpriseFeatures;
-  shouldUpdateActiveEnterpriseCustomer: boolean;
+  shouldUpdateActiveEnterpriseCustomerUser: boolean;
 }
 
 interface EnrollmentDueDate {

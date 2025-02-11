@@ -113,7 +113,7 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
       staffEnterpriseCustomer,
     });
 
-    // shouldUpdateActiveEnterpriseCustomer should always be null since its generated primarily from the BFF
+    // shouldUpdateActiveEnterpriseCustomerUser should always be null since its generated primarily from the BFF
     // layer to act as a flag on whether to update the active enterprise customer
     return {
       enterpriseCustomer,
@@ -123,7 +123,7 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
       allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
       enterpriseFeatures,
       staffEnterpriseCustomer,
-      shouldUpdateActiveEnterpriseCustomer: null,
+      shouldUpdateActiveEnterpriseCustomerUser: null,
     };
   } catch (error) {
     logError(error);
@@ -135,7 +135,7 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
       allLinkedEnterpriseCustomerUsers: [],
       enterpriseFeatures: {},
       staffEnterpriseCustomer: null,
-      shouldUpdateActiveEnterpriseCustomer: null,
+      shouldUpdateActiveEnterpriseCustomerUser: null,
     };
   }
 }

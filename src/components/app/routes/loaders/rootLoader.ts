@@ -1,5 +1,7 @@
-import {getConfig} from '@edx/frontend-platform/config';
-import {queryEnterpriseLearner, queryNotices, resolveBFFQuery, updateUserActiveEnterprise} from '../../data';
+import { getConfig } from '@edx/frontend-platform/config';
+import {
+  queryEnterpriseLearner, queryNotices, resolveBFFQuery, updateUserActiveEnterprise,
+} from '../../data';
 import {
   ensureActiveEnterpriseCustomerUser,
   ensureAuthenticatedUser,
@@ -48,12 +50,16 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
       );
     }
 
+    console.log(enterpriseLearnerData);
+
     let {
       enterpriseCustomer,
       activeEnterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
     } = enterpriseLearnerData;
-    const { staffEnterpriseCustomer, enterpriseFeatures, shouldUpdateActiveEnterpriseCustomer } = enterpriseLearnerData;
+    const {
+      staffEnterpriseCustomer, enterpriseFeatures, shouldUpdateActiveEnterpriseCustomerUser,
+    } = enterpriseLearnerData;
 
     // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
     if (!enterpriseCustomer) {
@@ -67,7 +73,7 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
     // current enterprise slug in the URL does not match the active enterprise customer's slug).
     // The logic to ensure active enterprise customer user is done in the BFF, but updating the
     // active enterprise customer is still required
-    if (matchedBFFQuery && shouldUpdateActiveEnterpriseCustomer) {
+    if (matchedBFFQuery && shouldUpdateActiveEnterpriseCustomerUser) {
       await updateUserActiveEnterprise({ enterpriseCustomer });
     } else {
       updateActiveEnterpriseCustomerUserResult = await ensureActiveEnterpriseCustomerUser({

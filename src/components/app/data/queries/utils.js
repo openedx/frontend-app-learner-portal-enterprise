@@ -7,14 +7,7 @@ import { queryEnterpriseLearnerDashboardBFF } from './queries';
  * @param options
  * @returns {Function|null} The BFF query function to use for the current route, or null if no match is found.
  */
-export function resolveBFFQuery(pathname, options = {}) {
-  const { enterpriseCustomerUuid, enterpriseFeatures } = options;
-
-  // Exit early if BFF is not enabled for the enterprise customer and/or request user
-  // if (!isBFFEnabled(enterpriseCustomerUuid, enterpriseFeatures)) {
-  //   return null;
-  // }
-
+export function resolveBFFQuery(pathname) {
   // Define route patterns and their corresponding query functions
   const routeToBFFQueryMap = [
     {
