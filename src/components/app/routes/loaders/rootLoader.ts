@@ -56,7 +56,7 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
       allLinkedEnterpriseCustomerUsers,
     } = enterpriseLearnerData;
     const {
-      staffEnterpriseCustomer, enterpriseFeatures, shouldUpdateActiveEnterpriseCustomerUser,
+      staffEnterpriseCustomer, shouldUpdateActiveEnterpriseCustomerUser,
     } = enterpriseLearnerData;
 
     // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
@@ -104,7 +104,6 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
       userEmail,
       queryClient,
       requestUrl,
-      enterpriseFeatures,
     });
 
     // Redirect to the same URL without a trailing slash, if applicable.

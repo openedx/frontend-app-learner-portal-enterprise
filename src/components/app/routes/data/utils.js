@@ -1,9 +1,6 @@
 import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform';
-import {
-  fetchAuthenticatedUser,
-  getLoginRedirectUrl,
-} from '@edx/frontend-platform/auth';
+import { fetchAuthenticatedUser, getLoginRedirectUrl } from '@edx/frontend-platform/auth';
 import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 
@@ -41,14 +38,9 @@ export async function ensureEnterpriseAppData({
   userEmail,
   queryClient,
   requestUrl,
-  enterpriseFeatures,
 }) {
   const matchedBFFQuery = resolveBFFQuery(
     requestUrl.pathname,
-    {
-      enterpriseCustomerUuid: enterpriseCustomer.uuid,
-      enterpriseFeatures,
-    },
   );
   const enterpriseAppDataQueries = [];
   if (!matchedBFFQuery) {

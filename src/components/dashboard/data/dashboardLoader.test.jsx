@@ -249,7 +249,7 @@ describe('dashboardLoader', () => {
       expect(await screen.findByTestId('dashboard')).toBeInTheDocument();
     }
 
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(5);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(4);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: shouldUseBFFQuery

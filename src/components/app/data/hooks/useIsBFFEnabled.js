@@ -1,9 +1,7 @@
-import { isBFFEnabled } from '../utils';
-import useEnterpriseCustomer from './useEnterpriseCustomer';
-import useEnterpriseFeatures from './useEnterpriseFeatures';
+import { useLocation } from 'react-router-dom';
+import { resolveBFFQuery } from '../queries';
 
 export default function useIsBFFEnabled() {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: enterpriseFeatures } = useEnterpriseFeatures();
-  return isBFFEnabled(enterpriseCustomer.uuid, enterpriseFeatures);
+  const location = useLocation();
+  return !!resolveBFFQuery(location.pathname);
 }
