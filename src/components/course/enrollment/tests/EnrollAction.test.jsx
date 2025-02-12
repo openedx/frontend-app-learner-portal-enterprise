@@ -185,7 +185,8 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     useEnterpriseCourseEnrollments.mockReturnValue({ data: { enterpriseCourseEnrollments: [] } });
   });
 
-  test('data sharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT', () => {
+  test('data sharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT', async () => {
+    const user = userEvent.setup();
     const enrollAction = (
       <EnrollAction
         enrollmentType={TO_DATASHARING_CONSENT}
@@ -202,7 +203,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(actualUrl).toContain(`${enrollmentUrl}`);
 
     const enrollButton = screen.getByText(enrollLabelText);
-    userEvent.click(enrollButton);
+    await user.click(enrollButton);
   });
 
   test('<ToEcomBasketPage /> is rendered if enrollmentType is TO_ECOM_BASKET', () => {

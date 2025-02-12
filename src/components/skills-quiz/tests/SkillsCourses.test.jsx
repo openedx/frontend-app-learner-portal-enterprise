@@ -110,11 +110,8 @@ describe('<SkillsCourses />', () => {
   });
 
   test('renders the correct data', async () => {
-    const { container } = renderWithRouter(
-      <SkillsCoursesWithContext
-        index={testIndex}
-      />,
-    );
+    const user = userEvent.setup();
+    const { container } = renderWithRouter(<SkillsCoursesWithContext index={testIndex} />);
 
     await waitFor(() => {
       expect(screen.getByText(SKILLS_HEADING)).toBeInTheDocument();
@@ -129,7 +126,7 @@ describe('<SkillsCourses />', () => {
       expect(cardImg).toHaveAttribute('src', TEST_CARD_IMG_URL);
     });
 
-    userEvent.click(screen.getByTestId('skills-quiz-course-card'));
+    await user.click(screen.getByTestId('skills-quiz-course-card'));
     expect(window.location.pathname).toContain(`/${mockEnterpriseCustomer.slug}/course/${TEST_COURSE_KEY}`);
   });
 

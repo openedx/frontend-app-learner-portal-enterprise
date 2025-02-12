@@ -150,6 +150,7 @@ describe('<InProgressCourseCard />', () => {
     { shouldAttemptRedemption: true },
     { shouldAttemptRedemption: false }, // dismisses the modal
   ])('should render upgrade course button when hasUpgradeAndConfirm=true (learner credit) | (%s)', async ({ shouldAttemptRedemption }) => {
+    const user = userEvent.setup();
     useCourseUpgradeData.mockReturnValue({
       courseRunPrice: 100,
       subsidyForCourse: {
@@ -173,7 +174,7 @@ describe('<InProgressCourseCard />', () => {
     // Open upgrade confirmation modal
     const upgradeCTA = screen.getByTestId('upgrade-course-button');
     expect(upgradeCTA).toBeInTheDocument();
-    userEvent.click(upgradeCTA);
+    await user.click(upgradeCTA);
 
     // Verify upgrade confirmation modal is open
     expect(screen.getByText(messages.learnerCreditModalTitle.defaultMessage, { selector: 'h2' })).toBeInTheDocument();
@@ -181,7 +182,7 @@ describe('<InProgressCourseCard />', () => {
     if (shouldAttemptRedemption) {
       // Proceed with upgrade confirmation
       const upgradeModalCTA = screen.getByRole('button', { name: messages.upgradeModalConfirmCta.defaultMessage });
-      userEvent.click(upgradeModalCTA);
+      await user.click(upgradeModalCTA);
       expect(mockRedeem).toHaveBeenCalledTimes(1);
 
       // Verify `onRedeem` sets confirmation CTA as pending & sends analytics event
@@ -216,7 +217,7 @@ describe('<InProgressCourseCard />', () => {
     } else {
       // Dismiss upgrade confirmation modal
       const cancelModalCTA = screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage });
-      userEvent.click(cancelModalCTA);
+      await user.click(cancelModalCTA);
 
       // Verify upgrade confirmation modal is no longer open
       expect(screen.queryByText(messages.learnerCreditModalTitle.defaultMessage, { selector: 'h2' })).not.toBeInTheDocument();

@@ -1,5 +1,5 @@
 import { useMatch } from 'react-router-dom';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import useRecommendCoursesForMe from './useRecommendCoursesForMe';

@@ -3,7 +3,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import '@testing-library/jest-dom/extend-expect';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import userEvent from '@testing-library/user-event';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
@@ -145,69 +145,86 @@ describe('VideoDetailPage', () => {
     useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(true);
   });
 
-  it('Renders video details when data is available', () => {
+  it('Renders video details when data is available', async () => {
     useVideoCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
     const { container } = renderWithRouter(<VideoDetailPageWrapper />);
-
-    expect(screen.getByTestId('video-title')).toHaveTextContent('Test Video');
-    expect(screen.getByText('(10:4 minutes)')).toBeInTheDocument();
-    expect(screen.getByText('This is a test video summary.')).toBeInTheDocument();
-    // Skills that we are currently retrieving for videos are inaccurate, so we are
-    // temporarily hiding this section.
-    // expect(screen.getByText('Skill 1')).toBeInTheDocument();
-    // expect(screen.getByText('Skill 2')).toBeInTheDocument();
-    expect(container.querySelector('.video-player-wrapper')).toBeTruthy();
-    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(4);
-    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      mockEnterpriseCustomer.uuid,
-      'edx.ui.enterprise.learner_portal.video.detail_page_viewed',
-      {
-        userId: mockAuthenticatedUser.userId,
-        video: VIDEO_MOCK_DATA.videoUrl,
-        courseKey: VIDEO_MOCK_DATA.courseKey,
-        title: VIDEO_MOCK_DATA.courseTitle,
-        video_usage_key: VIDEO_MOCK_DATA.videoUsageKey,
-      },
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('video-title')).toHaveTextContent('Test Video');
+      expect(screen.getByText('(10:4 minutes)')).toBeInTheDocument();
+      expect(screen.getByText('This is a test video summary.')).toBeInTheDocument();
+      // Skills that we are currently retrieving for videos are inaccurate, so we are
+      // temporarily hiding this section.
+      // expect(screen.getByText('Skill 1')).toBeInTheDocument();
+      // expect(screen.getByText('Skill 2')).toBeInTheDocument();
+      expect(container.querySelector('.video-player-wrapper')).toBeTruthy();
+      expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(4);
+      expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+        mockEnterpriseCustomer.uuid,
+        'edx.ui.enterprise.learner_portal.video.detail_page_viewed',
+        {
+          userId: mockAuthenticatedUser.userId,
+          video: VIDEO_MOCK_DATA.videoUrl,
+          courseKey: VIDEO_MOCK_DATA.courseKey,
+          title: VIDEO_MOCK_DATA.courseTitle,
+          video_usage_key: VIDEO_MOCK_DATA.videoUsageKey,
+        },
+      );
+    });
   });
-  it('renders a video detail page when course level type is Intermediate', () => {
+
+  it('renders a video detail page when course level type is Intermediate', async () => {
     useVideoCourseMetadata.mockReturnValue({ data: { ...mockCourseMetadata, activeCourseRun: { ...mockCourseRun, levelType: 'Intermediate' } } });
     renderWithRouter(<VideoDetailPageWrapper />);
-    expect(screen.getByText('Intermediate')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Intermediate')).toBeInTheDocument();
+    });
   });
 
-  it('renders a video detail page when course level type is Advanced', () => {
+  it('renders a video detail page when course level type is Advanced', async () => {
     useVideoCourseMetadata.mockReturnValue({ data: { ...mockCourseMetadata, activeCourseRun: { ...mockCourseRun, levelType: 'Advanced' } } });
     renderWithRouter(<VideoDetailPageWrapper />);
-    expect(screen.getByText('Advanced')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Advanced')).toBeInTheDocument();
+    });
   });
 
-  it('renders a video detail page when course level is not from listed ones', () => {
+  it('renders a video detail page when course level is not from listed ones', async () => {
     useVideoCourseMetadata.mockReturnValue({ data: { ...mockCourseMetadata, activeCourseRun: { ...mockCourseRun, levelType: 'Unknown' } } });
     renderWithRouter(<VideoDetailPageWrapper />);
-    expect(screen.getByText('Unknown')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Unknown')).toBeInTheDocument();
+    });
   });
 
-  it('renders the price', () => {
+  it('renders the price', async () => {
     useVideoCourseMetadata.mockReturnValue({ data: { ...mockCourseMetadata, activeCourseRun: { ...mockCourseRun, levelType: 'Unknown' } } });
     renderWithRouter(<VideoDetailPageWrapper />);
-    expect(screen.getByText(`${formatPrice(mockCourseRun.firstEnrollablePaidSeatPrice)} USD`)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(`${formatPrice(mockCourseRun.firstEnrollablePaidSeatPrice)} USD`)).toBeInTheDocument();
+    });
   });
 
-  it('renders a not found page when video data is not found', () => {
+  it('renders a not found page when video data is not found', async () => {
     useVideoDetails.mockReturnValue({ data: null });
     renderWithRouter(<VideoDetailPageWrapper />);
-    expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
+    });
   });
-  it('renders a not found page when user do not have active subscription', () => {
+
+  it('renders a not found page when user do not have active subscription', async () => {
     useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(false);
     renderWithRouter(<VideoDetailPageWrapper />);
-    expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
+    });
   });
-  it('Sends observability events for view course details click', () => {
+
+  it('Sends observability events for view course details click', async () => {
+    const user = userEvent.setup();
     useVideoCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
     renderWithRouter(<VideoDetailPageWrapper />);
-    userEvent.click(screen.getByText('View course details'));
+    await user.click(screen.getByText('View course details'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(5);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
@@ -221,10 +238,12 @@ describe('VideoDetailPage', () => {
       },
     );
   });
-  it('Sends observability events for view more on course page click', () => {
+
+  it('Sends observability events for view more on course page click', async () => {
+    const user = userEvent.setup();
     useVideoCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
     renderWithRouter(<VideoDetailPageWrapper />);
-    userEvent.click(screen.getByText('View more on course page'));
+    await user.click(screen.getByText('View more on course page'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(5);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
@@ -238,11 +257,13 @@ describe('VideoDetailPage', () => {
       },
     );
   });
+
   it('Sends observability events for view more on course page hover', async () => {
+    const user = userEvent.setup();
     useVideoCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
     renderWithRouter(<VideoDetailPageWrapper />);
-    userEvent.hover(screen.getByText('View more on course page'));
-    userEvent.unhover(screen.getByText('View more on course page'));
+    await user.hover(screen.getByText('View more on course page'));
+    await user.unhover(screen.getByText('View more on course page'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(5);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
@@ -256,11 +277,13 @@ describe('VideoDetailPage', () => {
       },
     );
   });
+
   it('Sends observability events for view course details hover', async () => {
+    const user = userEvent.setup();
     useVideoCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
     renderWithRouter(<VideoDetailPageWrapper />);
-    userEvent.hover(screen.getByText('View course details'));
-    userEvent.unhover(screen.getByText('View course details'));
+    await user.hover(screen.getByText('View course details'));
+    await user.unhover(screen.getByText('View course details'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(5);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,

@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import useHasValidLicenseOrSubscriptionRequestsEnabled from './useHasValidLicenseOrSubscriptionRequestsEnabled';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_TYPE } from '../../../../constants';

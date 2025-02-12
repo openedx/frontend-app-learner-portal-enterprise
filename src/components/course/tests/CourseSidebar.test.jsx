@@ -107,7 +107,8 @@ describe('CourseSidebarWrapper', () => {
     useCourseMetadata.mockReturnValue({ data: { activeCourseRun: mockActiveCourseRun, ...mockCourse } });
   });
 
-  it('renders', () => {
+  it('renders', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<CourseSidebarWrapper />);
 
     // length
@@ -152,7 +153,7 @@ describe('CourseSidebarWrapper', () => {
     );
     const partner = screen.getByText('Test Partner');
     expect(partner).toBeInTheDocument();
-    userEvent.click(partner);
+    await user.click(partner);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.course.sidebar.partner.clicked',
@@ -175,7 +176,7 @@ describe('CourseSidebarWrapper', () => {
     );
     const subject = screen.getByText('Test Subject');
     expect(subject).toBeInTheDocument();
-    userEvent.click(subject);
+    await user.click(subject);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.course.sidebar.subject.clicked',

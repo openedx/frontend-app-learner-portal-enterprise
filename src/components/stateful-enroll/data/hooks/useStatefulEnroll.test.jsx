@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import axios from 'axios';

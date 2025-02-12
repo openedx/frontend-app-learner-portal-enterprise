@@ -69,20 +69,15 @@ describe('<ProgramCourses />', () => {
     useProgramDetails.mockReturnValue({ data: initialProgramState });
   });
   test('renders program courses.', () => {
-    render(
-      <ProgramCoursesWrapper />,
-    );
-
+    render(<ProgramCoursesWrapper />);
     expect(screen.getByText('Test Course Title')).toBeInTheDocument();
   });
 
-  test('sends correct event data upon click on view the course link', () => {
-    renderWithRouterProvider(
-      <ProgramCoursesWrapper />,
-    );
-
-    userEvent.click(screen.getByText('Test Course Title'));
-    userEvent.click(screen.getByRole('link', { name: 'View the course' }));
+  test('sends correct event data upon click on view the course link', async () => {
+    const user = userEvent.setup();
+    renderWithRouterProvider(<ProgramCoursesWrapper />);
+    await user.click(screen.getByText('Test Course Title'));
+    await user.click(screen.getByRole('link', { name: 'View the course' }));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.program.course.clicked',
@@ -90,12 +85,10 @@ describe('<ProgramCourses />', () => {
     );
   });
 
-  test('renders view the course link if course in catalog', () => {
-    renderWithRouterProvider(
-      <ProgramCoursesWrapper />,
-    );
-
-    userEvent.click(screen.getByText('Test Course Title'));
+  test('renders view the course link if course in catalog', async () => {
+    const user = userEvent.setup();
+    renderWithRouterProvider(<ProgramCoursesWrapper />);
+    await user.click(screen.getByText('Test Course Title'));
     expect(screen.getByText('View the course')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View the course' })).toHaveAttribute(
       'href',
@@ -103,44 +96,38 @@ describe('<ProgramCourses />', () => {
     );
   });
 
-  test('does not renders view the course link if course is not in catalog', () => {
+  test('does not renders view the course link if course is not in catalog', async () => {
+    const user = userEvent.setup();
     const newInitialProgramState = { ...initialProgramState };
     newInitialProgramState.courses[0].enterpriseHasCourse = false;
     useProgramDetails.mockReturnValue({ data: newInitialProgramState });
-
-    render(
-      <ProgramCoursesWrapper />,
-    );
-
+    render(<ProgramCoursesWrapper />);
     expect(screen.queryByText('View the course')).not.toBeInTheDocument();
-    userEvent.click(screen.getByText('Test Course Title'));
+    await user.click(screen.getByText('Test Course Title'));
     expect(screen.getByText("This course is not included in your organization's catalog.")).toBeInTheDocument();
   });
 
-  test('renders start date when courses are instructor led', () => {
-    render(
-      <ProgramCoursesWrapper />,
-    );
-
-    userEvent.click(screen.getByText('Test Course Title'));
+  test('renders start date when courses are instructor led', async () => {
+    const user = userEvent.setup();
+    render(<ProgramCoursesWrapper />);
+    await user.click(screen.getByText('Test Course Title'));
     const courseRun = initialProgramState.courses[0].courseRuns[0];
     expect(screen.queryByText(`Starts ${dayjs(courseRun.start).format(DATE_FORMAT)}`)).toBeInTheDocument();
   });
 
-  test('does not renders start date when courses are self paced', () => {
+  test('does not renders start date when courses are self paced', async () => {
+    const user = userEvent.setup();
     const newInitialProgramState = { ...initialProgramState };
     const courseRun = newInitialProgramState.courses[0].courseRuns[0];
     courseRun.pacingType = 'self_paced';
     useProgramDetails.mockReturnValue({ data: newInitialProgramState });
-    render(
-      <ProgramCoursesWrapper />,
-    );
-
-    userEvent.click(screen.getByText('Test Course Title'));
+    render(<ProgramCoursesWrapper />);
+    await user.click(screen.getByText('Test Course Title'));
     expect(screen.queryByText(`Starts ${dayjs(courseRun.start).format(DATE_FORMAT)}`)).not.toBeInTheDocument();
   });
 
-  test('renders latest course run', () => {
+  test('renders latest course run', async () => {
+    const user = userEvent.setup();
     const newInitialProgramState = { ...initialProgramState };
     const firstCourseRun = newInitialProgramState.courses[0].courseRuns[0];
     const secondCourseRun = {
@@ -151,10 +138,8 @@ describe('<ProgramCourses />', () => {
     };
     newInitialProgramState.courses[0].courseRuns.push(secondCourseRun);
     useProgramDetails.mockReturnValue({ data: newInitialProgramState });
-    render(
-      <ProgramCoursesWrapper />,
-    );
-    userEvent.click(screen.getByText('Test Course Title'));
+    render(<ProgramCoursesWrapper />);
+    await user.click(screen.getByText('Test Course Title'));
     expect(screen.queryByText(`Starts ${dayjs(firstCourseRun.start).format(DATE_FORMAT)}`)).not.toBeInTheDocument();
     expect(screen.queryByText(`Starts ${dayjs(secondCourseRun.start).format(DATE_FORMAT)}`)).toBeInTheDocument();
   });

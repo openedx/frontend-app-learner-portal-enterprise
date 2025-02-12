@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { getConfig } from '@edx/frontend-platform';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';

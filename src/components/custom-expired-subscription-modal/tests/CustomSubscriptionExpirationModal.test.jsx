@@ -147,7 +147,9 @@ describe('<CustomSubscriptionExpirationModal />', () => {
     renderWithRouter(<CustomSubscriptionExpirationModalWrapper />);
     expect(screen.queryByLabelText(/close/i)).not.toBeInTheDocument();
   });
-  test('clicks on Continue learning button', () => {
+  test('clicks on Continue learning button', async () => {
+    const user = userEvent.setup();
+
     // Mock useSubscriptions
     useSubscriptions.mockReturnValue({
       data: {
@@ -171,13 +173,12 @@ describe('<CustomSubscriptionExpirationModal />', () => {
     renderWithRouter(<CustomSubscriptionExpirationModalWrapper />);
 
     // Find the Continue Learning button
-    const continueButton = screen.getByText('Continue learning');
-
-    // Simulate a click on the button
-    userEvent.click(continueButton);
-
+    const continueButton = screen.getByRole('button', { name: 'Continue learning' });
     // Check that the button was rendered and clicked
     expect(continueButton).toBeInTheDocument();
+
+    // Simulate a click on the button
+    await user.click(continueButton);
   });
   test('calls postUnlinkUserFromEnterprise and redirects on button click', async () => {
     useSubscriptions.mockReturnValue({

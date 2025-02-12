@@ -1,6 +1,5 @@
 import { AppContext } from '@edx/frontend-platform/react';
-import { screen } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, screen } from '@testing-library/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import userEvent from '@testing-library/user-event';
 import HighlightedContentCard from '../HighlightedContentCard';
@@ -21,7 +20,7 @@ const mockHighlightedContentItem = {
 };
 const mockHighlightSet = {
   uuid: 'test-highlightset-uuid',
-  highlightedContent: [mockHighlightedContentItem],
+  highlightedContent: mockHighlightedContentItem,
   title: mockHighlightSetTitle,
 };
 jest.mock('../data');
@@ -80,7 +79,8 @@ describe('HighlightedContentCard', () => {
     expect(result.current.aggregationKey).toBe('course:edX+DemoX');
     expect(result.current.variant).toBe('light');
   });
-  it('renders nothing when no href is passed', () => {
+  it('renders nothing when no href is passed', async () => {
+    const user = userEvent.setup();
     useHighlightedContentCardData.mockReturnValue({
       variant: 'light',
       title: mockHighlightedContentItemTitle,
@@ -109,10 +109,11 @@ describe('HighlightedContentCard', () => {
     expect(result.current.variant).toBe('light');
 
     const button = screen.getByText(mockHighlightedContentItemTitle);
-    userEvent.click(button);
+    await user.click(button);
     expect(sendEnterpriseTrackEvent).not.toHaveBeenCalled();
   });
-  it('sends track event', () => {
+  it('sends track event', async () => {
+    const user = userEvent.setup();
     useHighlightedContentCardData.mockReturnValue({
       variant: 'light',
       title: mockHighlightedContentItemTitle,
@@ -143,7 +144,7 @@ describe('HighlightedContentCard', () => {
     expect(result.current.variant).toBe('light');
 
     const button = screen.getByText(mockHighlightedContentItemTitle);
-    userEvent.click(button);
+    await user.click(button);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
   });
 });

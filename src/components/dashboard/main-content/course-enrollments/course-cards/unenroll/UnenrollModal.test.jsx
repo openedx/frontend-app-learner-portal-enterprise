@@ -116,12 +116,13 @@ describe('<UnenrollModal />', () => {
   });
 
   test('should handle cancel click', async () => {
+    const user = userEvent.setup();
     const props = {
       ...baseUnenrollModalProps,
       isOpen: true,
     };
     render(<UnenrollModalWrapper {...props} />);
-    userEvent.click(screen.getByText('Keep learning'));
+    await user.click(screen.getByText('Keep learning'));
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
@@ -181,8 +182,9 @@ describe('<UnenrollModal />', () => {
       existingBFFDashboardQueryData,
       existingEnrollmentsQueryData,
     };
+    const user = userEvent.setup();
     render(<UnenrollModalWrapper {...props} />);
-    userEvent.click(screen.getByText('Unenroll'));
+    await user.click(screen.getByText('Unenroll'));
 
     await waitFor(() => {
       const bffDashboardData = mockQueryClient.getQueryData(

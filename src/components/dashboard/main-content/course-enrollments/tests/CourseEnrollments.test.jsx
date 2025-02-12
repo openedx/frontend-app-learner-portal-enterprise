@@ -197,6 +197,7 @@ describe('Course enrollments', () => {
   });
 
   it('renders alert for canceled assignments and renders canceled assignment cards with dismiss behavior', async () => {
+    const user = userEvent.setup();
     const mockCourseKey = 'test-courseKey';
     const mockAssignment = {
       state: ASSIGNMENT_TYPES.CANCELED,
@@ -212,7 +213,6 @@ describe('Course enrollments', () => {
       startDate: dayjs().subtract(1, 'day').toISOString(),
       mode: COURSE_MODES_MAP.VERIFIED,
     };
-
     useContentAssignments.mockReturnValue({
       assignments: [mockAssignment],
       showCanceledAssignmentsAlert: true,
@@ -227,12 +227,13 @@ describe('Course enrollments', () => {
     expect(screen.getByText('Course assignment canceled')).toBeInTheDocument();
     // Handles dismiss behavior
     const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
-    userEvent.click(dismissButton);
+    await user.click(dismissButton);
     expect(mockAcknowledgeAssignments).toHaveBeenCalledTimes(1);
     expect(mockAcknowledgeAssignments).toHaveBeenCalledWith({ assignmentState: ASSIGNMENT_TYPES.CANCELED });
   });
 
   it('renders alert for expired assignments and renders expired assignment cards with dismiss behavior', async () => {
+    const user = userEvent.setup();
     const mockCourseKey = 'test-courseKey';
     const mockAssignment = {
       state: ASSIGNMENT_TYPES.ALLOCATED,
@@ -262,47 +263,43 @@ describe('Course enrollments', () => {
     expect(screen.getByText('Deadline passed')).toBeInTheDocument();
     // Handles dismiss behavior
     const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
-    userEvent.click(dismissButton);
+    await user.click(dismissButton);
     expect(mockAcknowledgeAssignments).toHaveBeenCalledTimes(1);
     expect(mockAcknowledgeAssignments).toHaveBeenCalledWith({ assignmentState: ASSIGNMENT_TYPES.EXPIRED });
   });
 
-  it(
-    'renders NewGroupAssignmentAlert when showNewGroupAssociationAlert is true',
-    async () => {
-      useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: true } });
-      useGroupAssociationsAlert.mockReturnValue({
-        showNewGroupAssociationAlert: true,
-        dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
-        enterpriseCustomer: {
-          name: 'test-enterprise-customer',
-        },
-      });
-      renderWithRouter(<CourseEnrollmentsWrapper />);
-      const dismissButton = screen.getAllByRole('button', { name: 'Dismiss' })[0];
-      userEvent.click(dismissButton);
-      expect(await screen.findByText('You have new courses to browse')).toBeInTheDocument();
-      expect(mockDismissGroupAssociationAlert).toHaveBeenCalledTimes(1);
-    },
-  );
+  it('renders NewGroupAssignmentAlert when showNewGroupAssociationAlert is true', async () => {
+    const user = userEvent.setup();
+    useEnterpriseFeatures.mockReturnValue({ data: { enterpriseGroupsV1: true } });
+    useGroupAssociationsAlert.mockReturnValue({
+      showNewGroupAssociationAlert: true,
+      dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
+      enterpriseCustomer: {
+        name: 'test-enterprise-customer',
+      },
+    });
+    renderWithRouter(<CourseEnrollmentsWrapper />);
+    const dismissButton = screen.getAllByRole('button', { name: 'Dismiss' })[0];
+    await user.click(dismissButton);
+    expect(await screen.findByText('You have new courses to browse')).toBeInTheDocument();
+    expect(mockDismissGroupAssociationAlert).toHaveBeenCalledTimes(1);
+  });
 
-  it(
-    'does not render NewGroupAssignmentAlert when showNewGroupAssociationAlert is false',
-    async () => {
-      useGroupAssociationsAlert.mockReturnValue({
-        showNewGroupAssociationAlert: false,
-        dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
-        enterpriseCustomer: {
-          name: 'test-enterprise-customer',
-        },
-      });
-      renderWithRouter(<CourseEnrollmentsWrapper />);
-      expect(screen.queryByText('You have new courses to browse')).not.toBeInTheDocument();
-      expect(mockDismissGroupAssociationAlert).not.toHaveBeenCalled();
-    },
-  );
+  it('does not render NewGroupAssignmentAlert when showNewGroupAssociationAlert is false', async () => {
+    useGroupAssociationsAlert.mockReturnValue({
+      showNewGroupAssociationAlert: false,
+      dismissGroupAssociationAlert: mockDismissGroupAssociationAlert,
+      enterpriseCustomer: {
+        name: 'test-enterprise-customer',
+      },
+    });
+    renderWithRouter(<CourseEnrollmentsWrapper />);
+    expect(screen.queryByText('You have new courses to browse')).not.toBeInTheDocument();
+    expect(mockDismissGroupAssociationAlert).not.toHaveBeenCalled();
+  });
 
   it('renders dismissible alert for expiring assignments and renders expiring assignment cards', async () => {
+    const user = userEvent.setup();
     const mockCourseKey = 'test-courseKey';
     const mockAssignment = {
       state: ASSIGNMENT_TYPES.ALLOCATED,
@@ -332,25 +329,26 @@ describe('Course enrollments', () => {
     expect(screen.getByText('Enrollment deadlines approaching')).toBeInTheDocument();
     // Handles dismiss behavior
     const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
-    userEvent.click(dismissButton);
+    await user.click(dismissButton);
     await waitFor(() => {
       expect(mockHandleAcknowledgeExpiringAssignments).toHaveBeenCalledTimes(1);
     });
   });
 
   it('generates course status update on move to in progress action', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<CourseEnrollmentsWrapper />);
     const { title } = savedForLaterCourseRun;
 
     // Open the dropdown menu for the course
-    userEvent.click(screen.getByLabelText(`course settings for ${title}`));
+    await user.click(screen.getByLabelText(`course settings for ${title}`));
 
     // Wait for the dropdown to be visible and use getByRole with name to find the correct menuitem
     const moveToInProgressMenuItem = await screen.findByRole('menuitem', { name: /Move to "In Progress"/i });
-    userEvent.click(moveToInProgressMenuItem);
+    await user.click(moveToInProgressMenuItem);
 
     // Clicks the "Move course to In Progress" button, moving the course back to in progress status
-    userEvent.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
+    await user.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
 
     // TODO This test only validates 'half way', we ideally want to update it to
     // validate the UI results. Skipping at the time of writing since need to
@@ -361,12 +359,13 @@ describe('Course enrollments', () => {
     });
     expect(await screen.findByText('Your course was moved to "In Progress".')).toBeInTheDocument();
 
-    userEvent.click(screen.getByText('Dismiss'));
+    await user.click(screen.getByText('Dismiss'));
 
     expect(await screen.queryByText('Your course was moved to "In Progress".')).not.toBeInTheDocument();
   });
 
   it('generates course status update on move to saved for later action', async () => {
+    const user = userEvent.setup();
     const appContext = {
       courseCards: {
         'in-progress': {
@@ -380,14 +379,14 @@ describe('Course enrollments', () => {
     const { title } = inProgCourseRun;
 
     // Open the dropdown menu for the course
-    userEvent.click(screen.getByLabelText(`course settings for ${title}`));
+    await user.click(screen.getByLabelText(`course settings for ${title}`));
 
     // Wait for the dropdown to be visible and use getByRole with name to find the correct menuitem
     const saveForLaterMenuItem = await screen.findByRole('menuitem', { name: /Save course for later/i });
-    userEvent.click(saveForLaterMenuItem);
+    await user.click(saveForLaterMenuItem);
 
     // Clicks the "Save course for later" button, identified by its role
-    userEvent.click(screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL }));
+    await user.click(screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL }));
 
     // Verify the course status update request is made
     await waitFor(() => {
@@ -397,7 +396,7 @@ describe('Course enrollments', () => {
     // Ensure the success message is displayed
     expect(await screen.findByText('Your course was saved for later.')).toBeInTheDocument();
 
-    userEvent.click(screen.getByText('Dismiss'));
+    await user.click(screen.getByText('Dismiss'));
 
     expect(await screen.queryByText('Your course was saved for later.')).not.toBeInTheDocument();
   });

@@ -117,14 +117,15 @@ describe('<SkillsQuizStepper />', () => {
     expect(image.src).toContain(edxLogo);
   });
 
-  it('checks track event is sent on close', () => {
+  it('checks track event is sent on close', async () => {
+    const user = userEvent.setup();
     renderWithRouter(
       <SkillsQuizStepperWrapper />,
       { route: '/test/skills-quiz/' },
     );
     const closeButton = screen.getByRole('button', { name: 'Close' });
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
-    userEvent.click(closeButton);
+    await user.click(closeButton);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(2);
   });
 
@@ -233,7 +234,8 @@ describe('<SkillsQuizStepper />', () => {
     expect(screen.getByText(DESIRED_JOB_FACET.title)).toBeInTheDocument();
   });
 
-  it('checks i am currently a student checkbox works correctly', () => {
+  it('checks i am currently a student checkbox works correctly', async () => {
+    const user = userEvent.setup();
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
     };
@@ -244,7 +246,7 @@ describe('<SkillsQuizStepper />', () => {
 
     const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
     expect(isStudentCheckbox).not.toBeChecked();
-    userEvent.click(isStudentCheckbox);
+    await user.click(isStudentCheckbox);
     expect(isStudentCheckbox).toBeChecked();
   });
 
@@ -262,7 +264,8 @@ describe('<SkillsQuizStepper />', () => {
     expect(isStudentCheckbox).toBeDisabled();
   });
 
-  it('simulates clicking on the skills continue button', () => {
+  it('simulates clicking on the skills continue button', async () => {
+    const user = userEvent.setup();
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
       dispatch: () => null,
@@ -280,11 +283,11 @@ describe('<SkillsQuizStepper />', () => {
     );
 
     const continueButton = screen.getByText('Continue');
-    userEvent.click(continueButton);
+    await user.click(continueButton);
 
     const skillsContinueBtn = screen.getByTestId('skills-continue-button');
-    userEvent.click(skillsContinueBtn);
-    expect(screen.getByText('Done')).toBeTruthy();
-    expect(screen.getByText('Go back')).toBeTruthy();
+    await user.click(skillsContinueBtn);
+    expect(screen.getByText('Done')).toBeInTheDocument();
+    expect(screen.getByText('Go back')).toBeInTheDocument();
   });
 });

@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import useIsBFFEnabled from './useIsBFFEnabled';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useEnterpriseFeatures from './useEnterpriseFeatures';

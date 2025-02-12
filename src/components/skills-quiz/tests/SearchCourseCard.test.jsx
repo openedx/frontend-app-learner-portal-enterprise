@@ -112,12 +112,8 @@ describe('<SearchCourseCard />', () => {
   });
 
   test('renders the correct data', async () => {
-    const { container } = renderWithRouter(
-      <SearchCourseCardWithContext
-        index={testIndex}
-      />,
-    );
-
+    const user = userEvent.setup();
+    const { container } = renderWithRouter(<SearchCourseCardWithContext index={testIndex} />);
     const searchCourseCard = await screen.findByTestId('skills-quiz-course-card');
     expect(searchCourseCard).toBeInTheDocument();
 
@@ -133,7 +129,7 @@ describe('<SearchCourseCard />', () => {
     });
 
     // handles click
-    userEvent.click(searchCourseCard);
+    await user.click(searchCourseCard);
     expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/course/${TEST_COURSE_KEY}`);
   });
 

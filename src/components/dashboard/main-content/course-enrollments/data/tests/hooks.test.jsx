@@ -1,11 +1,10 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import * as logger from '@edx/frontend-platform/logging';
 import { logInfo } from '@edx/frontend-platform/logging';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import dayjs from 'dayjs';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { queryClient } from '../../../../../../utils/tests';
 import {

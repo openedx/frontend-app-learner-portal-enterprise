@@ -1,6 +1,6 @@
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { MOCK_COURSEWARE_URL } from './constants';

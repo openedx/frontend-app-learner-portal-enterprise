@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { useTranscripts } from '../hooks';
 import { fetchAndAddTranscripts } from '../service';

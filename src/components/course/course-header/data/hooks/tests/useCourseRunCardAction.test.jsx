@@ -1,6 +1,5 @@
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { renderHook } from '@testing-library/react-hooks';
-import { render } from '@testing-library/react';
+import { render, renderHook } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import useCourseRunCardAction from '../useCourseRunCardAction';

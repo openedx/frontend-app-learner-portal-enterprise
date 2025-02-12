@@ -1,6 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
 import 'jest-localstorage-mock';
 
 import matchMediaMock from 'match-media-mock';
@@ -9,11 +6,6 @@ import jestFetchMock from 'jest-fetch-mock';
 import 'jest-canvas-mock';
 
 import './components/app/data/services/data/__factories__';
-
-import { configure } from 'enzyme';
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
-
-configure({ adapter: new Adapter() });
 
 process.env.LMS_BASE_URL = 'http://localhost:18000';
 process.env.ECOMMERCE_BASE_URL = 'http://ecommerce.url';
