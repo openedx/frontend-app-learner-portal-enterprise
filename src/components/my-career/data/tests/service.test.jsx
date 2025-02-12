@@ -8,7 +8,6 @@ import { CURRENT_JOB_PROFILE_FIELD_NAME } from '../constants';
 
 // config
 const APP_CONFIG = {
-  USE_API_CACHE: true,
   DISCOVERY_API_BASE_URL: 'http://localhost:18381',
   LMS_BASE_URL: 'http://localhost:18000',
 };

@@ -11,11 +11,11 @@ import { renderWithRouter } from '../../../utils/tests';
 import VideoDetailPage from '../VideoDetailPage';
 import {
   useEnterpriseCustomer,
+  useHasValidLicenseOrSubscriptionRequestsEnabled,
   useSubscriptions,
   useVideoCourseMetadata,
   useVideoCourseReviews,
   useVideoDetails,
-  useHasValidLicenseOrSubscriptionRequestsEnabled,
 } from '../../app/data';
 import { COURSE_PACING_MAP } from '../../course/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
@@ -23,7 +23,6 @@ import { features } from '../../../config';
 import { formatPrice } from '../../../utils/common';
 
 const APP_CONFIG = {
-  USE_API_CACHE: true,
   ENTERPRISE_CATALOG_API_BASE_URL: 'http://localhost:18160',
 };
 
