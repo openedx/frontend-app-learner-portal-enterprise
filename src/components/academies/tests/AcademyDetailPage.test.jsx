@@ -4,7 +4,8 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import {
-  LEARNING_TYPE_COURSE, LEARNING_TYPE_EXECUTIVE_EDUCATION,
+  LEARNING_TYPE_COURSE,
+  LEARNING_TYPE_EXECUTIVE_EDUCATION,
 } from '@edx/frontend-enterprise-catalog-search/data/constants';
 import { renderWithRouter } from '../../../utils/tests';
 
@@ -15,7 +16,6 @@ import { useAcademyPathwayData } from '../data/hooks';
 
 // config
 const APP_CONFIG = {
-  USE_API_CACHE: true,
   ENTERPRISE_CATALOG_API_BASE_URL: 'http://localhost:18160',
 };
 

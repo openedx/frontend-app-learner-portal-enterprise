@@ -24,6 +24,6 @@ export function fetchCourseEnrollments() {
 export async function fetchJobPathDescription(currentJobID, futureJobID) {
   const config = getConfig();
   const url = `${config.DISCOVERY_API_BASE_URL}/taxonomy/api/v1/job-path/?current_job=${currentJobID}&future_job=${futureJobID}`;
-  const result = await getAuthenticatedHttpClient({ useCache: config.USE_API_CACHE }).get(url);
+  const result = await getAuthenticatedHttpClient().get(url);
   return result.data.description;
 }

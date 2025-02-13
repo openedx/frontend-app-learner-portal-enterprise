@@ -7,7 +7,6 @@ import LearnerPathwayService from '../service';
 import { TEST_PATHWAY_DATA } from '../../tests/constants';
 
 const APP_CONFIG = {
-  USE_API_CACHE: true,
   DISCOVERY_API_BASE_URL: 'http://localhost:18381',
   ENTERPRISE_CATALOG_API_BASE_URL: 'http://localhost:18160',
 };
