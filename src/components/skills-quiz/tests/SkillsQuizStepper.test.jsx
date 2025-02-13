@@ -1,10 +1,6 @@
-// [tech debt] Several warnings/errors output related to
-// "Cannot log after tests are done. Did you forget to wait
-// for something async in your test" and Algolia.
-
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext, SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -25,19 +21,17 @@ import {
 import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
+// Add mocks.
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
-
-// Add mocks.
 jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-catalog-search'),
   useNbHitsFromSearchResults: () => 0,
   deleteRefinementAction: jest.fn(),
   removeFromRefinementArray: jest.fn(),
 }));
-
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
@@ -134,7 +128,7 @@ describe('<SkillsQuizStepper />', () => {
       <SkillsQuizStepperWrapper />,
       { route: '/test/skills-quiz/' },
     );
-    expect(screen.getByText('Continue').disabled).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
   });
 
   it('checks continue is enabled when some job is selected from search job ', () => {
@@ -151,7 +145,7 @@ describe('<SkillsQuizStepper />', () => {
       <SkillsQuizStepperWrapper searchContext={searchContext} skillsQuizContext={skillsQuizContextInitialState} />,
       { route: '/test/skills-quiz/' },
     );
-    expect(screen.getByText('Continue').disabled).toBeFalsy();
+    expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled();
   });
 
   it('checks continue is enabled when improvement option and current job is selected', () => {
@@ -168,10 +162,11 @@ describe('<SkillsQuizStepper />', () => {
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText(DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)).toBeInTheDocument();
-    expect(screen.getByText('Continue').disabled).toBeFalsy();
+    expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled();
   });
 
-  it('check continue is enable while some jobs are selected and working correctly', () => {
+  it.only('check continue is enable while some jobs are selected and working correctly', async () => {
+    const user = userEvent.setup();
     const searchContext = {
       refinements: { current_job: ['test-current-job'] },
       industry_names: ['Retail Trade'],
@@ -190,10 +185,10 @@ describe('<SkillsQuizStepper />', () => {
     );
 
     expect(screen.getAllByText(DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)).toBeTruthy();
-    expect(screen.getByText('Continue').disabled).toBeFalsy();
-    const continueButton = screen.getByText('Continue');
-    fireEvent.click(continueButton);
-    expect(screen.getByText('Continue').disabled).toBeFalsy();
+    const continueBtn = screen.getByRole('button', { name: 'Continue' });
+    expect(continueBtn).toBeEnabled();
+    await user.click(continueBtn);
+    expect(continueBtn).toBeFalsy();
   });
 
   it('checks no other dropdown is rendered until correct goal is selected', () => {

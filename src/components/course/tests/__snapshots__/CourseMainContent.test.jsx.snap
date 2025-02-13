@@ -51,7 +51,6 @@ exports[`CourseMainContent renders and matches snapshot 1`] = `
         <a
           className="pgn__hyperlink default-link standalone-link"
           href="https://test-marketing-site-base-url/https://test.org"
-          onClick={[Function]}
           rel="noopener noreferrer"
           target="_blank"
         >

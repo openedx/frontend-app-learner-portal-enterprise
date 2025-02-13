@@ -1,6 +1,6 @@
 import { logError } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import {
   getEnterpriseCuration,
 } from '../service';
@@ -91,15 +91,15 @@ describe('useEnterpriseCuration', () => {
     });
     getConfig.mockReturnValue({ FEATURE_CONTENT_HIGHLIGHTS: true });
 
-    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCuration(enterpriseUUID));
+    const { result } = renderHook(() => useEnterpriseCuration(enterpriseUUID));
 
     expect(result.current.isLoading).toBe(true);
     expect(result.current.enterpriseCuration).toEqual({});
 
-    await waitForNextUpdate();
-
-    expect(getEnterpriseCuration).toHaveBeenCalledWith(enterpriseUUID);
-    expect(result.current.isLoading).toBe(false);
+    await waitFor(() => {
+      expect(getEnterpriseCuration).toHaveBeenCalledWith(enterpriseUUID);
+      expect(result.current.isLoading).toBe(false);
+    });
 
     if (hasFallbackCuration) {
       expect(result.current.enterpriseCuration).toEqual(fallbackEnterpriseCuration);
@@ -114,20 +114,20 @@ describe('useEnterpriseCuration', () => {
     getEnterpriseCuration.mockRejectedValue(fetchError);
     getConfig.mockReturnValue({ FEATURE_CONTENT_HIGHLIGHTS: true });
 
-    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCuration(enterpriseUUID));
+    const { result } = renderHook(() => useEnterpriseCuration(enterpriseUUID));
 
     expect(result.current.isLoading).toBe(true);
     expect(result.current.enterpriseCuration).toEqual({});
     expect(result.current.fetchError).toBeUndefined();
 
-    await waitForNextUpdate();
-
-    expect(getEnterpriseCuration).toHaveBeenCalledWith(enterpriseUUID);
-    expect(logError).toHaveBeenCalledWith(fetchError);
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.enterpriseCuration).toEqual({
-      canOnlyViewHighlightSets: false,
+    await waitFor(() => {
+      expect(getEnterpriseCuration).toHaveBeenCalledWith(enterpriseUUID);
+      expect(logError).toHaveBeenCalledWith(fetchError);
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.enterpriseCuration).toEqual({
+        canOnlyViewHighlightSets: false,
+      });
+      expect(result.current.fetchError).toEqual(fetchError);
     });
-    expect(result.current.fetchError).toEqual(fetchError);
   });
 });

@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -108,48 +108,11 @@ describe('useCourseMetadata', () => {
     useEnterpriseCustomerContainsContent.mockReturnValue({ data: {} });
   });
   it('should handle resolved value correctly with no select function passed', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: {
-          ...mockCourseMetadata,
-          availableCourseRuns: [
-            mockCourseMetadata.courseRuns[0],
-            mockCourseMetadata.courseRuns[2],
-            mockCourseMetadata.courseRuns[3],
-          ],
-        },
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
-  });
-  it('should handle resolved value correctly when no data is returned from course metadata', async () => {
-    fetchCourseMetadata.mockResolvedValue(null);
-    const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: null,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
-  });
-  it('should handle resolved value correctly when data is returned with a select function passed', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(
-      { select: (data) => data },
-    ), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: {
-          original: mockCourseMetadata,
-          transformed: {
+    const { result } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: {
             ...mockCourseMetadata,
             availableCourseRuns: [
               mockCourseMetadata.courseRuns[0],
@@ -157,26 +120,63 @@ describe('useCourseMetadata', () => {
               mockCourseMetadata.courseRuns[3],
             ],
           },
-        },
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
+  });
+  it('should handle resolved value correctly when no data is returned from course metadata', async () => {
+    fetchCourseMetadata.mockResolvedValue(null);
+    const { result } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: null,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
+  });
+  it('should handle resolved value correctly when data is returned with a select function passed', async () => {
+    const { result } = renderHook(() => useCourseMetadata(
+      { select: (data) => data },
+    ), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: {
+            original: mockCourseMetadata,
+            transformed: {
+              ...mockCourseMetadata,
+              availableCourseRuns: [
+                mockCourseMetadata.courseRuns[0],
+                mockCourseMetadata.courseRuns[2],
+                mockCourseMetadata.courseRuns[3],
+              ],
+            },
+          },
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
   it('should handle resolved value correctly when no data is returned with a select function passed', async () => {
     fetchCourseMetadata.mockResolvedValue(null);
-    const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(
+    const { result } = renderHook(() => useCourseMetadata(
       { select: (data) => data },
     ), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: null,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: null,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
   it('should return available course run corresponding to allocated course runs', async () => {
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
@@ -240,20 +240,20 @@ describe('useCourseMetadata', () => {
       },
     });
 
-    const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: {
-          ...mockCourseMetadata,
-          courseRuns: assignedCourseRuns,
-          availableCourseRuns: availableAndAssignedCourseRuns,
-        },
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: {
+            ...mockCourseMetadata,
+            courseRuns: assignedCourseRuns,
+            availableCourseRuns: availableAndAssignedCourseRuns,
+          },
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
   it('should return available course run corresponding to course_run_key with allocated course runs', async () => {
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
@@ -297,24 +297,25 @@ describe('useCourseMetadata', () => {
       },
     });
 
-    const { result, waitForNextUpdate } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useCourseMetadata(), { wrapper: Wrapper });
 
-    // The actual thing uniquely tested in this unit test is if the URL param gets passed to fetchCourseMetadata().
-    expect(fetchCourseMetadata.mock.calls).toEqual([
-      ['edX+DemoX', 'course-v1:edX+DemoX+2018'],
-    ]);
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: {
-          ...mockCourseMetadata,
-          // The requested run is available and assigned, so should appear in both lists below:
-          courseRuns: mockCourseRun,
-          availableCourseRuns: mockCourseRun,
-        },
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    await waitFor(() => {
+      // The actual thing uniquely tested in this unit test is if the URL param gets passed to fetchCourseMetadata().
+      expect(fetchCourseMetadata.mock.calls).toEqual([
+        ['edX+DemoX', 'course-v1:edX+DemoX+2018'],
+      ]);
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: {
+            ...mockCourseMetadata,
+            // The requested run is available and assigned, so should appear in both lists below:
+            courseRuns: mockCourseRun,
+            availableCourseRuns: mockCourseRun,
+          },
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

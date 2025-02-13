@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { queryClient } from '../../../../utils/tests';
@@ -38,68 +38,68 @@ describe('useVideoCourseMetadata', () => {
     useLateEnrollmentBufferDays.mockReturnValue(undefined);
   });
   it('should handle resolved value correctly with no select function passed', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useVideoCourseMetadata(courseKey), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: {
-          ...mockCourseMetadata,
-          availableCourseRuns: [mockCourseMetadata.courseRuns[0]],
-        },
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
-  });
-  it('should handle resolved value correctly when no data is returned from video course metadata', async () => {
-    fetchCourseMetadata.mockResolvedValue(null);
-    const { result, waitForNextUpdate } = renderHook(() => useVideoCourseMetadata(courseKey), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: null,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
-  });
-  it('should handle resolved value correctly when data is returned with a select function passed', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useVideoCourseMetadata(
-      courseKey,
-      { select: (data) => data },
-    ), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: {
-          original: mockCourseMetadata,
-          transformed: {
+    const { result } = renderHook(() => useVideoCourseMetadata(courseKey), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: {
             ...mockCourseMetadata,
             availableCourseRuns: [mockCourseMetadata.courseRuns[0]],
           },
-        },
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
-  it('should handle resolved value correctly when no data is returned with a select function passed', async () => {
+  it('should handle resolved value correctly when no data is returned from video course metadata', async () => {
     fetchCourseMetadata.mockResolvedValue(null);
-    const { result, waitForNextUpdate } = renderHook(() => useVideoCourseMetadata(
+    const { result } = renderHook(() => useVideoCourseMetadata(courseKey), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: null,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
+  });
+  it('should handle resolved value correctly when data is returned with a select function passed', async () => {
+    const { result } = renderHook(() => useVideoCourseMetadata(
       courseKey,
       { select: (data) => data },
     ), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: null,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: {
+            original: mockCourseMetadata,
+            transformed: {
+              ...mockCourseMetadata,
+              availableCourseRuns: [mockCourseMetadata.courseRuns[0]],
+            },
+          },
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
+  });
+  it('should handle resolved value correctly when no data is returned with a select function passed', async () => {
+    fetchCourseMetadata.mockResolvedValue(null);
+    const { result } = renderHook(() => useVideoCourseMetadata(
+      courseKey,
+      { select: (data) => data },
+    ), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: null,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

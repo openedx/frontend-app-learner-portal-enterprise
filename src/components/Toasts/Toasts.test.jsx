@@ -32,7 +32,8 @@ describe('ToastsProvider', () => {
     expect(toastsContext.toasts.length).toBe(0);
     expect(screen.queryByText('Hello World')).toBeFalsy();
   });
-  it('should remove toasts when the user clicks', () => {
+  it('should remove toasts when the user clicks', async () => {
+    const user = userEvent.setup();
     let toastsContext;
     render(
       <IntlProvider locale="en">
@@ -57,7 +58,7 @@ describe('ToastsProvider', () => {
 
     expect(toastContainerClassesBefore.match(/show/)).toBeTruthy();
 
-    userEvent.click(closeButton);
+    await user.click(closeButton);
     const toastContainerClassesAfter = screen.getAllByRole('alert')[0].className;
 
     expect(toastContainerClassesAfter.match(/show/)).toBeFalsy();

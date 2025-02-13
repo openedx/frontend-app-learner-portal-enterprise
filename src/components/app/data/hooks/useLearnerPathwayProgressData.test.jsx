@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { camelCaseObject } from '@edx/frontend-platform';
@@ -28,15 +28,15 @@ describe('useLearnerPathwayProgressData', () => {
     useParams.mockReturnValue({ pathwayUUID: 'test-pathway-uuid' });
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useLearnerPathwayProgressData(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockLearnerPathwayProgressData,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useLearnerPathwayProgressData(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockLearnerPathwayProgressData,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -43,15 +43,15 @@ describe('useCourseRecommendations', () => {
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRecommendations(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockCourseRecommendations,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useCourseRecommendations(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockCourseRecommendations,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

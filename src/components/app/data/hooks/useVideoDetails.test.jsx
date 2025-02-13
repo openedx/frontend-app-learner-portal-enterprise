@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useParams } from 'react-router-dom';
@@ -49,16 +49,16 @@ describe('useVideoDetails', () => {
   });
 
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useVideoDetails(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockVideoDetailsData,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useVideoDetails(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockVideoDetailsData,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 
   it('should handle loading state correctly', () => {
@@ -80,11 +80,11 @@ describe('useVideoDetails', () => {
       queryFn: () => Promise.reject(mockError),
     }));
 
-    const { result, waitForNextUpdate } = renderHook(() => useVideoDetails(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current.error).toEqual(mockError);
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.isFetching).toBe(false);
+    const { result } = renderHook(() => useVideoDetails(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current.error).toEqual(mockError);
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.isFetching).toBe(false);
+    });
   });
 });

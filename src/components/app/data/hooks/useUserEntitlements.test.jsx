@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../../../../utils/tests';
 import { fetchUserEntitlements } from '../services';
@@ -22,15 +22,15 @@ describe('useUserEntitlements', () => {
     fetchUserEntitlements.mockResolvedValue(mockUserEntitlements);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useUserEntitlements(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockUserEntitlements,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useUserEntitlements(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockUserEntitlements,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

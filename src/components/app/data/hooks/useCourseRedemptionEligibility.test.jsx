@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -98,16 +98,16 @@ describe('useCourseRedemptionEligibility', () => {
     useEnterpriseCustomerContainsContent.mockReturnValue({ data: {} });
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockExpectedUseCouseRedemptionEligibilityReturn,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockExpectedUseCouseRedemptionEligibilityReturn,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 
   it.each([
@@ -158,9 +158,10 @@ describe('useCourseRedemptionEligibility', () => {
     useParams.mockReturnValue({ courseRunKey });
     fetchCanRedeem.mockResolvedValue(canRedeemData);
 
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current.data.hasSuccessfulRedemption).toEqual(expectedHasSuccessfulRedemption);
+    const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current.data.hasSuccessfulRedemption).toEqual(expectedHasSuccessfulRedemption);
+    });
   });
   it.each([
     {
@@ -190,18 +191,19 @@ describe('useCourseRedemptionEligibility', () => {
   }) => {
     useCourseMetadata.mockReturnValue({ data: courseMetadata });
     fetchCanRedeem.mockResolvedValue(canRedeemData);
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current.data.redeemableSubsidyAccessPolicy).toEqual(expectedRedeemableSubsidyAccessPolicy);
+    const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current.data.redeemableSubsidyAccessPolicy).toEqual(expectedRedeemableSubsidyAccessPolicy);
+    });
   });
   it('should return the original and transformed data when select is passed', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility({
+    const { result } = renderHook(() => useCourseRedemptionEligibility({
       select: (data) => data,
     }), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current.data.original).toEqual(mockCanRedeemData);
-    expect(result.current.data.transformed).toEqual(mockExpectedUseCouseRedemptionEligibilityReturn);
+    await waitFor(() => {
+      expect(result.current.data.original).toEqual(mockCanRedeemData);
+      expect(result.current.data.transformed).toEqual(mockExpectedUseCouseRedemptionEligibilityReturn);
+    });
   });
 
   it.each([
@@ -369,11 +371,12 @@ describe('useCourseRedemptionEligibility', () => {
     fetchCanRedeem.mockResolvedValue(canRedeemData);
     useCourseMetadata.mockReturnValue({ data: useCourseMetadataData });
 
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current.data.hasSuccessfulRedemption).toEqual(expectedHasSuccessfulRedemption);
-    expect(
-      result.current.data.availableCourseRuns.map(run => run.key),
-    ).toEqual(expectedAvailableCourseRunKeys);
+    const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current.data.hasSuccessfulRedemption).toEqual(expectedHasSuccessfulRedemption);
+      expect(
+        result.current.data.availableCourseRuns.map(run => run.key),
+      ).toEqual(expectedAvailableCourseRunKeys);
+    });
   });
 });

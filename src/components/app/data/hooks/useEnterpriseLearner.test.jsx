@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useParams } from 'react-router-dom';
@@ -41,15 +41,15 @@ describe('useEnterpriseLearner', () => {
     useParams.mockReturnValue({ enterpriseSlug: mockEnterpriseCustomer.slug });
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseLearner(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockEnterpriseLearnerData,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useEnterpriseLearner(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockEnterpriseLearnerData,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

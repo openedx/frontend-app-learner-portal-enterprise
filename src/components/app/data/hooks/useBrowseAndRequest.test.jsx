@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
@@ -42,16 +42,16 @@ describe('useBrowseAndRequestConfiguration', () => {
     fetchBrowseAndRequestConfiguration.mockResolvedValue(mockBrowseAndRequestConfiguration);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useBrowseAndRequestConfiguration(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockBrowseAndRequestConfiguration,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useBrowseAndRequestConfiguration(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockBrowseAndRequestConfiguration,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });
 
@@ -62,16 +62,16 @@ describe('useSubscriptionLicenseRequests', () => {
     fetchLicenseRequests.mockResolvedValue(mockLicenseRequests);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicenseRequests(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockLicenseRequests,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useSubscriptionLicenseRequests(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockLicenseRequests,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });
 
@@ -82,16 +82,16 @@ describe('useCouponCodeRequests', () => {
     fetchCouponCodeRequests.mockResolvedValue(mockCouponCodeRequests);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCouponCodeRequests(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockCouponCodeRequests,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useCouponCodeRequests(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockCouponCodeRequests,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });
 
@@ -111,13 +111,13 @@ describe('useBrowseAndRequest', () => {
         couponCodes: mockCouponCodeRequests,
       },
     };
-    const { result, waitForNextUpdate } = renderHook(() => useBrowseAndRequest(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: expectedValue,
-      }),
-    );
+    const { result } = renderHook(() => useBrowseAndRequest(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: expectedValue,
+        }),
+      );
+    });
   });
 });

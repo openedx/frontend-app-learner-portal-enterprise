@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -238,7 +238,7 @@ describe('useEnterpriseCourseEnrollments', () => {
       contentAssignmentQueryOptions: { select: mockSelectContentAssignment },
     };
     const queryOptions = hasQueryOptions ? mockQueryOptions : undefined;
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => {
         if (hasQueryOptions) {
           return useEnterpriseCourseEnrollments(queryOptions);
@@ -247,7 +247,6 @@ describe('useEnterpriseCourseEnrollments', () => {
       },
       { wrapper: Wrapper },
     );
-    await waitForNextUpdate();
 
     // Call the useBFF's select functions
     const useBFFArgs = useBFF.mock.calls[0][0];
@@ -261,29 +260,31 @@ describe('useEnterpriseCourseEnrollments', () => {
 
     // Assert that passed select fn query options were called with the correct arguments
     if (hasQueryOptions) {
-      expect(mockSelectLicenseRequest).toHaveBeenCalledWith({
-        original: [mockLicenseRequest],
-        transformed: expectedRequests.subscriptionLicenses,
-      });
-      expect(mockSelectCouponCodeRequest).toHaveBeenCalledWith({
-        original: [mockCouponCodeRequest],
-        transformed: expectedRequests.couponCodes,
-      });
-      expect(mockSelectContentAssignment).toHaveBeenCalledWith({
-        original: mockRedeemablePolicies,
-        transformed: expectedContentAssignmentData,
-      });
-      expect(mockSelectEnrollment).toHaveBeenCalledTimes(2);
-      expect(mockSelectEnrollment).toHaveBeenCalledWith({
-        original: {
-          enterpriseCourseEnrollments: expectedEnterpriseCourseEnrollmentsData.enrollments,
-          allEnrollmentsByStatus: expectedEnterpriseCourseEnrollmentsData.enrollmentsByStatus,
-        },
-        transformed: expectedEnterpriseCourseEnrollmentsData,
-      });
-      expect(mockSelectEnrollment).toHaveBeenCalledWith({
-        original: [mockCourseEnrollment],
-        transformed: expectedEnterpriseCourseEnrollmentsData,
+      await waitFor(() => {
+        expect(mockSelectLicenseRequest).toHaveBeenCalledWith({
+          original: [mockLicenseRequest],
+          transformed: expectedRequests.subscriptionLicenses,
+        });
+        expect(mockSelectCouponCodeRequest).toHaveBeenCalledWith({
+          original: [mockCouponCodeRequest],
+          transformed: expectedRequests.couponCodes,
+        });
+        expect(mockSelectContentAssignment).toHaveBeenCalledWith({
+          original: mockRedeemablePolicies,
+          transformed: expectedContentAssignmentData,
+        });
+        expect(mockSelectEnrollment).toHaveBeenCalledTimes(2);
+        expect(mockSelectEnrollment).toHaveBeenCalledWith({
+          original: {
+            enterpriseCourseEnrollments: expectedEnterpriseCourseEnrollmentsData.enrollments,
+            allEnrollmentsByStatus: expectedEnterpriseCourseEnrollmentsData.enrollmentsByStatus,
+          },
+          transformed: expectedEnterpriseCourseEnrollmentsData,
+        });
+        expect(mockSelectEnrollment).toHaveBeenCalledWith({
+          original: [mockCourseEnrollment],
+          transformed: expectedEnterpriseCourseEnrollmentsData,
+        });
       });
     }
 
@@ -309,11 +310,13 @@ describe('useEnterpriseCourseEnrollments', () => {
     // Verify enrollments
     expect(enterpriseCourseEnrollments).toEqual(expectedEnterpriseCourseEnrollmentsData.enrollments);
 
-    // Verify requests
-    expect(result.current.data.requests.subscriptionLicenses).toEqual(expectedRequests.subscriptionLicenses);
-    expect(result.current.data.requests.couponCodes).toEqual(expectedRequests.couponCodes);
+    await waitFor(() => {
+      // Verify requests
+      expect(result.current.data.requests.subscriptionLicenses).toEqual(expectedRequests.subscriptionLicenses);
+      expect(result.current.data.requests.couponCodes).toEqual(expectedRequests.couponCodes);
 
-    // Verify content assignments
-    expect(result.current.data.contentAssignments).toEqual(expectedContentAssignmentData);
+      // Verify content assignments
+      expect(result.current.data.contentAssignments).toEqual(expectedContentAssignmentData);
+    });
   });
 });

@@ -290,6 +290,7 @@ describe('<BaseCourseCard />', () => {
     currentTimestamp,
     hasExpiringWarningTooltip,
   }) => {
+    const user = userEvent.setup();
     if (currentTimestamp) {
       MockDate.set(currentTimestamp);
     }
@@ -316,7 +317,7 @@ describe('<BaseCourseCard />', () => {
     const expectedExpiringWarningAlt = 'Learn more about enrollment deadline for edX Demonstration Course';
     if (hasExpiringWarningTooltip) {
       const expiringWarningIconButton = screen.getByLabelText(expectedExpiringWarningAlt);
-      userEvent.click(expiringWarningIconButton);
+      await user.click(expiringWarningIconButton);
       expect(await screen.findByText('Enrollment deadline approaching')).toBeInTheDocument();
     } else {
       const expiringWarningIconButton = screen.queryByLabelText(expectedExpiringWarningAlt);

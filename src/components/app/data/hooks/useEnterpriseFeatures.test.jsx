@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
@@ -41,7 +41,7 @@ describe('useEnterpriseFeatures', () => {
     { hasQueryOptions: true },
   ])('should return enterprise features correctly (%s)', async ({ hasQueryOptions }) => {
     const mockSelect = jest.fn(data => data.transformed);
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => {
         if (hasQueryOptions) {
           return useEnterpriseFeatures({ select: mockSelect });
@@ -50,15 +50,14 @@ describe('useEnterpriseFeatures', () => {
       },
       { wrapper: Wrapper },
     );
-    await waitForNextUpdate();
-
     if (hasQueryOptions) {
-      expect(mockSelect).toHaveBeenCalledWith({
-        original: mockEnterpriseLearnerData,
-        transformed: mockEnterpriseFeatures,
+      await waitFor(() => {
+        expect(mockSelect).toHaveBeenCalledWith({
+          original: mockEnterpriseLearnerData,
+          transformed: mockEnterpriseFeatures,
+        });
       });
     }
-
     const actualEnterpriseFeatures = result.current.data;
     expect(actualEnterpriseFeatures).toEqual(mockEnterpriseFeatures);
   });

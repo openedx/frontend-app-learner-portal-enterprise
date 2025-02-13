@@ -181,6 +181,7 @@ describe('<CustomSubscriptionExpirationModal />', () => {
     await user.click(continueButton);
   });
   test('calls postUnlinkUserFromEnterprise and redirects on button click', async () => {
+    const user = userEvent.setup();
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: {
@@ -204,7 +205,7 @@ describe('<CustomSubscriptionExpirationModal />', () => {
 
     const continueButton = screen.getByText('Continue learning');
 
-    userEvent.click(continueButton);
+    await user.click(continueButton);
 
     expect(postUnlinkUserFromEnterprise).toHaveBeenCalledWith(mockEnterpriseCustomer.uuid);
   });

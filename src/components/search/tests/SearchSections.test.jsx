@@ -4,7 +4,6 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import SearchCourse from '../SearchCourse';
-import '../../skills-quiz/__mocks__/react-instantsearch-dom';
 import { queryClient, renderWithRouter } from '../../../utils/tests';
 import '@testing-library/jest-dom';
 import SearchProgram from '../SearchProgram';

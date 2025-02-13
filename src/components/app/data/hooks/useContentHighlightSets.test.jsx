@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { getConfig } from '@edx/frontend-platform';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
@@ -59,16 +59,16 @@ describe('useContentHighlightSets', () => {
     });
   });
   it('should handle resolved value correctly when select is not passed as a parameter', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useContentHighlightSets(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockContentHighlightSets,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useContentHighlightSets(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockContentHighlightSets,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
   it('should handle resolved value correctly when select is not passed as a parameter and filters out empty sets', async () => {
     const updatedMockContentHighlightSets = [
@@ -83,23 +83,22 @@ describe('useContentHighlightSets', () => {
       },
     ];
     fetchContentHighlights.mockResolvedValue(updatedMockContentHighlightSets);
-    const { result, waitForNextUpdate } = renderHook(() => useContentHighlightSets(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockContentHighlightSets,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useContentHighlightSets(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockContentHighlightSets,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
   it('should handle resolved value correctly when select is not passed as a parameter and FEATURE_CONTENT_HIGHLIGHTS is disabled', () => {
     getConfig.mockReturnValue({
       FEATURE_CONTENT_HIGHLIGHTS: false,
     });
     const { result } = renderHook(() => useContentHighlightSets(), { wrapper: Wrapper });
-
     expect(result.current).toEqual(
       expect.objectContaining({
         data: undefined,
@@ -119,15 +118,15 @@ describe('useContentHighlightSets', () => {
       },
     ];
     fetchContentHighlights.mockResolvedValue(mockUpdatedContentHighlightSets);
-    const { result, waitForNextUpdate } = renderHook(() => useContentHighlightSets({
+    const { result } = renderHook(() => useContentHighlightSets({
       select: (data) => data,
     }), { wrapper: Wrapper });
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.data.original).toEqual(mockUpdatedContentHighlightSets);
+      expect(result.current.data.transformed).not.toEqual(mockUpdatedContentHighlightSets);
 
-    expect(result.current.data.original).toEqual(mockUpdatedContentHighlightSets);
-    expect(result.current.data.transformed).not.toEqual(mockUpdatedContentHighlightSets);
-
-    expect(result.current.data.original.length).toEqual(2);
-    expect(result.current.data.transformed.length).toEqual(1);
+      expect(result.current.data.original.length).toEqual(2);
+      expect(result.current.data.transformed.length).toEqual(1);
+    });
   });
 });

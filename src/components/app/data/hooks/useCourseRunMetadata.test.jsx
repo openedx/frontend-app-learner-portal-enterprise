@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../../../../utils/tests';
 import { fetchCourseRunMetadata } from '../services';
@@ -44,15 +44,15 @@ describe('useCourseRunMetadata', () => {
     fetchCourseRunMetadata.mockResolvedValue(mockCourseRunMetadata);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRunMetadata(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockCourseRunMetadata,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useCourseRunMetadata(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockCourseRunMetadata,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

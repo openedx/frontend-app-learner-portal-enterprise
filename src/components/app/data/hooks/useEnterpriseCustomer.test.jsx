@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
@@ -35,19 +35,21 @@ describe('useEnterpriseCustomer', () => {
     fetchEnterpriseLearnerData.mockResolvedValue(mockEnterpriseLearnerData);
   });
   it('should return enterprise customer metadata correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomer(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    const actualEnterpriseCustomer = result.current.data;
-    expect(actualEnterpriseCustomer.uuid).toEqual(mockEnterpriseCustomer.uuid);
-    expect(actualEnterpriseCustomer.slug).toEqual(mockEnterpriseCustomer.slug);
+    const { result } = renderHook(() => useEnterpriseCustomer(), { wrapper: Wrapper });
+    await waitFor(() => {
+      const actualEnterpriseCustomer = result.current.data;
+      expect(actualEnterpriseCustomer.uuid).toEqual(mockEnterpriseCustomer.uuid);
+      expect(actualEnterpriseCustomer.slug).toEqual(mockEnterpriseCustomer.slug);
+    });
   });
   it('should return enterprise customer metadata correctly with select', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomer({
+    const { result } = renderHook(() => useEnterpriseCustomer({
       select: (data) => data,
     }), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    const actualEnterpriseCustomerSelectArgs = result.current.data;
-    expect(actualEnterpriseCustomerSelectArgs.original).toEqual(mockEnterpriseLearnerData);
-    expect(actualEnterpriseCustomerSelectArgs.transformed).toEqual(mockEnterpriseCustomer);
+    await waitFor(() => {
+      const actualEnterpriseCustomerSelectArgs = result.current.data;
+      expect(actualEnterpriseCustomerSelectArgs.original).toEqual(mockEnterpriseLearnerData);
+      expect(actualEnterpriseCustomerSelectArgs.transformed).toEqual(mockEnterpriseCustomer);
+    });
   });
 });
