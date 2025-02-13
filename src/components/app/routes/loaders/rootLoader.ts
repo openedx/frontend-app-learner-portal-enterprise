@@ -38,14 +38,13 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
     const matchedBFFQuery = resolveBFFQuery(
       requestUrl.pathname,
     );
-    let enterpriseLearnerData;
+    let enterpriseLearnerData: Types.EnterpriseLearnerData | any;
     if (matchedBFFQuery) {
       enterpriseLearnerData = await queryClient.ensureQueryData(
         matchedBFFQuery({ enterpriseSlug }),
       );
     } else {
-      enterpriseLearnerData = await queryClient.ensureQueryData<Types.EnterpriseLearnerData>(
-        // @ts-ignore
+      enterpriseLearnerData = await queryClient.ensureQueryData(
         queryEnterpriseLearner(username, enterpriseSlug),
       );
     }

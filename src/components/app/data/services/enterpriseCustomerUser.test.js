@@ -172,7 +172,7 @@ describe('fetchEnterpriseLearnerData', () => {
         enterpriseCustomer: expectedEnterpriseCustomer,
       })),
       staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : undefined,
-      shouldUpdateActiveEnterpriseCustomerUser: null,
+      shouldUpdateActiveEnterpriseCustomerUser: false,
     });
   });
 
@@ -193,7 +193,7 @@ describe('fetchEnterpriseLearnerData', () => {
       activeEnterpriseCustomerUserRoleAssignments: [],
       allLinkedEnterpriseCustomerUsers: [],
       staffEnterpriseCustomer: null,
-      shouldUpdateActiveEnterpriseCustomerUser: null,
+      shouldUpdateActiveEnterpriseCustomerUser: false,
     });
   });
 });

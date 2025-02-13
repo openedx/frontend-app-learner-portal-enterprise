@@ -29,7 +29,7 @@ const mockEnterpriseLearnerData = {
     enterpriseFeatures: {
       isBFFEnabled: false,
     },
-    shouldUpdateActiveEnterpriseCustomerUser: null,
+    shouldUpdateActiveEnterpriseCustomerUser: false,
   },
 };
 

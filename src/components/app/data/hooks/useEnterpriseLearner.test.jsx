@@ -26,7 +26,7 @@ const mockEnterpriseLearnerData = {
   allLinkedEnterpriseCustomerUsers: [],
   enterpriseFeatures: {},
   staffEnterpriseCustomer: null,
-  shouldUpdateActiveEnterpriseCustomerUser: null,
+  shouldUpdateActiveEnterpriseCustomerUser: false,
 };
 
 const mockBFFDashboardData = {

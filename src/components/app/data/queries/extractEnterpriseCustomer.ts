@@ -13,20 +13,16 @@ async function extractEnterpriseCustomer({
   queryClient,
   authenticatedUser,
   enterpriseSlug,
-} : ExtractEnterpriseCustomerArgs) : Promise<Types.EnterpriseCustomer> {
+} : ExtractEnterpriseCustomerArgs) {
   // Retrieve linked enterprise customers for the current user from query cache, or
   // fetch from the server if not available.
   const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug);
-  const enterpriseLearnerData = await queryClient.ensureQueryData<Types.EnterpriseLearnerData>(
-    // @ts-ignore
+  const enterpriseLearnerData = await queryClient.ensureQueryData(
     linkedEnterpriseCustomersQuery,
   );
   const {
-    // @ts-ignore
     activeEnterpriseCustomer,
-    // @ts-ignore
     allLinkedEnterpriseCustomerUsers,
-    // @ts-ignore
     staffEnterpriseCustomer,
   } = enterpriseLearnerData;
 
