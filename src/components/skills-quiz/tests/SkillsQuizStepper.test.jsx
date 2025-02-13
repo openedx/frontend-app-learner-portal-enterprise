@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
+import algoliasearch from 'algoliasearch/lite';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext, SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -22,6 +23,7 @@ import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 // Add mocks.
+jest.mock('algoliasearch/lite');
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
@@ -96,6 +98,14 @@ const SkillsQuizStepperWrapper = ({
 describe('<SkillsQuizStepper />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    const searchIndex = jest.fn(() => ({
+      hits: [],
+    }));
+    algoliasearch.mockReturnValue({
+      initIndex: () => ({
+        search: searchIndex,
+      }),
+    });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
   });
