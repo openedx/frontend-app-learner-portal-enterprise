@@ -165,6 +165,10 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   }, [goal]);
 
   useEffect(() => {
+    // TODO: this API call should be moved to React Query (see `queryEnterpriseCourseEnrollments`);
+    // related, the below API is fetching *all* course enrollments, not just enrollments for the
+    // currently viewed enterprise customer. This should be updated to only fetch enrollments for
+    // the current enterprise customer.
     const fetchLearnerCourseEnrollments = async () => {
       try {
         const response = await fetchCourseEnrollments();
@@ -183,6 +187,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
     };
 
     fetchLearnerCourseEnrollments();
+    // TODO: avoid disabling this rule...
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

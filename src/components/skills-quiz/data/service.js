@@ -1,6 +1,5 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
-import { logError } from '@edx/frontend-platform/logging';
 
 export async function postSkillsGoalsAndJobsUserSelected(goal, interestedJobsId, currentJobRoleId) {
   const options = {
@@ -10,9 +9,7 @@ export async function postSkillsGoalsAndJobsUserSelected(goal, interestedJobsId,
   };
   const config = getConfig();
   const url = `${config.DISCOVERY_API_BASE_URL}/taxonomy/api/v1/skills-quiz/`;
-  return getAuthenticatedHttpClient().post(url, options).catch((error) => {
-    logError(new Error(error));
-  });
+  return getAuthenticatedHttpClient().post(url, options);
 }
 
 export function fetchCourseEnrollments() {
