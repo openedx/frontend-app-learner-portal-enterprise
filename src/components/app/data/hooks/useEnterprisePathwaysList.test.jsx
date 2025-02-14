@@ -32,7 +32,7 @@ describe('useEnterprisePathwaysList', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: camelCasedLearnerPathwayData,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

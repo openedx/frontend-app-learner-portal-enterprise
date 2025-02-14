@@ -120,7 +120,7 @@ describe('useCourseMetadata', () => {
               mockCourseMetadata.courseRuns[3],
             ],
           },
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -133,7 +133,7 @@ describe('useCourseMetadata', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: null,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -157,7 +157,7 @@ describe('useCourseMetadata', () => {
               ],
             },
           },
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -172,7 +172,7 @@ describe('useCourseMetadata', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: null,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -249,7 +249,7 @@ describe('useCourseMetadata', () => {
             courseRuns: assignedCourseRuns,
             availableCourseRuns: availableAndAssignedCourseRuns,
           },
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -312,7 +312,7 @@ describe('useCourseMetadata', () => {
             courseRuns: mockCourseRun,
             availableCourseRuns: mockCourseRun,
           },
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

@@ -46,7 +46,7 @@ describe('useEnterpriseLearner', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockEnterpriseLearnerData,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

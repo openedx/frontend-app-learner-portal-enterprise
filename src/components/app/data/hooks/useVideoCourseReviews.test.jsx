@@ -49,7 +49,7 @@ describe('useVideoCourseReviews', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockCourseReviews,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

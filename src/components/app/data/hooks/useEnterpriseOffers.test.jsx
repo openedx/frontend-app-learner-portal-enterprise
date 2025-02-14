@@ -41,7 +41,7 @@ describe('useEnterpriseOffers', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockEnterpriseOffers,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

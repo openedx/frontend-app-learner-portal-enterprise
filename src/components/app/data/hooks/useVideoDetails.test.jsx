@@ -54,7 +54,7 @@ describe('useVideoDetails', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockVideoDetailsData,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -69,7 +69,7 @@ describe('useVideoDetails', () => {
 
     const { result } = renderHook(() => useVideoDetails(), { wrapper: Wrapper });
 
-    expect(result.current.isLoading).toBe(true);
+    expect(result.current.isPending).toBe(true);
     expect(result.current.isFetching).toBe(true);
   });
 
@@ -83,7 +83,7 @@ describe('useVideoDetails', () => {
     const { result } = renderHook(() => useVideoDetails(), { wrapper: Wrapper });
     await waitFor(() => {
       expect(result.current.error).toEqual(mockError);
-      expect(result.current.isLoading).toBe(false);
+      expect(result.current.isPending).toBe(false);
       expect(result.current.isFetching).toBe(false);
     });
   });

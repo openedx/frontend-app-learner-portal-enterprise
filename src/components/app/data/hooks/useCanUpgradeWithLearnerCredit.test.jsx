@@ -93,7 +93,7 @@ describe('useCanUpgradeWithLearnerCredit', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: expectedTransformedResult,
-          isLoading: false,
+          isPending: false,
         }),
       );
     });

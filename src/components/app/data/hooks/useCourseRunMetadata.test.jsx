@@ -49,7 +49,7 @@ describe('useCourseRunMetadata', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockCourseRunMetadata,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

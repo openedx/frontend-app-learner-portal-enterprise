@@ -33,7 +33,7 @@ describe('useLearnerPathwayProgressData', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockLearnerPathwayProgressData,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
