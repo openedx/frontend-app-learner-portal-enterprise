@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
   APP_INIT_ERROR, APP_READY, initialize, subscribe,
@@ -14,11 +15,19 @@ const container = document.getElementById('root');
 const root = createRoot(container);
 
 subscribe(APP_READY, () => {
-  root.render(<App />);
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
 });
 
 subscribe(APP_INIT_ERROR, (error) => {
-  root.render(<ErrorPage message={error.message} />);
+  root.render(
+    <StrictMode>
+      <ErrorPage message={error.message} />
+    </StrictMode>,
+  );
 });
 
 initialize({
