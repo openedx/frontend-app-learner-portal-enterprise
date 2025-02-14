@@ -48,11 +48,16 @@ describe('returnGoalLabel', () => {
 });
 
 describe('saveSkillsGoalsAndJobsUserSelected', () => {
-  test('save skills, goals and jobs user selected', async () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  test.each([false, true])('save skills, goals and jobs user selected (%s)', async (throwsError) => {
     const goals = ['goal-1', 'goal-2'];
     const jobs = ['job-1', 'job-2'];
+    if (throwsError) {
+      postSkillsGoalsAndJobsUserSelected.mockRejectedValueOnce(new Error('error'));
+    }
     await saveSkillsGoalsAndJobsUserSelected(goals, jobs);
-
     expect(postSkillsGoalsAndJobsUserSelected).toHaveBeenCalledTimes(1);
   });
 });
