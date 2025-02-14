@@ -1,17 +1,16 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import '@testing-library/jest-dom/extend-expect';
-import { act, screen, render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import JobDescriptions from '../JobDescriptions';
 import {
-  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE,
   DROPDOWN_OPTION_CHANGE_CAREERS,
+  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE,
   JOB_DESCRIPTION_DISCLAIMER,
 } from '../constants';
 
 const APP_CONFIG = {
-  USE_API_CACHE: true,
   DISCOVERY_API_BASE_URL: 'http://localhost:18381',
 };
 

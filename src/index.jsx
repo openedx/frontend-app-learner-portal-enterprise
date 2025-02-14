@@ -25,7 +25,6 @@ initialize({
   handlers: {
     config: () => {
       mergeConfig({
-        USE_API_CACHE: process.env.USE_API_CACHE || null,
         ENTERPRISE_ACCESS_BASE_URL: process.env.ENTERPRISE_ACCESS_BASE_URL || null,
         ENTERPRISE_CATALOG_API_BASE_URL: process.env.ENTERPRISE_CATALOG_API_BASE_URL || null,
         LICENSE_MANAGER_URL: process.env.LICENSE_MANAGER_URL || null,

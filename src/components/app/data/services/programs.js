@@ -45,10 +45,10 @@ const retrieveCustomerContainsContent = async (enterpriseUuid, programUuid, cour
 };
 
 export async function fetchProgramDetails(enterpriseUuid, programUuid) {
-  const { DISCOVERY_API_BASE_URL, USE_API_CACHE } = getConfig();
+  const { DISCOVERY_API_BASE_URL } = getConfig();
   const url = `${DISCOVERY_API_BASE_URL}/api/v1/programs/${programUuid}/`;
   try {
-    const programResponse = await getAuthenticatedHttpClient({ useCache: USE_API_CACHE }).get(url);
+    const programResponse = await getAuthenticatedHttpClient().get(url);
     const programDetails = camelCaseObject(programResponse.data);
     if (!programDetails) {
       return null;

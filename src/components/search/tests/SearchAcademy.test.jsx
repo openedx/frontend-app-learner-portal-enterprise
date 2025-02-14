@@ -13,7 +13,6 @@ import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/d
 
 // config
 const APP_CONFIG = {
-  USE_API_CACHE: true,
   ENTERPRISE_CATALOG_API_BASE_URL: 'http://localhost:18160',
 };
 
