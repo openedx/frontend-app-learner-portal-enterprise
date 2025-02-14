@@ -39,6 +39,9 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useDefaultSearchFilters: jest.fn(),
 }));
+jest.mock('../data/service', () => ({
+  postSkillsGoalsAndJobsUserSelected: jest.fn(),
+}));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -97,7 +100,6 @@ const SkillsQuizStepperWrapper = ({
 
 describe('<SkillsQuizStepper />', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     const searchIndex = jest.fn(() => ({
       hits: [],
     }));
@@ -108,6 +110,7 @@ describe('<SkillsQuizStepper />', () => {
     });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    jest.clearAllMocks();
   });
 
   it('checks header is correctly rendered', () => {
@@ -149,6 +152,7 @@ describe('<SkillsQuizStepper />', () => {
 
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
+      dispatch: () => null,
     };
 
     renderWithRouter(
@@ -165,6 +169,7 @@ describe('<SkillsQuizStepper />', () => {
     };
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
+      dispatch: () => null,
     };
 
     renderWithRouter(
@@ -175,7 +180,7 @@ describe('<SkillsQuizStepper />', () => {
     expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled();
   });
 
-  it.only('check continue is enable while some jobs are selected and working correctly', async () => {
+  it('check continue is enable while some jobs are selected and working correctly', async () => {
     const user = userEvent.setup();
     const searchContext = {
       refinements: { current_job: ['test-current-job'] },
@@ -198,7 +203,7 @@ describe('<SkillsQuizStepper />', () => {
     const continueBtn = screen.getByRole('button', { name: 'Continue' });
     expect(continueBtn).toBeEnabled();
     await user.click(continueBtn);
-    expect(continueBtn).toBeFalsy();
+    expect(continueBtn).toBeEnabled();
   });
 
   it('checks no other dropdown is rendered until correct goal is selected', () => {
@@ -208,6 +213,7 @@ describe('<SkillsQuizStepper />', () => {
     };
     const skillsQuizContextInitialState = {
       state: { goal: GOAL_DROPDOWN_DEFAULT_OPTION },
+      dispatch: () => null,
     };
 
     renderWithRouter(
@@ -227,6 +233,7 @@ describe('<SkillsQuizStepper />', () => {
     };
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
+      dispatch: () => null,
     };
 
     renderWithRouter(
@@ -243,6 +250,7 @@ describe('<SkillsQuizStepper />', () => {
     const user = userEvent.setup();
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
+      dispatch: () => null,
     };
     renderWithRouter(
       <SkillsQuizStepperWrapper includeSearchDataWrapper skillsQuizContext={skillsQuizContextInitialState} />,
@@ -258,6 +266,7 @@ describe('<SkillsQuizStepper />', () => {
   it(`checks i am currently a student is disabled and unchecked on ${DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE}`, () => {
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
+      dispatch: () => null,
     };
     renderWithRouter(
       <SkillsQuizStepperWrapper includeSearchDataWrapper skillsQuizContext={skillsQuizContextInitialState} />,
