@@ -47,10 +47,11 @@ describe('VideoFeedbackCard', () => {
   });
 
   it('handles thumb up click and submits feedback', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<VideoFeedbackCardWrapper />);
 
     const thumbUpButton = screen.getByLabelText('thumbs up');
-    userEvent.click(thumbUpButton);
+    await user.click(thumbUpButton);
 
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomerUuid,
@@ -66,10 +67,11 @@ describe('VideoFeedbackCard', () => {
   });
 
   it('handles thumb down click and renders additional options', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<VideoFeedbackCardWrapper />);
 
     const thumbDownButton = screen.getByLabelText('thumbs down');
-    userEvent.click(thumbDownButton);
+    await user.click(thumbDownButton);
 
     await waitFor(() => {
       expect(screen.getByText(VIDEO_FEEDBACK_CARD.additionalDetailsLabel)).toBeInTheDocument();
@@ -78,26 +80,27 @@ describe('VideoFeedbackCard', () => {
     const firstCheckbox = screen.getByRole('checkbox', {
       name: VIDEO_FEEDBACK_CARD.options[0],
     });
-    userEvent.click(firstCheckbox);
+    await user.click(firstCheckbox);
     expect(firstCheckbox).toBeChecked();
   });
 
   it('submits feedback with additional options and comments', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<VideoFeedbackCardWrapper />);
 
     const thumbDownButton = screen.getByLabelText('thumbs down');
-    userEvent.click(thumbDownButton);
+    await user.click(thumbDownButton);
 
     const firstCheckbox = screen.getByRole('checkbox', {
       name: VIDEO_FEEDBACK_CARD.options[0],
     });
-    userEvent.click(firstCheckbox);
+    await user.click(firstCheckbox);
 
     const commentInput = screen.getByPlaceholderText(VIDEO_FEEDBACK_CARD.inputPlaceholder);
-    userEvent.type(commentInput, 'test comment');
+    await user.type(commentInput, 'test comment');
 
     const submitButton = screen.getByRole('button', { name: 'Submit feedback' });
-    userEvent.click(submitButton);
+    await user.click(submitButton);
 
     await waitFor(() => {
       expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
@@ -116,10 +119,11 @@ describe('VideoFeedbackCard', () => {
   });
 
   it('displays thank you message after feedback submission', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<VideoFeedbackCardWrapper />);
 
     const thumbUpButton = screen.getByLabelText('thumbs up');
-    userEvent.click(thumbUpButton);
+    await user.click(thumbUpButton);
 
     await waitFor(() => {
       expect(screen.getByText(VIDEO_FEEDBACK_CARD.thankYouMessage)).toBeInTheDocument();

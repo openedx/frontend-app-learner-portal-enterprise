@@ -44,10 +44,11 @@ describe('<CourseRecommendations />', () => {
     expect(screen.getByText('Get course recommendations for you.'));
   });
 
-  it('clicking takes the user to skills quiz page', () => {
+  it('clicking takes the user to skills quiz page', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<CourseRecommendationsContext />);
     const courseRecommendationsButton = screen.getByText('Recommend courses for me');
-    userEvent.click(courseRecommendationsButton);
+    await user.click(courseRecommendationsButton);
     expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/skills-quiz`);
   });
 });

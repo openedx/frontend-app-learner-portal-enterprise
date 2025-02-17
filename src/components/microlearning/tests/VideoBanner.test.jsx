@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
@@ -32,12 +32,12 @@ describe('VideoBanner', () => {
   );
 
   beforeEach(() => {
+    jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('renders the video banner with correct title and description', () => {
     renderWithRouter(<VideoBannerWrapper />);
-
     expect(screen.getByText('New!')).toBeInTheDocument();
     expect(screen.getByText('Videos Now Available with Your Subscription')).toBeInTheDocument();
     expect(screen.getByText('Transform your potential into success.')).toBeInTheDocument();
@@ -51,27 +51,31 @@ describe('VideoBanner', () => {
 
   it('calls sendEnterpriseTrackEvent when banner is rendered', () => {
     renderWithRouter(<VideoBannerWrapper />);
-
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.video_banner.viewed',
     );
   });
 
-  it('calls sendEnterpriseTrackEvent when explore videos button is clicked', () => {
+  it('calls sendEnterpriseTrackEvent when explore videos button is clicked', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<VideoBannerWrapper />);
 
     const exploreVideosButton = screen.getByText('Explore videos');
-    exploreVideosButton.click();
+    await user.click(exploreVideosButton);
 
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.video_banner.explore_videos_clicked',
     );
   });
+
   it('hover on Beta badge', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<VideoBannerWrapper />);
-    userEvent.hover(screen.getByText('Beta'));
+    await act(async () => {
+      await user.hover(screen.getByText('Beta'));
+    });
     await waitFor(() => {
       expect(screen.getByText('Beta version of the Videos.')).toBeVisible();
     });

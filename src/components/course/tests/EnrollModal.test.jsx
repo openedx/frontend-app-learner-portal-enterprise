@@ -58,6 +58,7 @@ describe('<EnrollModal />', () => {
   });
 
   it('displays the correct texts when user has a coupon code for the course (%s)', async () => {
+    const user = userEvent.setup();
     const props = {
       ...baseProps,
       userSubsidyApplicableToCourse: {
@@ -71,7 +72,7 @@ describe('<EnrollModal />', () => {
     expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.button.defaultMessage)).toBeInTheDocument();
 
     // Close modal
-    userEvent.click(screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage }));
+    await user.click(screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage }));
     expect(baseProps.onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -96,6 +97,7 @@ describe('<EnrollModal />', () => {
     hideCourseOriginalPrice,
     courseRunPrice,
   }) => {
+    const user = userEvent.setup();
     useEnterpriseCustomer.mockReturnValue({
       data: hideCourseOriginalPrice ? mockEnterpriseCustomerWithoutPrice : mockEnterpriseCustomer,
     });
@@ -118,11 +120,12 @@ describe('<EnrollModal />', () => {
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.button.defaultMessage)).toBeInTheDocument();
 
     // Close modal
-    userEvent.click(screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage }));
+    await user.click(screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage }));
     expect(baseProps.onClose).toHaveBeenCalledTimes(1);
   });
 
   it('displays the correct texts when there is learner credit available', async () => {
+    const user = userEvent.setup();
     const props = {
       ...baseProps,
       userSubsidyApplicableToCourse: {
@@ -141,13 +144,13 @@ describe('<EnrollModal />', () => {
     expect(screen.getByRole('button', { name: messages.upgradeModalConfirmCta.defaultMessage }));
 
     // Close modal
-    userEvent.click(screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage }));
+    await user.click(screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage }));
     expect(baseProps.onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onEnroll when enrollmentUrl is clicked', () => {
+  it('calls onEnroll when enrollmentUrl is clicked', async () => {
+    const user = userEvent.setup();
     const mockHandleEnroll = jest.fn();
-
     render(
       <EnrollModalWrapper
         {...baseProps}
@@ -159,8 +162,7 @@ describe('<EnrollModal />', () => {
       />,
     );
     const enrollButton = screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.button.defaultMessage);
-    userEvent.click(enrollButton);
-
+    await user.click(enrollButton);
     expect(mockHandleEnroll).toHaveBeenCalled();
   });
 });

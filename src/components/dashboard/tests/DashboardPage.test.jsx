@@ -282,6 +282,7 @@ describe('<Dashboard />', () => {
   });
 
   it('renders license activation alert on activation success and dismisses it', async () => {
+    const user = userEvent.setup();
     sessionStorage.setItem(SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE, 'true');
     useSubscriptions.mockReturnValue({
       data: {
@@ -291,7 +292,7 @@ describe('<Dashboard />', () => {
     });
     renderWithRouter(<DashboardWithContext />);
     expect(screen.getByText(LICENSE_ACTIVATION_MESSAGE)).toBeInTheDocument();
-    userEvent.click(screen.getByText('Dismiss'));
+    await user.click(screen.getByText('Dismiss'));
     await waitFor(() => expect(screen.queryByText(LICENSE_ACTIVATION_MESSAGE)).toBeFalsy());
     expect(sessionStorage.removeItem).toHaveBeenCalledWith(SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE);
   });
@@ -303,51 +304,38 @@ describe('<Dashboard />', () => {
 
   it('renders a courses sidebar on a large screen', async () => {
     window.matchMedia.setConfig(mockWindowConfig);
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
+    renderWithRouter(<DashboardWithContext />);
     expect(screen.getByTestId('courses-tab-sidebar')).toBeInTheDocument();
   });
 
   it('renders an add job sidebar on a large screen', async () => {
+    const user = userEvent.setup();
     features.FEATURE_ENABLE_MY_CAREER.mockImplementation(() => true);
     window.matchMedia.setConfig(mockWindowConfig);
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
-
-    userEvent.click(screen.getByText('My Career'));
-
+    renderWithRouter(<DashboardWithContext />);
+    await user.click(screen.getByText('My Career'));
     await waitFor(() => expect(screen.getByTestId('add-job-role-sidebar')).toBeInTheDocument());
   });
 
-  it('renders pathway tab', () => {
+  it('renders pathway tab', async () => {
+    const user = userEvent.setup();
     useEnterprisePathwaysList.mockReturnValue({ data: camelCaseObject(learnerPathwayData) });
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
-
-    userEvent.click(screen.getByText('Pathways'));
-
+    renderWithRouter(<DashboardWithContext />);
+    await user.click(screen.getByText('Pathways'));
     expect(screen.getByTestId('pathway-listing-page')).toBeInTheDocument();
   });
 
   it('renders programs tab', async () => {
+    const user = userEvent.setup();
     useEnterpriseProgramsList.mockReturnValue({ data: [camelCaseObject(dummyProgramData)] });
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
-
-    userEvent.click(screen.getByText('Programs'));
-
+    renderWithRouter(<DashboardWithContext />);
+    await user.click(screen.getByText('Programs'));
     expect(screen.getByTestId('program-listing-page')).toBeInTheDocument();
   });
 
   it('renders My Career when feature is enabled', () => {
     features.FEATURE_ENABLE_MY_CAREER.mockImplementation(() => true);
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
+    renderWithRouter(<DashboardWithContext />);
     expect(screen.getByText('My Career')).toBeInTheDocument();
   });
 
@@ -362,17 +350,13 @@ describe('<Dashboard />', () => {
     useHasAvailableSubsidiesOrRequests.mockReturnValue(
       useMockHasAvailableSubsidyOrRequests({ mockHasActivatedCurrentLicenseOrLicenseRequest: true }),
     );
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
+    renderWithRouter(<DashboardWithContext />);
     expect(screen.getByTestId('subsidies-summary')).toBeInTheDocument();
   });
 
   it('renders "Find a course" when search is enabled for the customer', () => {
     features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT.mockImplementation(() => true);
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
+    renderWithRouter(<DashboardWithContext />);
     expect(screen.getByText('Find a course')).toBeInTheDocument();
   });
 
@@ -381,9 +365,7 @@ describe('<Dashboard />', () => {
       disable_search: true,
     });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithoutSearch });
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
+    renderWithRouter(<DashboardWithContext />);
     expect(screen.queryByText('Find a course')).toBeFalsy();
   });
 
@@ -399,9 +381,7 @@ describe('<Dashboard />', () => {
         enablePrograms: true,
       },
     };
-    renderWithRouter(
-      <DashboardWithContext initialAppState={appState} />,
-    );
+    renderWithRouter(<DashboardWithContext initialAppState={appState} />);
     expect(screen.getByText('Courses')).toBeInTheDocument();
     expect(screen.getByText('Programs')).toBeInTheDocument();
   });
@@ -418,22 +398,18 @@ describe('<Dashboard />', () => {
         enablePrograms: true,
       },
     };
-
-    renderWithRouter(
-      <DashboardWithContext initialAppState={appState} />,
-    );
+    renderWithRouter(<DashboardWithContext initialAppState={appState} />);
     const coursesTab = screen.getByText('Courses');
     const programsTab = screen.getByText('Programs');
     expect(coursesTab).toHaveAttribute('aria-selected', 'true');
     expect(programsTab).toHaveAttribute('aria-selected', 'false');
   });
 
-  it('should send track event when "my-career" tab selected', () => {
+  it('should send track event when "my-career" tab selected', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<DashboardWithContext />);
-
     const myCareerTab = screen.getByText('My Career');
-    userEvent.click(myCareerTab);
-
+    await user.click(myCareerTab);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
   });
 
@@ -518,6 +494,7 @@ describe('<Dashboard />', () => {
     });
 
     it('should render the expired version of the modal when 0 >= daysUntilExpirationIncludingRenewals', async () => {
+      const user = userEvent.setup();
       const subscriptionLicense = {
         uuid: uuidv4(),
       };
@@ -530,13 +507,10 @@ describe('<Dashboard />', () => {
           },
         },
       });
-      renderWithRouter(
-        <DashboardWithContext />,
-      );
-
+      renderWithRouter(<DashboardWithContext />);
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy();
-      userEvent.click(screen.getByTestId('subscription-expiration-button'));
+      await user.click(screen.getByTestId('subscription-expiration-button'));
       await waitFor(() => expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy());
       const expiredModalLocalStorageKey = !!global.localStorage.getItem(
         EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY(subscriptionLicense),
@@ -554,9 +528,7 @@ describe('<Dashboard />', () => {
           },
         },
       });
-      renderWithRouter(
-        <DashboardWithContext />,
-      );
+      renderWithRouter(<DashboardWithContext />);
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
     });
@@ -571,9 +543,7 @@ describe('<Dashboard />', () => {
           },
         },
       });
-      renderWithRouter(
-        <DashboardWithContext />,
-      );
+      renderWithRouter(<DashboardWithContext />);
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
     });
@@ -591,18 +561,16 @@ describe('<Dashboard />', () => {
           },
         },
       });
-      renderWithRouter(
-        <DashboardWithContext />,
-      );
+      renderWithRouter(<DashboardWithContext />);
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
     });
 
-    it.each([{
-      threshold: 30,
-    }, {
-      threshold: 60,
-    }])('should set localstorage when closed for the threshold (%s)', ({ threshold }) => {
+    it.each([
+      { threshold: 30 },
+      { threshold: 60 },
+    ])('should set localstorage when closed for the threshold (%s)', async ({ threshold }) => {
+      const user = userEvent.setup();
       const subscriptionPlanId = `expiring-plan-${threshold}`;
       useSubscriptions.mockReturnValue({
         data: {
@@ -617,12 +585,10 @@ describe('<Dashboard />', () => {
           },
         },
       });
-      renderWithRouter(
-        <DashboardWithContext />,
-      );
+      renderWithRouter(<DashboardWithContext />);
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
-      userEvent.click(screen.getByTestId('subscription-expiration-button'));
+      await user.click(screen.getByTestId('subscription-expiration-button'));
       const hasExpirationModal = !!global.localStorage.getItem(`${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${threshold}-${subscriptionPlanId}`);
       expect(hasExpirationModal).toEqual(true);
     });

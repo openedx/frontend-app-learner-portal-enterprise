@@ -1,4 +1,5 @@
-import { act, screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -13,7 +14,6 @@ import {
   DROPDOWN_OPTION_GET_PROMOTED,
 } from '../constants';
 
-import '../__mocks__/react-instantsearch-dom';
 import SkillsQuizStepper from '../SkillsQuizStepper';
 import { useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
@@ -44,6 +44,7 @@ describe('<SearchFilters />', () => {
   });
 
   test('renders skills and jobs dropdown with a label', async () => {
+    const user = userEvent.setup();
     renderWithRouter(
       <IntlProvider locale="en">
         <AppContext.Provider value={defaultAppState}>
@@ -56,13 +57,14 @@ describe('<SearchFilters />', () => {
       </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
-    expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
-    await act(async () => {
-      await screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION).click();
-      screen.queryByText(DROPDOWN_OPTION_GET_PROMOTED).click();
-    });
-    facetsToTest.forEach((filter) => {
-      expect(screen.getByText(filter.title)).toBeInTheDocument();
+    const goalDropdownDefaultOption = screen.getByText(GOAL_DROPDOWN_DEFAULT_OPTION);
+    expect(goalDropdownDefaultOption).toBeInTheDocument();
+    await user.click(goalDropdownDefaultOption);
+    await user.click(screen.getByText(DROPDOWN_OPTION_GET_PROMOTED));
+    await waitFor(() => {
+      facetsToTest.forEach((filter) => {
+        expect(screen.getByText(filter.title)).toBeInTheDocument();
+      });
     });
   });
 });

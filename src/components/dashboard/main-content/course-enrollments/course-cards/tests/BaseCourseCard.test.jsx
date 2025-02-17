@@ -62,6 +62,7 @@ describe('<BaseCourseCard />', () => {
 
   describe('email settings modal', () => {
     beforeEach(async () => {
+      const user = userEvent.setup();
       renderWithRouter((
         <BaseCourseCardWrapper
           type={COURSE_STATUSES.completed}
@@ -73,14 +74,15 @@ describe('<BaseCourseCard />', () => {
         />
       ));
       // open email settings modal
-      userEvent.click(screen.getByLabelText('course settings for edX Demonstration Course'));
+      await user.click(screen.getByLabelText('course settings for edX Demonstration Course'));
       expect(await screen.findByRole('menuitem')).toBeInTheDocument();
-      userEvent.click(screen.getByRole('menuitem'));
+      await user.click(screen.getByRole('menuitem'));
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
     });
 
     it('handles email settings modal close/cancel', async () => {
-      userEvent.click(screen.getByTestId('email-setting-modal-close-btn', { name: 'Close' }));
+      const user = userEvent.setup();
+      await user.click(screen.getByTestId('email-setting-modal-close-btn', { name: 'Close' }));
       expect(await screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
@@ -88,6 +90,7 @@ describe('<BaseCourseCard />', () => {
   describe('unenroll modal', () => {
     beforeEach(async () => {
       jest.clearAllMocks();
+      const user = userEvent.setup();
       renderWithRouter(
         <BaseCourseCardWrapper
           type={COURSE_STATUSES.inProgress}
@@ -99,15 +102,16 @@ describe('<BaseCourseCard />', () => {
         />,
       );
       // open unenroll modal
-      userEvent.click(screen.getByLabelText('course settings for edX Demonstration Course'));
+      await user.click(screen.getByLabelText('course settings for edX Demonstration Course'));
       expect(await screen.findByRole('menuitem')).toBeInTheDocument();
-      userEvent.click(screen.getByRole('menuitem'));
+      await user.click(screen.getByRole('menuitem'));
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
       expect(screen.getByText('Unenroll from course?')).toBeInTheDocument();
     });
 
     it('handles unenroll modal close/cancel', async () => {
-      userEvent.click(screen.getByRole('button', { name: 'Keep learning' }));
+      const user = userEvent.setup();
+      await user.click(screen.getByRole('button', { name: 'Keep learning' }));
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       });
@@ -286,6 +290,7 @@ describe('<BaseCourseCard />', () => {
     currentTimestamp,
     hasExpiringWarningTooltip,
   }) => {
+    const user = userEvent.setup();
     if (currentTimestamp) {
       MockDate.set(currentTimestamp);
     }
@@ -312,7 +317,7 @@ describe('<BaseCourseCard />', () => {
     const expectedExpiringWarningAlt = 'Learn more about enrollment deadline for edX Demonstration Course';
     if (hasExpiringWarningTooltip) {
       const expiringWarningIconButton = screen.getByLabelText(expectedExpiringWarningAlt);
-      userEvent.click(expiringWarningIconButton);
+      await user.click(expiringWarningIconButton);
       expect(await screen.findByText('Enrollment deadline approaching')).toBeInTheDocument();
     } else {
       const expiringWarningIconButton = screen.queryByLabelText(expectedExpiringWarningAlt);

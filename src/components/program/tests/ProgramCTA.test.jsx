@@ -1,10 +1,10 @@
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { screen, render, fireEvent } from '@testing-library/react';
+import { screen, render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
-import userEvent from '@testing-library/user-event';
 import ProgramCTA from '../ProgramCTA';
 import { useEnterpriseCustomer, useProgramDetails } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
@@ -96,15 +96,14 @@ describe('<ProgramCTA />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useProgramDetails.mockReturnValue({ data: initialProgramState });
   });
-  test('renders program CTA.', () => {
-    render(
-      <ProgramCTAtWithContext />,
-    );
+  test('renders program CTA.', async () => {
+    const user = userEvent.setup();
+    render(<ProgramCTAtWithContext />);
 
     expect(screen.getByText('2 courses included in your enterprise catalog')).toBeInTheDocument();
     expect(screen.getByText('View Course Details')).toBeInTheDocument();
-    userEvent.click(screen.getByText('View Course Details'));
-    fireEvent.click(screen.getByText('Test Course 1 Title'));
+    await user.click(screen.getByText('View Course Details'));
+    await user.click(screen.getByText('Test Course 1 Title'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.program.cta.course.clicked',
@@ -130,10 +129,7 @@ describe('<ProgramCTA />', () => {
       }],
     };
     useProgramDetails.mockReturnValue({ data: updatedProgramState });
-    render(
-      <ProgramCTAtWithContext />,
-    );
-
+    render(<ProgramCTAtWithContext />);
     expect(screen.getByText('These courses are not included in your enterprise catalog')).toBeInTheDocument();
   });
 
@@ -155,10 +151,7 @@ describe('<ProgramCTA />', () => {
       }],
     };
     useProgramDetails.mockReturnValue({ data: updatedProgramState });
-    render(
-      <ProgramCTAtWithContext />,
-    );
-
+    render(<ProgramCTAtWithContext />);
     expect(screen.getByText('All courses included in your enterprise catalog')).toBeInTheDocument();
   });
 
@@ -182,10 +175,7 @@ describe('<ProgramCTA />', () => {
       weeksToComplete: 4,
     };
     useProgramDetails.mockReturnValue({ data: updatedProgramState });
-    render(
-      <ProgramCTAtWithContext />,
-    );
-
+    render(<ProgramCTAtWithContext />);
     expect(screen.getByText('1 course in 1 month')).toBeInTheDocument();
   });
 
@@ -219,10 +209,7 @@ describe('<ProgramCTA />', () => {
       weeksToComplete: 48,
     };
     useProgramDetails.mockReturnValue({ data: updatedProgramState });
-    render(
-      <ProgramCTAtWithContext />,
-    );
-
+    render(<ProgramCTAtWithContext />);
     expect(screen.getByText('2 courses in 1 year')).toBeInTheDocument();
   });
 
@@ -256,10 +243,7 @@ describe('<ProgramCTA />', () => {
       weeksToComplete: 52,
     };
     useProgramDetails.mockReturnValue({ data: updatedProgramState });
-    render(
-      <ProgramCTAtWithContext />,
-    );
-
+    render(<ProgramCTAtWithContext />);
     expect(screen.getByText('2 courses in 1 year 1 month')).toBeInTheDocument();
   });
 
@@ -293,10 +277,7 @@ describe('<ProgramCTA />', () => {
       weeksToComplete: 100,
     };
     useProgramDetails.mockReturnValue({ data: updatedProgramState });
-    render(
-      <ProgramCTAtWithContext />,
-    );
-
+    render(<ProgramCTAtWithContext />);
     expect(screen.getByText('2 courses in 2 years 1 month')).toBeInTheDocument();
   });
 
@@ -330,10 +311,7 @@ describe('<ProgramCTA />', () => {
       weeksToComplete: 118,
     };
     useProgramDetails.mockReturnValue({ data: updatedProgramState });
-    render(
-      <ProgramCTAtWithContext />,
-    );
-
+    render(<ProgramCTAtWithContext />);
     expect(screen.getByText('2 courses in 2 years 6 months')).toBeInTheDocument();
   });
 
@@ -367,10 +345,7 @@ describe('<ProgramCTA />', () => {
       weeksToComplete: null,
     };
     useProgramDetails.mockReturnValue({ data: updatedProgramState });
-    render(
-      <ProgramCTAtWithContext />,
-    );
-
+    render(<ProgramCTAtWithContext />);
     expect(screen.getByText('2 courses in 2 years 6 months')).toBeInTheDocument();
   });
 });
