@@ -25,9 +25,11 @@ const makeProgramLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      return null;
+    }
 
     await queryClient.ensureQueryData(queryEnterpriseProgram(enterpriseCustomer.uuid, programUUID));
-
     return null;
   };
 };

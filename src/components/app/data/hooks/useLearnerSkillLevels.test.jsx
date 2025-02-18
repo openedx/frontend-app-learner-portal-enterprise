@@ -27,7 +27,7 @@ describe('useLearnerSkillLevels', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockLearnerSkillLevels,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

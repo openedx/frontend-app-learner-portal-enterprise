@@ -27,6 +27,9 @@ const makeProgramProgressLoader: Types.MakeRouteLoaderFunctionWithQueryClient = 
         authenticatedUser,
         enterpriseSlug,
       });
+      if (!enterpriseCustomer) {
+        return null;
+      }
       const queriesToResolve = [
         queryClient.ensureQueryData(queryLearnerProgramProgressData(programUUID)),
         queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),

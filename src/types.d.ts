@@ -50,7 +50,7 @@ export interface EnterpriseCustomer {
 }
 
 export interface EnterpriseFeatures {
-  enterpriseLearnerBffEnabled: boolean;
+  enterpriseLearnerBffEnabled?: boolean;
   [key: string]: boolean;
 }
 
@@ -93,5 +93,33 @@ export interface EnterpriseCourseEnrollment {
 
 // Application Data (subsidy)
 export type SubsidyRequestState = typeof SUBSIDY_REQUEST_STATE[keyof typeof SUBSIDY_REQUEST_STATE];
+
+export interface SubsidyAccessPolicy {
+  uuid: string;
+  policyRedemptionUrl: string;
+}
+
+export type SubsidyTransactionState = 'created' | 'pending' | 'committed' | 'failed';
+
+export interface SubsidyTransaction {
+  uuid: string;
+  state: SubsidyTransactionState;
+  lmsUserId: number;
+  lmsUserEmail?: string;
+  contentKey: string;
+  parentContentKey: string;
+  contentTitle: string;
+  quantity: number;
+  unit: any;
+  fulfillmentIdentifier?: string;
+  subsidyAccessPolicyUuid: string;
+  metadata: Record<string, any>;
+  created: string;
+  modified: string;
+  reversal?: any;
+  externalReference?: any;
+  transactionStatusApiUrl: string;
+  coursewareUrl: string;
+}
 
 export as namespace Types;

@@ -184,7 +184,6 @@ describe('Course enrollments', () => {
       learnerCreditUpgradeUrl: undefined,
       subsidyForCourse: undefined,
       courseRunPrice: undefined,
-      isLoading: false,
     });
   });
 

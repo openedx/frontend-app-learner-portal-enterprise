@@ -42,6 +42,9 @@ const makeExternalCourseEnrollmentLoader: Types.MakeRouteLoaderFunctionWithQuery
         authenticatedUser,
         enterpriseSlug,
       });
+      if (!enterpriseCustomer) {
+        return null;
+      }
 
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently

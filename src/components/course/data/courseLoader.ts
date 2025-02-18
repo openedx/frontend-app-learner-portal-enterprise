@@ -59,6 +59,9 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      return null;
+    }
     const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
       enterpriseUuid: enterpriseCustomer.uuid,
       lmsUserId: authenticatedUser.userId,

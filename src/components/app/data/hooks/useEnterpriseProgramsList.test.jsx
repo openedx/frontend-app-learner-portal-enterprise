@@ -69,7 +69,7 @@ describe('useEnterpriseProgramsList', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockProgramsListData,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
