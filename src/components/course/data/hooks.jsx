@@ -406,7 +406,7 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  */
 export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: courseMetadata } = useCourseMetadata();
+  const { data: courseMetadata } = useCourseMetadata(); // todo: this is used on dashboard, and the courseKey param for this query doesnt exst
   const activeCourseRun = courseMetadata?.activeCourseRun;
   const { algoliaSearchParams } = useContext(CourseContext) || {};
 

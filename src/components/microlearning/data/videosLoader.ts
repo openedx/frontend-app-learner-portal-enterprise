@@ -29,6 +29,9 @@ const makeVideosLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      return null;
+    }
 
     const videoData = await queryClient.ensureQueryData(queryVideoDetail(videoUUID, enterpriseCustomer.uuid));
     if (videoData) {

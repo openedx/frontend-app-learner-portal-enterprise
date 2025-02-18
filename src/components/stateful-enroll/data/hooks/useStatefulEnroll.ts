@@ -115,7 +115,7 @@ const useTransactionStatus = ({
     error: transactionQueryError,
   } = useQuery<Types.SubsidyTransaction, Error>({
     ...queryPolicyTransaction(enterpriseCustomer.uuid, transaction),
-    enabled: shouldPollTransactionState(transaction),
+    enabled: !!transaction,
     refetchInterval: (query) => {
       if (shouldPollTransactionState(query.state.data)) {
         return 1000;

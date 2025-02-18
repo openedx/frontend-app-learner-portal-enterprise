@@ -65,75 +65,62 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
     ...options,
   });
   const url = `${enterpriseLearnerUrl}?${queryParams.toString()}`;
-  try {
-    const {
-      results: enterpriseCustomersUsers,
-      response: enterpriseCustomerUsersResponse,
-    } = await fetchPaginatedData(url);
-    const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
+  const {
+    results: enterpriseCustomersUsers,
+    response: enterpriseCustomerUsersResponse,
+  } = await fetchPaginatedData(url);
+  const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
 
-    // Transform enterprise customer user results
-    const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers.map(
-      enterpriseCustomerUser => ({
-        ...enterpriseCustomerUser,
-        enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
-      }),
-    );
+  // Transform enterprise customer user results
+  const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers.map(
+    enterpriseCustomerUser => ({
+      ...enterpriseCustomerUser,
+      enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
+    }),
+  );
 
-    const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
-      enterprise => enterprise.active,
-    );
-    const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
-    const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments || [];
+  const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
+    enterprise => enterprise.active,
+  );
+  const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
+  const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments || [];
 
-    // Find enterprise customer metadata for the currently viewed
-    // enterprise slug in the page route params.
-    const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
-      enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
-    );
+  // Find enterprise customer metadata for the currently viewed
+  // enterprise slug in the page route params.
+  const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
+    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
+  );
 
-    // If no enterprise customer is found (i.e., authenticated user not explicitly
-    // linked), but the authenticated user is staff, attempt to retrieve enterprise
-    // customer metadata from the `/enterprise-customer` LMS API.
-    let staffEnterpriseCustomer;
-    if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
-      const originalStaffEnterpriseCustomer = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
-      if (originalStaffEnterpriseCustomer) {
-        staffEnterpriseCustomer = transformEnterpriseCustomer(originalStaffEnterpriseCustomer);
-      }
+  // If no enterprise customer is found (i.e., authenticated user not explicitly
+  // linked), but the authenticated user is staff, attempt to retrieve enterprise
+  // customer metadata from the `/enterprise-customer` LMS API.
+  let staffEnterpriseCustomer;
+  if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
+    const originalStaffEnterpriseCustomer = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
+    if (originalStaffEnterpriseCustomer) {
+      staffEnterpriseCustomer = transformEnterpriseCustomer(originalStaffEnterpriseCustomer);
     }
-
-    const {
-      enterpriseCustomer,
-      roleAssignments,
-    } = determineEnterpriseCustomerUserForDisplay({
-      activeEnterpriseCustomer,
-      activeEnterpriseCustomerUserRoleAssignments,
-      enterpriseSlug,
-      foundEnterpriseCustomerUserForCurrentSlug,
-      staffEnterpriseCustomer,
-    });
-    return {
-      enterpriseCustomer,
-      enterpriseCustomerUserRoleAssignments: roleAssignments,
-      activeEnterpriseCustomer,
-      activeEnterpriseCustomerUserRoleAssignments,
-      allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
-      enterpriseFeatures,
-      staffEnterpriseCustomer,
-    };
-  } catch (error) {
-    logError(error);
-    return {
-      enterpriseCustomer: null,
-      enterpriseCustomerUserRoleAssignments: [],
-      activeEnterpriseCustomer: null,
-      activeEnterpriseCustomerUserRoleAssignments: [],
-      allLinkedEnterpriseCustomerUsers: [],
-      enterpriseFeatures: {},
-      staffEnterpriseCustomer: null,
-    };
   }
+
+  const {
+    enterpriseCustomer,
+    roleAssignments,
+  } = determineEnterpriseCustomerUserForDisplay({
+    activeEnterpriseCustomer,
+    activeEnterpriseCustomerUserRoleAssignments,
+    enterpriseSlug,
+    foundEnterpriseCustomerUserForCurrentSlug,
+    staffEnterpriseCustomer,
+  });
+  return {
+    enterpriseCustomer,
+    enterpriseCustomerUserRoleAssignments: roleAssignments,
+    activeEnterpriseCustomer,
+    activeEnterpriseCustomerUserRoleAssignments,
+    allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
+    enterpriseFeatures,
+    staffEnterpriseCustomer,
+  };
 }
 
 /**

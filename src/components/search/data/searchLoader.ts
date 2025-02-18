@@ -30,6 +30,9 @@ const makeSearchLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      return null;
+    }
 
     const academiesListQuery = queryAcademiesList(enterpriseCustomer.uuid);
 

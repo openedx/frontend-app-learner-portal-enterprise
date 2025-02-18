@@ -24,9 +24,11 @@ const makeAcademiesLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      return null;
+    }
 
     await queryClient.ensureQueryData(queryAcademiesDetail(academyUUID, enterpriseCustomer.uuid));
-
     return null;
   };
 };
