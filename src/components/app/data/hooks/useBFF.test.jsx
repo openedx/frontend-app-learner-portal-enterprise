@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
-import { MemoryRouter, useParams } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import { queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseLearnerDashboard } from '../services';
@@ -13,10 +13,6 @@ jest.mock('./useEnterpriseFeatures');
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
   fetchEnterpriseLearnerDashboard: jest.fn().mockResolvedValue(null),
-}));
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -120,10 +116,13 @@ const mockBFFDashboardData = {
 };
 
 describe('useBFF', () => {
-  const Wrapper = ({ routes = null, children }) => (
+  const Wrapper = ({ initialEntries = [], children }) => (
     <QueryClientProvider client={queryClient()}>
-      <MemoryRouter initialEntries={[routes]}>
-        {children}
+      <MemoryRouter initialEntries={initialEntries}>
+        <Routes>
+          <Route path=":enterpriseSlug" element={children} />
+          <Route path=":enterpriseSlug/search" element={children} />
+        </Routes>
       </MemoryRouter>
     </QueryClientProvider>
   );
@@ -132,7 +131,6 @@ describe('useBFF', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     fetchEnterpriseLearnerDashboard.mockResolvedValue(mockBFFDashboardData);
-    useParams.mockReturnValue({ enterpriseSlug: 'test-enterprise' });
   });
 
   it.each([
@@ -178,6 +176,7 @@ describe('useBFF', () => {
       mockBFFQueryOptions.select = mockSelect;
       mockFallbackQueryConfig.select = mockSelect;
     }
+    const initialEntries = isMatchedRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
     const { result, waitForNextUpdate } = renderHook(
       () => useBFF({
         bffQueryOptions: {
@@ -186,10 +185,11 @@ describe('useBFF', () => {
         fallbackQueryConfig: mockFallbackQueryConfig,
       }),
       {
-        wrapper: ({ children }) => Wrapper({
-          routes: isMatchedRoute ? '/test-enterprise' : '/test-enterprise/search',
-          children,
-        }),
+        wrapper: ({ children }) => (
+          <Wrapper initialEntries={initialEntries}>
+            {children}
+          </Wrapper>
+        ),
       },
     );
     await waitForNextUpdate();

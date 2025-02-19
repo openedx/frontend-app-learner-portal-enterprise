@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
-import { MemoryRouter, useParams } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
@@ -12,25 +12,20 @@ jest.mock('../services', () => ({
   fetchEnterpriseLearnerData: jest.fn().mockResolvedValue(null),
   fetchEnterpriseLearnerDashboard: jest.fn().mockResolvedValue(null),
 }));
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
-}));
+
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseLearnerData = {
-  transformed: {
-    enterpriseCustomer: mockEnterpriseCustomer,
-    enterpriseCustomerUserRoleAssignments: [],
-    activeEnterpriseCustomer: null,
-    activeEnterpriseCustomerUserRoleAssignments: [],
-    allLinkedEnterpriseCustomerUsers: [],
-    staffEnterpriseCustomer: null,
-    enterpriseFeatures: {
-      isBFFEnabled: false,
-    },
-    shouldUpdateActiveEnterpriseCustomerUser: false,
+  enterpriseCustomer: mockEnterpriseCustomer,
+  enterpriseCustomerUserRoleAssignments: [],
+  activeEnterpriseCustomer: null,
+  activeEnterpriseCustomerUserRoleAssignments: [],
+  allLinkedEnterpriseCustomerUsers: [],
+  staffEnterpriseCustomer: null,
+  enterpriseFeatures: {
+    isBFFEnabled: false,
   },
+  shouldUpdateActiveEnterpriseCustomerUser: false,
 };
 const mockBFFDashboardData = {
   enterpriseCustomer: {
@@ -61,13 +56,17 @@ const mockBFFDashboardData = {
 
 const mockExpectedEnterpriseCustomers = (isMatchedRoute) => (isMatchedRoute
   ? mockBFFDashboardData.enterpriseCustomer
-  : mockEnterpriseLearnerData.transformed.enterpriseCustomer);
+  : mockEnterpriseLearnerData.enterpriseCustomer);
 
 describe('useEnterpriseCustomer', () => {
-  const Wrapper = ({ routes = null, children }) => (
+  const Wrapper = ({ initialEntries = [], children }) => (
     <QueryClientProvider client={queryClient()}>
-      <MemoryRouter initialEntries={[routes]}>
+      <MemoryRouter initialEntries={initialEntries}>
         <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+          <Routes>
+            <Route path=":enterpriseSlug" element={children} />
+            <Route path=":enterpriseSlug/search" element={children} />
+          </Routes>
           {children}
         </AppContext.Provider>
       </MemoryRouter>
@@ -77,13 +76,13 @@ describe('useEnterpriseCustomer', () => {
     jest.clearAllMocks();
     fetchEnterpriseLearnerData.mockResolvedValue(mockEnterpriseLearnerData);
     fetchEnterpriseLearnerDashboard.mockResolvedValue(mockBFFDashboardData);
-    useParams.mockReturnValue({ enterpriseSlug: 'test-slug' });
   });
   it.each([
     { isMatchedRoute: false },
     { isMatchedRoute: true },
   ])('should return enterprise customers correctly (%s)', async ({ isMatchedRoute }) => {
     const mockSelect = jest.fn(data => data.transformed);
+    const initialEntries = isMatchedRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
     const { result, waitForNextUpdate } = renderHook(
       () => {
         if (isMatchedRoute) {
@@ -92,15 +91,16 @@ describe('useEnterpriseCustomer', () => {
         return useEnterpriseCustomer();
       },
       {
-        wrapper: ({ children }) => Wrapper({
-          routes: isMatchedRoute ? '/test-enterprise' : 'test-enterprise/search',
-          children,
-        }),
+        wrapper: ({ children }) => (
+          <Wrapper initialEntries={initialEntries}>
+            {children}
+          </Wrapper>
+        ),
       },
     );
     await waitForNextUpdate();
     if (isMatchedRoute) {
-      expect(mockSelect).toHaveBeenCalledTimes(2);
+      expect(mockSelect).toHaveBeenCalledTimes(4);
     } else {
       expect(mockSelect).toHaveBeenCalledTimes(0);
     }

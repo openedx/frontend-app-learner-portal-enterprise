@@ -10,7 +10,7 @@ export default function useEnterpriseCustomer(queryOptions = {}) {
   return useEnterpriseLearner({
     ...queryOptionsRest,
     select: (data) => {
-      const transformedData = data.enterpriseCustomer || data.transformed.enterpriseCustomer;
+      const transformedData = data.transformed.enterpriseCustomer;
       if (select) {
         return select({
           original: data,

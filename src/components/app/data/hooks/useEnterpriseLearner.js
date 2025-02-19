@@ -38,6 +38,15 @@ export default function useEnterpriseLearner(queryOptions = {}) {
     fallbackQueryConfig: {
       ...queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
       ...queryOptions,
+      select: (data) => {
+        if (select) {
+          return select({
+            original: data,
+            transformed: data,
+          });
+        }
+        return data;
+      },
     },
   });
 }
