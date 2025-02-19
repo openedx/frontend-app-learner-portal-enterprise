@@ -55,10 +55,10 @@ export interface EnterpriseFeatures {
 }
 
 export interface EnterpriseLearnerData {
-  enterpriseCustomer: Types.EnterpriseCustomer;
-  activeEnterpriseCustomer: Types.EnterpriseCustomer;
+  enterpriseCustomer: Types.EnterpriseCustomer | null;
+  activeEnterpriseCustomer: Types.EnterpriseCustomer | null;
   allLinkedEnterpriseCustomerUsers: any[];
-  staffEnterpriseCustomer: Types.EnterpriseCustomer;
+  staffEnterpriseCustomer: Types.EnterpriseCustomer | null;
   enterpriseFeatures: Types.EnterpriseFeatures;
 }
 
