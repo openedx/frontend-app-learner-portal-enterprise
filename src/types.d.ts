@@ -58,7 +58,6 @@ export interface EnterpriseLearnerData {
   enterpriseCustomer: Types.EnterpriseCustomer | null;
   activeEnterpriseCustomer: Types.EnterpriseCustomer | null;
   allLinkedEnterpriseCustomerUsers: EnterpriseCustomerUser[];
-  enterpriseCustomerUserRoleAssignments: any[];
   staffEnterpriseCustomer: Types.EnterpriseCustomer | null;
   enterpriseFeatures: Types.EnterpriseFeatures;
   shouldUpdateActiveEnterpriseCustomerUser: boolean;

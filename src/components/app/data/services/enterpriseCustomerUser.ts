@@ -125,7 +125,6 @@ Promise<Types.EnterpriseLearnerData> {
     logError(error);
     return {
       enterpriseCustomer: null,
-      enterpriseCustomerUserRoleAssignments: [],
       activeEnterpriseCustomer: null,
       allLinkedEnterpriseCustomerUsers: [],
       enterpriseFeatures: {},
