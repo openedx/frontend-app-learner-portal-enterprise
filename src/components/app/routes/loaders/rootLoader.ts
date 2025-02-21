@@ -64,7 +64,8 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
     }
 
     let updateActiveEnterpriseCustomerUserResult: {
-      enterpriseCustomer: any; updatedLinkedEnterpriseCustomerUsers: any;
+      enterpriseCustomer: Types.EnterpriseCustomer;
+      updatedLinkedEnterpriseCustomerUsers: Types.EnterpriseCustomerUser[];
     } | null = null;
     // Ensure the active enterprise customer user is updated, when applicable (e.g., the
     // current enterprise slug in the URL does not match the active enterprise customer's slug).
@@ -93,6 +94,15 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
       enterpriseCustomer = nextActiveEnterpriseCustomer;
       activeEnterpriseCustomer = nextActiveEnterpriseCustomer;
       allLinkedEnterpriseCustomerUsers = updatedLinkedEnterpriseCustomerUsers;
+      // Optimistically update the BFF layer (use helper)
+      if (matchedBFFQuery) {
+        queryClient.setQueryData(matchedBFFQuery({ enterpriseSlug }), {
+          ...queryClient.getQueryData(matchedBFFQuery({ enterpriseSlug })),
+          enterpriseCustomer,
+          activeEnterpriseCustomer,
+          allLinkedEnterpriseCustomerUsers,
+        });
+      }
     }
 
     // Fetch all enterprise app data.

@@ -20,7 +20,6 @@ const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseLearnerData = {
   enterpriseCustomer: mockEnterpriseCustomer,
-  enterpriseCustomerUserRoleAssignments: [],
   activeEnterpriseCustomer: null,
   activeEnterpriseCustomerUserRoleAssignments: [],
   allLinkedEnterpriseCustomerUsers: [],

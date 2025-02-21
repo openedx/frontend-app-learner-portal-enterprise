@@ -57,12 +57,18 @@ export interface EnterpriseFeatures {
 export interface EnterpriseLearnerData {
   enterpriseCustomer: Types.EnterpriseCustomer | null;
   activeEnterpriseCustomer: Types.EnterpriseCustomer | null;
-  activeEnterpriseCustomerUserRoleAssignments: any[];
   allLinkedEnterpriseCustomerUsers: EnterpriseCustomerUser[];
   enterpriseCustomerUserRoleAssignments: any[];
   staffEnterpriseCustomer: Types.EnterpriseCustomer | null;
   enterpriseFeatures: Types.EnterpriseFeatures;
   shouldUpdateActiveEnterpriseCustomerUser: boolean;
+}
+
+export interface EnterpriseCustomerUser {
+  id: number,
+  userId: number,
+  enterpriseCustomer: Types.EnterpriseCustomer,
+  active: boolean,
 }
 
 interface EnrollmentDueDate {

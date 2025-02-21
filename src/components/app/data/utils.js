@@ -142,14 +142,12 @@ export function determineLearnerHasContentAssignmentsOnly({
  */
 export function determineEnterpriseCustomerUserForDisplay({
   activeEnterpriseCustomer,
-  activeEnterpriseCustomerUserRoleAssignments,
   enterpriseSlug,
   foundEnterpriseCustomerUserForCurrentSlug,
   staffEnterpriseCustomer,
 }) {
   const activeEnterpriseCustomerUser = {
     enterpriseCustomer: activeEnterpriseCustomer,
-    roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
   };
   // No enterprise slug in the URL, so return the active enterprise customer user.
   if (!enterpriseSlug) {
@@ -162,14 +160,12 @@ export function determineEnterpriseCustomerUserForDisplay({
   if (enterpriseSlug !== activeEnterpriseCustomer?.slug && foundEnterpriseCustomerUserForCurrentSlug) {
     return {
       enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
-      roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
     };
   }
 
   if (staffEnterpriseCustomer) {
     return {
       enterpriseCustomer: staffEnterpriseCustomer,
-      roleAssignments: [],
     };
   }
 

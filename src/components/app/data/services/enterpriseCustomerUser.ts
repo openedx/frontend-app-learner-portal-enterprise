@@ -84,7 +84,6 @@ Promise<Types.EnterpriseLearnerData> {
       enterprise => enterprise.active,
     );
     const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
-    const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments || [];
 
     // Find enterprise customer metadata for the currently viewed
     // enterprise slug in the page route params.
@@ -105,10 +104,8 @@ Promise<Types.EnterpriseLearnerData> {
 
     const {
       enterpriseCustomer,
-      roleAssignments,
     } = determineEnterpriseCustomerUserForDisplay({
       activeEnterpriseCustomer,
-      activeEnterpriseCustomerUserRoleAssignments,
       enterpriseSlug,
       foundEnterpriseCustomerUserForCurrentSlug,
       staffEnterpriseCustomer,
@@ -118,9 +115,7 @@ Promise<Types.EnterpriseLearnerData> {
     // layer to act as a flag on whether to update the active enterprise customer
     return {
       enterpriseCustomer,
-      enterpriseCustomerUserRoleAssignments: roleAssignments,
       activeEnterpriseCustomer,
-      activeEnterpriseCustomerUserRoleAssignments,
       allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
       enterpriseFeatures,
       staffEnterpriseCustomer,
@@ -132,7 +127,6 @@ Promise<Types.EnterpriseLearnerData> {
       enterpriseCustomer: null,
       enterpriseCustomerUserRoleAssignments: [],
       activeEnterpriseCustomer: null,
-      activeEnterpriseCustomerUserRoleAssignments: [],
       allLinkedEnterpriseCustomerUsers: [],
       enterpriseFeatures: {},
       staffEnterpriseCustomer: null,
