@@ -34,6 +34,7 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
 
     // Extract enterprise customer.
     const enterpriseCustomer = await extractEnterpriseCustomer({
+      requestUrl,
       queryClient,
       authenticatedUser,
       enterpriseSlug,

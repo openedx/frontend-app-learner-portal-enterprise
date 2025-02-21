@@ -4,6 +4,7 @@ import { fetchAuthenticatedUser, getLoginRedirectUrl } from '@edx/frontend-platf
 import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 
+import { logError } from '@edx/frontend-platform/logging';
 import {
   activateOrAutoApplySubscriptionLicense,
   addLicenseToSubscriptionLicensesByStatus,
@@ -12,6 +13,7 @@ import {
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
   queryCouponCodes,
+  queryEnterpriseLearner,
   queryEnterpriseLearnerOffers,
   queryLicenseRequests,
   queryRedeemablePolicies,
@@ -261,51 +263,149 @@ export async function ensureAuthenticatedUser(requestUrl, params) {
  */
 export async function ensureActiveEnterpriseCustomerUser({
   enterpriseSlug,
-  activeEnterpriseCustomer,
-  staffEnterpriseCustomer,
-  allLinkedEnterpriseCustomerUsers,
+  enterpriseLearnerData,
+  isBFFData,
   requestUrl,
+  authenticatedUser,
+  queryClient,
 }) {
+  let {
+    enterpriseCustomer,
+    allLinkedEnterpriseCustomerUsers,
+  } = enterpriseLearnerData;
+  const {
+    activeEnterpriseCustomer,
+    shouldUpdateActiveEnterpriseCustomerUser,
+  } = enterpriseLearnerData;
+  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
   // If the enterprise slug in the URL matches the active enterprise customer user's slug OR no
   // active enterprise customer exists, return early.
+  let nextActiveEnterpriseCustomer = null;
 
-  if (!activeEnterpriseCustomer || activeEnterpriseCustomer.slug === enterpriseSlug) {
-    return null;
+  if (shouldUpdateActiveEnterpriseCustomerUser) {
+    // If this flag is truthy, we already know that the active enterprise customer user should be updated.
+    nextActiveEnterpriseCustomer = enterpriseCustomer;
+  } else if (!isBFFData) {
+    // Otherwise, if we're using the non-BFF API data, we must determine if the active
+    // enterprise customer user should be updated based on the enterprise slug in the URL.
+
+    // If the enterprise slug in the URL matches the active enterprise customer user's
+    // slug OR no active enterprise customer exists, return early.
+    if (activeEnterpriseCustomer?.slug === enterpriseSlug) {
+      return {
+        enterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers,
+      };
+    }
+    // Else, try to find the enterprise customer for the given slug and, if found, update it
+    // as the active enterprise customer for the learner.
+    const foundEnterpriseCustomerUserForSlug = allLinkedEnterpriseCustomerUsers.find(
+      enterpriseCustomerUser => {
+        if (!enterpriseCustomerUser.enterpriseCustomer) {
+          return false;
+        }
+        return enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug;
+      },
+    );
+    if (enterpriseSlug && foundEnterpriseCustomerUserForSlug) {
+      nextActiveEnterpriseCustomer = foundEnterpriseCustomerUserForSlug.enterpriseCustomer;
+    }
   }
 
-  // Otherwise, try to find the enterprise customer for the given slug and, if found, update it
-  // as the active enterprise customer for the learner.
-  const foundEnterpriseCustomerUserForSlug = allLinkedEnterpriseCustomerUsers.find(
-    enterpriseCustomerUser => {
-      if (!enterpriseCustomerUser.enterpriseCustomer) {
-        return false;
-      }
-      return enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug;
-    },
-  );
-  if (enterpriseSlug && foundEnterpriseCustomerUserForSlug) {
-    const {
-      enterpriseCustomer: nextActiveEnterpriseCustomer,
-    } = foundEnterpriseCustomerUserForSlug;
-    // Makes the POST API request to update the active enterprise customer
-    // for the learner in the backend for future sessions.
-    await updateUserActiveEnterprise({ enterpriseCustomer: nextActiveEnterpriseCustomer });
+  // If we've determined that the active enterprise customer user should be updated, update it.
+  if (nextActiveEnterpriseCustomer) {
+    try {
+      await updateUserActiveEnterprise({ enterpriseCustomer: nextActiveEnterpriseCustomer });
+    } catch (error) {
+      logError(`Unable to update active enterprise customer: ${nextActiveEnterpriseCustomer}
+      for user ${authenticatedUser.userId}
+      ${error.message}`);
+      return {
+        enterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers,
+      };
+    }
+    // If the active enterprise customer user was updated, override the previous active
+    // enterprise customer user data with the new active enterprise customer user data
+    // for subsequent queries.
     const updatedLinkedEnterpriseCustomerUsers = allLinkedEnterpriseCustomerUsers.map(
       ecu => ({
         ...ecu,
-        active: !!(ecu.enterpriseCustomer?.uuid === nextActiveEnterpriseCustomer.uuid),
+        active: ecu.enterpriseCustomer?.uuid === nextActiveEnterpriseCustomer.uuid,
       }),
     );
-    return {
-      enterpriseCustomer: nextActiveEnterpriseCustomer,
-      updatedLinkedEnterpriseCustomerUsers,
+    enterpriseCustomer = nextActiveEnterpriseCustomer;
+    allLinkedEnterpriseCustomerUsers = updatedLinkedEnterpriseCustomerUsers;
+    // Optimistically update the BFF layer (use helper)
+    if (matchedBFFQuery) {
+      queryClient.setQueryData(matchedBFFQuery({ enterpriseSlug }), {
+        ...queryClient.getQueryData(matchedBFFQuery({ enterpriseSlug })),
+        enterpriseCustomer,
+        activeEnterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers: updatedLinkedEnterpriseCustomerUsers,
+      });
+    }
+  }
+
+  // If the active enterprise customer user was not updated or enterpriseSlug is missing, return null.
+  if (activeEnterpriseCustomer) {
+    throw redirect(generatePath('/:enterpriseSlug/*', {
+      enterpriseSlug: activeEnterpriseCustomer.slug,
+      '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
+    }));
+  }
+  return {
+    enterpriseCustomer,
+    allLinkedEnterpriseCustomerUsers,
+  };
+}
+
+/**
+ * Helper function to parse the datasource for the enterprise learner data from either the
+ * BFF layer or the Enterprise learner endpoint directly. We pass in the fallback
+ * queryEnterpriseLearner to avoid dependency cycle issues
+ *
+ * @param requestUrl
+ * @param queryClient
+ * @param enterpriseSlug
+ * @param authenticatedUser
+ * @param queryEnterpriseLearnerConfig
+ * @returns {
+ * Promise<{
+ * enterpriseCustomer,
+ * activeEnterpriseCustomer,
+ * allLinkedEnterpriseCustomerUsers,
+ * staffEnterpriseCustomer,
+ * enterpriseFeatures: *,
+ * shouldUpdateActiveEnterpriseCustomerUser: *
+ * }|*>}
+ */
+export async function getEnterpriseLearnerQueryData({
+  requestUrl,
+  queryClient,
+  enterpriseSlug,
+  authenticatedUser,
+}) {
+  // Retrieve linked enterprise customers for the current user from query cache
+  // or fetch from the server if not available.
+  let enterpriseLearnerData;
+  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
+  if (matchedBFFQuery) {
+    const bffResponse = await queryClient.ensureQueryData(
+      matchedBFFQuery({ enterpriseSlug }),
+    );
+    enterpriseLearnerData = {
+      enterpriseCustomer: bffResponse.enterpriseCustomer,
+      activeEnterpriseCustomer: bffResponse.activeEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: bffResponse.allLinkedEnterpriseCustomerUsers,
+      staffEnterpriseCustomer: bffResponse.staffEnterpriseCustomer,
+      enterpriseFeatures: bffResponse.enterpriseFeatures,
+      shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser,
     };
+  } else {
+    enterpriseLearnerData = await queryClient.ensureQueryData(
+      queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
+    );
   }
-  if (staffEnterpriseCustomer) {
-    return null;
-  }
-  throw redirect(generatePath('/:enterpriseSlug/*', {
-    enterpriseSlug: activeEnterpriseCustomer.slug,
-    '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
-  }));
+  return { data: enterpriseLearnerData, isBFFData: !!matchedBFFQuery };
 }

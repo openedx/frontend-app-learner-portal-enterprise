@@ -66,7 +66,6 @@ export interface EnterpriseLearnerData {
 
 export interface EnterpriseCustomerUser {
   id: number,
-  userId: number,
   enterpriseCustomer: Types.EnterpriseCustomer,
   active: boolean,
 }

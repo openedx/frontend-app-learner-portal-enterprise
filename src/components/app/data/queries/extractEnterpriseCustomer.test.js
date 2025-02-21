@@ -1,9 +1,14 @@
-import { when, resetAllWhenMocks } from 'jest-when';
-import { authenticatedUserFactory, enterpriseCustomerFactory, enterpriseCustomerUserFactory } from '../services/data/__factories__';
+import { resetAllWhenMocks, when } from 'jest-when';
+import {
+  authenticatedUserFactory,
+  enterpriseCustomerFactory,
+  enterpriseCustomerUserFactory,
+} from '../services/data/__factories__';
 import extractEnterpriseCustomer from './extractEnterpriseCustomer';
 import { queryEnterpriseLearner } from './queries';
 
 const mockEnsureQueryData = jest.fn();
+
 const mockQueryClient = {
   ensureQueryData: mockEnsureQueryData,
 };
@@ -12,7 +17,9 @@ const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseCustomerUser = enterpriseCustomerUserFactory({
   enterprise_customer: mockEnterpriseCustomer,
 });
-
+const mockRequestUrl = {
+  pathname: mockEnterpriseCustomer.slug,
+};
 const getQueryEnterpriseLearner = ({ hasEnterpriseSlug = true } = {}) => queryEnterpriseLearner(
   mockAuthenticatedUser.username,
   hasEnterpriseSlug ? mockEnterpriseCustomer.slug : undefined,
@@ -74,6 +81,7 @@ describe('extractEnterpriseCustomer', () => {
     expectedEnterpriseCustomer,
   }) => {
     const args = {
+      requestUrl: mockRequestUrl,
       queryClient: mockQueryClient,
       authenticatedUser: mockAuthenticatedUser,
       enterpriseSlug: routeEnterpriseSlug,
