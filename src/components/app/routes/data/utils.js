@@ -6,8 +6,6 @@ import Cookies from 'universal-cookie';
 
 import { logError } from '@edx/frontend-platform/logging';
 import {
-  activateOrAutoApplySubscriptionLicense,
-  addLicenseToSubscriptionLicensesByStatus,
   queryAcademiesList,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
@@ -18,9 +16,15 @@ import {
   queryLicenseRequests,
   queryRedeemablePolicies,
   querySubscriptions,
-  resolveBFFQuery,
-  updateUserActiveEnterprise,
-} from '../../data';
+} from '../../data/queries/queries';
+
+import { resolveBFFQuery } from '../../data/queries/utils';
+
+import { activateOrAutoApplySubscriptionLicense } from '../../data/services/subsidies/subscriptions';
+
+import { addLicenseToSubscriptionLicensesByStatus } from '../../data/utils';
+
+import { updateUserActiveEnterprise } from '../../data/services/enterpriseCustomerUser';
 
 /**
  * Ensures all enterprise-related app data is loaded.
