@@ -1,4 +1,4 @@
-import { getEnterpriseLearnerQueryData } from '../../routes/data/utils';
+import { getEnterpriseLearnerQueryData } from './utils';
 
 interface ExtractEnterpriseCustomerArgs {
   requestUrl: URL,

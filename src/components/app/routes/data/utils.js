@@ -6,25 +6,20 @@ import Cookies from 'universal-cookie';
 
 import { logError } from '@edx/frontend-platform/logging';
 import {
+  activateOrAutoApplySubscriptionLicense,
+  addLicenseToSubscriptionLicensesByStatus,
   queryAcademiesList,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
   queryCouponCodes,
-  queryEnterpriseLearner,
   queryEnterpriseLearnerOffers,
   queryLicenseRequests,
   queryRedeemablePolicies,
   querySubscriptions,
-} from '../../data/queries/queries';
-
-import { resolveBFFQuery } from '../../data/queries/utils';
-
-import { activateOrAutoApplySubscriptionLicense } from '../../data/services/subsidies/subscriptions';
-
-import { addLicenseToSubscriptionLicensesByStatus } from '../../data/utils';
-
-import { updateUserActiveEnterprise } from '../../data/services/enterpriseCustomerUser';
+  resolveBFFQuery,
+  updateUserActiveEnterprise,
+} from '../../data';
 
 /**
  * Ensures all enterprise-related app data is loaded.
@@ -362,54 +357,4 @@ export async function ensureActiveEnterpriseCustomerUser({
     enterpriseCustomer,
     allLinkedEnterpriseCustomerUsers,
   };
-}
-
-/**
- * Helper function to parse the datasource for the enterprise learner data from either the
- * BFF layer or the Enterprise learner endpoint directly. We pass in the fallback
- * queryEnterpriseLearner to avoid dependency cycle issues
- *
- * @param requestUrl
- * @param queryClient
- * @param enterpriseSlug
- * @param authenticatedUser
- * @param queryEnterpriseLearnerConfig
- * @returns {
- * Promise<{
- * enterpriseCustomer,
- * activeEnterpriseCustomer,
- * allLinkedEnterpriseCustomerUsers,
- * staffEnterpriseCustomer,
- * enterpriseFeatures: *,
- * shouldUpdateActiveEnterpriseCustomerUser: *
- * }|*>}
- */
-export async function getEnterpriseLearnerQueryData({
-  requestUrl,
-  queryClient,
-  enterpriseSlug,
-  authenticatedUser,
-}) {
-  // Retrieve linked enterprise customers for the current user from query cache
-  // or fetch from the server if not available.
-  let enterpriseLearnerData;
-  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
-  if (matchedBFFQuery) {
-    const bffResponse = await queryClient.ensureQueryData(
-      matchedBFFQuery({ enterpriseSlug }),
-    );
-    enterpriseLearnerData = {
-      enterpriseCustomer: bffResponse.enterpriseCustomer,
-      activeEnterpriseCustomer: bffResponse.activeEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers: bffResponse.allLinkedEnterpriseCustomerUsers,
-      staffEnterpriseCustomer: bffResponse.staffEnterpriseCustomer,
-      enterpriseFeatures: bffResponse.enterpriseFeatures,
-      shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser,
-    };
-  } else {
-    enterpriseLearnerData = await queryClient.ensureQueryData(
-      queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
-    );
-  }
-  return { data: enterpriseLearnerData, isBFFData: !!matchedBFFQuery };
 }

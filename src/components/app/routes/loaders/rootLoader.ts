@@ -1,10 +1,9 @@
 import { getConfig } from '@edx/frontend-platform/config';
-import { queryNotices } from '../../data';
+import { getEnterpriseLearnerQueryData, queryNotices } from '../../data';
 import {
   ensureActiveEnterpriseCustomerUser,
   ensureAuthenticatedUser,
   ensureEnterpriseAppData,
-  getEnterpriseLearnerQueryData,
   redirectToRemoveTrailingSlash,
 } from '../data';
 
