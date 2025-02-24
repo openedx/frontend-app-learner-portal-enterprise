@@ -21,11 +21,14 @@ const makeProgramLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function
     const { enterpriseSlug, programUUID } = params;
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
+      requestUrl,
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
-
+    if (!enterpriseCustomer) {
+      return null;
+    }
     await queryClient.ensureQueryData(queryEnterpriseProgram(enterpriseCustomer.uuid, programUUID));
 
     return null;

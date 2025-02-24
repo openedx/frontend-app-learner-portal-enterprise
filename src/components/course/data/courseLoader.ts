@@ -55,10 +55,14 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
     let courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
+      requestUrl,
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      return null;
+    }
     const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
       enterpriseUuid: enterpriseCustomer.uuid,
       lmsUserId: authenticatedUser.userId,

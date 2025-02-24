@@ -26,10 +26,14 @@ const makeSearchLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
     const { enterpriseSlug } = params;
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
+      requestUrl,
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      return null;
+    }
 
     const academiesListQuery = queryAcademiesList(enterpriseCustomer.uuid);
 

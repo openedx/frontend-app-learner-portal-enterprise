@@ -1,9 +1,6 @@
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import {
-  extractEnterpriseCustomer,
-  queryCourseMetadata,
-  queryCourseReviews,
-  queryVideoDetail,
+  extractEnterpriseCustomer, queryCourseMetadata, queryCourseReviews, queryVideoDetail,
 } from '../../app/data';
 
 type VideoRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
@@ -25,11 +22,14 @@ const makeVideosLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
 
     const { videoUUID, enterpriseSlug } = params;
     const enterpriseCustomer = await extractEnterpriseCustomer({
+      requestUrl,
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
-
+    if (!enterpriseCustomer) {
+      return null;
+    }
     const videoData = await queryClient.ensureQueryData(queryVideoDetail(videoUUID, enterpriseCustomer.uuid));
     if (videoData) {
       const { courseKey } = videoData;

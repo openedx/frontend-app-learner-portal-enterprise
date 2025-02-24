@@ -1,7 +1,6 @@
 import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer,
-  extractEnterpriseFeatures,
   queryEnterpriseCourseEnrollments,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
@@ -35,25 +34,19 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
 
     // Extract enterprise customer.
     const enterpriseCustomer = await extractEnterpriseCustomer({
+      requestUrl,
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
 
-    // Extract enterprise features.
-    const enterpriseFeatures = await extractEnterpriseFeatures({
-      queryClient,
-      authenticatedUser,
-      enterpriseSlug,
-    });
+    if (!enterpriseCustomer) {
+      return null;
+    }
 
     // Attempt to resolve the BFF query for the dashboard.
     const dashboardBFFQuery = resolveBFFQuery(
       requestUrl.pathname,
-      {
-        enterpriseCustomerUuid: enterpriseCustomer.uuid,
-        enterpriseFeatures,
-      },
     );
 
     // Load enrollments, policies, and conditionally redirect for new users

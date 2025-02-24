@@ -124,7 +124,6 @@ describe('fetchEnterpriseLearnerData', () => {
       id: 6,
       active: true,
       enterpriseCustomer: mockEnterpriseCustomer,
-      roleAssignments: ['enterprise_learner'],
     }] : [];
     axiosMock.onGet(enterpriseLearnerUrl).reply(200, {
       results: enterpriseCustomersUsers,
@@ -160,18 +159,16 @@ describe('fetchEnterpriseLearnerData', () => {
     };
     const expectedEnterpriseCustomer = getExpectedEnterpriseCustomer();
     const expectedActiveEnterpriseCustomer = getExpectedActiveEnterpriseCustomer();
-    const expectedRoleAssignments = isLinkedToEnterpriseCustomer ? ['enterprise_learner'] : [];
     expect(response).toEqual({
       enterpriseFeatures: { featureA: true },
       enterpriseCustomer: expectedEnterpriseCustomer,
-      enterpriseCustomerUserRoleAssignments: expectedRoleAssignments,
       activeEnterpriseCustomer: expectedActiveEnterpriseCustomer,
-      activeEnterpriseCustomerUserRoleAssignments: expectedRoleAssignments,
       allLinkedEnterpriseCustomerUsers: enterpriseCustomersUsers.map((ecu) => ({
         ...ecu,
         enterpriseCustomer: expectedEnterpriseCustomer,
       })),
       staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : undefined,
+      shouldUpdateActiveEnterpriseCustomerUser: false,
     });
   });
 
@@ -187,11 +184,10 @@ describe('fetchEnterpriseLearnerData', () => {
     expect(response).toEqual({
       enterpriseFeatures: {},
       enterpriseCustomer: null,
-      enterpriseCustomerUserRoleAssignments: [],
       activeEnterpriseCustomer: null,
-      activeEnterpriseCustomerUserRoleAssignments: [],
       allLinkedEnterpriseCustomerUsers: [],
       staffEnterpriseCustomer: null,
+      shouldUpdateActiveEnterpriseCustomerUser: false,
     });
   });
 });

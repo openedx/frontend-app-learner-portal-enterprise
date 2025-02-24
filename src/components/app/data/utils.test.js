@@ -1376,7 +1376,7 @@ describe('resolveBFFQuery', () => {
       }
       return null;
     });
-    const result = resolveBFFQuery(pathname, { enterpriseCustomerUuid: mockEnterpriseCustomer.uuid });
+    const result = resolveBFFQuery(pathname);
     expect(matchPath).toHaveBeenCalledWith('/:enterpriseSlug', pathname);
     expect(result({ enterpriseSlug: 'testEnterpriseSlug' }).queryKey).toEqual(expectedQueryKey);
   });
@@ -1389,7 +1389,7 @@ describe('resolveBFFQuery', () => {
       }
       return null;
     });
-    const result = resolveBFFQuery(pathname, { enterpriseCustomerUuid: mockEnterpriseCustomer.uuid });
+    const result = resolveBFFQuery(pathname);
     expect(matchPath).toHaveBeenCalledWith('/:enterpriseSlug', pathname);
     expect(result).toEqual(null);
   });
