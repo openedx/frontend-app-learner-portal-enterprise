@@ -93,6 +93,7 @@
     "build": "fedx-scripts webpack",
     "build:with-theme": "THEME=npm:@edx/brand-edx.org@latest npm run install-theme && npm run build",
     "i18n_extract": "fedx-scripts formatjs extract --throws",
+    "check-types": "tsc --noEmit",
     "lint": "fedx-scripts eslint --ext .js --ext .jsx --ext .ts --ext .tsx .",
     "lint:fix": "fedx-scripts eslint --fix --ext .js --ext .jsx --ext .ts --ext .tsx .",
     "precommit": "npm run lint",
