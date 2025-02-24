@@ -344,10 +344,14 @@ export async function ensureActiveEnterpriseCustomerUser({
         allLinkedEnterpriseCustomerUsers: updatedLinkedEnterpriseCustomerUsers,
       });
     }
+    return {
+      enterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
+    };
   }
 
   // If the active enterprise customer user was not updated or enterpriseSlug is missing, return null.
-  if (activeEnterpriseCustomer) {
+  if (activeEnterpriseCustomer && !enterpriseSlug) {
     throw redirect(generatePath('/:enterpriseSlug/*', {
       enterpriseSlug: activeEnterpriseCustomer.slug,
       '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),

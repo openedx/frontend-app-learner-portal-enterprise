@@ -40,6 +40,10 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
       enterpriseSlug,
     });
 
+    if (!enterpriseCustomer) {
+      return null;
+    }
+
     // Attempt to resolve the BFF query for the dashboard.
     const dashboardBFFQuery = resolveBFFQuery(
       requestUrl.pathname,

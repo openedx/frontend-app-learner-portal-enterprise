@@ -184,7 +184,6 @@ describe('fetchEnterpriseLearnerData', () => {
     expect(response).toEqual({
       enterpriseFeatures: {},
       enterpriseCustomer: null,
-      enterpriseCustomerUserRoleAssignments: [],
       activeEnterpriseCustomer: null,
       allLinkedEnterpriseCustomerUsers: [],
       staffEnterpriseCustomer: null,
