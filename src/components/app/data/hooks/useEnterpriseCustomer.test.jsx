@@ -4,7 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
-import { queryClient } from '../../../../utils/tests';
+import { generateTestPermutations, queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseLearnerDashboard, fetchEnterpriseLearnerData } from '../services';
 
 jest.mock('../services', () => ({
@@ -76,19 +76,19 @@ describe('useEnterpriseCustomer', () => {
     fetchEnterpriseLearnerData.mockResolvedValue(mockEnterpriseLearnerData);
     fetchEnterpriseLearnerDashboard.mockResolvedValue(mockBFFDashboardData);
   });
-  it.each([
-    { isMatchedBFFRoute: false },
-    { isMatchedBFFRoute: true },
-  ])('should return enterprise customers correctly (%s)', async ({ isMatchedBFFRoute }) => {
+  it.each(generateTestPermutations({
+    isMatchedBFFRoute: [false, true],
+    hasCustomSelect: [false, true],
+  }))('should return enterprise customers correctly (%s)', async ({
+    isMatchedBFFRoute,
+    hasCustomSelect,
+  }) => {
     const mockSelect = jest.fn(data => data.transformed);
     const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
+    const enterpriseLearnerHookArgs = hasCustomSelect ? { select: mockSelect } : {};
     const { result, waitForNextUpdate } = renderHook(
-      () => {
-        if (isMatchedBFFRoute) {
-          return useEnterpriseCustomer({ select: mockSelect });
-        }
-        return useEnterpriseCustomer();
-      },
+      () => (useEnterpriseCustomer(enterpriseLearnerHookArgs)),
+
       {
         wrapper: ({ children }) => (
           <Wrapper initialEntries={initialEntries}>
@@ -98,7 +98,7 @@ describe('useEnterpriseCustomer', () => {
       },
     );
     await waitForNextUpdate();
-    if (isMatchedBFFRoute) {
+    if (hasCustomSelect) {
       expect(mockSelect).toHaveBeenCalledTimes(4);
     } else {
       expect(mockSelect).toHaveBeenCalledTimes(0);
