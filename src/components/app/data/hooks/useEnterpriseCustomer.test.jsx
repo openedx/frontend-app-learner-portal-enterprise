@@ -16,25 +16,28 @@ jest.mock('../services', () => ({
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseLearnerData = {
-  enterpriseCustomer: mockEnterpriseCustomer,
+  enterpriseCustomer: {
+    ...mockEnterpriseCustomer,
+    // This field does not exist in the enterpriseCustomer object but acts as a distinction between enterprise customer
+    // test data sourced from enterprise learner API response vs the BFF API response
+    isBFFSourcedAPIResponse: false,
+  },
   activeEnterpriseCustomer: null,
-  activeEnterpriseCustomerUserRoleAssignments: [],
   allLinkedEnterpriseCustomerUsers: [],
   staffEnterpriseCustomer: null,
-  enterpriseFeatures: {
-    isBFFEnabled: false,
-  },
+  enterpriseFeatures: {},
   shouldUpdateActiveEnterpriseCustomerUser: false,
 };
 const mockBFFDashboardData = {
   enterpriseCustomer: {
     ...mockEnterpriseCustomer,
-    isBFFEnabled: true,
+    // This field does not exist in the enterpriseCustomer object but acts as a distinction between enterprise customer
+    // test data sourced from enterprise learner API response vs the BFF API response
+    isBFFSourcedAPIResponse: true,
   },
   allLinkedEnterpriseCustomerUsers: [],
-  enterpriseFeatures: {
-    isBFFEnabled: true,
-  },
+  enterpriseFeatures: {},
+  staffEnterpriseCustomer: null,
   shouldUpdateActiveEnterpriseCustomerUser: false,
   enterpriseCustomerUserSubsidies: {
     subscriptions: {
@@ -53,7 +56,7 @@ const mockBFFDashboardData = {
   warnings: [],
 };
 
-const mockExpectedEnterpriseCustomers = (isMatchedBFFRoute) => (isMatchedBFFRoute
+const mockExpectedEnterpriseCustomer = (isMatchedBFFRoute) => (isMatchedBFFRoute
   ? mockBFFDashboardData.enterpriseCustomer
   : mockEnterpriseLearnerData.enterpriseCustomer);
 
@@ -66,7 +69,6 @@ describe('useEnterpriseCustomer', () => {
             <Route path=":enterpriseSlug" element={children} />
             <Route path=":enterpriseSlug/search" element={children} />
           </Routes>
-          {children}
         </AppContext.Provider>
       </MemoryRouter>
     </QueryClientProvider>
@@ -85,10 +87,9 @@ describe('useEnterpriseCustomer', () => {
   }) => {
     const mockSelect = jest.fn(data => data.transformed);
     const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
-    const enterpriseLearnerHookArgs = hasCustomSelect ? { select: mockSelect } : {};
+    const enterpriseCustomerHookArgs = hasCustomSelect ? { select: mockSelect } : {};
     const { result, waitForNextUpdate } = renderHook(
-      () => (useEnterpriseCustomer(enterpriseLearnerHookArgs)),
-
+      () => (useEnterpriseCustomer(enterpriseCustomerHookArgs)),
       {
         wrapper: ({ children }) => (
           <Wrapper initialEntries={initialEntries}>
@@ -99,12 +100,16 @@ describe('useEnterpriseCustomer', () => {
     );
     await waitForNextUpdate();
     if (hasCustomSelect) {
-      expect(mockSelect).toHaveBeenCalledTimes(4);
+      expect(mockSelect).toHaveBeenCalledTimes(2);
+      expect(mockSelect).toHaveBeenCalledWith({
+        original: isMatchedBFFRoute ? mockBFFDashboardData : mockEnterpriseLearnerData,
+        transformed: mockExpectedEnterpriseCustomer(isMatchedBFFRoute),
+      });
     } else {
       expect(mockSelect).toHaveBeenCalledTimes(0);
     }
 
     const actualEnterpriseFeatures = result.current.data;
-    expect(actualEnterpriseFeatures).toEqual(mockExpectedEnterpriseCustomers(isMatchedBFFRoute));
+    expect(actualEnterpriseFeatures).toEqual(mockExpectedEnterpriseCustomer(isMatchedBFFRoute));
   });
 });

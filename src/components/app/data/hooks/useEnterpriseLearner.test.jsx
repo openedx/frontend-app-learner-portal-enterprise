@@ -1,7 +1,9 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
-import { MemoryRouter, useParams } from 'react-router-dom';
+import {
+  MemoryRouter, Route, Routes, useParams,
+} from 'react-router-dom';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
 import { generateTestPermutations, queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseLearnerDashboard, fetchEnterpriseLearnerData } from '../services';
@@ -19,9 +21,13 @@ jest.mock('react-router-dom', () => ({
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseLearnerData = {
-  enterpriseCustomer: mockEnterpriseCustomer,
+  enterpriseCustomer: {
+    ...mockEnterpriseCustomer,
+    // This field does not exist in the enterprise customer object but acts as a distinction between enterprise customer
+    // test data sourced from enterprise learner API response vs the BFF API response
+    isBFFSourcedAPIResponse: false,
+  },
   activeEnterpriseCustomer: null,
-  activeEnterpriseCustomerUserRoleAssignments: [],
   allLinkedEnterpriseCustomerUsers: [],
   enterpriseFeatures: {},
   staffEnterpriseCustomer: null,
@@ -31,13 +37,15 @@ const mockEnterpriseLearnerData = {
 const mockBFFDashboardData = {
   enterpriseCustomer: {
     ...mockEnterpriseCustomer,
-    isBFFEnabled: true,
+    // This field does not exist in the enterprise customer object but acts as a distinction between enterprise customer
+    // test data sourced from enterprise learner API response vs the BFF API response
+    isBFFSourcedAPIResponse: true,
   },
+  activeEnterpriseCustomer: null,
   allLinkedEnterpriseCustomerUsers: [],
-  enterpriseFeatures: {
-    isBFFEnabled: true,
-  },
+  enterpriseFeatures: {},
   shouldUpdateActiveEnterpriseCustomerUser: false,
+  staffEnterpriseCustomer: null,
   enterpriseCustomerUserSubsidies: {
     subscriptions: {
       customerAgreement: {},
@@ -64,11 +72,14 @@ const mockExpectedEnterpriseLearner = (isMatchedBFFRoute) => (isMatchedBFFRoute
   : mockEnterpriseLearnerData);
 
 describe('useEnterpriseLearner', () => {
-  const Wrapper = ({ routes = null, children }) => (
+  const Wrapper = ({ initialEntries = [], children }) => (
     <QueryClientProvider client={queryClient()}>
-      <MemoryRouter initialEntries={[routes]}>
+      <MemoryRouter initialEntries={initialEntries}>
         <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-          {children}
+          <Routes>
+            <Route path=":enterpriseSlug" element={children} />
+            <Route path=":enterpriseSlug/search" element={children} />
+          </Routes>
         </AppContext.Provider>
       </MemoryRouter>
     </QueryClientProvider>
@@ -88,14 +99,16 @@ describe('useEnterpriseLearner', () => {
     hasCustomSelect,
   }) => {
     const mockSelect = jest.fn(data => data.transformed);
+    const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
     const enterpriseLearnerHookArgs = hasCustomSelect ? { select: mockSelect } : {};
     const { result, waitForNextUpdate } = renderHook(
       () => (useEnterpriseLearner(enterpriseLearnerHookArgs)),
       {
-        wrapper: ({ children }) => Wrapper({
-          routes: isMatchedBFFRoute ? '/test-enterprise' : 'test-enterprise/search',
-          children,
-        }),
+        wrapper: ({ children }) => (
+          <Wrapper initialEntries={initialEntries}>
+            {children}
+          </Wrapper>
+        ),
       },
     );
 
@@ -103,6 +116,10 @@ describe('useEnterpriseLearner', () => {
 
     if (hasCustomSelect) {
       expect(mockSelect).toHaveBeenCalledTimes(2);
+      expect(mockSelect).toHaveBeenCalledWith({
+        original: isMatchedBFFRoute ? mockBFFDashboardData : mockEnterpriseLearnerData,
+        transformed: mockExpectedEnterpriseLearner(isMatchedBFFRoute),
+      });
     } else {
       expect(mockSelect).toHaveBeenCalledTimes(0);
     }

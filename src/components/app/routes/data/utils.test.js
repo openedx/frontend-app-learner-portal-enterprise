@@ -82,9 +82,7 @@ describe('transformEnterpriseCustomer', () => {
 
 describe('ensureActiveEnterpriseCustomerUser', () => {
   // active enterprise customer
-  const mockEnterpriseCustomerOne = enterpriseCustomerFactory({
-
-  });
+  const mockEnterpriseCustomerOne = enterpriseCustomerFactory();
   // inactive enterprise customer
   const mockEnterpriseCustomerTwo = enterpriseCustomerFactory({
     active: false,

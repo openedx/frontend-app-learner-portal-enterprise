@@ -54,6 +54,12 @@ export interface EnterpriseFeatures {
   [key: string]: boolean;
 }
 
+export interface EnterpriseCustomerUser {
+  id: number,
+  enterpriseCustomer: Types.EnterpriseCustomer,
+  active: boolean,
+}
+
 export interface EnterpriseLearnerData {
   enterpriseCustomer: Types.EnterpriseCustomer | null;
   activeEnterpriseCustomer: Types.EnterpriseCustomer | null;
@@ -61,12 +67,6 @@ export interface EnterpriseLearnerData {
   staffEnterpriseCustomer: Types.EnterpriseCustomer | null;
   enterpriseFeatures: Types.EnterpriseFeatures;
   shouldUpdateActiveEnterpriseCustomerUser: boolean;
-}
-
-export interface EnterpriseCustomerUser {
-  id: number,
-  enterpriseCustomer: Types.EnterpriseCustomer,
-  active: boolean,
 }
 
 interface EnrollmentDueDate {

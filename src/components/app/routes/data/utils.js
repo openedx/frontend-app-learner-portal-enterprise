@@ -3,7 +3,6 @@ import { getConfig } from '@edx/frontend-platform';
 import { fetchAuthenticatedUser, getLoginRedirectUrl } from '@edx/frontend-platform/auth';
 import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
-
 import { logError } from '@edx/frontend-platform/logging';
 import {
   activateOrAutoApplySubscriptionLicense,
@@ -330,7 +329,7 @@ export async function ensureActiveEnterpriseCustomerUser({
     const updatedLinkedEnterpriseCustomerUsers = allLinkedEnterpriseCustomerUsers.map(
       ecu => ({
         ...ecu,
-        active: ecu.enterpriseCustomer?.uuid === nextActiveEnterpriseCustomer.uuid,
+        active: ecu.enterpriseCustomer.uuid === nextActiveEnterpriseCustomer.uuid,
       }),
     );
     enterpriseCustomer = nextActiveEnterpriseCustomer;
