@@ -162,10 +162,17 @@ describe('ensureActiveEnterpriseCustomerUser', () => {
         timesUpdateActiveEnterpriseCustomerCalled: 0,
         expectedAllLinkedEnterpriseCustomers: mockAllLinkedEnterpriseCustomerUsers,
       };
+
+    const {
+      expectedEnterpriseCustomer,
+      timesUpdateActiveEnterpriseCustomerCalled,
+      expectedAllLinkedEnterpriseCustomers,
+    } = updatedEnterpriseCustomerMetadata;
+
     // If we need to update the active enterprise customer, set the inactive customer to the current enterprise customer
     const updatedMockEnterpriseLearnerData = {
       ...mockEnterpriseLearnerData,
-      enterpriseCustomer: updatedEnterpriseCustomerMetadata.expectedEnterpriseCustomer,
+      enterpriseCustomer: expectedEnterpriseCustomer,
       shouldUpdateActiveEnterpriseCustomerUser,
     };
 
@@ -182,14 +189,38 @@ describe('ensureActiveEnterpriseCustomerUser', () => {
     });
 
     await waitFor(
+      // We should expect the active enterprise customer to be updated if
+      // the shouldUpdateActiveEnterpriseCustomerUser is true
       () => {
         expect(updateUserActiveEnterprise).toHaveBeenCalledTimes(
-          updatedEnterpriseCustomerMetadata.timesUpdateActiveEnterpriseCustomerCalled,
+          timesUpdateActiveEnterpriseCustomerCalled,
         );
+        // We can assume a truthy shouldUpdateActiveEnterpriseCustomerUser resulted in a successful BFF call,
+        // therefore, we can validate that the query cache has been optimistically updated.
+
         if (shouldUpdateActiveEnterpriseCustomerUser) {
           expect(updateUserActiveEnterprise).toHaveBeenCalledWith({
-            enterpriseCustomer: updatedEnterpriseCustomerMetadata.expectedEnterpriseCustomer,
+            enterpriseCustomer: expectedEnterpriseCustomer,
           });
+          if (isBFFData) {
+            expect(mockQueryClient.setQueryData).toHaveBeenCalledTimes(timesUpdateActiveEnterpriseCustomerCalled);
+            expect(mockQueryClient.setQueryData).toHaveBeenCalledWith(
+              {
+                queryFn: expect.any(Function),
+                queryKey: queryEnterpriseLearnerDashboardBFF(
+                  { enterpriseSlug: expectedEnterpriseCustomer.slug },
+                ).queryKey,
+              },
+              {
+                ...mockQueryClient.getQueryData(queryEnterpriseLearnerDashboardBFF(
+                  { enterpriseSlug: expectedEnterpriseCustomer.slug },
+                )),
+                enterpriseCustomer: expectedEnterpriseCustomer,
+                activeEnterpriseCustomer: expectedEnterpriseCustomer,
+                allLinkedEnterpriseCustomerUsers: expectedAllLinkedEnterpriseCustomers,
+              },
+            );
+          }
         }
       },
     );

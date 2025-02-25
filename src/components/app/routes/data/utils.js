@@ -270,10 +270,10 @@ export async function ensureActiveEnterpriseCustomerUser({
 }) {
   let {
     enterpriseCustomer,
+    activeEnterpriseCustomer,
     allLinkedEnterpriseCustomerUsers,
   } = enterpriseLearnerData;
   const {
-    activeEnterpriseCustomer,
     shouldUpdateActiveEnterpriseCustomerUser,
   } = enterpriseLearnerData;
   const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
@@ -334,6 +334,7 @@ export async function ensureActiveEnterpriseCustomerUser({
       }),
     );
     enterpriseCustomer = nextActiveEnterpriseCustomer;
+    activeEnterpriseCustomer = nextActiveEnterpriseCustomer;
     allLinkedEnterpriseCustomerUsers = updatedLinkedEnterpriseCustomerUsers;
     // Optimistically update the BFF layer (use helper)
     if (matchedBFFQuery) {
