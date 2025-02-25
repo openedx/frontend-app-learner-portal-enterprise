@@ -21,12 +21,7 @@ jest.mock('react-router-dom', () => ({
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseLearnerData = {
-  enterpriseCustomer: {
-    ...mockEnterpriseCustomer,
-    // This field does not exist in the enterprise customer object but acts as a distinction between enterprise customer
-    // test data sourced from enterprise learner API response vs the BFF API response
-    isBFFSourcedAPIResponse: false,
-  },
+  enterpriseCustomer: mockEnterpriseCustomer,
   activeEnterpriseCustomer: null,
   allLinkedEnterpriseCustomerUsers: [],
   enterpriseFeatures: {},
@@ -35,12 +30,7 @@ const mockEnterpriseLearnerData = {
 };
 
 const mockBFFDashboardData = {
-  enterpriseCustomer: {
-    ...mockEnterpriseCustomer,
-    // This field does not exist in the enterprise customer object but acts as a distinction between enterprise customer
-    // test data sourced from enterprise learner API response vs the BFF API response
-    isBFFSourcedAPIResponse: true,
-  },
+  enterpriseCustomer: mockEnterpriseCustomer,
   activeEnterpriseCustomer: null,
   allLinkedEnterpriseCustomerUsers: [],
   enterpriseFeatures: {},
@@ -77,8 +67,7 @@ describe('useEnterpriseLearner', () => {
       <MemoryRouter initialEntries={initialEntries}>
         <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
           <Routes>
-            <Route path=":enterpriseSlug" element={children} />
-            <Route path=":enterpriseSlug/search" element={children} />
+            <Route path=":enterpriseSlug/search?" element={children} />
           </Routes>
         </AppContext.Provider>
       </MemoryRouter>
@@ -98,6 +87,11 @@ describe('useEnterpriseLearner', () => {
     isMatchedBFFRoute,
     hasCustomSelect,
   }) => {
+    if (isMatchedBFFRoute) {
+      fetchEnterpriseLearnerDashboard.mockResolvedValue(mockBFFDashboardData);
+    } else {
+      fetchEnterpriseLearnerData.mockResolvedValue(mockEnterpriseLearnerData);
+    }
     const mockSelect = jest.fn(data => data.transformed);
     const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
     const enterpriseLearnerHookArgs = hasCustomSelect ? { select: mockSelect } : {};

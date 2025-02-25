@@ -20,22 +20,14 @@ const mockEnterpriseLearnerData = {
   activeEnterpriseCustomer: null,
   allLinkedEnterpriseCustomerUsers: [],
   staffEnterpriseCustomer: null,
-  enterpriseFeatures: {
-    // This field does not exist in the enterpriseFeatures object but acts as a distinction between enterprise features
-    // test data sourced from enterprise learner API response vs the BFF API response
-    isBFFSourcedAPIResponse: false,
-  },
+  enterpriseFeatures: {},
   shouldUpdateActiveEnterpriseCustomerUser: false,
 };
 
 const mockBFFDashboardData = {
   enterpriseCustomer: mockEnterpriseCustomer,
   allLinkedEnterpriseCustomerUsers: [],
-  enterpriseFeatures: {
-    // This field does not exist in the enterpriseFeatures object but acts as a distinction between enterprise features
-    // test data sourced from enterprise learner API response vs the BFF API response
-    isBFFSourcedAPIResponse: true,
-  },
+  enterpriseFeatures: {},
   shouldUpdateActiveEnterpriseCustomerUser: false,
   staffEnterpriseCustomer: null,
   enterpriseCustomerUserSubsidies: {
@@ -65,8 +57,7 @@ describe('useEnterpriseFeatures', () => {
       <MemoryRouter initialEntries={initialEntries}>
         <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
           <Routes>
-            <Route path=":enterpriseSlug" element={children} />
-            <Route path=":enterpriseSlug/search" element={children} />
+            <Route path=":enterpriseSlug/search?" element={children} />
           </Routes>
         </AppContext.Provider>
       </MemoryRouter>
@@ -75,8 +66,8 @@ describe('useEnterpriseFeatures', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    fetchEnterpriseLearnerDashboard.mockResolvedValue(mockBFFDashboardData);
-    fetchEnterpriseLearnerData.mockResolvedValue(mockEnterpriseLearnerData);
+    fetchEnterpriseLearnerDashboard.mockResolvedValue(undefined);
+    fetchEnterpriseLearnerData.mockResolvedValue(undefined);
   });
 
   it.each(generateTestPermutations({
@@ -86,6 +77,11 @@ describe('useEnterpriseFeatures', () => {
     isMatchedBFFRoute,
     hasCustomSelect,
   }) => {
+    if (isMatchedBFFRoute) {
+      fetchEnterpriseLearnerDashboard.mockResolvedValue(mockBFFDashboardData);
+    } else {
+      fetchEnterpriseLearnerData.mockResolvedValue(mockEnterpriseLearnerData);
+    }
     const mockSelect = jest.fn(data => data.transformed);
     const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
     const enterpriseFeatureHookArgs = hasCustomSelect ? { select: mockSelect } : {};
