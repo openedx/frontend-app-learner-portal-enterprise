@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import useIsBFFEnabled from './useIsBFFEnabled';
 import { queryEnterpriseLearnerDashboardBFF, resolveBFFQuery } from '../queries';
@@ -11,10 +11,7 @@ jest.mock('../queries', () => ({
   ...jest.requireActual('../queries'),
   resolveBFFQuery: jest.fn(),
 }));
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn(),
-}));
+
 const mockAuthenticatedUser = authenticatedUserFactory();
 
 describe('useIsBFFEnabled', () => {
@@ -29,7 +26,6 @@ describe('useIsBFFEnabled', () => {
   );
   beforeEach(() => {
     jest.clearAllMocks();
-    useLocation.mockReturnValue({ pathname: '/test-enterprise' });
   });
 
   it.each([
@@ -39,7 +35,6 @@ describe('useIsBFFEnabled', () => {
     const route = hasBFFEnabled ? '/test-enterprise' : 'test-enterprise/search';
 
     resolveBFFQuery.mockReturnValue(hasBFFEnabled ? queryEnterpriseLearnerDashboardBFF : null);
-    useLocation.mockReturnValue({ pathname: route });
 
     const { result } = renderHook(() => useIsBFFEnabled(), {
       wrapper: ({ children }) => Wrapper({

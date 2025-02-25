@@ -58,7 +58,6 @@ export async function getEnterpriseLearnerQueryData({
   // or fetch from the server if not available.
   let enterpriseLearnerData;
   const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
-
   if (matchedBFFQuery) {
     const bffResponse = await queryClient.ensureQueryData(
       matchedBFFQuery({ enterpriseSlug }),

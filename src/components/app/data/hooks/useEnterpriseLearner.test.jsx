@@ -55,7 +55,7 @@ const mockBFFDashboardData = {
   warnings: [],
 };
 
-const mockExpectedEnterpriseLearner = (isMatchedRoute) => (isMatchedRoute
+const mockExpectedEnterpriseLearner = (isMatchedBFFRoute) => (isMatchedBFFRoute
   ? {
     enterpriseCustomer: mockBFFDashboardData.enterpriseCustomer,
     allLinkedEnterpriseCustomerUsers: mockBFFDashboardData.allLinkedEnterpriseCustomerUsers,
@@ -80,32 +80,32 @@ describe('useEnterpriseLearner', () => {
     useParams.mockReturnValue({ enterpriseSlug: mockEnterpriseCustomer.slug });
   });
   it.each([
-    { isMatchedRoute: false },
-    { isMatchedRoute: true },
-  ])('should return enterprise learners correctly (%s)', async ({ isMatchedRoute }) => {
+    { isMatchedBFFRoute: false },
+    { isMatchedBFFRoute: true },
+  ])('should return enterprise learners correctly (%s)', async ({ isMatchedBFFRoute }) => {
     const mockSelect = jest.fn(data => data.transformed);
     const { result, waitForNextUpdate } = renderHook(
       () => {
-        if (isMatchedRoute) {
+        if (isMatchedBFFRoute) {
           return useEnterpriseLearner({ select: mockSelect });
         }
         return useEnterpriseLearner();
       },
       {
         wrapper: ({ children }) => Wrapper({
-          routes: isMatchedRoute ? '/test-enterprise' : 'test-enterprise/search',
+          routes: isMatchedBFFRoute ? '/test-enterprise' : 'test-enterprise/search',
           children,
         }),
       },
     );
     await waitForNextUpdate();
-    if (isMatchedRoute) {
+    if (isMatchedBFFRoute) {
       expect(mockSelect).toHaveBeenCalledTimes(2);
     } else {
       expect(mockSelect).toHaveBeenCalledTimes(0);
     }
 
     const actualEnterpriseFeatures = result.current.data;
-    expect(actualEnterpriseFeatures).toEqual(mockExpectedEnterpriseLearner(isMatchedRoute));
+    expect(actualEnterpriseFeatures).toEqual(mockExpectedEnterpriseLearner(isMatchedBFFRoute));
   });
 });

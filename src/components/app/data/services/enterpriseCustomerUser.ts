@@ -151,7 +151,7 @@ export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {
     const response = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);
   } catch (error) {
-    if (getErrorResponseStatusCode(error as Error) !== 404) {
+    if (error instanceof Error && getErrorResponseStatusCode(error as Error) !== 404) {
       logError(error as Error);
     }
     return [];

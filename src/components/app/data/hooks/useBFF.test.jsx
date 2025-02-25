@@ -136,32 +136,32 @@ describe('useBFF', () => {
   it.each([
     // BFF disabled route (without query options)
     {
-      isMatchedRoute: false,
+      isMatchedBFFRoute: false,
       hasQueryOptions: false,
     },
     // BFF enabled route (without query options)
     {
-      isMatchedRoute: true,
+      isMatchedBFFRoute: true,
       hasQueryOptions: false,
     },
     // BFF enabled route (with query options)
     {
-      isMatchedRoute: true,
+      isMatchedBFFRoute: true,
       hasQueryOptions: true,
     },
 
     // BFF disabled route(with query options)
     {
-      isMatchedRoute: false,
+      isMatchedBFFRoute: false,
       hasQueryOptions: true,
     },
   ])('should handle resolved value correctly for based on route (%s)', async ({
-    isMatchedRoute,
+    isMatchedBFFRoute,
     hasQueryOptions,
   }) => {
     const mockFallbackData = { fallback: 'data' };
     const mockSelect = jest.fn(() => {
-      if (isMatchedRoute) {
+      if (isMatchedBFFRoute) {
         return mockBFFDashboardData;
       }
       return mockFallbackData;
@@ -176,7 +176,7 @@ describe('useBFF', () => {
       mockBFFQueryOptions.select = mockSelect;
       mockFallbackQueryConfig.select = mockSelect;
     }
-    const initialEntries = isMatchedRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
+    const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
     const { result, waitForNextUpdate } = renderHook(
       () => useBFF({
         bffQueryOptions: {
@@ -194,7 +194,7 @@ describe('useBFF', () => {
     );
     await waitForNextUpdate();
 
-    const expectedData = isMatchedRoute ? mockBFFDashboardData : mockFallbackData;
+    const expectedData = isMatchedBFFRoute ? mockBFFDashboardData : mockFallbackData;
     expect(result.current).toEqual(
       expect.objectContaining({
         data: expectedData,
@@ -205,7 +205,7 @@ describe('useBFF', () => {
 
     if (hasQueryOptions) {
       expect(mockSelect).toHaveBeenCalledTimes(1);
-      if (isMatchedRoute) {
+      if (isMatchedBFFRoute) {
         // Expects the select function to be called with the resolved BFF data
         expect(mockSelect).toHaveBeenCalledWith(mockBFFDashboardData);
       } else {
@@ -214,7 +214,7 @@ describe('useBFF', () => {
       }
     }
 
-    if (isMatchedRoute) {
+    if (isMatchedBFFRoute) {
       expect(fetchEnterpriseLearnerDashboard).toHaveBeenCalledTimes(1);
       expect(fetchEnterpriseLearnerDashboard).toHaveBeenCalledWith(
         expect.objectContaining({

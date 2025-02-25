@@ -8,7 +8,7 @@ export default function useEnterpriseFeatures(queryOptions = {}) {
       const transformedData = data.transformed.enterpriseFeatures;
       if (select) {
         return select({
-          original: data,
+          original: data.original,
           transformed: transformedData,
         });
       }

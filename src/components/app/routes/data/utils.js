@@ -350,7 +350,7 @@ export async function ensureActiveEnterpriseCustomerUser({
     };
   }
 
-  // If the active enterprise customer user was not updated or enterpriseSlug is missing, return null.
+  // Given the user has an active ECU, but the current route has no slug, redirect to the slug of the active ECU.
   if (activeEnterpriseCustomer && !enterpriseSlug) {
     throw redirect(generatePath('/:enterpriseSlug/*', {
       enterpriseSlug: activeEnterpriseCustomer.slug,

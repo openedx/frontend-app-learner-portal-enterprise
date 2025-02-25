@@ -24,13 +24,11 @@ async function extractEnterpriseCustomer({
     authenticatedUser,
     enterpriseSlug,
   });
-
   const {
     activeEnterpriseCustomer,
     allLinkedEnterpriseCustomerUsers,
     staffEnterpriseCustomer,
   } = enterpriseLearnerData;
-
   // If there is no slug provided (i.e., on the root page route `/`), use
   // the currently active enterprise customer user.
   if (!enterpriseSlug) {

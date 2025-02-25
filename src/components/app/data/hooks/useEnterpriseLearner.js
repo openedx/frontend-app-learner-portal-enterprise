@@ -39,6 +39,9 @@ export default function useEnterpriseLearner(queryOptions = {}) {
       ...queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
       ...queryOptions,
       select: (data) => {
+        // To maintain parity with BFF-enabled routes in the function signature passed to the custom `select`
+        // function, the legacy `queryEnterpriseLearner` also passes its `data` to the custom `select` function
+        // as both the `original` and `transformed` properties, since no data transformations occur here.
         if (select) {
           return select({
             original: data,

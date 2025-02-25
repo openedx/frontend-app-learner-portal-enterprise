@@ -120,9 +120,9 @@ describe('rootLoader', () => {
   });
 
   it.each([
-    { isMatchedRoute: false },
-    { isMatchedRoute: true },
-  ])('ensures only the enterprise-learner query is called if there is no active enterprise customer user, (%s)', async ({ isMatchedRoute }) => {
+    { isMatchedBFFRoute: false },
+    { isMatchedBFFRoute: true },
+  ])('ensures only the enterprise-learner query is called if there is no active enterprise customer user, (%s)', async ({ isMatchedBFFRoute }) => {
     const enterpriseLearnerQuery = queryEnterpriseLearner(mockAuthenticatedUser.username, mockEnterpriseCustomer.slug);
     const enterpriseBFFQuery = queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: mockEnterpriseCustomer.slug });
 
@@ -146,7 +146,7 @@ describe('rootLoader', () => {
       shouldUpdateActiveEnterpriseCustomerUser: false,
     });
 
-    const routeMetadata = isMatchedRoute
+    const routeMetadata = isMatchedBFFRoute
       ? { path: '/:enterpriseSlug', initialEntries: [`/${mockEnterpriseCustomer.slug}`] }
       : { path: '/:enterpriseSlug/search', initialEntries: [`/${mockEnterpriseCustomer.slug}/search`] };
     renderWithRouterProvider({
@@ -177,7 +177,7 @@ describe('rootLoader', () => {
       ],
       isStaffUser: false,
       shouldActivateSubscriptionLicense: false,
-      isMatchedRoute: false,
+      isMatchedBFFRoute: false,
     },
     // BFF disabled, non-staff user is linked to requested customer, resolves
     // requested customer, does not need to update active enterprise, needs
@@ -192,7 +192,7 @@ describe('rootLoader', () => {
       ],
       isStaffUser: false,
       shouldActivateSubscriptionLicense: true,
-      isMatchedRoute: false,
+      isMatchedBFFRoute: false,
     },
     // BFF disabled, non-staff user is linked to requested customer, resolves
     // requested customer, needs update to active enterprise, does not
@@ -207,7 +207,7 @@ describe('rootLoader', () => {
       ],
       isStaffUser: false,
       shouldActivateSubscriptionLicense: false,
-      isMatchedRoute: false,
+      isMatchedBFFRoute: false,
     },
     // BFF disabled, non-staff user is not linked to requested customer, resolves
     // linked customer, does not need to update active enterprise, does not
@@ -221,7 +221,7 @@ describe('rootLoader', () => {
       ],
       isStaffUser: false,
       shouldActivateSubscriptionLicense: false,
-      isMatchedRoute: false,
+      isMatchedBFFRoute: false,
     },
     // BFF disabled, staff user is not linked to requested customer, resolves
     // requested customer, does not need to update active enterprise, does not
@@ -235,7 +235,7 @@ describe('rootLoader', () => {
       ],
       isStaffUser: true,
       shouldActivateSubscriptionLicense: false,
-      isMatchedRoute: false,
+      isMatchedBFFRoute: false,
     },
     // BFF disabled, staff user is linked to requested customer, resolves
     // requested customer, needs update to active enterprise, does not
@@ -250,7 +250,7 @@ describe('rootLoader', () => {
       ],
       isStaffUser: true,
       shouldActivateSubscriptionLicense: false,
-      isMatchedRoute: false,
+      isMatchedBFFRoute: false,
     },
     // BFF enabled, non-staff user is linked to requested customer, resolves
     // requested customer, needs update to active enterprise, does not
@@ -265,7 +265,7 @@ describe('rootLoader', () => {
       ],
       isStaffUser: false,
       shouldActivateSubscriptionLicense: false,
-      isMatchedRoute: true,
+      isMatchedBFFRoute: true,
     },
   ])('ensures all requisite root loader queries are resolved with an active enterprise customer user (%s)', async ({
     isStaffUser,
@@ -274,7 +274,7 @@ describe('rootLoader', () => {
     activeEnterpriseCustomer,
     allLinkedEnterpriseCustomerUsers,
     shouldActivateSubscriptionLicense,
-    isMatchedRoute,
+    isMatchedBFFRoute,
   }) => {
     const enterpriseLearnerQuery = queryEnterpriseLearner(mockAuthenticatedUser.username, enterpriseSlug);
     const enterpriseLearnerQueryTwo = queryEnterpriseLearner(mockAuthenticatedUser.username, enterpriseCustomer.slug);
@@ -362,7 +362,7 @@ describe('rootLoader', () => {
       }),
     ).mockResolvedValue(mockSubscriptionsData);
 
-    const routeMetadata = isMatchedRoute
+    const routeMetadata = isMatchedBFFRoute
       ? { path: '/:enterpriseSlug', initialEntries: [`/${enterpriseSlug}`] }
       : { path: '/:enterpriseSlug/search', initialEntries: [`/${enterpriseSlug}/search`] };
 
@@ -383,7 +383,7 @@ describe('rootLoader', () => {
         if (!(isLinked || isStaffUser)) {
           expectedQueryCount = 2;
         }
-      } else if (isMatchedRoute) {
+      } else if (isMatchedBFFRoute) {
         expectedQueryCount = 9;
       }
       expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(expectedQueryCount);
@@ -392,7 +392,7 @@ describe('rootLoader', () => {
     // Enterprise learner query
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: isMatchedRoute ? enterpriseBFFQuery.queryKey : enterpriseLearnerQuery.queryKey,
+        queryKey: isMatchedBFFRoute ? enterpriseBFFQuery.queryKey : enterpriseLearnerQuery.queryKey,
         queryFn: expect.any(Function),
       }),
     );
@@ -414,7 +414,7 @@ describe('rootLoader', () => {
     );
 
     // Subscriptions query (only called with BFF disabled)
-    if (!isMatchedRoute) {
+    if (!isMatchedBFFRoute) {
       expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
         expect.objectContaining({
           queryKey: subscriptionsQuery.queryKey,

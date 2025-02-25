@@ -13,7 +13,7 @@ export default function useEnterpriseCustomer(queryOptions = {}) {
       const transformedData = data.transformed.enterpriseCustomer;
       if (select) {
         return select({
-          original: data,
+          original: data.original,
           transformed: transformedData,
         });
       }
