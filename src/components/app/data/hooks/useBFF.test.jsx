@@ -241,7 +241,7 @@ describe('useBFF', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: expectedData,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

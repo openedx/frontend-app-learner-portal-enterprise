@@ -46,7 +46,7 @@ describe('useVideoCourseMetadata', () => {
             ...mockCourseMetadata,
             availableCourseRuns: [mockCourseMetadata.courseRuns[0]],
           },
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -59,7 +59,7 @@ describe('useVideoCourseMetadata', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: null,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -80,7 +80,7 @@ describe('useVideoCourseMetadata', () => {
               availableCourseRuns: [mockCourseMetadata.courseRuns[0]],
             },
           },
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -96,7 +96,7 @@ describe('useVideoCourseMetadata', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: null,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

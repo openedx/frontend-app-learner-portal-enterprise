@@ -39,7 +39,7 @@ describe('useContentHighlightsConfiguration', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockEnterpriseCurations,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -57,7 +57,7 @@ describe('useCanOnlyViewHighlights', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockEnterpriseCurations.canOnlyViewHighlightSets,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -74,7 +74,7 @@ describe('useCanOnlyViewHighlights', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: false,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -88,7 +88,7 @@ describe('useCanOnlyViewHighlights', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: false,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
