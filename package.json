@@ -9,7 +9,7 @@
   "dependencies": {
     "@edx/brand": "npm:@openedx/brand-openedx@^1.2.3",
     "@edx/frontend-component-footer": "^14.2.0",
-    "@edx/frontend-enterprise-catalog-search": "npm:@adamstankiewicz/openedx-frontend-enterprise-catalog-search@^10.9.3",
+    "@edx/frontend-enterprise-catalog-search": "npm:@adamstankiewicz/openedx-frontend-enterprise-catalog-search@^11.0.0",
     "@edx/frontend-enterprise-hotjar": "^7.2.0",
     "@edx/frontend-enterprise-logistration": "^9.2.0",
     "@edx/frontend-enterprise-utils": "^10.0.0",
