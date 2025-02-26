@@ -69,10 +69,11 @@ const useStatefulEnroll = ({
     ...queryPolicyTransaction(enterpriseCustomer.uuid, transaction),
     enabled: shouldPollTransactionState(transaction),
     refetchInterval: getRefetchInterval,
-    // [tech debt] The `onSuccess` and `onError` callbacks should be considered
-    // deprecated. See https://tkdodo.eu/blog/breaking-react-querys-api-on-purpose.
+    // TODO: Remove the eslint-disable comment once the React Query v5 upgrade is complete
+    /* eslint-disable @tanstack/query/no-deprecated-options */
     onSuccess: handleSuccess,
     onError: handleError,
+    /* eslint-enable @tanstack/query/no-deprecated-options */
   });
 
   const redeem = useCallback(({ metadata } = {}) => {
