@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { useAcademyMetadata, useAcademies, useAcademyPathwayData } from '../hooks';
+import { useAcademyMetadata, useAcademies } from '../hooks';
 import { getAcademies, getAcademyMetadata } from '../service';
 
 jest.mock('axios');
@@ -78,58 +78,5 @@ describe('useAcademyMetadata', () => {
     await waitForNextUpdate();
     expect(result.current[0].length).toEqual(1);
     expect(result.current[0][0].uuid).toEqual(ACADEMY_UUID);
-  });
-});
-
-describe('useAcademyPathwayData', () => {
-  const academyUUID = '123456';
-  const courseIndex = {
-    search: jest.fn(),
-  };
-
-  beforeEach(() => {
-    axios.mockClear();
-    courseIndex.search.mockClear();
-  });
-
-  it('fetches pathway data successfully', async () => {
-    courseIndex.search.mockResolvedValue({
-      hits: [{ uuid: '1234' }],
-      nbHits: 1,
-    });
-
-    const { result, waitForNextUpdate } = renderHook(() => useAcademyPathwayData(academyUUID, courseIndex));
-    expect(result.current).toEqual([{ title: undefined, overview: undefined, pathwayUuid: undefined }, true, null]);
-
-    await waitForNextUpdate();
-    expect(result.current).toEqual([{ title: 'Pathway Title', overview: 'Pathway Overview', pathwayUuid: '1234' }, false, null]);
-  });
-  it('handles error during data fetching', async () => {
-    const errorMessage = 'Failed to fetch data';
-    courseIndex.search.mockRejectedValue(new Error(errorMessage));
-
-    const { result, waitForNextUpdate } = renderHook(() => useAcademyPathwayData(academyUUID, courseIndex));
-    expect(result.current).toEqual([{ title: undefined, overview: undefined, pathwayUuid: undefined }, true, null]);
-
-    await waitForNextUpdate();
-    expect(result.current).toEqual([
-      { title: undefined, overview: undefined, pathwayUuid: undefined },
-      false, new Error(errorMessage),
-    ]);
-  });
-  it('handle case when we not get any pathway data from algolia', async () => {
-    courseIndex.search.mockResolvedValue({
-      hits: [],
-      nbHits: 0,
-    });
-
-    const { result, waitForNextUpdate } = renderHook(() => useAcademyPathwayData(academyUUID, courseIndex));
-    expect(result.current).toEqual([{ title: undefined, overview: undefined, pathwayUuid: undefined }, true, null]);
-
-    await waitForNextUpdate();
-    expect(result.current).toEqual([
-      {},
-      false, null,
-    ]);
   });
 });
