@@ -52,7 +52,11 @@ export const saveSkillsGoalsAndJobsUserSelected = async (goal, currentJobRole, i
   const interestedJobsId = interestedJobs?.map(({ id }) => id);
   const currentJobRoleId = currentJobRole?.map(({ id }) => id);
   const goalLabel = goalLabels(goal);
-  postSkillsGoalsAndJobsUserSelected(goalLabel, interestedJobsId, currentJobRoleId);
+  try {
+    await postSkillsGoalsAndJobsUserSelected(goalLabel, interestedJobsId, currentJobRoleId);
+  } catch (error) {
+    logError(error);
+  }
 };
 
 export const saveDesiredRoleForCareerChart = async (goal, currentJob, interestedJobs) => {

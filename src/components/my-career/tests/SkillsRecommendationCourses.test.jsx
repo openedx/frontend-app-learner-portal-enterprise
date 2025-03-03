@@ -111,12 +111,13 @@ describe('<SkillsRecommendationCourses />', () => {
     useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids: ${mockEnterpriseCustomer.uuid}` });
   });
 
-  it('renders the SkillsRecommendationCourses component with recommendations', () => {
+  it('renders the SkillsRecommendationCourses component with recommendations', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<SkillsRecommendationCoursesWithContext />);
     TEST_SKILLS.forEach(async (skill) => {
       await waitFor(() => expect(screen.getByText(skill)).toBeInTheDocument());
     });
-    userEvent.click(screen.getByText('Show more courses'));
+    await user.click(screen.getByText('Show more courses'));
   });
 
   it('renders the SkillsRecommendationCourses component without recommendations', () => {
@@ -127,7 +128,6 @@ describe('<SkillsRecommendationCourses />', () => {
         nbHits: 0,
       })),
     };
-
     renderWithRouter(<SkillsRecommendationCoursesWithContext index={emptyIndex} subCategorySkills={[]} subCategoryName="" />);
     TEST_SKILLS.forEach(async (skill) => {
       await waitFor(() => expect(screen.getByText(skill)).not.toBeInTheDocument());

@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import PathwaysSection from '../PathwaysSection';
@@ -39,14 +40,15 @@ describe('PathwaysSection', () => {
     expect(screen.getByRole('button', { name: 'Explore Pathway' })).toBeInTheDocument();
   });
 
-  it('opens the learner pathway modal when launch button is clicked', () => {
+  it('opens the learner pathway modal when launch button is clicked', async () => {
+    const user = userEvent.setup();
     render(
       <IntlProvider locale="en">
         <PathwaysSection pathwayData={pathwayData} />
       </IntlProvider>,
     );
     const launchButton = screen.getByRole('button', { name: 'Explore Pathway' });
-    fireEvent.click(launchButton);
+    await user.click(launchButton);
     expect(screen.getByText('Ai for Leaders')).toBeInTheDocument();
   });
 });

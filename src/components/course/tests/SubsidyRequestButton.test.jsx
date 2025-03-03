@@ -173,6 +173,7 @@ describe('<SubsidyRequestButton />', () => {
     subsidyType,
     expectedCalledFn,
   }) => {
+    const user = userEvent.setup();
     useBrowseAndRequestConfiguration.mockReturnValue({
       data: {
         ...mockSubsidyRequestConfiguration,
@@ -181,8 +182,7 @@ describe('<SubsidyRequestButton />', () => {
     });
     render(<SubsidyRequestButtonWrapper />);
     const requestEnrollmentBtn = screen.getByText('Request enrollment');
-    userEvent.click(requestEnrollmentBtn);
-
+    await user.click(requestEnrollmentBtn);
     await waitFor(() => {
       expect(expectedCalledFn).toHaveBeenCalledWith(mockEnterpriseCustomer.uuid, mockCourseKey);
       expect(mockAddToast).toHaveBeenCalledWith('Request for course submitted');

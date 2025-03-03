@@ -60,10 +60,11 @@ describe('<CourseRecommendationCard />', () => {
   });
 
   test('sends segment event with correct data when clicked', async () => {
+    const user = userEvent.setup();
     const { container } = renderWithRouter(
       <CourseRecommendationCardWithContext course={course} />,
     );
-    userEvent.click(container.querySelector('.pgn__card'));
+    await user.click(container.querySelector('.pgn__card'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
       COURSE_REC_EVENT_NAME,
@@ -72,10 +73,11 @@ describe('<CourseRecommendationCard />', () => {
   });
 
   test('sends segment event when same partner recommendation clicked', async () => {
+    const user = userEvent.setup();
     const { container } = renderWithRouter(
       <CourseRecommendationCardWithContext course={course} isPartnerRecommendation />,
     );
-    userEvent.click(container.querySelector('.pgn__card'));
+    await user.click(container.querySelector('.pgn__card'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       mockEnterpriseCustomer.uuid,
       SAME_PART_EVENT_NAME,

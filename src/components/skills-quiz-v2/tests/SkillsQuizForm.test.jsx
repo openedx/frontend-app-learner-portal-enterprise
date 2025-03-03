@@ -67,6 +67,7 @@ describe('<SkillQuizForm />', () => {
   });
 
   it('toggles advanced options visibility on button click', async () => {
+    const user = userEvent.setup();
     renderWithRouter(
       <SkillsQuizFormWrapper />,
       { route: '/test/skills-quiz/' },
@@ -74,7 +75,7 @@ describe('<SkillQuizForm />', () => {
     await waitFor(() => {
       expect(screen.getByText('Show advanced options')).toBeInTheDocument();
     });
-    userEvent.click(screen.getByText('Show advanced options'));
+    await user.click(screen.getByText('Show advanced options'));
     expect(screen.getByText('Hide advanced options')).toBeInTheDocument();
     expect(screen.getByText('Search and select your current job title')).toBeInTheDocument();
     expect(screen.getByText('What industry are you interested in ?')).toBeInTheDocument();
