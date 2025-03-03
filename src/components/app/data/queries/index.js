@@ -4,3 +4,4 @@ export { default as queries } from './queryKeyFactory';
 
 export * from './queries';
 export { resolveBFFQuery } from './utils';
+export { getEnterpriseLearnerQueryData } from './utils';

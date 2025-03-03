@@ -50,16 +50,23 @@ export interface EnterpriseCustomer {
 }
 
 export interface EnterpriseFeatures {
-  enterpriseLearnerBffEnabled: boolean;
+  enterpriseLearnerBffEnabled?: boolean;
   [key: string]: boolean;
 }
 
+export interface EnterpriseCustomerUser {
+  id: number,
+  enterpriseCustomer: Types.EnterpriseCustomer,
+  active: boolean,
+}
+
 export interface EnterpriseLearnerData {
-  enterpriseCustomer: Types.EnterpriseCustomer;
-  activeEnterpriseCustomer: Types.EnterpriseCustomer;
-  allLinkedEnterpriseCustomerUsers: any[];
-  staffEnterpriseCustomer: Types.EnterpriseCustomer;
+  enterpriseCustomer: Types.EnterpriseCustomer | null;
+  activeEnterpriseCustomer: Types.EnterpriseCustomer | null;
+  allLinkedEnterpriseCustomerUsers: EnterpriseCustomerUser[];
+  staffEnterpriseCustomer: Types.EnterpriseCustomer | null;
   enterpriseFeatures: Types.EnterpriseFeatures;
+  shouldUpdateActiveEnterpriseCustomerUser: boolean;
 }
 
 interface EnrollmentDueDate {

@@ -1,4 +1,8 @@
-import { extractEnterpriseCustomer, queryEnterpriseCourseEnrollments, queryLearnerProgramProgressData } from '../../app/data';
+import {
+  extractEnterpriseCustomer,
+  queryEnterpriseCourseEnrollments,
+  queryLearnerProgramProgressData,
+} from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
 type ProgramProgressRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
@@ -23,10 +27,14 @@ const makeProgramProgressLoader: Types.MakeRouteLoaderFunctionWithQueryClient = 
 
       // Extract enterprise customer.
       const enterpriseCustomer = await extractEnterpriseCustomer({
+        requestUrl,
         queryClient,
         authenticatedUser,
         enterpriseSlug,
       });
+      if (!enterpriseCustomer) {
+        return null;
+      }
       const queriesToResolve = [
         queryClient.ensureQueryData(queryLearnerProgramProgressData(programUUID)),
         queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
