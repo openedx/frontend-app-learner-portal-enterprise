@@ -142,18 +142,22 @@ describe('fetchEnterpriseLearnerData', () => {
       showIntegrationWarning: false,
     };
     const getExpectedEnterpriseCustomer = () => {
-      if (!enableLearnerPortal) {
-        return undefined;
-      }
-      const shouldHaveAccess = isLinkedToEnterpriseCustomer || isStaffUser;
-      if (shouldHaveAccess) {
+      // const shouldHaveAccess = isLinkedToEnterpriseCustomer || isStaffUser;
+      // if (shouldHaveAccess) {
+      //   return expectedTransformedEnterpriseCustomer;
+      // }
+      // return null;
+      if (isStaffUser && enableLearnerPortal) {
         return expectedTransformedEnterpriseCustomer;
       }
-      return undefined;
+      if (!isLinkedToEnterpriseCustomer || !enableLearnerPortal) {
+        return null;
+      }
+      return expectedTransformedEnterpriseCustomer;
     };
     const getExpectedActiveEnterpriseCustomer = () => {
-      if (!enableLearnerPortal || !isLinkedToEnterpriseCustomer) {
-        return undefined;
+      if (!isLinkedToEnterpriseCustomer || !enableLearnerPortal) {
+        return null;
       }
       return expectedTransformedEnterpriseCustomer;
     };
@@ -163,10 +167,12 @@ describe('fetchEnterpriseLearnerData', () => {
       enterpriseFeatures: { featureA: true },
       enterpriseCustomer: expectedEnterpriseCustomer,
       activeEnterpriseCustomer: expectedActiveEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers: enterpriseCustomersUsers.map((ecu) => ({
-        ...ecu,
-        enterpriseCustomer: expectedEnterpriseCustomer,
-      })),
+      allLinkedEnterpriseCustomerUsers: enterpriseCustomersUsers
+        .filter((ecu) => !!ecu.enterpriseCustomer.enableLearnerPortal)
+        .map((ecu) => ({
+          ...ecu,
+          enterpriseCustomer: expectedEnterpriseCustomer,
+        })),
       staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : undefined,
       shouldUpdateActiveEnterpriseCustomerUser: false,
     });

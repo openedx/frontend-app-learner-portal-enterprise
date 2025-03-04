@@ -73,17 +73,20 @@ Promise<Types.EnterpriseLearnerData> {
     } = await fetchPaginatedData(url);
     const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
     // Transform enterprise customer user results
-    const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers.map(
-      enterpriseCustomerUser => ({
-        ...enterpriseCustomerUser,
-        enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
-      }),
-    );
+    const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers
+      .filter((ecu) => !!ecu.enterpriseCustomer.enableLearnerPortal)
+      .map(
+        enterpriseCustomerUser => ({
+          ...enterpriseCustomerUser,
+          enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
+        }),
+      );
 
     const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
-      enterprise => enterprise.active,
+      enterpriseCustomerUser => enterpriseCustomerUser.active,
     );
-    const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
+
+    const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer || null;
 
     // Find enterprise customer metadata for the currently viewed
     // enterprise slug in the page route params.
