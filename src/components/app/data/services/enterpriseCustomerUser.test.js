@@ -142,25 +142,16 @@ describe('fetchEnterpriseLearnerData', () => {
       showIntegrationWarning: false,
     };
     const getExpectedEnterpriseCustomer = () => {
-      // const shouldHaveAccess = isLinkedToEnterpriseCustomer || isStaffUser;
-      // if (shouldHaveAccess) {
-      //   return expectedTransformedEnterpriseCustomer;
-      // }
-      // return null;
-      if (isStaffUser && enableLearnerPortal) {
+      if (enableLearnerPortal && (isStaffUser || isLinkedToEnterpriseCustomer)) {
         return expectedTransformedEnterpriseCustomer;
       }
-      if (!isLinkedToEnterpriseCustomer || !enableLearnerPortal) {
-        return null;
-      }
-      return expectedTransformedEnterpriseCustomer;
+      return null;
     };
-    const getExpectedActiveEnterpriseCustomer = () => {
-      if (!isLinkedToEnterpriseCustomer || !enableLearnerPortal) {
-        return null;
-      }
-      return expectedTransformedEnterpriseCustomer;
-    };
+
+    const getExpectedActiveEnterpriseCustomer = () => (
+      isLinkedToEnterpriseCustomer && enableLearnerPortal ? expectedTransformedEnterpriseCustomer : null
+    );
+
     const expectedEnterpriseCustomer = getExpectedEnterpriseCustomer();
     const expectedActiveEnterpriseCustomer = getExpectedActiveEnterpriseCustomer();
     expect(response).toEqual({
