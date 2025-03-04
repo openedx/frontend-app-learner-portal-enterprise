@@ -159,11 +159,11 @@ describe('fetchEnterpriseLearnerData', () => {
       enterpriseCustomer: expectedEnterpriseCustomer,
       activeEnterpriseCustomer: expectedActiveEnterpriseCustomer,
       allLinkedEnterpriseCustomerUsers: enterpriseCustomersUsers
-        .filter((ecu) => !!ecu.enterpriseCustomer.enableLearnerPortal)
         .map((ecu) => ({
           ...ecu,
           enterpriseCustomer: expectedEnterpriseCustomer,
-        })),
+        }))
+        .filter((ecu) => ecu.enterpriseCustomer),
       staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : undefined,
       shouldUpdateActiveEnterpriseCustomerUser: false,
     });

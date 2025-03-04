@@ -74,13 +74,13 @@ Promise<Types.EnterpriseLearnerData> {
     const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
     // Transform enterprise customer user results
     const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers
-      .filter((ecu) => !!ecu.enterpriseCustomer.enableLearnerPortal)
       .map(
         enterpriseCustomerUser => ({
           ...enterpriseCustomerUser,
           enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
         }),
-      );
+      )
+      .filter(enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer);
 
     const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
       enterpriseCustomerUser => enterpriseCustomerUser.active,
