@@ -67,8 +67,8 @@ export async function getEnterpriseLearnerQueryData({
       activeEnterpriseCustomer: bffResponse.activeEnterpriseCustomer || null,
       allLinkedEnterpriseCustomerUsers: bffResponse.allLinkedEnterpriseCustomerUsers || [],
       staffEnterpriseCustomer: bffResponse.staffEnterpriseCustomer || null,
-      enterpriseFeatures: bffResponse.enterpriseFeatures || null,
-      shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser || null,
+      enterpriseFeatures: bffResponse.enterpriseFeatures || {},
+      shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser || false,
     };
   } else {
     enterpriseLearnerData = await queryClient.ensureQueryData(
