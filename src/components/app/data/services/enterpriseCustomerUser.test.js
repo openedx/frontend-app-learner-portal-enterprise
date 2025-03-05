@@ -149,7 +149,7 @@ describe('fetchEnterpriseLearnerData', () => {
     };
 
     const getExpectedActiveEnterpriseCustomer = () => (
-      isLinkedToEnterpriseCustomer && enableLearnerPortal ? expectedTransformedEnterpriseCustomer : null
+      isLinkedToEnterpriseCustomer ? expectedTransformedEnterpriseCustomer : null
     );
 
     const expectedEnterpriseCustomer = getExpectedEnterpriseCustomer();
@@ -163,8 +163,8 @@ describe('fetchEnterpriseLearnerData', () => {
           ...ecu,
           enterpriseCustomer: expectedEnterpriseCustomer,
         }))
-        .filter((ecu) => ecu.enterpriseCustomer),
-      staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : undefined,
+        .filter((ecu) => !!ecu.enterpriseCustomer?.enableLearnerPortal),
+      staffEnterpriseCustomer: isStaffUser && enableLearnerPortal ? expectedEnterpriseCustomer : null,
       shouldUpdateActiveEnterpriseCustomerUser: false,
     });
   });

@@ -146,10 +146,7 @@ export function determineEnterpriseCustomerUserForDisplay({
   foundEnterpriseCustomerUserForCurrentSlug,
   staffEnterpriseCustomer,
 }) {
-  if (
-    foundEnterpriseCustomerUserForCurrentSlug
-    && !foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer.enableLearnerPortal
-  ) {
+  if (foundEnterpriseCustomerUserForCurrentSlug?.enterpriseCustomer.enableLearnerPortal === false) {
     return {
       enterpriseCustomer: null,
     };
@@ -165,7 +162,10 @@ export function determineEnterpriseCustomerUserForDisplay({
   // If the enterprise slug in the URL does not match the active enterprise
   // customer user's slug and there is a linked enterprise customer user for
   // the requested slug, return the linked enterprise customer user.
-  if (enterpriseSlug !== activeEnterpriseCustomer?.slug && foundEnterpriseCustomerUserForCurrentSlug) {
+  if (
+    enterpriseSlug !== activeEnterpriseCustomer?.slug
+    && foundEnterpriseCustomerUserForCurrentSlug?.enterpriseCustomer.enableLearnerPortal
+  ) {
     return {
       enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
     };

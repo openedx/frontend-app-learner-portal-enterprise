@@ -80,7 +80,6 @@ Promise<Types.EnterpriseLearnerData> {
           enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
         }),
       );
-      // .filter(enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer);
 
     const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
       enterpriseCustomerUser => enterpriseCustomerUser.active,
@@ -102,6 +101,7 @@ Promise<Types.EnterpriseLearnerData> {
       const originalStaffEnterpriseCustomer = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
       if (originalStaffEnterpriseCustomer) {
         staffEnterpriseCustomer = transformEnterpriseCustomer(originalStaffEnterpriseCustomer);
+        staffEnterpriseCustomer = staffEnterpriseCustomer.enableLearnerPortal ? staffEnterpriseCustomer : null;
       }
     }
 
@@ -114,12 +114,16 @@ Promise<Types.EnterpriseLearnerData> {
       staffEnterpriseCustomer,
     });
 
+    const learnerPortalEnabledEnterpriseCustomerUsers = transformedEnterpriseCustomersUsers.filter(
+      enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer?.enableLearnerPortal,
+    );
+
     // shouldUpdateActiveEnterpriseCustomerUser should always be false since its generated primarily from the BFF
     // layer to act as a flag on whether to update the active enterprise customer
     return {
       enterpriseCustomer: enterpriseCustomer || null,
       activeEnterpriseCustomer: activeEnterpriseCustomer || null,
-      allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers || [],
+      allLinkedEnterpriseCustomerUsers: learnerPortalEnabledEnterpriseCustomerUsers || [],
       enterpriseFeatures: enterpriseFeatures || {},
       staffEnterpriseCustomer: staffEnterpriseCustomer || null,
       shouldUpdateActiveEnterpriseCustomerUser: false,
