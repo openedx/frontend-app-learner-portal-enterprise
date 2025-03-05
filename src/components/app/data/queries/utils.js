@@ -63,12 +63,12 @@ export async function getEnterpriseLearnerQueryData({
       matchedBFFQuery({ enterpriseSlug }),
     );
     enterpriseLearnerData = {
-      enterpriseCustomer: bffResponse.enterpriseCustomer,
-      activeEnterpriseCustomer: bffResponse.activeEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers: bffResponse.allLinkedEnterpriseCustomerUsers,
-      staffEnterpriseCustomer: bffResponse.staffEnterpriseCustomer,
-      enterpriseFeatures: bffResponse.enterpriseFeatures,
-      shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser,
+      enterpriseCustomer: bffResponse.enterpriseCustomer || null,
+      activeEnterpriseCustomer: bffResponse.activeEnterpriseCustomer || null,
+      allLinkedEnterpriseCustomerUsers: bffResponse.allLinkedEnterpriseCustomerUsers || [],
+      staffEnterpriseCustomer: bffResponse.staffEnterpriseCustomer || null,
+      enterpriseFeatures: bffResponse.enterpriseFeatures || {},
+      shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser || false,
     };
   } else {
     enterpriseLearnerData = await queryClient.ensureQueryData(

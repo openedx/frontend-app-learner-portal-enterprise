@@ -66,7 +66,7 @@ describe('extractEnterpriseCustomer', () => {
       routeEnterpriseSlug: undefined,
       enterpriseCustomerUser: undefined,
       staffEnterpriseCustomer: mockEnterpriseCustomer,
-      expectedEnterpriseCustomer: undefined,
+      expectedEnterpriseCustomer: null,
       isBFFRoute: true,
     },
     {
@@ -80,7 +80,7 @@ describe('extractEnterpriseCustomer', () => {
       routeEnterpriseSlug: mockEnterpriseCustomer.slug,
       enterpriseCustomerUser: undefined,
       staffEnterpriseCustomer: undefined,
-      expectedEnterpriseCustomer: undefined,
+      expectedEnterpriseCustomer: null,
       isBFFRoute: true,
     },
     // iaBFFRoute false
@@ -116,7 +116,7 @@ describe('extractEnterpriseCustomer', () => {
       routeEnterpriseSlug: undefined,
       enterpriseCustomerUser: undefined,
       staffEnterpriseCustomer: mockEnterpriseCustomer,
-      expectedEnterpriseCustomer: undefined,
+      expectedEnterpriseCustomer: null,
       isBFFRoute: false,
     },
     {
@@ -130,7 +130,7 @@ describe('extractEnterpriseCustomer', () => {
       routeEnterpriseSlug: mockEnterpriseCustomer.slug,
       enterpriseCustomerUser: undefined,
       staffEnterpriseCustomer: undefined,
-      expectedEnterpriseCustomer: undefined,
+      expectedEnterpriseCustomer: null,
       isBFFRoute: false,
     },
   ])('should return or throw error as expected (%s)', async ({
@@ -148,7 +148,7 @@ describe('extractEnterpriseCustomer', () => {
     };
     const queryEnterpriseLearnerResult = {
       enterpriseCustomer: expectedEnterpriseCustomer,
-      activeEnterpriseCustomer: enterpriseCustomerUser?.enterpriseCustomer,
+      activeEnterpriseCustomer: enterpriseCustomerUser?.enterpriseCustomer || null,
       allLinkedEnterpriseCustomerUsers: enterpriseCustomerUser ? [enterpriseCustomerUser] : [],
       staffEnterpriseCustomer,
       enterpriseFeatures: { something: true },

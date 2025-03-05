@@ -1,3 +1,4 @@
+import { logError } from '@edx/frontend-platform/logging';
 import { getEnterpriseLearnerQueryData } from './utils';
 
 interface ExtractEnterpriseCustomerArgs {
@@ -48,8 +49,9 @@ async function extractEnterpriseCustomer({
     return foundEnterpriseCustomerForSlug || staffEnterpriseCustomer;
   }
 
-  // If no enterprise customer is found for the given user/slug, throw an error.
-  throw new Error(`Could not find enterprise customer for slug ${enterpriseSlug}`);
+  // If no enterprise customer is found for the given user/slug, log an error and display a 404 from return null.
+  logError(`Could not find enterprise customer for slug ${enterpriseSlug}`);
+  return null;
 }
 
 export default extractEnterpriseCustomer;
