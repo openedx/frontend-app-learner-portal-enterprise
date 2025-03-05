@@ -274,10 +274,10 @@ export function getAssignmentsByState(assignments = []) {
 export function transformEnterpriseCustomer(enterpriseCustomer) {
   // If the learner portal is not enabled for the displayed enterprise customer, return null. This
   // results in the enterprise learner portal not being accessible for the user, showing a 404 page.
-  if (!enterpriseCustomer?.enableLearnerPortal) {
-    return undefined;
+  // This logic needs to be maintained for individuals checks against the enterprise customer for staff users
+  if (!enterpriseCustomer.enableLearnerPortal) {
+    return null;
   }
-
   // Otherwise, learner portal is enabled, so transform the enterprise customer data.
   const disableSearch = !!(
     !enterpriseCustomer.enableIntegratedCustomerLearnerPortalSearch

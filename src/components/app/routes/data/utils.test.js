@@ -21,7 +21,7 @@ describe('transformEnterpriseCustomer', () => {
       enableLearnerPortal: false,
     };
     const result = transformEnterpriseCustomer(enterpriseCustomer);
-    expect(result).toBeUndefined();
+    expect(result).toBeNull();
   });
 
   it.each([
