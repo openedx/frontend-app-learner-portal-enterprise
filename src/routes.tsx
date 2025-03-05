@@ -1,6 +1,4 @@
-import {
-  matchPath, Outlet,
-} from 'react-router-dom';
+import { matchPath, Outlet } from 'react-router-dom';
 import { PageWrap } from '@edx/frontend-platform/react';
 
 import RouteErrorBoundary from './components/app/routes/RouteErrorBoundary';
@@ -251,7 +249,6 @@ export function getRoutes(queryClient?: Types.QueryClient) {
       element: <NotFoundPage />,
     },
   ];
-
   const routes: Types.RouteObject[] = [
     {
       path: '/',

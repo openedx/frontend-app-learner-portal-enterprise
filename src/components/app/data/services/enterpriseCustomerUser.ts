@@ -79,8 +79,8 @@ Promise<Types.EnterpriseLearnerData> {
           ...enterpriseCustomerUser,
           enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
         }),
-      )
-      .filter(enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer);
+      );
+      // .filter(enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer);
 
     const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
       enterpriseCustomerUser => enterpriseCustomerUser.active,
@@ -114,14 +114,14 @@ Promise<Types.EnterpriseLearnerData> {
       staffEnterpriseCustomer,
     });
 
-    // shouldUpdateActiveEnterpriseCustomerUser should always be null since its generated primarily from the BFF
+    // shouldUpdateActiveEnterpriseCustomerUser should always be false since its generated primarily from the BFF
     // layer to act as a flag on whether to update the active enterprise customer
     return {
-      enterpriseCustomer,
-      activeEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
-      enterpriseFeatures,
-      staffEnterpriseCustomer,
+      enterpriseCustomer: enterpriseCustomer || null,
+      activeEnterpriseCustomer: activeEnterpriseCustomer || null,
+      allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers || [],
+      enterpriseFeatures: enterpriseFeatures || {},
+      staffEnterpriseCustomer: staffEnterpriseCustomer || null,
       shouldUpdateActiveEnterpriseCustomerUser: false,
     };
   } catch (error) {

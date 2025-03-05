@@ -60,6 +60,7 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
       authenticatedUser,
       enterpriseSlug,
     });
+
     if (!enterpriseCustomer) {
       return null;
     }
