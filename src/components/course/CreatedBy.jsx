@@ -1,5 +1,5 @@
 import { getConfig } from '@edx/frontend-platform';
-import { Hyperlink } from '@openedx/paragon';
+import { Hyperlink, Image } from '@openedx/paragon';
 
 import { useCoursePartners } from './data/hooks';
 import { useCourseMetadata } from '../app/data';
@@ -23,15 +23,14 @@ const CreatedBy = () => {
           {partners.map(partner => (
             <div className="col-lg-6 mb-3" key={partner.name}>
               <div className="mb-2">
-                <a
-                  href={partner.marketingUrl}
-                  aria-hidden="true"
+                <Hyperlink
+                  destination={partner.marketingUrl}
                   tabIndex="-1"
                   target="_blank"
-                  rel="noopener noreferrer"
+                  showLaunchIcon={false}
                 >
-                  <img src={partner.logoImageUrl} alt={`${partner.name} logo`} />
-                </a>
+                  <Image src={partner.logoImageUrl} alt={`${partner.name} logo`} fluid />
+                </Hyperlink>
               </div>
               <Hyperlink destination={partner.marketingUrl} target="_blank">
                 {partner.name}
