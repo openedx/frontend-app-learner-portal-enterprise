@@ -32,12 +32,12 @@ const AcademyContentCard = ({
       async function fetchCourses() {
         setIsAlgoliaLoading(true);
         const searchFacetFilters = selectedTag ? [
-          ['content_type:course', 'content_type:learnerpathway'],
+          ['content_type:course'],
           `academy_uuids:${academyUUID}`,
           `enterprise_customer_uuids:${enterpriseCustomer.uuid}`,
           `academy_tags:${selectedTag}`,
         ] : [
-          ['content_type:course', 'content_type:learnerpathway'],
+          ['content_type:course'],
           `academy_uuids:${academyUUID}`,
           `enterprise_customer_uuids:${enterpriseCustomer.uuid}`,
         ];
@@ -74,9 +74,6 @@ const AcademyContentCard = ({
       setShowAllOcmCourses(prevState => !prevState);
     }
   };
-  const visibleExecEdCourses = showAllExecEdCourses
-    ? execEdCourses
-    : execEdCourses.slice(0, maxCoursesToShow);
 
   const visibleOcmCourses = showAllOcmCourses
     ? ocmCourses
@@ -199,24 +196,6 @@ const AcademyContentCard = ({
           </div>
         ) : (
           <>
-            {renderableContent({
-              content: visibleExecEdCourses,
-              contentLength: execEdCourses?.length,
-              contentType: LEARNING_TYPE_EXECUTIVE_EDUCATION,
-              title: intl.formatMessage({
-                id: 'academy.detail.page.executive.education.courses.section.title',
-                defaultMessage: 'Executive Education',
-                description: 'Title for the executive education courses section on the academy detail page.',
-              }),
-              subtitle: intl.formatMessage({
-                id: 'academy.detail.page.executive.education.courses.section.subtitle',
-                defaultMessage: 'A selection of high-impact graduate-level courses that follow a structured schedule and include active interaction with educators and peers.',
-                description: 'Subtitle for the executive education courses section on the academy detail page.',
-              }),
-              additionalClass: 'academy-exec-ed-courses-container',
-              titleTestId: 'academy-exec-ed-courses-title',
-              subtitleTestId: 'academy-exec-ed-courses-subtitle',
-            })}
             {renderableContent({
               content: visibleOcmCourses,
               contentLength: ocmCourses?.length,
