@@ -273,8 +273,10 @@ export async function ensureActiveEnterpriseCustomerUser({
     allLinkedEnterpriseCustomerUsers,
   } = enterpriseLearnerData;
   const {
+    staffEnterpriseCustomer,
     shouldUpdateActiveEnterpriseCustomerUser,
   } = enterpriseLearnerData;
+
   const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
   // If the enterprise slug in the URL matches the active enterprise customer user's slug OR no
   // active enterprise customer exists, return early.
@@ -310,9 +312,8 @@ export async function ensureActiveEnterpriseCustomerUser({
     try {
       await updateUserActiveEnterprise({ enterpriseCustomer: nextActiveEnterpriseCustomer });
     } catch (error) {
-      logError(`Unable to update active enterprise customer: ${nextActiveEnterpriseCustomer}
-      for user ${authenticatedUser.userId}
-      ${error.message}`);
+      error.message = `Unable to update active enterprise customer: ${nextActiveEnterpriseCustomer} for user ${authenticatedUser.userId}: ${error.message}`;
+      logError(error);
       return {
         enterpriseCustomer,
         allLinkedEnterpriseCustomerUsers,
@@ -345,13 +346,21 @@ export async function ensureActiveEnterpriseCustomerUser({
     };
   }
 
+  if (staffEnterpriseCustomer) {
+    return {
+      enterpriseCustomer: staffEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
+    };
+  }
+
   // Given the user has an active ECU, but the current route has no slug, redirect to the slug of the active ECU.
-  if (activeEnterpriseCustomer && !enterpriseSlug) {
+  if (activeEnterpriseCustomer && activeEnterpriseCustomer.slug !== enterpriseSlug) {
     throw redirect(generatePath('/:enterpriseSlug/*', {
       enterpriseSlug: activeEnterpriseCustomer.slug,
       '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
     }));
   }
+
   return {
     enterpriseCustomer,
     allLinkedEnterpriseCustomerUsers,
