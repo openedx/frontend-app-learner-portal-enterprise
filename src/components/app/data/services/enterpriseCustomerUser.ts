@@ -97,11 +97,11 @@ Promise<Types.EnterpriseLearnerData> {
     // If no enterprise customer is found (i.e., authenticated user not explicitly
     // linked), but the authenticated user is staff, attempt to retrieve enterprise
     // customer metadata from the `/enterprise-customer` LMS API.
-    let staffEnterpriseCustomer;
+    let staffEnterpriseCustomer: Types.EnterpriseCustomer | null = null;
     if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
-      const originalStaffEnterpriseCustomer = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
-      if (originalStaffEnterpriseCustomer?.enableLearnerPortal) {
-        staffEnterpriseCustomer = transformEnterpriseCustomer(originalStaffEnterpriseCustomer);
+      const staffEnterpriseCustomerResult = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
+      if (staffEnterpriseCustomerResult?.enableLearnerPortal) {
+        staffEnterpriseCustomer = transformEnterpriseCustomer(staffEnterpriseCustomerResult);
       }
     }
 

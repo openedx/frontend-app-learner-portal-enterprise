@@ -164,7 +164,7 @@ describe('fetchEnterpriseLearnerData', () => {
           enterpriseCustomer: expectedEnterpriseCustomer,
         }))
         .filter((ecu) => ecu.enterpriseCustomer),
-      staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : undefined,
+      staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : null,
       shouldUpdateActiveEnterpriseCustomerUser: false,
     });
   });

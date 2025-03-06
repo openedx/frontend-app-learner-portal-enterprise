@@ -273,6 +273,7 @@ export async function ensureActiveEnterpriseCustomerUser({
     allLinkedEnterpriseCustomerUsers,
   } = enterpriseLearnerData;
   const {
+    staffEnterpriseCustomer,
     shouldUpdateActiveEnterpriseCustomerUser,
   } = enterpriseLearnerData;
 
@@ -341,6 +342,13 @@ export async function ensureActiveEnterpriseCustomerUser({
     }
     return {
       enterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
+    };
+  }
+
+  if (staffEnterpriseCustomer) {
+    return {
+      enterpriseCustomer: staffEnterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
     };
   }

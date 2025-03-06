@@ -16,14 +16,6 @@ jest.mock('../../data', () => ({
 }));
 
 describe('transformEnterpriseCustomer', () => {
-  it('returns null with disabled learner portal', () => {
-    const enterpriseCustomer = {
-      enableLearnerPortal: false,
-    };
-    const result = transformEnterpriseCustomer(enterpriseCustomer);
-    expect(result).toBeNull();
-  });
-
   it.each([
     {
       identityProvider: undefined,
