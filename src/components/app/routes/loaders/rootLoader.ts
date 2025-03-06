@@ -39,7 +39,7 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
     });
 
     // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
-    if (!enterpriseLearnerData.enterpriseCustomer) {
+    if (!enterpriseLearnerData.enterpriseCustomer && !enterpriseLearnerData.activeEnterpriseCustomer) {
       return null;
     }
 

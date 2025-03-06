@@ -74,13 +74,13 @@ Promise<Types.EnterpriseLearnerData> {
     const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
     // Transform enterprise customer user results
     const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers
+      .filter(enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer.enableLearnerPortal)
       .map(
         enterpriseCustomerUser => ({
           ...enterpriseCustomerUser,
           enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
         }),
-      )
-      .filter(enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer);
+      );
 
     const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
       enterpriseCustomerUser => enterpriseCustomerUser.active,
@@ -91,7 +91,7 @@ Promise<Types.EnterpriseLearnerData> {
     // Find enterprise customer metadata for the currently viewed
     // enterprise slug in the page route params.
     const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
-      enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
+      enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
     );
 
     // If no enterprise customer is found (i.e., authenticated user not explicitly
@@ -100,7 +100,7 @@ Promise<Types.EnterpriseLearnerData> {
     let staffEnterpriseCustomer;
     if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
       const originalStaffEnterpriseCustomer = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
-      if (originalStaffEnterpriseCustomer) {
+      if (originalStaffEnterpriseCustomer?.enableLearnerPortal) {
         staffEnterpriseCustomer = transformEnterpriseCustomer(originalStaffEnterpriseCustomer);
       }
     }

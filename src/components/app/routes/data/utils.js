@@ -285,6 +285,7 @@ export async function ensureActiveEnterpriseCustomerUser({
     // If this flag is truthy, we already know that the active enterprise customer user should be updated.
     nextActiveEnterpriseCustomer = enterpriseCustomer;
   } else if (!isBFFData) {
+    console.log('ensureActiveEnterpriseCustomerUser???! isBFFData', { activeEnterpriseCustomer, enterpriseSlug });
     // Otherwise, if we're using the non-BFF API data, we must determine if the active
     // enterprise customer user should be updated based on the enterprise slug in the URL.
 
@@ -306,14 +307,15 @@ export async function ensureActiveEnterpriseCustomerUser({
     }
   }
 
+  console.log('ensureActiveEnterpriseCustomerUser???! nextActiveEnterpriseCustomer', { nextActiveEnterpriseCustomer, enterpriseSlug });
+
   // If we've determined that the active enterprise customer user should be updated, update it.
   if (nextActiveEnterpriseCustomer) {
     try {
       await updateUserActiveEnterprise({ enterpriseCustomer: nextActiveEnterpriseCustomer });
     } catch (error) {
-      logError(`Unable to update active enterprise customer: ${nextActiveEnterpriseCustomer}
-      for user ${authenticatedUser.userId}
-      ${error.message}`);
+      error.message = `Unable to update active enterprise customer: ${nextActiveEnterpriseCustomer} for user ${authenticatedUser.userId}: ${error.message}`;
+      logError(error);
       return {
         enterpriseCustomer,
         allLinkedEnterpriseCustomerUsers,
@@ -345,6 +347,8 @@ export async function ensureActiveEnterpriseCustomerUser({
       allLinkedEnterpriseCustomerUsers,
     };
   }
+
+  console.log('ensureActiveEnterpriseCustomerUser???! redirect', { activeEnterpriseCustomer, enterpriseSlug });
 
   // Given the user has an active ECU, but the current route has no slug, redirect to the slug of the active ECU.
   if (activeEnterpriseCustomer && activeEnterpriseCustomer.slug !== enterpriseSlug) {
