@@ -276,17 +276,16 @@ export async function ensureActiveEnterpriseCustomerUser({
     shouldUpdateActiveEnterpriseCustomerUser,
   } = enterpriseLearnerData;
 
-  if (activeEnterpriseCustomer.slug === enterpriseSlug) {
-    return {
-      enterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers,
-    };
-  }
-
   const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
   // If the enterprise slug in the URL matches the active enterprise customer user's slug OR no
   // active enterprise customer exists, return early.
   let nextActiveEnterpriseCustomer = null;
+
+  console.log('ensureActiveEnterpriseCustomerUser?!?!?!', {
+    enterpriseSlug,
+    enterpriseLearnerData,
+    isBFFData,
+  });
 
   if (shouldUpdateActiveEnterpriseCustomerUser) {
     // If this flag is truthy, we already know that the active enterprise customer user should be updated.
@@ -354,7 +353,7 @@ export async function ensureActiveEnterpriseCustomerUser({
   }
 
   // Given the user has an active ECU, but the current route has no slug, redirect to the slug of the active ECU.
-  if (activeEnterpriseCustomer) {
+  if (activeEnterpriseCustomer && activeEnterpriseCustomer.slug !== enterpriseSlug) {
     throw redirect(generatePath('/:enterpriseSlug/*', {
       enterpriseSlug: activeEnterpriseCustomer.slug,
       '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
