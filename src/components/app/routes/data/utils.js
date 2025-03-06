@@ -281,12 +281,6 @@ export async function ensureActiveEnterpriseCustomerUser({
   // active enterprise customer exists, return early.
   let nextActiveEnterpriseCustomer = null;
 
-  console.log('ensureActiveEnterpriseCustomerUser?!?!?!', {
-    enterpriseSlug,
-    enterpriseLearnerData,
-    isBFFData,
-  });
-
   if (shouldUpdateActiveEnterpriseCustomerUser) {
     // If this flag is truthy, we already know that the active enterprise customer user should be updated.
     nextActiveEnterpriseCustomer = enterpriseCustomer;
