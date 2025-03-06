@@ -346,6 +346,9 @@ export async function ensureActiveEnterpriseCustomerUser({
     };
   }
 
+  // To enable staff users masquerading as enterprise customers, we need to ensure the
+  // below redirect to the active enterprise customer user's slug does NOT occur, by
+  // returning early with the staff enterprise customer data.
   if (staffEnterpriseCustomer) {
     return {
       enterpriseCustomer: staffEnterpriseCustomer,

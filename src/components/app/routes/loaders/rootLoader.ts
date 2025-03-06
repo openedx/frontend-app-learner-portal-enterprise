@@ -43,9 +43,11 @@ const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function ma
       return null;
     }
 
-    // If the active enterprise customer user was updated, override the previous active
-    // enterprise customer user data with the new active enterprise customer user data
-    // for subsequent queries.
+    // 1. If the active enterprise customer user was updated, override the previous active
+    //    enterprise customer user data with the new active enterprise customer user data
+    //    for subsequent queries.
+    // 2. If no enterpriseCustomer exists, redirects the user to the activeEnterpriseCustomer
+    //    at the same page route.
     const {
       enterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
