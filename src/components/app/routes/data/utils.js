@@ -275,6 +275,7 @@ export async function ensureActiveEnterpriseCustomerUser({
   const {
     shouldUpdateActiveEnterpriseCustomerUser,
   } = enterpriseLearnerData;
+  console.log(enterpriseLearnerData);
   const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
   // If the enterprise slug in the URL matches the active enterprise customer user's slug OR no
   // active enterprise customer exists, return early.

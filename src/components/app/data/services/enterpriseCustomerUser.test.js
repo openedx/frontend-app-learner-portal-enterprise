@@ -148,9 +148,12 @@ describe('fetchEnterpriseLearnerData', () => {
       return null;
     };
 
-    const getExpectedActiveEnterpriseCustomer = () => (
-      isLinkedToEnterpriseCustomer ? expectedTransformedEnterpriseCustomer : null
-    );
+    const getExpectedActiveEnterpriseCustomer = () => {
+      if (isStaffUser || isLinkedToEnterpriseCustomer) {
+        return expectedTransformedEnterpriseCustomer;
+      }
+      return null;
+    };
 
     const expectedEnterpriseCustomer = getExpectedEnterpriseCustomer();
     const expectedActiveEnterpriseCustomer = getExpectedActiveEnterpriseCustomer();

@@ -146,11 +146,18 @@ export function determineEnterpriseCustomerUserForDisplay({
   foundEnterpriseCustomerUserForCurrentSlug,
   staffEnterpriseCustomer,
 }) {
+  if (staffEnterpriseCustomer) {
+    return {
+      enterpriseCustomer: staffEnterpriseCustomer.enableLearnerPortal ? staffEnterpriseCustomer : null,
+    };
+  }
+
   if (foundEnterpriseCustomerUserForCurrentSlug?.enterpriseCustomer.enableLearnerPortal === false) {
     return {
       enterpriseCustomer: null,
     };
   }
+
   const activeEnterpriseCustomerUser = {
     enterpriseCustomer: activeEnterpriseCustomer,
   };
@@ -162,18 +169,11 @@ export function determineEnterpriseCustomerUserForDisplay({
   // If the enterprise slug in the URL does not match the active enterprise
   // customer user's slug and there is a linked enterprise customer user for
   // the requested slug, return the linked enterprise customer user.
-  if (
-    enterpriseSlug !== activeEnterpriseCustomer?.slug
-    && foundEnterpriseCustomerUserForCurrentSlug?.enterpriseCustomer.enableLearnerPortal
-  ) {
+  if (enterpriseSlug !== activeEnterpriseCustomer?.slug) {
     return {
-      enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
-    };
-  }
-
-  if (staffEnterpriseCustomer) {
-    return {
-      enterpriseCustomer: staffEnterpriseCustomer.enableLearnerPortal ? staffEnterpriseCustomer : null,
+      enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug
+        ? foundEnterpriseCustomerUserForCurrentSlug?.enterpriseCustomer
+        : null,
     };
   }
 

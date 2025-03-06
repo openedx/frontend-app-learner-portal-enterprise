@@ -86,14 +86,14 @@ Promise<Types.EnterpriseLearnerData> {
     );
 
     const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer || null;
-
+    console.log(transformedEnterpriseCustomersUsers);
     // Find enterprise customer metadata for the currently viewed
     // enterprise slug in the page route params.
     const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
       enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
     );
 
-    // If no enterprise customer is found (i.e., authenticated user not explicitly
+    // If no enterprise customer is found (i.e., authenticated user not explicitlyand
     // linked), but the authenticated user is staff, attempt to retrieve enterprise
     // customer metadata from the `/enterprise-customer` LMS API.
     let staffEnterpriseCustomer;
@@ -104,7 +104,7 @@ Promise<Types.EnterpriseLearnerData> {
         staffEnterpriseCustomer = staffEnterpriseCustomer.enableLearnerPortal ? staffEnterpriseCustomer : null;
       }
     }
-
+    console.log(activeEnterpriseCustomer, enterpriseSlug, foundEnterpriseCustomerUserForCurrentSlug, staffEnterpriseCustomer);
     const {
       enterpriseCustomer,
     } = determineEnterpriseCustomerUserForDisplay({
@@ -118,12 +118,14 @@ Promise<Types.EnterpriseLearnerData> {
       enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer?.enableLearnerPortal,
     );
 
+    console.log(enterpriseCustomer);
+
     // shouldUpdateActiveEnterpriseCustomerUser should always be false since its generated primarily from the BFF
     // layer to act as a flag on whether to update the active enterprise customer
     return {
       enterpriseCustomer: enterpriseCustomer || null,
       activeEnterpriseCustomer: activeEnterpriseCustomer || null,
-      allLinkedEnterpriseCustomerUsers: learnerPortalEnabledEnterpriseCustomerUsers || [],
+      allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers || [],
       enterpriseFeatures: enterpriseFeatures || {},
       staffEnterpriseCustomer: staffEnterpriseCustomer || null,
       shouldUpdateActiveEnterpriseCustomerUser: false,
