@@ -1,4 +1,4 @@
-import { logError } from '@edx/frontend-platform/logging';
+import { logInfo } from '@edx/frontend-platform/logging';
 import { getEnterpriseLearnerQueryData } from './utils';
 
 interface ExtractEnterpriseCustomerArgs {
@@ -37,7 +37,7 @@ async function extractEnterpriseCustomer({
   }
 
   const foundEnterpriseCustomerForSlug = allLinkedEnterpriseCustomerUsers.find(
-    (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
+    (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
   )?.enterpriseCustomer;
 
   // Otherwise, there is a slug provided for a specific enterprise customer. If the
@@ -49,8 +49,9 @@ async function extractEnterpriseCustomer({
     return foundEnterpriseCustomerForSlug || staffEnterpriseCustomer;
   }
 
-  // If no enterprise customer is found for the given user/slug, log an error and display a 404 from return null.
-  logError(`Could not find enterprise customer for slug ${enterpriseSlug}`);
+  // If no enterprise customer is found for the given slug, log it and return null. The
+  // user may be redirected to their activeEnterpriseCustomer, if any, later on.
+  logInfo(`Could not find enterprise customer for slug ${enterpriseSlug}`);
   return null;
 }
 
