@@ -194,22 +194,19 @@ describe('ensureActiveEnterpriseCustomerUser', () => {
           });
           if (isBFFData) {
             expect(mockQueryClient.setQueryData).toHaveBeenCalledTimes(timesUpdateActiveEnterpriseCustomerCalled);
-            expect(mockQueryClient.setQueryData).toHaveBeenCalledWith(
-              {
-                queryFn: expect.any(Function),
-                queryKey: queryEnterpriseLearnerDashboardBFF(
-                  { enterpriseSlug: expectedEnterpriseCustomer.slug },
-                ).queryKey,
-              },
-              {
-                ...mockQueryClient.getQueryData(queryEnterpriseLearnerDashboardBFF(
-                  { enterpriseSlug: expectedEnterpriseCustomer.slug },
-                )),
-                enterpriseCustomer: expectedEnterpriseCustomer,
-                activeEnterpriseCustomer: expectedEnterpriseCustomer,
-                allLinkedEnterpriseCustomerUsers: expectedAllLinkedEnterpriseCustomers,
-              },
-            );
+            const expectedQuery = queryEnterpriseLearnerDashboardBFF({
+              enterpriseSlug: expectedEnterpriseCustomer.slug,
+            });
+            expect(mockQueryClient.setQueryData).toHaveBeenCalledWith(expectedQuery.queryKey, expect.any(Function));
+            // Get the function that was passed to setQueryData
+            const updateFunction = mockQueryClient.setQueryData.mock.calls[0][1];
+            const result = updateFunction(mockEnterpriseLearnerData);
+            expect(result).toEqual({
+              enterpriseCustomer: expectedEnterpriseCustomer,
+              activeEnterpriseCustomer: expectedEnterpriseCustomer,
+              allLinkedEnterpriseCustomerUsers: expectedAllLinkedEnterpriseCustomers,
+              shouldUpdateActiveEnterpriseCustomerUser: false,
+            });
           }
         }
       },

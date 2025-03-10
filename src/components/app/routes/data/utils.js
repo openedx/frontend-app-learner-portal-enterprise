@@ -87,13 +87,13 @@ export async function ensureEnterpriseAppData({
           }
 
           // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
-          queryClient.setQueryData(subscriptionsQuery.queryKey, {
-            ...queryClient.getQueryData(subscriptionsQuery.queryKey),
+          queryClient.setQueryData(subscriptionsQuery.queryKey, (oldData) => ({
+            ...oldData,
             subscriptionLicensesByStatus: updatedLicensesByStatus,
             subscriptionPlan: activatedOrAutoAppliedLicense.subscriptionPlan,
             subscriptionLicense: activatedOrAutoAppliedLicense,
             subscriptionLicenses: updatedSubscriptionLicenses,
-          });
+          }));
         }
 
         return subscriptionsData;
@@ -331,14 +331,14 @@ export async function ensureActiveEnterpriseCustomerUser({
     enterpriseCustomer = nextActiveEnterpriseCustomer;
     activeEnterpriseCustomer = nextActiveEnterpriseCustomer;
     allLinkedEnterpriseCustomerUsers = updatedLinkedEnterpriseCustomerUsers;
-    // Optimistically update the BFF layer (use helper)
+    // Optimistically update the BFF query cache
     if (matchedBFFQuery) {
-      queryClient.setQueryData(matchedBFFQuery({ enterpriseSlug }), {
-        ...queryClient.getQueryData(matchedBFFQuery({ enterpriseSlug })),
+      queryClient.setQueryData(matchedBFFQuery({ enterpriseSlug }).queryKey, (oldData) => ({
+        ...oldData,
         enterpriseCustomer,
         activeEnterpriseCustomer,
         allLinkedEnterpriseCustomerUsers: updatedLinkedEnterpriseCustomerUsers,
-      });
+      }));
     }
     return {
       enterpriseCustomer,
