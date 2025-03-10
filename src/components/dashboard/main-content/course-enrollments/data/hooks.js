@@ -4,7 +4,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { logError, logInfo } from '@edx/frontend-platform/logging';
+import { logError } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 
 import { useLocation } from 'react-router-dom';
@@ -42,6 +42,7 @@ import { ASSIGNMENTS_EXPIRING_WARNING_LOCALSTORAGE_KEY } from '../../../data/con
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
 import { useStatefulEnroll } from '../../../../stateful-enroll/data';
 import { COURSE_STATUSES } from '../../../../../constants';
+import { findCourseStatusKey } from '../../../../../utils/common';
 
 /**
  * Return data for upgrading a course using the user's subsidies
@@ -494,32 +495,44 @@ export function useUpdateCourseEnrollmentStatus() {
       const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({
         enterpriseSlug: enterpriseCustomer.slug,
       }).queryKey;
-
       const bffQueryKeysToUpdate = [dashboardBFFQueryKey];
       // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
       bffQueryKeysToUpdate.forEach((queryKey) => {
-        const existingBFFData = queryClient.getQueryData(queryKey);
-        if (!existingBFFData) {
-          logInfo(`Skipping optimistic cache update of ${JSON.stringify(queryKey)} as no cached query data exists yet.`);
-          return;
-        }
-        const updatedBFFData = {
-          ...existingBFFData,
-          enterpriseCourseEnrollments: existingBFFData.enterpriseCourseEnrollments.map(transformUpdatedEnrollment),
-        };
-        queryClient.setQueryData(queryKey, updatedBFFData);
+        queryClient.setQueryData(queryKey, (oldData) => {
+          const updatedEnrollments = oldData.enterpriseCourseEnrollments.map(transformUpdatedEnrollment);
+          const updatedAllEnrollmentsByStatus = Object.keys(oldData.allEnrollmentsByStatus).reduce((acc, status) => {
+            acc[status] = oldData.allEnrollmentsByStatus[status]
+              .filter((enrollment) => enrollment.courseRunId !== courseRunId)
+              .map(transformUpdatedEnrollment);
+            return acc;
+          }, {});
+
+          // Find the updated enrollment.
+          const updatedEnrollment = updatedEnrollments.find(enrollment => enrollment.courseRunId === courseRunId);
+          if (updatedEnrollment) {
+            const newCourseStatusKey = findCourseStatusKey(updatedEnrollment.courseRunStatus);
+            // Add the enrollment to the new status group.
+            if (!updatedAllEnrollmentsByStatus[newCourseStatusKey]) {
+              updatedAllEnrollmentsByStatus[newCourseStatusKey] = [];
+            }
+            updatedAllEnrollmentsByStatus[newCourseStatusKey].push(updatedEnrollment);
+          }
+
+          return {
+            ...oldData,
+            enterpriseCourseEnrollments: updatedEnrollments,
+            allEnrollmentsByStatus: updatedAllEnrollmentsByStatus,
+          };
+        });
       });
     }
 
     // Update the legacy queryEnterpriseCourseEnrollments cache as well.
     const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
-    const existingCourseEnrollmentsData = queryClient.getQueryData(enterpriseCourseEnrollmentsQueryKey);
-    if (!existingCourseEnrollmentsData) {
-      logInfo(`Skipping optimistic cache update of ${JSON.stringify(enterpriseCourseEnrollmentsQueryKey)} as no cached query data exists yet.`);
-      return;
-    }
-    const updatedCourseEnrollmentsData = existingCourseEnrollmentsData.map(transformUpdatedEnrollment);
-    queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, updatedCourseEnrollmentsData);
+    queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, (oldData) => {
+      const updatedData = oldData?.map(transformUpdatedEnrollment);
+      return updatedData;
+    });
   }, [queryClient, enterpriseCustomer, isBFFEnabled]);
 }
 

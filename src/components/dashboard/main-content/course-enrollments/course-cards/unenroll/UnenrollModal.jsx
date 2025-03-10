@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   ActionRow, Alert, AlertModal, Button, StatefulButton,
 } from '@openedx/paragon';
-import { logError, logInfo } from '@edx/frontend-platform/logging';
+import { logError } from '@edx/frontend-platform/logging';
 
 import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
@@ -51,28 +51,24 @@ const UnenrollModal = ({
       const bffQueryKeysToUpdate = [dashboardBFFQueryKey];
       // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
       bffQueryKeysToUpdate.forEach((queryKey) => {
-        const existingBFFData = queryClient.getQueryData(queryKey);
-        if (!existingBFFData) {
-          logInfo(`Skipping optimistic cache update of ${JSON.stringify(queryKey)} as no cached query data exists yet.`);
-          return;
-        }
-        const updatedBFFData = {
-          ...existingBFFData,
-          enterpriseCourseEnrollments: existingBFFData.enterpriseCourseEnrollments.filter(enrollmentForCourseFilter),
-        };
-        queryClient.setQueryData(queryKey, updatedBFFData);
+        queryClient.setQueryData(queryKey, (oldData) => ({
+          ...oldData,
+          enterpriseCourseEnrollments: oldData.enterpriseCourseEnrollments.filter(enrollmentForCourseFilter),
+          allEnrollmentsByStatus: Object.keys(oldData.allEnrollmentsByStatus).reduce((acc, status) => {
+            const filteredEnrollments = oldData.allEnrollmentsByStatus[status].filter(enrollmentForCourseFilter);
+            acc[status] = filteredEnrollments;
+            return acc;
+          }, {}),
+        }));
       });
     }
 
     // Update the legacy queryEnterpriseCourseEnrollments cache as well.
     const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
-    const existingCourseEnrollmentsData = queryClient.getQueryData(enterpriseCourseEnrollmentsQueryKey);
-    if (!existingCourseEnrollmentsData) {
-      logInfo(`Skipping optimistic cache update of ${JSON.stringify(enterpriseCourseEnrollmentsQueryKey)} as no cached query data exists yet.`);
-      return;
-    }
-    const updatedCourseEnrollmentsData = existingCourseEnrollmentsData.filter(enrollmentForCourseFilter);
-    queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, updatedCourseEnrollmentsData);
+    queryClient.setQueryData(enterpriseCourseEnrollmentsQueryKey, (oldData) => {
+      const updatedCourseEnrollmentsData = oldData?.filter(enrollmentForCourseFilter);
+      return updatedCourseEnrollmentsData;
+    });
   };
 
   const handleUnenrollButtonClick = async () => {
