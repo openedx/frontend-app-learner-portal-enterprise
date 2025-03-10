@@ -331,9 +331,9 @@ export async function ensureActiveEnterpriseCustomerUser({
     enterpriseCustomer = nextActiveEnterpriseCustomer;
     activeEnterpriseCustomer = nextActiveEnterpriseCustomer;
     allLinkedEnterpriseCustomerUsers = updatedLinkedEnterpriseCustomerUsers;
-    // Optimistically update the BFF layer (use helper)
+    // Optimistically update the BFF query cache
     if (matchedBFFQuery) {
-      queryClient.setQueryData(matchedBFFQuery({ enterpriseSlug }), (oldData) => ({
+      queryClient.setQueryData(matchedBFFQuery({ enterpriseSlug }).queryKey, (oldData) => ({
         ...oldData,
         enterpriseCustomer,
         activeEnterpriseCustomer,

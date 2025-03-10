@@ -51,15 +51,20 @@ const UnenrollModal = ({
       const bffQueryKeysToUpdate = [dashboardBFFQueryKey];
       // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
       bffQueryKeysToUpdate.forEach((queryKey) => {
-        queryClient.setQueryData(queryKey, (oldData) => ({
-          ...oldData,
-          enterpriseCourseEnrollments: oldData.enterpriseCourseEnrollments.filter(enrollmentForCourseFilter),
-          allEnrollmentsByStatus: Object.keys(oldData.allEnrollmentsByStatus).reduce((acc, status) => {
-            const filteredEnrollments = oldData.allEnrollmentsByStatus[status].filter(enrollmentForCourseFilter);
-            acc[status] = filteredEnrollments;
-            return acc;
-          }, {}),
-        }));
+        queryClient.setQueryData(queryKey, (oldData) => {
+          if (!oldData) {
+            return oldData;
+          }
+          return {
+            ...oldData,
+            enterpriseCourseEnrollments: oldData.enterpriseCourseEnrollments.filter(enrollmentForCourseFilter),
+            allEnrollmentsByStatus: Object.keys(oldData.allEnrollmentsByStatus).reduce((acc, status) => {
+              const filteredEnrollments = oldData.allEnrollmentsByStatus[status].filter(enrollmentForCourseFilter);
+              acc[status] = filteredEnrollments;
+              return acc;
+            }, {}),
+          };
+        });
       });
     }
 

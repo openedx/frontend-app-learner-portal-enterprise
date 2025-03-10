@@ -499,6 +499,9 @@ export function useUpdateCourseEnrollmentStatus() {
       // Update the enterpriseCourseEnrollments data in the cache for each BFF query.
       bffQueryKeysToUpdate.forEach((queryKey) => {
         queryClient.setQueryData(queryKey, (oldData) => {
+          if (!oldData) {
+            return oldData;
+          }
           const updatedEnrollments = oldData.enterpriseCourseEnrollments.map(transformUpdatedEnrollment);
           const updatedAllEnrollmentsByStatus = Object.keys(oldData.allEnrollmentsByStatus).reduce((acc, status) => {
             acc[status] = oldData.allEnrollmentsByStatus[status]

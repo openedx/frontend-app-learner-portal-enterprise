@@ -431,7 +431,19 @@ describe('rootLoader', () => {
         });
 
         // Assert the subscriptions query cache is optimistically updated
-        expect(mockQueryClient.setQueryData).toHaveBeenCalledWith(subscriptionsQuery.queryKey, {
+        expect(mockQueryClient.setQueryData).toHaveBeenCalledWith(subscriptionsQuery.queryKey, expect.any(Function));
+        // Get the function that was passed to setQueryData
+        const updateFunction = mockQueryClient.setQueryData.mock.calls[0][1];
+        // Call the function with a mock oldData value if needed to simulate the cache update
+        const result = updateFunction({
+          subscriptionLicenses: [mockSubscriptionsData.subscriptionLicense],
+          subscriptionLicensesByStatus: {
+            [LICENSE_STATUS.PENDING]: [mockSubscriptionsData.subscriptionLicense],
+          },
+          subscriptionLicense: mockSubscriptionsData.subscriptionLicense,
+          subscriptionPlan: mockSubscriptionsData.subscriptionPlan,
+        });
+        expect(result).toEqual({
           subscriptionLicenses: [
             {
               ...mockSubscriptionsData.subscriptionLicense,
