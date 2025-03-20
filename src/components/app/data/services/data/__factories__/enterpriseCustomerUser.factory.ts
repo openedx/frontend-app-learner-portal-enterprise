@@ -36,7 +36,16 @@ Factory.define('enterpriseCustomer')
     primary_color: faker.internet.color(),
     secondary_color: faker.internet.color(),
     tertiary_color: faker.internet.color(),
-  });
+  })
+  .attr('active_integrations', [
+    {
+      channel_code: faker.word.adjective({ length: 4 }).toUpperCase(),
+      created: dayjs().toISOString(),
+      modified: dayjs().toISOString(),
+      display_name: faker.company.name(),
+      active: faker.datatype.boolean(),
+    },
+  ]);
 export function enterpriseCustomerFactory(overrides = {}): Types.EnterpriseCustomer {
   return camelCaseObject(Factory.build('enterpriseCustomer', overrides));
 }
