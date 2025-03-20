@@ -16,34 +16,40 @@ jest.mock('../../data', () => ({
 }));
 
 describe('transformEnterpriseCustomer', () => {
+  const factoryActiveIntegrations = enterpriseCustomerFactory().activeIntegrations;
   it.each([
     {
       identityProvider: undefined,
       enableIntegratedCustomerLearnerPortalSearch: false,
+      activeIntegrations: [],
       expectedDisableSearch: false,
       expectedShowIntegrationWarning: false,
     },
     {
       identityProvider: undefined,
       enableIntegratedCustomerLearnerPortalSearch: true,
+      activeIntegrations: [],
       expectedDisableSearch: false,
       expectedShowIntegrationWarning: false,
     },
     {
       identityProvider: 'example-idp',
       enableIntegratedCustomerLearnerPortalSearch: false,
+      activeIntegrations: [],
       expectedDisableSearch: true,
       expectedShowIntegrationWarning: false,
     },
     {
       identityProvider: 'example-idp',
       enableIntegratedCustomerLearnerPortalSearch: true,
+      activeIntegrations: factoryActiveIntegrations,
       expectedDisableSearch: false,
       expectedShowIntegrationWarning: true,
     },
   ])('returns transformed enterprise customer with enabled learner portal (%s)', ({
     identityProvider,
     enableIntegratedCustomerLearnerPortalSearch,
+    activeIntegrations,
     expectedDisableSearch,
     expectedShowIntegrationWarning,
   }) => {
@@ -51,6 +57,7 @@ describe('transformEnterpriseCustomer', () => {
       enableLearnerPortal: true,
       enableIntegratedCustomerLearnerPortalSearch,
       identityProvider,
+      activeIntegrations,
       brandingConfiguration: {
         primaryColor: '#123456',
         secondaryColor: '#789abc',

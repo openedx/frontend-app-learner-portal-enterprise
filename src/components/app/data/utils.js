@@ -277,7 +277,7 @@ export function transformEnterpriseCustomer(enterpriseCustomer) {
     !enterpriseCustomer.enableIntegratedCustomerLearnerPortalSearch
     && enterpriseCustomer.identityProvider
   );
-  const showIntegrationWarning = !!(!disableSearch && enterpriseCustomer.identityProvider);
+  const showIntegrationWarning = !!(!disableSearch && enterpriseCustomer.activeIntegrations?.length > 0);
   const brandColors = getBrandColorsFromCSSVariables();
   const defaultPrimaryColor = brandColors.primary;
   const defaultSecondaryColor = brandColors.info100;
