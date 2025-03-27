@@ -36,7 +36,14 @@ export function resolveBFFQuery(pathname) {
   ];
 
   // Find the matching route and return the corresponding query function
-  const matchedRoute = routeToBFFQueryMap.find((route) => matchPath(route.pattern, pathname));
+  const matchedRoute = routeToBFFQueryMap.find((route) => {
+    console.log('matchedRoute?!', {
+      pathname,
+      pattern: route.pattern,
+      matchPath: matchPath(route.pattern, pathname),
+    });
+    return matchPath(route.pattern, pathname);
+  });
 
   if (matchedRoute) {
     return matchedRoute.query;
