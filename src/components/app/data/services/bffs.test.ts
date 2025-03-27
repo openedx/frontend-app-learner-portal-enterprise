@@ -6,7 +6,16 @@ import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { v4 as uuidv4 } from 'uuid';
 import { camelCaseObject } from '@edx/frontend-platform';
 import { enterpriseCustomerFactory } from './data/__factories__';
-import { fetchEnterpriseLearnerDashboard, learnerDashboardBFFResponse } from './bffs';
+import {
+  fetchEnterpriseLearnerAcademy,
+  fetchEnterpriseLearnerDashboard,
+  fetchEnterpriseLearnerSearch,
+  fetchEnterpriseLearnerSkillsQuiz,
+  learnerAcademyBFFResponse,
+  learnerDashboardBFFResponse,
+  learnerSearchBFFResponse,
+  learnerSkillsQuizBFFResponse,
+} from './bffs';
 
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
@@ -134,60 +143,24 @@ const mockBFFDashboardResponse = {
   ],
 };
 
-describe('fetchEnterpriseLearnerDashboard', () => {
-  const urlForDashboardBFF = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/dashboard/`;
+const mockBFFSearchResponse = {
+  ...mockBaseLearnerBFFResponse,
+};
 
+const mockBFFAcademyResponse = {
+  ...mockBaseLearnerBFFResponse,
+};
+
+const mockBFFSkillsQuizResponse = {
+  ...mockBaseLearnerBFFResponse,
+};
+
+const urlForDashboardBFF = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/dashboard/`;
+
+describe('makeBFFRequest', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     axiosMock.reset();
-  });
-
-  it.each([
-    {
-      enterpriseId: mockEnterpriseCustomer.uuid,
-      enterpriseSlug: undefined,
-    },
-    {
-      enterpriseId: undefined,
-      enterpriseSlug: mockEnterpriseCustomer.slug,
-    },
-    {
-      enterpriseId: mockEnterpriseCustomer.uuid,
-      enterpriseSlug: mockEnterpriseCustomer.slug,
-    },
-  ])('returns learner dashboard metadata (%s)', async ({
-    enterpriseId,
-    enterpriseSlug,
-  }) => {
-    axiosMock.onPost(urlForDashboardBFF).reply(200, mockBFFDashboardResponse);
-    const result = await fetchEnterpriseLearnerDashboard({ enterpriseId, enterpriseSlug });
-    expect(result).toEqual(camelCaseObject(mockBFFDashboardResponse));
-  });
-
-  it.each([
-    {
-      enterpriseId: mockEnterpriseCustomer.uuid,
-      enterpriseSlug: undefined,
-    },
-    {
-      enterpriseId: undefined,
-      enterpriseSlug: mockEnterpriseCustomer.slug,
-    },
-    {
-      enterpriseId: mockEnterpriseCustomer.uuid,
-      enterpriseSlug: mockEnterpriseCustomer.slug,
-    },
-    {
-      enterpriseId: undefined,
-      enterpriseSlug: undefined,
-    },
-  ])('catches error and returns default dashboard BFF response (%s)', async ({
-    enterpriseId,
-    enterpriseSlug,
-  }) => {
-    axiosMock.onPost(urlForDashboardBFF).reply(404, learnerDashboardBFFResponse);
-    const result = await fetchEnterpriseLearnerDashboard({ enterpriseId, enterpriseSlug });
-    expect(result).toEqual(learnerDashboardBFFResponse);
   });
 
   it('logs errors and warnings from BFF response', async () => {
@@ -209,5 +182,87 @@ describe('fetchEnterpriseLearnerDashboard', () => {
     // Assert the logError and logInfo functions were called with the expected arguments.
     expect(logError).toHaveBeenCalledWith(`BFF Error (${urlForDashboardBFF}): ${mockError.developer_message}`);
     expect(logInfo).toHaveBeenCalledWith(`BFF Warning (${urlForDashboardBFF}): ${mockWarning.developer_message}`);
+  });
+});
+
+describe('fetchEnterpriseLearnerDashboard', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('returns learner dashboard metadata', async () => {
+    axiosMock.onPost(urlForDashboardBFF).reply(200, mockBFFDashboardResponse);
+    const result = await fetchEnterpriseLearnerDashboard({ enterpriseSlug: mockEnterpriseCustomer.slug });
+    expect(result).toEqual(camelCaseObject(mockBFFDashboardResponse));
+  });
+
+  it('catches error and returns default dashboard BFF response', async () => {
+    axiosMock.onPost(urlForDashboardBFF).reply(404, undefined);
+    const result = await fetchEnterpriseLearnerDashboard({ enterpriseSlug: mockEnterpriseCustomer.slug });
+    expect(result).toEqual(learnerDashboardBFFResponse);
+  });
+});
+
+describe('fetchEnterpriseLearnerSearch', () => {
+  const urlForSearchBFF = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/search/`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('returns learner search metadata', async () => {
+    axiosMock.onPost(urlForSearchBFF).reply(200, mockBFFSearchResponse);
+    const result = await fetchEnterpriseLearnerSearch({ enterpriseSlug: mockEnterpriseCustomer.slug });
+    expect(result).toEqual(camelCaseObject(mockBFFSearchResponse));
+  });
+
+  it('catches error and returns default search BFF response', async () => {
+    axiosMock.onPost(urlForSearchBFF).reply(404, undefined);
+    const result = await fetchEnterpriseLearnerSearch({ enterpriseSlug: mockEnterpriseCustomer.slug });
+    expect(result).toEqual(learnerSearchBFFResponse);
+  });
+});
+
+describe('fetchEnterpriseLearnerAcademy', () => {
+  const urlForAcademyBFF = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/academy/`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('returns learner academy metadata', async () => {
+    axiosMock.onPost(urlForAcademyBFF).reply(200, mockBFFAcademyResponse);
+    const result = await fetchEnterpriseLearnerAcademy({ enterpriseSlug: mockEnterpriseCustomer.slug });
+    expect(result).toEqual(camelCaseObject(mockBFFAcademyResponse));
+  });
+
+  it('catches error and returns default academy BFF response', async () => {
+    axiosMock.onPost(urlForAcademyBFF).reply(404, undefined);
+    const result = await fetchEnterpriseLearnerAcademy({ enterpriseSlug: mockEnterpriseCustomer.slug });
+    expect(result).toEqual(learnerAcademyBFFResponse);
+  });
+});
+
+describe('fetchEnterpriseLearnerSkillsQuiz', () => {
+  const urlForSkillsQuizBFF = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/skills-quiz/`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('returns learner skills quiz metadata', async () => {
+    axiosMock.onPost(urlForSkillsQuizBFF).reply(200, mockBFFSkillsQuizResponse);
+    const result = await fetchEnterpriseLearnerSkillsQuiz({ enterpriseSlug: mockEnterpriseCustomer.slug });
+    expect(result).toEqual(camelCaseObject(mockBFFSkillsQuizResponse));
+  });
+
+  it('catches error and returns default skills quiz BFF response', async () => {
+    axiosMock.onPost(urlForSkillsQuizBFF).reply(404, undefined);
+    const result = await fetchEnterpriseLearnerSkillsQuiz({ enterpriseSlug: mockEnterpriseCustomer.slug });
+    expect(result).toEqual(learnerSkillsQuizBFFResponse);
   });
 });

@@ -3,15 +3,15 @@ import {
   extractEnterpriseCustomer, queryCourseMetadata, queryCourseReviews, queryVideoDetail,
 } from '../../app/data';
 
-type VideoRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+type VideoRouteParams<Key extends string = string> = RouteParams<Key> & {
   readonly videoUUID: string;
   readonly enterpriseSlug: string;
 };
-interface VideoLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+interface VideoLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: VideoRouteParams;
 }
 
-const makeVideosLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeVideosLoader(queryClient) {
+const makeVideosLoader: MakeRouteLoaderFunctionWithQueryClient = function makeVideosLoader(queryClient) {
   return async function videosLoader({ params, request } : VideoLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);

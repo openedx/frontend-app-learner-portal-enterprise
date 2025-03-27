@@ -26,6 +26,18 @@ export const learnerDashboardBFFResponse = {
   },
 };
 
+export const learnerSearchBFFResponse = {
+  ...baseLearnerBFFResponse,
+};
+
+export const learnerAcademyBFFResponse = {
+  ...baseLearnerBFFResponse,
+};
+
+export const learnerSkillsQuizBFFResponse = {
+  ...baseLearnerBFFResponse,
+};
+
 /**
  * Log any errors and warnings from the BFF response.
  * @param {Object} args
@@ -54,7 +66,7 @@ export function logErrorsAndWarningsFromBFFResponse({ url, response }) {
 export async function makeBFFRequest({
   url,
   defaultResponse,
-  options = {} as Types.BFFRequestOptions,
+  options = {} as BFFRequestOptions,
 }) {
   const { enterpriseId, enterpriseSlug, ...optionsRest } = options;
   const snakeCaseOptionsRest = optionsRest ? snakeCaseObject(optionsRest) : {};
@@ -87,32 +99,50 @@ export async function makeBFFRequest({
   }
 }
 
-export interface EnterpriseLearnerDashboardOptions {
-  enterpriseId?: string;
-  enterpriseSlug?: string;
-}
-
 /**
  * Fetch the learner dashboard BFF API for the specified enterprise customer.
- * @param {Object} args
- * @param {String} [args.enterpriseId] - The UUID of the enterprise customer.
- * @param {String} [args.enterpriseSlug] - The slug of the enterprise customer.
- * @returns {Promise<Object>} - The learner dashboard metadata.
  */
-export async function fetchEnterpriseLearnerDashboard({
-  enterpriseId,
-  enterpriseSlug,
-}: EnterpriseLearnerDashboardOptions) {
-  const options = {} as Types.BFFRequestOptions;
-  if (enterpriseId) {
-    options.enterpriseId = enterpriseId;
-  }
-  if (enterpriseSlug) {
-    options.enterpriseSlug = enterpriseSlug;
-  }
+export async function fetchEnterpriseLearnerDashboard({ enterpriseSlug }: BFFRequestOptions) {
+  const options = { enterpriseSlug } as BFFRequestOptions;
   return makeBFFRequest({
     url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/dashboard/`,
     defaultResponse: learnerDashboardBFFResponse,
+    options,
+  });
+}
+
+/**
+ * Fetch the learner search BFF API for the specified enterprise customer.
+ */
+export async function fetchEnterpriseLearnerSearch({ enterpriseSlug }: BFFRequestOptions) {
+  const options = { enterpriseSlug } as BFFRequestOptions;
+  return makeBFFRequest({
+    url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/search/`,
+    defaultResponse: learnerSearchBFFResponse,
+    options,
+  });
+}
+
+/**
+ * Fetch the learner academy BFF API for the specified enterprise customer.
+ */
+export async function fetchEnterpriseLearnerAcademy({ enterpriseSlug }: BFFRequestOptions) {
+  const options = { enterpriseSlug } as BFFRequestOptions;
+  return makeBFFRequest({
+    url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/academy/`,
+    defaultResponse: learnerAcademyBFFResponse,
+    options,
+  });
+}
+
+/**
+ * Fetch the learner skills quiz BFF API for the specified enterprise customer.
+ */
+export async function fetchEnterpriseLearnerSkillsQuiz({ enterpriseSlug }: BFFRequestOptions) {
+  const options = { enterpriseSlug } as BFFRequestOptions;
+  return makeBFFRequest({
+    url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/skills-quiz/`,
+    defaultResponse: learnerSkillsQuizBFFResponse,
     options,
   });
 }

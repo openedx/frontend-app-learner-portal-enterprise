@@ -46,7 +46,7 @@ Factory.define('enterpriseCustomer')
       active: faker.datatype.boolean(),
     },
   ]);
-export function enterpriseCustomerFactory(overrides = {}): Types.EnterpriseCustomer {
+export function enterpriseCustomerFactory(overrides = {}): EnterpriseCustomer {
   return camelCaseObject(Factory.build('enterpriseCustomer', overrides));
 }
 

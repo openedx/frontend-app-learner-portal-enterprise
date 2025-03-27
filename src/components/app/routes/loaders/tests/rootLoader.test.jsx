@@ -148,7 +148,7 @@ describe('rootLoader', () => {
 
     const routeMetadata = isMatchedBFFRoute
       ? { path: '/:enterpriseSlug', initialEntries: [`/${mockEnterpriseCustomer.slug}`] }
-      : { path: '/:enterpriseSlug/search', initialEntries: [`/${mockEnterpriseCustomer.slug}/search`] };
+      : { path: '/:enterpriseSlug/unsupported-bff-route', initialEntries: [`/${mockEnterpriseCustomer.slug}/unsupported-bff-route`] };
     renderWithRouterProvider({
       path: routeMetadata.path,
       element: <div>hello world</div>,
@@ -364,7 +364,7 @@ describe('rootLoader', () => {
 
     const routeMetadata = isMatchedBFFRoute
       ? { path: '/:enterpriseSlug', initialEntries: [`/${enterpriseSlug}`] }
-      : { path: '/:enterpriseSlug/search', initialEntries: [`/${enterpriseSlug}/search`] };
+      : { path: '/:enterpriseSlug/unsupported-bff-route', initialEntries: [`/${enterpriseSlug}/unsupported-bff-route`] };
 
     renderWithRouterProvider({
       path: routeMetadata.path,

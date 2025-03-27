@@ -21,7 +21,7 @@ const mockEnterpriseCustomerUser = enterpriseCustomerUserFactory({
   },
 });
 const mockBFFRequestUrl = new URL(`/${mockEnterpriseCustomer.slug}`, 'https://example.com');
-const mockNonBFFRequestUrl = new URL(`/${mockEnterpriseCustomer.slug}/search`, 'https://example.com');
+const mockNonBFFRequestUrl = new URL(`/${mockEnterpriseCustomer.slug}/unsupported-bff-route`, 'https://example.com');
 const getQueryEnterpriseLearner = ({ hasEnterpriseSlug = true } = {}) => queryEnterpriseLearner(
   mockAuthenticatedUser.username,
   hasEnterpriseSlug ? mockEnterpriseCustomer.slug : undefined,

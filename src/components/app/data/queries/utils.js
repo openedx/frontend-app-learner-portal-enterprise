@@ -1,5 +1,11 @@
 import { matchPath } from 'react-router-dom';
-import { queryEnterpriseLearner, queryEnterpriseLearnerDashboardBFF } from './queries';
+import {
+  queryEnterpriseLearner,
+  queryEnterpriseLearnerAcademyBFF,
+  queryEnterpriseLearnerDashboardBFF,
+  queryEnterpriseLearnerSearchBFF,
+  queryEnterpriseLearnerSkillsQuizBFF,
+} from './queries';
 
 /**
  * Resolves the appropriate BFF query function to use for the current route.
@@ -13,6 +19,18 @@ export function resolveBFFQuery(pathname) {
     {
       pattern: '/:enterpriseSlug',
       query: queryEnterpriseLearnerDashboardBFF,
+    },
+    {
+      pattern: '/:enterpriseSlug/search/:pathwayUUID?',
+      query: queryEnterpriseLearnerSearchBFF,
+    },
+    {
+      pattern: '/:enterpriseSlug/academies/:academyUUID',
+      query: queryEnterpriseLearnerAcademyBFF,
+    },
+    {
+      pattern: '/:enterpriseSlug/skills-quiz',
+      query: queryEnterpriseLearnerSkillsQuizBFF,
     },
     // Add more routes and queries incrementally as needed
   ];

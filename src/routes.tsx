@@ -13,7 +13,7 @@ import AppErrorBoundary from './components/app/AppErrorBoundary';
 /**
  * Returns the route loader function if a queryClient is available; otherwise, returns null.
  */
-export function getRouteLoader(makeRouteLoaderFn: Types.MakeRouteLoaderFunction, queryClient?: Types.QueryClient) {
+export function getRouteLoader(makeRouteLoaderFn: MakeRouteLoaderFunction, queryClient?: QueryClient) {
   if (!queryClient) {
     return undefined;
   }
@@ -23,8 +23,8 @@ export function getRouteLoader(makeRouteLoaderFn: Types.MakeRouteLoaderFunction,
 /**
  * Returns the routes nested under the enterprise slug prefix.
  */
-function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
-  const enterpriseSlugChildRoutes: Types.RouteObject[] = [
+function getEnterpriseSlugRoutes(queryClient?: QueryClient) {
+  const enterpriseSlugChildRoutes: RouteObject[] = [
     {
       index: true,
       lazy: async () => {
@@ -173,7 +173,7 @@ function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
       element: <NotFoundPage />,
     },
   ];
-  const enterpriseSlugRoutes: Types.RouteObject[] = [
+  const enterpriseSlugRoutes: RouteObject[] = [
     {
       path: ':enterpriseSlug?',
       loader: getRouteLoader(makeRootLoader, queryClient),
@@ -197,7 +197,7 @@ function getEnterpriseSlugRoutes(queryClient?: Types.QueryClient) {
  * Returns other routes that are not nested under the enterprise slug prefix.
  */
 function getOtherRoutes() {
-  const otherRoutes: Types.RouteObject[] = [
+  const otherRoutes: RouteObject[] = [
     {
       path: 'invite/:enterpriseCustomerInviteKey',
       lazy: async () => {
@@ -240,10 +240,10 @@ function getOtherRoutes() {
 /**
  * Returns the routes for the application.
  */
-export function getRoutes(queryClient?: Types.QueryClient) {
+export function getRoutes(queryClient?: QueryClient) {
   const enterpriseSlugRoutes = getEnterpriseSlugRoutes(queryClient);
   const otherRoutes = getOtherRoutes();
-  const rootChildRoutes: Types.RouteObject[] = [
+  const rootChildRoutes: RouteObject[] = [
     ...otherRoutes,
     ...enterpriseSlugRoutes,
     {
@@ -252,7 +252,7 @@ export function getRoutes(queryClient?: Types.QueryClient) {
     },
   ];
 
-  const routes: Types.RouteObject[] = [
+  const routes: RouteObject[] = [
     {
       path: '/',
       element: (
@@ -324,7 +324,7 @@ export function getRoutes(queryClient?: Types.QueryClient) {
  *   '/:enterpriseSlug?/:courseType?/course/:courseKey/enroll/:courseRunKey',
  * ]
  */
-export function flattenRoutePaths(routes: Types.RouteObject[], basePath = '/') {
+export function flattenRoutePaths(routes: RouteObject[], basePath = '/') {
   let paths: string[] = [];
   routes.forEach((route) => {
     // Construct the full path by combining basePath with route.path

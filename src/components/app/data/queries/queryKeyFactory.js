@@ -16,8 +16,11 @@ import {
   fetchEnterpriseCourseEnrollments,
   fetchEnterpriseCuration,
   fetchEnterpriseCustomerContainsContent,
+  fetchEnterpriseLearnerAcademy,
   fetchEnterpriseLearnerDashboard,
   fetchEnterpriseLearnerData,
+  fetchEnterpriseLearnerSearch,
+  fetchEnterpriseLearnerSkillsQuiz,
   fetchEnterpriseOffers,
   fetchInProgressPathways,
   fetchLearnerProgramProgressDetail,
@@ -274,6 +277,18 @@ const bff = createQueryKeys('bff', {
           dashboard: ({
             queryKey: null,
             queryFn: ({ queryKey }) => fetchEnterpriseLearnerDashboard({ enterpriseSlug: queryKey[2] }),
+          }),
+          search: ({
+            queryKey: null,
+            queryFn: ({ queryKey }) => fetchEnterpriseLearnerSearch({ enterpriseSlug: queryKey[2] }),
+          }),
+          academy: ({
+            queryKey: null,
+            queryFn: ({ queryKey }) => fetchEnterpriseLearnerAcademy({ enterpriseSlug: queryKey[2] }),
+          }),
+          skillsQuiz: ({
+            queryKey: null,
+            queryFn: ({ queryKey }) => fetchEnterpriseLearnerSkillsQuiz({ enterpriseSlug: queryKey[2] }),
           }),
         },
       },

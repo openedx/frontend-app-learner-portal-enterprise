@@ -4,10 +4,10 @@ import { logError } from '@edx/frontend-platform/logging';
 import { postLinkEnterpriseLearner } from '../../data';
 import { ensureAuthenticatedUser } from '../data';
 
-type EnterpriseInviteParams<Key extends string = string> = Types.RouteParams<Key> & {
+type EnterpriseInviteParams<Key extends string = string> = RouteParams<Key> & {
   readonly enterpriseCustomerInviteKey: string;
 };
-interface EnterpriseInviteLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+interface EnterpriseInviteLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: EnterpriseInviteParams;
 }
 
@@ -16,7 +16,7 @@ interface EnterpriseInviteLoaderFunctionArgs extends Types.RouteLoaderFunctionAr
  * customer based on the invite key in the route URL. If linking is successful,
  * the user is redirected to the dashboard route for the now-linked enterprise.
  */
-const makeEnterpriseInviteLoader: Types.MakeRouteLoaderFunction = function makeEnterpriseInviteLoader() {
+const makeEnterpriseInviteLoader: MakeRouteLoaderFunction = function makeEnterpriseInviteLoader() {
   return async function enterpriseInviteLoader({ params, request }: EnterpriseInviteLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);

@@ -121,7 +121,7 @@ describe('useBFF', () => {
       <MemoryRouter initialEntries={initialEntries}>
         <Routes>
           <Route path=":enterpriseSlug" element={children} />
-          <Route path=":enterpriseSlug/search" element={children} />
+          <Route path=":enterpriseSlug/unsupported-bff-route" element={children} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>
@@ -176,7 +176,7 @@ describe('useBFF', () => {
       mockBFFQueryOptions.select = mockSelect;
       mockFallbackQueryConfig.select = mockSelect;
     }
-    const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
+    const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/unsupported-bff-route'];
     const { result, waitForNextUpdate } = renderHook(
       () => useBFF({
         bffQueryOptions: {
