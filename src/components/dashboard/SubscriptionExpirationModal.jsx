@@ -107,8 +107,9 @@ const SubscriptionExpirationModal = () => {
             <Button variant="primary" onClick={handleSubscriptionExpiredModalDismissal} data-testid="subscription-expiration-button">OK</Button>
           </ActionRow>
         )}
-        hasCloseButton
         onClose={handleSubscriptionExpiredModalDismissal}
+        isOverflowVisible={false}
+        hasCloseButton
       >
         <p>
           Your organization&#39;s access to your subscription has expired. You will only have audit
@@ -169,8 +170,9 @@ const SubscriptionExpirationModal = () => {
           <Button variant="primary" onClick={handleSubscriptionExpiringModalDismissal} data-testid="subscription-expiration-button">OK</Button>
         </ActionRow>
       )}
-      hasCloseButton
       onClose={handleSubscriptionExpiringModalDismissal}
+      isOverflowVisible={false}
+      hasCloseButton
     >
       <p>
         Your organization&#39;s access to your current subscription is expiring in

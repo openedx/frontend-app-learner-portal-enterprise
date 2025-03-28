@@ -125,6 +125,7 @@ const RouteErrorBoundary = ({
             </Button>
           </ActionRow>
         )}
+        isOverflowVisible={false}
         isBlocking
       >
         <p>

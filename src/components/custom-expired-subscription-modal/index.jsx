@@ -50,6 +50,7 @@ const CustomSubscriptionExpirationModal = () => {
           />
         </ActionRow>
       )}
+      isOverflowVisible={false}
     >
       {/* eslint-disable-next-line react/no-danger */}
       <div dangerouslySetInnerHTML={{
