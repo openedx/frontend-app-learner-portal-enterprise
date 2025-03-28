@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -263,7 +263,7 @@ describe('useBFF', () => {
       mockFallbackQueryConfig.select = mockSelect;
     }
     const initialEntries = isMatchedBFFRoute ? [bffRoutePath] : ['/test-enterprise/unsupported-bff-route'];
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => useBFF({
         bffQueryOptions: {
           select: mockSelect,
@@ -278,16 +278,16 @@ describe('useBFF', () => {
         ),
       },
     );
-    await waitForNextUpdate();
-
-    const expectedData = isMatchedBFFRoute ? mockBFFResponseData : mockFallbackData;
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: expectedData,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    await waitFor(() => {
+      const expectedData = isMatchedBFFRoute ? mockBFFResponseData : mockFallbackData;
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: expectedData,
+          isLoading: false,
+          isFetching: false,
+        }),
+      );
+    });
 
     if (hasQueryOptions) {
       expect(mockSelect).toHaveBeenCalledTimes(1);

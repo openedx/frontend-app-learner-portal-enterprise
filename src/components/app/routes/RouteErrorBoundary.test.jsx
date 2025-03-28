@@ -59,6 +59,7 @@ describe('RouteErrorBoundary', () => {
   });
 
   it('displays the update available modal correctly when there is a ChunkLoadError route error', async () => {
+    const user = userEvent.setup();
     const chunkLoadError = new Error('ChunkLoadError');
     chunkLoadError.name = 'ChunkLoadError';
     useRouteError.mockReturnValue(chunkLoadError);
@@ -67,15 +68,16 @@ describe('RouteErrorBoundary', () => {
     expect(screen.getByText('Attention: A new version of the website was released. To leverage the latest features and improvements, please perform a page refresh.')).toBeInTheDocument();
     const refreshButton = screen.getByText('Refresh', { selector: 'a' });
     // Click on the "Refresh" button; should still be on same location href.
-    userEvent.click(refreshButton);
+    await user.click(refreshButton);
     expect(global.location.href).toBe('https://example.com/slug');
   });
 
-  it('refreshes the page when "Try again" button is clicked', () => {
+  it('refreshes the page when "Try again" button is clicked', async () => {
+    const user = userEvent.setup();
     renderWithRouterProvider(<RouteErrorBoundaryWrapper />);
 
     // Click on the "Try again" button; should still be on same location href.
-    userEvent.click(screen.getByText('Try again'));
+    await user.click(screen.getByText('Try again'));
     expect(global.location.href).toBe('https://example.com/slug');
   });
 });

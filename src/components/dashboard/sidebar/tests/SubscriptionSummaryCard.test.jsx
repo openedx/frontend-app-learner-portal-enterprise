@@ -105,7 +105,8 @@ describe('<SubscriptionSummaryCard />', () => {
     expect(screen.queryByText('Oct 25, 2021')).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_EXPIRED_BADGE_VARIANT}`);
   });
-  test('Expiring soon and modal warning badge is displayed when 60 >= daysUntilExpirationIncludingRenewals > 0 and programProgressPage=true', () => {
+  test('Expiring soon and modal warning badge is displayed when 60 >= daysUntilExpirationIncludingRenewals > 0 and programProgressPage=true', async () => {
+    const user = userEvent.setup();
     const expiringSoonSubscriptionPlan = {
       ...subscriptionPlan,
       daysUntilExpirationIncludingRenewals: 50,
@@ -128,7 +129,7 @@ describe('<SubscriptionSummaryCard />', () => {
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_WARNING_BADGE_VARIANT}`);
     expect(screen.queryByTestId('warning-icon')).toBeInTheDocument();
-    userEvent.click(screen.queryByTestId('warning-icon'));
+    await user.click(screen.queryByTestId('warning-icon'));
     expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
   });
   test('License requested notice is displayed when license request active', () => {

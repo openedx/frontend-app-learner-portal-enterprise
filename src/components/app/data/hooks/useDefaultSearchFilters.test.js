@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catalog-search';
 import { SearchContext, SHOW_ALL_NAME } from '@edx/frontend-enterprise-catalog-search';
 import useDefaultSearchFilters from './useDefaultSearchFilters';

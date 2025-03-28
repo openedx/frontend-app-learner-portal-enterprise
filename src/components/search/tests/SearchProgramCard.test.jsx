@@ -108,9 +108,10 @@ describe('<SearchProgramCard />', () => {
 
   // TODO: Fix this test
   test('handles card click', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-program-card');
-    userEvent.click(cardEl);
+    await user.click(cardEl);
     await waitFor(() => {
       expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
     });
@@ -138,9 +139,10 @@ describe('<SearchProgramCard />', () => {
   });
 
   test('sends correct event data upon click on view the course link', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-program-card');
-    userEvent.click(cardEl);
+    await user.click(cardEl);
     await waitFor(() => expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       enterpriseUuid,
       'edx.ui.enterprise.learner_portal.search.program.card.clicked',

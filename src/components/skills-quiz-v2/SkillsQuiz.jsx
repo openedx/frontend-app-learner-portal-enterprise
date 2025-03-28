@@ -53,6 +53,7 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
         onClose={close}
         size="sm"
         hasCloseButton={false}
+        isOverflowVisible={false}
       >
         <ModalDialog.Header>
           <ModalDialog.Title>
@@ -94,8 +95,9 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
         title="Skills Quiz"
         size="fullscreen"
         className="bg-light-200 skills-quiz-modal skills-quiz-v2"
-        isOpen
         onClose={open}
+        isOverflowVisible={false}
+        isOpen
       >
         <ModalDialog.Hero className="md-img">
           <ModalDialog.Hero.Background backgroundSrc={headerImage} />

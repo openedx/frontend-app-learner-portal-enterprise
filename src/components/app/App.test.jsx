@@ -1,8 +1,8 @@
+import { act } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryRouter } from 'react-router-dom';
-import { act } from 'react-dom/test-utils';
 import App from './App';
 import { createAppRouter } from './routes';
 

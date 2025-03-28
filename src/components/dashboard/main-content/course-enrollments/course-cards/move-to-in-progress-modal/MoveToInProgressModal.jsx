@@ -73,8 +73,6 @@ const MoveToInProgressModal = ({
         title="Move course to &quot;In Progress&quot;"
         isOpen={isOpen && !confirmSuccessful}
         onClose={handleModalOnClose}
-        hasCloseButton
-        isFullscreenOnMobile
         footerNode={(
           <ActionRow>
             <Button variant="tertiary" onClick={onClose}>Cancel</Button>
@@ -90,6 +88,9 @@ const MoveToInProgressModal = ({
             />
           </ActionRow>
         )}
+        isOverflowVisible={false}
+        hasCloseButton
+        isFullscreenOnMobile
       >
         <ModalBody />
       </StandardModal>

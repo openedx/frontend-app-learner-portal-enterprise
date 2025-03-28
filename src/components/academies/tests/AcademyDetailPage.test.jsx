@@ -110,10 +110,11 @@ describe('<AcademyDetailPage />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAcademyDetails.mockReturnValue({ data: ACADEMY_MOCK_DATA });
   });
+
   it('renders academy detail page', async () => {
     renderWithRouter(<AcademyDetailPageWrapper />);
 
-    const headingElement = await screen.getByTestId('academy-all-courses-title');
+    const headingElement = await screen.findByTestId('academy-all-courses-title');
     const expectedHeadingElement = `All ${ACADEMY_MOCK_DATA.title} Academy Courses`;
     expect(headingElement.textContent).toBe(expectedHeadingElement);
     const academyTags = screen.getAllByTestId('academy-tag').map((tag) => tag.textContent);
@@ -125,6 +126,7 @@ describe('<AcademyDetailPage />', () => {
     expect(screen.getAllByTestId('academy-course-card').length).toEqual(1);
     expect(screen.getByText(ALOGLIA_MOCK_DATA.hits[0].title)).toBeInTheDocument();
   });
+
   it('renders a not found page', () => {
     useAcademyDetails.mockReturnValue({ data: null });
     renderWithRouter(<AcademyDetailPageWrapper />);

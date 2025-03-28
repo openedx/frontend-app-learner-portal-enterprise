@@ -121,6 +121,7 @@ describe('<LicenseRequestedAlert />', () => {
   });
 
   it('sets alert dismissed cookie on close', async () => {
+    const user = userEvent.setup();
     const mockSetCookies = jest.fn();
     Cookies.mockReturnValue({ get: jest.fn(), set: mockSetCookies });
     useBrowseAndRequest.mockReturnValue({
@@ -143,7 +144,7 @@ describe('<LicenseRequestedAlert />', () => {
       },
     });
     const { getByText, queryByText } = renderWithRouterProvider(<LicenseRequestedAlertWrapper />);
-    userEvent.click(getByText('Dismiss'));
+    await user.click(getByText('Dismiss'));
     expect(mockSetCookies).toHaveBeenCalledWith(
       LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME,
       true,
