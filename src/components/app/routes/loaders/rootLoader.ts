@@ -1,4 +1,5 @@
 import { getConfig } from '@edx/frontend-platform/config';
+import { logError } from '@edx/frontend-platform/logging';
 import { getEnterpriseLearnerQueryData, queryNotices } from '../../data';
 import {
   ensureActiveEnterpriseCustomerUser,
@@ -31,44 +32,48 @@ const makeRootLoader: MakeRouteLoaderFunctionWithQueryClient = function makeRoot
     const { userId, email: userEmail } = authenticatedUser;
     const { enterpriseSlug } = params;
 
-    const { data: enterpriseLearnerData, isBFFData } = await getEnterpriseLearnerQueryData({
-      requestUrl,
-      queryClient,
-      enterpriseSlug,
-      authenticatedUser,
-    });
+    try {
+      const { data: enterpriseLearnerData, isBFFData } = await getEnterpriseLearnerQueryData({
+        requestUrl,
+        queryClient,
+        enterpriseSlug,
+        authenticatedUser,
+      });
 
-    // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
-    if (!enterpriseLearnerData.enterpriseCustomer && !enterpriseLearnerData.activeEnterpriseCustomer) {
-      return null;
+      // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
+      if (!enterpriseLearnerData.enterpriseCustomer && !enterpriseLearnerData.activeEnterpriseCustomer) {
+        return null;
+      }
+
+      // 1. If the active enterprise customer user was updated, override the previous active
+      //    enterprise customer user data with the new active enterprise customer user data
+      //    for subsequent queries.
+      // 2. If no enterpriseCustomer exists, redirects the user to the activeEnterpriseCustomer
+      //    at the same page route.
+      const {
+        enterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers,
+      } = await ensureActiveEnterpriseCustomerUser({
+        enterpriseSlug,
+        enterpriseLearnerData,
+        isBFFData,
+        requestUrl,
+        authenticatedUser,
+        queryClient,
+      });
+
+      // Fetch all enterprise app data.
+      await ensureEnterpriseAppData({
+        enterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers,
+        userId,
+        userEmail,
+        queryClient,
+        requestUrl,
+      });
+    } catch (error) {
+      logError(error);
     }
-
-    // 1. If the active enterprise customer user was updated, override the previous active
-    //    enterprise customer user data with the new active enterprise customer user data
-    //    for subsequent queries.
-    // 2. If no enterpriseCustomer exists, redirects the user to the activeEnterpriseCustomer
-    //    at the same page route.
-    const {
-      enterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers,
-    } = await ensureActiveEnterpriseCustomerUser({
-      enterpriseSlug,
-      enterpriseLearnerData,
-      isBFFData,
-      requestUrl,
-      authenticatedUser,
-      queryClient,
-    });
-
-    // Fetch all enterprise app data.
-    await ensureEnterpriseAppData({
-      enterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers,
-      userId,
-      userEmail,
-      queryClient,
-      requestUrl,
-    });
 
     // Redirect to the same URL without a trailing slash, if applicable.
     redirectToRemoveTrailingSlash(requestUrl);

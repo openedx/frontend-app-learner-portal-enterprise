@@ -103,7 +103,7 @@ describe('useCourseRedemptionEligibility', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockExpectedUseCouseRedemptionEligibilityReturn,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

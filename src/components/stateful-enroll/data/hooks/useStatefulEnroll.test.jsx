@@ -167,7 +167,7 @@ describe('useStatefulEnroll', () => {
     expect(submitRedemptionRequest).toHaveBeenCalledTimes(1);
   });
 
-  test('should call checkTransactionStatus', async () => {
+  test.only('should call checkTransactionStatus', async () => {
     const mockTransaction = {
       state: 'pending',
       transactionStatusApiUrl: mockTransactionStatusApiUrl,

@@ -56,7 +56,7 @@ export function resolveBFFQuery(pathname) {
  * @param enterpriseSlug
  * @param authenticatedUser
  * @param queryEnterpriseLearnerConfig
- * @returns {Promise<{ data: Types.EnterpriseLearnerData, isBFFData: boolean }>}
+ * @returns {Promise<{ data: EnterpriseLearnerData, isBFFData: boolean }>}
  */
 export async function getEnterpriseLearnerQueryData({
   requestUrl,

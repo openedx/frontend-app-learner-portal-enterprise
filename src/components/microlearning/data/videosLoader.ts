@@ -30,6 +30,7 @@ const makeVideosLoader: MakeRouteLoaderFunctionWithQueryClient = function makeVi
     if (!enterpriseCustomer) {
       return null;
     }
+
     const videoData = await queryClient.ensureQueryData(queryVideoDetail(videoUUID, enterpriseCustomer.uuid));
     if (videoData) {
       const { courseKey } = videoData;

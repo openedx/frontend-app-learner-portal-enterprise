@@ -39,6 +39,9 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      return null;
+    }
 
     if (!enterpriseCustomer) {
       return null;

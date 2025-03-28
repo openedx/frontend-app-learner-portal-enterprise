@@ -61,7 +61,7 @@ describe('useAcademiesDetails', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockAcademyDetailsData,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
