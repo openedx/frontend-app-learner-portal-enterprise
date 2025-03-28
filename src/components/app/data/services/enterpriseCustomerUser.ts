@@ -57,7 +57,8 @@ export async function fetchEnterpriseCustomerForSlug(enterpriseSlug) {
  * @param {Object} [options] Additional query options.
  * @returns
  */
-export async function fetchEnterpriseLearnerData(username, enterpriseSlug, options = {}) {
+export async function fetchEnterpriseLearnerData(username, enterpriseSlug, options = {}):
+Promise<EnterpriseLearnerData> {
   const enterpriseLearnerUrl = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
   const queryParams = new URLSearchParams({
     username,
@@ -70,56 +71,57 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
     response: enterpriseCustomerUsersResponse,
   } = await fetchPaginatedData(url);
   const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
-
   // Transform enterprise customer user results
-  const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers.map(
-    enterpriseCustomerUser => ({
-      ...enterpriseCustomerUser,
-      enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
-    }),
-  );
+  const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers
+    .filter(enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer.enableLearnerPortal)
+    .map(
+      enterpriseCustomerUser => ({
+        ...enterpriseCustomerUser,
+        enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
+      }),
+    );
 
   const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
-    enterprise => enterprise.active,
+    enterpriseCustomerUser => enterpriseCustomerUser.active,
   );
-  const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
-  const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments || [];
+
+  const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer || null;
 
   // Find enterprise customer metadata for the currently viewed
   // enterprise slug in the page route params.
   const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
-    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
+    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
   );
 
   // If no enterprise customer is found (i.e., authenticated user not explicitly
   // linked), but the authenticated user is staff, attempt to retrieve enterprise
   // customer metadata from the `/enterprise-customer` LMS API.
-  let staffEnterpriseCustomer;
+  let staffEnterpriseCustomer: EnterpriseCustomer | null = null;
   if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
-    const originalStaffEnterpriseCustomer = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
-    if (originalStaffEnterpriseCustomer) {
-      staffEnterpriseCustomer = transformEnterpriseCustomer(originalStaffEnterpriseCustomer);
+    const staffEnterpriseCustomerResult = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
+    if (staffEnterpriseCustomerResult?.enableLearnerPortal) {
+      staffEnterpriseCustomer = transformEnterpriseCustomer(staffEnterpriseCustomerResult);
     }
   }
 
   const {
     enterpriseCustomer,
-    roleAssignments,
   } = determineEnterpriseCustomerUserForDisplay({
     activeEnterpriseCustomer,
-    activeEnterpriseCustomerUserRoleAssignments,
     enterpriseSlug,
     foundEnterpriseCustomerUserForCurrentSlug,
     staffEnterpriseCustomer,
   });
+
+  // shouldUpdateActiveEnterpriseCustomerUser should always be null since its generated primarily from the BFF
+  // layer to act as a flag on whether to update the active enterprise customer
   return {
     enterpriseCustomer,
-    enterpriseCustomerUserRoleAssignments: roleAssignments,
     activeEnterpriseCustomer,
-    activeEnterpriseCustomerUserRoleAssignments,
     allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
     enterpriseFeatures,
     staffEnterpriseCustomer,
+    shouldUpdateActiveEnterpriseCustomerUser: false,
   };
 }
 

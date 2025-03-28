@@ -1,5 +1,6 @@
 import { logError } from '@edx/frontend-platform/logging';
 import dayjs from './dayjs';
+import { COURSE_STATUSES } from '../constants';
 
 export const isCourseEnded = endDate => dayjs(endDate).isBefore(dayjs());
 
@@ -193,3 +194,12 @@ export const formatPrice = (price, options = {}) => {
   });
   return USDollar.format(Math.abs(price));
 };
+
+export function findCourseStatusKey(statusValue) {
+  for (const key in COURSE_STATUSES) {
+    if (COURSE_STATUSES[key] === statusValue) {
+      return key;
+    }
+  }
+  return undefined;
+}

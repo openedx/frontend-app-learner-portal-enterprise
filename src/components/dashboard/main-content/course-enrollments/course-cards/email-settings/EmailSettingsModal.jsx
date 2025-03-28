@@ -77,7 +77,6 @@ const EmailSettingsModal = ({
       isOpen={open}
       onClose={handleOnClose}
       hasCloseButton
-      isFullscreenOnMobile
       footerNode={(
         <ActionRow>
           <Button variant="tertiary" onClick={handleOnClose} data-testid="email-setting-modal-close-btn">Close</Button>
@@ -89,6 +88,8 @@ const EmailSettingsModal = ({
           />
         </ActionRow>
       )}
+      isOverflowVisible={false}
+      isFullscreenOnMobile
     >
       {error && (
         <Alert variant="danger" icon={Error}>

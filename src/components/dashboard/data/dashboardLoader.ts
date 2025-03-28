@@ -1,7 +1,6 @@
 import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer,
-  extractEnterpriseFeatures,
   queryEnterpriseCourseEnrollments,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
@@ -9,20 +8,20 @@ import {
   resolveBFFQuery,
 } from '../../app/data';
 
-type DashboardRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+type DashboardRouteParams<Key extends string = string> = RouteParams<Key> & {
   readonly enterpriseSlug: string;
 };
-interface DashboardLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+interface DashboardLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: DashboardRouteParams;
 }
 interface DashboardBFFResponse {
-  enterpriseCourseEnrollments: Types.EnterpriseCourseEnrollment[];
+  enterpriseCourseEnrollments: EnterpriseCourseEnrollment[];
 }
 
 /**
  * Returns a loader function responsible for loading the dashboard related data.
  */
-const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeDashboardLoader(queryClient) {
+const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function makeDashboardLoader(queryClient) {
   return async function dashboardLoader({ params, request }: DashboardLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
@@ -35,6 +34,7 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
 
     // Extract enterprise customer.
     const enterpriseCustomer = await extractEnterpriseCustomer({
+      requestUrl,
       queryClient,
       authenticatedUser,
       enterpriseSlug,
@@ -43,20 +43,13 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
       return null;
     }
 
-    // Extract enterprise features.
-    const enterpriseFeatures = await extractEnterpriseFeatures({
-      queryClient,
-      authenticatedUser,
-      enterpriseSlug,
-    });
+    if (!enterpriseCustomer) {
+      return null;
+    }
 
     // Attempt to resolve the BFF query for the dashboard.
     const dashboardBFFQuery = resolveBFFQuery(
       requestUrl.pathname,
-      {
-        enterpriseCustomerUuid: enterpriseCustomer.uuid,
-        enterpriseFeatures,
-      },
     );
 
     // Load enrollments, policies, and conditionally redirect for new users
@@ -73,7 +66,7 @@ const makeDashboardLoader: Types.MakeRouteLoaderFunctionWithQueryClient = functi
     ]).then((responses) => {
       const enterpriseCourseEnrollments = dashboardBFFQuery
         ? (responses[0] as DashboardBFFResponse).enterpriseCourseEnrollments
-        : responses[0] as Types.EnterpriseCourseEnrollment[];
+        : responses[0] as EnterpriseCourseEnrollment[];
       const redeemablePolicies = responses[1];
       // Redirect user to search page, for first-time users with no enrollments and/or assignments.
       redirectToSearchPageForNewUser({

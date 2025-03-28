@@ -1,9 +1,10 @@
-import { logError } from '@edx/frontend-platform/logging';
-import { queryEnterpriseLearner } from './queries';
+import { logInfo, logError } from '@edx/frontend-platform/logging';
+import { getEnterpriseLearnerQueryData } from './utils';
 
 interface ExtractEnterpriseCustomerArgs {
-  queryClient: Types.QueryClient;
-  authenticatedUser: Types.AuthenticatedUser;
+  requestUrl: URL,
+  queryClient: QueryClient;
+  authenticatedUser: AuthenticatedUser;
   enterpriseSlug?: string;
 }
 
@@ -11,23 +12,25 @@ interface ExtractEnterpriseCustomerArgs {
  * Extracts the appropriate enterprise ID for the current user and enterprise slug.
  */
 async function extractEnterpriseCustomer({
+  requestUrl,
   queryClient,
   authenticatedUser,
   enterpriseSlug,
-} : ExtractEnterpriseCustomerArgs) : Promise<Types.EnterpriseCustomer | null> {
+} : ExtractEnterpriseCustomerArgs): Promise<EnterpriseCustomer | null> {
   // Retrieve linked enterprise customers for the current user from query cache, or
   // fetch from the server if not available.
-  const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug);
   try {
-    const enterpriseLearnerData = await queryClient.ensureQueryData<Types.EnterpriseLearnerData>(
-      linkedEnterpriseCustomersQuery,
-    );
+    const { data: enterpriseLearnerData } = await getEnterpriseLearnerQueryData({
+      requestUrl,
+      queryClient,
+      authenticatedUser,
+      enterpriseSlug,
+    });
     const {
       activeEnterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
       staffEnterpriseCustomer,
     } = enterpriseLearnerData;
-
     // If there is no slug provided (i.e., on the root page route `/`), use
     // the currently active enterprise customer user.
     if (!enterpriseSlug) {
@@ -35,7 +38,7 @@ async function extractEnterpriseCustomer({
     }
 
     const foundEnterpriseCustomerForSlug = allLinkedEnterpriseCustomerUsers.find(
-      (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
+      (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
     )?.enterpriseCustomer;
 
     // Otherwise, there is a slug provided for a specific enterprise customer. If the
@@ -46,11 +49,13 @@ async function extractEnterpriseCustomer({
     if (foundEnterpriseCustomerForSlug || staffEnterpriseCustomer) {
       return foundEnterpriseCustomerForSlug || staffEnterpriseCustomer;
     }
+
+    // If no enterprise customer is found for the given slug, log it and return null. The
+    // user may be redirected to their activeEnterpriseCustomer, if any, later on.
+    logInfo(`Could not find enterprise customer for slug ${enterpriseSlug}`);
   } catch (error) {
     logError(error);
   }
-
-  // No enterprise customer found.
   return null;
 }
 

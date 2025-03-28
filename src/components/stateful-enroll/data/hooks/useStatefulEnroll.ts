@@ -12,14 +12,14 @@ import { submitRedemptionRequest } from '../service';
 
 interface BaseArgs {
   contentKey: string;
-  subsidyAccessPolicy?: Types.SubsidyAccessPolicy;
+  subsidyAccessPolicy?: SubsidyAccessPolicy;
   onBeginRedeem?: () => void;
-  onSuccess: (transaction: Types.SubsidyTransaction) => void;
+  onSuccess: (transaction: SubsidyTransaction) => void;
   onError: (error: Error) => void;
 }
 
 interface UseStatefulEnrollArgs extends BaseArgs {
-  userEnrollments: Types.EnterpriseCourseEnrollment[];
+  userEnrollments: EnterpriseCourseEnrollment[];
 }
 
 interface UseRedemptionArgs extends BaseArgs {
@@ -27,8 +27,8 @@ interface UseRedemptionArgs extends BaseArgs {
 }
 
 interface UseTransactionStatusArgs {
-  transaction?: Types.SubsidyTransaction;
-  onSuccess: (transaction: Types.SubsidyTransaction) => void;
+  transaction?: SubsidyTransaction;
+  onSuccess: (transaction: SubsidyTransaction) => void;
   onError: (error: Error) => void;
 }
 
@@ -40,7 +40,7 @@ interface RedeemFnArgs {
  * Returns whether the transaction state should be polled (i.e., the transaction
  * is pending).
  */
-const shouldPollTransactionState = (transaction?: Types.SubsidyTransaction) => {
+const shouldPollTransactionState = (transaction?: SubsidyTransaction) => {
   const transactionState = transaction?.state;
   return transactionState === 'pending';
 };
@@ -57,7 +57,7 @@ const useRedemption = ({
   onError,
   resetTransaction,
 }: UseRedemptionArgs) => {
-  const { authenticatedUser }: Types.AppContextValue = useContext(AppContext);
+  const { authenticatedUser }: AppContextValue = useContext(AppContext);
   const redemptionMutation = useMutation({
     mutationFn: submitRedemptionRequest,
     onMutate: () => {
@@ -108,12 +108,12 @@ const useTransactionStatus = ({
   onError,
 }: UseTransactionStatusArgs) => {
   const enterpriseCustomerResult = useEnterpriseCustomer();
-  const enterpriseCustomer = enterpriseCustomerResult.data as Types.EnterpriseCustomer;
+  const enterpriseCustomer = enterpriseCustomerResult.data as EnterpriseCustomer;
   const {
     data: updatedTransaction,
     isSuccess: isTransactionQuerySuccess,
     error: transactionQueryError,
-  } = useQuery<Types.SubsidyTransaction, Error>({
+  } = useQuery<SubsidyTransaction, Error>({
     ...queryPolicyTransaction(enterpriseCustomer.uuid, transaction),
     enabled: !!transaction,
     refetchInterval: (query) => {
@@ -157,8 +157,8 @@ const useStatefulEnroll = ({
   onBeginRedeem,
   userEnrollments,
 }: UseStatefulEnrollArgs) => {
-  const { authenticatedUser }: Types.AppContextValue = useContext(AppContext);
-  const [transaction, setTransaction] = useState<Types.SubsidyTransaction>();
+  const { authenticatedUser }: AppContextValue = useContext(AppContext);
+  const [transaction, setTransaction] = useState<SubsidyTransaction>();
 
   // Analytics handlers
   const optimizelyHandler = useOptimizelyEnrollmentClickHandler({
@@ -170,7 +170,7 @@ const useStatefulEnroll = ({
   });
 
   // Handle success for both redemption AND transaction status
-  const handleSuccess = useCallback(async (newTransaction: Types.SubsidyTransaction) => {
+  const handleSuccess = useCallback(async (newTransaction: SubsidyTransaction) => {
     setTransaction(newTransaction);
     if (newTransaction.state === 'committed') {
       logInfo(`User ${newTransaction.lmsUserId} successfully redeemed ${newTransaction.contentKey} using subsidy access policy ${newTransaction.subsidyAccessPolicyUuid}.`);

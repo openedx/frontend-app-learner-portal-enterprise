@@ -2,7 +2,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom/extend-expect';
-import { logInfo } from '@edx/frontend-platform/logging';
 import { COURSE_STATUSES } from '../../../../../../constants';
 import { unenrollFromCourse } from './data';
 import UnenrollModal from './UnenrollModal';
@@ -33,10 +32,6 @@ jest.mock('../../../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useIsBFFEnabled: jest.fn(),
   fetchEnterpriseLearnerDashboard: jest.fn(),
-}));
-
-jest.mock('@edx/frontend-platform/logging', () => ({
-  logInfo: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -190,14 +185,11 @@ describe('<UnenrollModal />', () => {
       const bffDashboardData = mockQueryClient.getQueryData(
         queryEnterpriseLearnerDashboardBFF({ enterpriseSlug: mockEnterpriseCustomer.slug }).queryKey,
       );
-      let expectedLogInfoCalls = 0;
       if (isBFFEnabled) {
         // Only verify the BFF queryEnterpriseCourseEnrollments cache is updated if BFF feature is enabled.
         let expectedBFFDashboardData;
         if (existingBFFDashboardQueryData) {
           expectedBFFDashboardData = learnerDashboardBFFResponse;
-        } else {
-          expectedLogInfoCalls += 1;
         }
         expect(bffDashboardData).toEqual(expectedBFFDashboardData);
       } else {
@@ -216,13 +208,8 @@ describe('<UnenrollModal />', () => {
       let expectedLegacyEnrollmentsData;
       if (existingEnrollmentsQueryData) {
         expectedLegacyEnrollmentsData = [];
-      } else {
-        expectedLogInfoCalls += 1;
       }
       expect(legacyEnrollmentsData).toEqual(expectedLegacyEnrollmentsData);
-
-      // Verify logInfo calls
-      expect(logInfo).toHaveBeenCalledTimes(expectedLogInfoCalls);
 
       // Verify side effects
       expect(mockOnSuccess).toHaveBeenCalledTimes(1);

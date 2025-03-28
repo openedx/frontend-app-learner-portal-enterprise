@@ -94,6 +94,7 @@ const BudgetExpiryNotification = () => {
               <Button variant="primary" onClick={dismissModal}>OK</Button>
             </ActionRow>
           )}
+          isOverflowVisible={false}
         >
           <ModalMessage contactEmail={contactEmail} />
         </AlertModal>

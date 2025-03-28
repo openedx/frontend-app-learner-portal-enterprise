@@ -1,8 +1,6 @@
 import MockDate from 'mockdate';
 
 import dayjs from 'dayjs';
-import { matchPath } from 'react-router-dom';
-import { getConfig } from '@edx/frontend-platform/config';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
@@ -27,17 +25,6 @@ import {
 import { resolveBFFQuery } from './queries';
 import { enterpriseCustomerFactory } from './services/data/__factories__';
 import { DATE_FORMAT } from '../../course/data';
-
-jest.mock('react-router-dom', () => ({
-  matchPath: jest.fn(),
-}));
-
-jest.mock('@edx/frontend-platform/config', () => ({
-  ...jest.requireActual('@edx/frontend-platform/config'),
-  getConfig: jest.fn(() => ({
-    FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [],
-  })),
-}));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
@@ -1351,46 +1338,48 @@ describe('transformLearnerContentAssignment', () => {
     expect(transformedAllocatedAssignment.courseRunId).toEqual(contentKey);
   });
 });
+
 describe('resolveBFFQuery', () => {
-  const dashboardRoute = '/:enterpriseSlug';
-  const routes = [dashboardRoute];
   beforeEach(() => {
     jest.clearAllMocks();
-    getConfig.mockReturnValue({
-      FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [mockEnterpriseCustomer.uuid],
-    });
   });
-  it('returns the dashboard query key', () => {
-    const pathname = '/testEnterpriseSlug';
-    const mockParams = { enterpriseSlug: 'testEnterpriseSlug' };
+
+  it.each([
+    {
+      currentPathname: `/${mockEnterpriseCustomer.slug}`,
+      expectedRouteKey: 'dashboard',
+    },
+    {
+      currentPathname: `/${mockEnterpriseCustomer.slug}/search`,
+      expectedRouteKey: 'search',
+    },
+    {
+      currentPathname: `/${mockEnterpriseCustomer.slug}/search/pathway-uuid`,
+      expectedRouteKey: 'search',
+    },
+    {
+      currentPathname: `/${mockEnterpriseCustomer.slug}/academies/academy-uuid`,
+      expectedRouteKey: 'academy',
+    },
+    {
+      currentPathname: `/${mockEnterpriseCustomer.slug}/skills-quiz`,
+      expectedRouteKey: 'skillsQuiz',
+    },
+  ])('returns the expected query key (%s)', ({ currentPathname, expectedRouteKey }) => {
     const expectedQueryKey = [
       'bff',
       'enterpriseSlug',
-      'testEnterpriseSlug',
+      mockEnterpriseCustomer.slug,
       'route',
-      'dashboard',
+      expectedRouteKey,
     ];
-    matchPath.mockImplementation((pattern, path) => {
-      if (routes.includes(pattern) && path === '/testEnterpriseSlug') {
-        return { params: mockParams };
-      }
-      return null;
-    });
-    const result = resolveBFFQuery(pathname, { enterpriseCustomerUuid: mockEnterpriseCustomer.uuid });
-    expect(matchPath).toHaveBeenCalledWith('/:enterpriseSlug', pathname);
-    expect(result({ enterpriseSlug: 'testEnterpriseSlug' }).queryKey).toEqual(expectedQueryKey);
+    const result = resolveBFFQuery(currentPathname);
+    expect(result({ enterpriseSlug: mockEnterpriseCustomer.slug }).queryKey).toEqual(expectedQueryKey);
   });
+
   it('returns null from unmatched query key', () => {
-    const pathname = '/testEnterpriseSlug/Slugma';
-    const mockParams = { enterpriseSlug: 'testEnterpriseSlug' };
-    matchPath.mockImplementation((pattern, path) => {
-      if (routes.includes(pattern) && path === '/testEnterpriseSlug') {
-        return { params: mockParams };
-      }
-      return null;
-    });
-    const result = resolveBFFQuery(pathname, { enterpriseCustomerUuid: mockEnterpriseCustomer.uuid });
-    expect(matchPath).toHaveBeenCalledWith('/:enterpriseSlug', pathname);
+    const pathname = `/${mockEnterpriseCustomer.slug}/unsupported-bff-route`;
+    const result = resolveBFFQuery(pathname);
     expect(result).toEqual(null);
   });
 });

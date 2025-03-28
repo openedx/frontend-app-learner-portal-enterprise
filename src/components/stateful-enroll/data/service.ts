@@ -16,7 +16,7 @@ interface SubmitRedemptionRequestArgs {
  * @param {string} args.transactionStatusApiUrl API url to retrieve the transaction status.
  * @returns The payload for the specified transaction.
  */
-export const retrieveTransactionStatus = async ({ transactionStatusApiUrl }: Types.SubsidyTransaction) => {
+export const retrieveTransactionStatus = async ({ transactionStatusApiUrl }: SubsidyTransaction) => {
   const response = await getAuthenticatedHttpClient().get(transactionStatusApiUrl);
   return camelCaseObject(response.data);
 };

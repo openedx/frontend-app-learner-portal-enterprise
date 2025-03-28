@@ -5,14 +5,12 @@ import '@testing-library/jest-dom/extend-expect';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import {
   LEARNING_TYPE_COURSE,
-  LEARNING_TYPE_EXECUTIVE_EDUCATION,
 } from '@edx/frontend-enterprise-catalog-search/data/constants';
 import { renderWithRouter } from '../../../utils/tests';
 
 import AcademyDetailPage from '../AcademyDetailPage';
 import { useAcademyDetails, useEnterpriseCustomer } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
-import { useAcademyPathwayData } from '../data/hooks';
 
 // config
 const APP_CONFIG = {
@@ -47,26 +45,9 @@ const ALOGLIA_MOCK_DATA = {
       cardImageUrl: 'ocm-course-card-url',
       title: 'ocm course title',
     },
-    {
-      aggregationKey: 'course:MAX+DSA50x',
-      learningType: LEARNING_TYPE_EXECUTIVE_EDUCATION,
-      cardImageUrl: 'exec-ed-card-url',
-      title: 'exec-ed course title',
-    },
   ],
-  nbHits: 2,
+  nbHits: 1,
 };
-
-const mockPathwayResponse = [
-  {
-    title: 'Pathway Title',
-    overview: 'Pathway Overview',
-    pathwayUuid: '9d7c7c42-682d-4fa4-a133-2913e939f771',
-  },
-  false,
-  null,
-];
-// endpoints
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -114,10 +95,6 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useAcademyDetails: jest.fn(),
 }));
-jest.mock('../data/hooks', () => ({
-  ...jest.requireActual('../data/hooks'),
-  useAcademyPathwayData: jest.fn(),
-}));
 
 const AcademyDetailPageWrapper = () => (
   <IntlProvider locale="en">
@@ -132,7 +109,6 @@ describe('<AcademyDetailPage />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAcademyDetails.mockReturnValue({ data: ACADEMY_MOCK_DATA });
-    useAcademyPathwayData.mockReturnValue(mockPathwayResponse);
   });
 
   it('renders academy detail page', async () => {
@@ -143,17 +119,12 @@ describe('<AcademyDetailPage />', () => {
     expect(headingElement.textContent).toBe(expectedHeadingElement);
     const academyTags = screen.getAllByTestId('academy-tag').map((tag) => tag.textContent);
     expect(academyTags).toEqual(['wowwww', 'boooo']);
-    expect(screen.getByTestId('academy-exec-ed-courses-title')).toHaveTextContent('Executive Education');
-    expect(screen.getByTestId('academy-exec-ed-courses-subtitle')).toHaveTextContent(
-      'A selection of high-impact graduate-level courses that follow a structured schedule and include active interaction with educators and peers.',
-    );
     expect(screen.getByTestId('academy-ocm-courses-title')).toHaveTextContent('Self-paced courses');
     expect(screen.getByTestId('academy-ocm-courses-subtitle')).toHaveTextContent(
       'A collection of courses that cover essential knowledge on the subject. These courses offer flexible schedules and independent study.',
     );
-    expect(screen.getAllByTestId('academy-course-card').length).toEqual(2);
+    expect(screen.getAllByTestId('academy-course-card').length).toEqual(1);
     expect(screen.getByText(ALOGLIA_MOCK_DATA.hits[0].title)).toBeInTheDocument();
-    expect(screen.getByText(ALOGLIA_MOCK_DATA.hits[1].title)).toBeInTheDocument();
   });
 
   it('renders a not found page', () => {

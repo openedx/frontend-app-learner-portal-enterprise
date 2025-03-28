@@ -5,19 +5,19 @@ import { useParams } from 'react-router-dom';
 import { queryEnterpriseLearner } from '../queries';
 
 export interface UseEnterpriseLearnerOptions<TData> {
-  select?: (data: Types.EnterpriseLearnerData) => TData;
+  select?: (data: EnterpriseLearnerData) => TData;
 }
 
 /**
  * Retrieves the enterprise learner data for the authenticated user.
  */
 export default function useEnterpriseLearner<
-  TData = Types.EnterpriseLearnerData,
+  TData = EnterpriseLearnerData,
 >(options: UseEnterpriseLearnerOptions<TData> = {}) {
-  const { authenticatedUser }: Types.AppContextValue = useContext(AppContext);
+  const { authenticatedUser }: AppContextValue = useContext(AppContext);
   const { select } = options;
   const { enterpriseSlug } = useParams();
-  return useSuspenseQuery<Types.EnterpriseLearnerData, unknown, TData>({
+  return useSuspenseQuery<EnterpriseLearnerData, unknown, TData>({
     ...queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
     select,
   });

@@ -3,17 +3,17 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
 import { extractEnterpriseCustomer, queryAcademiesList, queryContentHighlightSets } from '../../app/data';
 
-type SearchRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+type SearchRouteParams<Key extends string = string> = RouteParams<Key> & {
   readonly enterpriseSlug: string;
 };
-interface SearchLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+interface SearchLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: SearchRouteParams;
 }
 interface Academy {
   uuid: string;
 }
 
-const makeSearchLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeSearchLoader(queryClient) {
+const makeSearchLoader: MakeRouteLoaderFunctionWithQueryClient = function makeSearchLoader(queryClient) {
   return async function searchLoader({ params, request } : SearchLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
@@ -26,6 +26,7 @@ const makeSearchLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
     const { enterpriseSlug } = params;
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
+      requestUrl,
       queryClient,
       authenticatedUser,
       enterpriseSlug,

@@ -18,8 +18,8 @@ export function authenticatedUserFactory(overrides = {}) {
 Factory.define('enterpriseCustomer')
   .attr('active', true)
   .attr('created', dayjs().toISOString())
-  .attr('uuid', uuidv4())
-  .attr('auth_org_id', uuidv4())
+  .attr('uuid', () => uuidv4())
+  .attr('auth_org_id', () => uuidv4())
   .attr('slug', faker.lorem.slug())
   .attr('name', faker.company.name())
   .attr('contact_email', faker.internet.email())
@@ -36,8 +36,17 @@ Factory.define('enterpriseCustomer')
     primary_color: faker.internet.color(),
     secondary_color: faker.internet.color(),
     tertiary_color: faker.internet.color(),
-  });
-export function enterpriseCustomerFactory(overrides = {}): Types.EnterpriseCustomer {
+  })
+  .attr('active_integrations', [
+    {
+      channel_code: faker.word.adjective({ length: 4 }).toUpperCase(),
+      created: dayjs().toISOString(),
+      modified: dayjs().toISOString(),
+      display_name: faker.company.name(),
+      active: faker.datatype.boolean(),
+    },
+  ]);
+export function enterpriseCustomerFactory(overrides = {}): EnterpriseCustomer {
   return camelCaseObject(Factory.build('enterpriseCustomer', overrides));
 }
 

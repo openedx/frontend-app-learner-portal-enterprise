@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useAsyncError, useRouteError } from 'react-router-dom';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
-import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platform/i18n';
+import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import {
   ActionRow, AlertModal, Button, useToggle,
 } from '@openedx/paragon';
@@ -83,6 +83,7 @@ function useHandleErrorsOrAppUpdate() {
     error: routeError,
     isAppUpdateAvailable,
   } = useHandleRouteError();
+
   const asyncError = useHandleAsyncError();
 
   const error = routeError || asyncError;
@@ -125,6 +126,7 @@ const RouteErrorBoundary = ({
             </Button>
           </ActionRow>
         )}
+        isOverflowVisible={false}
         isBlocking
       >
         <p>

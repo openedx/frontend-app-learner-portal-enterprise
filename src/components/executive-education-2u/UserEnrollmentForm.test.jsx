@@ -17,11 +17,11 @@ import {
   LEARNER_CREDIT_SUBSIDY_TYPE,
   queryCanRedeemContextQueryKey,
   queryEnterpriseCourseEnrollments,
+  queryEnterpriseLearnerDashboardBFF,
   queryRedeemablePolicies,
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
-  queryEnterpriseLearnerDashboardBFF,
   useIsBFFEnabled,
 } from '../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
@@ -264,8 +264,11 @@ describe('UserEnrollmentForm', () => {
         subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
       },
     });
+    const expectedEnterpriseCustomer = isDSCEnabled
+      ? mockEnterpriseCustomer
+      : mockEnterpriseCustomerWithDisabledDataSharingConsent;
     if (!isDSCEnabled) {
-      useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledDataSharingConsent });
+      useEnterpriseCustomer.mockReturnValue({ data: expectedEnterpriseCustomer });
     }
 
     const mockExternalEnrollmentUrl = `/${mockEnterpriseCustomer.slug}/executive-education-2u/course/${mockCourseKey}/enroll/${mockCourseRunKey}`;
@@ -324,12 +327,14 @@ describe('UserEnrollmentForm', () => {
       useStatefulEnroll.mock.calls[0][0].onSuccess(newTransaction);
     });
 
-    const canRedeemQueryKey = queryCanRedeemContextQueryKey(mockEnterpriseCustomer.uuid, mockCourseKey);
+    const canRedeemQueryKey = queryCanRedeemContextQueryKey(expectedEnterpriseCustomer.uuid, mockCourseKey);
     const redeemablePoliciesQueryKey = queryRedeemablePolicies({
-      enterpriseUuid: mockEnterpriseCustomer.uuid,
+      enterpriseUuid: expectedEnterpriseCustomer.uuid,
       lmsUserId: mockAuthenticatedUser.userId,
     }).queryKey;
-    const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey;
+    const enterpriseCourseEnrollmentsQueryKey = queryEnterpriseCourseEnrollments(
+      expectedEnterpriseCustomer.uuid,
+    ).queryKey;
     const expectedQueriesToInvalidate = [
       canRedeemQueryKey,
       redeemablePoliciesQueryKey,
@@ -338,7 +343,7 @@ describe('UserEnrollmentForm', () => {
 
     if (isBFFEnabled) {
       const dashboardBFFQueryKey = queryEnterpriseLearnerDashboardBFF({
-        enterpriseSlug: mockEnterpriseCustomer.slug,
+        enterpriseSlug: expectedEnterpriseCustomer.slug,
       }).queryKey;
       const expectedBFFQueriesToInvalidate = [dashboardBFFQueryKey];
       expectedQueriesToInvalidate.push(...expectedBFFQueriesToInvalidate);

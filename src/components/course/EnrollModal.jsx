@@ -302,6 +302,7 @@ const EnrollModal = ({
         </ActionRow>
       )}
       onClose={dismissModal}
+      isOverflowVisible={false}
     >
       {enrollText}
     </AlertModal>
