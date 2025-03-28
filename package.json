@@ -89,7 +89,7 @@
   "license": "AGPL-3.0",
   "scripts": {
     "build": "fedx-scripts webpack",
-    "build:with-theme": "paragon install-theme && npm run install-theme && npm run build && npm install",
+    "build:with-theme": "paragon install-theme && npm run build && npm install",
     "i18n_extract": "fedx-scripts formatjs extract --throws",
     "check-types": "tsc --noEmit",
     "lint": "fedx-scripts eslint --ext .js --ext .jsx --ext .ts --ext .tsx .",

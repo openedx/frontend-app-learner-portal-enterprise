@@ -1,6 +1,11 @@
 import { matchPath } from 'react-router-dom';
-import { queryEnterpriseLearnerDashboardBFF } from './queries';
-import { isBFFEnabled } from '../utils';
+import {
+  queryEnterpriseLearner,
+  queryEnterpriseLearnerAcademyBFF,
+  queryEnterpriseLearnerDashboardBFF,
+  queryEnterpriseLearnerSearchBFF,
+  queryEnterpriseLearnerSkillsQuizBFF,
+} from './queries';
 
 /**
  * Resolves the appropriate BFF query function to use for the current route.
@@ -8,19 +13,24 @@ import { isBFFEnabled } from '../utils';
  * @param options
  * @returns {Function|null} The BFF query function to use for the current route, or null if no match is found.
  */
-export function resolveBFFQuery(pathname, options = {}) {
-  const { enterpriseCustomerUuid, enterpriseFeatures } = options;
-
-  // Exit early if BFF is not enabled for the enterprise customer and/or request user
-  if (!isBFFEnabled(enterpriseCustomerUuid, enterpriseFeatures)) {
-    return null;
-  }
-
+export function resolveBFFQuery(pathname) {
   // Define route patterns and their corresponding query functions
   const routeToBFFQueryMap = [
     {
       pattern: '/:enterpriseSlug',
       query: queryEnterpriseLearnerDashboardBFF,
+    },
+    {
+      pattern: '/:enterpriseSlug/search/:pathwayUUID?',
+      query: queryEnterpriseLearnerSearchBFF,
+    },
+    {
+      pattern: '/:enterpriseSlug/academies/:academyUUID',
+      query: queryEnterpriseLearnerAcademyBFF,
+    },
+    {
+      pattern: '/:enterpriseSlug/skills-quiz',
+      query: queryEnterpriseLearnerSkillsQuizBFF,
     },
     // Add more routes and queries incrementally as needed
   ];
@@ -34,4 +44,46 @@ export function resolveBFFQuery(pathname, options = {}) {
 
   // No match found
   return null;
+}
+
+/**
+ * Helper function to parse the datasource for the enterprise learner data from either the
+ * BFF layer or the Enterprise learner endpoint directly. We pass in the fallback
+ * queryEnterpriseLearner to avoid dependency cycle issues
+ *
+ * @param requestUrl
+ * @param queryClient
+ * @param enterpriseSlug
+ * @param authenticatedUser
+ * @param queryEnterpriseLearnerConfig
+ * @returns {Promise<{ data: Types.EnterpriseLearnerData, isBFFData: boolean }>}
+ */
+export async function getEnterpriseLearnerQueryData({
+  requestUrl,
+  queryClient,
+  enterpriseSlug,
+  authenticatedUser,
+}) {
+  // Retrieve linked enterprise customers for the current user from query cache
+  // or fetch from the server if not available.
+  let enterpriseLearnerData;
+  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
+  if (matchedBFFQuery) {
+    const bffResponse = await queryClient.ensureQueryData(
+      matchedBFFQuery({ enterpriseSlug }),
+    );
+    enterpriseLearnerData = {
+      enterpriseCustomer: bffResponse.enterpriseCustomer || null,
+      activeEnterpriseCustomer: bffResponse.activeEnterpriseCustomer || null,
+      allLinkedEnterpriseCustomerUsers: bffResponse.allLinkedEnterpriseCustomerUsers || [],
+      staffEnterpriseCustomer: bffResponse.staffEnterpriseCustomer || null,
+      enterpriseFeatures: bffResponse.enterpriseFeatures || {},
+      shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser || false,
+    };
+  } else {
+    enterpriseLearnerData = await queryClient.ensureQueryData(
+      queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
+    );
+  }
+  return { data: enterpriseLearnerData, isBFFData: !!matchedBFFQuery };
 }

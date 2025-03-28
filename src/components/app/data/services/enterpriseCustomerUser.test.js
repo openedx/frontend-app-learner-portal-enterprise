@@ -124,7 +124,6 @@ describe('fetchEnterpriseLearnerData', () => {
       id: 6,
       active: true,
       enterpriseCustomer: mockEnterpriseCustomer,
-      roleAssignments: ['enterprise_learner'],
     }] : [];
     axiosMock.onGet(enterpriseLearnerUrl).reply(200, {
       results: enterpriseCustomersUsers,
@@ -143,35 +142,30 @@ describe('fetchEnterpriseLearnerData', () => {
       showIntegrationWarning: false,
     };
     const getExpectedEnterpriseCustomer = () => {
-      if (!enableLearnerPortal) {
-        return undefined;
-      }
-      const shouldHaveAccess = isLinkedToEnterpriseCustomer || isStaffUser;
-      if (shouldHaveAccess) {
+      if (enableLearnerPortal && (isStaffUser || isLinkedToEnterpriseCustomer)) {
         return expectedTransformedEnterpriseCustomer;
       }
-      return undefined;
+      return null;
     };
-    const getExpectedActiveEnterpriseCustomer = () => {
-      if (!enableLearnerPortal || !isLinkedToEnterpriseCustomer) {
-        return undefined;
-      }
-      return expectedTransformedEnterpriseCustomer;
-    };
+
+    const getExpectedActiveEnterpriseCustomer = () => (
+      isLinkedToEnterpriseCustomer && enableLearnerPortal ? expectedTransformedEnterpriseCustomer : null
+    );
+
     const expectedEnterpriseCustomer = getExpectedEnterpriseCustomer();
     const expectedActiveEnterpriseCustomer = getExpectedActiveEnterpriseCustomer();
-    const expectedRoleAssignments = isLinkedToEnterpriseCustomer ? ['enterprise_learner'] : [];
     expect(response).toEqual({
       enterpriseFeatures: { featureA: true },
       enterpriseCustomer: expectedEnterpriseCustomer,
-      enterpriseCustomerUserRoleAssignments: expectedRoleAssignments,
       activeEnterpriseCustomer: expectedActiveEnterpriseCustomer,
-      activeEnterpriseCustomerUserRoleAssignments: expectedRoleAssignments,
-      allLinkedEnterpriseCustomerUsers: enterpriseCustomersUsers.map((ecu) => ({
-        ...ecu,
-        enterpriseCustomer: expectedEnterpriseCustomer,
-      })),
-      staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : undefined,
+      allLinkedEnterpriseCustomerUsers: enterpriseCustomersUsers
+        .map((ecu) => ({
+          ...ecu,
+          enterpriseCustomer: expectedEnterpriseCustomer,
+        }))
+        .filter((ecu) => ecu.enterpriseCustomer),
+      staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : null,
+      shouldUpdateActiveEnterpriseCustomerUser: false,
     });
   });
 
@@ -187,11 +181,10 @@ describe('fetchEnterpriseLearnerData', () => {
     expect(response).toEqual({
       enterpriseFeatures: {},
       enterpriseCustomer: null,
-      enterpriseCustomerUserRoleAssignments: [],
       activeEnterpriseCustomer: null,
-      activeEnterpriseCustomerUserRoleAssignments: [],
       allLinkedEnterpriseCustomerUsers: [],
       staffEnterpriseCustomer: null,
+      shouldUpdateActiveEnterpriseCustomerUser: false,
     });
   });
 });

@@ -5,13 +5,14 @@ export default function useEnterpriseFeatures(queryOptions = {}) {
   return useEnterpriseLearner({
     ...queryOptionsRest,
     select: (data) => {
+      const transformedData = data.transformed.enterpriseFeatures;
       if (select) {
         return select({
-          original: data,
-          transformed: data?.enterpriseFeatures,
+          original: data.original,
+          transformed: transformedData,
         });
       }
-      return data?.enterpriseFeatures;
+      return transformedData;
     },
   });
 }

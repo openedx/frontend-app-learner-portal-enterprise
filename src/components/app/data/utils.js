@@ -1,7 +1,5 @@
 import dayjs from 'dayjs';
 import { logError } from '@edx/frontend-platform/logging';
-
-import { getConfig } from '@edx/frontend-platform/config';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import {
@@ -144,14 +142,12 @@ export function determineLearnerHasContentAssignmentsOnly({
  */
 export function determineEnterpriseCustomerUserForDisplay({
   activeEnterpriseCustomer,
-  activeEnterpriseCustomerUserRoleAssignments,
   enterpriseSlug,
   foundEnterpriseCustomerUserForCurrentSlug,
   staffEnterpriseCustomer,
 }) {
   const activeEnterpriseCustomerUser = {
     enterpriseCustomer: activeEnterpriseCustomer,
-    roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
   };
   // No enterprise slug in the URL, so return the active enterprise customer user.
   if (!enterpriseSlug) {
@@ -164,14 +160,12 @@ export function determineEnterpriseCustomerUserForDisplay({
   if (enterpriseSlug !== activeEnterpriseCustomer?.slug && foundEnterpriseCustomerUserForCurrentSlug) {
     return {
       enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
-      roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
     };
   }
 
   if (staffEnterpriseCustomer) {
     return {
       enterpriseCustomer: staffEnterpriseCustomer,
-      roleAssignments: [],
     };
   }
 
@@ -278,18 +272,12 @@ export function getAssignmentsByState(assignments = []) {
  * @returns
  */
 export function transformEnterpriseCustomer(enterpriseCustomer) {
-  // If the learner portal is not enabled for the displayed enterprise customer, return null. This
-  // results in the enterprise learner portal not being accessible for the user, showing a 404 page.
-  if (!enterpriseCustomer?.enableLearnerPortal) {
-    return undefined;
-  }
-
   // Otherwise, learner portal is enabled, so transform the enterprise customer data.
   const disableSearch = !!(
     !enterpriseCustomer.enableIntegratedCustomerLearnerPortalSearch
     && enterpriseCustomer.identityProvider
   );
-  const showIntegrationWarning = !!(!disableSearch && enterpriseCustomer.identityProvider);
+  const showIntegrationWarning = !!(!disableSearch && enterpriseCustomer.activeIntegrations?.length > 0);
   const brandColors = getBrandColorsFromCSSVariables();
   const defaultPrimaryColor = brandColors.primary;
   const defaultSecondaryColor = brandColors.info100;
@@ -930,30 +918,9 @@ export function transformCourseMetadataByAllocatedCourseRunAssignments({
   return courseMetadata;
 }
 
-export function isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid) {
-  const { FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS } = getConfig();
-  if (!FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS) {
-    return false;
-  }
-  return FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS.includes(enterpriseCustomerUuid);
-}
-
-export function isBFFEnabled(enterpriseCustomerUuid, enterpriseFeatures) {
-  // Check the following conditions:
-  // 1. BFF is enabled for the enterprise customer.
-  // 2. BFF is enabled for the request user via Waffle flag (supporting percentage-based rollout)
-  const isBFFEnabledForCustomer = isBFFEnabledForEnterpriseCustomer(enterpriseCustomerUuid);
-  if (isBFFEnabledForCustomer || enterpriseFeatures?.enterpriseLearnerBffEnabled) {
-    return true;
-  }
-
-  // Otherwise, BFF is not enabled.
-  return false;
-}
-
 /**
  * Adds a subscription license to the subscription licenses grouped by status.
- * @param {Oject} args
+ * @param {Object} args
  * @param {Object} args.subscriptionLicensesByStatus - The subscription licenses grouped by status.
  * @param {Object} args.subscriptionLicense - The subscription license to add to the subscription licenses by status.
  * @returns {Object} - Returns the updated subscription licenses grouped by status.

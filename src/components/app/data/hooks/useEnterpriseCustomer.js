@@ -9,14 +9,15 @@ export default function useEnterpriseCustomer(queryOptions = {}) {
   const { select, ...queryOptionsRest } = queryOptions;
   return useEnterpriseLearner({
     ...queryOptionsRest,
-    select: (enterpriseLearner) => {
+    select: (data) => {
+      const transformedData = data.transformed.enterpriseCustomer;
       if (select) {
         return select({
-          original: enterpriseLearner,
-          transformed: enterpriseLearner.enterpriseCustomer,
+          original: data.original,
+          transformed: transformedData,
         });
       }
-      return enterpriseLearner.enterpriseCustomer;
+      return transformedData;
     },
   });
 }

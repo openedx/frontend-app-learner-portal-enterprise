@@ -9,17 +9,17 @@ import {
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
-type ExternalCourseEnrollmentRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+type ExternalCourseEnrollmentRouteParams<Key extends string = string> = RouteParams<Key> & {
   readonly courseType: string;
   readonly courseKey: string;
   readonly courseRunKey: string;
   readonly enterpriseSlug: string;
 };
-interface ExternalCourseEnrollmentLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+interface ExternalCourseEnrollmentLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: ExternalCourseEnrollmentRouteParams;
 }
 
-const makeExternalCourseEnrollmentLoader: Types.MakeRouteLoaderFunctionWithQueryClient = (
+const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient = (
   function makeExternalCourseEnrollmentLoader(queryClient) {
     return async function externalCourseEnrollmentLoader(
       { params, request }: ExternalCourseEnrollmentLoaderFunctionArgs,
@@ -38,11 +38,14 @@ const makeExternalCourseEnrollmentLoader: Types.MakeRouteLoaderFunctionWithQuery
         courseRunKey,
       } = params;
       const enterpriseCustomer = await extractEnterpriseCustomer({
+        requestUrl,
         queryClient,
         authenticatedUser,
         enterpriseSlug,
       });
-
+      if (!enterpriseCustomer) {
+        return null;
+      }
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.

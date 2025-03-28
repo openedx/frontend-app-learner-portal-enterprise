@@ -26,11 +26,11 @@ import {
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
 
-type CourseRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+type CourseRouteParams<Key extends string = string> = RouteParams<Key> & {
   readonly courseKey: string;
   readonly enterpriseSlug: string;
 };
-interface CourseLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+interface CourseLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: CourseRouteParams;
 }
 type CourseMetadata = {
@@ -40,7 +40,7 @@ type CourseMetadata = {
 /**
  * Course loader for the course related page routes.
  */
-const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeCourseLoader(queryClient) {
+const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCourseLoader(queryClient) {
   return async function courseLoader({ params, request }: CourseLoaderFunctionArgs) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
@@ -55,10 +55,14 @@ const makeCourseLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function 
     let courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
+      requestUrl,
       queryClient,
       authenticatedUser,
       enterpriseSlug,
     });
+    if (!enterpriseCustomer) {
+      return null;
+    }
     const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
       enterpriseUuid: enterpriseCustomer.uuid,
       lmsUserId: authenticatedUser.userId,

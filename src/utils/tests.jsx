@@ -1,5 +1,5 @@
 import { isValidElement } from 'react';
-import { BrowserRouter as Router, RouterProvider, createMemoryRouter } from 'react-router-dom';
+import { BrowserRouter as Router, createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import dayjs from 'dayjs';
 import { render } from '@testing-library/react'; // eslint-disable-line import/no-extraneous-dependencies
@@ -119,3 +119,36 @@ export function queryClient(defaultOptions = {}) {
     },
   });
 }
+
+/**
+ * Generates all possible permutations of an object where each key has multiple possible values.
+ *
+ * @param {Object.<string, any[]>} options - An object where each key has an array of possible values.
+ * @returns {Object[]} - An array of objects containing all possible combinations of the input values.
+ *
+ * @example
+ * const input = {
+ *   shouldUpdateActiveEnterpriseCustomerUser: [true, false],
+ *   isBFFData: [true, false],
+ *   anotherFlag: ["A", "B"]
+ * };
+ *
+ * const result = generatePermutations(input);
+ * console.log(result);
+ *
+ * // Output:
+ * // [
+ * //   { shouldUpdateActiveEnterpriseCustomerUser: true, isBFFData: true, anotherFlag: "A" },
+ * //   { shouldUpdateActiveEnterpriseCustomerUser: true, isBFFData: true, anotherFlag: "B" },
+ * //   { shouldUpdateActiveEnterpriseCustomerUser: true, isBFFData: false, anotherFlag: "A" },
+ * //   { shouldUpdateActiveEnterpriseCustomerUser: true, isBFFData: false, anotherFlag: "B" },
+ * //   { shouldUpdateActiveEnterpriseCustomerUser: false, isBFFData: true, anotherFlag: "A" },
+ * //   { shouldUpdateActiveEnterpriseCustomerUser: false, isBFFData: true, anotherFlag: "B" },
+ * //   { shouldUpdateActiveEnterpriseCustomerUser: false, isBFFData: false, anotherFlag: "A" },
+ * //   { shouldUpdateActiveEnterpriseCustomerUser: false, isBFFData: false, anotherFlag: "B" }
+ * // ]
+ */
+export const generateTestPermutations = (options) => Object.entries(options).reduce(
+  (acc, [key, values]) => acc.flatMap(prev => values.map(value => ({ ...prev, [key]: value }))),
+  [{}],
+);

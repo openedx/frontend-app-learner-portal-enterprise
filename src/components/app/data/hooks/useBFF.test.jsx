@@ -1,31 +1,26 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
-import { useLocation, useParams } from 'react-router-dom';
-import { getConfig } from '@edx/frontend-platform/config';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import { queryClient } from '../../../../utils/tests';
-import { fetchEnterpriseLearnerDashboard } from '../services';
+import {
+  fetchEnterpriseLearnerDashboard,
+  fetchEnterpriseLearnerSearch,
+  fetchEnterpriseLearnerAcademy,
+  fetchEnterpriseLearnerSkillsQuiz,
+} from '../services';
 import useBFF from './useBFF';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
-import useEnterpriseFeatures from './useEnterpriseFeatures';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useEnterpriseFeatures');
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
   fetchEnterpriseLearnerDashboard: jest.fn().mockResolvedValue(null),
-}));
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn(),
-  useParams: jest.fn(),
-}));
-jest.mock('@edx/frontend-platform/config', () => ({
-  ...jest.requireActual('@edx/frontend-platform/config'),
-  getConfig: jest.fn(() => ({
-    FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [],
-  })),
+  fetchEnterpriseLearnerSearch: jest.fn().mockResolvedValue(null),
+  fetchEnterpriseLearnerAcademy: jest.fn().mockResolvedValue(null),
+  fetchEnterpriseLearnerSkillsQuiz: jest.fn().mockResolvedValue(null),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -34,7 +29,8 @@ const mockSubscriptionCatalogUuid = uuidv4();
 const mockSubscriptionLicenseUuid = uuidv4();
 const mockSubscriptionPlanUuid = uuidv4();
 const mockActivationKey = uuidv4();
-const mockBFFDashboardData = {
+const mockBaseBFFData = {
+  enterpriseCustomer: mockEnterpriseCustomer,
   enterpriseCustomerUserSubsidies: {
     subscriptions: {
       customerAgreement: {
@@ -101,6 +97,11 @@ const mockBFFDashboardData = {
       },
     },
   },
+  errors: [],
+  warnings: [],
+};
+const mockBFFDashboardData = {
+  ...mockBaseBFFData,
   enterpriseCourseEnrollments: [
     {
       courseRunId: 'course-v1:edX+DemoX+3T2022',
@@ -124,96 +125,130 @@ const mockBFFDashboardData = {
       isRevoked: false,
     },
   ],
-  errors: [],
-  warnings: [],
+};
+
+const mockBFFSearchData = {
+  ...mockBaseBFFData,
+};
+
+const mockBFFAcademyData = {
+  ...mockBaseBFFData,
+};
+
+const mockBFFSkillsQuizData = {
+  ...mockBaseBFFData,
 };
 
 describe('useBFF', () => {
-  const Wrapper = ({ children }) => (
+  const Wrapper = ({ initialEntries = [], children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <MemoryRouter initialEntries={initialEntries}>
+        <Routes>
+          <Route path=":enterpriseSlug" element={children} />
+          <Route path=":enterpriseSlug/search" element={children} />
+          <Route path=":enterpriseSlug/academies/:academyUUID" element={children} />
+          <Route path=":enterpriseSlug/skills-quiz" element={children} />
+          <Route path=":enterpriseSlug/unsupported-bff-route" element={children} />
+        </Routes>
+      </MemoryRouter>
     </QueryClientProvider>
   );
 
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useEnterpriseFeatures.mockReturnValue({ data: { enterpriseLearnerBffEnabled: false } });
     fetchEnterpriseLearnerDashboard.mockResolvedValue(mockBFFDashboardData);
-    useLocation.mockReturnValue({ pathname: '/test-enterprise' });
-    useParams.mockReturnValue({ enterpriseSlug: 'test-enterprise' });
-    getConfig.mockReturnValue({
-      FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [mockEnterpriseCustomer.uuid],
-    });
+    fetchEnterpriseLearnerSearch.mockResolvedValue(mockBFFSearchData);
+    fetchEnterpriseLearnerAcademy.mockResolvedValue(mockBFFAcademyData);
+    fetchEnterpriseLearnerSkillsQuiz.mockResolvedValue(mockBFFSkillsQuizData);
   });
 
   it.each([
-    // BFF enabled via customer opt-in (without query options)
+    // BFF disabled route (without query options)
     {
-      isBFFEnabledForCustomer: true,
-      isBFFEnabledForUser: false,
+      isMatchedBFFRoute: false,
       hasQueryOptions: false,
     },
-    // BFF enabled via customer opt-in (with query options)
+    // BFF disabled route (with query options)
     {
-      isBFFEnabledForCustomer: true,
-      isBFFEnabledForUser: false,
+      isMatchedBFFRoute: false,
       hasQueryOptions: true,
     },
-    // BFF enabled via Waffle flag (without query options)
+    // BFF enabled route: Dashboard (without query options)
     {
-      isBFFEnabledForCustomer: false,
-      isBFFEnabledForUser: true,
+      isMatchedBFFRoute: true,
+      bffServiceFn: fetchEnterpriseLearnerDashboard,
+      mockBFFResponseData: mockBFFDashboardData,
+      bffRoutePath: `/${mockBFFDashboardData.enterpriseCustomer.slug}`,
       hasQueryOptions: false,
     },
-    // BFF enabled via Waffle flag (with query options)
+    // BFF enabled route: Dashboard (with query options)
     {
-      isBFFEnabledForCustomer: false,
-      isBFFEnabledForUser: true,
+      isMatchedBFFRoute: true,
+      bffServiceFn: fetchEnterpriseLearnerDashboard,
+      mockBFFResponseData: mockBFFDashboardData,
+      bffRoutePath: `/${mockBFFDashboardData.enterpriseCustomer.slug}`,
       hasQueryOptions: true,
     },
-    // BFF enabled via customer opt-in and Waffle flag (without query options)
+    // BFF enabled route: Search (without query options)
     {
-      isBFFEnabledForCustomer: true,
-      isBFFEnabledForUser: true,
+      isMatchedBFFRoute: true,
+      bffServiceFn: fetchEnterpriseLearnerSearch,
+      mockBFFResponseData: mockBFFSearchData,
+      bffRoutePath: `/${mockBFFSearchData.enterpriseCustomer.slug}/search`,
       hasQueryOptions: false,
     },
-    // BFF enabled via customer opt-in and Waffle flag (with query options)
+    // BFF enabled route: Search (with query options)
     {
-      isBFFEnabledForCustomer: true,
-      isBFFEnabledForUser: true,
+      isMatchedBFFRoute: true,
+      bffServiceFn: fetchEnterpriseLearnerSearch,
+      mockBFFResponseData: mockBFFSearchData,
+      bffRoutePath: `/${mockBFFSearchData.enterpriseCustomer.slug}/search`,
       hasQueryOptions: true,
     },
-    // BFF disabled (without query options)
+    // BFF enabled route: Academy (without query options)
     {
-      isBFFEnabledForCustomer: false,
-      isBFFEnabledForUser: false,
+      isMatchedBFFRoute: true,
+      bffServiceFn: fetchEnterpriseLearnerAcademy,
+      mockBFFResponseData: mockBFFAcademyData,
+      bffRoutePath: `/${mockBFFAcademyData.enterpriseCustomer.slug}/academies/academy-uuid`,
       hasQueryOptions: false,
     },
-    // BFF disabled (with query options)
+    // BFF enabled route: Academy (with query options)
     {
-      isBFFEnabledForCustomer: false,
-      isBFFEnabledForUser: false,
+      isMatchedBFFRoute: true,
+      bffServiceFn: fetchEnterpriseLearnerAcademy,
+      mockBFFResponseData: mockBFFAcademyData,
+      bffRoutePath: `/${mockBFFAcademyData.enterpriseCustomer.slug}/academies/academy-uuid`,
       hasQueryOptions: true,
     },
-  ])('should handle resolved value correctly for the dashboard route, and the config enabled (%s)', async ({
-    isBFFEnabledForCustomer,
-    isBFFEnabledForUser,
+    // BFF enabled route: Skills Quiz (without query options)
+    {
+      isMatchedBFFRoute: true,
+      bffServiceFn: fetchEnterpriseLearnerSkillsQuiz,
+      mockBFFResponseData: mockBFFSkillsQuizData,
+      bffRoutePath: `/${mockBFFSkillsQuizData.enterpriseCustomer.slug}/skills-quiz`,
+      hasQueryOptions: false,
+    },
+    // BFF enabled route: Skills Quiz (with query options)
+    {
+      isMatchedBFFRoute: true,
+      bffServiceFn: fetchEnterpriseLearnerSkillsQuiz,
+      mockBFFResponseData: mockBFFSkillsQuizData,
+      bffRoutePath: `/${mockBFFSkillsQuizData.enterpriseCustomer.slug}/skills-quiz`,
+      hasQueryOptions: true,
+    },
+  ])('should handle resolved value correctly for based on route (%s)', async ({
+    isMatchedBFFRoute,
+    bffServiceFn,
+    mockBFFResponseData,
+    bffRoutePath,
     hasQueryOptions,
   }) => {
-    if (!isBFFEnabledForCustomer) {
-      getConfig.mockReturnValue({
-        FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [],
-      });
-    }
-    if (isBFFEnabledForUser) {
-      useEnterpriseFeatures.mockReturnValue({ data: { enterpriseLearnerBffEnabled: true } });
-    }
-    const isBFFEnabled = isBFFEnabledForCustomer || isBFFEnabledForUser;
     const mockFallbackData = { fallback: 'data' };
     const mockSelect = jest.fn(() => {
-      if (isBFFEnabled) {
-        return mockBFFDashboardData;
+      if (isMatchedBFFRoute) {
+        return mockBFFResponseData;
       }
       return mockFallbackData;
     });
@@ -227,6 +262,7 @@ describe('useBFF', () => {
       mockBFFQueryOptions.select = mockSelect;
       mockFallbackQueryConfig.select = mockSelect;
     }
+    const initialEntries = isMatchedBFFRoute ? [bffRoutePath] : ['/test-enterprise/unsupported-bff-route'];
     const { result } = renderHook(
       () => useBFF({
         bffQueryOptions: {
@@ -234,10 +270,16 @@ describe('useBFF', () => {
         },
         fallbackQueryConfig: mockFallbackQueryConfig,
       }),
-      { wrapper: Wrapper },
+      {
+        wrapper: ({ children }) => (
+          <Wrapper initialEntries={initialEntries}>
+            {children}
+          </Wrapper>
+        ),
+      },
     );
     await waitFor(() => {
-      const expectedData = isBFFEnabled ? mockBFFDashboardData : mockFallbackData;
+      const expectedData = isMatchedBFFRoute ? mockBFFResponseData : mockFallbackData;
       expect(result.current).toEqual(
         expect.objectContaining({
           data: expectedData,
@@ -249,25 +291,24 @@ describe('useBFF', () => {
 
     if (hasQueryOptions) {
       expect(mockSelect).toHaveBeenCalledTimes(1);
-      if (isBFFEnabled) {
+      if (isMatchedBFFRoute) {
         // Expects the select function to be called with the resolved BFF data
-        expect(mockSelect).toHaveBeenCalledWith(mockBFFDashboardData);
+        expect(mockSelect).toHaveBeenCalledWith(mockBFFResponseData);
       } else {
         // Expects the select function to be called with the resolved fallback data
         expect(mockSelect).toHaveBeenCalledWith(mockFallbackData);
       }
     }
 
-    if (isBFFEnabled) {
-      expect(fetchEnterpriseLearnerDashboard).toHaveBeenCalledTimes(1);
-      expect(fetchEnterpriseLearnerDashboard).toHaveBeenCalledWith(
+    if (isMatchedBFFRoute) {
+      expect(bffServiceFn).toHaveBeenCalledTimes(1);
+      expect(bffServiceFn).toHaveBeenCalledWith(
         expect.objectContaining({
-          enterpriseSlug: 'test-enterprise',
+          enterpriseSlug: mockEnterpriseCustomer.slug,
         }),
       );
       expect(mockFallbackQueryFn).not.toHaveBeenCalled();
     } else {
-      expect(fetchEnterpriseLearnerDashboard).not.toHaveBeenCalled();
       expect(mockFallbackQueryFn).toHaveBeenCalledTimes(1);
     }
   });

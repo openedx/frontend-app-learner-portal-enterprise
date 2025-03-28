@@ -211,7 +211,7 @@ export function queryRequestsContextQueryKey(enterpriseUuid: string) {
 export function queryLicenseRequests(
   enterpriseUuid: string,
   userEmail: string,
-  state: Types.SubsidyRequestState = SUBSIDY_REQUEST_STATE.REQUESTED,
+  state: SubsidyRequestState = SUBSIDY_REQUEST_STATE.REQUESTED,
 ) {
   return queries
     .enterprise
@@ -225,7 +225,7 @@ export function queryLicenseRequests(
 export function queryCouponCodeRequests(
   enterpriseUuid: string,
   userEmail: string,
-  state: Types.SubsidyRequestState = SUBSIDY_REQUEST_STATE.REQUESTED,
+  state: SubsidyRequestState = SUBSIDY_REQUEST_STATE.REQUESTED,
 ) {
   return queries
     .enterprise
@@ -267,10 +267,35 @@ export function queryVideoDetail(videoUUID: string, enterpriseUUID: string) {
 }
 
 // BFF queries
+
 export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)
     ._ctx.route
     ._ctx.dashboard;
+}
+
+export function queryEnterpriseLearnerSearchBFF({ enterpriseSlug }) {
+  return queries
+    .bff
+    .enterpriseSlug(enterpriseSlug)
+    ._ctx.route
+    ._ctx.search;
+}
+
+export function queryEnterpriseLearnerAcademyBFF({ enterpriseSlug }) {
+  return queries
+    .bff
+    .enterpriseSlug(enterpriseSlug)
+    ._ctx.route
+    ._ctx.academy;
+}
+
+export function queryEnterpriseLearnerSkillsQuizBFF({ enterpriseSlug }) {
+  return queries
+    .bff
+    .enterpriseSlug(enterpriseSlug)
+    ._ctx.route
+    ._ctx.skillsQuiz;
 }

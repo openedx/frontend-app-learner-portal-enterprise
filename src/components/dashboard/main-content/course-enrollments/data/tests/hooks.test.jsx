@@ -1,6 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import * as logger from '@edx/frontend-platform/logging';
-import { logInfo } from '@edx/frontend-platform/logging';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import dayjs from 'dayjs';
@@ -1215,7 +1214,6 @@ describe('useUpdateCourseEnrollmentStatus', () => {
           enterpriseSlug: mockEnterpriseCustomer.slug,
         }).queryKey,
       );
-      let expectedLogInfoCalls = 0;
       const expectedCourseRunStatus = doesCourseRunIdMatch
         ? newEnrollmentStatus
         : originalEnrollmentStatus;
@@ -1226,9 +1224,6 @@ describe('useUpdateCourseEnrollmentStatus', () => {
         );
         if (existingBFFDashboardQueryData) {
           expect(foundMockEnrollment.courseRunStatus).toEqual(expectedCourseRunStatus);
-        } else {
-          expectedLogInfoCalls += 1;
-          expect(dashboardBFFData).toBeUndefined();
         }
       }
 
@@ -1242,12 +1237,8 @@ describe('useUpdateCourseEnrollmentStatus', () => {
       if (existingEnrollmentsQueryData) {
         expect(foundMockEnrollment.courseRunStatus).toEqual(expectedCourseRunStatus);
       } else {
-        expectedLogInfoCalls += 1;
         expect(enrollmentsData).toBeUndefined();
       }
-
-      // Verify logInfo calls
-      expect(logInfo).toHaveBeenCalledTimes(expectedLogInfoCalls);
     });
   });
 });
