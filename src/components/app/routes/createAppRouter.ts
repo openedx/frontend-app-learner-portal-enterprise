@@ -8,7 +8,7 @@ import { getRoutes } from '../../../routes';
  * @param {Object} queryClient React Query query client.
  * @returns {Object} React Router browser router.
  */
-export default function createAppRouter(queryClient: Types.QueryClient): Types.Router {
+export default function createAppRouter(queryClient: QueryClient): Router {
   const { routes } = getRoutes(queryClient);
   const router = createBrowserRouter(routes);
   return router;

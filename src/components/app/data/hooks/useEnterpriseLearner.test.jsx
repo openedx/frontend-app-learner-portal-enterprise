@@ -67,7 +67,7 @@ describe('useEnterpriseLearner', () => {
       <MemoryRouter initialEntries={initialEntries}>
         <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
           <Routes>
-            <Route path=":enterpriseSlug/search?" element={children} />
+            <Route path=":enterpriseSlug/unsupported-bff-route?" element={children} />
           </Routes>
         </AppContext.Provider>
       </MemoryRouter>
@@ -93,7 +93,7 @@ describe('useEnterpriseLearner', () => {
       fetchEnterpriseLearnerData.mockResolvedValue(mockEnterpriseLearnerData);
     }
     const mockSelect = jest.fn(data => data.transformed);
-    const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/search'];
+    const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/unsupported-bff-route'];
     const enterpriseLearnerHookArgs = hasCustomSelect ? { select: mockSelect } : {};
     const { result, waitForNextUpdate } = renderHook(
       () => (useEnterpriseLearner(enterpriseLearnerHookArgs)),

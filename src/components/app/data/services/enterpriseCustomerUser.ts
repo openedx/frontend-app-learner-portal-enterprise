@@ -58,7 +58,7 @@ export async function fetchEnterpriseCustomerForSlug(enterpriseSlug) {
  * @returns
  */
 export async function fetchEnterpriseLearnerData(username, enterpriseSlug, options = {}):
-Promise<Types.EnterpriseLearnerData> {
+Promise<EnterpriseLearnerData> {
   const enterpriseLearnerUrl = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
   const queryParams = new URLSearchParams({
     username,
@@ -97,7 +97,7 @@ Promise<Types.EnterpriseLearnerData> {
     // If no enterprise customer is found (i.e., authenticated user not explicitly
     // linked), but the authenticated user is staff, attempt to retrieve enterprise
     // customer metadata from the `/enterprise-customer` LMS API.
-    let staffEnterpriseCustomer: Types.EnterpriseCustomer | null = null;
+    let staffEnterpriseCustomer: EnterpriseCustomer | null = null;
     if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
       const staffEnterpriseCustomerResult = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
       if (staffEnterpriseCustomerResult?.enableLearnerPortal) {

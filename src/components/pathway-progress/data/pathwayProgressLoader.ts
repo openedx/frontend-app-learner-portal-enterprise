@@ -1,14 +1,14 @@
 import { queryLearnerPathwayProgressData } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
-type PathwayProgressRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+type PathwayProgressRouteParams<Key extends string = string> = RouteParams<Key> & {
   readonly pathwayUUID: string;
 };
-interface PathwayProgressLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+interface PathwayProgressLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: PathwayProgressRouteParams;
 }
 
-const makePathwayProgressLoader: Types.MakeRouteLoaderFunctionWithQueryClient = (
+const makePathwayProgressLoader: MakeRouteLoaderFunctionWithQueryClient = (
   function makePathwayProgressLoader(queryClient) {
     return async function pathwayProgressLoader({ params, request }: PathwayProgressLoaderFunctionArgs) {
       const requestUrl = new URL(request.url);

@@ -9,17 +9,17 @@ import {
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
-type ExternalCourseEnrollmentRouteParams<Key extends string = string> = Types.RouteParams<Key> & {
+type ExternalCourseEnrollmentRouteParams<Key extends string = string> = RouteParams<Key> & {
   readonly courseType: string;
   readonly courseKey: string;
   readonly courseRunKey: string;
   readonly enterpriseSlug: string;
 };
-interface ExternalCourseEnrollmentLoaderFunctionArgs extends Types.RouteLoaderFunctionArgs {
+interface ExternalCourseEnrollmentLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: ExternalCourseEnrollmentRouteParams;
 }
 
-const makeExternalCourseEnrollmentLoader: Types.MakeRouteLoaderFunctionWithQueryClient = (
+const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient = (
   function makeExternalCourseEnrollmentLoader(queryClient) {
     return async function externalCourseEnrollmentLoader(
       { params, request }: ExternalCourseEnrollmentLoaderFunctionArgs,

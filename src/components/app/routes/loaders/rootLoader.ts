@@ -10,7 +10,7 @@ import {
 /**
  * Root loader for the enterprise learner portal.
  */
-const makeRootLoader: Types.MakeRouteLoaderFunctionWithQueryClient = function makeRootLoader(queryClient) {
+const makeRootLoader: MakeRouteLoaderFunctionWithQueryClient = function makeRootLoader(queryClient) {
   return async function rootLoader({ params = {}, request }) {
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);

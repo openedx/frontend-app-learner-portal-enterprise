@@ -3,8 +3,8 @@ import { getEnterpriseLearnerQueryData } from './utils';
 
 interface ExtractEnterpriseCustomerArgs {
   requestUrl: URL,
-  queryClient: Types.QueryClient;
-  authenticatedUser: Types.AuthenticatedUser;
+  queryClient: QueryClient;
+  authenticatedUser: AuthenticatedUser;
   enterpriseSlug?: string;
 }
 
@@ -16,7 +16,7 @@ async function extractEnterpriseCustomer({
   queryClient,
   authenticatedUser,
   enterpriseSlug,
-} : ExtractEnterpriseCustomerArgs): Promise<Types.EnterpriseCustomer | null> {
+} : ExtractEnterpriseCustomerArgs): Promise<EnterpriseCustomer | null> {
   // Retrieve linked enterprise customers for the current user from query cache, or
   // fetch from the server if not available.
   const { data: enterpriseLearnerData } = await getEnterpriseLearnerQueryData({

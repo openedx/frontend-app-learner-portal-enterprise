@@ -13,7 +13,7 @@ export interface UseNProgressLoaderOptions {
 }
 
 function useNProgressLoader({ shouldCompleteBeforeUnmount = true }: UseNProgressLoaderOptions = {}) {
-  const { authenticatedUser }: Types.AppContextValue = useContext(AppContext);
+  const { authenticatedUser }: AppContextValue = useContext(AppContext);
   const isAuthenticatedUserHydrated = !!authenticatedUser?.extendedProfile;
   const navigation = useNavigation();
   const fetchers = useFetchers();
