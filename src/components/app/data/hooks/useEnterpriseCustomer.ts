@@ -1,8 +1,8 @@
 import useEnterpriseLearner from './useEnterpriseLearner';
 
 export interface UseEnterpriseCustomerSelectFnArgs {
-  original: Types.EnterpriseLearnerData;
-  transformed: Types.EnterpriseCustomer | null;
+  original: EnterpriseLearnerData;
+  transformed: EnterpriseCustomer | null;
 }
 
 export interface UseEnterpriseCustomerOptions<TData> {
@@ -13,7 +13,7 @@ export interface UseEnterpriseCustomerOptions<TData> {
  * Helper hook to retrieve the enterprise customer metadata.
  */
 export default function useEnterpriseCustomer<
-  TData = Types.EnterpriseCustomer | null,
+  TData = EnterpriseCustomer | null,
 >(options: UseEnterpriseCustomerOptions<TData> = {}) {
   const { select } = options;
   return useEnterpriseLearner<TData>({
