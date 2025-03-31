@@ -2,6 +2,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { logError } from '@edx/frontend-platform/logging';
 import { resolveBFFQuery } from '../queries';
+import { isObjEmpty } from '../utils';
 
 /**
  * Uses the route to determine which API call to make for the BFF
@@ -16,8 +17,7 @@ import { resolveBFFQuery } from '../queries';
 export default function useBFF({
   bffQueryAdditionalParams = {},
   bffQueryOptions = {},
-  fallbackQueryConfig = null,
-  overrideFallbackQueryConfig = false,
+  fallbackQueryConfig = {},
 }) {
   const { enterpriseSlug } = useParams();
   const location = useLocation();
@@ -33,11 +33,7 @@ export default function useBFF({
       ...matchedBFFQuery({ enterpriseSlug, ...bffQueryAdditionalParams }),
       ...bffQueryOptions,
     };
-  } else if (overrideFallbackQueryConfig) {
-    // This conditional was added to handle date that was migrated into the BFF that is not sourced interally
-    // from our services such as the securedAlgoliaKey which fallback to helper hooks, see useAlgoliaSearchh
-    return { data: null };
-  } else if (fallbackQueryConfig) {
+  } else if (!isObjEmpty(fallbackQueryConfig)) {
     queryConfig = fallbackQueryConfig;
   } else {
     const err = new Error('No BFF query found for the current route and no fallback query provided');

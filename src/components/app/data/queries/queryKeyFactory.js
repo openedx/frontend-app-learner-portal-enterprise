@@ -294,6 +294,10 @@ const bff = createQueryKeys('bff', {
       },
     },
   }),
+  defaultEmptyFallback: {
+    queryKey: null,
+    queryFn: () => null,
+  },
 });
 
 const queries = mergeQueryKeys(enterprise, user, content, bff);

@@ -65,6 +65,7 @@ const Search = () => {
     searchIndex,
     searchClient,
   } = useAlgoliaSearchh();
+
   // Flag to toggle highlights visibility
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
