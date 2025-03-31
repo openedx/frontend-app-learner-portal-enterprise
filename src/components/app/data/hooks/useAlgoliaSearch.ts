@@ -78,7 +78,6 @@ const useAlgoliaSearchh = (indexName = null) => {
   const algoliaSearchApiKey = isCatalogQueryFiltersEnabled && isIndexSupported
     ? securedAlgoliaMetadata?.securedAlgoliaApiKey
     : config.ALGOLIA_SEARCH_API_KEY;
-  console.log({ algoliaSearchApiKey, isIndexSupported, indexName });
   const algoliaMetadata = useMemo(
     () => {
       const searchClient = algoliasearch(

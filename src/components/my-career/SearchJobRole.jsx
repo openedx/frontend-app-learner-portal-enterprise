@@ -19,7 +19,6 @@ const SearchJobRole = (props) => {
     searchClient,
     searchIndex,
   } = useAlgoliaSearchh(
-    {},
     config.ALGOLIA_INDEX_NAME_JOBS,
   );
   const { authenticatedUser: { username } } = useContext(AppContext);

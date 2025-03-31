@@ -1,4 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
+import {
+  useContext, useEffect, useMemo, useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
@@ -13,6 +15,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
+import algoliasearch from 'algoliasearch';
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import CurrentJobDropdown from './CurrentJobDropdown';
@@ -38,23 +41,24 @@ import headerImage from './images/headerImage.png';
 import { saveSkillsGoalsAndJobsUserSelected } from './data/utils';
 import { fetchCourseEnrollments } from './data/service';
 import { useEnterpriseCustomer } from '../app/data';
-import useAlgoliaSearchh from '../app/data/hooks/useAlgoliaSearch';
 
 const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const config = getConfig();
-  const searchIndices = {
-    courseIndex: config.ALGOLIA_INDEX_NAME,
-    jobIndex: config.ALGOLIA_INDEX_NAME_JOBS,
-  };
 
-  const {
-    searchClient,
-    searchIndex: courseIndex,
-  } = useAlgoliaSearchh({}, searchIndices.courseIndex);
-
-  const {
-    searchIndex: jobIndex,
-  } = useAlgoliaSearchh({}, searchIndices.jobIndex);
+  const [searchClient, courseIndex, jobIndex] = useMemo(() => {
+    const client = algoliasearch(
+      config.ALGOLIA_APP_ID,
+      config.ALGOLIA_SEARCH_API_KEY,
+    );
+    const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
+    const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
+    return [client, cIndex, jIndex];
+  }, [
+    config.ALGOLIA_APP_ID,
+    config.ALGOLIA_INDEX_NAME,
+    config.ALGOLIA_INDEX_NAME_JOBS,
+    config.ALGOLIA_SEARCH_API_KEY,
+  ]);
 
   const [currentStep, setCurrentStep] = useState(STEP1);
   const [isStudentChecked, setIsStudentChecked] = useState(false);
