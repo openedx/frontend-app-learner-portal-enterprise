@@ -1,7 +1,6 @@
 import { Button } from '@openedx/paragon';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { getConfig } from '@edx/frontend-platform/config';
-import algoliasearch from 'algoliasearch/lite';
 import { InstantSearch } from 'react-instantsearch-dom';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
@@ -10,24 +9,24 @@ import CurrentJobDropdown from '../skills-quiz/CurrentJobDropdown';
 import IndustryDropdown from '../skills-quiz/IndustryDropdown';
 import GoalDropdown from '../skills-quiz/GoalDropdown';
 import SearchJobCard from '../skills-quiz/SearchJobCard';
+import useAlgoliaSearchh from '../app/data/hooks/useAlgoliaSearch';
 
 const SkillQuizForm = ({ isStyleAutoSuggest }) => {
   const config = getConfig();
+  const searchIndices = {
+    courseIndex: config.ALGOLIA_INDEX_NAME,
+    jobIndex: config.ALGOLIA_INDEX_NAME_JOBS,
+  };
 
-  const [searchClient, courseIndex, jobIndex] = useMemo(() => {
-    const client = algoliasearch(
-      config.ALGOLIA_APP_ID,
-      config.ALGOLIA_SEARCH_API_KEY,
-    );
-    const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
-    const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
-    return [client, cIndex, jIndex];
-  }, [
-    config.ALGOLIA_APP_ID,
-    config.ALGOLIA_INDEX_NAME,
-    config.ALGOLIA_INDEX_NAME_JOBS,
-    config.ALGOLIA_SEARCH_API_KEY,
-  ]);
+  const {
+    searchClient,
+    searchIndex: courseIndex,
+  } = useAlgoliaSearchh({}, searchIndices.courseIndex);
+
+  const {
+    searchIndex: jobIndex,
+  } = useAlgoliaSearchh({}, searchIndices.jobIndex);
+
   const [hide, setHide] = useState(true);
 
   return (

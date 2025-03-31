@@ -10,12 +10,14 @@ import { resolveBFFQuery } from '../queries';
  * @param bffQueryOptions - the queryOptions specifically for the matched BFF query call
  * @param fallbackQueryConfig - if a route is not compatible with the BFF layer, this field
  * allows you to pass a fallback query endpoint to call in lieu of an unmatched BFF query
+ * @param overrideFallbackQueryConfig - if a routes fallback does not require a useQuery call, override the fallback
  * @returns  {Types.UseQueryResult}} The query results for the routes BFF.
  */
 export default function useBFF({
   bffQueryAdditionalParams = {},
   bffQueryOptions = {},
   fallbackQueryConfig = null,
+  overrideFallbackQueryConfig = false,
 }) {
   const { enterpriseSlug } = useParams();
   const location = useLocation();
@@ -24,7 +26,6 @@ export default function useBFF({
   const matchedBFFQuery = resolveBFFQuery(
     location.pathname,
   );
-
   // Determine which query to call, the original hook or the new BFF
   let queryConfig = {};
   if (matchedBFFQuery) {
@@ -32,6 +33,10 @@ export default function useBFF({
       ...matchedBFFQuery({ enterpriseSlug, ...bffQueryAdditionalParams }),
       ...bffQueryOptions,
     };
+  } else if (overrideFallbackQueryConfig) {
+    // This conditional was added to handle date that was migrated into the BFF that is not sourced interally
+    // from our services such as the securedAlgoliaKey which fallback to helper hooks, see useAlgoliaSearchh
+    return { data: null };
   } else if (fallbackQueryConfig) {
     queryConfig = fallbackQueryConfig;
   } else {

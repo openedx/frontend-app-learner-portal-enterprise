@@ -5,9 +5,9 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { getLoggingService } from '@edx/frontend-platform/logging';
 
 import { isDefinedAndNotNull } from '../../utils/common';
-import { useAlgoliaSearch } from '../../utils/hooks';
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
 import { useEnterpriseCustomer, useIsBFFEnabled } from '../app/data';
+import useAlgoliaSearchh from '../app/data/hooks/useAlgoliaSearch';
 
 /**
  * Custom hook to set custom attributes for logging service:
@@ -32,7 +32,10 @@ function useLoggingCustomAttributes() {
 
 const EnterprisePage = ({ children }) => {
   const config = getConfig();
-  const [searchClient, searchIndex] = useAlgoliaSearch(config);
+  const {
+    searchIndex,
+    searchClient,
+  } = useAlgoliaSearchh();
   const { authenticatedUser } = useContext(AppContext);
 
   // Set custom attributes via logging service

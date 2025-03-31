@@ -1,17 +1,9 @@
-import {
-  useEffect, useState, useContext, useMemo,
-} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
-  Button,
-  Stepper,
-  ModalDialog,
-  Container,
-  Form,
-  Stack,
+  Button, Container, Form, ModalDialog, Stack, Stepper,
 } from '@openedx/paragon';
-import algoliasearch from 'algoliasearch/lite';
 import { InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
@@ -34,11 +26,7 @@ import SelectJobCard from './SelectJobCard';
 import SkillsCourses from './SkillsCourses';
 
 import {
-  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE,
-  STEP1,
-  STEP2,
-  STEP3,
-  GOAL_DROPDOWN_DEFAULT_OPTION,
+  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, GOAL_DROPDOWN_DEFAULT_OPTION, STEP1, STEP2, STEP3,
 } from './constants';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
@@ -50,23 +38,24 @@ import headerImage from './images/headerImage.png';
 import { saveSkillsGoalsAndJobsUserSelected } from './data/utils';
 import { fetchCourseEnrollments } from './data/service';
 import { useEnterpriseCustomer } from '../app/data';
+import useAlgoliaSearchh from '../app/data/hooks/useAlgoliaSearch';
 
 const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const config = getConfig();
-  const [searchClient, courseIndex, jobIndex] = useMemo(() => {
-    const client = algoliasearch(
-      config.ALGOLIA_APP_ID,
-      config.ALGOLIA_SEARCH_API_KEY,
-    );
-    const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
-    const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
-    return [client, cIndex, jIndex];
-  }, [
-    config.ALGOLIA_APP_ID,
-    config.ALGOLIA_INDEX_NAME,
-    config.ALGOLIA_INDEX_NAME_JOBS,
-    config.ALGOLIA_SEARCH_API_KEY,
-  ]);
+  const searchIndices = {
+    courseIndex: config.ALGOLIA_INDEX_NAME,
+    jobIndex: config.ALGOLIA_INDEX_NAME_JOBS,
+  };
+
+  const {
+    searchClient,
+    searchIndex: courseIndex,
+  } = useAlgoliaSearchh({}, searchIndices.courseIndex);
+
+  const {
+    searchIndex: jobIndex,
+  } = useAlgoliaSearchh({}, searchIndices.jobIndex);
+
   const [currentStep, setCurrentStep] = useState(STEP1);
   const [isStudentChecked, setIsStudentChecked] = useState(false);
   const handleIsStudentCheckedChange = (e) => setIsStudentChecked(e.target.checked);

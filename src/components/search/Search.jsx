@@ -29,11 +29,11 @@ import {
   useHasValidLicenseOrSubscriptionRequestsEnabled,
   useIsAssignmentsOnlyLearner,
 } from '../app/data';
-import { useAlgoliaSearch } from '../../utils/hooks';
 import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
 import SearchVideo from './SearchVideo';
 import VideoBanner from '../microlearning/VideoBanner';
 import CustomSubscriptionExpirationModal from '../custom-expired-subscription-modal';
+import useAlgoliaSearchh from '../app/data/hooks/useAlgoliaSearch';
 
 function useSearchPathwayModal() {
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, close] = useToggle(false);
@@ -61,8 +61,10 @@ const Search = () => {
 
   const { refinements } = useContext(SearchContext);
   const filters = useDefaultSearchFilters();
-  const [searchClient, searchIndex] = useAlgoliaSearch(config);
-
+  const {
+    searchIndex,
+    searchClient,
+  } = useAlgoliaSearchh();
   // Flag to toggle highlights visibility
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
