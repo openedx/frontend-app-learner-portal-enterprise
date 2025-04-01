@@ -113,7 +113,7 @@ Promise<EnterpriseLearnerData> {
     staffEnterpriseCustomer,
   });
 
-  // shouldUpdateActiveEnterpriseCustomerUser should always be null since its generated primarily from the BFF
+  // shouldUpdateActiveEnterpriseCustomerUser should always be false since its generated primarily from the BFF
   // layer to act as a flag on whether to update the active enterprise customer
   return {
     enterpriseCustomer,

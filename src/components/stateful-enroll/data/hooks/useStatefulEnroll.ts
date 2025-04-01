@@ -108,7 +108,7 @@ const useTransactionStatus = ({
   onError,
 }: UseTransactionStatusArgs) => {
   const enterpriseCustomerResult = useEnterpriseCustomer();
-  const enterpriseCustomer = enterpriseCustomerResult.data as EnterpriseCustomer;
+  const enterpriseCustomer = enterpriseCustomerResult.data!;
   const {
     data: updatedTransaction,
     isSuccess: isTransactionQuerySuccess,

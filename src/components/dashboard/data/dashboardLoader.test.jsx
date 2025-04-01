@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import { when } from 'jest-when';
 import '@testing-library/jest-dom/extend-expect';
 
-import { renderWithRouterProvider } from '../../../utils/tests';
+import { renderWithRouterProvider } from '@/utils/tests';
 import makeDashboardLoader from './dashboardLoader';
 import {
   extractEnterpriseCustomer,

@@ -31,6 +31,7 @@ const makeProgramLoader: MakeRouteLoaderFunctionWithQueryClient = function makeP
     }
 
     await queryClient.ensureQueryData(queryEnterpriseProgram(enterpriseCustomer.uuid, programUUID));
+
     return null;
   };
 };

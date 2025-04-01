@@ -29,11 +29,8 @@ const makeAcademiesLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
       return null;
     }
 
-    if (!enterpriseCustomer) {
-      return null;
-    }
-
     await queryClient.ensureQueryData(queryAcademiesDetail(academyUUID, enterpriseCustomer.uuid));
+
     return null;
   };
 };

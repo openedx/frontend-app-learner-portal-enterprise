@@ -1,4 +1,4 @@
-import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
+import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '@/components/app/routes/data';
 import {
   extractEnterpriseCustomer,
   queryEnterpriseCourseEnrollments,
@@ -6,14 +6,16 @@ import {
   queryEnterpriseProgramsList,
   queryRedeemablePolicies,
   resolveBFFQuery,
-} from '../../app/data';
+} from '@/components/app/data';
 
 type DashboardRouteParams<Key extends string = string> = RouteParams<Key> & {
   readonly enterpriseSlug: string;
 };
+
 interface DashboardLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: DashboardRouteParams;
 }
+
 interface DashboardBFFResponse {
   enterpriseCourseEnrollments: EnterpriseCourseEnrollment[];
 }
@@ -39,10 +41,6 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
       authenticatedUser,
       enterpriseSlug,
     });
-    if (!enterpriseCustomer) {
-      return null;
-    }
-
     if (!enterpriseCustomer) {
       return null;
     }
