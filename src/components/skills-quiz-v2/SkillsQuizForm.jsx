@@ -4,7 +4,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { InstantSearch } from 'react-instantsearch-dom';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import algoliasearch from 'algoliasearch';
+import algoliasearch from 'algoliasearch/lite';
 import SearchJobDropdown from '../skills-quiz/SearchJobDropdown';
 import CurrentJobDropdown from '../skills-quiz/CurrentJobDropdown';
 import IndustryDropdown from '../skills-quiz/IndustryDropdown';
@@ -98,7 +98,6 @@ const SkillQuizForm = ({ isStyleAutoSuggest }) => {
         <SearchJobCard index={jobIndex} courseIndex={courseIndex} isSkillQuizV2 />
       </InstantSearch>
     </div>
-
   );
 };
 

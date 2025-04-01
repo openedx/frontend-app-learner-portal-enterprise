@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Breadcrumb, Container } from '@openedx/paragon';
 import { Link, useParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import algoliasearch from 'algoliasearch';
+import algoliasearch from 'algoliasearch/lite';
 import { getConfig } from '@edx/frontend-platform/config';
 import NotFoundPage from '../NotFoundPage';
 import './styles/Academy.scss';
