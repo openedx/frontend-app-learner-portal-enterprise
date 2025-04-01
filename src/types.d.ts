@@ -68,6 +68,11 @@ declare global {
     shouldUpdateActiveEnterpriseCustomerUser: boolean;
   }
 
+  interface SecuredAlgoliaApiData {
+    securedAlgoliaApiKey: string | null;
+    catalogUuidsToCatalogQueryUuids: Record<string, string>;
+  }
+
   interface EnrollmentDueDate {
     name: string;
     date: string;
