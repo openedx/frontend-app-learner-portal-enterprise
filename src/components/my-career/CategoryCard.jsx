@@ -6,8 +6,7 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
 import { features } from '../../config';
-import { useEnterpriseCustomer, useIsAssignmentsOnlyLearner } from '../app/data';
-import useAlgoliaSearchh from '../app/data/hooks/useAlgoliaSearch';
+import { useAlgoliaSearch, useEnterpriseCustomer, useIsAssignmentsOnlyLearner } from '../app/data';
 
 const CategoryCard = ({ topCategory }) => {
   const { skillsSubcategories } = topCategory;
@@ -25,7 +24,7 @@ const CategoryCard = ({ topCategory }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     searchIndex: courseIndex,
-  } = useAlgoliaSearchh();
+  } = useAlgoliaSearch();
 
   const filterRenderableSkills = (skills) => {
     const renderableSkills = [];

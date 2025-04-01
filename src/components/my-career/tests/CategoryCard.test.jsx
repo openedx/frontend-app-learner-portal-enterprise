@@ -4,7 +4,12 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { renderWithRouter } from '../../../utils/tests';
 import CategoryCard from '../CategoryCard';
-import { useEnterpriseCustomer, useDefaultSearchFilters, useIsAssignmentsOnlyLearner } from '../../app/data';
+import {
+  useAlgoliaSearch,
+  useDefaultSearchFilters,
+  useEnterpriseCustomer,
+  useIsAssignmentsOnlyLearner,
+} from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
@@ -18,6 +23,7 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
   useDefaultSearchFilters: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
 }));
 
 // eslint-disable-next-line no-console
@@ -72,6 +78,14 @@ describe('<CategoryCard />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
     useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: {
+        search: jest.fn(), appId: 'test-app-id',
+      },
+      searchIndex: {
+        indexName: 'mock-index-name',
+      },
+    });
   });
   it('renders the CategoryCard component', () => {
     renderWithRouter(<CategoryCardWithContext />);

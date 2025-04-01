@@ -11,14 +11,14 @@ import { Button, Form, StatefulButton } from '@openedx/paragon';
 import { CURRENT_JOB_FACET, JOB_FILTERS } from '../skills-quiz/constants';
 import { fetchJobDetailsFromAlgolia, patchProfile } from './data/service';
 import { CURRENT_JOB_PROFILE_FIELD_NAME } from './data/constants';
-import useAlgoliaSearchh from '../app/data/hooks/useAlgoliaSearch';
+import { useAlgoliaSearch } from '../app/data';
 
 const SearchJobRole = (props) => {
   const config = getConfig();
   const {
     searchClient,
     searchIndex,
-  } = useAlgoliaSearchh(
+  } = useAlgoliaSearch(
     config.ALGOLIA_INDEX_NAME_JOBS,
   );
   const { authenticatedUser: { username } } = useContext(AppContext);

@@ -1,11 +1,11 @@
-import { getConfig } from '@edx/frontend-platform/config';
-import { useEffect, useMemo } from 'react';
+import {getConfig} from '@edx/frontend-platform/config';
+import {useEffect, useMemo} from 'react';
 import algoliasearch from 'algoliasearch';
-import { logError } from '@edx/frontend-platform/logging';
+import {logError} from '@edx/frontend-platform/logging';
 import useBFF from './useBFF';
 import useEnterpriseFeatures from './useEnterpriseFeatures';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
-import { queryDefaultEmptyFallback } from '../queries';
+import {queryDefaultEmptyFallback} from '../queries';
 
 const extractAlgolia = ({ data, isCatalogQueryFiltersEnabled, isIndexSupported }) => {
   if (!isCatalogQueryFiltersEnabled || !isIndexSupported || !data) {
@@ -67,7 +67,7 @@ const useSecuredAlgoliaMetadata = (indexName) => {
   };
 };
 
-const useAlgoliaSearchh = (indexName = null) => {
+const useAlgoliaSearch = (indexName = null) => {
   const config = getConfig();
   const {
     securedAlgoliaMetadata,
@@ -100,4 +100,4 @@ const useAlgoliaSearchh = (indexName = null) => {
   );
 };
 
-export default useAlgoliaSearchh;
+export default useAlgoliaSearch;

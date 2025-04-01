@@ -5,12 +5,13 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 
 import * as hooks from '../data/hooks';
-import { renderWithRouter } from '../../../utils/tests';
+import { queryClient, renderWithRouter } from '../../../utils/tests';
 import VisualizeCareer from '../VisualizeCareer';
 import {
+  useAlgoliaSearch,
+  useDefaultSearchFilters,
   useEnterpriseCustomer,
   useIsAssignmentsOnlyLearner,
-  useDefaultSearchFilters,
   useLearnerSkillLevels,
 } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
@@ -33,6 +34,7 @@ jest.mock('../../app/data', () => ({
   useLearnerSkillLevels: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
   useDefaultSearchFilters: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
 }));
 
 hooks.usePlotlySpiderChart.mockReturnValue({
@@ -157,7 +159,7 @@ const defaultSearchContext = {
   refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
   dispatch: () => null,
 };
-
+queryClient();
 const VisualizeCareerWithContext = ({
   initialAppState = defaultAppState,
 }) => (
@@ -179,6 +181,14 @@ describe('<VisualizeCareer />', () => {
     useLearnerSkillLevels.mockReturnValue({ data: mockLearnerSkillsData });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
     useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: {
+        search: jest.fn(), appId: 'test-app-id',
+      },
+      searchIndex: {
+        indexName: 'mock-index-name',
+      },
+    });
   });
 
   it('renders the VisualizeCareer component', () => {

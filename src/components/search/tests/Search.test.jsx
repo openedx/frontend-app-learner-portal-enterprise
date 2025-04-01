@@ -7,8 +7,12 @@ import * as MockReactInstantSearch from '../../skills-quiz/__mocks__/react-insta
 import { queryClient, renderWithRouter } from '../../../utils/tests';
 import '@testing-library/jest-dom';
 import Search from '../Search';
-import { useDefaultSearchFilters, useEnterpriseCustomer, useHasValidLicenseOrSubscriptionRequestsEnabled } from '../../app/data';
-import { useAlgoliaSearch } from '../../../utils/hooks';
+import {
+  useAlgoliaSearch,
+  useDefaultSearchFilters,
+  useEnterpriseCustomer,
+  useHasValidLicenseOrSubscriptionRequestsEnabled,
+} from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import { features } from '../../../config';
 
@@ -23,6 +27,7 @@ jest.mock('../../app/data', () => ({
       },
     },
   })),
+  useAlgoliaSearch: jest.fn(),
   useRedeemablePolicies: jest.fn(() => ({ data: { redeemablePolicies: [] } })),
   useCouponCodes: jest.fn(() => ({ data: { couponCodeAssignments: [] } })),
   useEnterpriseOffers: jest.fn(() => ({ data: { currentEnterpriseOffers: [] } })),
@@ -33,10 +38,7 @@ jest.mock('../../app/data', () => ({
   useDefaultSearchFilters: jest.fn(),
   useHasValidLicenseOrSubscriptionRequestsEnabled: jest.fn(),
 }));
-jest.mock('../../../utils/hooks', () => ({
-  ...jest.requireActual('../../../utils/hooks'),
-  useAlgoliaSearch: jest.fn(),
-}));
+
 jest.mock('../../../utils/optimizely', () => ({
   ...jest.requireActual('../../../utils/optimizely'),
   pushEvent: jest.fn(),
@@ -77,7 +79,14 @@ describe('<Search />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useDefaultSearchFilters.mockReturnValue(mockFilter);
     useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(true);
-    useAlgoliaSearch.mockReturnValue([{ search: jest.fn(), appId: 'test-app-id' }, { indexName: 'mock-index-name' }]);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: {
+        search: jest.fn(), appId: 'test-app-id',
+      },
+      searchIndex: {
+        indexName: 'mock-index-name',
+      },
+    });
     MockReactInstantSearch.configure.nbHits = 2;
   });
   test('renders the video beta banner component', () => {

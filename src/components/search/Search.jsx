@@ -22,6 +22,7 @@ import PathwayModal from '../pathway/PathwayModal';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import {
+  useAlgoliaSearch,
   useCanOnlyViewHighlights,
   useDefaultSearchFilters,
   useEnterpriseCustomer,
@@ -33,7 +34,6 @@ import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContain
 import SearchVideo from './SearchVideo';
 import VideoBanner from '../microlearning/VideoBanner';
 import CustomSubscriptionExpirationModal from '../custom-expired-subscription-modal';
-import useAlgoliaSearchh from '../app/data/hooks/useAlgoliaSearch';
 
 function useSearchPathwayModal() {
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, close] = useToggle(false);
@@ -64,7 +64,7 @@ const Search = () => {
   const {
     searchIndex,
     searchClient,
-  } = useAlgoliaSearchh();
+  } = useAlgoliaSearch();
 
   // Flag to toggle highlights visibility
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
