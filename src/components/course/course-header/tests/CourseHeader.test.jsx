@@ -427,5 +427,20 @@ describe('<CourseHeader />', () => {
       const messaging = `This course is part of a ${profCert}`;
       expect(screen.getByText(messaging, { exact: false })).toBeInTheDocument();
     });
+
+    test('does not render program messaging if the enterprise customer has programs disabled', () => {
+      const mockCustomerDisabledPrograms = { ...mockEnterpriseCustomer, enablePrograms: false };
+      useEnterpriseCustomer.mockReturnValue({ data: mockCustomerDisabledPrograms });
+      const profCert = 'Professional Certificate';
+      mockCourseMetadataWithProgramType(profCert);
+      renderWithRouterProvider({
+        path: '/:enterpriseSlug/course/:courseKey',
+        element: <CourseHeaderWrapper />,
+      }, {
+        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
+      });
+      const messaging = `This course is part of a ${profCert}`;
+      expect(screen.queryByText(messaging, { exact: false })).not.toBeInTheDocument();
+    });
   });
 });
