@@ -20,7 +20,7 @@ import {
   useIsAssignmentsOnlyLearner,
   useRedeemablePolicies,
 } from '../../../app/data';
-import { renderWithRouterProvider } from '../../../../utils/tests';
+import { generateTestPermutations, renderWithRouterProvider } from '../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import { useIsCourseAssigned } from '../../data';
 
@@ -401,46 +401,28 @@ describe('<CourseHeader />', () => {
       });
     };
 
-    test('MicroMasters', () => {
-      const micromasters = 'MicroMasters';
-      mockCourseMetadataWithProgramType(micromasters);
-      renderWithRouterProvider({
-        path: '/:enterpriseSlug/course/:courseKey',
-        element: <CourseHeaderWrapper />,
-      }, {
-        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
-      });
-
-      const messaging = `This course is part of a ${micromasters}`;
-      expect(screen.getByText(messaging, { exact: false })).toBeInTheDocument();
-    });
-
-    test('Professional Certificate', () => {
-      const profCert = 'Professional Certificate';
-      mockCourseMetadataWithProgramType(profCert);
-      renderWithRouterProvider({
-        path: '/:enterpriseSlug/course/:courseKey',
-        element: <CourseHeaderWrapper />,
-      }, {
-        initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
-      });
-      const messaging = `This course is part of a ${profCert}`;
-      expect(screen.getByText(messaging, { exact: false })).toBeInTheDocument();
-    });
-
-    test('does not render program messaging if the enterprise customer has programs disabled', () => {
-      const mockCustomerDisabledPrograms = { ...mockEnterpriseCustomer, enablePrograms: false };
+    test.each(generateTestPermutations({
+      programType: ['MicroMasters', 'Professional Certificate', 'XSeries'],
+      enablePrograms: [false, true],
+    }))('appropriately handles program messaging for program type and enablePrograms (%s)', async ({
+      programType,
+      enablePrograms,
+    }) => {
+      const mockCustomerDisabledPrograms = { ...mockEnterpriseCustomer, enablePrograms };
       useEnterpriseCustomer.mockReturnValue({ data: mockCustomerDisabledPrograms });
-      const profCert = 'Professional Certificate';
-      mockCourseMetadataWithProgramType(profCert);
+      mockCourseMetadataWithProgramType(programType);
       renderWithRouterProvider({
         path: '/:enterpriseSlug/course/:courseKey',
         element: <CourseHeaderWrapper />,
       }, {
         initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
       });
-      const messaging = `This course is part of a ${profCert}`;
-      expect(screen.queryByText(messaging, { exact: false })).not.toBeInTheDocument();
+      const messaging = screen.queryByText(`This course is part of a ${programType}`, { exact: false });
+      if (enablePrograms) {
+        expect(messaging).toBeInTheDocument();
+      } else {
+        expect(messaging).not.toBeInTheDocument();
+      }
     });
   });
 });
