@@ -3,7 +3,8 @@ import { useEffect, useMemo } from 'react';
 import algoliasearch from 'algoliasearch';
 import { logError } from '@edx/frontend-platform/logging';
 import useBFF from './useBFF';
-import { useEnterpriseCustomer, useEnterpriseFeatures } from './index';
+import useEnterpriseCustomer from './useEnterpriseCustomer';
+import useEnterpriseFeatures from './useEnterpriseFeatures';
 import { queryDefaultEmptyFallback } from '../queries';
 
 type ExtractAlgoliaArgs = {
