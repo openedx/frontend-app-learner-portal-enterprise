@@ -41,8 +41,11 @@ const CourseHeader = () => {
   const isCourseArchived = courseMetadata.courseRuns.every((courseRun) => isArchived(courseRun));
   const [partners] = useCoursePartners(courseMetadata);
   const defaultProgram = useMemo(
-    () => getDefaultProgram(courseMetadata.programs),
-    [courseMetadata],
+    () => getDefaultProgram({
+      programs: courseMetadata.programs,
+      isProgramsEnabled: enterpriseCustomer.enablePrograms,
+    }),
+    [courseMetadata, enterpriseCustomer.enablePrograms],
   );
   const routeLinks = [
     {
