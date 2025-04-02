@@ -50,6 +50,7 @@ declare global {
 
   interface EnterpriseFeatures {
     enterpriseLearnerBffEnabled?: boolean;
+    catalogQuerySearchFiltersEnabled?: boolean;
     [key: string]: boolean;
   }
 

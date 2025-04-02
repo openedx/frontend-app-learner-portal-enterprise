@@ -1,4 +1,4 @@
-import { getConfig } from '@edx/frontend-platform/config';
+import { getConfig } from '@edx/frontend-platform';
 import { useEffect, useMemo } from 'react';
 import algoliasearch from 'algoliasearch';
 import { logError } from '@edx/frontend-platform/logging';
@@ -43,8 +43,7 @@ const extractAlgolia = ({
     : {
       securedAlgoliaApiKey: null,
       catalogUuidsToCatalogQueryUuids: {},
-    }
-);
+    });
 
 /**
  * A custom React hook that fetches secured Algolia metadata for a given index,
@@ -71,7 +70,6 @@ const useSecuredAlgoliaMetadata = (indexName: string | null) => {
   const enterpriseCustomerResult = useEnterpriseCustomer();
   const enterpriseCustomer = enterpriseCustomerResult.data!;
   const { data: { catalogQuerySearchFiltersEnabled } } = useEnterpriseFeatures();
-
   // Waffle flag based determination if we use the secured algolia api key
   const isCatalogQueryFiltersEnabled = !!(
     catalogQuerySearchFiltersEnabled && !!config.ALGOLIA_APP_ID
@@ -100,30 +98,25 @@ const useSecuredAlgoliaMetadata = (indexName: string | null) => {
     },
   });
 
-  // Log an error if the secured API key is missing,
-  // not applicable for the route, or is disabled
   useEffect(() => {
-    if (
-      isCatalogQueryFiltersEnabled
+    if (isCatalogQueryFiltersEnabled
       && isIndexSupported
-      && !securedAlgoliaMetadata.securedAlgoliaApiKey
-    ) {
+      && !securedAlgoliaMetadata?.securedAlgoliaApiKey) {
       logError(
         `Secured Algolia API key is missing, or no applicable
-        for enterprise_customer_uuid: ${enterpriseCustomer.uuid}.
-        isCatalogQueryFiltersEnabled: ${isCatalogQueryFiltersEnabled},
-        indexName: ${indexName},
-        securedAlgoliaMetadata: ${JSON.stringify(securedAlgoliaMetadata)}
-        `,
+            for enterprise_customer_uuid: ${enterpriseCustomer.uuid}.
+            isCatalogQueryFiltersEnabled: ${isCatalogQueryFiltersEnabled},
+            indexName: ${indexName},
+            securedAlgoliaMetadata: ${JSON.stringify(securedAlgoliaMetadata)}
+            `,
       );
     }
   }, [
     enterpriseCustomer.uuid,
     indexName,
     isCatalogQueryFiltersEnabled,
-    isIndexSupported,
-    securedAlgoliaMetadata,
-    securedAlgoliaMetadata.securedAlgoliaApiKey,
+    isIndexSupported, securedAlgoliaMetadata,
+    securedAlgoliaMetadata?.securedAlgoliaApiKey,
   ]);
 
   return {
@@ -152,6 +145,7 @@ const useSecuredAlgoliaMetadata = (indexName: string | null) => {
  */
 const useAlgoliaSearch = (indexName: string | null = null) => {
   const config = getConfig();
+
   const {
     securedAlgoliaMetadata,
     isCatalogQueryFiltersEnabled,
