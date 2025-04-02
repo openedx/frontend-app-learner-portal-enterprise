@@ -103,8 +103,14 @@ export const getNormalizedStartDate = ({
   return startDateIso;
 };
 
-export function getDefaultProgram(programs = []) {
-  if (programs.length === 0) {
+/**
+ * If programs are enabled, determine which program to use as the default program type to display
+ * in the course header.
+ *
+ * If programs are NOT enabled, no default program is returned.
+ */
+export function getDefaultProgram({ programs = [], isProgramsEnabled = true }) {
+  if (programs.length === 0 || !isProgramsEnabled) {
     return undefined;
   }
 
