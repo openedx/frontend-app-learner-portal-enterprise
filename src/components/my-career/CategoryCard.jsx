@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card, useToggle } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-
 import algoliasearch from 'algoliasearch/lite';
 import { getConfig } from '@edx/frontend-platform/config';
+
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
 import { features } from '../../config';

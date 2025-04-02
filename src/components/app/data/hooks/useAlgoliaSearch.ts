@@ -32,16 +32,18 @@ const extractAlgolia = ({
   data,
   isCatalogQueryFiltersEnabled,
   isIndexSupported,
-}: ExtractAlgoliaArgs) => (
-  isCatalogQueryFiltersEnabled && isIndexSupported && data
-    ? {
+}: ExtractAlgoliaArgs) => {
+  if (isCatalogQueryFiltersEnabled && isIndexSupported && data) {
+    return {
       securedAlgoliaApiKey: data.securedAlgoliaApiKey,
       catalogUuidsToCatalogQueryUuids: data.catalogUuidsToCatalogQueryUuids,
-    }
-    : {
-      securedAlgoliaApiKey: null,
-      catalogUuidsToCatalogQueryUuids: {},
-    });
+    };
+  }
+  return {
+    securedAlgoliaApiKey: null,
+    catalogUuidsToCatalogQueryUuids: {},
+  };
+};
 
 /**
  * A custom React hook that fetches secured Algolia metadata for a given index,
