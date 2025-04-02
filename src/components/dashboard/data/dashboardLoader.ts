@@ -1,4 +1,13 @@
-import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '@/components/app/routes/data';
+// import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '@/components/app/routes/data';
+// import {
+//   extractEnterpriseCustomer,
+//   queryEnterpriseCourseEnrollments,
+//   queryEnterprisePathwaysList,
+//   queryEnterpriseProgramsList,
+//   queryRedeemablePolicies,
+//   resolveBFFQuery,
+// } from '@/components/app/data';
+import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer,
   queryEnterpriseCourseEnrollments,
@@ -6,7 +15,7 @@ import {
   queryEnterpriseProgramsList,
   queryRedeemablePolicies,
   resolveBFFQuery,
-} from '@/components/app/data';
+} from '../../app/data';
 
 type DashboardRouteParams<Key extends string = string> = RouteParams<Key> & {
   readonly enterpriseSlug: string;
