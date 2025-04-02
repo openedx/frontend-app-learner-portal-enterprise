@@ -7,11 +7,14 @@ import { deleteRefinementAction, SearchContext } from '@edx/frontend-enterprise-
 import { AppContext } from '@edx/frontend-platform/react';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import { Button, Form, StatefulButton } from '@openedx/paragon';
+import {
+  Button, Container, Form, StatefulButton,
+} from '@openedx/paragon';
 import { CURRENT_JOB_FACET, JOB_FILTERS } from '../skills-quiz/constants';
 import { fetchJobDetailsFromAlgolia, patchProfile } from './data/service';
 import { CURRENT_JOB_PROFILE_FIELD_NAME } from './data/constants';
 import { useAlgoliaSearch } from '../app/data';
+import { SearchUnavailableAlert } from '../search-unavailable-alert';
 
 const SearchJobRole = (props) => {
   const config = getConfig();
@@ -84,6 +87,14 @@ const SearchJobRole = (props) => {
     }
     props.onCancel();
   };
+
+  if (!searchClient) {
+    return (
+      <Container size="lg" data-testid="search-unavailable-alert">
+        <SearchUnavailableAlert />
+      </Container>
+    );
+  }
 
   return (
     <div>

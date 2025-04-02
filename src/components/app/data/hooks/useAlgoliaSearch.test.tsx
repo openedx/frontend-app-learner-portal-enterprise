@@ -6,7 +6,6 @@ import { getConfig } from '@edx/frontend-platform';
 import { waitFor } from '@testing-library/react';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import { generateTestPermutations, queryClient } from '../../../../utils/tests';
-import useEnterpriseCustomer from './useEnterpriseCustomer';
 import {
   fetchEnterpriseLearnerAcademy,
   fetchEnterpriseLearnerDashboard,
@@ -14,15 +13,18 @@ import {
   fetchEnterpriseLearnerSkillsQuiz,
 } from '../services';
 import useAlgoliaSearch from './useAlgoliaSearch';
-import { useEnterpriseFeatures } from './index';
+import useEnterpriseCustomer from './useEnterpriseCustomer';
+import useEnterpriseFeatures from './useEnterpriseFeatures';
 
 // config
 const APP_CONFIG = {
+  ALGOLIA_SEARCH_API_KEY: 'test-algolia-api-key',
   ALGOLIA_INDEX_NAME_JOBS: 'unsupported-index-name',
   ALGOLIA_INDEX_NAME: 'test-algolia-index',
   ALGOLIA_APP_ID: 'test-algolia-app-id',
 };
 
+// jest.mock('./useEnterpriseCustomer');
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useEnterpriseFeatures');
 jest.mock('../services', () => ({
@@ -42,6 +44,9 @@ const mockedUseEnterpriseFeatures = useEnterpriseFeatures as
   jest.Mock<UseQueryResult<EnterpriseFeatures>, [Record<string, any>?]>;
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockEnterpriseFeatures = {
+  catalogQuerySearchFiltersEnabled: true,
+};
 const mockCatalogUuidsToCatalogQueryUuids = Array.from({ length: 3 }, () => [uuidv4(), uuidv4()]);
 const mockEmptyBaseAlgoliaData = {
   securedAlgoliaApiKey: null,
@@ -135,13 +140,12 @@ describe('useAlgoliaSearch', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // @ts-ignore
-    mockedUseEnterpriseCustomer.mockReturnValue({
+    (mockedUseEnterpriseCustomer as jest.Mock).mockReturnValue({
       data: mockEnterpriseCustomer,
     });
     // @ts-ignore
-    mockedUseEnterpriseFeatures.mockReturnValue({
-      data: { catalogQuerySearchFiltersEnabled: true },
+    useEnterpriseFeatures.mockReturnValue({
+      data: mockEnterpriseFeatures,
     });
     (fetchEnterpriseLearnerDashboard as jest.Mock).mockResolvedValue(mockBaseBFFData);
     (fetchEnterpriseLearnerSearch as jest.Mock).mockResolvedValue(mockBFFSearchData);
@@ -160,6 +164,7 @@ describe('useAlgoliaSearch', () => {
       ],
       isCatalogQueryFiltersEnabled: [false, true],
     }),
+    // BFF Enabled Routes
     ...generateTestPermutations({
       isMatchedBFFRoute: [true],
       bffServiceFn: [
@@ -191,9 +196,12 @@ describe('useAlgoliaSearch', () => {
         indexName,
       },
     );
+    const mockedEnterpriseFeatures = {
+      catalogQuerySearchFiltersEnabled: isCatalogQueryFiltersEnabled,
+    };
     // @ts-ignore
     mockedUseEnterpriseFeatures.mockReturnValue({
-      data: { catalogQuerySearchFiltersEnabled: isCatalogQueryFiltersEnabled },
+      data: mockedEnterpriseFeatures,
     });
 
     const { result, waitForNextUpdate } = renderHook(
@@ -206,10 +214,11 @@ describe('useAlgoliaSearch', () => {
         ),
       },
     );
-
     await waitForNextUpdate();
-    await waitFor(() => expect(result.current).toEqual(
-      expect.objectContaining(expectedData),
-    ));
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining(expectedData),
+      );
+    });
   });
 });

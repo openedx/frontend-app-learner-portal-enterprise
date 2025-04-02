@@ -3,9 +3,8 @@ import { Alert } from '@openedx/paragon';
 import { Warning } from '@openedx/paragon/icons';
 import { getSearchErrorMessage } from '../utils/search';
 
-const SearchError = ({ title }) => {
+const SearchError = ({ title = 'content' }) => {
   const searchErrorMessage = getSearchErrorMessage(title);
-
   return (
     <Alert
       variant="danger"
@@ -22,7 +21,11 @@ const SearchError = ({ title }) => {
 };
 
 SearchError.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
+};
+
+SearchError.defaultProps = {
+  title: 'content',
 };
 
 export default SearchError;

@@ -1,9 +1,14 @@
 import {
   ACADEMY_TITLE,
-  CONTENT_TYPE_COURSE, CONTENT_TYPE_PATHWAY,
+  CONTENT_TYPE_COURSE,
+  CONTENT_TYPE_PATHWAY,
   CONTENT_TYPE_PROGRAM,
   CONTENT_TYPE_VIDEO,
-  COURSE_TITLE, NUM_RESULTS_ACADEMY, NUM_RESULTS_COURSE, NUM_RESULTS_PATHWAY, NUM_RESULTS_PROGRAM,
+  COURSE_TITLE,
+  NUM_RESULTS_ACADEMY,
+  NUM_RESULTS_COURSE,
+  NUM_RESULTS_PATHWAY,
+  NUM_RESULTS_PROGRAM,
   NUM_RESULTS_VIDEO,
   PATHWAY_TITLE,
   PROGRAM_TITLE,
@@ -88,9 +93,9 @@ export const getNoResultsMessage = (title) => {
 };
 
 export const getSearchErrorMessage = (title) => {
-  const lowerCaseTitle = title.toLowerCase();
+  const messageTitle = `An error occurred while finding ${title.toLowerCase()} that match your search.`;
   return {
-    messageTitle: `An error occurred while finding ${lowerCaseTitle} that match your search.`,
+    messageTitle,
     messageContent: 'Please try again later.',
   };
 };
