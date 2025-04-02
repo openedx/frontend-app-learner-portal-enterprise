@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-
 import { AppContext } from '@edx/frontend-platform/react';
+
 import CourseRunCard from '../CourseRunCard';
 import { useCourseRunCardData } from '../data';
 import { findUserEnrollmentForCourseRun } from '../../data/utils';
@@ -127,6 +127,7 @@ describe('<CourseRunCard />', () => {
     });
     useCanUserRequestSubsidyForCourse.mockReturnValue(false);
   });
+
   test('renders', () => {
     findUserEnrollmentForCourseRun.mockReturnValue(mockUserEnrollment);
     renderWithRouterProvider(<CourseRunCardWrapper />);
