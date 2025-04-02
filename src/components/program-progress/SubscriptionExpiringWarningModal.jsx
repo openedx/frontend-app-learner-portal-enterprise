@@ -50,12 +50,13 @@ const SubscriptionExpirationWarningModal = ({
       title={renderTitle()}
       isOpen={isSubscriptionExpiringWarningModalOpen}
       onClose={onSubscriptionExpiringWarningModalClose}
-      hasCloseButton={false}
       footerNode={(
         <ActionRow>
           <Button onClick={onSubscriptionExpiringWarningModalClose}>OK</Button>
         </ActionRow>
       )}
+      hasCloseButton={false}
+      isOverflowVisible={false}
     >
       {renderExpiredBody()}
     </StandardModal>

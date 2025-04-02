@@ -79,10 +79,7 @@ describe('<ProgramListing />', () => {
     const dataForAnotherProgram = { ...dummyProgramData };
     dataForAnotherProgram.title = 'Test Program Title 2';
     useEnterpriseProgramsList.mockReturnValue({ data: [dummyProgramData, dataForAnotherProgram] });
-
-    renderWithRouter(
-      <ProgramListingWithContext />,
-    );
+    renderWithRouter(<ProgramListingWithContext />);
     await waitFor(() => {
       expect(screen.getByText(dummyProgramData.title)).toBeInTheDocument();
       expect(screen.getByText('Test Program Title 2')).toBeInTheDocument();
@@ -90,13 +87,10 @@ describe('<ProgramListing />', () => {
   });
 
   it('redirects to correct url when clicked on explore programs', async () => {
+    const user = userEvent.setup();
     useEnterpriseProgramsList.mockReturnValue({ data: [dummyProgramData] });
-
-    renderWithRouter(
-      <ProgramListingWithContext />,
-    );
-
-    userEvent.click(screen.getByTestId('program-listing-card'));
+    renderWithRouter(<ProgramListingWithContext />);
+    await user.click(screen.getByTestId('program-listing-card'));
     await waitFor(() => {
       expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/program/test-uuid/progress`);
     });

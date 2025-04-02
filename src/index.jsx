@@ -1,8 +1,5 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-
-import ReactDOM from 'react-dom';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 import {
   APP_INIT_ERROR, APP_READY, initialize, subscribe,
 } from '@edx/frontend-platform';
@@ -14,15 +11,23 @@ import { App } from './components/app';
 
 import './styles/index.scss';
 
+const container = document.getElementById('root');
+const root = createRoot(container);
+
 subscribe(APP_READY, () => {
-  ReactDOM.render(
-    <App />,
-    document.getElementById('root'),
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
   );
 });
 
 subscribe(APP_INIT_ERROR, (error) => {
-  ReactDOM.render(<ErrorPage message={error.message} />, document.getElementById('root'));
+  root.render(
+    <StrictMode>
+      <ErrorPage message={error.message} />
+    </StrictMode>,
+  );
 });
 
 initialize({

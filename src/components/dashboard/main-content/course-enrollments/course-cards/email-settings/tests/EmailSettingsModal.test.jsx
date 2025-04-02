@@ -1,50 +1,87 @@
-import { mount } from 'enzyme';
-import { StatefulButton } from '@openedx/paragon';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom/extend-expect';
 
-import { EmailSettingsModal } from '../EmailSettingsModal';
+import EmailSettingsModal from '../EmailSettingsModal';
 import { updateEmailSettings } from '../data';
 
 jest.mock('../data');
 
+const mockCourseRunId = 'course-v1:edX+DemoX+Demo_Course';
+const mockClose = jest.fn();
+
 describe('<EmailSettingsModal />', () => {
-  let wrapper;
-
   beforeEach(() => {
-    wrapper = mount((
+    jest.clearAllMocks();
+  });
+
+  it('Save button is initially in default state and disabled', async () => {
+    render(
       <EmailSettingsModal
-        onClose={() => {}}
-        courseRunId="my+course+key"
+        onClose={mockClose}
+        courseRunId={mockCourseRunId}
         open
-      />
-    ));
-
-    // The `EmailSettingsModal` component mounts in `BaseCourseCard` and is
-    // opened via the `open` prop. Similarly, the `hasEmailsEnabled` prop
-    // is initially `false` until the modal is opened, at which point it's
-    // set to whatever the correct value is for that particular course run.
-    // Setting the `hasEmailsEnabled` prop here simulates that behavior.
-    wrapper.setProps({
-      hasEmailsEnabled: true,
-    });
+      />,
+    );
+    const saveBtn = screen.getByRole('button', { name: 'Save' });
+    expect(saveBtn).toHaveAttribute('aria-disabled', 'true');
+    expect(saveBtn).toHaveClass('disabled');
   });
 
-  it('statefulbutton component state is initially set to default and disabled', () => {
-    const defaultState = 'default';
-    expect(wrapper.find(StatefulButton).prop('state')).toEqual(defaultState);
-    expect(wrapper.find(StatefulButton).prop('disabledStates')).toContain(defaultState);
-  });
-
-  it('statefulbutton component state is set to complete after click event', async () => {
-    // Note: The following line is needed to properly resolve the
-    // `updateEmailSettings` promise.
-    const flushPromises = () => new Promise(setImmediate);
-
-    expect(wrapper.find(StatefulButton).prop('state')).toEqual('default');
-    wrapper.find('input[type="checkbox"]').simulate('change', { target: { checked: false } });
-    wrapper.find(StatefulButton).simulate('click');
-    await flushPromises();
-    wrapper.update();
+  it('Save button updates email settings, and handles modal close', async () => {
+    const user = userEvent.setup();
+    render(
+      <EmailSettingsModal
+        onClose={mockClose}
+        courseRunId={mockCourseRunId}
+        open
+      />,
+    );
+    const checkbox = screen.getByRole('checkbox');
+    expect(checkbox).toBeInTheDocument();
+    await user.click(checkbox);
+    expect(checkbox).toBeChecked();
+    const saveBtn = screen.getByRole('button', { name: 'Save' });
+    await user.click(saveBtn);
     expect(updateEmailSettings).toHaveBeenCalledTimes(1);
-    expect(wrapper.find(StatefulButton).prop('state')).toEqual('complete');
+    expect(updateEmailSettings).toHaveBeenCalledWith(mockCourseRunId, true);
+
+    const completeBtn = screen.getByRole('button', { name: 'Saved' });
+    expect(completeBtn).toBeInTheDocument();
+
+    const closeBtn = screen.getByTestId('email-setting-modal-close-btn');
+    await user.click(closeBtn);
+    expect(mockClose).toHaveBeenCalledTimes(1);
+    expect(mockClose).toHaveBeenCalledWith(true); // true because email settings were enabled
+  });
+
+  it('Close button calls onClose before updating form', async () => {
+    render(
+      <EmailSettingsModal
+        onClose={mockClose}
+        courseRunId={mockCourseRunId}
+        open
+      />,
+    );
+    const closeBtn = screen.getByTestId('email-setting-modal-close-btn');
+    await userEvent.click(closeBtn);
+    expect(mockClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('Error alert is displayed when email settings update fails', async () => {
+    updateEmailSettings.mockRejectedValueOnce(new Error('Failed to update email settings'));
+    render(
+      <EmailSettingsModal
+        onClose={mockClose}
+        courseRunId={mockCourseRunId}
+        open
+      />,
+    );
+    const checkbox = screen.getByRole('checkbox');
+    await userEvent.click(checkbox);
+    const saveBtn = screen.getByRole('button', { name: 'Save' });
+    await userEvent.click(saveBtn);
+    const errorAlert = await screen.findByRole('alert');
+    expect(errorAlert).toHaveTextContent('An error occurred while saving your email settings. Please try again.');
   });
 });

@@ -1,5 +1,7 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import userEvent from '@testing-library/user-event';
+import algoliasearch from 'algoliasearch/lite';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { renderWithRouter } from '../../../utils/tests';
@@ -7,12 +9,12 @@ import CategoryCard from '../CategoryCard';
 import { useEnterpriseCustomer, useDefaultSearchFilters, useIsAssignmentsOnlyLearner } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
+jest.mock('algoliasearch/lite');
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
   getLocale: () => 'en',
   getMessages: () => ({}),
 }));
-
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
@@ -72,22 +74,31 @@ describe('<CategoryCard />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
     useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    const searchIndex = jest.fn(() => ({
+      hits: [],
+    }));
+    algoliasearch.mockReturnValue({
+      initIndex: () => ({
+        search: searchIndex,
+      }),
+    });
   });
-  it('renders the CategoryCard component', () => {
+  it('renders the CategoryCard component', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<CategoryCardWithContext />);
     const levelBarsContainer = screen.getAllByTestId('skill-category-chip');
     expect(levelBarsContainer.length === 2).toBeTruthy();
     const itManagementChip = screen.getByText('IT Management');
 
     const showAllButton = screen.getByText('Show (4) >');
-    showAllButton.click(); // Show all of the skills in the IT Management category
+    await user.click(showAllButton); // Show all of the skills in the IT Management category
     const showLessButton = screen.getByText('Show Less');
-    showLessButton.click(); // Show less skills in the IT Management category
+    await user.click(showLessButton); // Show less skills in the IT Management category
 
-    itManagementChip.click(); // Hide the skills in the IT Management category
+    await user.click(itManagementChip); // Hide the skills in the IT Management category
 
-    itManagementChip.click(); // Show the skills in the IT Management category
+    await user.click(itManagementChip); // Show the skills in the IT Management category
     const databasesChip = screen.getByText('Databases');
-    databasesChip.click(); // Show the skills in the Databases category
+    await user.click(databasesChip); // Show the skills in the Databases category
   });
 });

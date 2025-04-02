@@ -115,11 +115,8 @@ describe('<SearchProgramCard />', () => {
   });
 
   test('renders the correct data', async () => {
-    const { container } = renderWithRouter(
-      <SearchProgramCardWithContext
-        index={testIndex}
-      />,
-    );
+    const user = userEvent.setup();
+    const { container } = renderWithRouter(<SearchProgramCardWithContext index={testIndex} />);
 
     const searchProgramCard = await screen.findByTestId('search-program-card');
     expect(searchProgramCard).toBeInTheDocument();
@@ -138,7 +135,7 @@ describe('<SearchProgramCard />', () => {
     expect(cardImages[1]).toHaveAttribute('src', PROGRAM_PARTNER_LOGO_IMG_URL);
 
     // handles click
-    userEvent.click(searchProgramCard);
+    await user.click(searchProgramCard);
     expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/program/${PROGRAM_UUID}`);
   });
 

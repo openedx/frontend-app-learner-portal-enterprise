@@ -1,5 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
-import { render } from '@testing-library/react';
+import { render, renderHook } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { AppContext } from '@edx/frontend-platform/react';

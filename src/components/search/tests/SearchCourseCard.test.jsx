@@ -81,14 +81,16 @@ describe('<SearchCourseCard />', () => {
     });
   });
 
-  test('handles card click', () => {
+  test('handles card click', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<SearchCourseCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-course-card');
-    userEvent.click(cardEl);
+    await user.click(cardEl);
     expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
   });
 
-  test('renders the loading state', () => {
+  test('renders the loading state', async () => {
+    const user = userEvent.setup();
     const { container } = renderWithRouter(<SearchCourseCardWithAppContext {...propsForLoading} />);
 
     // ensure `Card` was passed `isLoading` by asserting each `Card` subcomponent
@@ -97,7 +99,7 @@ describe('<SearchCourseCard />', () => {
 
     // does not do anything when clicked
     const cardEl = screen.getByTestId('search-course-card');
-    userEvent.click(cardEl);
+    await user.click(cardEl);
     expect(window.location.pathname).toEqual('/');
   });
 
