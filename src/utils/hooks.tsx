@@ -3,7 +3,7 @@ import algoliasearch from 'algoliasearch';
 
 export const useRenderContactHelpText = (enterpriseCustomer) => {
   const renderContactHelpText = useCallback(
-    (LinkComponent = 'a') => {
+    (LinkComponent: React.ElementType = 'a') => {
       const message = 'reach out to your organization\'s edX administrator';
 
       if (!enterpriseCustomer.contactEmail) {
