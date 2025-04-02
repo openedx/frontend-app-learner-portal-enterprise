@@ -7,6 +7,12 @@ import useEnterpriseFeatures from './useEnterpriseFeatures';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryDefaultEmptyFallback } from '../queries';
 
+type ExtractAlgoliaArgs = {
+  data: SecuredAlgoliaApiData | null;
+  isCatalogQueryFiltersEnabled: boolean;
+  isIndexSupported: boolean;
+};
+
 /**
  * Extracts secured Algolia metadata from backend data based on feature and index support flags.
  *
@@ -27,14 +33,7 @@ const extractAlgolia = ({
   data,
   isCatalogQueryFiltersEnabled,
   isIndexSupported,
-}: {
-  data: {
-    securedAlgoliaApiKey: string | null;
-    catalogUuidsToCatalogQueryUuids: Record<string, string>;
-  } | null;
-  isCatalogQueryFiltersEnabled: boolean;
-  isIndexSupported: boolean;
-}) => (
+}: ExtractAlgoliaArgs) => (
   isCatalogQueryFiltersEnabled && isIndexSupported && data
     ? {
       securedAlgoliaApiKey: data.securedAlgoliaApiKey,
@@ -70,10 +69,13 @@ const useSecuredAlgoliaMetadata = (indexName: string | null) => {
   const enterpriseCustomerResult = useEnterpriseCustomer();
   const enterpriseCustomer = enterpriseCustomerResult.data!;
   const { data: { catalogQuerySearchFiltersEnabled } } = useEnterpriseFeatures();
-  // Waffle flag based determination if we use the secured algolia api key
+  // Enable catalog filters only if the waffle flag is enabled and Algolia app id is defined
   const isCatalogQueryFiltersEnabled = !!(
     catalogQuerySearchFiltersEnabled && !!config.ALGOLIA_APP_ID
   );
+  // An index is "supported" if it contains customer-specific data.
+  // Supported indices should use the secured API key; unsupported indexes
+  // (e.g., public jobs index) will default to the fallback key.
   const isIndexSupported = !unsupportedSecuredAlgoliaIndices.includes(indexName);
 
   // Common helper between the BFF call and its empty fallback function

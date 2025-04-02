@@ -5,7 +5,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 
 import * as hooks from '../data/hooks';
-import { queryClient, renderWithRouter } from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import VisualizeCareer from '../VisualizeCareer';
 import {
   useAlgoliaSearch,
@@ -159,7 +159,7 @@ const defaultSearchContext = {
   refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
   dispatch: () => null,
 };
-queryClient();
+
 const VisualizeCareerWithContext = ({
   initialAppState = defaultAppState,
 }) => (

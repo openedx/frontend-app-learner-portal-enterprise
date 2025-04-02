@@ -123,8 +123,13 @@ export function queryClient(defaultOptions = {}) {
 /**
  * Generates all possible permutations of an object where each key has multiple possible values.
  *
- * @param {Object.<string, any[]>} options - An object where each key has an array of possible values.
- * @returns {Object[]} - An array of objects containing all possible combinations of the input values.
+ * This function returns the [cartesian product](https://en.wikipedia.org/wiki/Cartesian_product) of the input values:
+ * if there are `n` keys, and each key `k` has `v_k` possible values, then the total number of combinations is:
+ *
+ *    total = v₁ × v₂ × ... × vₙ
+ *
+ * @param {Object.<string, any[]>} options - An object where each key maps to an array of possible values.
+ * @returns {Object[]} - An array of objects, each representing a unique combination of the input values.
  *
  * @example
  * const input = {
@@ -132,6 +137,7 @@ export function queryClient(defaultOptions = {}) {
  *   isBFFData: [true, false],
  *   anotherFlag: ["A", "B"]
  * };
+ * // The total number of permutations is: 2 × 2 × 2 = 8
  *
  * const result = generatePermutations(input);
  * console.log(result);
