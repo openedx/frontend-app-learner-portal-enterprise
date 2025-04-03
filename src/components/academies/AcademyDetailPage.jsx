@@ -1,11 +1,7 @@
 import { useMemo } from 'react';
-import {
-  Container, Breadcrumb,
-} from '@openedx/paragon';
-import {
-  useParams, Link,
-} from 'react-router-dom';
-import { useIntl, FormattedMessage } from '@edx/frontend-platform/i18n';
+import { Breadcrumb, Container } from '@openedx/paragon';
+import { Link, useParams } from 'react-router-dom';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import algoliasearch from 'algoliasearch/lite';
 import { getConfig } from '@edx/frontend-platform/config';
 import NotFoundPage from '../NotFoundPage';
@@ -32,6 +28,7 @@ const AcademyDetailPage = () => {
     },
     [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
   );
+
   if (!academy) {
     return (
       <NotFoundPage

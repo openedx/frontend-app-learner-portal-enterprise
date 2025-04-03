@@ -7,11 +7,12 @@ import * as hooks from '../data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
 import MyCareerTab from '../MyCareerTab';
 import {
+  useAlgoliaSearch,
+  useDefaultSearchFilters,
+  useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useIsAssignmentsOnlyLearner,
   useLearnerSkillLevels,
-  useDefaultSearchFilters,
-  useEnterpriseCourseEnrollments,
 } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
@@ -34,6 +35,7 @@ jest.mock('../../app/data', () => ({
   useIsAssignmentsOnlyLearner: jest.fn(),
   useDefaultSearchFilters: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
 }));
 
 hooks.usePlotlySpiderChart.mockReturnValue({});
@@ -188,6 +190,14 @@ describe('<MyCareerTab />', () => {
           requested: [],
           assigned: [],
         },
+      },
+    });
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: {
+        search: jest.fn(), appId: 'test-app-id',
+      },
+      searchIndex: {
+        indexName: 'mock-index-name',
       },
     });
   });

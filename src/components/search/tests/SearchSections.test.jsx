@@ -2,18 +2,19 @@ import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
-import { QueryClientProvider } from '@tanstack/react-query';
 import SearchCourse from '../SearchCourse';
 import '../../skills-quiz/__mocks__/react-instantsearch-dom';
-import { queryClient, renderWithRouter } from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import '@testing-library/jest-dom';
 import SearchProgram from '../SearchProgram';
 import SearchPathway from '../SearchPathway';
 import Search from '../Search';
 import {
-  useDefaultSearchFilters, useEnterpriseCustomer, useHasValidLicenseOrSubscriptionRequestsEnabled,
+  useAlgoliaSearch,
+  useDefaultSearchFilters,
+  useEnterpriseCustomer,
+  useHasValidLicenseOrSubscriptionRequestsEnabled,
 } from '../../app/data';
-import { useAlgoliaSearch } from '../../../utils/hooks';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import SearchVideo from '../SearchVideo';
 
@@ -31,10 +32,6 @@ jest.mock('../../app/data', () => ({
   useEnterpriseFeatures: jest.fn().mockReturnValue({ data: undefined }),
   useDefaultSearchFilters: jest.fn(),
   useHasValidLicenseOrSubscriptionRequestsEnabled: jest.fn(),
-}));
-
-jest.mock('../../../utils/hooks', () => ({
-  ...jest.requireActual('../../../utils/hooks'),
   useAlgoliaSearch: jest.fn(),
 }));
 
@@ -69,27 +66,32 @@ const SearchWrapper = ({
   searchContext = searchContext1,
   children,
 }) => (
-  <QueryClientProvider client={queryClient()}>
-    <IntlProvider locale="en">
-      <AppContext.Provider value={appState}>
-        <SearchContext.Provider value={searchContext}>
-          {children}
-        </SearchContext.Provider>
-      </AppContext.Provider>
-    </IntlProvider>
-  </QueryClientProvider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appState}>
+      <SearchContext.Provider value={searchContext}>
+        {children}
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockFilter = `enterprise_customer_uuids: ${mockEnterpriseCustomer.uuid}`;
 
-describe('<Search />', () => {
+describe('SearchSections', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useDefaultSearchFilters.mockReturnValue(mockFilter);
     useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(true);
-    useAlgoliaSearch.mockReturnValue([{ search: jest.fn(), appId: 'test-app-id' }, { indexName: 'mock-index-name' }]);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: {
+        search: jest.fn(), appId: 'test-app-id',
+      },
+      searchIndex: {
+        indexName: 'mock-index-name',
+      },
+    });
   });
 
   test('renders the course section with the correct title', () => {

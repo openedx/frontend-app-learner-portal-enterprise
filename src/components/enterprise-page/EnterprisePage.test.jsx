@@ -69,10 +69,6 @@ describe('<EnterprisePage />', () => {
             },
           },
         },
-        algolia: {
-          client: expect.any(Object),
-          index: expect.any(Object),
-        },
       }),
     );
   });

@@ -5,9 +5,9 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import { queryClient } from '../../../../utils/tests';
 import {
+  fetchEnterpriseLearnerAcademy,
   fetchEnterpriseLearnerDashboard,
   fetchEnterpriseLearnerSearch,
-  fetchEnterpriseLearnerAcademy,
   fetchEnterpriseLearnerSkillsQuiz,
 } from '../services';
 import useBFF from './useBFF';

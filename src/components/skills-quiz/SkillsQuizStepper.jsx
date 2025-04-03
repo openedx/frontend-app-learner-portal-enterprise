@@ -1,17 +1,11 @@
 import {
-  useEffect, useState, useContext, useMemo,
+  useContext, useEffect, useMemo, useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
-  Button,
-  Stepper,
-  ModalDialog,
-  Container,
-  Form,
-  Stack,
+  Button, Container, Form, ModalDialog, Stack, Stepper,
 } from '@openedx/paragon';
-import algoliasearch from 'algoliasearch/lite';
 import { InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
@@ -21,6 +15,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
+import algoliasearch from 'algoliasearch/lite';
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import CurrentJobDropdown from './CurrentJobDropdown';
@@ -34,11 +29,7 @@ import SelectJobCard from './SelectJobCard';
 import SkillsCourses from './SkillsCourses';
 
 import {
-  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE,
-  STEP1,
-  STEP2,
-  STEP3,
-  GOAL_DROPDOWN_DEFAULT_OPTION,
+  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, GOAL_DROPDOWN_DEFAULT_OPTION, STEP1, STEP2, STEP3,
 } from './constants';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
@@ -53,6 +44,7 @@ import { useEnterpriseCustomer } from '../app/data';
 
 const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const config = getConfig();
+
   const [searchClient, courseIndex, jobIndex] = useMemo(() => {
     const client = algoliasearch(
       config.ALGOLIA_APP_ID,
@@ -67,6 +59,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
     config.ALGOLIA_INDEX_NAME_JOBS,
     config.ALGOLIA_SEARCH_API_KEY,
   ]);
+
   const [currentStep, setCurrentStep] = useState(STEP1);
   const [isStudentChecked, setIsStudentChecked] = useState(false);
   const handleIsStudentCheckedChange = (e) => setIsStudentChecked(e.target.checked);

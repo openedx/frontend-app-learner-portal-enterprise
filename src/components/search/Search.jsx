@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, SearchHeader } from '@edx/frontend-enterprise-catalog-search';
-import { Stack, useToggle } from '@openedx/paragon';
+import { Container, Stack, useToggle } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import { NUM_RESULTS_PER_PAGE } from './constants';
@@ -22,6 +22,7 @@ import PathwayModal from '../pathway/PathwayModal';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import {
+  useAlgoliaSearch,
   useCanOnlyViewHighlights,
   useDefaultSearchFilters,
   useEnterpriseCustomer,
@@ -29,11 +30,11 @@ import {
   useHasValidLicenseOrSubscriptionRequestsEnabled,
   useIsAssignmentsOnlyLearner,
 } from '../app/data';
-import { useAlgoliaSearch } from '../../utils/hooks';
 import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
 import SearchVideo from './SearchVideo';
 import VideoBanner from '../microlearning/VideoBanner';
 import CustomSubscriptionExpirationModal from '../custom-expired-subscription-modal';
+import { SearchUnavailableAlert } from '../search-unavailable-alert';
 
 function useSearchPathwayModal() {
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, close] = useToggle(false);
@@ -61,7 +62,10 @@ const Search = () => {
 
   const { refinements } = useContext(SearchContext);
   const filters = useDefaultSearchFilters();
-  const [searchClient, searchIndex] = useAlgoliaSearch(config);
+  const {
+    searchIndex,
+    searchClient,
+  } = useAlgoliaSearch();
 
   // Flag to toggle highlights visibility
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
@@ -123,6 +127,27 @@ const Search = () => {
   const { content_type: contentType } = refinements;
   const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
+  if (!searchClient) {
+    return (
+      <>
+        <CustomSubscriptionExpirationModal />
+        <Helmet title={PAGE_TITLE} />
+        <Stack className="my-5" gap={5}>
+          {canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
+            <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
+          )}
+          {!hasRefinements && <ContentHighlights />}
+          {canOnlyViewHighlightSets === false
+            && (
+              <Container data-testid="search-unavailable-alert-container" size="lg">
+                <SearchUnavailableAlert />
+              </Container>
+            )}
+        </Stack>
+      </>
+    );
+  }
+
   return (
     <>
       <CustomSubscriptionExpirationModal />
@@ -172,11 +197,16 @@ const Search = () => {
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
             {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} />}
             {enableVideos && (
-              <SearchVideo filter={filters} showVideosBanner={showVideosBanner} hideVideosBanner={hideVideosBanner} />
+              <SearchVideo
+                filter={filters}
+                showVideosBanner={showVideosBanner}
+                hideVideosBanner={hideVideosBanner}
+              />
             )}
           </Stack>
         )}
-        {/* render a single contentType if the refinement exist and is either a course, program or learnerpathway */}
+        {/* render a single contentType if the refinement
+            exist and is either a course, program or learnerpathway */}
         {contentType?.length > 0 && <ContentTypeSearchResultsContainer contentType={contentType[0]} />}
       </InstantSearch>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />

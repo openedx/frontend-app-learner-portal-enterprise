@@ -3,21 +3,27 @@ import PropTypes from 'prop-types';
 import { getConfig } from '@edx/frontend-platform/config';
 import { logError } from '@edx/frontend-platform/logging';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
-import { SearchContext, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
+import { deleteRefinementAction, SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import {
-  Button, Form, StatefulButton,
+  Button, Container, Form, StatefulButton,
 } from '@openedx/paragon';
 import { CURRENT_JOB_FACET, JOB_FILTERS } from '../skills-quiz/constants';
-import { patchProfile, fetchJobDetailsFromAlgolia } from './data/service';
+import { fetchJobDetailsFromAlgolia, patchProfile } from './data/service';
 import { CURRENT_JOB_PROFILE_FIELD_NAME } from './data/constants';
-import { useAlgoliaSearch } from '../../utils/hooks';
+import { useAlgoliaSearch } from '../app/data';
+import { SearchUnavailableAlert } from '../search-unavailable-alert';
 
 const SearchJobRole = (props) => {
   const config = getConfig();
-  const [searchClient, searchIndex] = useAlgoliaSearch(config, config.ALGOLIA_INDEX_NAME_JOBS);
+  const {
+    searchClient,
+    searchIndex,
+  } = useAlgoliaSearch(
+    config.ALGOLIA_INDEX_NAME_JOBS,
+  );
   const { authenticatedUser: { username } } = useContext(AppContext);
   const { refinements, dispatch } = useContext(SearchContext);
   const { current_job: currentJob } = refinements;
@@ -81,6 +87,14 @@ const SearchJobRole = (props) => {
     }
     props.onCancel();
   };
+
+  if (!searchClient) {
+    return (
+      <Container size="lg" data-testid="search-unavailable-alert">
+        <SearchUnavailableAlert />
+      </Container>
+    );
+  }
 
   return (
     <div>
