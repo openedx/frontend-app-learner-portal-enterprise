@@ -11,9 +11,12 @@ describe('<SearchUnavailableAlert />', () => {
         <SearchUnavailableAlert />
       </IntlProvider>,
     );
-    Object.entries(messages).forEach(([, message]: [string, { defaultMessage: string }]) => {
-      expect(screen.getByText((message as { defaultMessage: string }).defaultMessage)).toBeInTheDocument();
-    });
+    expect(screen.getByText(messages.alertHeading.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.alertText.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.alertTextOptionsHeader.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.alertTextOptionRefresh.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.alertTextOptionNetwork.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.alertTextOptionSupport.defaultMessage)).toBeInTheDocument();
   });
   it('renders with expected passed classname', () => {
     render(
