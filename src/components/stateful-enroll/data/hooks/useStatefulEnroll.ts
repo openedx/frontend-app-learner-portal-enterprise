@@ -40,10 +40,10 @@ interface RedeemFnArgs {
  * Returns whether the transaction state should be polled (i.e., the transaction
  * is pending).
  */
-const shouldPollTransactionState = (transaction?: SubsidyTransaction) => {
+function shouldPollTransactionState(transaction?: SubsidyTransaction) {
   const transactionState = transaction?.state;
   return transactionState === 'pending';
-};
+}
 
 /**
  * Custom hook to handle the redemption of a subsidy access policy. Returns
@@ -114,7 +114,7 @@ const useTransactionStatus = ({
     isSuccess: isTransactionQuerySuccess,
     error: transactionQueryError,
   } = useQuery<SubsidyTransaction, Error>({
-    ...queryPolicyTransaction(enterpriseCustomer.uuid, transaction),
+    ...queryPolicyTransaction(enterpriseCustomer.uuid, transaction?.transactionStatusApiUrl),
     enabled: !!transaction,
     refetchInterval: (query) => {
       if (shouldPollTransactionState(query.state.data)) {
@@ -134,6 +134,7 @@ const useTransactionStatus = ({
       onError(failedTransactionError);
       return;
     }
+
     onSuccess(updatedTransaction);
   }, [updatedTransaction, isTransactionQuerySuccess, onSuccess, onError]);
 
@@ -171,7 +172,6 @@ const useStatefulEnroll = ({
 
   // Handle success for both redemption AND transaction status
   const handleSuccess = useCallback(async (newTransaction: SubsidyTransaction) => {
-    setTransaction(newTransaction);
     if (newTransaction.state === 'committed') {
       logInfo(`User ${newTransaction.lmsUserId} successfully redeemed ${newTransaction.contentKey} using subsidy access policy ${newTransaction.subsidyAccessPolicyUuid}.`);
       if (onSuccess) {
@@ -181,6 +181,7 @@ const useStatefulEnroll = ({
       }
     } else {
       logInfo(`User ${newTransaction.lmsUserId} successfully initiated redemption of ${newTransaction.contentKey} using subsidy access policy ${newTransaction.subsidyAccessPolicyUuid}. Current state: ${newTransaction.state}`);
+      setTransaction(newTransaction);
     }
   }, [onSuccess, optimizelyHandler, searchHandler]);
 

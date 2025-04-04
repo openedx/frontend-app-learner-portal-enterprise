@@ -1,12 +1,3 @@
-// import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '@/components/app/routes/data';
-// import {
-//   extractEnterpriseCustomer,
-//   queryEnterpriseCourseEnrollments,
-//   queryEnterprisePathwaysList,
-//   queryEnterpriseProgramsList,
-//   queryRedeemablePolicies,
-//   resolveBFFQuery,
-// } from '@/components/app/data';
 import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer,

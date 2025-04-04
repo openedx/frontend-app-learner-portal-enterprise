@@ -134,7 +134,6 @@ export function queryClient(defaultOptions = {}) {
  * };
  *
  * const result = generatePermutations(input);
- * console.log(result);
  *
  * // Output:
  * // [

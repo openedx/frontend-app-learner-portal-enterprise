@@ -2,10 +2,7 @@
   "extends": "@edx/typescript-config",
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "dist",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
+    "outDir": "dist"
   },
   "include": [
     "src/**/*",

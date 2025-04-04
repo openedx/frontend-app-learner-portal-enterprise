@@ -1,17 +1,17 @@
-import { act, renderHook } from '@testing-library/react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
+import * as logging from '@edx/frontend-platform/logging';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import useStatefulEnroll from './useStatefulEnroll';
 import * as hooks from '../../../course/data/hooks';
 import { EVENT_NAMES } from '../../../course/data/constants';
-
-import { submitRedemptionRequest } from '../service';
-import { queryPolicyTransaction, useEnterpriseCustomer } from '../../../app/data';
-import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import { useEnterpriseCustomer } from '../../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import { queryClient } from '../../../../utils/tests';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
@@ -20,25 +20,10 @@ jest.mock('../../../app/data', () => ({
 
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);
+const mockPolicyRedemptionUrl = 'policy_redemption_url';
 const mockTransactionStatusApiUrl = 'transaction_status_api_url';
+const mockTransactionUuid = 'mock-transaction-uuid';
 getAuthenticatedHttpClient.mockReturnValue(axios);
-axiosMock.onGet(mockTransactionStatusApiUrl).reply(200, {
-  state: 'committed',
-});
-
-const mockMutateAsync = jest.fn();
-jest.mock('@tanstack/react-query', () => ({
-  useMutation: jest.fn(() => ({ mutateAsync: mockMutateAsync })),
-  useQuery: jest.fn().mockReturnValue({
-    data: { uuid: 'transaction_uuid', state: 'pending' } as SubsidyTransaction,
-    isPending: true,
-  }),
-}));
-
-jest.mock('../service', () => ({
-  submitRedemptionRequest: jest.fn(),
-  retrieveTransactionStatus: jest.fn(),
-}));
 
 const onBeginRedeem = jest.fn();
 const onSuccess = jest.fn();
@@ -50,198 +35,187 @@ const optimizelyClick = jest.fn();
 const trackSearchSpy = jest.spyOn(hooks, 'useTrackSearchConversionClickHandler').mockReturnValue(trackSearchClick);
 const optimizelySpy = jest.spyOn(hooks, 'useOptimizelyEnrollmentClickHandler').mockReturnValue(optimizelyClick);
 
+const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-type RenderUseStatefulEnrollArgs = {
+const mockContentKey = 'content_key';
+
+type RedeemWithUseStatefulEnrollArgs = {
+  hasSubsidyAccessPolicy?: boolean;
   metadata?: Record<string, unknown>;
   shouldThrowError?: boolean;
 };
 
 describe('useStatefulEnroll', () => {
+  function mockRedemptionWithState(transactionState: SubsidyTransactionState) {
+    axiosMock.onPost(mockPolicyRedemptionUrl).replyOnce(200, {
+      uuid: mockTransactionUuid,
+      state: transactionState,
+      transactionStatusApiUrl: mockTransactionStatusApiUrl,
+    });
+  }
+
+  function mockTransactionStates(transactionStates: SubsidyTransactionState[]) {
+    transactionStates.forEach((state) => {
+      axiosMock.onGet(mockTransactionStatusApiUrl).replyOnce(200, {
+        uuid: mockTransactionUuid,
+        state,
+        transactionStatusApiUrl: mockTransactionStatusApiUrl,
+      });
+    });
+  }
+
   beforeEach(() => {
     jest.clearAllMocks();
     (useEnterpriseCustomer as jest.Mock).mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
-  const renderUseStatefulEnroll = async ({
-    metadata,
-    shouldThrowError = false,
-    ...options
-  }: RenderUseStatefulEnrollArgs = {}) => {
-    if (shouldThrowError) {
-      mockMutateAsync.mockImplementation(() => {
-        throw new Error('error');
-      });
-    }
+  afterEach(() => {
+    axiosMock.reset();
+  });
 
+  afterAll(() => {
+    axiosMock.restore();
+  });
+
+  const redeemWithUseStatefulEnroll = async ({
+    hasSubsidyAccessPolicy = true,
+    metadata,
+  }: RedeemWithUseStatefulEnrollArgs = {}) => {
     const wrapper = ({ children }) => (
-      <AppContext.Provider value={{ authenticatedUser: { userId: 123 } }}>
-        {children}
-      </AppContext.Provider>
+      <QueryClientProvider client={queryClient()}>
+        <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+          {children}
+        </AppContext.Provider>
+      </QueryClientProvider>
     );
 
-    const { result } = renderHook(() => useStatefulEnroll({
-      contentKey: 'content_key',
-      subsidyAccessPolicy: {
+    const subsidyAccessPolicy: SubsidyAccessPolicy | undefined = hasSubsidyAccessPolicy
+      ? {
         uuid: 'policy_uuid',
-        policyRedemptionUrl: 'policy_redemption_url',
-      },
+        policyRedemptionUrl: mockPolicyRedemptionUrl,
+      }
+      : undefined;
+
+    const { result } = renderHook(() => useStatefulEnroll({
+      contentKey: mockContentKey,
+      subsidyAccessPolicy,
       onSuccess,
       onError,
       onBeginRedeem,
       userEnrollments,
-      ...options,
     }), { wrapper });
 
     const redeem = result.current;
-    await redeem({ metadata });
-
-    expect(mockMutateAsync).toHaveBeenCalledTimes(1);
-    expect(mockMutateAsync).toHaveBeenCalledWith({
-      userId: 123,
-      contentKey: 'content_key',
-      policyRedemptionUrl: 'policy_redemption_url',
-      metadata,
-    }, {
-      onSuccess: expect.any(Function),
-      onError: expect.any(Function),
-    });
+    if (metadata) {
+      await redeem({ metadata });
+    } else {
+      await redeem();
+    }
   };
 
-  test.only.each([
-    { state: 'committed', isSuccess: true, metadata: undefined },
-    // { state: 'pending', isSuccess: false, metadata: undefined },
-    // { state: 'committed', isSuccess: true, metadata: { example: true } },
-  ])('should call redemptionMutation.mutateAsync on redeem (%s)', async ({ state: mockState, isSuccess, metadata }) => {
-    await renderUseStatefulEnroll({ metadata });
-
-    const onSuccessHandler = mockMutateAsync.mock.calls[0][1].onSuccess;
-    await act(() => onSuccessHandler({ state: mockState }));
-
-    if (isSuccess) {
-      expect(trackSearchSpy).toHaveBeenCalledWith({ eventName: EVENT_NAMES.sucessfulEnrollment });
-      expect(optimizelySpy).toHaveBeenCalledWith({ courseRunKey: 'content_key', userEnrollments: [] });
-      expect(onSuccess).toHaveBeenCalledTimes(1);
-      expect(onSuccess).toHaveBeenCalledWith({ state: mockState });
-    } else {
-      expect(onSuccess).toHaveBeenCalledTimes(0);
-    }
-  });
-
-  test('should call onError on redeem error', async () => {
-    await renderUseStatefulEnroll();
-
-    expect(mockMutateAsync).toHaveBeenCalledTimes(1);
-    expect(mockMutateAsync).toHaveBeenCalledWith({
-      userId: 123,
-      contentKey: 'content_key',
-      policyRedemptionUrl: 'policy_redemption_url',
-      metadata: undefined,
-    }, {
-      onSuccess: expect.any(Function),
-      onError: expect.any(Function),
-    });
-
-    const onErrorHandler = mockMutateAsync.mock.calls[0][1].onError;
-    act(() => onErrorHandler(new Error('error')));
-
-    expect(onError).toHaveBeenCalledTimes(1);
-    expect(onError).toHaveBeenCalledWith(new Error('error'));
-  });
-
-  test('should call onBeginRedeem on mutate', async () => {
-    await renderUseStatefulEnroll();
-
-    expect(useMutation).toHaveBeenCalledTimes(1);
-    expect(useMutation).toHaveBeenCalledWith({
-      mutationFn: expect.any(Function),
-      onMutate: expect.any(Function),
-    });
-
-    act(() => {
-      const onMutateHandler = (useMutation as jest.Mock).mock.calls[0][0].onMutate;
-      onMutateHandler();
-    });
-    expect(onBeginRedeem).toHaveBeenCalledTimes(1);
-  });
-
-  test('passes submitRedemptionRequest as the mutationFn', async () => {
-    await renderUseStatefulEnroll();
-    expect(useMutation).toHaveBeenCalledTimes(1);
-    expect(useMutation).toHaveBeenCalledWith({
-      mutationFn: submitRedemptionRequest,
-      onMutate: expect.any(Function),
-    });
-    (useMutation as jest.Mock).mock.calls[0][0].mutationFn();
-    expect(submitRedemptionRequest).toHaveBeenCalledTimes(1);
-  });
-
-  test('should call checkTransactionStatus', async () => {
-    const mockTransaction = {
-      state: 'pending',
-      transactionStatusApiUrl: mockTransactionStatusApiUrl,
-    };
-    await renderUseStatefulEnroll();
-    const onSuccessHandler = mockMutateAsync.mock.calls[0][1].onSuccess;
-    await act(() => onSuccessHandler(mockTransaction));
-
-    expect(onSuccess).toHaveBeenCalledTimes(0);
-
-    expect(useQuery).toHaveBeenCalledTimes(2);
-    const policyTransactionQueryKey = queryPolicyTransaction(mockEnterpriseCustomer.uuid, mockTransaction).queryKey;
-    expect(useQuery).toHaveBeenCalledWith({
-      queryKey: policyTransactionQueryKey,
-      queryFn: expect.any(Function),
-      refetchInterval: expect.any(Function),
-      onSuccess: expect.any(Function),
-      onError: expect.any(Function),
-      enabled: true,
-    });
+  test('should logError when redeem is called without subsidy access policy', async () => {
+    const logErrorSpy = jest.spyOn(logging, 'logError').mockImplementation(() => {});
+    await redeemWithUseStatefulEnroll({ hasSubsidyAccessPolicy: false });
+    expect(logErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `Redemption without subsidy access policy attempted by ${mockAuthenticatedUser.userId} for ${mockContentKey}.`,
+      ),
+    );
   });
 
   test.each([
-    {
-      transaction: { state: 'pending' },
-      expectedEnabled: true,
-      expectedRefetchInterval: 1000,
-    },
-    {
-      transaction: { state: 'committed' },
-      expectedEnabled: false,
-      expectedRefetchInterval: false,
-    },
-    {
-      transaction: { state: 'failed' },
-      expectedEnabled: false,
-      expectedRefetchInterval: false,
-    },
-  ])('should return correct refetchInterval (%s)', async ({ transaction, expectedEnabled, expectedRefetchInterval }) => {
-    const mockTransaction = {
-      ...transaction,
-      transactionStatusApiUrl: mockTransactionStatusApiUrl,
-    };
-    await renderUseStatefulEnroll();
-    const onSuccessHandler = mockMutateAsync.mock.calls[0][1].onSuccess;
-    await act(() => onSuccessHandler(mockTransaction));
-    expect(useQuery).toHaveBeenCalledTimes(2);
-    const policyTransactionQueryKey = queryPolicyTransaction(mockEnterpriseCustomer.uuid, mockTransaction).queryKey;
-    expect(useQuery).toHaveBeenCalledWith({
-      queryKey: policyTransactionQueryKey,
-      queryFn: expect.any(Function),
-      refetchInterval: expect.any(Function),
-      onSuccess: expect.any(Function),
-      onError: expect.any(Function),
-      enabled: expectedEnabled,
+    { hasRedemptionMetadata: true },
+    { hasRedemptionMetadata: false },
+  ])('should make redemption request and poll for committed transaction (%s)', async ({ hasRedemptionMetadata }) => {
+    mockRedemptionWithState('pending');
+    mockTransactionStates(['pending', 'committed']);
+    await redeemWithUseStatefulEnroll({
+      metadata: hasRedemptionMetadata ? { mock: 'data' } : undefined,
     });
 
-    // use the call to useQuery to get the refetchInterval
-    const useQueryArgs = (useQuery as jest.Mock).mock.calls[0][0];
-    const { refetchInterval } = useQueryArgs;
-    expect(refetchInterval(mockTransaction)).toEqual(expectedRefetchInterval);
+    expect(onBeginRedeem).toHaveBeenCalledTimes(1);
+
+    // Ensure the first POST request to mockPolicyRedemptionUrl was made
+    expect(axiosMock.history.post).toHaveLength(1);
+    expect(axiosMock.history.post[0].url).toBe(mockPolicyRedemptionUrl);
+
+    // Wait for the initial GET request to mockTransactionStatusApiUrl (still pending)
+    await waitFor(() => {
+      expect(axiosMock.history.get.length).toBe(1);
+      expect(axiosMock.history.get[0].url).toBe(mockTransactionStatusApiUrl);
+    });
+
+    // Wait for the second GET request to mockTransactionStatusApiUrl (now committed)
+    await waitFor(() => {
+      expect(axiosMock.history.get.length).toBe(2);
+      expect(axiosMock.history.get[1].url).toBe(mockTransactionStatusApiUrl);
+    });
+
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    expect(onSuccess).toHaveBeenCalledWith({
+      uuid: mockTransactionUuid,
+      state: 'committed',
+      transactionStatusApiUrl: mockTransactionStatusApiUrl,
+    } as SubsidyTransaction);
+
+    expect(trackSearchSpy).toHaveBeenCalledWith({ eventName: EVENT_NAMES.sucessfulEnrollment });
+    expect(optimizelySpy).toHaveBeenCalledWith({ courseRunKey: 'content_key', userEnrollments: [] });
   });
 
-  test('handles error when calling mutateAsync', async () => {
-    await renderUseStatefulEnroll({ shouldThrowError: true });
-    expect(onError).toHaveBeenCalledTimes(1);
+  test('should handle redemption request with failed transaction', async () => {
+    mockRedemptionWithState('pending');
+    mockTransactionStates(['failed']);
+    axiosMock.onGet(mockTransactionStatusApiUrl).replyOnce(200, {
+      uuid: mockTransactionUuid,
+      state: 'failed',
+      transactionStatusApiUrl: mockTransactionStatusApiUrl,
+    } as SubsidyTransaction);
+    await redeemWithUseStatefulEnroll();
+
+    expect(onBeginRedeem).toHaveBeenCalledTimes(1);
+
+    // Ensure the first POST request to mockPolicyRedemptionUrl was made
+    expect(axiosMock.history.post).toHaveLength(1);
+    expect(axiosMock.history.post[0].url).toBe(mockPolicyRedemptionUrl);
+
+    // Wait for the initial GET request to mockTransactionStatusApiUrl (still pending)
+    await waitFor(() => {
+      expect(axiosMock.history.get.length).toBe(1);
+      expect(axiosMock.history.get[0].url).toBe(mockTransactionStatusApiUrl);
+    });
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledTimes(1);
+      const expectedError = new Error(`Transaction ${mockTransactionUuid} failed during redemption.`);
+      expect(onError).toHaveBeenCalledWith(expectedError);
+    });
+  });
+
+  test('should handle redemption request error', async () => {
+    axiosMock.onPost(mockPolicyRedemptionUrl).replyOnce(500);
+    await redeemWithUseStatefulEnroll();
+
+    expect(onBeginRedeem).toHaveBeenCalledTimes(1);
+    expect(axiosMock.history.post).toHaveLength(1);
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledTimes(1);
+      expect(onError).toHaveBeenCalledWith(expect.any(Error));
+    });
+  });
+
+  test('should handle transaction status request error', async () => {
+    mockRedemptionWithState('pending');
+    axiosMock.onGet(mockTransactionStatusApiUrl).replyOnce(500);
+    await redeemWithUseStatefulEnroll();
+
+    expect(onBeginRedeem).toHaveBeenCalledTimes(1);
+    expect(axiosMock.history.post).toHaveLength(1);
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledTimes(1);
+      expect(onError).toHaveBeenCalledWith(expect.any(Error));
+    });
   });
 });

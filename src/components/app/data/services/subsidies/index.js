@@ -124,8 +124,7 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
  * as pending, committed, etc.
  * @param {Object} transaction
  */
-export async function checkTransactionStatus(transaction) {
-  const { transactionStatusApiUrl } = transaction;
+export async function checkTransactionStatus(transactionStatusApiUrl) {
   const response = await getAuthenticatedHttpClient().get(transactionStatusApiUrl);
   return camelCaseObject(response.data);
 }
