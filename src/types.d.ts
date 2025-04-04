@@ -99,6 +99,34 @@ declare global {
 
   // Application Data (subsidy)
   type SubsidyRequestState = typeof SUBSIDY_REQUEST_STATE[keyof typeof SUBSIDY_REQUEST_STATE];
+
+  type SubsidyAccessPolicy = {
+    uuid: string;
+    policyRedemptionUrl: string;
+  };
+
+  type SubsidyTransactionState = 'created' | 'pending' | 'committed' | 'failed';
+
+  interface SubsidyTransaction {
+    uuid: string;
+    state: SubsidyTransactionState;
+    lmsUserId: number;
+    lmsUserEmail?: string;
+    contentKey: string;
+    parentContentKey: string;
+    contentTitle: string;
+    quantity: number;
+    unit: any;
+    fulfillmentIdentifier?: string;
+    subsidyAccessPolicyUuid: string;
+    metadata: Record<string, any>;
+    created: string;
+    modified: string;
+    reversal?: any;
+    externalReference?: any;
+    transactionStatusApiUrl: string;
+    coursewareUrl: string;
+  }
 }
 
 export {};

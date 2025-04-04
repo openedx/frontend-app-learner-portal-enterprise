@@ -11,9 +11,11 @@ import {
 type DashboardRouteParams<Key extends string = string> = RouteParams<Key> & {
   readonly enterpriseSlug: string;
 };
+
 interface DashboardLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: DashboardRouteParams;
 }
+
 interface DashboardBFFResponse {
   enterpriseCourseEnrollments: EnterpriseCourseEnrollment[];
 }
@@ -39,7 +41,6 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
       authenticatedUser,
       enterpriseSlug,
     });
-
     if (!enterpriseCustomer) {
       return null;
     }

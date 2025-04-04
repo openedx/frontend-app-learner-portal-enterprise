@@ -82,7 +82,7 @@ describe('useRedeemablePolicies', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockRedeemablePolicies,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

@@ -89,7 +89,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
-  useQuery: jest.fn().mockReturnValue({ data: undefined, isInitialLoading: false }),
+  useQuery: jest.fn().mockReturnValue({ data: undefined }),
 }));
 
 jest.mock('../utils', () => ({

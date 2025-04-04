@@ -25,7 +25,6 @@ const makeAcademiesLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
       authenticatedUser,
       enterpriseSlug,
     });
-
     if (!enterpriseCustomer) {
       return null;
     }

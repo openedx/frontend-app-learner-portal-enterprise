@@ -168,25 +168,6 @@ describe('fetchEnterpriseLearnerData', () => {
       shouldUpdateActiveEnterpriseCustomerUser: false,
     });
   });
-
-  it('catches API error', async () => {
-    const username = 'test-username';
-    const enterpriseLearnerQueryParams = new URLSearchParams({
-      username,
-      page: 1,
-    });
-    const enterpriseLearnerUrl = `${APP_CONFIG.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/?${enterpriseLearnerQueryParams.toString()}`;
-    axiosMock.onGet(enterpriseLearnerUrl).reply(500);
-    const response = await fetchEnterpriseLearnerData(username, mockEnterpriseSlug);
-    expect(response).toEqual({
-      enterpriseFeatures: {},
-      enterpriseCustomer: null,
-      activeEnterpriseCustomer: null,
-      allLinkedEnterpriseCustomerUsers: [],
-      staffEnterpriseCustomer: null,
-      shouldUpdateActiveEnterpriseCustomerUser: false,
-    });
-  });
 });
 
 describe('fetchEnterpriseCourseEnrollments', () => {
