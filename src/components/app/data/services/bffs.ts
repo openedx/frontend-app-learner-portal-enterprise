@@ -8,6 +8,10 @@ import isPlainObject from 'lodash.isplainobject';
 import { isObjEmpty } from '../utils';
 
 export const baseLearnerBFFResponse = {
+  enterpriseCustomer: {},
+  enterpriseFeatures: {},
+  securedAlgoliaApiKey: null,
+  catalogUuidsToCatalogQueryUuids: {},
   enterpriseCustomerUserSubsidies: {
     subscriptions: {
       customerAgreement: {},
@@ -75,7 +79,7 @@ export function logErrorsAndWarningsFromBFFResponse({ url, response }) {
  * @returns {Record<string, any>} An object containing deep-cloned values for the requested keys
  */
 export function preserveRawMetadata<T extends object>(
-  keys: (keyof T)[],
+  keys: string[],
   data: T = {} as T,
 ): Partial<T> {
   if (!isPlainObject(data)) { return {}; }
@@ -125,8 +129,8 @@ export async function makeBFFRequest<T extends object>({
     // Make request to BFF.
     const result = await getAuthenticatedHttpClient().post(url, params);
     // Pull out raw values before camelCasing
-    const preservedRawMetadata = preserveRawMetadata<typeof defaultResponse>(
-      ['catalog_uuids_to_catalog_query_uuids'] as (keyof typeof defaultResponse)[],
+    const preservedRawMetadata = preserveRawMetadata(
+      ['catalog_uuids_to_catalog_query_uuids'],
       result.data,
     );
     const response = camelCaseObject(result.data);
