@@ -9,9 +9,8 @@ import {
 
 /**
  * Resolves the appropriate BFF query function to use for the current route.
- * @param {string} pathname - The current route pathname.
+ * @param pathname - The current route pathname.
  * @param options
- * @returns {Function|null} The BFF query function to use for the current route, or null if no match is found.
  */
 export function resolveBFFQuery(pathname) {
   // Define route patterns and their corresponding query functions

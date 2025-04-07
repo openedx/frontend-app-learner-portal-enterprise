@@ -44,14 +44,6 @@ const App = () => {
         // accessing properties on `undefined` data (due to it being in a hard loading state, `isLoading: true`) by
         // delaying when `@tanstack/react-query` garbage collects inactive queries.
         gcTime: 1000 * 60 * 30, // 30 minutes
-        // Suspense mode on queries enables loading/error states to be caught and handled by a surrounding
-        // `Suspense` component from React, with a fallback UI component to display while the query is resolving.
-        // Generally, queries should be resolved within a route loader so it's "guaranteed" to exist within the UI
-        // components. However, in some cases (e.g., if a query is reset), we attempt to access object properties
-        // on `undefined` data (i.e., `isLoading: true`) resulting in JS errors. To prevent this error from throwing,
-        // by enabling suspenseful queries, we can trigger a loading state via a `Suspense` fallback component while
-        // queries that were removed/reset/garbage collected are re-fetched.
-        suspense: true,
         // To prevent hard loading states if/when query keys change during automatic query background
         // re-fetches, we can set `keepPreviousData` to `true` to keep the previous data until the new
         // data is fetched. By enabling this option, UI components generally will not need to consider

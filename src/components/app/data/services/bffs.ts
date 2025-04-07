@@ -1,21 +1,93 @@
+import type { AxiosResponse } from 'axios';
 import { getConfig } from '@edx/frontend-platform/config';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, snakeCaseObject } from '@edx/frontend-platform/utils';
 
-export const baseLearnerBFFResponse = {
+type MakeBFFRequestArgs<TData = unknown> = {
+  url: string;
+  defaultResponse: TData;
+  options: BFFRequestOptions;
+};
+
+type BFFErrorOrWarning = {
+  developerMessage: string;
+  userMessage: string;
+};
+
+type ResponseWithErrorsAndWarnings = {
+  errors: BFFErrorOrWarning[];
+  warnings: BFFErrorOrWarning[];
+};
+
+type LogErrorsAndWarningsArgs<TData = ResponseWithErrorsAndWarnings> = {
+  url: string;
+  response: TData;
+};
+
+type CustomerAgreement = {
+  uuid: string;
+};
+
+type SubscriptionsSubsidy = {
+  customerAgreement: CustomerAgreement | null;
+  subscriptionLicenses: unknown[];
+  subscriptionLicensesByStatus: {
+    activated: unknown[];
+    assigned: unknown[];
+    expired: unknown[];
+    revoked: unknown[];
+  };
+};
+
+type EnterpriseCustomerUserSubsidies = {
+  subscriptions: SubscriptionsSubsidy;
+};
+
+type BaseBFFResponse = EnterpriseLearnerData & {
+  enterpriseCustomerUserSubsidies: EnterpriseCustomerUserSubsidies;
+  errors: BFFErrorOrWarning[];
+  warnings: BFFErrorOrWarning[];
+};
+
+type BFFDashboardResponse = BaseBFFResponse & {
+  enterpriseCourseEnrollments: unknown[];
+  allEnrollmentsByStatus: {
+    inProgress: unknown[];
+    upcoming: unknown[];
+    completed: unknown[];
+    savedForLater: unknown[];
+  };
+};
+
+type BFFSearchResponse = BaseBFFResponse;
+type BFFAcademyResponse = BaseBFFResponse;
+type BFFSkillsQuizResponse = BaseBFFResponse;
+
+export const baseLearnerBFFResponse: BaseBFFResponse = {
+  enterpriseCustomer: null,
+  enterpriseFeatures: {},
+  activeEnterpriseCustomer: null,
+  allLinkedEnterpriseCustomerUsers: [],
+  staffEnterpriseCustomer: null,
+  shouldUpdateActiveEnterpriseCustomerUser: false,
   enterpriseCustomerUserSubsidies: {
     subscriptions: {
-      customerAgreement: {},
+      customerAgreement: null,
       subscriptionLicenses: [],
-      subscriptionLicensesByStatus: {},
+      subscriptionLicensesByStatus: {
+        activated: [],
+        assigned: [],
+        expired: [],
+        revoked: [],
+      },
     },
   },
   errors: [],
   warnings: [],
 };
 
-export const learnerDashboardBFFResponse = {
+export const learnerDashboardBFFResponse: BFFDashboardResponse = {
   ...baseLearnerBFFResponse,
   enterpriseCourseEnrollments: [],
   allEnrollmentsByStatus: {
@@ -26,25 +98,24 @@ export const learnerDashboardBFFResponse = {
   },
 };
 
-export const learnerSearchBFFResponse = {
+export const learnerSearchBFFResponse: BFFSearchResponse = {
   ...baseLearnerBFFResponse,
 };
 
-export const learnerAcademyBFFResponse = {
+export const learnerAcademyBFFResponse: BFFAcademyResponse = {
   ...baseLearnerBFFResponse,
 };
 
-export const learnerSkillsQuizBFFResponse = {
+export const learnerSkillsQuizBFFResponse: BFFSkillsQuizResponse = {
   ...baseLearnerBFFResponse,
 };
 
 /**
  * Log any errors and warnings from the BFF response.
- * @param {Object} args
- * @param {String} args.url - The URL of the BFF API endpoint.
- * @param {Object} args.response - The camelCased response from the BFF API endpoint.
  */
-export function logErrorsAndWarningsFromBFFResponse({ url, response }) {
+export function logErrorsAndWarningsFromBFFResponse<TData extends BaseBFFResponse>(
+  { url, response }: LogErrorsAndWarningsArgs<TData>,
+) {
   response.errors.forEach((error) => {
     logError(`BFF Error (${url}): ${error.developerMessage}`);
   });
@@ -55,38 +126,24 @@ export function logErrorsAndWarningsFromBFFResponse({ url, response }) {
 
 /**
  * Make a request to the specified BFF API endpoint.
- * @param {Object} args
- * @param {String} args.url - The URL of the BFF API endpoint.
- * @param {Object} args.defaultResponse - The default response to return if unable to resolve the request.
- * @param {Object} args.options - The options to pass to the BFF API endpoint.
- * @param {String} [args.options.enterpriseId] - The UUID of the enterprise customer.
- * @param {String} [args.options.enterpriseSlug] - The slug of the enterprise customer.
- * @returns {Promise<Object>} - The response from the BFF.
  */
-export async function makeBFFRequest({
+export async function makeBFFRequest<TData extends BaseBFFResponse>({
   url,
   defaultResponse,
-  options = {} as BFFRequestOptions,
-}) {
-  const { enterpriseId, enterpriseSlug, ...optionsRest } = options;
-  const snakeCaseOptionsRest = optionsRest ? snakeCaseObject(optionsRest) : {};
-
-  // If neither enterpriseId or enterpriseSlug is provided, return the default response.
-  if (!enterpriseId && !enterpriseSlug) {
-    logError('Enterprise ID or slug is required to make a BFF request.');
-    return defaultResponse;
-  }
+  options,
+}: MakeBFFRequestArgs<TData>) {
+  const { enterpriseSlug, ...optionsRest } = options;
+  const snakeCaseOptionsRest: Record<string, unknown> = optionsRest ? snakeCaseObject(optionsRest) : {};
 
   try {
     const params = {
-      enterprise_customer_uuid: enterpriseId,
       enterprise_customer_slug: enterpriseSlug,
       ...snakeCaseOptionsRest,
     };
 
     // Make request to BFF.
-    const result = await getAuthenticatedHttpClient().post(url, params);
-    const response = camelCaseObject(result.data);
+    const result: AxiosResponse = await getAuthenticatedHttpClient().post(url, params);
+    const response = camelCaseObject<TData>(result.data) as TData;
 
     // Log any errors and warnings from the BFF response.
     logErrorsAndWarningsFromBFFResponse({ url, response });
@@ -102,9 +159,8 @@ export async function makeBFFRequest({
 /**
  * Fetch the learner dashboard BFF API for the specified enterprise customer.
  */
-export async function fetchEnterpriseLearnerDashboard({ enterpriseSlug }: BFFRequestOptions) {
-  const options = { enterpriseSlug } as BFFRequestOptions;
-  return makeBFFRequest({
+export async function fetchEnterpriseLearnerDashboard(options: BFFRequestOptions) {
+  return makeBFFRequest<BFFDashboardResponse>({
     url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/dashboard/`,
     defaultResponse: learnerDashboardBFFResponse,
     options,
@@ -114,9 +170,8 @@ export async function fetchEnterpriseLearnerDashboard({ enterpriseSlug }: BFFReq
 /**
  * Fetch the learner search BFF API for the specified enterprise customer.
  */
-export async function fetchEnterpriseLearnerSearch({ enterpriseSlug }: BFFRequestOptions) {
-  const options = { enterpriseSlug } as BFFRequestOptions;
-  return makeBFFRequest({
+export async function fetchEnterpriseLearnerSearch(options: BFFRequestOptions) {
+  return makeBFFRequest<BFFSearchResponse>({
     url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/search/`,
     defaultResponse: learnerSearchBFFResponse,
     options,
@@ -126,9 +181,8 @@ export async function fetchEnterpriseLearnerSearch({ enterpriseSlug }: BFFReques
 /**
  * Fetch the learner academy BFF API for the specified enterprise customer.
  */
-export async function fetchEnterpriseLearnerAcademy({ enterpriseSlug }: BFFRequestOptions) {
-  const options = { enterpriseSlug } as BFFRequestOptions;
-  return makeBFFRequest({
+export async function fetchEnterpriseLearnerAcademy(options: BFFRequestOptions) {
+  return makeBFFRequest<BFFAcademyResponse>({
     url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/academy/`,
     defaultResponse: learnerAcademyBFFResponse,
     options,
@@ -138,9 +192,8 @@ export async function fetchEnterpriseLearnerAcademy({ enterpriseSlug }: BFFReque
 /**
  * Fetch the learner skills quiz BFF API for the specified enterprise customer.
  */
-export async function fetchEnterpriseLearnerSkillsQuiz({ enterpriseSlug }: BFFRequestOptions) {
-  const options = { enterpriseSlug } as BFFRequestOptions;
-  return makeBFFRequest({
+export async function fetchEnterpriseLearnerSkillsQuiz(options: BFFRequestOptions) {
+  return makeBFFRequest<BFFSkillsQuizResponse>({
     url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/skills-quiz/`,
     defaultResponse: learnerSkillsQuizBFFResponse,
     options,

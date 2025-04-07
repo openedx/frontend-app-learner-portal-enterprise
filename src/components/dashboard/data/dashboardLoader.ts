@@ -2,6 +2,7 @@ import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../a
 import {
   extractEnterpriseCustomer,
   queryEnterpriseCourseEnrollments,
+  queryEnterpriseLearnerDashboardBFF,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
   queryRedeemablePolicies,
@@ -14,10 +15,6 @@ type DashboardRouteParams<Key extends string = string> = RouteParams<Key> & {
 
 interface DashboardLoaderFunctionArgs extends RouteLoaderFunctionArgs {
   params: DashboardRouteParams;
-}
-
-interface DashboardBFFResponse {
-  enterpriseCourseEnrollments: EnterpriseCourseEnrollment[];
 }
 
 /**
@@ -48,7 +45,7 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
     // Attempt to resolve the BFF query for the dashboard.
     const dashboardBFFQuery = resolveBFFQuery(
       requestUrl.pathname,
-    );
+    ) as typeof queryEnterpriseLearnerDashboardBFF;
 
     // Load enrollments, policies, and conditionally redirect for new users
     const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([

@@ -13,6 +13,10 @@ declare global {
 
   // Query Key Factory
   type QueryKeys = import('@lukemorales/query-key-factory').inferQueryKeyStore<typeof queries>;
+  type QueryOptionsStruct = import('@lukemorales/query-key-factory').QueryOptionsStruct<
+    typeof queries,
+    QueryClient
+  >;
 
   // Routes
   type RouteParams<Key extends string = string> = import('react-router-dom').Params<Key>;

@@ -6,15 +6,15 @@ export interface UseEnterpriseCustomerSelectFnArgs {
 }
 
 export interface UseEnterpriseCustomerOptions<TData> {
-  select?: (args: UseEnterpriseCustomerSelectFnArgs) => TData;
+  select?: (data: UseEnterpriseCustomerSelectFnArgs) => TData;
 }
 
 /**
  * Helper hook to retrieve the enterprise customer metadata.
  */
-export default function useEnterpriseCustomer<
-  TData = EnterpriseCustomer | null,
->(options: UseEnterpriseCustomerOptions<TData> = {}) {
+export default function useEnterpriseCustomer<TData = EnterpriseCustomer | null>(
+  options: UseEnterpriseCustomerOptions<TData> = {},
+) {
   const { select } = options;
   return useEnterpriseLearner<TData>({
     select: (enterpriseLearner) => {
