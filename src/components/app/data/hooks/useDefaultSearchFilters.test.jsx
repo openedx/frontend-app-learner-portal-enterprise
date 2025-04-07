@@ -1,14 +1,16 @@
 import { renderHook } from '@testing-library/react-hooks';
 import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catalog-search';
 import { SearchContext, SHOW_ALL_NAME } from '@edx/frontend-enterprise-catalog-search';
+import { AppContext } from '@edx/frontend-platform/react';
 import useDefaultSearchFilters from './useDefaultSearchFilters';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
-import { enterpriseCustomerFactory } from '../services/data/__factories__';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
+import useAlgoliaSearch from './useAlgoliaSearch';
 
 jest.mock('./useEnterpriseCustomer', () => jest.fn());
 jest.mock('./useSearchCatalogs', () => jest.fn());
-
+jest.mock('./useAlgoliaSearch', () => jest.fn());
 jest.mock('../../../../config', () => ({
   ...jest.requireActual('../../../../config'),
   features: {
@@ -31,10 +33,17 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const SearchWrapper = (value) => function BaseSearchWrapper({ children }) {
   // eslint-disable-next-line react/jsx-filename-extension
-  return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>;
+  return (
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+      <SearchContext.Provider value={value}>
+        {children}
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  );
 };
 
 const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };
@@ -45,6 +54,7 @@ describe('useDefaultSearchFilters', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useSearchCatalogs.mockReturnValue([]);
+    useAlgoliaSearch.mockReturnValue({ catalogUuidsToCatalogQueryUuids: {} });
   });
 
   it('should set SHOW_ALL_NAME to 1 if searchCatalogs.length === 0', () => {
@@ -55,7 +65,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND (NOT content_type:video)`);
+    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND NOT content_type:video`);
     expect(mockDispatch).toHaveBeenCalled();
   });
 
@@ -65,7 +75,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND (NOT content_type:video)`);
+    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND NOT content_type:video`);
   });
 
   // TODO: Fix this test
@@ -79,7 +89,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`${frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs)} AND (NOT content_type:video)`);
+    expect(result.current).toEqual(`(${frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs)}) AND NOT content_type:video`);
   });
 
   it('should return aggregated catalog string if searchCatalogs.length === 0', () => {
@@ -88,6 +98,6 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND (NOT content_type:video)`);
+    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND NOT content_type:video`);
   });
 });
