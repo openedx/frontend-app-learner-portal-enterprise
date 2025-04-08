@@ -62,7 +62,7 @@ describe('FilterBuilder', () => {
     expect(result).toBe('(enterprise_catalog_uuids:cat1 OR enterprise_catalog_uuids:cat2) AND NOT content_type:video');
   });
 
-  it('builds OR filter from mapped catalog → query UUIDs', () => {
+  it('builds OR filter from mapped catalog query UUIDs', () => {
     const searchCatalogs = ['cat1', 'cat2', 'catX'];
     const mapping = {
       cat1: 'q1',

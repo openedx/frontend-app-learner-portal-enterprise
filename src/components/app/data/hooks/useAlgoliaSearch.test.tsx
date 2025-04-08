@@ -87,6 +87,7 @@ const expectedOutputBasedOnIndex = ({ isMatchedRoute, isCatalogQueryFiltersEnabl
       searchIndex: expect.objectContaining({
         appId: APP_CONFIG.ALGOLIA_APP_ID,
       }),
+      shouldUseSecuredAlgoliaApiKey: true,
     }
     : {
       catalogUuidsToCatalogQueryUuids: mockEmptyBaseAlgoliaData.catalogUuidsToCatalogQueryUuids,
@@ -96,6 +97,7 @@ const expectedOutputBasedOnIndex = ({ isMatchedRoute, isCatalogQueryFiltersEnabl
       searchIndex: expect.objectContaining({
         appId: APP_CONFIG.ALGOLIA_APP_ID,
       }),
+      shouldUseSecuredAlgoliaApiKey: false,
     };
 };
 

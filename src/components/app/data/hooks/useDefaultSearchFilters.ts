@@ -3,7 +3,6 @@ import { SearchContext, setRefinementAction, SHOW_ALL_NAME } from '@edx/frontend
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
 import useAlgoliaSearch from './useAlgoliaSearch';
-import { isObjEmpty } from '../utils';
 import { FilterBuilder } from '../../../FilterBuilder';
 
 interface SearchContextValue {
@@ -60,6 +59,8 @@ const queryByCatalogQuery = ({
   searchCatalogs,
 }: QueryByCatalogQueryArgs): string => {
   const builder = new FilterBuilder();
+  // If a user has a secured algolia api key but no catalogs query to catalog mapping exist
+  // Sanity check if empty catalogs still returns an empty algolia key, check catalog service
 
   if (searchCatalogs.length > 0) {
     builder.filterByCatalogQueryUuids(searchCatalogs, catalogUuidsToCatalogQueryUuids);
@@ -81,7 +82,7 @@ export default function useDefaultSearchFilters(): string {
   const showAllRefinement = !!refinements[SHOW_ALL_NAME];
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const searchCatalogs = useSearchCatalogs();
-  const { catalogUuidsToCatalogQueryUuids } = useAlgoliaSearch();
+  const { catalogUuidsToCatalogQueryUuids, shouldUseSecuredAlgoliaApiKey } = useAlgoliaSearch();
 
   useEffect(() => {
     // default to showing all catalogs if there are no confined search catalogs
@@ -93,20 +94,26 @@ export default function useDefaultSearchFilters(): string {
   return useMemo(
     () => {
       // Uses the legacy Algolia filter if there is no catalog uuid to catalog query uuid mapping
-      if (isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
-        return queryByCatalog({
+      if (shouldUseSecuredAlgoliaApiKey) {
+        return queryByCatalogQuery({
           searchCatalogs,
-          enterpriseCustomer,
-          showAllRefinement,
+          catalogUuidsToCatalogQueryUuids,
         });
       }
       // If there is a catalog uuid to catalog query uuid mapping, use the secured algolia
       // api key compatible filter query
-      return queryByCatalogQuery({
-        catalogUuidsToCatalogQueryUuids,
+      return queryByCatalog({
+        enterpriseCustomer,
         searchCatalogs,
+        showAllRefinement,
       });
     },
-    [catalogUuidsToCatalogQueryUuids, enterpriseCustomer, searchCatalogs, showAllRefinement],
+    [
+      catalogUuidsToCatalogQueryUuids,
+      enterpriseCustomer,
+      searchCatalogs,
+      shouldUseSecuredAlgoliaApiKey,
+      showAllRefinement,
+    ],
   );
 }

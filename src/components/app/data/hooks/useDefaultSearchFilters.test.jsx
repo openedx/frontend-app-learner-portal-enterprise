@@ -7,6 +7,9 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
 import useAlgoliaSearch from './useAlgoliaSearch';
+import { generateTestPermutations } from '../../../../utils/tests';
+import { features } from '../../../../config';
+import { isObjEmpty } from '../utils';
 
 jest.mock('./useEnterpriseCustomer', () => jest.fn());
 jest.mock('./useSearchCatalogs', () => jest.fn());
@@ -34,6 +37,7 @@ jest.mock('react-router-dom', () => ({
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
+const mockSearchCatalogs = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
 
 const SearchWrapper = (value) => function BaseSearchWrapper({ children }) {
   // eslint-disable-next-line react/jsx-filename-extension
@@ -54,7 +58,7 @@ describe('useDefaultSearchFilters', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useSearchCatalogs.mockReturnValue([]);
-    useAlgoliaSearch.mockReturnValue({ catalogUuidsToCatalogQueryUuids: {} });
+    useAlgoliaSearch.mockReturnValue({ catalogUuidsToCatalogQueryUuids: {}, shouldUseSecuredAlgoliaApiKey: false });
   });
 
   it('should set SHOW_ALL_NAME to 1 if searchCatalogs.length === 0', () => {
@@ -81,7 +85,6 @@ describe('useDefaultSearchFilters', () => {
   // TODO: Fix this test
   it('should return aggregated catalog string if searchCatalogs.length > 0', () => {
     const mockDispatch = jest.fn();
-    const mockSearchCatalogs = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
     useSearchCatalogs.mockReturnValue(mockSearchCatalogs);
     const {
       result,
@@ -99,5 +102,56 @@ describe('useDefaultSearchFilters', () => {
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
     expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND NOT content_type:video`);
+  });
+
+  it.each(
+    generateTestPermutations({
+      catalogUuidsToCatalogQueryUuids: [
+        {
+          'test-catalog-uuid-1': 'test-catalog-query-uuid-1',
+          'test-catalog-uuid-2': 'test-catalog-query-uuid-2',
+        },
+        {},
+      ],
+      searchCatalogs: [
+        mockSearchCatalogs,
+        [],
+      ],
+      enableVideoCatalog: [true, false],
+    }),
+  )('should return query based when the secured algolia api key is enabled (%s)', ({
+    catalogUuidsToCatalogQueryUuids,
+    searchCatalogs,
+    enableVideoCatalog,
+  }) => {
+    const mockDispatch = jest.fn();
+    features.FEATURE_ENABLE_VIDEO_CATALOG = enableVideoCatalog;
+    useSearchCatalogs.mockReturnValue(searchCatalogs);
+    useAlgoliaSearch.mockReturnValue({
+      catalogUuidsToCatalogQueryUuids,
+      shouldUseSecuredAlgoliaApiKey: true,
+    });
+
+    const baseExpectedCatalogOutput = '(enterprise_catalog_query_uuids:test-catalog-query-uuid-1 OR enterprise_catalog_query_uuids:test-catalog-query-uuid-2)';
+    const baseExpectedVideoOutput = 'NOT content_type:video';
+
+    const { result } = renderHook(
+      () => useDefaultSearchFilters(),
+      { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) },
+    );
+    if (searchCatalogs.length === 0 || isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
+      if (enableVideoCatalog) {
+        expect(result.current).toEqual('');
+      } else {
+        expect(result.current).toEqual(baseExpectedVideoOutput);
+      }
+    }
+    if (searchCatalogs.length > 0 && !isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
+      if (enableVideoCatalog) {
+        expect(result.current).toEqual(baseExpectedCatalogOutput);
+      } else {
+        expect(result.current).toEqual(`${baseExpectedCatalogOutput } AND ${ baseExpectedVideoOutput}`);
+      }
+    }
   });
 });

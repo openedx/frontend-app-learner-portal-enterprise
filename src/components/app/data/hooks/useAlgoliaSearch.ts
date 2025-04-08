@@ -2,16 +2,42 @@ import { getConfig } from '@edx/frontend-platform';
 import { useEffect, useMemo } from 'react';
 import algoliasearch from 'algoliasearch';
 import { logError } from '@edx/frontend-platform/logging';
+import { SearchClient, SearchIndex } from 'algoliasearch/lite';
 import useBFF from './useBFF';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useEnterpriseFeatures from './useEnterpriseFeatures';
 import { queryDefaultEmptyFallback } from '../queries';
 
-type ExtractAlgoliaArgs = {
-  data: SecuredAlgoliaApiData | null;
+interface AlgoliaFeatureFlags {
   isCatalogQueryFiltersEnabled: boolean;
   isIndexSupported: boolean;
-};
+}
+
+interface ExtractAlgoliaArgs extends AlgoliaFeatureFlags {
+  data: SecuredAlgoliaApiData | null;
+}
+
+interface SecuredAlgoliaApiMetadata extends AlgoliaFeatureFlags {
+  securedAlgoliaMetadata: SecuredAlgoliaApiData;
+}
+
+// TODO: This should be either extended from or union'ed with (if using types) with a base Config interface/type
+interface AlgoliaConfiguration {
+  ALGOLIA_APP_ID: string;
+  ALGOLIA_SEARCH_API_KEY: string;
+  ALGOLIA_INDEX_NAME: string;
+  ALGOLIA_INDEX_NAME_JOBS: string;
+}
+
+interface Algolia {
+  searchClient: SearchClient | null;
+  searchIndex: SearchIndex | null;
+}
+
+interface AlgoliaWithCatalogFilters extends Algolia {
+  shouldUseSecuredAlgoliaApiKey: boolean;
+  catalogUuidsToCatalogQueryUuids: SecuredAlgoliaApiData['catalogUuidsToCatalogQueryUuids'];
+}
 
 /**
  * Extracts secured Algolia metadata from backend data based on feature and index support flags.
@@ -65,17 +91,17 @@ const extractAlgolia = ({
  * - `isIndexSupported`: Whether the provided index supports secured Algolia.
  * - `securedAlgoliaMetadata`: Metadata containing the secured API key and catalog-query UUID mapping.
  */
-const useSecuredAlgoliaMetadata = (indexName: string | null) => {
-  const config = getConfig();
-  const unsupportedSecuredAlgoliaIndices = [config.ALGOLIA_INDEX_NAME_JOBS];
+const useSecuredAlgoliaMetadata = (indexName: string | ''): SecuredAlgoliaApiMetadata => {
+  const config: AlgoliaConfiguration = getConfig();
+  const unsupportedSecuredAlgoliaIndices: string[] = [config.ALGOLIA_INDEX_NAME_JOBS];
   const enterpriseCustomerResult = useEnterpriseCustomer();
-  const enterpriseCustomer = enterpriseCustomerResult.data!;
+  const enterpriseCustomer: EnterpriseCustomer = enterpriseCustomerResult.data!;
   const enterpriseFeaturesResult = useEnterpriseFeatures();
-  const enterpriseFeatures = enterpriseFeaturesResult.data!;
+  const enterpriseFeatures: EnterpriseFeatures = enterpriseFeaturesResult.data!;
 
   // Enable catalog filters only if the waffle flag is enabled and Algolia app id is defined
-  const isCatalogQueryFiltersEnabled = (
-    enterpriseFeatures?.catalogQuerySearchFiltersEnabled && !!config.ALGOLIA_APP_ID
+  const isCatalogQueryFiltersEnabled = !!(
+    enterpriseFeatures?.catalogQuerySearchFiltersEnabled && config.ALGOLIA_APP_ID
   );
   // An index is "supported" if it contains customer-specific data.
   // Supported indices should use the secured API key; unsupported indexes
@@ -110,11 +136,11 @@ const useSecuredAlgoliaMetadata = (indexName: string | null) => {
       && !securedAlgoliaMetadata?.securedAlgoliaApiKey) {
       logError(
         `Secured Algolia API key is missing, or no applicable
-            for enterprise_customer_uuid: ${enterpriseCustomer.uuid}.
-            isCatalogQueryFiltersEnabled: ${isCatalogQueryFiltersEnabled},
-            indexName: ${indexName},
-            securedAlgoliaMetadata: ${JSON.stringify(securedAlgoliaMetadata)}
-            `,
+          for enterprise_customer_uuid: ${enterpriseCustomer.uuid}.
+          isCatalogQueryFiltersEnabled: ${isCatalogQueryFiltersEnabled},
+          indexName: ${indexName},
+          securedAlgoliaMetadata: ${JSON.stringify(securedAlgoliaMetadata)}
+          `,
       );
     }
   }, [
@@ -152,7 +178,7 @@ const useSecuredAlgoliaMetadata = (indexName: string | null) => {
  * - `searchIndex`: The configured search index instance.
  * - `catalogUuidsToCatalogQueryUuids`: A mapping used for filtering catalog results.
  */
-const useAlgoliaSearch = (indexName: string | null = null) => {
+const useAlgoliaSearch = (indexName: string | '' = ''): AlgoliaWithCatalogFilters => {
   const config = getConfig();
 
   const {
@@ -161,12 +187,15 @@ const useAlgoliaSearch = (indexName: string | null = null) => {
     isIndexSupported,
   } = useSecuredAlgoliaMetadata(indexName);
 
+  const shouldUseSecuredAlgoliaApiKey = (
+    isCatalogQueryFiltersEnabled
+    && isIndexSupported
+    && !!securedAlgoliaMetadata.securedAlgoliaApiKey
+  );
+
   // Based on the waffle flag and supported indexes, we will use the secured algolia
   // key or default back to the legacy initialization of the search client and indexes
-  const algoliaSearchApiKey = (
-    isCatalogQueryFiltersEnabled
-  && isIndexSupported
-  && securedAlgoliaMetadata.securedAlgoliaApiKey)
+  const algoliaSearchApiKey = shouldUseSecuredAlgoliaApiKey
     ? securedAlgoliaMetadata.securedAlgoliaApiKey
     : config.ALGOLIA_SEARCH_API_KEY;
 
@@ -177,17 +206,19 @@ const useAlgoliaSearch = (indexName: string | null = null) => {
       return {
         searchClient: null,
         searchIndex: null,
+        shouldUseSecuredAlgoliaApiKey,
         catalogUuidsToCatalogQueryUuids: {},
       };
     }
-    const searchClient = algoliasearch(
+    const searchClient: SearchClient = algoliasearch(
       config.ALGOLIA_APP_ID,
       algoliaSearchApiKey,
     );
-    const searchIndex = searchClient.initIndex(indexName || config.ALGOLIA_INDEX_NAME);
+    const searchIndex: SearchIndex = searchClient.initIndex(indexName || config.ALGOLIA_INDEX_NAME);
     return {
       searchClient,
       searchIndex,
+      shouldUseSecuredAlgoliaApiKey,
       catalogUuidsToCatalogQueryUuids: securedAlgoliaMetadata.catalogUuidsToCatalogQueryUuids,
     };
   }, [
@@ -196,6 +227,7 @@ const useAlgoliaSearch = (indexName: string | null = null) => {
     config.ALGOLIA_INDEX_NAME,
     indexName,
     securedAlgoliaMetadata.catalogUuidsToCatalogQueryUuids,
+    shouldUseSecuredAlgoliaApiKey,
   ]);
 };
 
