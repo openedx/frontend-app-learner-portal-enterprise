@@ -24,7 +24,6 @@ const APP_CONFIG = {
   ALGOLIA_APP_ID: 'test-algolia-app-id',
 };
 
-// jest.mock('./useEnterpriseCustomer');
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useEnterpriseFeatures');
 jest.mock('../services', () => ({
