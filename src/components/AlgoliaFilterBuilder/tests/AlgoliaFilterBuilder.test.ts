@@ -1,4 +1,4 @@
-import FilterBuilder from '../FilterBuilder';
+import AlgoliaFilterBuilder from '../AlgoliaFilterBuilder';
 import { features } from '../../../config';
 
 jest.mock('../../../config', () => ({
@@ -8,24 +8,24 @@ jest.mock('../../../config', () => ({
   },
 }));
 
-describe('FilterBuilder', () => {
+describe('AlgoliaFilterBuilder', () => {
   it('builds a basic AND clause', () => {
-    const result = new FilterBuilder().and('type', 'course').build();
+    const result = new AlgoliaFilterBuilder().and('type', 'course').build();
     expect(result).toBe('type:course');
   });
 
   it('builds an OR clause with multiple values', () => {
-    const result = new FilterBuilder().or('level', ['beginner', 'intermediate']).build();
+    const result = new AlgoliaFilterBuilder().or('level', ['beginner', 'intermediate']).build();
     expect(result).toBe('(level:beginner OR level:intermediate)');
   });
 
   it('handles raw negation clauses', () => {
-    const result = new FilterBuilder().andRaw('NOT content_type:video').build();
+    const result = new AlgoliaFilterBuilder().andRaw('NOT content_type:video').build();
     expect(result).toBe('NOT content_type:video');
   });
 
   it('chains multiple filters correctly', () => {
-    const result = new FilterBuilder()
+    const result = new AlgoliaFilterBuilder()
       .and('type', 'course')
       .or('level', ['beginner', 'advanced'])
       .andRaw('NOT content_type:video')
@@ -35,17 +35,17 @@ describe('FilterBuilder', () => {
   });
 
   it('skips empty values in or()', () => {
-    const result = new FilterBuilder().or('level', []).build();
+    const result = new AlgoliaFilterBuilder().or('level', []).build();
     expect(result).toBe('');
   });
 
   it('returns empty string when no filters are applied', () => {
-    const result = new FilterBuilder().build();
+    const result = new AlgoliaFilterBuilder().build();
     expect(result).toBe('');
   });
 
   it('builds filter with enterprise UUID only (no search catalogs)', () => {
-    const result = new FilterBuilder()
+    const result = new AlgoliaFilterBuilder()
       .filterByEnterpriseCustomerUuid('ent-123')
       .excludeVideoContentIfFeatureDisabled()
       .build();
@@ -54,7 +54,7 @@ describe('FilterBuilder', () => {
   });
 
   it('builds OR filter for multiple catalog UUIDs', () => {
-    const result = new FilterBuilder()
+    const result = new AlgoliaFilterBuilder()
       .filterByCatalogUuids(['cat1', 'cat2'])
       .excludeVideoContentIfFeatureDisabled()
       .build();
@@ -69,7 +69,7 @@ describe('FilterBuilder', () => {
       cat2: 'q2',
     };
 
-    const result = new FilterBuilder()
+    const result = new AlgoliaFilterBuilder()
       .filterByCatalogQueryUuids(searchCatalogs, mapping)
       .excludeVideoContentIfFeatureDisabled()
       .build();
@@ -85,7 +85,7 @@ describe('FilterBuilder', () => {
     (featureFlag) => {
       features.FEATURE_ENABLE_VIDEO_CATALOG = featureFlag;
 
-      const result = new FilterBuilder()
+      const result = new AlgoliaFilterBuilder()
         .filterByEnterpriseCustomerUuid('ent-123')
         .excludeVideoContentIfFeatureDisabled()
         .build();

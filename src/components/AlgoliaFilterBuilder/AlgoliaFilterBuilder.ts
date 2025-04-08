@@ -10,7 +10,7 @@ import { features } from '../../config';
  *
  * Example:
  * ```ts
- * const filter = new FilterBuilder()
+ * const filter = new AlgoliaFilterBuilder()
  *   .and('type', 'course')
  *   .or('level', ['beginner', 'intermediate'])
  *   .andRaw('NOT content_type:video')
@@ -32,7 +32,7 @@ import { features } from '../../config';
  * - `.excludeVideoContentIfFeatureDisabled()`
  * - `.build()`
  */
-export default class FilterBuilder {
+export default class AlgoliaFilterBuilder {
   private filters: string[] = [];
 
   /**
@@ -40,10 +40,10 @@ export default class FilterBuilder {
    *
    * @param attribute - The name of the attribute to filter on.
    * @param value - The value the attribute must match.
-   * @returns The current FilterBuilder instance for chaining.
+   * @returns The current AlgoliaFilterBuilder instance for chaining.
    *
    * @example
-   *   new FilterBuilder().and('type', 'course').build()
+   *   new AlgoliaFilterBuilder().and('type', 'course').build()
    *   // → "type:course"
    */
   and(attribute: string, value: string) {
@@ -58,10 +58,10 @@ export default class FilterBuilder {
    *
    * @param attribute - The name of the attribute to filter on.
    * @param values - An array of values for which to construct the OR clause.
-   * @returns The current FilterBuilder instance for chaining.
+   * @returns The current AlgoliaFilterBuilder instance for chaining.
    *
    * @example
-   *   new FilterBuilder().or('level', ['beginner', 'intermediate']).build()
+   *   new AlgoliaFilterBuilder().or('level', ['beginner', 'intermediate']).build()
    *   // → "(level:beginner OR level:intermediate)"
    */
   or(attribute: string, values: string[]) {
@@ -77,10 +77,10 @@ export default class FilterBuilder {
    * Adds a custom raw clause (e.g., negations, ranges, or advanced syntax).
    *
    * @param clause - A raw filter clause to include as-is.
-   * @returns The current FilterBuilder instance for chaining.
+   * @returns The current AlgoliaFilterBuilder instance for chaining.
    *
    * @example
-   *   new FilterBuilder().andRaw('NOT content_type:video').build()
+   *   new AlgoliaFilterBuilder().andRaw('NOT content_type:video').build()
    *   // → "NOT content_type:video"
    */
   andRaw(clause: string) {
@@ -95,12 +95,12 @@ export default class FilterBuilder {
    *
    * @param searchCatalogs - Array of catalog UUIDs from the search context.
    * @param catalogUuidsToCatalogQueryUuids - Mapping from catalog UUID → query UUID.
-   * @returns The current FilterBuilder instance for chaining.
+   * @returns The current AlgoliaFilterBuilder instance for chaining.
    *
    * @example
    *   const catalogs = ['cat1', 'cat2'];
    *   const mapping = { cat1: 'q1', cat2: 'q2' };
-   *   new FilterBuilder().filterByCatalogQueryUuids(catalogs, mapping).build()
+   *   new AlgoliaFilterBuilder().filterByCatalogQueryUuids(catalogs, mapping).build()
    *   // → "(enterprise_catalog_query_uuids:q1 OR enterprise_catalog_query_uuids:q2)"
    */
   filterByCatalogQueryUuids(
@@ -118,10 +118,10 @@ export default class FilterBuilder {
    * Conditionally excludes video content using the `FEATURE_ENABLE_VIDEO_CATALOG` flag.
    * Adds the clause `NOT content_type:video` if the feature is disabled.
    *
-   * @returns The current FilterBuilder instance for chaining.
+   * @returns The current AlgoliaFilterBuilder instance for chaining.
    *
    * @example
-   *   new FilterBuilder().excludeVideoContentIfFeatureDisabled().build()
+   *   new AlgoliaFilterBuilder().excludeVideoContentIfFeatureDisabled().build()
    *   // → "NOT content_type:video" (if feature flag is off)
    *   // → "" (if feature flag is on)
    */
@@ -136,10 +136,10 @@ export default class FilterBuilder {
    * Adds a filter for a single enterprise customer UUID.
    *
    * @param uuid - The UUID of the enterprise customer.
-   * @returns The current FilterBuilder instance for chaining.
+   * @returns The current AlgoliaFilterBuilder instance for chaining.
    *
    * @example
-   *   new FilterBuilder().filterByEnterpriseCustomerUuid('abc-123').build()
+   *   new AlgoliaFilterBuilder().filterByEnterpriseCustomerUuid('abc-123').build()
    *   // → "enterprise_customer_uuids:abc-123"
    */
   filterByEnterpriseCustomerUuid(uuid: string) {
@@ -153,10 +153,10 @@ export default class FilterBuilder {
    * Adds a filter for one or more catalog UUIDs.
    *
    * @param uuids - Array of catalog UUIDs to include.
-   * @returns The current FilterBuilder instance for chaining.
+   * @returns The current AlgoliaFilterBuilder instance for chaining.
    *
    * @example
-   *   new FilterBuilder().filterByCatalogUuids(['c1', 'c2']).build()
+   *   new AlgoliaFilterBuilder().filterByCatalogUuids(['c1', 'c2']).build()
    *   // → "(enterprise_catalog_uuids:c1 OR enterprise_catalog_uuids:c2)"
    */
   filterByCatalogUuids(uuids: string[]) {
@@ -169,7 +169,7 @@ export default class FilterBuilder {
    * @returns A complete filter expression with `AND`-joined clauses.
    *
    * @example
-   *   new FilterBuilder()
+   *   new AlgoliaFilterBuilder()
    *     .and('type', 'course')
    *     .or('level', ['beginner', 'intermediate'])
    *     .andRaw('NOT content_type:video')

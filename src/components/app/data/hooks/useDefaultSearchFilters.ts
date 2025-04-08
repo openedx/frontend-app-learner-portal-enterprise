@@ -3,7 +3,7 @@ import { SearchContext, setRefinementAction, SHOW_ALL_NAME } from '@edx/frontend
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
 import useAlgoliaSearch from './useAlgoliaSearch';
-import { FilterBuilder } from '../../../FilterBuilder';
+import { AlgoliaFilterBuilder } from '../../../AlgoliaFilterBuilder';
 
 interface SearchContextValue {
   refinements: Record<string, any>;
@@ -37,7 +37,7 @@ const queryByCatalog = ({
   enterpriseCustomer,
   showAllRefinement,
 }: QueryByCatalogArgs) => {
-  const builder = new FilterBuilder();
+  const builder = new AlgoliaFilterBuilder();
 
   if (showAllRefinement || searchCatalogs.length === 0) {
     builder.filterByEnterpriseCustomerUuid(enterpriseCustomer.uuid);
@@ -62,7 +62,7 @@ const queryByCatalogQuery = ({
   catalogUuidsToCatalogQueryUuids,
   showAllRefinement,
 }: QueryByCatalogQueryArgs) => {
-  const builder = new FilterBuilder();
+  const builder = new AlgoliaFilterBuilder();
   if (!showAllRefinement && searchCatalogs.length > 0) {
     builder.filterByCatalogQueryUuids(searchCatalogs, catalogUuidsToCatalogQueryUuids);
   }
