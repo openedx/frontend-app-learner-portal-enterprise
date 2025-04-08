@@ -2,7 +2,6 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, snakeCaseObject } from '@edx/frontend-platform/utils';
-import _cloneDeep from 'lodash.clonedeep';
 
 export const baseLearnerBFFResponse = {
   enterpriseCustomer: {},
@@ -93,11 +92,16 @@ export async function makeBFFRequest({
       ...snakeCaseOptionsRest,
     };
 
-    // Make request to BFF.
     const result = await getAuthenticatedHttpClient().post(url, params);
-    const responseData = _cloneDeep(result.data);
-    const response = camelCaseObject(result.data);
-    response.catalogUuidsToCatalogQueryUuids = responseData.catalog_uuids_to_catalog_query_uuids;
+    const {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      catalog_uuids_to_catalog_query_uuids: catalogUuidsToCatalogQueryUuids,
+      ...originalResponseData
+    } = result.data;
+    const response = {
+      ...camelCaseObject(originalResponseData),
+      catalogUuidsToCatalogQueryUuids,
+    };
 
     // Log any errors and warnings from the BFF response.
     logErrorsAndWarningsFromBFFResponse({ url, response });

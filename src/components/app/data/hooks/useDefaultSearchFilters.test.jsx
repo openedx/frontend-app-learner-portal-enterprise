@@ -38,9 +38,10 @@ jest.mock('react-router-dom', () => ({
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockSearchCatalogs = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
+const emptyRefinements = { refinements: {} };
+const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };
 
 const SearchWrapper = (value) => function BaseSearchWrapper({ children }) {
-  // eslint-disable-next-line react/jsx-filename-extension
   return (
     <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
       <SearchContext.Provider value={value}>
@@ -49,8 +50,6 @@ const SearchWrapper = (value) => function BaseSearchWrapper({ children }) {
     </AppContext.Provider>
   );
 };
-
-const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };
 
 // TODO: Test and hook may have to be refactored
 describe('useDefaultSearchFilters', () => {
@@ -118,11 +117,13 @@ describe('useDefaultSearchFilters', () => {
         [],
       ],
       enableVideoCatalog: [true, false],
+      showAllRefinements: [true, false],
     }),
   )('should return query based when the secured algolia api key is enabled (%s)', ({
     catalogUuidsToCatalogQueryUuids,
     searchCatalogs,
     enableVideoCatalog,
+    showAllRefinements,
   }) => {
     const mockDispatch = jest.fn();
     features.FEATURE_ENABLE_VIDEO_CATALOG = enableVideoCatalog;
@@ -131,13 +132,14 @@ describe('useDefaultSearchFilters', () => {
       catalogUuidsToCatalogQueryUuids,
       shouldUseSecuredAlgoliaApiKey: true,
     });
+    const refinements = showAllRefinements ? refinementsShowAll : emptyRefinements;
 
     const baseExpectedCatalogOutput = '(enterprise_catalog_query_uuids:test-catalog-query-uuid-1 OR enterprise_catalog_query_uuids:test-catalog-query-uuid-2)';
     const baseExpectedVideoOutput = 'NOT content_type:video';
 
     const { result } = renderHook(
       () => useDefaultSearchFilters(),
-      { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) },
+      { wrapper: SearchWrapper({ ...refinements, dispatch: mockDispatch }) },
     );
     if (searchCatalogs.length === 0 || isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
       if (enableVideoCatalog) {
@@ -146,7 +148,7 @@ describe('useDefaultSearchFilters', () => {
         expect(result.current).toEqual(baseExpectedVideoOutput);
       }
     }
-    if (searchCatalogs.length > 0 && !isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
+    if ((!showAllRefinements && searchCatalogs.length > 0) && !isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
       if (enableVideoCatalog) {
         expect(result.current).toEqual(baseExpectedCatalogOutput);
       } else {

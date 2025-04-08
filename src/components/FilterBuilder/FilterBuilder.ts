@@ -46,7 +46,7 @@ export default class FilterBuilder {
    *   new FilterBuilder().and('type', 'course').build()
    *   // → "type:course"
    */
-  and(attribute: string, value: string): this {
+  and(attribute: string, value: string) {
     if (attribute && value) {
       this.filters.push(`${attribute}:${value}`);
     }
@@ -64,7 +64,7 @@ export default class FilterBuilder {
    *   new FilterBuilder().or('level', ['beginner', 'intermediate']).build()
    *   // → "(level:beginner OR level:intermediate)"
    */
-  or(attribute: string, values: string[]): this {
+  or(attribute: string, values: string[]) {
     const validValues = values.filter(Boolean);
     if (attribute && validValues.length > 0) {
       const clause = validValues.map(v => `${attribute}:${v}`).join(' OR ');
@@ -83,7 +83,7 @@ export default class FilterBuilder {
    *   new FilterBuilder().andRaw('NOT content_type:video').build()
    *   // → "NOT content_type:video"
    */
-  andRaw(clause: string): this {
+  andRaw(clause: string) {
     if (clause && clause.trim().length > 0) {
       this.filters.push(clause);
     }
@@ -106,7 +106,7 @@ export default class FilterBuilder {
   filterByCatalogQueryUuids(
     searchCatalogs: string[],
     catalogUuidsToCatalogQueryUuids: Record<string, string>,
-  ): this {
+  ) {
     const resolvedUuids = searchCatalogs
       .map(catalog => catalogUuidsToCatalogQueryUuids[catalog])
       .filter(Boolean);
@@ -125,7 +125,7 @@ export default class FilterBuilder {
    *   // → "NOT content_type:video" (if feature flag is off)
    *   // → "" (if feature flag is on)
    */
-  excludeVideoContentIfFeatureDisabled(): this {
+  excludeVideoContentIfFeatureDisabled() {
     if (!features.FEATURE_ENABLE_VIDEO_CATALOG) {
       this.andRaw('NOT content_type:video');
     }
@@ -142,7 +142,7 @@ export default class FilterBuilder {
    *   new FilterBuilder().filterByEnterpriseCustomerUuid('abc-123').build()
    *   // → "enterprise_customer_uuids:abc-123"
    */
-  filterByEnterpriseCustomerUuid(uuid: string): this {
+  filterByEnterpriseCustomerUuid(uuid: string) {
     if (uuid) {
       this.and('enterprise_customer_uuids', uuid);
     }
@@ -159,7 +159,7 @@ export default class FilterBuilder {
    *   new FilterBuilder().filterByCatalogUuids(['c1', 'c2']).build()
    *   // → "(enterprise_catalog_uuids:c1 OR enterprise_catalog_uuids:c2)"
    */
-  filterByCatalogUuids(uuids: string[]): this {
+  filterByCatalogUuids(uuids: string[]) {
     return this.or('enterprise_catalog_uuids', uuids);
   }
 
@@ -176,7 +176,7 @@ export default class FilterBuilder {
    *     .build()
    *   // → "type:course AND (level:beginner OR level:intermediate) AND NOT content_type:video"
    */
-  build(): string {
+  build() {
     return this.filters.join(' AND ');
   }
 }

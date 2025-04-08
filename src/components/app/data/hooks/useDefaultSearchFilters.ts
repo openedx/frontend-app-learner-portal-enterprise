@@ -10,15 +10,17 @@ interface SearchContextValue {
   dispatch: (action: any) => void;
 }
 
-interface QueryByCatalogArgs {
-  searchCatalogs: string[];
-  enterpriseCustomer: EnterpriseCustomer;
+type CommonQueryArgs = {
   showAllRefinement: boolean;
+  searchCatalogs: string[];
+};
+
+interface QueryByCatalogArgs extends CommonQueryArgs {
+  enterpriseCustomer: EnterpriseCustomer;
 }
 
-interface QueryByCatalogQueryArgs {
+interface QueryByCatalogQueryArgs extends CommonQueryArgs {
   catalogUuidsToCatalogQueryUuids: Record<string, string>;
-  searchCatalogs: string[];
 }
 
 /**
@@ -34,7 +36,7 @@ const queryByCatalog = ({
   searchCatalogs,
   enterpriseCustomer,
   showAllRefinement,
-}: QueryByCatalogArgs): string => {
+}: QueryByCatalogArgs) => {
   const builder = new FilterBuilder();
 
   if (showAllRefinement || searchCatalogs.length === 0) {
@@ -52,17 +54,16 @@ const queryByCatalog = ({
  *
  * @param catalogUuidsToCatalogQueryUuids - Mapping from catalog UUID to query UUID
  * @param searchCatalogs - Catalog UUIDs to resolve and filter on
+ * @param showAllRefinement
  * @returns A composed Algolia filter string
  */
 const queryByCatalogQuery = ({
-  catalogUuidsToCatalogQueryUuids,
   searchCatalogs,
-}: QueryByCatalogQueryArgs): string => {
+  catalogUuidsToCatalogQueryUuids,
+  showAllRefinement,
+}: QueryByCatalogQueryArgs) => {
   const builder = new FilterBuilder();
-  // If a user has a secured algolia api key but no catalogs query to catalog mapping exist
-  // Sanity check if empty catalogs still returns an empty algolia key, check catalog service
-
-  if (searchCatalogs.length > 0) {
+  if (!showAllRefinement && searchCatalogs.length > 0) {
     builder.filterByCatalogQueryUuids(searchCatalogs, catalogUuidsToCatalogQueryUuids);
   }
 
@@ -90,18 +91,18 @@ export default function useDefaultSearchFilters(): string {
       dispatch(setRefinementAction(SHOW_ALL_NAME, 1));
     }
   }, [dispatch, searchCatalogs, showAllRefinement]);
-
   return useMemo(
     () => {
-      // Uses the legacy Algolia filter if there is no catalog uuid to catalog query uuid mapping
+      // If there is a catalog uuid to catalog query uuid mapping, use the secured algolia
+      // api key compatible filter query
       if (shouldUseSecuredAlgoliaApiKey) {
         return queryByCatalogQuery({
           searchCatalogs,
           catalogUuidsToCatalogQueryUuids,
+          showAllRefinement,
         });
       }
-      // If there is a catalog uuid to catalog query uuid mapping, use the secured algolia
-      // api key compatible filter query
+      // Uses the legacy Algolia filter if there is no catalog uuid to catalog query uuid mapping
       return queryByCatalog({
         enterpriseCustomer,
         searchCatalogs,

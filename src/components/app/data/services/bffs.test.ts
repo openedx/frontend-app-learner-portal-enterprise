@@ -50,6 +50,7 @@ const mockSecuredAlgoliaMetadata = {
   secured_algolia_api_key: 'fake_api_key',
 };
 const mockBaseLearnerBFFResponse = {
+  ...mockSecuredAlgoliaMetadata,
   enterprise_customer_user_subsidies: {
     subscriptions: {
       customer_agreement: {
@@ -122,7 +123,6 @@ const mockBaseLearnerBFFResponse = {
 
 const mockBaseBFFResponse = {
   ...mockBaseLearnerBFFResponse,
-  ...mockSecuredAlgoliaMetadata,
 };
 
 const mockBFFDashboardResponse = {
