@@ -62,9 +62,12 @@ const Search = () => {
 
   const { refinements } = useContext(SearchContext);
   const filters = useDefaultSearchFilters();
+
   const {
     searchIndex,
     searchClient,
+    shouldUseSecuredAlgoliaApiKey,
+    hasCatalogUuidToCatalogQueryUuidMapping,
   } = useAlgoliaSearch();
 
   // Flag to toggle highlights visibility
@@ -127,7 +130,7 @@ const Search = () => {
   const { content_type: contentType } = refinements;
   const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
-  if (!searchClient) {
+  if (shouldUseSecuredAlgoliaApiKey && !hasCatalogUuidToCatalogQueryUuidMapping) {
     return (
       <>
         <CustomSubscriptionExpirationModal />

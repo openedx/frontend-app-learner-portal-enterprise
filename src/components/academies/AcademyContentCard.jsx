@@ -1,24 +1,30 @@
 import { useEffect, useState } from 'react';
-import {
-  Button,
-  CardGrid,
-  Spinner,
-} from '@openedx/paragon';
+import { Button, CardGrid, Spinner } from '@openedx/paragon';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
-import { LEARNING_TYPE_COURSE, LEARNING_TYPE_EXECUTIVE_EDUCATION } from '@edx/frontend-enterprise-catalog-search/data/constants';
+import {
+  LEARNING_TYPE_COURSE,
+  LEARNING_TYPE_EXECUTIVE_EDUCATION,
+} from '@edx/frontend-enterprise-catalog-search/data/constants';
 import SearchCourseCard from '../search/SearchCourseCard';
-import { useEnterpriseCustomer } from '../app/data';
+import { useAlgoliaSearch, useEnterpriseCustomer } from '../app/data';
+import { SearchUnavailableAlert } from '../search-unavailable-alert';
 
 const AcademyContentCard = ({
-  courseIndex, academyUUID, academyTitle, academyURL, tags,
+  academyUUID, academyTitle, academyURL, tags,
 }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [isAlgoliaLoading, setIsAlgoliaLoading] = useState(true);
   const [courses, setCourses] = useState([]);
   const [showAllOcmCourses, setShowAllOcmCourses] = useState(false);
+
+  const {
+    searchIndex: courseIndex,
+    shouldUseSecuredAlgoliaApiKey,
+    hasCatalogUuidToCatalogQueryUuidMapping,
+  } = useAlgoliaSearch();
 
   const [selectedTag, setSelectedTag] = useState();
   const intl = useIntl();
@@ -33,13 +39,14 @@ const AcademyContentCard = ({
         const searchFacetFilters = selectedTag ? [
           ['content_type:course'],
           `academy_uuids:${academyUUID}`,
-          `enterprise_customer_uuids:${enterpriseCustomer.uuid}`,
           `academy_tags:${selectedTag}`,
         ] : [
           ['content_type:course'],
           `academy_uuids:${academyUUID}`,
-          `enterprise_customer_uuids:${enterpriseCustomer.uuid}`,
         ];
+        if (!shouldUseSecuredAlgoliaApiKey) {
+          searchFacetFilters.push(`enterprise_customer_uuids:${enterpriseCustomer.uuid}`);
+        }
         const { hits, nbHits } = await courseIndex.search('', {
           facetFilters: searchFacetFilters,
           hitsPerPage: 100,
@@ -55,7 +62,14 @@ const AcademyContentCard = ({
       }
       fetchCourses();
     },
-    [courseIndex, academyUUID, selectedTag, enterpriseCustomer],
+    [
+      courseIndex,
+      academyUUID,
+      selectedTag,
+      enterpriseCustomer,
+      shouldUseSecuredAlgoliaApiKey,
+      hasCatalogUuidToCatalogQueryUuidMapping,
+    ],
   );
 
   courses.forEach(course => {
@@ -102,6 +116,10 @@ const AcademyContentCard = ({
   }) => {
     if (contentLength <= 0) {
       return null;
+    }
+
+    if (shouldUseSecuredAlgoliaApiKey && !hasCatalogUuidToCatalogQueryUuidMapping) {
+      return <SearchUnavailableAlert />;
     }
 
     return (
@@ -205,11 +223,6 @@ const AcademyContentCard = ({
 };
 
 AcademyContentCard.propTypes = {
-  courseIndex: PropTypes.shape({
-    appId: PropTypes.string,
-    indexName: PropTypes.string,
-    search: PropTypes.func.isRequired,
-  }).isRequired,
   academyUUID: PropTypes.string.isRequired,
   academyTitle: PropTypes.string.isRequired,
   academyURL: PropTypes.string.isRequired,

@@ -87,7 +87,11 @@ export default function useDefaultSearchFilters(): string {
   const showAllRefinement = !!refinements[SHOW_ALL_NAME];
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const searchCatalogs = useSearchCatalogs();
-  const { catalogUuidsToCatalogQueryUuids, shouldUseSecuredAlgoliaApiKey } = useAlgoliaSearch();
+  const {
+    catalogUuidsToCatalogQueryUuids,
+    shouldUseSecuredAlgoliaApiKey,
+    hasCatalogUuidToCatalogQueryUuidMapping,
+  } = useAlgoliaSearch();
 
   useEffect(() => {
     // default to showing all catalogs if there are no confined search catalogs
@@ -99,7 +103,8 @@ export default function useDefaultSearchFilters(): string {
     () => {
       // If there is a catalog uuid to catalog query uuid mapping, use the secured algolia
       // api key compatible filter query
-      if (shouldUseSecuredAlgoliaApiKey) {
+      console.log(shouldUseSecuredAlgoliaApiKey, hasCatalogUuidToCatalogQueryUuidMapping);
+      if (shouldUseSecuredAlgoliaApiKey && hasCatalogUuidToCatalogQueryUuidMapping) {
         return queryByCatalogQuery({
           searchCatalogs,
           catalogUuidsToCatalogQueryUuids,
@@ -118,6 +123,7 @@ export default function useDefaultSearchFilters(): string {
     [
       catalogUuidsToCatalogQueryUuids,
       enterpriseCustomer,
+      hasCatalogUuidToCatalogQueryUuidMapping,
       searchCatalogs,
       shouldUseSecuredAlgoliaApiKey,
       showAllRefinement,
