@@ -41,7 +41,9 @@ describe('<CourseSection />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
-  it('should handle collapsible toggle', () => {
+
+  it('should handle collapsible toggle', async () => {
+    const user = userEvent.setup();
     const title = 'Upcoming';
     const courseRuns = [...Array(3)].map(() => createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.upcoming }));
     render(
@@ -50,13 +52,9 @@ describe('<CourseSection />', () => {
         courseRuns={courseRuns}
       />,
     );
-
     expect(screen.getByText(title));
-
-    userEvent.click(screen.getByText(title));
-
+    await user.click(screen.getByText(title));
     expect(frontendEnterpriseUtils.sendEnterpriseTrackEvent).toHaveBeenCalled();
-
     expect(screen.getByText(`${title} (${courseRuns.length})`));
   });
 

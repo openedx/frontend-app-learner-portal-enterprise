@@ -1,5 +1,6 @@
-import { renderHook } from '@testing-library/react-hooks';
-import { render, screen, waitFor } from '@testing-library/react';
+import {
+  render, renderHook, screen, waitFor,
+} from '@testing-library/react';
 import {
   BrowserRouter, MemoryRouter, useLocation, useParams,
 } from 'react-router-dom';

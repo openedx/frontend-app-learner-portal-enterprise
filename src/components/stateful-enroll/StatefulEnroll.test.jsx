@@ -42,7 +42,8 @@ describe('StatefulEnroll', () => {
   const clickEnrollButton = async () => {
     expect(useStatefulEnroll).toHaveBeenCalledTimes(1);
     const enrollBtn = screen.getByText('Enroll');
-    userEvent.click(enrollBtn);
+    const user = userEvent.setup();
+    await user.click(enrollBtn);
     const onClickSpy = jest.spyOn(mockCallbackProps, 'onClick');
     expect(onClickSpy).toHaveBeenCalledTimes(1);
     expect(mockRedeem).toHaveBeenCalledTimes(1);

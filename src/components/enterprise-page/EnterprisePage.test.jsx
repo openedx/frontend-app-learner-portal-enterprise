@@ -1,7 +1,9 @@
 import { useContext } from 'react';
-import { mount } from 'enzyme';
+import { screen, render } from '@testing-library/react';
+import { mergeConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getLoggingService } from '@edx/frontend-platform/logging';
+import '@testing-library/jest-dom/extend-expect';
 
 import EnterprisePage from './EnterprisePage';
 import { useEnterpriseCustomer, useIsBFFEnabled } from '../app/data';
@@ -25,72 +27,65 @@ getLoggingService.mockReturnValue({
   setCustomAttribute: mockSetCustomAttribute,
 });
 
+const defaultAppContextValue = {
+  authenticatedUser: mockAuthenticatedUser,
+};
+
+const EnterprisePageWrapper = ({ children, appContextValue = defaultAppContextValue }) => (
+  <AppContext.Provider value={appContextValue}>
+    <EnterprisePage>
+      {children}
+    </EnterprisePage>
+  </AppContext.Provider>
+);
+
 describe('<EnterprisePage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
-  const defaultAppContextValue = {
-    authenticatedUser: mockAuthenticatedUser,
-    config: {
-      FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [],
-    },
-  };
-
-  const EnterprisePageWrapper = ({ children, appContextValue = defaultAppContextValue }) => (
-    <AppContext.Provider value={appContextValue}>
-      <EnterprisePage>
-        {children}
-      </EnterprisePage>
-    </AppContext.Provider>
-  );
-
   it('populates AppContext with expected values', () => {
-    const ChildComponent = () => {
-      const contextValue = useContext(AppContext);
-      return <div className="did-i-render" data-contextvalue={contextValue} />;
+    mergeConfig({ example: true });
+    const ExampleComponent = () => {
+      const { authenticatedUser, config, courseCards } = useContext(AppContext);
+      return (
+        <div data-testid="did-i-render">
+          <div>
+            {authenticatedUser.username}
+          </div>
+          <div>
+            {config.example ? 'hasConfig' : 'noConfig'}
+          </div>
+          <div>
+            {courseCards['in-progress'].settingsMenu.hasMarkComplete ? 'hasMarkComplete' : 'noMarkComplete'}
+          </div>
+        </div>
+      );
     };
-    const wrapper = mount(
+    render(
       <EnterprisePageWrapper>
-        <ChildComponent />
+        <ExampleComponent />
       </EnterprisePageWrapper>,
     );
 
-    const actualContextValue = wrapper.find('.did-i-render').prop('data-contextvalue');
-    expect(actualContextValue).toEqual(
-      expect.objectContaining({
-        authenticatedUser: mockAuthenticatedUser,
-        config: expect.any(Object),
-        courseCards: {
-          'in-progress': {
-            settingsMenu: {
-              hasMarkComplete: true,
-            },
-          },
-        },
-      }),
-    );
+    expect(screen.getByText(mockAuthenticatedUser.username)).toBeInTheDocument();
+    expect(screen.getByText('hasConfig')).toBeInTheDocument();
+    expect(screen.getByText('hasMarkComplete')).toBeInTheDocument();
   });
 
   it.each([
     { isBFFEnabled: false },
     { isBFFEnabled: true },
   ])('sets custom attributes via logging service (%s)', ({ isBFFEnabled }) => {
-    // Mock the BFF feature flag
     useIsBFFEnabled.mockReturnValue(isBFFEnabled);
 
-    // Mount the component
-    const wrapper = mount(
+    render(
       <EnterprisePageWrapper>
         <div data-testid="child-component" />
       </EnterprisePageWrapper>,
     );
 
-    // Verify the children are rendered
-    expect(wrapper.find('[data-testid="child-component"]').exists()).toBe(true);
-
-    // Verify that the custom attributes were set
     expect(mockSetCustomAttribute).toHaveBeenCalledTimes(2);
     expect(mockSetCustomAttribute).toHaveBeenCalledWith('enterprise_customer_uuid', mockEnterpriseCustomer.uuid);
     expect(mockSetCustomAttribute).toHaveBeenCalledWith('is_bff_enabled', isBFFEnabled);

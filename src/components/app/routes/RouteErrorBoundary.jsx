@@ -97,11 +97,11 @@ function useHandleErrorsOrAppUpdate() {
 }
 
 const RouteErrorBoundary = ({
-  title,
-  subtitle,
-  includeHelmet,
-  showSiteHeader,
-  showSiteFooter,
+  title = null,
+  subtitle = null,
+  includeHelmet = false,
+  showSiteHeader = true,
+  showSiteFooter = true,
 }) => {
   const intl = useIntl();
   const {
@@ -126,6 +126,7 @@ const RouteErrorBoundary = ({
             </Button>
           </ActionRow>
         )}
+        isOverflowVisible={false}
         isBlocking
       >
         <p>
@@ -161,14 +162,6 @@ RouteErrorBoundary.propTypes = {
   includeHelmet: PropTypes.bool,
   showSiteHeader: PropTypes.bool,
   showSiteFooter: PropTypes.bool,
-};
-
-RouteErrorBoundary.defaultProps = {
-  title: null,
-  subtitle: null,
-  includeHelmet: false,
-  showSiteHeader: true,
-  showSiteFooter: true,
 };
 
 export default RouteErrorBoundary;

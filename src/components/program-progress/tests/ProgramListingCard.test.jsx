@@ -104,9 +104,10 @@ describe('<ProgramListingCard />', () => {
     expect(logoImageNode).toBeNull();
   });
 
-  it('redirects to correct page when clicked', () => {
+  it('redirects to correct page when clicked', async () => {
+    const user = userEvent.setup();
     const { container } = renderWithRouter(<ProgramListingCardWithContext programData={dummyProgramData} />);
-    userEvent.click(container.firstElementChild);
+    await user.click(container.firstElementChild);
     expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/program/test-uuid/progress`);
   });
 
