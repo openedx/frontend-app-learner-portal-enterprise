@@ -27,6 +27,9 @@ interface QueryByCatalogQueryArgs extends CommonQueryArgs {
  * Constructs a filter string scoped to either all enterprise catalogs or a specific subset,
  * depending on whether `showAllRefinement` is enabled or the search catalog list is empty.
  *
+ * This function is expected to be DEPRECATED and therefore removed once the secured algolia
+ * api key waffle flag (catalogQuerySearchFiltersEnabled) has been enabled for all customers
+ *
  * @param searchCatalogs - Catalog UUIDs to refine the search by
  * @param enterpriseCustomer - The current enterprise customer context
  * @param showAllRefinement - Whether to bypass catalog filters and show all
@@ -63,6 +66,7 @@ const queryByCatalogQuery = ({
   showAllRefinement,
 }: QueryByCatalogQueryArgs) => {
   const builder = new AlgoliaFilterBuilder();
+
   if (!showAllRefinement && searchCatalogs.length > 0) {
     builder.filterByCatalogQueryUuids(searchCatalogs, catalogUuidsToCatalogQueryUuids);
   }
@@ -103,6 +107,8 @@ export default function useDefaultSearchFilters(): string {
         });
       }
       // Uses the legacy Algolia filter if there is no catalog uuid to catalog query uuid mapping
+      // Once the waffle flag (catalogQuerySearchFiltersEnabled) has been enabled to allow all users
+      // to use the secured algolia api key this fallback should no longer exist, and should be removed.
       return queryByCatalog({
         enterpriseCustomer,
         searchCatalogs,

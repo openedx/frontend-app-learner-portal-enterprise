@@ -120,7 +120,7 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
   // Retrieve secured algolia key from the BFF if the route is enabled
   // or perform a no-op query that resolves to the default secured
   // algolia api key data structure
-  const BFFMetadata: UseQueryResult<SecuredAlgoliaApiData> = useBFF({
+  const queryResult: UseQueryResult<SecuredAlgoliaApiData> = useBFF({
     bffQueryOptions: {
       ...queryOptions,
     },
@@ -130,7 +130,7 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
     },
   });
 
-  const securedAlgoliaMetadata = BFFMetadata.data!;
+  const securedAlgoliaMetadata = queryResult.data!;
 
   useEffect(() => {
     if (isCatalogQueryFiltersEnabled
@@ -197,6 +197,10 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
 
   // Based on the waffle flag and supported indexes, we will use the secured algolia
   // key or default back to the legacy initialization of the search client and indexes
+  // The fallback once the secured algolia api key has been rolled out to all users via a waffle flag
+  // (catalogQuerySearchFiltersEnabled) is considered an errored state where downstream components would
+  // display the <SearchUnavailableAlert /> if no search client is returned or the upstream secured
+  // algolia api call fails from the BFF.
   const algoliaSearchApiKey: string = shouldUseSecuredAlgoliaApiKey
     ? securedAlgoliaMetadata.securedAlgoliaApiKey!
     : config.ALGOLIA_SEARCH_API_KEY;
