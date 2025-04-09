@@ -1,9 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { QueryClientProvider, UseQueryResult } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import { getConfig } from '@edx/frontend-platform';
-import { waitFor } from '@testing-library/react';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import { generateTestPermutations, queryClient } from '../../../../utils/tests';
 import {
@@ -205,7 +204,7 @@ describe('useAlgoliaSearch', () => {
       data: mockedEnterpriseFeatures,
     });
 
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => useAlgoliaSearch(indexName),
       {
         wrapper: ({ children }) => (
@@ -215,7 +214,6 @@ describe('useAlgoliaSearch', () => {
         ),
       },
     );
-    await waitForNextUpdate();
     await waitFor(() => {
       expect(result.current).toEqual(
         expect.objectContaining(expectedData),
