@@ -4,6 +4,10 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, snakeCaseObject } from '@edx/frontend-platform/utils';
 
 export const baseLearnerBFFResponse = {
+  enterpriseCustomer: {},
+  enterpriseFeatures: {},
+  securedAlgoliaApiKey: null,
+  catalogUuidsToCatalogQueryUuids: {},
   enterpriseCustomerUserSubsidies: {
     subscriptions: {
       customerAgreement: {},
@@ -67,11 +71,15 @@ export async function makeBFFRequest({
   url,
   defaultResponse,
   options = {} as BFFRequestOptions,
-}) {
+}: {
+  url: string;
+  defaultResponse: Record<string, any>,
+  options?: BFFRequestOptions;
+}): Promise<object> {
   const { enterpriseId, enterpriseSlug, ...optionsRest } = options;
   const snakeCaseOptionsRest = optionsRest ? snakeCaseObject(optionsRest) : {};
 
-  // If neither enterpriseId or enterpriseSlug is provided, return the default response.
+  // If neither enterpriseId nor enterpriseSlug is provided, return the default response.
   if (!enterpriseId && !enterpriseSlug) {
     logError('Enterprise ID or slug is required to make a BFF request.');
     return defaultResponse;
@@ -84,9 +92,16 @@ export async function makeBFFRequest({
       ...snakeCaseOptionsRest,
     };
 
-    // Make request to BFF.
     const result = await getAuthenticatedHttpClient().post(url, params);
-    const response = camelCaseObject(result.data);
+    const {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      catalog_uuids_to_catalog_query_uuids: catalogUuidsToCatalogQueryUuids,
+      ...originalResponseData
+    } = result.data;
+    const response = {
+      ...camelCaseObject(originalResponseData),
+      catalogUuidsToCatalogQueryUuids,
+    };
 
     // Log any errors and warnings from the BFF response.
     logErrorsAndWarningsFromBFFResponse({ url, response });

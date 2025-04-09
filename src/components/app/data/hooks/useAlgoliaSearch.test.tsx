@@ -24,7 +24,6 @@ const APP_CONFIG = {
   ALGOLIA_APP_ID: 'test-algolia-app-id',
 };
 
-// jest.mock('./useEnterpriseCustomer');
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useEnterpriseFeatures');
 jest.mock('../services', () => ({
@@ -87,6 +86,7 @@ const expectedOutputBasedOnIndex = ({ isMatchedRoute, isCatalogQueryFiltersEnabl
       searchIndex: expect.objectContaining({
         appId: APP_CONFIG.ALGOLIA_APP_ID,
       }),
+      shouldUseSecuredAlgoliaApiKey: true,
     }
     : {
       catalogUuidsToCatalogQueryUuids: mockEmptyBaseAlgoliaData.catalogUuidsToCatalogQueryUuids,
@@ -96,6 +96,7 @@ const expectedOutputBasedOnIndex = ({ isMatchedRoute, isCatalogQueryFiltersEnabl
       searchIndex: expect.objectContaining({
         appId: APP_CONFIG.ALGOLIA_APP_ID,
       }),
+      shouldUseSecuredAlgoliaApiKey: false,
     };
 };
 
