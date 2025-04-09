@@ -48,3 +48,4 @@ export { default as useVideoCourseReviews } from './useVideoCourseReviews';
 export { default as useBFF } from './useBFF';
 export { default as useIsBFFEnabled } from './useIsBFFEnabled';
 export { default as useHasValidLicenseOrSubscriptionRequestsEnabled } from './useHasValidLicenseOrSubscriptionRequestsEnabled';
+export { default as useAlgoliaSearch } from './useAlgoliaSearch';

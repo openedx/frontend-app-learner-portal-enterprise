@@ -299,3 +299,9 @@ export function queryEnterpriseLearnerSkillsQuizBFF({ enterpriseSlug }) {
     ._ctx.route
     ._ctx.skillsQuiz;
 }
+
+export function queryDefaultEmptyFallback() {
+  return queries
+    .bff
+    .defaultEmptyFallback;
+}

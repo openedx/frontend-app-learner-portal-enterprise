@@ -6,7 +6,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { renderWithRouter } from '../../../utils/tests';
 import CategoryCard from '../CategoryCard';
-import { useEnterpriseCustomer, useDefaultSearchFilters, useIsAssignmentsOnlyLearner } from '../../app/data';
+import { useDefaultSearchFilters, useEnterpriseCustomer, useIsAssignmentsOnlyLearner } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('algoliasearch/lite');

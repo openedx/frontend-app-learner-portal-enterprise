@@ -53,8 +53,20 @@ describe('<EnterprisePage />', () => {
       </EnterprisePageWrapper>,
     );
 
-    const childComponent = screen.getByTestId('child-component');
-    expect(childComponent).toBeInTheDocument();
+    const actualContextValue = wrapper.find('.did-i-render').prop('data-contextvalue');
+    expect(actualContextValue).toEqual(
+      expect.objectContaining({
+        authenticatedUser: mockAuthenticatedUser,
+        config: expect.any(Object),
+        courseCards: {
+          'in-progress': {
+            settingsMenu: {
+              hasMarkComplete: true,
+            },
+          },
+        },
+      }),
+    );
   });
 
   it.each([

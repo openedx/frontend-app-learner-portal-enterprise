@@ -50,6 +50,7 @@ declare global {
 
   interface EnterpriseFeatures {
     enterpriseLearnerBffEnabled?: boolean;
+    catalogQuerySearchFiltersEnabled?: boolean;
     [key: string]: boolean;
   }
 
@@ -66,6 +67,11 @@ declare global {
     staffEnterpriseCustomer: EnterpriseCustomer | null;
     enterpriseFeatures: EnterpriseFeatures;
     shouldUpdateActiveEnterpriseCustomerUser: boolean;
+  }
+
+  interface SecuredAlgoliaApiData {
+    securedAlgoliaApiKey: string | null;
+    catalogUuidsToCatalogQueryUuids: Record<string, string>;
   }
 
   interface EnrollmentDueDate {

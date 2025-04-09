@@ -2,12 +2,14 @@ import PropTypes from 'prop-types';
 import { Configure, Index } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { VIDEO_TITLE, NUM_RESULTS_VIDEO, CONTENT_TYPE_VIDEO } from './constants';
+import { CONTENT_TYPE_VIDEO, NUM_RESULTS_VIDEO, VIDEO_TITLE } from './constants';
 import { SEARCH_INDEX_IDS } from '../../constants';
 import SearchResults from './SearchResults';
 import SearchVideoCard from './SearchVideoCard';
 
-const SearchVideo = ({ filter, showVideosBanner, hideVideosBanner }) => {
+const SearchVideo = ({
+  filter, showVideosBanner, hideVideosBanner,
+}) => {
   const defaultFilter = `content_type:${CONTENT_TYPE_VIDEO} AND ${filter}`;
   const config = getConfig();
   const intl = useIntl();

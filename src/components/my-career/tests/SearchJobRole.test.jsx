@@ -8,16 +8,16 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { fetchJobDetailsFromAlgolia, patchProfile } from '../data/service';
 import { renderWithRouter } from '../../../utils/tests';
 import SearchJobRole from '../SearchJobRole';
-import { useAlgoliaSearch } from '../../../utils/hooks';
+import { useAlgoliaSearch } from '../../app/data';
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useAlgoliaSearch: jest.fn(),
+}));
 // mocks
 jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-catalog-search'),
   deleteRefinementAction: jest.fn(),
-}));
-
-jest.mock('../../../utils/hooks', () => ({
-  useAlgoliaSearch: jest.fn(),
 }));
 
 jest.mock('../data/service', () => ({
@@ -56,7 +56,14 @@ describe('<SearchJobRole />', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    useAlgoliaSearch.mockReturnValue([jest.fn(), jest.fn()]);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: {
+        search: jest.fn(), appId: 'test-app-id',
+      },
+      searchIndex: {
+        indexName: 'mock-index-name',
+      },
+    });
   });
 
   it('renders the SearchJobRole component', () => {

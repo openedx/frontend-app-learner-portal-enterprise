@@ -4,13 +4,19 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import * as MockReactInstantSearch from '../../skills-quiz/__mocks__/react-instantsearch-dom';
-import { queryClient, renderWithRouter } from '../../../utils/tests';
+import { generateTestPermutations, queryClient, renderWithRouter } from '../../../utils/tests';
 import '@testing-library/jest-dom';
 import Search from '../Search';
-import { useDefaultSearchFilters, useEnterpriseCustomer, useHasValidLicenseOrSubscriptionRequestsEnabled } from '../../app/data';
-import { useAlgoliaSearch } from '../../../utils/hooks';
+import {
+  useAlgoliaSearch,
+  useCanOnlyViewHighlights,
+  useDefaultSearchFilters,
+  useEnterpriseCustomer,
+  useHasValidLicenseOrSubscriptionRequestsEnabled,
+} from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import { features } from '../../../config';
+import { messages } from '../../search-unavailable-alert/SearchUnavailableAlert';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -23,6 +29,7 @@ jest.mock('../../app/data', () => ({
       },
     },
   })),
+  useAlgoliaSearch: jest.fn(),
   useRedeemablePolicies: jest.fn(() => ({ data: { redeemablePolicies: [] } })),
   useCouponCodes: jest.fn(() => ({ data: { couponCodeAssignments: [] } })),
   useEnterpriseOffers: jest.fn(() => ({ data: { currentEnterpriseOffers: [] } })),
@@ -33,10 +40,7 @@ jest.mock('../../app/data', () => ({
   useDefaultSearchFilters: jest.fn(),
   useHasValidLicenseOrSubscriptionRequestsEnabled: jest.fn(),
 }));
-jest.mock('../../../utils/hooks', () => ({
-  ...jest.requireActual('../../../utils/hooks'),
-  useAlgoliaSearch: jest.fn(),
-}));
+
 jest.mock('../../../utils/optimizely', () => ({
   ...jest.requireActual('../../../utils/optimizely'),
   pushEvent: jest.fn(),
@@ -77,10 +81,17 @@ describe('<Search />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useDefaultSearchFilters.mockReturnValue(mockFilter);
     useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(true);
-    useAlgoliaSearch.mockReturnValue([{ search: jest.fn(), appId: 'test-app-id' }, { indexName: 'mock-index-name' }]);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: {
+        search: jest.fn(), appId: 'test-app-id',
+      },
+      searchIndex: {
+        indexName: 'mock-index-name',
+      },
+    });
     MockReactInstantSearch.configure.nbHits = 2;
   });
-  test('renders the video beta banner component', () => {
+  it('renders the video beta banner component', () => {
     features.FEATURE_ENABLE_VIDEO_CATALOG = true;
     renderWithRouter(
       <SearchWrapper>
@@ -89,7 +100,7 @@ describe('<Search />', () => {
     );
     expect(screen.getByText('Videos Now Available with Your Subscription')).toBeInTheDocument();
   });
-  test('renders correctly when no search results are found', () => {
+  it('renders correctly when no search results are found', () => {
     MockReactInstantSearch.configure.nbHits = 0;
 
     renderWithRouter(
@@ -99,5 +110,50 @@ describe('<Search />', () => {
     );
 
     expect(screen.queryByText('Videos Now Available with Your Subscription')).toBeNull();
+  });
+  it.each(
+    generateTestPermutations({
+      canOnlyViewHighlights: [true, false],
+      useAlgoliaSearchReturnValue: [{
+        searchClient: null,
+        searchIndex: null,
+      }, {
+        searchClient: {
+          search: jest.fn(), appId: 'test-app-id',
+        },
+        searchIndex: {
+          indexName: 'mock-index-name',
+        },
+      }],
+    }),
+  )('renders the search client error page if no search client is found', ({
+    canOnlyViewHighlights,
+    useAlgoliaSearchReturnValue,
+  }) => {
+    useAlgoliaSearch.mockReturnValue(useAlgoliaSearchReturnValue);
+    useCanOnlyViewHighlights.mockReturnValue({ data: canOnlyViewHighlights });
+    renderWithRouter(
+      <SearchWrapper>
+        <Search />
+      </SearchWrapper>,
+    );
+
+    // Validate the SearchUnavailableAlert is being displayed when no search client is present and whether
+    // highlights are not the only visible content
+    if (!useAlgoliaSearchReturnValue.searchClient && !canOnlyViewHighlights) {
+      expect(screen.getByText(messages.alertHeading.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.alertText.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.alertTextOptionsHeader.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.alertTextOptionRefresh.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.alertTextOptionNetwork.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.alertTextOptionSupport.defaultMessage)).toBeInTheDocument();
+    } else if (useAlgoliaSearchReturnValue.searchClient || canOnlyViewHighlights) {
+      expect(screen.queryByText(messages.alertHeading.defaultMessage)).not.toBeInTheDocument();
+      expect(screen.queryByText(messages.alertText.defaultMessage)).not.toBeInTheDocument();
+      expect(screen.queryByText(messages.alertTextOptionsHeader.defaultMessage)).not.toBeInTheDocument();
+      expect(screen.queryByText(messages.alertTextOptionRefresh.defaultMessage)).not.toBeInTheDocument();
+      expect(screen.queryByText(messages.alertTextOptionNetwork.defaultMessage)).not.toBeInTheDocument();
+      expect(screen.queryByText(messages.alertTextOptionSupport.defaultMessage)).not.toBeInTheDocument();
+    }
   });
 });

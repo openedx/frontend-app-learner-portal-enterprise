@@ -1,10 +1,10 @@
 import { Button } from '@openedx/paragon';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { getConfig } from '@edx/frontend-platform/config';
-import algoliasearch from 'algoliasearch/lite';
 import { InstantSearch } from 'react-instantsearch-dom';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
+import algoliasearch from 'algoliasearch/lite';
 import SearchJobDropdown from '../skills-quiz/SearchJobDropdown';
 import CurrentJobDropdown from '../skills-quiz/CurrentJobDropdown';
 import IndustryDropdown from '../skills-quiz/IndustryDropdown';
@@ -13,7 +13,6 @@ import SearchJobCard from '../skills-quiz/SearchJobCard';
 
 const SkillQuizForm = ({ isStyleAutoSuggest }) => {
   const config = getConfig();
-
   const [searchClient, courseIndex, jobIndex] = useMemo(() => {
     const client = algoliasearch(
       config.ALGOLIA_APP_ID,
@@ -28,6 +27,7 @@ const SkillQuizForm = ({ isStyleAutoSuggest }) => {
     config.ALGOLIA_INDEX_NAME_JOBS,
     config.ALGOLIA_SEARCH_API_KEY,
   ]);
+
   const [hide, setHide] = useState(true);
 
   return (

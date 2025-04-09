@@ -1,11 +1,9 @@
-import {
-  useEffect, useMemo, useState,
-} from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card, useToggle } from '@openedx/paragon';
-import { getConfig } from '@edx/frontend-platform/config';
-import algoliasearch from 'algoliasearch/lite';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
+import algoliasearch from 'algoliasearch/lite';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
@@ -21,11 +19,10 @@ const CategoryCard = ({ topCategory }) => {
   const [showSkills, setShowSkillsOn, , toggleShowSkills] = useToggle(false);
   const [showAll, setShowAllOn, setShowAllOff, toggleShowAll] = useToggle(false);
   const [showLess, , setShowLessOff, toggleShowLess] = useToggle(false);
-
+  const config = getConfig();
   const isAssignmentsLearnerOnly = useIsAssignmentsOnlyLearner();
   const featuredIsCourseSearchDisabled = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isAssignmentsLearnerOnly;
 
-  const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const courseIndex = useMemo(
     () => {
@@ -132,7 +129,7 @@ const CategoryCard = ({ topCategory }) => {
           </div>
         </Card.Section>
       )}
-      {subCategorySkills && subCategorySkillsLength > 3 && (
+      {subCategorySkills && subCategorySkillsLength > 3 && (showAll || showLess) && (
         <Button
           variant="link"
           className="mb-1 mt-n4 justify-content-end"
@@ -163,10 +160,6 @@ const CategoryCard = ({ topCategory }) => {
               />
             </span>
           )}
-          {
-            !showAll && !showLess && (
-              null)
-          }
         </Button>
       )}
       {(!enterpriseCustomer.disableSearch && !featuredIsCourseSearchDisabled) && (

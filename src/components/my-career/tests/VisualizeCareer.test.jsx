@@ -8,9 +8,10 @@ import * as hooks from '../data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
 import VisualizeCareer from '../VisualizeCareer';
 import {
+  useAlgoliaSearch,
+  useDefaultSearchFilters,
   useEnterpriseCustomer,
   useIsAssignmentsOnlyLearner,
-  useDefaultSearchFilters,
   useLearnerSkillLevels,
 } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
@@ -33,6 +34,7 @@ jest.mock('../../app/data', () => ({
   useLearnerSkillLevels: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
   useDefaultSearchFilters: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
 }));
 
 hooks.usePlotlySpiderChart.mockReturnValue({
@@ -179,6 +181,14 @@ describe('<VisualizeCareer />', () => {
     useLearnerSkillLevels.mockReturnValue({ data: mockLearnerSkillsData });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
     useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: {
+        search: jest.fn(), appId: 'test-app-id',
+      },
+      searchIndex: {
+        indexName: 'mock-index-name',
+      },
+    });
   });
 
   it('renders the VisualizeCareer component', () => {

@@ -44,8 +44,13 @@ const mockSubscriptionCatalogUuid = uuidv4();
 const mockSubscriptionLicenseUuid = uuidv4();
 const mockSubscriptionPlanUuid = uuidv4();
 const mockActivationKey = uuidv4();
-
+const mockCatalogUuidsToCatalogQueryUuids = Object.fromEntries(Array.from({ length: 3 }, () => [uuidv4(), uuidv4()]));
+const mockSecuredAlgoliaMetadata = {
+  catalog_uuids_to_catalog_query_uuids: mockCatalogUuidsToCatalogQueryUuids,
+  secured_algolia_api_key: 'fake_api_key',
+};
 const mockBaseLearnerBFFResponse = {
+  ...mockSecuredAlgoliaMetadata,
   enterprise_customer_user_subsidies: {
     subscriptions: {
       customer_agreement: {
@@ -116,8 +121,12 @@ const mockBaseLearnerBFFResponse = {
   warnings: [],
 };
 
-const mockBFFDashboardResponse = {
+const mockBaseBFFResponse = {
   ...mockBaseLearnerBFFResponse,
+};
+
+const mockBFFDashboardResponse = {
+  ...mockBaseBFFResponse,
   enterprise_course_enrollments: [
     {
       course_run_id: 'course-v1:edX+DemoX+3T2022',
@@ -144,15 +153,21 @@ const mockBFFDashboardResponse = {
 };
 
 const mockBFFSearchResponse = {
-  ...mockBaseLearnerBFFResponse,
+  ...mockBaseBFFResponse,
 };
 
 const mockBFFAcademyResponse = {
-  ...mockBaseLearnerBFFResponse,
+  ...mockBaseBFFResponse,
 };
 
 const mockBFFSkillsQuizResponse = {
-  ...mockBaseLearnerBFFResponse,
+  ...mockBaseBFFResponse,
+};
+
+const expectedCamelCasedOutput = (metadata) => {
+  const camelCasedOutput = camelCaseObject(metadata);
+  camelCasedOutput.catalogUuidsToCatalogQueryUuids = mockCatalogUuidsToCatalogQueryUuids;
+  return camelCasedOutput;
 };
 
 const urlForDashboardBFF = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/dashboard/`;
@@ -177,7 +192,7 @@ describe('makeBFFRequest', () => {
     };
     axiosMock.onPost(urlForDashboardBFF).reply(200, mockResponseWithErrorsAndWarnings);
     const result = await fetchEnterpriseLearnerDashboard({ enterpriseSlug: mockEnterpriseCustomer.slug });
-    expect(result).toEqual(camelCaseObject(mockResponseWithErrorsAndWarnings));
+    expect(result).toEqual(expectedCamelCasedOutput(mockResponseWithErrorsAndWarnings));
 
     // Assert the logError and logInfo functions were called with the expected arguments.
     expect(logError).toHaveBeenCalledWith(`BFF Error (${urlForDashboardBFF}): ${mockError.developer_message}`);
@@ -194,7 +209,7 @@ describe('fetchEnterpriseLearnerDashboard', () => {
   it('returns learner dashboard metadata', async () => {
     axiosMock.onPost(urlForDashboardBFF).reply(200, mockBFFDashboardResponse);
     const result = await fetchEnterpriseLearnerDashboard({ enterpriseSlug: mockEnterpriseCustomer.slug });
-    expect(result).toEqual(camelCaseObject(mockBFFDashboardResponse));
+    expect(result).toEqual(expectedCamelCasedOutput(mockBFFDashboardResponse));
   });
 
   it('catches error and returns default dashboard BFF response', async () => {
@@ -215,7 +230,7 @@ describe('fetchEnterpriseLearnerSearch', () => {
   it('returns learner search metadata', async () => {
     axiosMock.onPost(urlForSearchBFF).reply(200, mockBFFSearchResponse);
     const result = await fetchEnterpriseLearnerSearch({ enterpriseSlug: mockEnterpriseCustomer.slug });
-    expect(result).toEqual(camelCaseObject(mockBFFSearchResponse));
+    expect(result).toEqual(expectedCamelCasedOutput(mockBFFSearchResponse));
   });
 
   it('catches error and returns default search BFF response', async () => {
@@ -236,7 +251,7 @@ describe('fetchEnterpriseLearnerAcademy', () => {
   it('returns learner academy metadata', async () => {
     axiosMock.onPost(urlForAcademyBFF).reply(200, mockBFFAcademyResponse);
     const result = await fetchEnterpriseLearnerAcademy({ enterpriseSlug: mockEnterpriseCustomer.slug });
-    expect(result).toEqual(camelCaseObject(mockBFFAcademyResponse));
+    expect(result).toEqual(expectedCamelCasedOutput(mockBFFAcademyResponse));
   });
 
   it('catches error and returns default academy BFF response', async () => {
@@ -257,7 +272,7 @@ describe('fetchEnterpriseLearnerSkillsQuiz', () => {
   it('returns learner skills quiz metadata', async () => {
     axiosMock.onPost(urlForSkillsQuizBFF).reply(200, mockBFFSkillsQuizResponse);
     const result = await fetchEnterpriseLearnerSkillsQuiz({ enterpriseSlug: mockEnterpriseCustomer.slug });
-    expect(result).toEqual(camelCaseObject(mockBFFSkillsQuizResponse));
+    expect(result).toEqual(expectedCamelCasedOutput(mockBFFSkillsQuizResponse));
   });
 
   it('catches error and returns default skills quiz BFF response', async () => {
