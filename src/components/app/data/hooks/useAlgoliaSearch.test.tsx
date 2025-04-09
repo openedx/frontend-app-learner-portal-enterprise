@@ -199,8 +199,7 @@ describe('useAlgoliaSearch', () => {
     const mockedEnterpriseFeatures = {
       catalogQuerySearchFiltersEnabled: isCatalogQueryFiltersEnabled,
     };
-    // @ts-ignore
-    mockedUseEnterpriseFeatures.mockReturnValue({
+    (mockedUseEnterpriseFeatures as jest.Mock).mockReturnValue({
       data: mockedEnterpriseFeatures,
     });
 

@@ -1,4 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { useContext } from 'react';
+import { screen, render } from '@testing-library/react';
+import { mergeConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getLoggingService } from '@edx/frontend-platform/logging';
 import '@testing-library/jest-dom/extend-expect';
@@ -27,9 +29,6 @@ getLoggingService.mockReturnValue({
 
 const defaultAppContextValue = {
   authenticatedUser: mockAuthenticatedUser,
-  config: {
-    FEATURE_ENABLE_BFF_API_FOR_ENTERPRISE_CUSTOMERS: [],
-  },
 };
 
 const EnterprisePageWrapper = ({ children, appContextValue = defaultAppContextValue }) => (
@@ -47,26 +46,32 @@ describe('<EnterprisePage />', () => {
   });
 
   it('populates AppContext with expected values', () => {
+    mergeConfig({ example: true });
+    const ExampleComponent = () => {
+      const { authenticatedUser, config, courseCards } = useContext(AppContext);
+      return (
+        <div data-testid="did-i-render">
+          <div>
+            {authenticatedUser.username}
+          </div>
+          <div>
+            {config.example ? 'hasConfig' : 'noConfig'}
+          </div>
+          <div>
+            {courseCards['in-progress'].settingsMenu.hasMarkComplete ? 'hasMarkComplete' : 'noMarkComplete'}
+          </div>
+        </div>
+      );
+    };
     render(
       <EnterprisePageWrapper>
-        <div data-testid="child-component" />
+        <ExampleComponent />
       </EnterprisePageWrapper>,
     );
 
-    const actualContextValue = wrapper.find('.did-i-render').prop('data-contextvalue');
-    expect(actualContextValue).toEqual(
-      expect.objectContaining({
-        authenticatedUser: mockAuthenticatedUser,
-        config: expect.any(Object),
-        courseCards: {
-          'in-progress': {
-            settingsMenu: {
-              hasMarkComplete: true,
-            },
-          },
-        },
-      }),
-    );
+    expect(screen.getByText(mockAuthenticatedUser.username)).toBeInTheDocument();
+    expect(screen.getByText('hasConfig')).toBeInTheDocument();
+    expect(screen.getByText('hasMarkComplete')).toBeInTheDocument();
   });
 
   it.each([
