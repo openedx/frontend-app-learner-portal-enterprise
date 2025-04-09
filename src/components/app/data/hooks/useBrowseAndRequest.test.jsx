@@ -47,7 +47,7 @@ describe('useBrowseAndRequestConfiguration', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockBrowseAndRequestConfiguration,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -67,7 +67,7 @@ describe('useSubscriptionLicenseRequests', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockLicenseRequests,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -87,7 +87,7 @@ describe('useCouponCodeRequests', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockCouponCodeRequests,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

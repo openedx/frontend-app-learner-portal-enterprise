@@ -82,7 +82,6 @@ describe('App', () => {
             keepPreviousData: true,
             retry: expect.any(Function),
             staleTime: 1000 * 20,
-            suspense: true,
           }),
         },
       }),

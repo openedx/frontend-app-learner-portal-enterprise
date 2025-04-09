@@ -48,7 +48,7 @@ describe('useCourseRecommendations', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockCourseRecommendations,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

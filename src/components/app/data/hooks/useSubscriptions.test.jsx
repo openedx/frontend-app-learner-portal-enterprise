@@ -135,7 +135,7 @@ describe('useSubscriptions', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: hasQueryOptions && isBFFQueryEnabled ? mockSubscriptionLicense : expectedSubscriptionsdata,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

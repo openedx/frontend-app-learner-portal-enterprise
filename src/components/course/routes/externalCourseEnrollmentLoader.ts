@@ -46,6 +46,7 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
       if (!enterpriseCustomer) {
         return null;
       }
+
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.

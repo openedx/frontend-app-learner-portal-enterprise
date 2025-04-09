@@ -64,7 +64,7 @@ describe('useContentHighlightSets', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockContentHighlightSets,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );
@@ -88,7 +88,7 @@ describe('useContentHighlightSets', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockContentHighlightSets,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

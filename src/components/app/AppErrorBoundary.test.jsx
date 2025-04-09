@@ -58,7 +58,6 @@ describe('AppErrorBoundary', () => {
             resolve({ result: 'Test Data' });
           }, 1000);
         }),
-        suspense: true,
       });
       return <div>{data.result}</div>;
     };

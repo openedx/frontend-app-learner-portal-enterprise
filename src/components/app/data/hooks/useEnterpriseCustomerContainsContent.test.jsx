@@ -37,7 +37,7 @@ describe('useEnterpriseCustomerContainsContent', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockEnterpriseCustomerContainsContent,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

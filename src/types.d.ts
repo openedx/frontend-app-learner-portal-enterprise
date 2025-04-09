@@ -4,15 +4,17 @@ import { SUBSIDY_REQUEST_STATE } from './constants';
 declare global {
   // React Query
   type UseQueryResult = import('@tanstack/react-query').UseQueryResult;
-  type UseQueryOptions = import('@tanstack/react-query').UseQueryOptions;
   type QueryObserverOptions = import('@tanstack/react-query').QueryObserverOptions;
   type QueryClient = import('@tanstack/react-query').QueryClient;
   type QueryObserverResult = import('@tanstack/react-query').QueryObserverResult;
   type Query = import('@tanstack/react-query').Query;
-  type QueryOptions = import('@tanstack/react-query').QueryOptions;
 
   // Query Key Factory
   type QueryKeys = import('@lukemorales/query-key-factory').inferQueryKeyStore<typeof queries>;
+  type QueryOptionsStruct = import('@lukemorales/query-key-factory').QueryOptionsStruct<
+    typeof queries,
+    QueryClient
+  >;
 
   // Routes
   type RouteParams<Key extends string = string> = import('react-router-dom').Params<Key>;
@@ -99,6 +101,34 @@ declare global {
 
   // Application Data (subsidy)
   type SubsidyRequestState = typeof SUBSIDY_REQUEST_STATE[keyof typeof SUBSIDY_REQUEST_STATE];
+
+  type SubsidyAccessPolicy = {
+    uuid: string;
+    policyRedemptionUrl: string;
+  };
+
+  type SubsidyTransactionState = 'created' | 'pending' | 'committed' | 'failed';
+
+  interface SubsidyTransaction {
+    uuid: string;
+    state: SubsidyTransactionState;
+    lmsUserId: number;
+    lmsUserEmail?: string;
+    contentKey: string;
+    parentContentKey: string;
+    contentTitle: string;
+    quantity: number;
+    unit: any;
+    fulfillmentIdentifier?: string;
+    subsidyAccessPolicyUuid: string;
+    metadata: Record<string, any>;
+    created: string;
+    modified: string;
+    reversal?: any;
+    externalReference?: any;
+    transactionStatusApiUrl: string;
+    coursewareUrl: string;
+  }
 }
 
 export {};
