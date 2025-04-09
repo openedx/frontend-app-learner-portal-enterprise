@@ -4,6 +4,7 @@ import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { queryEnterpriseLearner } from '../queries';
 import useBFF from './useBFF';
+import { BaseBFFResponse } from '../services';
 
 export interface UseEnterpriseLearnerSelectFnArgs {
   original: EnterpriseLearnerData;
@@ -24,8 +25,9 @@ export default function useEnterpriseLearner<TData = EnterpriseLearnerData>(
   const { enterpriseSlug } = useParams();
 
   const { select } = options;
+  const fallbackQueryConfig = queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug);
 
-  return useBFF({
+  return useBFF<BaseBFFResponse, EnterpriseLearnerData, TData>({
     bffQueryOptions: {
       select: (data) => {
         const transformedData = {
@@ -45,11 +47,11 @@ export default function useEnterpriseLearner<TData = EnterpriseLearnerData>(
         }
 
         // Otherwise, return the transformed data.
-        return transformedData;
+        return transformedData as TData;
       },
     },
     fallbackQueryConfig: {
-      ...queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
+      ...fallbackQueryConfig,
       select: (data) => {
         // To maintain parity with BFF-enabled routes in the function signature passed to the custom `select`
         // function, the legacy `queryEnterpriseLearner` also passes its `data` to the custom `select` function
@@ -60,7 +62,7 @@ export default function useEnterpriseLearner<TData = EnterpriseLearnerData>(
             transformed: data,
           });
         }
-        return data;
+        return data as TData;
       },
     },
   });

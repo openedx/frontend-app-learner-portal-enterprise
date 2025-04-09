@@ -18,13 +18,14 @@ export default function useEnterpriseCustomer<TData = EnterpriseCustomer | null>
   const { select } = options;
   return useEnterpriseLearner<TData>({
     select: (enterpriseLearner) => {
+      const { enterpriseCustomer } = enterpriseLearner.original;
       if (select) {
         return select({
-          original: enterpriseLearner,
-          transformed: enterpriseLearner.enterpriseCustomer,
+          original: enterpriseLearner.original,
+          transformed: enterpriseCustomer,
         });
       }
-      return enterpriseLearner.enterpriseCustomer as TData;
+      return enterpriseCustomer as TData;
     },
   });
 }

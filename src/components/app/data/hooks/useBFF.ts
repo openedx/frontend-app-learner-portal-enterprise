@@ -1,22 +1,40 @@
 import { useLocation, useParams } from 'react-router-dom';
-import { QueryFunction, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  QueryFunction,
+  UseQueryOptions,
+  useQuery,
+} from '@tanstack/react-query';
 import { resolveBFFQuery } from '../queries';
+import { BaseBFFResponse } from '../services';
 
-type BffQueryOptions = {
-  select?: (data: any) => unknown;
+type BFFQueryOptions<TData, TSelect> = {
+  select?: (data: TData) => TSelect;
 };
 
-type UseBFFArgs = {
-  bffQueryAdditionalParams?: Record<string, any>;
-  bffQueryOptions?: BffQueryOptions;
-  fallbackQueryConfig: UseQueryOptions;
+type UseBFFArgs<
+  TData extends BaseBFFResponse,
+  TFallbackData = unknown,
+  TBFFSelect extends TData = TData,
+  TFallbackSelect = TFallbackData,
+> = {
+  bffQueryAdditionalParams?: Record<string, unknown>;
+  bffQueryOptions?: BFFQueryOptions<TData, TBFFSelect>;
+  fallbackQueryConfig: UseQueryOptions<TFallbackData, Error, TFallbackSelect>;
 };
 
-type UseSuspenseBFFArgs = UseBFFArgs;
-
-type UseQueryKeyArgs = {
+type UseQueryKeyArgs<TFallbackData = unknown, TFallbackSelect = TFallbackData> = {
   bffQueryAdditionalParams?: Record<string, any>;
-  fallbackQueryConfig: UseQueryOptions;
+  fallbackQueryConfig: UseQueryOptions<TFallbackData, Error, TFallbackSelect>;
+};
+
+type UseQueryFnArgs<TFallbackData = unknown, TFallbackSelect = TFallbackData> = {
+  bffQueryAdditionalParams?: Record<string, any>;
+  fallbackQueryConfig: UseQueryOptions<TFallbackData, Error, TFallbackSelect>;
+};
+
+type UseBFFSelectFnArgs<TData, TSelect> = {
+  bffQueryOptions?: BFFQueryOptions<TData, TSelect>;
+  fallbackQueryConfig: UseQueryOptions<TData, Error, TSelect>;
 };
 
 function useMatchedBFFQuery() {
@@ -24,10 +42,10 @@ function useMatchedBFFQuery() {
   return resolveBFFQuery(location.pathname);
 }
 
-function useQueryKey({
+function useQueryKey<TFallbackData, TSelect>({
   bffQueryAdditionalParams,
   fallbackQueryConfig,
-}: UseQueryKeyArgs) {
+}: UseQueryKeyArgs<TFallbackData, TSelect>) {
   const matchedBFFQuery = useMatchedBFFQuery();
   const params = useParams();
   const enterpriseSlug = params.enterpriseSlug!;
@@ -38,10 +56,10 @@ function useQueryKey({
   return fallbackQueryConfig.queryKey;
 }
 
-function useQueryFn({
+function useQueryFn<TFallbackData, TSelect>({
   bffQueryAdditionalParams,
   fallbackQueryConfig,
-}: UseQueryKeyArgs) {
+}: UseQueryFnArgs<TFallbackData, TSelect>) {
   const matchedBFFQuery = useMatchedBFFQuery();
   const params = useParams();
   const enterpriseSlug = params.enterpriseSlug!;
@@ -50,25 +68,21 @@ function useQueryFn({
     const queryConfig = matchedBFFQuery({ enterpriseSlug, ...bffQueryAdditionalParams });
     return queryConfig.queryFn;
   }
-  return fallbackQueryConfig.queryFn as QueryFunction;
+  return fallbackQueryConfig.queryFn;
 }
 
-function useBaseQueryConfig({
-  bffQueryAdditionalParams = {},
+function useBFFSelectFn<TData, TSelect>({
+  bffQueryOptions,
   fallbackQueryConfig,
-}: UseBFFArgs) {
-  const queryKey = useQueryKey({
-    bffQueryAdditionalParams,
-    fallbackQueryConfig,
-  });
-  const queryFn = useQueryFn({
-    bffQueryAdditionalParams,
-    fallbackQueryConfig,
-  });
-  return {
-    queryKey,
-    queryFn,
-  };
+}: UseBFFSelectFnArgs<TData, TSelect>) {
+  const matchedBFFQuery = useMatchedBFFQuery();
+  if (matchedBFFQuery && bffQueryOptions?.select) {
+    return bffQueryOptions.select;
+  }
+  if (fallbackQueryConfig.select) {
+    return fallbackQueryConfig.select;
+  }
+  return undefined;
 }
 
 /**
@@ -79,33 +93,36 @@ function useBaseQueryConfig({
  * @param fallbackQueryConfig - if a route is not compatible with the BFF layer, this field
  * allows you to pass a fallback query endpoint to call in lieu of an unmatched BFF query
  */
-export default function useBFF({
+export default function useBFF<
+  TBFFData extends BaseBFFResponse,
+  TFallbackData,
+  TBFFSelect extends TBFFData = TBFFData,
+  TFallbackSelect extends TFallbackData = TFallbackData,
+>({
   bffQueryAdditionalParams = {},
-  bffQueryOptions = {},
+  bffQueryOptions,
   fallbackQueryConfig,
-}: UseBFFArgs) {
-  const baseQueryConfig = useBaseQueryConfig({
+}: UseBFFArgs<TBFFData, TFallbackData, TBFFSelect, TFallbackSelect>) {
+  type TData = TBFFData | TFallbackData;
+  type TSelect = TBFFSelect | TFallbackSelect;
+
+  const queryKey = useQueryKey<TFallbackData, TFallbackSelect>({
     bffQueryAdditionalParams,
+    fallbackQueryConfig,
+  });
+  const queryFn = useQueryFn<TFallbackData, TFallbackSelect>({
+    bffQueryAdditionalParams,
+    fallbackQueryConfig,
+  }) as QueryFunction<TData, typeof queryKey>;
+
+  const selectFn = useBFFSelectFn<TData, TSelect>({
     bffQueryOptions,
     fallbackQueryConfig,
   });
 
-  return useQuery({
-    ...baseQueryConfig,
-  });
-}
-
-export function useSuspenseBFF({
-  bffQueryAdditionalParams = {},
-  bffQueryOptions = {},
-  fallbackQueryConfig,
-}: UseSuspenseBFFArgs) {
-  const baseQueryConfig = useBaseQueryConfig({
-    bffQueryAdditionalParams,
-    bffQueryOptions,
-    fallbackQueryConfig,
-  });
-  return useSuspenseQuery({
-    ...baseQueryConfig,
+  return useQuery<TData, Error, TSelect>({
+    queryKey,
+    queryFn,
+    select: selectFn,
   });
 }

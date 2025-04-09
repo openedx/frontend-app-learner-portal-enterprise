@@ -44,13 +44,13 @@ type EnterpriseCustomerUserSubsidies = {
   subscriptions: SubscriptionsSubsidy;
 };
 
-type BaseBFFResponse = EnterpriseLearnerData & {
+export interface BaseBFFResponse extends EnterpriseLearnerData {
   enterpriseCustomerUserSubsidies: EnterpriseCustomerUserSubsidies;
   errors: BFFErrorOrWarning[];
   warnings: BFFErrorOrWarning[];
-};
+}
 
-type BFFDashboardResponse = BaseBFFResponse & {
+interface BFFDashboardResponse extends BaseBFFResponse {
   enterpriseCourseEnrollments: unknown[];
   allEnrollmentsByStatus: {
     inProgress: unknown[];
@@ -58,11 +58,11 @@ type BFFDashboardResponse = BaseBFFResponse & {
     completed: unknown[];
     savedForLater: unknown[];
   };
-};
+}
 
-type BFFSearchResponse = BaseBFFResponse;
-type BFFAcademyResponse = BaseBFFResponse;
-type BFFSkillsQuizResponse = BaseBFFResponse;
+interface BFFSearchResponse extends BaseBFFResponse {}
+interface BFFAcademyResponse extends BaseBFFResponse {}
+interface BFFSkillsQuizResponse extends BaseBFFResponse {}
 
 export const baseLearnerBFFResponse: BaseBFFResponse = {
   enterpriseCustomer: null,
@@ -143,7 +143,7 @@ export async function makeBFFRequest<TData extends BaseBFFResponse>({
 
     // Make request to BFF.
     const result: AxiosResponse = await getAuthenticatedHttpClient().post(url, params);
-    const response = camelCaseObject<TData>(result.data) as TData;
+    const response = camelCaseObject(result.data) as TData;
 
     // Log any errors and warnings from the BFF response.
     logErrorsAndWarningsFromBFFResponse({ url, response });

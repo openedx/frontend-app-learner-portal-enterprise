@@ -7,7 +7,7 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
 
 /**
  * Retrieves the browse and request configuration.
- * @param {Types.UseQueryOptions} queryOptions - The query options.
+ * @param {Object} queryOptions - The query options.
  * @returns {Types.UseQueryResult} The query results for the browse and request configuration.
  */
 export function useBrowseAndRequestConfiguration(queryOptions = {}) {

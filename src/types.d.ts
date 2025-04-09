@@ -4,12 +4,10 @@ import { SUBSIDY_REQUEST_STATE } from './constants';
 declare global {
   // React Query
   type UseQueryResult = import('@tanstack/react-query').UseQueryResult;
-  type UseQueryOptions = import('@tanstack/react-query').UseQueryOptions;
   type QueryObserverOptions = import('@tanstack/react-query').QueryObserverOptions;
   type QueryClient = import('@tanstack/react-query').QueryClient;
   type QueryObserverResult = import('@tanstack/react-query').QueryObserverResult;
   type Query = import('@tanstack/react-query').Query;
-  type QueryOptions = import('@tanstack/react-query').QueryOptions;
 
   // Query Key Factory
   type QueryKeys = import('@lukemorales/query-key-factory').inferQueryKeyStore<typeof queries>;
