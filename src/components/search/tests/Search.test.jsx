@@ -114,40 +114,36 @@ describe('<Search />', () => {
   it.each(
     generateTestPermutations({
       canOnlyViewHighlights: [true, false],
-      useAlgoliaSearchReturnValue: [{
-        searchClient: null,
-        searchIndex: null,
-      }, {
-        searchClient: {
-          search: jest.fn(), appId: 'test-app-id',
-        },
-        searchIndex: {
-          indexName: 'mock-index-name',
-        },
-      }],
+      shouldUseSecuredAlgoliaApiKey: [true, false],
+      hasCatalogUuidToCatalogQueryUuidMapping: [true, false],
     }),
   )('renders the search client error page if no search client is found', ({
     canOnlyViewHighlights,
-    useAlgoliaSearchReturnValue,
+    shouldUseSecuredAlgoliaApiKey,
+    hasCatalogUuidToCatalogQueryUuidMapping,
   }) => {
-    useAlgoliaSearch.mockReturnValue(useAlgoliaSearchReturnValue);
+    useAlgoliaSearch.mockReturnValue({
+      shouldUseSecuredAlgoliaApiKey,
+      hasCatalogUuidToCatalogQueryUuidMapping,
+    });
     useCanOnlyViewHighlights.mockReturnValue({ data: canOnlyViewHighlights });
     renderWithRouter(
       <SearchWrapper>
         <Search />
       </SearchWrapper>,
     );
-
-    // Validate the SearchUnavailableAlert is being displayed when no search client is present and whether
+    const shouldDisplayAlert = shouldUseSecuredAlgoliaApiKey && !hasCatalogUuidToCatalogQueryUuidMapping;
+    // Validate the SearchUnavailableAlert is being displayed when the user is eligible to receive a secured
+    // algolia api key, there are no catalog query to catalog query uuid mappings and whether
     // highlights are not the only visible content
-    if (!useAlgoliaSearchReturnValue.searchClient && !canOnlyViewHighlights) {
+    if (shouldDisplayAlert && !canOnlyViewHighlights) {
       expect(screen.getByText(messages.alertHeading.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertText.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionsHeader.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionRefresh.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionNetwork.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionSupport.defaultMessage)).toBeInTheDocument();
-    } else if (useAlgoliaSearchReturnValue.searchClient || canOnlyViewHighlights) {
+    } else if (!shouldDisplayAlert || canOnlyViewHighlights) {
       expect(screen.queryByText(messages.alertHeading.defaultMessage)).not.toBeInTheDocument();
       expect(screen.queryByText(messages.alertText.defaultMessage)).not.toBeInTheDocument();
       expect(screen.queryByText(messages.alertTextOptionsHeader.defaultMessage)).not.toBeInTheDocument();

@@ -103,7 +103,6 @@ export default function useDefaultSearchFilters(): string {
     () => {
       // If there is a catalog uuid to catalog query uuid mapping, use the secured algolia
       // api key compatible filter query
-      console.log(shouldUseSecuredAlgoliaApiKey, hasCatalogUuidToCatalogQueryUuidMapping);
       if (shouldUseSecuredAlgoliaApiKey && hasCatalogUuidToCatalogQueryUuidMapping) {
         return queryByCatalogQuery({
           searchCatalogs,

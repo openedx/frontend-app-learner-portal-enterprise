@@ -21,6 +21,8 @@ const SearchJobRole = (props) => {
   const {
     searchClient,
     searchIndex,
+    shouldUseSecuredAlgoliaApiKey,
+    hasCatalogUuidToCatalogQueryUuidMapping,
   } = useAlgoliaSearch(
     config.ALGOLIA_INDEX_NAME_JOBS,
   );
@@ -88,7 +90,7 @@ const SearchJobRole = (props) => {
     props.onCancel();
   };
 
-  if (!searchClient) {
+  if (shouldUseSecuredAlgoliaApiKey && !hasCatalogUuidToCatalogQueryUuidMapping) {
     return (
       <Container size="lg" data-testid="search-unavailable-alert">
         <SearchUnavailableAlert />
