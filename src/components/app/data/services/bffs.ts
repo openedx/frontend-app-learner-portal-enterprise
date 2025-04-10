@@ -1,4 +1,5 @@
 import type { AxiosResponse } from 'axios';
+import { CamelCasedPropertiesDeep } from 'type-fest';
 import { getConfig } from '@edx/frontend-platform/config';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
@@ -6,7 +7,7 @@ import { camelCaseObject, snakeCaseObject } from '@edx/frontend-platform/utils';
 
 type MakeBFFRequestArgs<TData = unknown> = {
   url: string;
-  defaultResponse: CamelCasePropertiesNested<TData>;
+  defaultResponse: CamelCasedPropertiesDeep<TData>;
   options: BFFRequestOptions;
 };
 
@@ -95,7 +96,7 @@ export async function makeBFFRequest<TData extends BFFResponseRaw>({
       enterprise_customer_slug: enterpriseSlug,
       ...snakeCaseOptionsRest,
     };
-    type TDataWithCamelCase = CamelCasePropertiesNested<TData>;
+    type TDataWithCamelCase = CamelCasedPropertiesDeep<TData>;
 
     const result: AxiosResponse<TData> = await getAuthenticatedHttpClient()
       .post(url, params);

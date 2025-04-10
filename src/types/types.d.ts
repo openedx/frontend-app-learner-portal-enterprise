@@ -1,6 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { LoaderFunction } from 'react-router-dom';
 import { inferQueryKeyStore } from '@lukemorales/query-key-factory';
+import { CamelCasedPropertiesDeep } from 'type-fest';
 
 import {
   queries,
@@ -14,22 +15,6 @@ import * as enterpriseAccessOpenApi from './enterprise-access.openapi';
 import * as enterpriseSubsidyOpenApi from './enterprise-subsidy.openapi';
 
 declare global {
-  // Helpers
-
-  type CamelCaseProperties<S extends string> =
-    S extends `${infer T}_${infer U}` ?
-    `${T}${Capitalize<CamelCaseProperties<U>>}` :
-      S;
-
-  type CamelCasePropertiesNested<T> =
-    T extends Array<infer U>
-      ? Array<CamelCasePropertiesNested<U>>
-      : T extends object
-        ? {
-          [K in keyof T as K extends string ? CamelCaseProperties<K> : K]: CamelCasePropertiesNested<T[K]>
-        }
-        : T;
-
   // Query Key Factory
   type QueryKeys = inferQueryKeyStore<typeof queries>;
 
@@ -54,7 +39,7 @@ declare global {
   // Application Data (enterprise)
 
   type EnterpriseCustomerRaw = enterpriseAccessOpenApi.components['schemas']['EnterpriseCustomer'];
-  type EnterpriseCustomer = CamelCasePropertiesNested<EnterpriseCustomerRaw>;
+  type EnterpriseCustomer = CamelCasedPropertiesDeep<EnterpriseCustomerRaw>;
 
   type EnterpriseFeatures = {
     enterpriseLearnerBffEnabled?: boolean;
@@ -62,7 +47,7 @@ declare global {
   };
 
   type EnterpriseCustomerUserRaw = enterpriseAccessOpenApi.components['schemas']['EnterpriseCustomerUser'];
-  type EnterpriseCustomerUser = CamelCasePropertiesNested<EnterpriseCustomerUserRaw>;
+  type EnterpriseCustomerUser = CamelCasedPropertiesDeep<EnterpriseCustomerUserRaw>;
 
   type EnterpriseLearnerData = {
     enterpriseCustomer: EnterpriseCustomer | null;
@@ -79,17 +64,17 @@ declare global {
   };
 
   type EnterpriseCourseEnrollmentRaw = enterpriseAccessOpenApi.components['schemas']['EnterpriseCourseEnrollment'];
-  type EnterpriseCourseEnrollment = CamelCasePropertiesNested<EnterpriseCourseEnrollmentRaw>;
+  type EnterpriseCourseEnrollment = CamelCasedPropertiesDeep<EnterpriseCourseEnrollmentRaw>;
 
   // Application Data (subsidy)
 
   type SubsidyRequestState = typeof SUBSIDY_REQUEST_STATE[keyof typeof SUBSIDY_REQUEST_STATE];
 
   type SubsidyAccessPolicyRaw = enterpriseAccessOpenApi.components['schemas']['SubsidyAccessPolicyCreditsAvailableResponse'];
-  type SubsidyAccessPolicy = CamelCasePropertiesNested<SubsidyAccessPolicyRaw>;
+  type SubsidyAccessPolicy = CamelCasedPropertiesDeep<SubsidyAccessPolicyRaw>;
 
   type SubsidyTransactionRaw = enterpriseSubsidyOpenApi.components['schemas']['Transaction'];
-  type SubsidyTransaction = CamelCasePropertiesNested<SubsidyTransactionRaw>;
+  type SubsidyTransaction = CamelCasedPropertiesDeep<SubsidyTransactionRaw>;
 
   // BFFs
 
@@ -107,10 +92,10 @@ declare global {
     SkillsQuizBFFResponseRaw
   );
 
-  type DashboardBFFResponse = CamelCasePropertiesNested<DashboardBFFResponseRaw>;
-  type SearchBFFResponse = CamelCasePropertiesNested<SearchBFFResponseRaw>;
-  type AcademyBFFResponse = CamelCasePropertiesNested<AcademyBFFResponseRaw>;
-  type SkillsQuizBFFResponse = CamelCasePropertiesNested<SkillsQuizBFFResponseRaw>;
+  type DashboardBFFResponse = CamelCasedPropertiesDeep<DashboardBFFResponseRaw>;
+  type SearchBFFResponse = CamelCasedPropertiesDeep<SearchBFFResponseRaw>;
+  type AcademyBFFResponse = CamelCasedPropertiesDeep<AcademyBFFResponseRaw>;
+  type SkillsQuizBFFResponse = CamelCasedPropertiesDeep<SkillsQuizBFFResponseRaw>;
 
   type BFFResponse = (
     DashboardBFFResponse |
