@@ -6,7 +6,8 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
 /**
  * Determines whether the given courseRunKey is redeemable with their learner credit policies
  * Returns the first redeemableSubsidyAccessPolicy
- * @returns {Types.UseQueryResult}
+ *
+ * @returns The query result.
  */
 export default function useCanUpgradeWithLearnerCredit(courseRunKey, queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();

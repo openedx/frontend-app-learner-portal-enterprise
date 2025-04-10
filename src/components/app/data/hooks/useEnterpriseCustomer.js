@@ -2,8 +2,8 @@ import useEnterpriseLearner from './useEnterpriseLearner';
 
 /**
  * Helper hook to retrieve the enterprise customer metadata.
- * @param {Types.UseQueryOptions} queryOptions
- * @returns {Types.UseQueryResult}
+ * @param {object} queryOptions
+ * @returns The query results.
  */
 export default function useEnterpriseCustomer(queryOptions = {}) {
   const { select, ...queryOptionsRest } = queryOptions;

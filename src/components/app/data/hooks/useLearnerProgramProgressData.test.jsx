@@ -38,7 +38,7 @@ describe('useLearnerProgramProgressData', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockLearnerProgramProgressData,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

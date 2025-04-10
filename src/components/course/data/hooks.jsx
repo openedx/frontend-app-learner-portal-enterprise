@@ -406,6 +406,7 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  */
 export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  // Note: this hook is used on dashboard, and the courseKey param for this query doesnt exist
   const { data: courseMetadata } = useCourseMetadata();
   const activeCourseRun = courseMetadata?.activeCourseRun;
   const { algoliaSearchParams } = useContext(CourseContext) || {};
@@ -450,9 +451,10 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
 /**
  * Returns a function to be used as a click handler that emits an optimizely enrollment click event.
  *
+ * @param {object} args
  * @param {string} [args.href] Optional: If click handler is used on a hyperlink, this is the destination url.
  * @param {string} args.courseRunKey Id of the course run
- * @param {string} args.userEnrollments Array of user enrollments
+ * @param {array} args.userEnrollments Array of user enrollments
  *
  * @returns Click handler function for clicks on enrollment buttons.
  */

@@ -28,7 +28,7 @@ import {
  * @param {*} options.allLinkedEnterpriseCustomerUsers
  * @param {*} options.userId
  * @param {*} options.userEmail
- * @param {Types.QueryClient} options.queryClient
+ * @param {object} options.queryClient
  * @returns
  */
 export async function ensureEnterpriseAppData({

@@ -105,7 +105,7 @@ describe('useEnterpriseCustomer', () => {
       }
     });
 
-    const actualEnterpriseFeatures = result.current.data;
-    expect(actualEnterpriseFeatures).toEqual(mockExpectedEnterpriseCustomer(isMatchedBFFRoute));
+    const actualEnterpriseCustomer = result.current.data;
+    expect(actualEnterpriseCustomer).toEqual(mockExpectedEnterpriseCustomer(isMatchedBFFRoute));
   });
 });

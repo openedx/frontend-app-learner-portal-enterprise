@@ -166,13 +166,13 @@ export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
     ._ctx.redeemablePolicies(lmsUserId);
 }
 
-export function queryPolicyTransaction(enterpriseUuid: string, transaction) {
+export function queryPolicyTransaction(enterpriseUuid: string, transactionStatusApiUrl?: string) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.subsidies
     ._ctx.policy
-    ._ctx.transaction(transaction);
+    ._ctx.transaction(transactionStatusApiUrl);
 }
 
 export function queryEnterpriseLearnerOffers(enterpriseUuid: string) {

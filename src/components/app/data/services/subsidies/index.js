@@ -122,10 +122,9 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
  * Makes an API request to retrieve the most recent payload for the
  * specified transaction. The transaction may be in various states such
  * as pending, committed, etc.
- * @param {Object} transaction
+ * @param {string} transactionStatusApiUrl
  */
-export async function checkTransactionStatus(transaction) {
-  const { transactionStatusApiUrl } = transaction;
+export async function checkTransactionStatus(transactionStatusApiUrl) {
   const response = await getAuthenticatedHttpClient().get(transactionStatusApiUrl);
   return camelCaseObject(response.data);
 }

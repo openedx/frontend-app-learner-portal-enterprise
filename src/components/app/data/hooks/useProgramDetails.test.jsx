@@ -54,7 +54,7 @@ describe('useProgramDetails', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockProgramDetails,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

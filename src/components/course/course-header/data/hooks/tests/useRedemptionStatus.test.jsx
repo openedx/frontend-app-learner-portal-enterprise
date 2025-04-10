@@ -1,10 +1,11 @@
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 import { act, renderHook } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { MOCK_COURSEWARE_URL } from './constants';
 import useRedemptionStatus from '../useRedemptionStatus';
+import { queryClient } from '../../../../../../utils/tests';
 
 // mock global.location.href
 delete global.location;
@@ -12,10 +13,8 @@ global.location = {
   assign: jest.fn(),
 };
 
-const queryClient = new QueryClient();
-
 const wrapper = ({ children }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  <QueryClientProvider client={queryClient()}>{children}</QueryClientProvider>
 );
 
 describe('useRedemptionStatus', () => {

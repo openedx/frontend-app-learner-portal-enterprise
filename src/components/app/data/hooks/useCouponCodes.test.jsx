@@ -34,7 +34,7 @@ describe('useCouponCodes', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockCouponCodes,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

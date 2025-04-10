@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -65,11 +66,13 @@ describe('useEnterpriseLearner', () => {
   const Wrapper = ({ initialEntries = [], children }) => (
     <QueryClientProvider client={queryClient()}>
       <MemoryRouter initialEntries={initialEntries}>
-        <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-          <Routes>
-            <Route path=":enterpriseSlug/unsupported-bff-route?" element={children} />
-          </Routes>
-        </AppContext.Provider>
+        <Suspense fallback="loading...">
+          <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+            <Routes>
+              <Route path=":enterpriseSlug/unsupported-bff-route?" element={children} />
+            </Routes>
+          </AppContext.Provider>
+        </Suspense>
       </MemoryRouter>
     </QueryClientProvider>
   );
@@ -118,7 +121,7 @@ describe('useEnterpriseLearner', () => {
       }
     });
 
-    const actualEnterpriseFeatures = result.current.data;
-    expect(actualEnterpriseFeatures).toEqual(mockExpectedEnterpriseLearner(isMatchedBFFRoute));
+    const actualEnterpriseLearner = result.current.data;
+    expect(actualEnterpriseLearner).toEqual(mockExpectedEnterpriseLearner(isMatchedBFFRoute));
   });
 });

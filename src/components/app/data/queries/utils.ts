@@ -9,11 +9,10 @@ import {
 
 /**
  * Resolves the appropriate BFF query function to use for the current route.
- * @param {string} pathname - The current route pathname.
- * @param options
- * @returns {Function|null} The BFF query function to use for the current route, or null if no match is found.
+ * @param pathname - The current route pathname.
+ * @returns The BFF query function to use for the current route, or null if no match is found.
  */
-export function resolveBFFQuery(pathname) {
+export function resolveBFFQuery(pathname: string) {
   // Define route patterns and their corresponding query functions
   const routeToBFFQueryMap = [
     {
@@ -56,7 +55,7 @@ export function resolveBFFQuery(pathname) {
  * @param enterpriseSlug
  * @param authenticatedUser
  * @param queryEnterpriseLearnerConfig
- * @returns {Promise<{ data: Types.EnterpriseLearnerData, isBFFData: boolean }>}
+ * @returns {Promise<{ data: EnterpriseLearnerData, isBFFData: boolean }>}
  */
 export async function getEnterpriseLearnerQueryData({
   requestUrl,

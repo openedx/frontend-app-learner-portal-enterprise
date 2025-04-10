@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
@@ -55,21 +56,25 @@ const mockProgramsListData = [
 describe('useEnterpriseProgramsList', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback="loading">
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
+
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     fetchLearnerProgramsList.mockResolvedValue(mockProgramsListData);
   });
+
   it('should handle resolved value correctly', async () => {
     const { result } = renderHook(() => useEnterpriseProgramsList(), { wrapper: Wrapper });
     await waitFor(() => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockProgramsListData,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

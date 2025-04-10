@@ -1,4 +1,6 @@
-import { generatePath, redirect } from 'react-router-dom';
+import {
+  generatePath, LoaderFunctionArgs, Params, redirect,
+} from 'react-router-dom';
 
 import {
   extractEnterpriseCustomer,
@@ -9,13 +11,13 @@ import {
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
-type ExternalCourseEnrollmentRouteParams<Key extends string = string> = RouteParams<Key> & {
+type ExternalCourseEnrollmentRouteParams<Key extends string = string> = Params<Key> & {
   readonly courseType: string;
   readonly courseKey: string;
   readonly courseRunKey: string;
   readonly enterpriseSlug: string;
 };
-interface ExternalCourseEnrollmentLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface ExternalCourseEnrollmentLoaderFunctionArgs extends LoaderFunctionArgs {
   params: ExternalCourseEnrollmentRouteParams;
 }
 
@@ -46,6 +48,7 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
       if (!enterpriseCustomer) {
         return null;
       }
+
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.

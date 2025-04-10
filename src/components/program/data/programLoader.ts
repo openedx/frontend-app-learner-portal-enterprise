@@ -1,11 +1,13 @@
+import { LoaderFunctionArgs, Params } from 'react-router-dom';
+
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { extractEnterpriseCustomer, queryEnterpriseProgram } from '../../app/data';
 
-type ProgramRouteParams<Key extends string = string> = RouteParams<Key> & {
+type ProgramRouteParams<Key extends string = string> = Params<Key> & {
   readonly programUUID: string;
   readonly enterpriseSlug: string;
 };
-interface ProgramLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface ProgramLoaderFunctionArgs extends LoaderFunctionArgs {
   params: ProgramRouteParams;
 }
 
@@ -29,6 +31,7 @@ const makeProgramLoader: MakeRouteLoaderFunctionWithQueryClient = function makeP
     if (!enterpriseCustomer) {
       return null;
     }
+
     await queryClient.ensureQueryData(queryEnterpriseProgram(enterpriseCustomer.uuid, programUUID));
 
     return null;

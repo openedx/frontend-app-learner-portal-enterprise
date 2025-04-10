@@ -1,7 +1,9 @@
+import { QueryClient } from '@tanstack/react-query';
+
 import { queryEnterpriseLearner } from './queries';
 
 interface ExtractEnterpriseCustomerArgs {
-  queryClient: QueryClient;
+  queryClient: QueryClient
   authenticatedUser: AuthenticatedUser;
   enterpriseSlug?: string;
 }

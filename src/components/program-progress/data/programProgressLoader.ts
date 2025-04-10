@@ -1,3 +1,4 @@
+import { LoaderFunctionArgs, Params } from 'react-router-dom';
 import {
   extractEnterpriseCustomer,
   queryEnterpriseCourseEnrollments,
@@ -5,10 +6,10 @@ import {
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
-type ProgramProgressRouteParams<Key extends string = string> = RouteParams<Key> & {
+type ProgramProgressRouteParams<Key extends string = string> = Params<Key> & {
   readonly programUUID: string;
 };
-interface ProgramProgressLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface ProgramProgressLoaderFunctionArgs extends LoaderFunctionArgs {
   params: ProgramProgressRouteParams;
 }
 

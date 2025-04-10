@@ -5,8 +5,8 @@ import { queryEnterpriseProgram } from '../queries';
 
 /**
  * Retrieves the course details related to the programs page.
- * @param {Types.UseQueryOptions} queryOptions - The query options.
- * @returns {Types.UseQueryResult} The query results for the browse and request configuration.
+ * @param {object} queryOptions - The query options.
+ * @returns The query results for the browse and request configuration.
  */
 export default function useProgramDetails(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();

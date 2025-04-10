@@ -1,10 +1,11 @@
 import { act } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { keepPreviousData, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryRouter } from 'react-router-dom';
 import App from './App';
 import { createAppRouter } from './routes';
+import { defaultQueryClientRetryHandler } from '../../utils/common';
 
 jest.mock('./routes', () => ({
   ...jest.requireActual('./routes'),
@@ -32,7 +33,7 @@ describe('App', () => {
       [{ path: '/', element: <div data-testid="mock-route">Mock Route</div> }],
       { initialEntries: ['/'] },
     );
-    createAppRouter.mockReturnValue(mockRouter);
+    (createAppRouter as jest.Mock).mockReturnValue(mockRouter);
   });
 
   afterEach(() => {
@@ -56,6 +57,7 @@ describe('App', () => {
 
     // Toggle visibility ON
     act(() => {
+      // @ts-ignore
       window.toggleReactQueryDevtools();
     });
     await waitFor(() => {
@@ -64,8 +66,10 @@ describe('App', () => {
 
     // Toggle visibility OFF
     act(() => {
+      // @ts-ignore
       window.toggleReactQueryDevtools();
     });
+
     await waitFor(() => {
       expect(screen.queryByTestId('react-query-devtools-production')).not.toBeInTheDocument();
     });
@@ -74,17 +78,17 @@ describe('App', () => {
   test('uses the custom router created by createAppRouter', () => {
     render(<App />);
 
-    expect(createAppRouter).toHaveBeenCalledWith(
+    expect(createAppRouter).toHaveBeenCalledTimes(1);
+    const actualQueryClient: QueryClient = (createAppRouter as jest.Mock).mock.calls[0][0];
+    const actualDefaultOptions = actualQueryClient.getDefaultOptions();
+    expect(actualDefaultOptions).toEqual(
       expect.objectContaining({
-        defaultOptions: {
-          queries: expect.objectContaining({
-            cacheTime: 1000 * 60 * 30,
-            keepPreviousData: true,
-            retry: expect.any(Function),
-            staleTime: 1000 * 20,
-            suspense: true,
-          }),
-        },
+        queries: expect.objectContaining({
+          staleTime: 1000 * 20, // 20 seconds
+          placeholderData: keepPreviousData,
+          throwOnError: false,
+          retry: defaultQueryClientRetryHandler,
+        }),
       }),
     );
 

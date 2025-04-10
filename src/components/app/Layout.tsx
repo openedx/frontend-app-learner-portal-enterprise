@@ -36,7 +36,7 @@ const Layout = () => {
     <EnterprisePage>
       <Helmet titleTemplate={TITLE_TEMPLATE} defaultTitle={DEFAULT_TITLE}>
         <html lang="en" />
-        {brandStyles.map(({ key, styles }) => (
+        {brandStyles?.map(({ key, styles }) => (
           <style key={key} type="text/css">{styles}</style>
         ))}
       </Helmet>

@@ -84,7 +84,7 @@ export function transformCourseRedemptionEligibility({
 
 /**
  * Retrieves the course redemption eligibility for the given enterprise customer and course key.
- * @returns {Types.UseQueryResult}} The query results for the course redemption eligibility.
+ * @returns The query results for the course redemption eligibility.
  */
 export default function useCourseRedemptionEligibility(queryOptions = {}) {
   const { courseRunKey } = useParams();

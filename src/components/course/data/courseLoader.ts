@@ -1,4 +1,6 @@
-import { generatePath, redirect } from 'react-router-dom';
+import {
+  generatePath, LoaderFunctionArgs, Params, redirect,
+} from 'react-router-dom';
 
 import {
   determineAllocatedAssignmentsForCourse,
@@ -26,11 +28,11 @@ import {
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
 
-type CourseRouteParams<Key extends string = string> = RouteParams<Key> & {
+type CourseRouteParams<Key extends string = string> = Params<Key> & {
   readonly courseKey: string;
   readonly enterpriseSlug: string;
 };
-interface CourseLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface CourseLoaderFunctionArgs extends LoaderFunctionArgs {
   params: CourseRouteParams;
 }
 type CourseMetadata = {

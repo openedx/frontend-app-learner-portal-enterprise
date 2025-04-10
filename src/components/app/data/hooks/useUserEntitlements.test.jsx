@@ -27,7 +27,7 @@ describe('useUserEntitlements', () => {
       expect(result.current).toEqual(
         expect.objectContaining({
           data: mockUserEntitlements,
-          isLoading: false,
+          isPending: false,
           isFetching: false,
         }),
       );

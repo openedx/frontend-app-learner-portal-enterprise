@@ -1,11 +1,13 @@
+import { LoaderFunctionArgs, Params } from 'react-router-dom';
+
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { extractEnterpriseCustomer, queryAcademiesDetail } from '../../app/data';
 
-type AcademyRouteParams<Key extends string = string> = RouteParams<Key> & {
+type AcademyRouteParams<Key extends string = string> = Params<Key> & {
   readonly academyUUID: string;
   readonly enterpriseSlug: string;
 };
-interface AcademyLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface AcademyLoaderFunctionArgs extends LoaderFunctionArgs {
   params: AcademyRouteParams;
 }
 
@@ -25,7 +27,6 @@ const makeAcademiesLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
       authenticatedUser,
       enterpriseSlug,
     });
-
     if (!enterpriseCustomer) {
       return null;
     }

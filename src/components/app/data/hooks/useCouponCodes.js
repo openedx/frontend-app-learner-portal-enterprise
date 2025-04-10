@@ -4,7 +4,7 @@ import { queryCouponCodes } from '../queries';
 
 /**
  * Retrieves the coupon codes and transforms their data.
- * @returns {Types.UseQueryResult} The query results for the coupon codes.
+ * @returns The query results for the coupon codes.
  */
 export default function useCouponCodes(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();

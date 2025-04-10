@@ -11,7 +11,7 @@ import {
   transformSubsidyRequest,
 } from '../utils';
 import { COURSE_STATUSES } from '../../../../constants';
-import useBFF from './useBFF';
+import { useSuspenseBFF } from './useBFF';
 
 export const transformAllEnrollmentsByStatus = ({
   enrollmentsByStatus,
@@ -30,8 +30,8 @@ export const transformAllEnrollmentsByStatus = ({
 /**
  * Retrieves the relevant enterprise course enrollments, subsidy requests (e.g., license
  * requests), and content assignments for the active enterprise customer user.
- * @param {Types.UseQueryOptions} queryOptions The query options.
- * @returns {Types.UseQueryResult} The query results.
+ * @param {object} queryOptions The query options.
+ * @returns The query results.
  */
 export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
   const {
@@ -47,7 +47,7 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
 
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
-  const { data: enterpriseCourseEnrollments } = useBFF({
+  const { data: enterpriseCourseEnrollments } = useSuspenseBFF({
     bffQueryOptions: {
       ...queryOptions,
       select: (data) => {

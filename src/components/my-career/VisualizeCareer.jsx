@@ -25,7 +25,7 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
   const {
     data: learnerSkillLevels,
     error: learnerSkillLevelsFetchError,
-    isLoading: isLoadingLearnerSkills,
+    isPending: isPendingLearnerSkills
   } = useLearnerSkillLevels(jobId);
 
   const editOnClickHandler = () => {
@@ -51,7 +51,7 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
     );
   }
 
-  if (isLoadingLearnerSkills) {
+  if (isPendingLearnerSkills) {
     return (
       <div className="py-5">
         <LoadingSpinner data-testid="loading-spinner" screenReaderText="loading your skills" />

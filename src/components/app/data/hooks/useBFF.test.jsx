@@ -290,7 +290,7 @@ describe('useBFF', () => {
     });
 
     if (hasQueryOptions) {
-      expect(mockSelect).toHaveBeenCalledTimes(1);
+        expect(mockSelect).toHaveBeenCalledTimes(1);
       if (isMatchedBFFRoute) {
         // Expects the select function to be called with the resolved BFF data
         expect(mockSelect).toHaveBeenCalledWith(mockBFFResponseData);

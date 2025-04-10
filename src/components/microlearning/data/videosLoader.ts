@@ -1,13 +1,14 @@
+import { LoaderFunctionArgs, Params } from 'react-router-dom';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer, queryCourseMetadata, queryCourseReviews, queryVideoDetail,
 } from '../../app/data';
 
-type VideoRouteParams<Key extends string = string> = RouteParams<Key> & {
+type VideoRouteParams<Key extends string = string> = Params<Key> & {
   readonly videoUUID: string;
   readonly enterpriseSlug: string;
 };
-interface VideoLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface VideoLoaderFunctionArgs extends LoaderFunctionArgs {
   params: VideoRouteParams;
 }
 
@@ -30,6 +31,7 @@ const makeVideosLoader: MakeRouteLoaderFunctionWithQueryClient = function makeVi
     if (!enterpriseCustomer) {
       return null;
     }
+
     const videoData = await queryClient.ensureQueryData(queryVideoDetail(videoUUID, enterpriseCustomer.uuid));
     if (videoData) {
       const { courseKey } = videoData;

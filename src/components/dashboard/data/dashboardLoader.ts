@@ -1,21 +1,21 @@
+import { LoaderFunctionArgs, Params } from 'react-router-dom';
 import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
+  BFFDashboardResponse,
   extractEnterpriseCustomer,
   queryEnterpriseCourseEnrollments,
+  queryEnterpriseLearnerDashboardBFF,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
   queryRedeemablePolicies,
   resolveBFFQuery,
 } from '../../app/data';
 
-type DashboardRouteParams<Key extends string = string> = RouteParams<Key> & {
+type DashboardRouteParams<Key extends string = string> = Params<Key> & {
   readonly enterpriseSlug: string;
 };
-interface DashboardLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface DashboardLoaderFunctionArgs extends LoaderFunctionArgs {
   params: DashboardRouteParams;
-}
-interface DashboardBFFResponse {
-  enterpriseCourseEnrollments: EnterpriseCourseEnrollment[];
 }
 
 /**
@@ -39,7 +39,6 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
       authenticatedUser,
       enterpriseSlug,
     });
-
     if (!enterpriseCustomer) {
       return null;
     }
@@ -47,7 +46,7 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
     // Attempt to resolve the BFF query for the dashboard.
     const dashboardBFFQuery = resolveBFFQuery(
       requestUrl.pathname,
-    );
+    ) as typeof queryEnterpriseLearnerDashboardBFF | null;
 
     // Load enrollments, policies, and conditionally redirect for new users
     const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([
@@ -62,7 +61,7 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
       })),
     ]).then((responses) => {
       const enterpriseCourseEnrollments = dashboardBFFQuery
-        ? (responses[0] as DashboardBFFResponse).enterpriseCourseEnrollments
+        ? (responses[0] as BFFDashboardResponse).enterpriseCourseEnrollments
         : responses[0] as EnterpriseCourseEnrollment[];
       const redeemablePolicies = responses[1];
       // Redirect user to search page, for first-time users with no enrollments and/or assignments.

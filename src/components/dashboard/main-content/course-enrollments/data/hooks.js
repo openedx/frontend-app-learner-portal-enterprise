@@ -309,7 +309,7 @@ export function useContentAssignments() {
 
   const {
     mutateAsync,
-    isLoading: isLoadingMutation,
+    isLoading: isPendingMutation,
   } = useAcknowledgeContentAssignments({ enterpriseId: enterpriseCustomer.uuid, userId });
 
   const handleAcknowledgeAssignments = useCallback(async ({ assignmentState }) => {
@@ -319,7 +319,7 @@ export function useContentAssignments() {
     };
 
     // Fail early if mutation is already in progress.
-    if (isLoadingMutation) {
+    if (isPendingMutation) {
       logError('Attempted to acknowledge assignments while mutation is already in progress.');
       return;
     }
@@ -351,7 +351,7 @@ export function useContentAssignments() {
     setIsAcknowledgingAssignments(true);
     await mutateAsync({ assignmentsByAssignmentConfiguration });
     setIsAcknowledgingAssignments(false);
-  }, [mutateAsync, assignments, isLoadingMutation]);
+  }, [mutateAsync, assignments, isPendingMutation]);
 
   /**
    * Parses the learner content assignments from the redeemableLearnerCreditPolicies

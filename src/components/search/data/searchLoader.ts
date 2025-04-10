@@ -1,12 +1,14 @@
-import { generatePath, redirect } from 'react-router-dom';
+import {
+  generatePath, LoaderFunctionArgs, Params, redirect,
+} from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
 import { extractEnterpriseCustomer, queryAcademiesList, queryContentHighlightSets } from '../../app/data';
 
-type SearchRouteParams<Key extends string = string> = RouteParams<Key> & {
+type SearchRouteParams<Key extends string = string> = Params<Key> & {
   readonly enterpriseSlug: string;
 };
-interface SearchLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface SearchLoaderFunctionArgs extends LoaderFunctionArgs {
   params: SearchRouteParams;
 }
 interface Academy {

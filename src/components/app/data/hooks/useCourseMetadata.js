@@ -12,7 +12,7 @@ import useRedeemablePolicies from './useRedeemablePolicies';
 
 /**
  * Retrieves the course metadata for the given enterprise customer and course key.
- * @returns {Types.UseQueryResult}} The query results for the course metadata.
+ * @returns The query results for the course metadata.
  */
 export default function useCourseMetadata(queryOptions = {}) {
   const { select, ...queryOptionsRest } = queryOptions;

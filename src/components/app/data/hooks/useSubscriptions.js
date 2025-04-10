@@ -1,17 +1,17 @@
 import { querySubscriptions } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
-import useBFF from './useBFF';
+import { useSuspenseBFF } from './useBFF';
 
 /**
  * Custom hook to get subscriptions data for the enterprise.
- * @param {Types.UseQueryOptions} queryOptions
- * @returns {Types.UseQueryResults} The query results for the subscriptions.
+ * @param {object} [queryOptions]
+ * @returns The query results for the subscriptions.
  */
 export default function useSubscriptions(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { select, ...queryOptionsRest } = queryOptions;
 
-  return useBFF({
+  return useSuspenseBFF({
     bffQueryOptions: {
       ...queryOptionsRest,
       select: (data) => {

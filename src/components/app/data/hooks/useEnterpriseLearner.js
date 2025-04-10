@@ -2,21 +2,20 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { queryEnterpriseLearner } from '../queries';
-import useBFF from './useBFF';
+import { useSuspenseBFF } from './useBFF';
 
 /**
  * Retrieves the enterprise learner data for the authenticated user.
- * @param {Types.UseQueryOptions} queryOptions - The query options.
- * @returns {Types.UseQueryResult} The query results for the enterprise learner data.
+ * @param {object} queryOptions - The query options.
+ * @returns The query results for the enterprise learner data.
  */
 export default function useEnterpriseLearner(queryOptions = {}) {
   const { authenticatedUser } = useContext(AppContext);
   const { enterpriseSlug } = useParams();
-  const { select, ...queryOptionsRest } = queryOptions;
+  const { select } = queryOptions;
 
-  return useBFF({
+  return useSuspenseBFF({
     bffQueryOptions: {
-      ...queryOptionsRest,
       select: (data) => {
         const transformedData = {
           enterpriseCustomer: data.enterpriseCustomer,

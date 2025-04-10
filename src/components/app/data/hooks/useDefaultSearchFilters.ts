@@ -85,7 +85,8 @@ const queryByCatalogQuery = ({
 export default function useDefaultSearchFilters(): string {
   const { refinements, dispatch } = useContext(SearchContext) as SearchContextValue;
   const showAllRefinement = !!refinements[SHOW_ALL_NAME];
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const enterpriseCustomerResult = useEnterpriseCustomer();
+  const enterpriseCustomer = enterpriseCustomerResult.data as EnterpriseCustomer;
   const searchCatalogs = useSearchCatalogs();
   const { catalogUuidsToCatalogQueryUuids, shouldUseSecuredAlgoliaApiKey } = useAlgoliaSearch();
 

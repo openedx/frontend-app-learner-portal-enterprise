@@ -1,15 +1,21 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
+type SubmitRedemptionRequestArgs = {
+  policyRedemptionUrl: string;
+  userId: string;
+  contentKey: string;
+  metadata?: Record<string, unknown>;
+};
+
 /**
  * Makes an API request to retrieve the most recent payload for the
- * specified transaction UUID.
- *
- * @param {object} args
- * @param {string} args.transactionStatusApiUrl API url to retrieve the transaction status.
- * @returns The payload for the specified transaction.
+ * specified transaction status API url.
+ * @returns The response from calling the transaction statue API url
  */
-export const retrieveTransactionStatus = async ({ transactionStatusApiUrl }) => {
+export const retrieveTransactionStatus = async (
+  { transactionStatusApiUrl }: SubsidyTransaction,
+): Promise<SubsidyTransaction> => {
   const response = await getAuthenticatedHttpClient().get(transactionStatusApiUrl);
   return camelCaseObject(response.data);
 };
@@ -31,7 +37,7 @@ export const submitRedemptionRequest = async ({
   userId,
   contentKey,
   metadata = {},
-}) => {
+}: SubmitRedemptionRequestArgs) => {
   const requestBody = {
     lms_user_id: userId,
     content_key: contentKey,

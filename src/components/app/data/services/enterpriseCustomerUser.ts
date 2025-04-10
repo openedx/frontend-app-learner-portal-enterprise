@@ -1,3 +1,4 @@
+import type { AxiosResponse } from 'axios';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
@@ -138,12 +139,12 @@ Promise<EnterpriseLearnerData> {
 }
 
 /**
- * TODO
- * @param {*} enterpriseId
- * @param {*} options
- * @returns
+ * @returns List of enterprise course enrollments.
  */
-export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {}) {
+export async function fetchEnterpriseCourseEnrollments(
+  enterpriseId: string,
+  options = {},
+): Promise<EnterpriseCourseEnrollment[]> {
   const queryParams = new URLSearchParams({
     enterprise_id: enterpriseId,
     is_active: 'true',
@@ -151,7 +152,7 @@ export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {
   });
   const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
   try {
-    const response = await getAuthenticatedHttpClient().get(url);
+    const response: AxiosResponse = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);
   } catch (error) {
     if (error instanceof Error && getErrorResponseStatusCode(error) !== 404) {
