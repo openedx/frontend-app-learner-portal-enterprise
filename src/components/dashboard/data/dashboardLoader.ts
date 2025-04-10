@@ -1,9 +1,7 @@
 import { LoaderFunctionArgs, Params } from 'react-router-dom';
 import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
-  BFFDashboardResponse,
   extractEnterpriseCustomer,
-  queryEnterpriseCourseEnrollments,
   queryEnterpriseLearnerDashboardBFF,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
@@ -44,25 +42,19 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
     }
 
     // Attempt to resolve the BFF query for the dashboard.
-    const dashboardBFFQuery = resolveBFFQuery(
+    const dashboardBFFQuery = resolveBFFQuery<typeof queryEnterpriseLearnerDashboardBFF>(
       requestUrl.pathname,
-    ) as typeof queryEnterpriseLearnerDashboardBFF | null;
+    );
 
     // Load enrollments, policies, and conditionally redirect for new users
     const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([
-      queryClient.ensureQueryData(
-        dashboardBFFQuery
-          ? dashboardBFFQuery({ enterpriseSlug })
-          : queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
-      ),
+      queryClient.ensureQueryData(dashboardBFFQuery({ enterpriseSlug })),
       queryClient.ensureQueryData(queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: authenticatedUser.userId,
       })),
     ]).then((responses) => {
-      const enterpriseCourseEnrollments = dashboardBFFQuery
-        ? (responses[0] as BFFDashboardResponse).enterpriseCourseEnrollments
-        : responses[0] as EnterpriseCourseEnrollment[];
+      const { enterpriseCourseEnrollments } = responses[0];
       const redeemablePolicies = responses[1];
       // Redirect user to search page, for first-time users with no enrollments and/or assignments.
       redirectToSearchPageForNewUser({

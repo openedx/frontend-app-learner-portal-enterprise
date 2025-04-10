@@ -1,3 +1,4 @@
+import type { Router } from '@remix-run/router';
 import { QueryClient } from '@tanstack/react-query';
 import { createBrowserRouter } from 'react-router-dom';
 

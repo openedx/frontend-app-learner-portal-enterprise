@@ -47,7 +47,7 @@ type RedeemWithUseStatefulEnrollArgs = {
 };
 
 describe('useStatefulEnroll', () => {
-  function mockRedemptionWithState(transactionState: SubsidyTransactionState) {
+  function mockRedemptionWithState(transactionState: SubsidyTransaction['state']) {
     axiosMock.onPost(mockPolicyRedemptionUrl).replyOnce(200, {
       uuid: mockTransactionUuid,
       state: transactionState,
@@ -55,7 +55,7 @@ describe('useStatefulEnroll', () => {
     });
   }
 
-  function mockTransactionStates(transactionStates: SubsidyTransactionState[]) {
+  function mockTransactionStates(transactionStates: SubsidyTransaction['state'][]) {
     transactionStates.forEach((state) => {
       axiosMock.onGet(mockTransactionStatusApiUrl).replyOnce(200, {
         uuid: mockTransactionUuid,
@@ -90,11 +90,11 @@ describe('useStatefulEnroll', () => {
       </QueryClientProvider>
     );
 
-    const subsidyAccessPolicy: SubsidyAccessPolicy | undefined = hasSubsidyAccessPolicy
+    const subsidyAccessPolicy = hasSubsidyAccessPolicy
       ? {
         uuid: 'policy_uuid',
         policyRedemptionUrl: mockPolicyRedemptionUrl,
-      }
+      } as SubsidyAccessPolicy
       : undefined;
 
     const { result } = renderHook(() => useStatefulEnroll({

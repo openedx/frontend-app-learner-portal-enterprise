@@ -25,7 +25,7 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
   const {
     data: learnerSkillLevels,
     error: learnerSkillLevelsFetchError,
-    isPending: isPendingLearnerSkills
+    isPending: isPendingLearnerSkills,
   } = useLearnerSkillLevels(jobId);
 
   const editOnClickHandler = () => {

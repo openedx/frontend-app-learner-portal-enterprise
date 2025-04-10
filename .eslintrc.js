@@ -8,6 +8,7 @@ const config = createConfig('eslint', {
   ],
   ignorePatterns: [
     'webpack.*.config.js',
+    '*.openapi.d.ts',
   ],
   overrides: [
     {
@@ -15,6 +16,12 @@ const config = createConfig('eslint', {
       rules: {
         'react/prop-types': 'off',
         'react/jsx-no-constructed-context-values': 'off',
+      },
+    },
+    {
+      files: ['generate-openapi-types.js'],
+      rules: {
+        'no-console': 'off',
       },
     },
   ],

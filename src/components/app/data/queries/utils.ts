@@ -12,7 +12,7 @@ import {
  * @param pathname - The current route pathname.
  * @returns The BFF query function to use for the current route, or null if no match is found.
  */
-export function resolveBFFQuery(pathname: string) {
+export function resolveBFFQuery<TQuery = unknown>(pathname: string) {
   // Define route patterns and their corresponding query functions
   const routeToBFFQueryMap = [
     {
@@ -38,11 +38,11 @@ export function resolveBFFQuery(pathname: string) {
   const matchedRoute = routeToBFFQueryMap.find((route) => matchPath(route.pattern, pathname));
 
   if (matchedRoute) {
-    return matchedRoute.query;
+    return matchedRoute.query as TQuery;
   }
 
   // No match found
-  return null;
+  return null as TQuery;
 }
 
 /**
@@ -66,7 +66,7 @@ export async function getEnterpriseLearnerQueryData({
   // Retrieve linked enterprise customers for the current user from query cache
   // or fetch from the server if not available.
   let enterpriseLearnerData;
-  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
+  const matchedBFFQuery = resolveBFFQuery<BFFQuery>(requestUrl.pathname);
   if (matchedBFFQuery) {
     const bffResponse = await queryClient.ensureQueryData(
       matchedBFFQuery({ enterpriseSlug }),

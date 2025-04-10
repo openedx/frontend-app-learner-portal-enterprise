@@ -76,8 +76,10 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
     "jest-when": "^3.7.0",
+    "js-yaml": "^4.1.0",
     "match-media-mock": "^0.1.1",
     "mockdate": "^3.0.5",
+    "openapi-typescript": "^6.7.6",
     "prettier": "^2.8.8",
     "react-test-renderer": "^18.3.1",
     "reactifex": "^1.1.1",
@@ -106,7 +108,8 @@
     "test:watch": "npm run test -- --watch",
     "serve": "fedx-scripts serve",
     "build:serve": "npm run build && npm run serve",
-    "build:with-theme:serve": "npm run build:with-theme && npm run serve"
+    "build:with-theme:serve": "npm run build:with-theme && npm run serve",
+    "generate-openapi-types": "node src/types/lib/generate-openapi-types.js"
   },
   "repository": {
     "type": "git",

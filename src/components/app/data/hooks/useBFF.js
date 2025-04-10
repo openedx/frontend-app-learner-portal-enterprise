@@ -1,8 +1,6 @@
 import { useLocation, useParams } from 'react-router-dom';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
-import { logError } from '@edx/frontend-platform/logging';
 import { resolveBFFQuery } from '../queries';
-import { isObjEmpty } from '../utils';
 
 function useMatchedBFFQuery() {
   const location = useLocation();
@@ -95,7 +93,7 @@ export default function useBFF({
     bffQueryOptions,
     fallbackQueryConfig,
   });
-  return useQuery(queryConfig);
+  return useQuery({ ...queryConfig });
 }
 
 /**
@@ -121,5 +119,5 @@ export function useSuspenseBFF({
     bffQueryOptions,
     fallbackQueryConfig,
   });
-  return useSuspenseQuery(queryConfig);
+  return useSuspenseQuery({ ...queryConfig });
 }
