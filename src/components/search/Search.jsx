@@ -62,6 +62,7 @@ const Search = () => {
 
   const { refinements } = useContext(SearchContext);
   const filters = useDefaultSearchFilters();
+
   const {
     searchIndex,
     searchClient,

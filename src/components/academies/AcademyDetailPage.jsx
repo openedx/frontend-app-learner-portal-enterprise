@@ -1,33 +1,17 @@
-import { useMemo } from 'react';
 import { Breadcrumb, Container } from '@openedx/paragon';
 import { Link, useParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import algoliasearch from 'algoliasearch/lite';
-import { getConfig } from '@edx/frontend-platform/config';
 import NotFoundPage from '../NotFoundPage';
 import './styles/Academy.scss';
 import { useAcademyDetails, useEnterpriseCustomer } from '../app/data';
 import AcademyContentCard from './AcademyContentCard';
 
 const AcademyDetailPage = () => {
-  const config = getConfig();
   const { academyUUID } = useParams();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: academy } = useAcademyDetails();
   const academyURL = `/${enterpriseCustomer.slug}/academy/${academyUUID}/?${enterpriseCustomer.uuid}`;
   const intl = useIntl();
-
-  // init algolia index
-  const courseIndex = useMemo(
-    () => {
-      const client = algoliasearch(
-        config.ALGOLIA_APP_ID,
-        config.ALGOLIA_SEARCH_API_KEY,
-      );
-      return client.initIndex(config.ALGOLIA_INDEX_NAME);
-    },
-    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
-  );
 
   if (!academy) {
     return (
@@ -81,7 +65,6 @@ const AcademyDetailPage = () => {
       </Container>
       <Container size="lg" className="pb-4">
         <AcademyContentCard
-          courseIndex={courseIndex}
           academyUUID={academyUUID}
           academyTitle={academy?.title}
           academyURL={academyURL}

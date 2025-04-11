@@ -22,14 +22,6 @@ interface SecuredAlgoliaApiMetadata extends AlgoliaFeatureFlags {
   securedAlgoliaMetadata: SecuredAlgoliaApiData;
 }
 
-// TODO: This should be either extended from or union'ed with (if using types) with a base Config interface/type
-type AlgoliaConfiguration = {
-  ALGOLIA_APP_ID: string;
-  ALGOLIA_SEARCH_API_KEY: string;
-  ALGOLIA_INDEX_NAME: string;
-  ALGOLIA_INDEX_NAME_JOBS: string;
-};
-
 type Algolia = {
   searchClient: SearchClient | null;
   searchIndex: SearchIndex | null;
@@ -181,7 +173,7 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
  * - `catalogUuidsToCatalogQueryUuids`: A mapping used for filtering catalog results.
  */
 const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFilters => {
-  const config: AlgoliaConfiguration = getConfig();
+  const config: Configuration = getConfig();
 
   const {
     securedAlgoliaMetadata,
@@ -189,26 +181,26 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
     isIndexSupported,
   } = useSecuredAlgoliaMetadata(indexName);
 
-  const shouldUseSecuredAlgoliaApiKey = (
-    isCatalogQueryFiltersEnabled
-    && isIndexSupported
-    && !!securedAlgoliaMetadata.securedAlgoliaApiKey
-  );
-
-  // Based on the waffle flag and supported indexes, we will use the secured algolia
-  // key or default back to the legacy initialization of the search client and indexes
-  // The fallback once the secured algolia api key has been rolled out to all users via a waffle flag
-  // (catalogQuerySearchFiltersEnabled) is considered an errored state where downstream components would
-  // display the <SearchUnavailableAlert /> if no search client is returned or the upstream secured
-  // algolia api call fails from the BFF.
-  const algoliaSearchApiKey: string = shouldUseSecuredAlgoliaApiKey
-    ? securedAlgoliaMetadata.securedAlgoliaApiKey!
-    : config.ALGOLIA_SEARCH_API_KEY;
-
   // Update instantiate search client with or without a secured
   // algolia api key and retrieve the initialized algolia index
   return useMemo(() => {
-    if (!algoliaSearchApiKey) {
+    const shouldUseSecuredAlgoliaApiKey = (
+      isCatalogQueryFiltersEnabled
+      && isIndexSupported
+      && !!securedAlgoliaMetadata.securedAlgoliaApiKey
+    );
+
+    // Based on the waffle flag and supported indexes, we will use the secured algolia
+    // key or default back to the legacy initialization of the search client and indexes
+    // The fallback once the secured algolia api key has been rolled out to all users via a waffle flag
+    // (catalogQuerySearchFiltersEnabled) is considered an errored state where downstream components would
+    // display the <SearchUnavailableAlert /> if no search client is returned or the upstream secured
+    // algolia api call fails from the BFF.
+    const algoliaSearchApiKey = shouldUseSecuredAlgoliaApiKey
+      ? securedAlgoliaMetadata.securedAlgoliaApiKey!
+      : config.ALGOLIA_SEARCH_API_KEY;
+
+    if (!algoliaSearchApiKey || !config.ALGOLIA_APP_ID || !config.ALGOLIA_INDEX_NAME) {
       return {
         searchClient: null,
         searchIndex: null,
@@ -228,12 +220,14 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
       catalogUuidsToCatalogQueryUuids: securedAlgoliaMetadata.catalogUuidsToCatalogQueryUuids,
     };
   }, [
-    algoliaSearchApiKey,
     config.ALGOLIA_APP_ID,
     config.ALGOLIA_INDEX_NAME,
+    config.ALGOLIA_SEARCH_API_KEY,
     indexName,
+    isCatalogQueryFiltersEnabled,
+    isIndexSupported,
     securedAlgoliaMetadata.catalogUuidsToCatalogQueryUuids,
-    shouldUseSecuredAlgoliaApiKey,
+    securedAlgoliaMetadata.securedAlgoliaApiKey,
   ]);
 };
 
