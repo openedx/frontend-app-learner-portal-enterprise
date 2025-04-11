@@ -86,16 +86,16 @@ const AcademyDetailPageWrapper = () => (
 );
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockSearchFn = jest.fn().mockResolvedValue(ALOGLIA_MOCK_DATA);
 
 describe('<AcademyDetailPage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAlgoliaSearch.mockReturnValue({
-      searchClient: { search: jest.fn().mockResolvedValue(ALOGLIA_MOCK_DATA) },
-      searchIndex: { search: jest.fn().mockResolvedValue(ALOGLIA_MOCK_DATA) },
+      searchClient: { search: mockSearchFn },
+      searchIndex: { search: mockSearchFn },
       shouldUseSecuredAlgoliaApiKey: false,
-      hasCatalogUuidToCatalogQueryUuidMapping: false,
     });
     useAcademyDetails.mockReturnValue({ data: ACADEMY_MOCK_DATA });
   });
@@ -122,14 +122,14 @@ describe('<AcademyDetailPage />', () => {
   it.each(
     generateTestPermutations({
       shouldUseSecuredAlgoliaApiKey: [true, false],
-      searchClient: [null, { search: jest.fn().mockResolvedValue(ALOGLIA_MOCK_DATA) }],
+      searchClient: [null, { search: mockSearchFn }],
     }),
   )('renders a search client failure error if the search client fails (%s)', async ({
     shouldUseSecuredAlgoliaApiKey,
     searchClient,
   }) => {
     useAlgoliaSearch.mockReturnValue({
-      searchIndex: { search: jest.fn().mockResolvedValue(ALOGLIA_MOCK_DATA) },
+      searchIndex: { search: mockSearchFn },
       shouldUseSecuredAlgoliaApiKey,
       searchClient,
     });

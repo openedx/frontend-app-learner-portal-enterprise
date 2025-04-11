@@ -75,6 +75,8 @@ const SearchWrapper = ({
 );
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockFilter = `enterprise_customer_uuids: ${mockEnterpriseCustomer.uuid}`;
+const mockSearchClient = { search: jest.fn(), appId: 'test-app-id' };
+const mockSearchIndex = { indexName: 'mock-index-name' };
 describe('<Search />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -82,12 +84,8 @@ describe('<Search />', () => {
     useDefaultSearchFilters.mockReturnValue(mockFilter);
     useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(true);
     useAlgoliaSearch.mockReturnValue({
-      searchClient: {
-        search: jest.fn(), appId: 'test-app-id',
-      },
-      searchIndex: {
-        indexName: 'mock-index-name',
-      },
+      searchClient: mockSearchClient,
+      searchIndex: mockSearchIndex,
     });
     MockReactInstantSearch.configure.nbHits = 2;
   });
@@ -114,7 +112,7 @@ describe('<Search />', () => {
   it.each(
     generateTestPermutations({
       canOnlyViewHighlights: [true, false],
-      searchClient: [null, { search: jest.fn(), appId: 'test-app-id' }],
+      searchClient: [null, mockSearchClient],
     }),
   )('renders the search client error page if no search client is found', ({
     canOnlyViewHighlights,
