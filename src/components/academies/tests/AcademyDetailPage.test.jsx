@@ -92,6 +92,7 @@ describe('<AcademyDetailPage />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: jest.fn().mockResolvedValue(ALOGLIA_MOCK_DATA) },
       searchIndex: { search: jest.fn().mockResolvedValue(ALOGLIA_MOCK_DATA) },
       shouldUseSecuredAlgoliaApiKey: false,
       hasCatalogUuidToCatalogQueryUuidMapping: false,
@@ -121,30 +122,29 @@ describe('<AcademyDetailPage />', () => {
   it.each(
     generateTestPermutations({
       shouldUseSecuredAlgoliaApiKey: [true, false],
-      hasCatalogUuidToCatalogQueryUuidMapping: [true, false],
+      searchClient: [null, { search: jest.fn().mockResolvedValue(ALOGLIA_MOCK_DATA) }],
     }),
   )('renders a search client failure error if the search client fails (%s)', async ({
     shouldUseSecuredAlgoliaApiKey,
-    hasCatalogUuidToCatalogQueryUuidMapping,
+    searchClient,
   }) => {
     useAlgoliaSearch.mockReturnValue({
       searchIndex: { search: jest.fn().mockResolvedValue(ALOGLIA_MOCK_DATA) },
       shouldUseSecuredAlgoliaApiKey,
-      hasCatalogUuidToCatalogQueryUuidMapping,
+      searchClient,
     });
     useAcademyDetails.mockReturnValue({ data: ACADEMY_MOCK_DATA });
     renderWithRouter(<AcademyDetailPageWrapper />);
 
-    const shouldDisplayAlert = shouldUseSecuredAlgoliaApiKey && !hasCatalogUuidToCatalogQueryUuidMapping;
     await waitFor(() => {
-      if (shouldDisplayAlert) {
+      if (!searchClient) {
         expect(screen.getByText(messages.alertHeading.defaultMessage)).toBeInTheDocument();
         expect(screen.getByText(messages.alertText.defaultMessage)).toBeInTheDocument();
         expect(screen.getByText(messages.alertTextOptionsHeader.defaultMessage)).toBeInTheDocument();
         expect(screen.getByText(messages.alertTextOptionRefresh.defaultMessage)).toBeInTheDocument();
         expect(screen.getByText(messages.alertTextOptionNetwork.defaultMessage)).toBeInTheDocument();
         expect(screen.getByText(messages.alertTextOptionSupport.defaultMessage)).toBeInTheDocument();
-      } else if (!shouldDisplayAlert) {
+      } else {
         expect(screen.queryByText(messages.alertHeading.defaultMessage)).not.toBeInTheDocument();
         expect(screen.queryByText(messages.alertText.defaultMessage)).not.toBeInTheDocument();
         expect(screen.queryByText(messages.alertTextOptionsHeader.defaultMessage)).not.toBeInTheDocument();

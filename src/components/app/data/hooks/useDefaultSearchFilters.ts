@@ -90,7 +90,6 @@ export default function useDefaultSearchFilters(): string {
   const {
     catalogUuidsToCatalogQueryUuids,
     shouldUseSecuredAlgoliaApiKey,
-    hasCatalogUuidToCatalogQueryUuidMapping,
   } = useAlgoliaSearch();
 
   useEffect(() => {
@@ -103,7 +102,7 @@ export default function useDefaultSearchFilters(): string {
     () => {
       // If there is a catalog uuid to catalog query uuid mapping, use the secured algolia
       // api key compatible filter query
-      if (shouldUseSecuredAlgoliaApiKey && hasCatalogUuidToCatalogQueryUuidMapping) {
+      if (shouldUseSecuredAlgoliaApiKey) {
         return queryByCatalogQuery({
           searchCatalogs,
           catalogUuidsToCatalogQueryUuids,
@@ -122,7 +121,6 @@ export default function useDefaultSearchFilters(): string {
     [
       catalogUuidsToCatalogQueryUuids,
       enterpriseCustomer,
-      hasCatalogUuidToCatalogQueryUuidMapping,
       searchCatalogs,
       shouldUseSecuredAlgoliaApiKey,
       showAllRefinement,

@@ -114,17 +114,14 @@ describe('<Search />', () => {
   it.each(
     generateTestPermutations({
       canOnlyViewHighlights: [true, false],
-      shouldUseSecuredAlgoliaApiKey: [true, false],
-      hasCatalogUuidToCatalogQueryUuidMapping: [true, false],
+      searchClient: [null, { search: jest.fn(), appId: 'test-app-id' }],
     }),
   )('renders the search client error page if no search client is found', ({
     canOnlyViewHighlights,
-    shouldUseSecuredAlgoliaApiKey,
-    hasCatalogUuidToCatalogQueryUuidMapping,
+    searchClient,
   }) => {
     useAlgoliaSearch.mockReturnValue({
-      shouldUseSecuredAlgoliaApiKey,
-      hasCatalogUuidToCatalogQueryUuidMapping,
+      searchClient,
     });
     useCanOnlyViewHighlights.mockReturnValue({ data: canOnlyViewHighlights });
     renderWithRouter(
@@ -132,18 +129,15 @@ describe('<Search />', () => {
         <Search />
       </SearchWrapper>,
     );
-    const shouldDisplayAlert = shouldUseSecuredAlgoliaApiKey && !hasCatalogUuidToCatalogQueryUuidMapping;
-    // Validate the SearchUnavailableAlert is being displayed when the user is eligible to receive a secured
-    // algolia api key, there are no catalog query to catalog query uuid mappings and whether
-    // highlights are not the only visible content
-    if (shouldDisplayAlert && !canOnlyViewHighlights) {
+
+    if (!searchClient && !canOnlyViewHighlights) {
       expect(screen.getByText(messages.alertHeading.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertText.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionsHeader.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionRefresh.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionNetwork.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionSupport.defaultMessage)).toBeInTheDocument();
-    } else if (!shouldDisplayAlert || canOnlyViewHighlights) {
+    } else if (searchClient || canOnlyViewHighlights) {
       expect(screen.queryByText(messages.alertHeading.defaultMessage)).not.toBeInTheDocument();
       expect(screen.queryByText(messages.alertText.defaultMessage)).not.toBeInTheDocument();
       expect(screen.queryByText(messages.alertTextOptionsHeader.defaultMessage)).not.toBeInTheDocument();

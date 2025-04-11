@@ -126,59 +126,33 @@ describe('useDefaultSearchFilters', () => {
     showAllRefinements,
   }) => {
     const mockDispatch = jest.fn();
-    const hasCatalogUuidToCatalogQueryUuidMapping = !isObjEmpty(catalogUuidsToCatalogQueryUuids);
     features.FEATURE_ENABLE_VIDEO_CATALOG = enableVideoCatalog;
     useSearchCatalogs.mockReturnValue(searchCatalogs);
     useAlgoliaSearch.mockReturnValue({
       catalogUuidsToCatalogQueryUuids,
-      hasCatalogUuidToCatalogQueryUuidMapping,
       shouldUseSecuredAlgoliaApiKey: true,
     });
     const refinements = showAllRefinements ? refinementsShowAll : emptyRefinements;
 
-    const baseExpectedEnterpriseCustomerOutput = `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`;
-    const baseExpectedCatalogQueryOutput = '(enterprise_catalog_query_uuids:test-catalog-query-uuid-1 OR enterprise_catalog_query_uuids:test-catalog-query-uuid-2)';
-    const baseExpectedCatalogOutput = '(enterprise_catalog_uuids:test-catalog-uuid-1 OR enterprise_catalog_uuids:test-catalog-uuid-2)';
+    const baseExpectedCatalogOutput = '(enterprise_catalog_query_uuids:test-catalog-query-uuid-1 OR enterprise_catalog_query_uuids:test-catalog-query-uuid-2)';
     const baseExpectedVideoOutput = 'NOT content_type:video';
 
     const { result } = renderHook(
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ ...refinements, dispatch: mockDispatch }) },
     );
-
-    // catalogUuidsToCatalogQueryUuids returns no mapping, technically this falls under an error state
-    // but currently implemented to support legacy algolia client/index retrieval
-    if (!hasCatalogUuidToCatalogQueryUuidMapping) {
-      if (searchCatalogs.length === 0 || showAllRefinements) {
-        if (enableVideoCatalog) {
-          expect(result.current).toEqual(baseExpectedEnterpriseCustomerOutput);
-        } else {
-          expect(result.current).toEqual(`${baseExpectedEnterpriseCustomerOutput} AND ${baseExpectedVideoOutput}`);
-        }
-      }
-      if (searchCatalogs.length > 0 && !showAllRefinements) {
-        if (enableVideoCatalog) {
-          expect(result.current).toEqual(baseExpectedCatalogOutput);
-        } else {
-          expect(result.current).toEqual(`${baseExpectedCatalogOutput} AND ${baseExpectedVideoOutput}`);
-        }
+    if (searchCatalogs.length === 0 || isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
+      if (enableVideoCatalog) {
+        expect(result.current).toEqual('');
+      } else {
+        expect(result.current).toEqual(baseExpectedVideoOutput);
       }
     }
-    // catalogUuidsToCatalogQueryUuids mapping exists from secured algolia api metadata
-    if (hasCatalogUuidToCatalogQueryUuidMapping) {
-      if (searchCatalogs.length === 0) {
-        if (enableVideoCatalog) {
-          expect(result.current).toEqual('');
-        } else {
-          expect(result.current).toEqual(baseExpectedVideoOutput);
-        }
-      }
-      if (!showAllRefinements && searchCatalogs.length > 0) {
-        if (enableVideoCatalog) {
-          expect(result.current).toEqual(baseExpectedCatalogQueryOutput);
-        } else {
-          expect(result.current).toEqual(`${baseExpectedCatalogQueryOutput} AND ${baseExpectedVideoOutput}`);
-        }
+    if ((!showAllRefinements && searchCatalogs.length > 0) && !isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
+      if (enableVideoCatalog) {
+        expect(result.current).toEqual(baseExpectedCatalogOutput);
+      } else {
+        expect(result.current).toEqual(`${baseExpectedCatalogOutput } AND ${ baseExpectedVideoOutput}`);
       }
     }
   });

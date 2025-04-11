@@ -21,9 +21,9 @@ const AcademyContentCard = ({
   const [showAllOcmCourses, setShowAllOcmCourses] = useState(false);
 
   const {
+    searchClient,
     searchIndex: courseIndex,
     shouldUseSecuredAlgoliaApiKey,
-    hasCatalogUuidToCatalogQueryUuidMapping,
   } = useAlgoliaSearch();
 
   const [selectedTag, setSelectedTag] = useState();
@@ -68,7 +68,6 @@ const AcademyContentCard = ({
       selectedTag,
       enterpriseCustomer,
       shouldUseSecuredAlgoliaApiKey,
-      hasCatalogUuidToCatalogQueryUuidMapping,
     ],
   );
 
@@ -118,7 +117,7 @@ const AcademyContentCard = ({
       return null;
     }
 
-    if (shouldUseSecuredAlgoliaApiKey && !hasCatalogUuidToCatalogQueryUuidMapping) {
+    if (!searchClient) {
       return <SearchUnavailableAlert />;
     }
 
