@@ -484,6 +484,10 @@ export const getTransformedAllocatedAssignments = (assignments, enterpriseSlug) 
   return updatedAssignments;
 };
 
+/**
+ * Retrieves the error stack for display.
+ * @param {Error | unknown} [error]
+ */
 export function retrieveErrorMessageForDisplay(error) {
   if (!error) {
     return null;
@@ -493,6 +497,17 @@ export function retrieveErrorMessageForDisplay(error) {
     errorMessage += `\nCustom attributes: ${error.customAttributes.httpErrorResponseData}`;
   }
   return errorMessage;
+}
+
+/**
+ * Retrieves the error stack for display.
+ * @param {Error | unknown} [error]
+ */
+export function retrieveErrorStackForDisplay(error) {
+  if (!error) {
+    return null;
+  }
+  return error.stack;
 }
 
 /**

@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet';
 import { Outlet, useMatch } from 'react-router-dom';
 import FooterSlot from '@openedx/frontend-slot-footer';
 import { getConfig } from '@edx/frontend-platform/config';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import { isSystemMaintenanceAlertOpen, useEnterpriseCustomer } from './data';
 import { useStylesForCustomBrandColors } from '../layout/data/hooks';
@@ -32,6 +33,14 @@ const Layout = () => {
     return <NotFoundPage />;
   }
 
+  const fallbackRender = ({ error }) => (
+    <AppErrorBoundary
+      error={error}
+      showSiteHeader={false}
+      showSiteFooter={false}
+    />
+  );
+
   return (
     <EnterprisePage>
       <Helmet titleTemplate={TITLE_TEMPLATE} defaultTitle={DEFAULT_TITLE}>
@@ -47,14 +56,11 @@ const Layout = () => {
       )}
       <SiteHeader />
       <EnterpriseBanner />
-      <AppErrorBoundary
-        showSiteHeader={false}
-        showSiteFooter={false}
-      >
+      <ErrorBoundary fallbackRender={fallbackRender}>
         <main id="content" className="fill-vertical-space">
           <Outlet />
         </main>
-      </AppErrorBoundary>
+      </ErrorBoundary>
       <FooterSlot />
     </EnterprisePage>
   );

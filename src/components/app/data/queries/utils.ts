@@ -1,3 +1,4 @@
+import { QueryClient } from '@tanstack/react-query';
 import { matchPath } from 'react-router-dom';
 import {
   queryEnterpriseLearner,
@@ -12,7 +13,7 @@ import {
  * @param pathname - The current route pathname.
  * @returns The BFF query function to use for the current route, or null if no match is found.
  */
-export function resolveBFFQuery<TQuery = unknown>(pathname: string) {
+export function resolveBFFQuery<TQuery = BFFQuery | null>(pathname: string) {
   // Define route patterns and their corresponding query functions
   const routeToBFFQueryMap = [
     {
@@ -45,31 +46,40 @@ export function resolveBFFQuery<TQuery = unknown>(pathname: string) {
   return null as TQuery;
 }
 
+type GetEnterpriseLearnerQueryDataArgs = {
+  requestUrl: URL;
+  queryClient: QueryClient;
+  enterpriseSlug?: string;
+  authenticatedUser: AuthenticatedUser;
+};
+
 /**
  * Helper function to parse the datasource for the enterprise learner data from either the
  * BFF layer or the Enterprise learner endpoint directly. We pass in the fallback
  * queryEnterpriseLearner to avoid dependency cycle issues
- *
- * @param requestUrl
- * @param queryClient
- * @param enterpriseSlug
- * @param authenticatedUser
- * @param queryEnterpriseLearnerConfig
- * @returns {Promise<{ data: EnterpriseLearnerData, isBFFData: boolean }>}
  */
 export async function getEnterpriseLearnerQueryData({
   requestUrl,
   queryClient,
   enterpriseSlug,
   authenticatedUser,
-}) {
+}: GetEnterpriseLearnerQueryDataArgs) {
   // Retrieve linked enterprise customers for the current user from query cache
   // or fetch from the server if not available.
-  let enterpriseLearnerData;
-  const matchedBFFQuery = resolveBFFQuery<BFFQuery>(requestUrl.pathname);
+  let enterpriseLearnerData: EnterpriseLearnerData = {
+    enterpriseCustomer: null,
+    activeEnterpriseCustomer: null,
+    allLinkedEnterpriseCustomerUsers: [],
+    enterpriseFeatures: {},
+    staffEnterpriseCustomer: null,
+    shouldUpdateActiveEnterpriseCustomerUser: false,
+  };
+
+  // Handle BFF query, if applicable:
+  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
   if (matchedBFFQuery) {
-    const bffResponse = await queryClient.ensureQueryData(
-      matchedBFFQuery({ enterpriseSlug }),
+    const bffResponse = await queryClient.ensureQueryData<BFFResponse>(
+      matchedBFFQuery({ enterpriseSlug: enterpriseSlug! }),
     );
     enterpriseLearnerData = {
       enterpriseCustomer: bffResponse.enterpriseCustomer || null,
@@ -77,12 +87,17 @@ export async function getEnterpriseLearnerQueryData({
       allLinkedEnterpriseCustomerUsers: bffResponse.allLinkedEnterpriseCustomerUsers || [],
       staffEnterpriseCustomer: bffResponse.staffEnterpriseCustomer || null,
       enterpriseFeatures: bffResponse.enterpriseFeatures || {},
-      shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser || false,
+      shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser,
     };
   } else {
+    // Otherwise, handle legacy direct query
     enterpriseLearnerData = await queryClient.ensureQueryData(
       queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
     );
   }
-  return { data: enterpriseLearnerData, isBFFData: !!matchedBFFQuery };
+
+  return {
+    data: enterpriseLearnerData,
+    isBFFData: !!matchedBFFQuery,
+  };
 }

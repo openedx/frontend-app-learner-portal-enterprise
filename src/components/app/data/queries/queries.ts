@@ -268,7 +268,7 @@ export function queryVideoDetail(videoUUID: string, enterpriseUUID: string) {
 
 // BFF queries
 
-export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)
@@ -276,7 +276,7 @@ export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }) {
     ._ctx.dashboard;
 }
 
-export function queryEnterpriseLearnerSearchBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerSearchBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)
@@ -284,7 +284,7 @@ export function queryEnterpriseLearnerSearchBFF({ enterpriseSlug }) {
     ._ctx.search;
 }
 
-export function queryEnterpriseLearnerAcademyBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerAcademyBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)
@@ -292,7 +292,7 @@ export function queryEnterpriseLearnerAcademyBFF({ enterpriseSlug }) {
     ._ctx.academy;
 }
 
-export function queryEnterpriseLearnerSkillsQuizBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerSkillsQuizBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)

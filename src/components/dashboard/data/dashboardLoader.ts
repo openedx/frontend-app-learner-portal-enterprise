@@ -2,7 +2,6 @@ import { LoaderFunctionArgs, Params } from 'react-router-dom';
 import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer,
-  queryEnterpriseLearnerDashboardBFF,
   queryEnterprisePathwaysList,
   queryEnterpriseProgramsList,
   queryRedeemablePolicies,
@@ -42,7 +41,7 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
     }
 
     // Attempt to resolve the BFF query for the dashboard.
-    const dashboardBFFQuery = resolveBFFQuery<typeof queryEnterpriseLearnerDashboardBFF>(
+    const dashboardBFFQuery = resolveBFFQuery<BFFQueryDashboard>(
       requestUrl.pathname,
     );
 
@@ -58,7 +57,7 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
       const redeemablePolicies = responses[1];
       // Redirect user to search page, for first-time users with no enrollments and/or assignments.
       redirectToSearchPageForNewUser({
-        enterpriseSlug: enterpriseSlug as string,
+        enterpriseSlug: enterpriseSlug!,
         enterpriseCourseEnrollments,
         redeemablePolicies,
       });

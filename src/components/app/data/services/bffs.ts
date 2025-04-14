@@ -85,42 +85,35 @@ export function logErrorsAndWarningsFromBFFResponse<TData extends BFFResponse>({
  */
 export async function makeBFFRequest<TData extends BFFResponseRaw>({
   url,
-  defaultResponse,
+  // defaultResponse,
   options,
 }: MakeBFFRequestArgs<TData>) {
   const { enterpriseSlug, ...optionsRest } = options;
   const snakeCaseOptionsRest = optionsRest ? snakeCaseObject(optionsRest) : {};
 
-  try {
-    const params = {
-      enterprise_customer_slug: enterpriseSlug,
-      ...snakeCaseOptionsRest,
-    };
-    type TDataWithCamelCase = CamelCasedPropertiesDeep<TData>;
+  const params = {
+    enterprise_customer_slug: enterpriseSlug,
+    ...snakeCaseOptionsRest,
+  };
+  type TDataWithCamelCase = CamelCasedPropertiesDeep<TData>;
 
-    const result: AxiosResponse<TData> = await getAuthenticatedHttpClient()
-      .post(url, params);
-    const {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      catalog_uuids_to_catalog_query_uuids: catalogUuidsToCatalogQueryUuids,
-      ...originalResponseData
-    } = result.data;
-    const response = {
-      ...camelCaseObject(originalResponseData),
-      catalogUuidsToCatalogQueryUuids,
-    } as TDataWithCamelCase & {
-      catalogUuidsToCatalogQueryUuids: Pick<TData, 'catalog_uuids_to_catalog_query_uuids'>
-    };
+  const result: AxiosResponse<TData> = await getAuthenticatedHttpClient().post(url, params);
+  const {
+    catalog_uuids_to_catalog_query_uuids: catalogUuidsToCatalogQueryUuids,
+    ...originalResponseData
+  } = result.data;
+  const response = {
+    ...camelCaseObject(originalResponseData),
+    catalogUuidsToCatalogQueryUuids,
+  } as TDataWithCamelCase & {
+    catalogUuidsToCatalogQueryUuids: Pick<TData, 'catalog_uuids_to_catalog_query_uuids'>
+  };
 
-    // Log any errors and warnings from the BFF response.
-    logErrorsAndWarningsFromBFFResponse({ url, response });
+  // Log any errors and warnings from the BFF response.
+  logErrorsAndWarningsFromBFFResponse({ url, response });
 
-    // Return the response from the BFF.
-    return response;
-  } catch (error) {
-    logError(error);
-    return defaultResponse;
-  }
+  // Return the response from the BFF.
+  return response;
 }
 
 /**

@@ -104,11 +104,16 @@ declare global {
     SkillsQuizBFFResponse
   );
 
+  type BFFQueryDashboard = typeof queryEnterpriseLearnerDashboardBFF;
+  type BFFQuerySearch = typeof queryEnterpriseLearnerSearchBFF;
+  type BFFQueryAcademy = typeof queryEnterpriseLearnerAcademyBFF;
+  type BFFQuerySkillsQuiz = typeof queryEnterpriseLearnerSkillsQuizBFF;
+
   type BFFQuery = (
-    typeof queryEnterpriseLearnerDashboardBFF |
-    typeof queryEnterpriseLearnerSearchBFF |
-    typeof queryEnterpriseLearnerAcademyBFF |
-    typeof queryEnterpriseLearnerSkillsQuizBFF
+    BFFQueryDashboard |
+    BFFQuerySearch |
+    BFFQueryAcademy |
+    BFFQuerySkillsQuiz
   );
 }
 
