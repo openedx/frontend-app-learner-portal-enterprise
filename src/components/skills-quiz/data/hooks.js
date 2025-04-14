@@ -16,7 +16,6 @@ export const useSelectedSkillsAndJobSkills = ({ getAllSkills, getAllSkillsWithSi
     selectedJob, interestedJobs, goal, currentJobRole,
   } = state;
   const { refinements: { skill_names: skills } } = useContext(SearchContext);
-
   const skillsFromSelectedJob = useMemo(
     () => {
       let skillsFromJob = [];
