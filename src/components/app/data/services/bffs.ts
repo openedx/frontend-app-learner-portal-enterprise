@@ -4,7 +4,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, snakeCaseObject } from '@edx/frontend-platform/utils';
 
 export const baseLearnerBFFResponse = {
-  enterpriseCustomer: {},
+  enterpriseCustomer: null,
   enterpriseFeatures: {},
   securedAlgoliaApiKey: null,
   catalogUuidsToCatalogQueryUuids: {},
