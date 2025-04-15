@@ -1,5 +1,5 @@
 import { useLocation, useParams } from 'react-router-dom';
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { resolveBFFQuery } from '../queries';
 
 /**
@@ -104,7 +104,7 @@ function useBFFQueryConfig({
  * allows you to pass a fallback query endpoint to call in lieu of an unmatched BFF query
  * @returns The query results.
  */
-export default function useBFF({
+export default function useBFF<TData = unknown>({
   bffQueryAdditionalParams = {},
   bffQueryOptions,
   fallbackQueryConfig,
@@ -114,7 +114,11 @@ export default function useBFF({
     bffQueryOptions,
     fallbackQueryConfig,
   });
-  return useQuery({ ...queryConfig });
+  return useQuery<TData>(
+    queryOptions({
+      ...queryConfig,
+    }),
+  );
 }
 
 /**
@@ -140,7 +144,9 @@ export function useSuspenseBFF<TData = unknown>({
     bffQueryOptions,
     fallbackQueryConfig,
   });
-  return useSuspenseQuery<TData>({
-    ...queryConfig,
-  });
+  return useSuspenseQuery<TData>(
+    queryOptions({
+      ...queryConfig,
+    }),
+  );
 }

@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import { queryCourseMetadata } from '../queries';
@@ -18,8 +18,8 @@ type UseCourseMetadataQueryOptions = {
  * Retrieves the course metadata for the given enterprise customer and course key.
  * @returns The query results for the course metadata.
  */
-export default function useCourseMetadata(queryOptions: UseCourseMetadataQueryOptions = {}) {
-  const { select } = queryOptions;
+export default function useCourseMetadata(options: UseCourseMetadataQueryOptions = {}) {
+  const { select } = options;
   const params = useParams();
   const courseKey = params.courseKey!;
   const [searchParams] = useSearchParams();
@@ -38,35 +38,38 @@ export default function useCourseMetadata(queryOptions: UseCourseMetadataQueryOp
   }
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
 
-  return useSuspenseQuery({
-    ...queryCourseMetadata(courseKey, courseRunKey),
-    select: (data) => {
-      if (!data) {
-        return data;
-      }
-      // NOTE: The results from this call includes restricted runs, some of
-      // which might not be ACTUALLY available depending on the subsidy being
-      // applied.  However, we don't know the subsidy being applied at this
-      // point of the code, so just return all of the basically available
-      // restricted runs regardless of catalog inclusion.
-      const availableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
-      let transformedData = {
-        ...data,
-        availableCourseRuns,
-      };
-      // This logic should appropriately handle multiple course runs being assigned, and return the appropriate metadata
-      transformedData = transformCourseMetadataByAllocatedCourseRunAssignments({
-        hasMultipleAssignedCourseRuns,
-        courseMetadata: transformedData,
-        allocatedCourseRunAssignmentKeys,
-      });
-      if (select) {
-        return select({
-          original: data,
-          transformed: transformedData,
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryCourseMetadata(courseKey, courseRunKey),
+      select: (data) => {
+        if (!data) {
+          return data;
+        }
+        // NOTE: The results from this call includes restricted runs, some of
+        // which might not be ACTUALLY available depending on the subsidy being
+        // applied.  However, we don't know the subsidy being applied at this
+        // point of the code, so just return all of the basically available
+        // restricted runs regardless of catalog inclusion.
+        const availableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
+        let transformedData = {
+          ...data,
+          availableCourseRuns,
+        };
+        // This logic should appropriately handle multiple course runs being
+        // assigned, and return the appropriate metadata
+        transformedData = transformCourseMetadataByAllocatedCourseRunAssignments({
+          hasMultipleAssignedCourseRuns,
+          courseMetadata: transformedData,
+          allocatedCourseRunAssignmentKeys,
         });
-      }
-      return transformedData;
-    },
-  });
+        if (select) {
+          return select({
+            original: data,
+            transformed: transformedData,
+          });
+        }
+        return transformedData;
+      },
+    }),
+  );
 }

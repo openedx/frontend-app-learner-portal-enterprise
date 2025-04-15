@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 import { queryEnterpriseCustomerContainsContent } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -9,7 +9,9 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
  */
 export default function useEnterpriseCustomerContainsContent(contentIdentifiers: string[]) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
-  return useSuspenseQuery({
-    ...queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, contentIdentifiers),
-  });
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, contentIdentifiers),
+    }),
+  );
 }

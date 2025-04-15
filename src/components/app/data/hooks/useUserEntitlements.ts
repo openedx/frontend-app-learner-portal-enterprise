@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { queryUserEntitlements } from '../queries';
 
 /**
@@ -6,7 +6,9 @@ import { queryUserEntitlements } from '../queries';
  * @returns The query results for the user entitlements.
  */
 export default function useUserEntitlements() {
-  return useSuspenseQuery({
-    ...queryUserEntitlements(),
-  });
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryUserEntitlements(),
+    }),
+  );
 }

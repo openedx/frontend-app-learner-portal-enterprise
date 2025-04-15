@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 import { queryContentHighlightsConfiguration } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -10,10 +10,12 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
 export default function useContentHighlightsConfiguration(options = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { select } = options;
-  return useSuspenseQuery({
-    ...queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
-    select,
-  });
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
+      select,
+    }),
+  );
 }
 
 /**

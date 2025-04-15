@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryEnterpriseProgram } from '../queries';
 
@@ -11,7 +11,9 @@ export default function useProgramDetails() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
   const params = useParams();
   const programUUID = params.programUUID!;
-  return useSuspenseQuery({
-    ...queryEnterpriseProgram(enterpriseCustomer.uuid, programUUID),
-  });
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryEnterpriseProgram(enterpriseCustomer.uuid, programUUID),
+    }),
+  );
 }

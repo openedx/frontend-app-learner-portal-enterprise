@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 import { queryCanUpgradeWithLearnerCredit } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -9,41 +9,42 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
  *
  * @returns The query result.
  */
-export default function useCanUpgradeWithLearnerCredit(courseRunKey, queryOptions = {}) {
+export default function useCanUpgradeWithLearnerCredit(courseRunKey, options = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { select, ...queryOptionsRest } = queryOptions;
-  return useSuspenseQuery({
-    ...queryCanUpgradeWithLearnerCredit(enterpriseCustomer.uuid, courseRunKey),
-    ...queryOptionsRest,
-    select: (data) => {
-      // Base transformed data
-      const transformedData = {
-        applicableSubsidyAccessPolicy: null,
-        listPrice: null,
-      };
+  const { select } = options;
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryCanUpgradeWithLearnerCredit(enterpriseCustomer.uuid, courseRunKey),
+      select: (data) => {
+        // Base transformed data
+        const transformedData = {
+          applicableSubsidyAccessPolicy: null,
+          listPrice: null,
+        };
 
-      // Determine whether the course run key is redeemable. If so, update the transformed data with the
-      // applicable subsidy access policy and list price.
-      const redeemableCourseRun = data.filter((canRedeemData) => (
-        canRedeemData.canRedeem && canRedeemData.redeemableSubsidyAccessPolicy
-      ))[0];
-      if (redeemableCourseRun) {
-        const applicableSubsidyAccessPolicy = redeemableCourseRun.redeemableSubsidyAccessPolicy;
-        applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled = true;
-        transformedData.applicableSubsidyAccessPolicy = applicableSubsidyAccessPolicy;
-        transformedData.listPrice = redeemableCourseRun.listPrice.usd;
-      }
+        // Determine whether the course run key is redeemable. If so, update the transformed data with the
+        // applicable subsidy access policy and list price.
+        const redeemableCourseRun = data.filter((canRedeemData) => (
+          canRedeemData.canRedeem && canRedeemData.redeemableSubsidyAccessPolicy
+        ))[0];
+        if (redeemableCourseRun) {
+          const applicableSubsidyAccessPolicy = redeemableCourseRun.redeemableSubsidyAccessPolicy;
+          applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled = true;
+          transformedData.applicableSubsidyAccessPolicy = applicableSubsidyAccessPolicy;
+          transformedData.listPrice = redeemableCourseRun.listPrice.usd;
+        }
 
-      // When custom `select` function is provided in `queryOptions`, call it with original and transformed data.
-      if (select) {
-        return select({
-          original: data,
-          transformed: transformedData,
-        });
-      }
+        // When custom `select` function is provided in `queryOptions`, call it with original and transformed data.
+        if (select) {
+          return select({
+            original: data,
+            transformed: transformedData,
+          });
+        }
 
-      // Otherwise, return the transformed data.
-      return transformedData;
-    },
-  });
+        // Otherwise, return the transformed data.
+        return transformedData;
+      },
+    }),
+  );
 }

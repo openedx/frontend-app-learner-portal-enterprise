@@ -1,7 +1,7 @@
 import {
   useCallback, useContext, useEffect, useState,
 } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { useOptimizelyEnrollmentClickHandler, useTrackSearchConversionClickHandler } from '../../../course/data/hooks';
@@ -113,16 +113,18 @@ const useTransactionStatus = ({
     data: updatedTransaction,
     isSuccess: isTransactionQuerySuccess,
     error: transactionQueryError,
-  } = useQuery<SubsidyTransaction, Error>({
-    ...queryPolicyTransaction(enterpriseCustomer.uuid, transaction?.transactionStatusApiUrl),
-    enabled: !!transaction,
-    refetchInterval: (query) => {
-      if (shouldPollTransactionState(query.state.data)) {
-        return 1000;
-      }
-      return false;
-    },
-  });
+  } = useQuery<SubsidyTransaction, Error>(
+    queryOptions({
+      ...queryPolicyTransaction(enterpriseCustomer.uuid, transaction?.transactionStatusApiUrl),
+      enabled: !!transaction,
+      refetchInterval: (query) => {
+        if (shouldPollTransactionState(query.state.data)) {
+          return 1000;
+        }
+        return false;
+      },
+    }),
+  );
 
   // Handle transaction status updates
   useEffect(() => {

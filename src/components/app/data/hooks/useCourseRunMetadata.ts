@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { queryCourseRunMetadata } from '../queries';
 
 type UseCourseRunMetadataQueryOptions = {
@@ -7,11 +7,13 @@ type UseCourseRunMetadataQueryOptions = {
 
 export default function useCourseRunMetadata(
   courseRunKey: string,
-  queryOptions: UseCourseRunMetadataQueryOptions = {},
+  options: UseCourseRunMetadataQueryOptions = {},
 ) {
-  const { select } = queryOptions;
-  return useSuspenseQuery({
-    ...queryCourseRunMetadata(courseRunKey),
-    select,
-  });
+  const { select } = options;
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryCourseRunMetadata(courseRunKey),
+      select,
+    }),
+  );
 }

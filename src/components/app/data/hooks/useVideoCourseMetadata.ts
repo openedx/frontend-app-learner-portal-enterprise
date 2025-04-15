@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 import { queryCourseMetadata } from '../queries';
 import { getAvailableCourseRuns } from '../utils';
@@ -10,18 +10,20 @@ import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
  */
 export default function useVideoCourseMetadata(courseKey) {
   const isEnrollableBufferDays = useLateEnrollmentBufferDays();
-  return useSuspenseQuery({
-    ...queryCourseMetadata(courseKey),
-    select: (data) => {
-      if (!data) {
-        return data;
-      }
-      const availableCourseRuns = getAvailableCourseRuns({ course: data, isEnrollableBufferDays });
-      const transformedData = {
-        ...data,
-        availableCourseRuns,
-      };
-      return transformedData;
-    },
-  });
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryCourseMetadata(courseKey),
+      select: (data) => {
+        if (!data) {
+          return data;
+        }
+        const availableCourseRuns = getAvailableCourseRuns({ course: data, isEnrollableBufferDays });
+        const transformedData = {
+          ...data,
+          availableCourseRuns,
+        };
+        return transformedData;
+      },
+    }),
+  );
 }

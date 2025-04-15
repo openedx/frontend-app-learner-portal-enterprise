@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query';
 import { queryLearnerSkillLevels } from '../queries';
 
 /**
@@ -6,7 +6,9 @@ import { queryLearnerSkillLevels } from '../queries';
  * @returns Query results for the learner skill levels
  */
 export default function useLearnerSkillLevels(jobId: string) {
-  return useQuery({
-    ...queryLearnerSkillLevels(jobId),
-  });
+  return useQuery(
+    queryOptions({
+      ...queryLearnerSkillLevels(jobId),
+    }),
+  );
 }

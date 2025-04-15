@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 import useCourseMetadata from './useCourseMetadata';
@@ -92,17 +92,19 @@ export default function useCourseRedemptionEligibility() {
   const { data: courseMetadata } = useCourseMetadata();
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
 
-  return useSuspenseQuery({
-    ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
-    select: (data) => {
-      // Among other things, transformCourseRedemptionEligibility() removes
-      // restricted runs that fail the policy's can-redeem check.
-      const transformedData = transformCourseRedemptionEligibility({
-        courseMetadata,
-        canRedeemData: data,
-        courseRunKey,
-      });
-      return transformedData;
-    },
-  });
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+      select: (data) => {
+        // Among other things, transformCourseRedemptionEligibility() removes
+        // restricted runs that fail the policy's can-redeem check.
+        const transformedData = transformCourseRedemptionEligibility({
+          courseMetadata,
+          canRedeemData: data,
+          courseRunKey,
+        });
+        return transformedData;
+      },
+    }),
+  );
 }

@@ -33,9 +33,11 @@ type UseBrowseAndRequestQueryOptions<
  */
 export function useBrowseAndRequestConfiguration() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
-  return useSuspenseQuery({
-    ...queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
-  });
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
+    }),
+  );
 }
 
 /**
@@ -78,7 +80,7 @@ export function useCouponCodeRequests<TData = CouponCodeRequest[], TSelectData =
         if (select) {
           return select(data as TData);
         }
-        return data as TSelectData;
+        return data;
       },
     }),
   );
