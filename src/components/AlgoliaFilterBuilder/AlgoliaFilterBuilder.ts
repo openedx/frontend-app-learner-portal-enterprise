@@ -46,8 +46,12 @@ export default class AlgoliaFilterBuilder {
    *   new AlgoliaFilterBuilder().and('type', 'course').build()
    *   // → "type:course"
    */
-  and(attribute: string, value: string) {
+  and(attribute: string, value: string, stringify = false) {
     if (attribute && value) {
+      if (stringify) {
+        this.filters.push(`${attribute}:"${value}"`);
+        return this;
+      }
       this.filters.push(`${attribute}:${value}`);
     }
     return this;

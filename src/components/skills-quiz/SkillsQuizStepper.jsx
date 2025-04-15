@@ -282,7 +282,6 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                     </>
                   )}
                 </div>
-
               </Stepper.Step>
             </InstantSearch>
             <Stepper.Step
@@ -327,7 +326,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
               eventKey="courses-with-skills"
               title="Recommended Courses With Skills"
             >
-              <SkillsCourses index={courseIndex} />
+              <SkillsCourses />
             </Stepper.Step>
           </Container>
         </ModalDialog.Body>

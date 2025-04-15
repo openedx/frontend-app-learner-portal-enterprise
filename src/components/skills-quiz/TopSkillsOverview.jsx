@@ -1,5 +1,5 @@
 import {
-  useContext, useEffect, useState, useMemo,
+  useContext, useEffect, useMemo, useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Badge, Card } from '@openedx/paragon';
@@ -25,8 +25,9 @@ const TopSkillsOverview = ({ index }) => {
   const { refinements: { current_job: currentJob, industry_names: industryNames } } = useContext(SearchContext);
   const [currentJobDetails, setCurrentJobDetails] = useState(null);
   const jobSelected = goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? currentJobRole : interestedJobs;
+  console.log(jobSelected, currentJobRole, interestedJobs);
   const selectedJobDetails = useMemo(
-    () => jobSelected?.filter(job => job.name === selectedJob) || [],
+    () => jobSelected?.filter(job => job?.name === selectedJob) || [],
     [jobSelected, selectedJob],
   );
 
@@ -100,8 +101,8 @@ const TopSkillsOverview = ({ index }) => {
               {currentJobDetails?.length > 0 && selectedJobDetails?.length > 0
                 && (
                   <JobDescriptions
-                    currentJobID={currentJobDetails[0].external_id}
-                    futureJobID={selectedJobDetails[0].external_id}
+                    currentJobID={currentJobDetails[0].externalId}
+                    futureJobID={selectedJobDetails[0].externalId}
                     currentJobDescription={currentJobDetails[0].description}
                     futureJobDescription={selectedJobDetails[0].description}
                     goal={goal}

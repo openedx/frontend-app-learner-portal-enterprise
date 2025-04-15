@@ -1,6 +1,4 @@
-import {
-  Fragment, useEffect, useMemo, useState,
-} from 'react';
+import { Fragment, useMemo } from 'react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
   Alert, Badge, Button, CardGrid, Skeleton,
@@ -9,8 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
 import { ZoomOut } from '@openedx/paragon/icons';
 
-import { Configure, connectHits, InstantSearch } from 'react-instantsearch-dom';
-import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import PropTypes from 'prop-types';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { sortSkillsCoursesWithCourseCount } from './data/utils';
@@ -19,24 +16,7 @@ import CourseCard from './CourseCard';
 import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
-
-function withCamelCasedHits(WrappedComponent) {
-  return connectHits(({ hits, ...props }) => {
-    const [isLoading, setIsLoading] = useState(true);
-
-    const camelCasedHits = useMemo(() => hits?.map(camelCaseObject), [hits]);
-
-    useEffect(() => {
-      if (hits.length > 0) {
-        setIsLoading(false);
-      } else {
-        setIsLoading(true);
-      }
-    }, [hits.length]);
-
-    return <WrappedComponent hits={camelCasedHits} isLoading={isLoading} {...props} />;
-  });
-}
+import { withCamelCasedStateResults } from '../utils/skills-quiz';
 
 const SkillsHits = ({ hits, isLoading }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -144,7 +124,7 @@ const SkillsHits = ({ hits, isLoading }) => {
   );
 };
 
-const ConnectedSkillsHits = withCamelCasedHits(SkillsHits);
+const ConnectedSkillsHits = withCamelCasedStateResults(SkillsHits);
 
 SkillsHits.propTypes = {
   isLoading: PropTypes.bool,
