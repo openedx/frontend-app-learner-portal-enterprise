@@ -166,7 +166,7 @@ const VideoDetailPage = () => {
             </div>
           )}
         </article>
-        {isDefinedAndNotNull(courseMetadata.activeCourseRun) && (
+        {isDefinedAndNotNull(courseMetadata?.activeCourseRun) && (
           <article className="col-12 col-lg-3 pr-0 pb-3">
             <div className="d-flex flex-column align-items-start">
               <h3 className="m-0">

@@ -3,7 +3,12 @@ import {
 } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
-import { extractEnterpriseCustomer, queryAcademiesList, queryContentHighlightSets } from '../../app/data';
+import {
+  extractEnterpriseCustomer,
+  queryAcademiesList,
+  queryContentHighlightSets,
+  safeEnsureQueryData,
+} from '../../app/data';
 
 type SearchRouteParams<Key extends string = string> = Params<Key> & {
   readonly enterpriseSlug: string;
@@ -42,9 +47,11 @@ const makeSearchLoader: MakeRouteLoaderFunctionWithQueryClient = function makeSe
     const searchData = [queryClient.ensureQueryData(academiesListQuery)];
     if (getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
       searchData.push(
-        queryClient.ensureQueryData(
-          queryContentHighlightSets(enterpriseCustomer.uuid),
-        ),
+        safeEnsureQueryData({
+          queryClient,
+          query: queryContentHighlightSets(enterpriseCustomer.uuid),
+          fallbackData: [],
+        }),
       );
     }
 

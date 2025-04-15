@@ -1,7 +1,6 @@
 import { LoaderFunctionArgs, Params } from 'react-router-dom';
 import {
   extractEnterpriseCustomer,
-  queryEnterpriseCourseEnrollments,
   queryLearnerProgramProgressData,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
@@ -36,11 +35,8 @@ const makeProgramProgressLoader: MakeRouteLoaderFunctionWithQueryClient = (
       if (!enterpriseCustomer) {
         return null;
       }
-      const queriesToResolve = [
-        queryClient.ensureQueryData(queryLearnerProgramProgressData(programUUID)),
-        queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
-      ];
-      await Promise.all(queriesToResolve);
+
+      await queryClient.ensureQueryData(queryLearnerProgramProgressData(programUUID));
 
       return null;
     };

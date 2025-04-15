@@ -13,15 +13,8 @@ import { fetchPaginatedData } from '../utils';
  */
 export async function fetchBrowseAndRequestConfiguration(enterpriseUUID) {
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
-  try {
-    const response = await getAuthenticatedHttpClient().get(url);
-    return camelCaseObject(response.data);
-  } catch (error) {
-    if (getErrorResponseStatusCode(error) !== 404) {
-      logError(error);
-    }
-    return null;
-  }
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
 }
 
 /**
@@ -42,13 +35,8 @@ export async function fetchLicenseRequests(
     state,
   });
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/license-requests/?${queryParams.toString()}`;
-  try {
-    const { results } = await fetchPaginatedData(url);
-    return results;
-  } catch (error) {
-    logError(error);
-    return [];
-  }
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }
 
 /**
@@ -70,11 +58,6 @@ export async function fetchCouponCodeRequests(
   });
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
-  try {
-    const { results } = await fetchPaginatedData(url);
-    return results;
-  } catch (error) {
-    logError(error);
-    return [];
-  }
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }

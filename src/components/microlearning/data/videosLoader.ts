@@ -1,8 +1,13 @@
 import { LoaderFunctionArgs, Params } from 'react-router-dom';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import {
-  extractEnterpriseCustomer, queryCourseMetadata, queryCourseReviews, queryVideoDetail,
+  extractEnterpriseCustomer,
+  queryCourseMetadata,
+  queryCourseReviews,
+  queryVideoDetail,
+  safeEnsureQueryData,
 } from '../../app/data';
+import { getErrorResponseStatusCode } from '../../../utils/common';
 
 type VideoRouteParams<Key extends string = string> = Params<Key> & {
   readonly videoUUID: string;
@@ -36,8 +41,17 @@ const makeVideosLoader: MakeRouteLoaderFunctionWithQueryClient = function makeVi
     if (videoData) {
       const { courseKey } = videoData;
       await Promise.all([
-        queryClient.ensureQueryData(queryCourseMetadata(courseKey)),
-        queryClient.ensureQueryData(queryCourseReviews(courseKey)),
+        safeEnsureQueryData({
+          queryClient,
+          query: queryCourseMetadata(courseKey),
+          fallbackData: null,
+        }),
+        safeEnsureQueryData({
+          queryClient,
+          query: queryCourseReviews(courseKey),
+          shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+          fallbackData: null,
+        }),
       ]);
     }
 

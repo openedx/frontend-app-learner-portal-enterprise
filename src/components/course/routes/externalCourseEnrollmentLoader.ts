@@ -8,8 +8,10 @@ import {
   queryCanRedeem,
   queryCourseMetadata,
   queryRedeemablePolicies,
+  safeEnsureQueryData,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
+import { getErrorResponseStatusCode } from '../../../utils/common';
 
 type ExternalCourseEnrollmentRouteParams<Key extends string = string> = Params<Key> & {
   readonly courseType: string;
@@ -63,9 +65,12 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
           redeemableLearnerCreditPolicies.redeemablePolicies,
         );
-        const canRedeem = await queryClient.ensureQueryData(
-          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
-        );
+        const canRedeem = await safeEnsureQueryData<CanRedeemResponse>({
+          queryClient,
+          query: queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+          shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+          fallbackData: [],
+        });
         const hasSuccessfulRedemption = !!canRedeem.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption;
         if (hasSuccessfulRedemption) {
           const redirectUrl = generatePath(

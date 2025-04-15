@@ -7,6 +7,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import {
   activateOrAutoApplySubscriptionLicense,
   addLicenseToSubscriptionLicensesByStatus,
+  getBaseSubscriptionsData,
   queryAcademiesList,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
@@ -17,8 +18,10 @@ import {
   queryRedeemablePolicies,
   querySubscriptions,
   resolveBFFQuery,
+  safeEnsureQueryData,
   updateUserActiveEnterprise,
 } from '../../data';
+import { getErrorResponseStatusCode } from '../../../../utils/common';
 
 /**
  * Ensures all enterprise-related app data is loaded.
@@ -45,95 +48,149 @@ export async function ensureEnterpriseAppData({
     const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
     enterpriseAppDataQueries.push(
       // Enterprise Customer User Subsidies
-      queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
-        // Auto-activate the user's subscription license, if applicable.
-        const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
-          enterpriseCustomer,
-          allLinkedEnterpriseCustomerUsers,
-          subscriptionsData,
-          requestUrl,
-        });
-        if (activatedOrAutoAppliedLicense) {
-          const { subscriptionLicensesByStatus, subscriptionLicenses } = subscriptionsData;
-          // Create a deep copy of the structure using .map for immutability, removing
-          // the `activatedOrAutoAppliedLicense` from each list. Then, re-add the license
-          // to the correct status list.
-          const licensesByStatusWithoutExistingLicense = Object.fromEntries(
-            Object.entries(subscriptionLicensesByStatus).map(([key, licenses]) => [
-              key,
-              licenses.filter(
-                (existingLicense) => existingLicense.uuid !== activatedOrAutoAppliedLicense.uuid,
-              ), // Remove license immutably
-            ]),
-          );
-          const updatedLicensesByStatus = addLicenseToSubscriptionLicensesByStatus({
-            subscriptionLicensesByStatus: licensesByStatusWithoutExistingLicense,
-            subscriptionLicense: activatedOrAutoAppliedLicense,
+      safeEnsureQueryData({
+        queryClient,
+        query: subscriptionsQuery,
+        fallbackData: getBaseSubscriptionsData().baseSubscriptionsData,
+      })
+        .then(async (subscriptionsData) => {
+          // Auto-activate the user's subscription license, if applicable.
+          const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
+            enterpriseCustomer,
+            allLinkedEnterpriseCustomerUsers,
+            subscriptionsData,
+            requestUrl,
           });
+          if (activatedOrAutoAppliedLicense) {
+            const { subscriptionLicensesByStatus, subscriptionLicenses } = subscriptionsData;
+            // Create a deep copy of the structure using .map for immutability, removing
+            // the `activatedOrAutoAppliedLicense` from each list. Then, re-add the license
+            // to the correct status list.
+            const licensesByStatusWithoutExistingLicense = Object.fromEntries(
+              Object.entries(subscriptionLicensesByStatus).map(([key, licenses]) => [
+                key,
+                licenses.filter(
+                  (existingLicense) => existingLicense.uuid !== activatedOrAutoAppliedLicense.uuid,
+                ), // Remove license immutably
+              ]),
+            );
+            const updatedLicensesByStatus = addLicenseToSubscriptionLicensesByStatus({
+              subscriptionLicensesByStatus: licensesByStatusWithoutExistingLicense,
+              subscriptionLicense: activatedOrAutoAppliedLicense,
+            });
 
-          // Update the flat subscription licenses list
-          const updatedSubscriptionLicenses = [...subscriptionLicenses];
-          const licenseIndex = subscriptionLicenses.findIndex(
-            (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
-          );
-          if (licenseIndex >= 0) {
-            // Replace the existing license
-            updatedSubscriptionLicenses[licenseIndex] = activatedOrAutoAppliedLicense;
-          } else {
-            // Add the new license
-            updatedSubscriptionLicenses.push(activatedOrAutoAppliedLicense);
+            // Update the flat subscription licenses list
+            const updatedSubscriptionLicenses = [...subscriptionLicenses];
+            const licenseIndex = subscriptionLicenses.findIndex(
+              (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
+            );
+            if (licenseIndex >= 0) {
+              // Replace the existing license
+              updatedSubscriptionLicenses[licenseIndex] = activatedOrAutoAppliedLicense;
+            } else {
+              // Add the new license
+              updatedSubscriptionLicenses.push(activatedOrAutoAppliedLicense);
+            }
+
+            // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
+            queryClient.setQueryData(subscriptionsQuery.queryKey, (oldData) => ({
+              ...oldData,
+              subscriptionLicensesByStatus: updatedLicensesByStatus,
+              subscriptionPlan: activatedOrAutoAppliedLicense.subscriptionPlan,
+              subscriptionLicense: activatedOrAutoAppliedLicense,
+              subscriptionLicenses: updatedSubscriptionLicenses,
+            }));
           }
 
-          // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
-          queryClient.setQueryData(subscriptionsQuery.queryKey, (oldData) => ({
-            ...oldData,
-            subscriptionLicensesByStatus: updatedLicensesByStatus,
-            subscriptionPlan: activatedOrAutoAppliedLicense.subscriptionPlan,
-            subscriptionLicense: activatedOrAutoAppliedLicense,
-            subscriptionLicenses: updatedSubscriptionLicenses,
-          }));
-        }
-
-        return subscriptionsData;
-      }),
+          return subscriptionsData;
+        }),
     );
   }
   enterpriseAppDataQueries.push(...[
     // Redeemable Learner Credit Policies
-    queryClient.ensureQueryData(
-      queryRedeemablePolicies({
+    safeEnsureQueryData({
+      queryClient,
+      query: queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: userId,
       }),
-    ),
+      fallbackData: {
+        redeemablePolicies: [],
+        expiredPolicies: [],
+        unexpiredPolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          allocatedAssignments: [],
+          hasAllocatedAssignments: false,
+          acceptedAssignments: [],
+          hasAcceptedAssignments: false,
+          canceledAssignments: [],
+          hasCanceledAssignments: false,
+          expiredAssignments: [],
+          hasExpiredAssignments: false,
+          erroredAssignments: [],
+          hasErroredAssignments: false,
+          assignmentsForDisplay: [],
+          hasAssignmentsForDisplay: false,
+          reversedAssignments: [],
+          hasReversedAssignments: false,
+        },
+      },
+    }),
     // Enterprise Coupon Codes
-    queryClient.ensureQueryData(
-      queryCouponCodes(enterpriseCustomer.uuid),
-    ),
+    safeEnsureQueryData({
+      queryClient,
+      query: queryCouponCodes(enterpriseCustomer.uuid),
+      fallbackData: {
+        couponsOverview: [],
+        couponCodeAssignments: [],
+        couponCodeRedemptionCount: 0,
+      },
+    }),
     // Enterprise Learner Offers
-    queryClient.ensureQueryData(
-      queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
-    ),
+    safeEnsureQueryData({
+      queryClient,
+      query: queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
+      fallbackData: {
+        enterpriseOffers: [],
+        currentEnterpriseOffers: [],
+        canEnrollWithEnterpriseOffers: false,
+        hasCurrentEnterpriseOffers: false,
+        hasLowEnterpriseOffersBalance: false,
+        hasNoEnterpriseOffersBalance: false,
+      },
+    }),
     // Browse and Request Configuration
-    queryClient.ensureQueryData(
-      queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
-    ),
+    safeEnsureQueryData({
+      queryClient,
+      query: queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
+      shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+    }),
     // License Requests
-    queryClient.ensureQueryData(
-      queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
-    ),
+    safeEnsureQueryData({
+      queryClient,
+      query: queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
+      fallbackData: [],
+    }),
     // Coupon Code Requests
-    queryClient.ensureQueryData(
-      queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
-    ),
+    safeEnsureQueryData({
+      queryClient,
+      query: queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
+      fallbackData: [],
+    }),
     // Content Highlights
-    queryClient.ensureQueryData(
-      queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
-    ),
+    safeEnsureQueryData({
+      queryClient,
+      query: queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
+      fallbackData: null,
+    }),
     // Academies List
-    queryClient.ensureQueryData(
-      queryAcademiesList(enterpriseCustomer.uuid),
-    ),
+    safeEnsureQueryData({
+      queryClient,
+      query: queryAcademiesList(enterpriseCustomer.uuid),
+      fallbackData: [],
+    }),
   ]);
 
   // Ensure all enterprise app data queries are resolved.

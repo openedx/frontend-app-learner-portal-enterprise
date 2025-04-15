@@ -6,6 +6,7 @@ import {
   queryEnterpriseProgramsList,
   queryRedeemablePolicies,
   resolveBFFQuery,
+  safeEnsureQueryData,
 } from '../../app/data';
 
 type DashboardRouteParams<Key extends string = string> = Params<Key> & {
@@ -65,8 +66,16 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
 
     await Promise.all([
       loadEnrollmentsPoliciesAndRedirectForNewUsers,
-      queryClient.ensureQueryData(queryEnterpriseProgramsList(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryEnterprisePathwaysList(enterpriseCustomer.uuid)),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryEnterpriseProgramsList(enterpriseCustomer.uuid),
+        fallbackData: [],
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryEnterprisePathwaysList(enterpriseCustomer.uuid),
+        fallbackData: [],
+      }),
     ]);
 
     return null;

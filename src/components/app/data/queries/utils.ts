@@ -1,5 +1,7 @@
-import { QueryClient } from '@tanstack/react-query';
 import { matchPath } from 'react-router-dom';
+import { logError } from '@edx/frontend-platform/logging';
+import { QueryClient, QueryFunction, QueryKey } from '@tanstack/react-query';
+
 import {
   queryEnterpriseLearner,
   queryEnterpriseLearnerAcademyBFF,
@@ -54,9 +56,8 @@ type GetEnterpriseLearnerQueryDataArgs = {
 };
 
 /**
- * Helper function to parse the datasource for the enterprise learner data from either the
- * BFF layer or the Enterprise learner endpoint directly. We pass in the fallback
- * queryEnterpriseLearner to avoid dependency cycle issues
+ * Helper function to parse the data source for the enterprise learner data from either the
+ * BFF layer or the Enterprise learner endpoint directly, or the query cache if data is fresh.
  */
 export async function getEnterpriseLearnerQueryData({
   requestUrl,
@@ -64,8 +65,6 @@ export async function getEnterpriseLearnerQueryData({
   enterpriseSlug,
   authenticatedUser,
 }: GetEnterpriseLearnerQueryDataArgs) {
-  // Retrieve linked enterprise customers for the current user from query cache
-  // or fetch from the server if not available.
   let enterpriseLearnerData: EnterpriseLearnerData = {
     enterpriseCustomer: null,
     activeEnterpriseCustomer: null,
@@ -75,9 +74,9 @@ export async function getEnterpriseLearnerQueryData({
     shouldUpdateActiveEnterpriseCustomerUser: false,
   };
 
-  // Handle BFF query, if applicable:
   const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
   if (matchedBFFQuery) {
+    // Handle BFF query, if applicable.
     const bffResponse = await queryClient.ensureQueryData<BFFResponse>(
       matchedBFFQuery({ enterpriseSlug: enterpriseSlug! }),
     );
@@ -100,4 +99,41 @@ export async function getEnterpriseLearnerQueryData({
     data: enterpriseLearnerData,
     isBFFData: !!matchedBFFQuery,
   };
+}
+
+type SafeEnsureQueryDataArgs<TData = unknown> = {
+  queryClient: QueryClient;
+  query: {
+    queryKey: QueryKey;
+    queryFn: QueryFunction<TData>;
+  };
+  shouldLogError?: boolean | ((err: Error) => boolean);
+  fallbackData?: TData;
+};
+
+/**
+ * Wraps a promise in a try/catch block and returns null if the promise is rejected.
+ */
+export async function safeEnsureQueryData<TData = unknown>({
+  queryClient,
+  query,
+  shouldLogError = true,
+  fallbackData,
+}: SafeEnsureQueryDataArgs<TData>) {
+  try {
+    return await queryClient.ensureQueryData<TData>(query);
+  } catch (err) {
+    const shouldLogErrorResult = typeof shouldLogError === 'function'
+      ? shouldLogError(err as Error)
+      : shouldLogError;
+
+    if (shouldLogErrorResult) {
+      logError(err);
+    }
+
+    // On query error, set the query data to the given fallback data.
+    const { queryKey } = query;
+    queryClient.setQueryData(queryKey, fallbackData);
+    return fallbackData as TData;
+  }
 }

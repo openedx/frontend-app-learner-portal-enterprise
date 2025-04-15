@@ -21,20 +21,15 @@ export async function fetchCouponCodeAssignments(enterpriseId, options = {}) {
     ...options,
   });
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/?${queryParams.toString()}`;
-  try {
-    const { results } = await fetchPaginatedData(url);
-    const transformedResults = results.map((couponCode) => ({
-      ...couponCode,
-      available: hasValidStartExpirationDates({
-        startDate: couponCode.couponStartDate,
-        endDate: couponCode.couponEndDate,
-      }),
-    }));
-    return transformedResults;
-  } catch (error) {
-    logError(error);
-    return [];
-  }
+  const { results } = await fetchPaginatedData(url);
+  const transformedResults = results.map((couponCode) => ({
+    ...couponCode,
+    available: hasValidStartExpirationDates({
+      startDate: couponCode.couponStartDate,
+      endDate: couponCode.couponEndDate,
+    }),
+  }));
+  return transformedResults;
 }
 
 /**
@@ -50,13 +45,8 @@ export async function fetchCouponsOverview(enterpriseId, options = {}) {
     ...options,
   });
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/coupons/${enterpriseId}/overview/?${queryParams.toString()}`;
-  try {
-    const { results } = await fetchPaginatedData(url);
-    return results;
-  } catch (error) {
-    logError(error);
-    return [];
-  }
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }
 
 /**

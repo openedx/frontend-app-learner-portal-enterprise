@@ -16,6 +16,7 @@ import * as enterpriseSubsidyOpenApi from './enterprise-subsidy.openapi';
 
 declare global {
   // Query Key Factory
+
   type QueryKeys = inferQueryKeyStore<typeof queries>;
 
   // Routes
@@ -24,6 +25,18 @@ declare global {
   type MakeRouteLoaderFunctionWithQueryClient = (queryClient: QueryClient) => LoaderFunction;
 
   // Application Data (general)
+
+  type Paginated<ResultItem> = {
+    next: string?,
+    previous: string?,
+    count: number,
+    results: ResultItem[],
+  };
+
+  type PaginatedCurrentPage<ResultItem> = Paginated<ResultItem> & {
+    currentPage: number,
+    start: number,
+  };
 
   type AuthenticatedUser = {
     userId: string;
@@ -73,8 +86,17 @@ declare global {
   type SubsidyAccessPolicyRaw = enterpriseAccessOpenApi.components['schemas']['SubsidyAccessPolicyCreditsAvailableResponse'];
   type SubsidyAccessPolicy = CamelCasedPropertiesDeep<SubsidyAccessPolicyRaw>;
 
+  type CreditsAvailableResponseRaw = SubsidyAccessPolicyRaw[];
+  type CreditsAvailableResponse = CamelCasedPropertiesDeep<CreditsAvailableResponseRaw>;
+
   type SubsidyTransactionRaw = enterpriseSubsidyOpenApi.components['schemas']['Transaction'];
   type SubsidyTransaction = CamelCasedPropertiesDeep<SubsidyTransactionRaw>;
+
+  type CanRedeemResponseRaw = enterpriseAccessOpenApi.components['schemas']['SubsidyAccessPolicyCanRedeemElementResponse'][];
+  type CanRedeemResponse = CamelCasedPropertiesDeep<CanRedeemResponseRaw>;
+
+  type LearnerContentAssignmentRaw = enterpriseAccessOpenApi.components['schemas']['LearnerContentAssignmentWithLearnerAcknowledgedResponse'];
+  type LearnerContentAssignment = CamelCasedPropertiesDeep<LearnerContentAssignmentRaw>;
 
   // BFFs
 

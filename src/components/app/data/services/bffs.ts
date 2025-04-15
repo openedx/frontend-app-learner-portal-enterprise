@@ -5,9 +5,8 @@ import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, snakeCaseObject } from '@edx/frontend-platform/utils';
 
-type MakeBFFRequestArgs<TData = unknown> = {
+type MakeBFFRequestArgs = {
   url: string;
-  defaultResponse: CamelCasedPropertiesDeep<TData>;
   options: BFFRequestOptions;
 };
 
@@ -85,9 +84,8 @@ export function logErrorsAndWarningsFromBFFResponse<TData extends BFFResponse>({
  */
 export async function makeBFFRequest<TData extends BFFResponseRaw>({
   url,
-  // defaultResponse,
   options,
-}: MakeBFFRequestArgs<TData>) {
+}: MakeBFFRequestArgs) {
   const { enterpriseSlug, ...optionsRest } = options;
   const snakeCaseOptionsRest = optionsRest ? snakeCaseObject(optionsRest) : {};
 
@@ -122,7 +120,6 @@ export async function makeBFFRequest<TData extends BFFResponseRaw>({
 export async function fetchEnterpriseLearnerDashboard(options: BFFRequestOptions) {
   return makeBFFRequest<DashboardBFFResponseRaw>({
     url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/dashboard/`,
-    defaultResponse: learnerDashboardBFFResponse,
     options,
   });
 }
@@ -133,7 +130,6 @@ export async function fetchEnterpriseLearnerDashboard(options: BFFRequestOptions
 export async function fetchEnterpriseLearnerSearch(options: BFFRequestOptions) {
   return makeBFFRequest<SearchBFFResponseRaw>({
     url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/search/`,
-    defaultResponse: learnerSearchBFFResponse,
     options,
   });
 }
@@ -144,7 +140,6 @@ export async function fetchEnterpriseLearnerSearch(options: BFFRequestOptions) {
 export async function fetchEnterpriseLearnerAcademy(options: BFFRequestOptions) {
   return makeBFFRequest<AcademyBFFResponseRaw>({
     url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/academy/`,
-    defaultResponse: learnerAcademyBFFResponse,
     options,
   });
 }
@@ -155,7 +150,6 @@ export async function fetchEnterpriseLearnerAcademy(options: BFFRequestOptions) 
 export async function fetchEnterpriseLearnerSkillsQuiz(options: BFFRequestOptions) {
   return makeBFFRequest<SkillsQuizBFFResponseRaw>({
     url: `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/bffs/learner/skills-quiz/`,
-    defaultResponse: learnerSkillsQuizBFFResponse,
     options,
   });
 }

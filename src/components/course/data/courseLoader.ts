@@ -6,6 +6,7 @@ import {
   determineAllocatedAssignmentsForCourse,
   determineLearnerHasContentAssignmentsOnly,
   extractEnterpriseCustomer,
+  getBaseSubscriptionsData,
   getCatalogsForSubsidyRequests,
   getLateEnrollmentBufferDays,
   getSearchCatalogs,
@@ -23,10 +24,12 @@ import {
   queryRedeemablePolicies,
   querySubscriptions,
   queryUserEntitlements,
+  safeEnsureQueryData,
   transformCourseMetadataByAllocatedCourseRunAssignments,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
+import { getErrorResponseStatusCode } from '../../../utils/common';
 
 type CourseRouteParams<Key extends string = string> = Params<Key> & {
   readonly courseKey: string;
@@ -65,21 +68,78 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     if (!enterpriseCustomer) {
       return null;
     }
-    const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-      enterpriseUuid: enterpriseCustomer.uuid,
-      lmsUserId: authenticatedUser.userId,
-    }));
-    const otherSubsidyQueries = Promise.all([
-      queryClient.ensureQueryData(queryRedeemablePolicies({
+    const redeemableLearnerCreditPolicies = await safeEnsureQueryData({
+      queryClient,
+      query: queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: authenticatedUser.userId,
-      })),
-      queryClient.ensureQueryData(querySubscriptions(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryEnterpriseLearnerOffers(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryCouponCodes(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryLicenseRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
-      queryClient.ensureQueryData(queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
-      queryClient.ensureQueryData(queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid)),
+      }),
+      fallbackData: {
+        redeemablePolicies: [],
+        expiredPolicies: [],
+        unexpiredPolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          allocatedAssignments: [],
+          hasAllocatedAssignments: false,
+          acceptedAssignments: [],
+          hasAcceptedAssignments: false,
+          canceledAssignments: [],
+          hasCanceledAssignments: false,
+          expiredAssignments: [],
+          hasExpiredAssignments: false,
+          erroredAssignments: [],
+          hasErroredAssignments: false,
+          assignmentsForDisplay: [],
+          hasAssignmentsForDisplay: false,
+          reversedAssignments: [],
+          hasReversedAssignments: false,
+        },
+      },
+    });
+    const otherSubsidyQueries = Promise.all([
+      safeEnsureQueryData({
+        queryClient,
+        query: querySubscriptions(enterpriseCustomer.uuid),
+        fallbackData: getBaseSubscriptionsData().baseSubscriptionsData,
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
+        fallbackData: {
+          enterpriseOffers: [],
+          currentEnterpriseOffers: [],
+          canEnrollWithEnterpriseOffers: false,
+          hasCurrentEnterpriseOffers: false,
+          hasLowEnterpriseOffersBalance: false,
+          hasNoEnterpriseOffersBalance: false,
+        },
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryCouponCodes(enterpriseCustomer.uuid),
+        fallbackData: {
+          couponsOverview: [],
+          couponCodeAssignments: [],
+          couponCodeRedemptionCount: 0,
+        },
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryLicenseRequests(enterpriseCustomer.uuid, authenticatedUser.email),
+        fallbackData: [],
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email),
+        fallbackData: [],
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
+        shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+      }),
     ]);
 
     const {
@@ -111,14 +171,38 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
             courseMetadata,
             allocatedCourseRunAssignmentKeys,
           });
-          return queryClient.ensureQueryData(
-            queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
-          );
+          return safeEnsureQueryData({
+            queryClient,
+            query: queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
+            shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+            fallbackData: [],
+          });
         }),
-      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryUserEntitlements()),
-      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey])),
-      queryClient.ensureQueryData(queryCourseReviews(courseKey)),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
+        shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+        fallbackData: [],
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryUserEntitlements(),
+        fallbackData: [],
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey]),
+        fallbackData: {
+          containsContentItems: false,
+          catalogList: [],
+        },
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryCourseReviews(courseKey),
+        shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+        fallbackData: null,
+      }),
       otherSubsidyQueries.then(async (subsidyResponses) => {
         const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[1];
         const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[2];
@@ -161,11 +245,18 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
           currentEnterpriseOffers,
           subscriptionLicense,
         });
-        return queryClient.ensureQueryData(queryCourseRecommendations(
-          enterpriseCustomer.uuid,
-          courseKey,
-          searchCatalogs,
-        ));
+        return safeEnsureQueryData({
+          queryClient,
+          query: queryCourseRecommendations(
+            enterpriseCustomer.uuid,
+            courseKey,
+            searchCatalogs,
+          ),
+          fallbackData: {
+            allRecommendations: [],
+            samePartnerRecommendations: [],
+          },
+        });
       }),
     ]);
 
