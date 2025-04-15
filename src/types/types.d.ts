@@ -50,6 +50,70 @@ declare global {
     authenticatedUser: AuthenticatedUser;
   };
 
+  // Application Date (config)
+
+  type AlgoliaConfiguration = {
+    ALGOLIA_APP_ID: string | null;
+    ALGOLIA_SEARCH_API_KEY: string | null;
+    ALGOLIA_INDEX_NAME: string | null;
+    ALGOLIA_INDEX_NAME_JOBS: string | null;
+    ALGOLIA_REPLICA_INDEX_NAME: string | null;
+  };
+
+  type ServiceUrls = {
+    ENTERPRISE_ACCESS_BASE_URL: string | null;
+    ENTERPRISE_CATALOG_API_BASE_URL: string | null;
+    LICENSE_MANAGER_URL: string | null;
+    ENTERPRISE_SUBSIDY_BASE_URL: string | null;
+  };
+
+  type ExternalUrls = {
+    GETSMARTER_STUDENT_TC_URL: string | null;
+    GETSMARTER_PRIVACY_POLICY_URL: string | null;
+    GETSMARTER_LEARNER_DASHBOARD_URL: string | null;
+  };
+
+  type SupportUrls = {
+    LEARNER_SUPPORT_URL: string | null;
+    LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL: string | null;
+    LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL: string | null;
+    LEARNER_SUPPORT_PACED_COURSE_MODE_URL: string | null;
+  };
+
+  type MaintenanceConfiguration = {
+    IS_MAINTENANCE_ALERT_ENABLED: boolean;
+    MAINTENANCE_ALERT_MESSAGE: string | null;
+    MAINTENANCE_ALERT_START_TIMESTAMP: string | null;
+    MAINTENANCE_ALERT_END_TIMESTAMP: string | null;
+  };
+
+  type FeatureFlagConfiguration = {
+    ENABLE_SKILLS_QUIZ: boolean;
+    ENABLE_NOTICES: boolean;
+    FEATURE_CONTENT_HIGHLIGHTS: boolean;
+    FEATURE_ENABLE_EMET_REDEMPTION: boolean;
+    FEATURE_ENABLE_RESTRICTED_RUNS: boolean;
+  };
+
+  type CookieConfiguration = {
+    INTEGRATION_WARNING_DISMISSED_COOKIE_NAME: string | null;
+  };
+
+  type OptimizelyConfiguration = {
+    EXPERIMENT_2_ID: string | null;
+    EXPERIMENT_2_VARIANT_2_ID: string | null;
+  };
+
+  interface Configuration extends
+    AlgoliaConfiguration,
+    ServiceUrls,
+    ExternalUrls,
+    SupportUrls,
+    MaintenanceConfiguration,
+    FeatureFlagConfiguration,
+    CookieConfiguration,
+    OptimizelyConfiguration {}
+
   // Application Data (enterprise)
 
   type EnterpriseCustomerRaw = enterpriseAccessOpenApi.components['schemas']['EnterpriseCustomer'];

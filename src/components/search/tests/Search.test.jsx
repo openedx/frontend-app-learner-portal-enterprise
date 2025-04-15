@@ -75,6 +75,8 @@ const SearchWrapper = ({
 );
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockFilter = `enterprise_customer_uuids: ${mockEnterpriseCustomer.uuid}`;
+const mockSearchClient = { search: jest.fn(), appId: 'test-app-id' };
+const mockSearchIndex = { indexName: 'mock-index-name' };
 describe('<Search />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -82,12 +84,8 @@ describe('<Search />', () => {
     useDefaultSearchFilters.mockReturnValue(mockFilter);
     useHasValidLicenseOrSubscriptionRequestsEnabled.mockReturnValue(true);
     useAlgoliaSearch.mockReturnValue({
-      searchClient: {
-        search: jest.fn(), appId: 'test-app-id',
-      },
-      searchIndex: {
-        indexName: 'mock-index-name',
-      },
+      searchClient: mockSearchClient,
+      searchIndex: mockSearchIndex,
     });
     MockReactInstantSearch.configure.nbHits = 2;
   });
@@ -114,23 +112,15 @@ describe('<Search />', () => {
   it.each(
     generateTestPermutations({
       canOnlyViewHighlights: [true, false],
-      useAlgoliaSearchReturnValue: [{
-        searchClient: null,
-        searchIndex: null,
-      }, {
-        searchClient: {
-          search: jest.fn(), appId: 'test-app-id',
-        },
-        searchIndex: {
-          indexName: 'mock-index-name',
-        },
-      }],
+      searchClient: [null, mockSearchClient],
     }),
   )('renders the search client error page if no search client is found', ({
     canOnlyViewHighlights,
-    useAlgoliaSearchReturnValue,
+    searchClient,
   }) => {
-    useAlgoliaSearch.mockReturnValue(useAlgoliaSearchReturnValue);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient,
+    });
     useCanOnlyViewHighlights.mockReturnValue({ data: canOnlyViewHighlights });
     renderWithRouter(
       <SearchWrapper>
@@ -138,16 +128,14 @@ describe('<Search />', () => {
       </SearchWrapper>,
     );
 
-    // Validate the SearchUnavailableAlert is being displayed when no search client is present and whether
-    // highlights are not the only visible content
-    if (!useAlgoliaSearchReturnValue.searchClient && !canOnlyViewHighlights) {
+    if (!searchClient && !canOnlyViewHighlights) {
       expect(screen.getByText(messages.alertHeading.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertText.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionsHeader.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionRefresh.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionNetwork.defaultMessage)).toBeInTheDocument();
       expect(screen.getByText(messages.alertTextOptionSupport.defaultMessage)).toBeInTheDocument();
-    } else if (useAlgoliaSearchReturnValue.searchClient || canOnlyViewHighlights) {
+    } else if (searchClient || canOnlyViewHighlights) {
       expect(screen.queryByText(messages.alertHeading.defaultMessage)).not.toBeInTheDocument();
       expect(screen.queryByText(messages.alertText.defaultMessage)).not.toBeInTheDocument();
       expect(screen.queryByText(messages.alertTextOptionsHeader.defaultMessage)).not.toBeInTheDocument();

@@ -1,16 +1,17 @@
 import axios from 'axios';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import {
-  LEARNING_TYPE_COURSE,
-} from '@edx/frontend-enterprise-catalog-search/data/constants';
-import { renderWithRouter } from '../../../utils/tests';
+import { LEARNING_TYPE_COURSE } from '@edx/frontend-enterprise-catalog-search/data/constants';
+import { AppContext } from '@edx/frontend-platform/react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { generateTestPermutations, queryClient, renderWithRouter } from '../../../utils/tests';
 
 import AcademyDetailPage from '../AcademyDetailPage';
-import { useAcademyDetails, useEnterpriseCustomer } from '../../app/data';
-import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useAcademyDetails, useAlgoliaSearch, useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { messages } from '../../search-unavailable-alert/SearchUnavailableAlert';
 
 // config
 const APP_CONFIG = {
@@ -53,6 +54,7 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ enterpriseSlug: 'test-enterprise-uuid', academyUUID: ACADEMY_UUID }),
 }));
+
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: jest.fn(() => APP_CONFIG),
@@ -60,54 +62,41 @@ jest.mock('@edx/frontend-platform/config', () => ({
 jest.mock('@edx/frontend-platform/auth');
 getAuthenticatedHttpClient.mockReturnValue(axios);
 
-// Mock the 'algoliasearch' module
-jest.mock('algoliasearch/lite', () => {
-  // Mock the 'initIndex' function
-  const mockInitIndex = jest.fn(() => {
-    // Mock the 'search' function of the index
-    const mockSearch = jest.fn(() => ({
-      hits: [
-        {
-          aggregation_key: 'course:MAX+CS50x',
-          learning_type: 'course',
-          card_image_url: 'ocm-course-card-url',
-          title: 'ocm course title',
-        },
-        {
-          aggregation_key: 'course:MAX+DSA50x',
-          learning_type: 'Executive Education',
-          card_image_url: 'exec-ed-card-url',
-          title: 'exec-ed course title',
-        },
-      ],
-      nbHits: 2,
-    }));
-
-    return { search: mockSearch };
-  });
-
-  // Mock the 'algoliasearch' function
-  return jest.fn(() => ({ initIndex: mockInitIndex }));
-});
-
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
   useAcademyDetails: jest.fn(),
 }));
 
+const mockAuthenticatedUser = authenticatedUserFactory();
+
+const appContextValue = {
+  authenticatedUser: mockAuthenticatedUser,
+};
+
 const AcademyDetailPageWrapper = () => (
-  <IntlProvider locale="en">
-    <AcademyDetailPage />
-  </IntlProvider>
+  <QueryClientProvider client={queryClient()}>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={appContextValue}>
+        <AcademyDetailPage />
+      </AppContext.Provider>
+    </IntlProvider>
+  </QueryClientProvider>
 );
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockSearchFn = jest.fn().mockResolvedValue(ALOGLIA_MOCK_DATA);
 
 describe('<AcademyDetailPage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: mockSearchFn },
+      searchIndex: { search: mockSearchFn },
+      shouldUseSecuredAlgoliaApiKey: false,
+    });
     useAcademyDetails.mockReturnValue({ data: ACADEMY_MOCK_DATA });
   });
 
@@ -131,5 +120,40 @@ describe('<AcademyDetailPage />', () => {
     useAcademyDetails.mockReturnValue({ data: null });
     renderWithRouter(<AcademyDetailPageWrapper />);
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
+  });
+  it.each(
+    generateTestPermutations({
+      shouldUseSecuredAlgoliaApiKey: [true, false],
+      searchClient: [null, { search: mockSearchFn }],
+    }),
+  )('renders a search client failure error if the search client fails (%s)', async ({
+    shouldUseSecuredAlgoliaApiKey,
+    searchClient,
+  }) => {
+    useAlgoliaSearch.mockReturnValue({
+      searchIndex: { search: mockSearchFn },
+      shouldUseSecuredAlgoliaApiKey,
+      searchClient,
+    });
+    useAcademyDetails.mockReturnValue({ data: ACADEMY_MOCK_DATA });
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    await waitFor(() => {
+      if (!searchClient) {
+        expect(screen.getByText(messages.alertHeading.defaultMessage)).toBeInTheDocument();
+        expect(screen.getByText(messages.alertText.defaultMessage)).toBeInTheDocument();
+        expect(screen.getByText(messages.alertTextOptionsHeader.defaultMessage)).toBeInTheDocument();
+        expect(screen.getByText(messages.alertTextOptionRefresh.defaultMessage)).toBeInTheDocument();
+        expect(screen.getByText(messages.alertTextOptionNetwork.defaultMessage)).toBeInTheDocument();
+        expect(screen.getByText(messages.alertTextOptionSupport.defaultMessage)).toBeInTheDocument();
+      } else {
+        expect(screen.queryByText(messages.alertHeading.defaultMessage)).not.toBeInTheDocument();
+        expect(screen.queryByText(messages.alertText.defaultMessage)).not.toBeInTheDocument();
+        expect(screen.queryByText(messages.alertTextOptionsHeader.defaultMessage)).not.toBeInTheDocument();
+        expect(screen.queryByText(messages.alertTextOptionRefresh.defaultMessage)).not.toBeInTheDocument();
+        expect(screen.queryByText(messages.alertTextOptionNetwork.defaultMessage)).not.toBeInTheDocument();
+        expect(screen.queryByText(messages.alertTextOptionSupport.defaultMessage)).not.toBeInTheDocument();
+      }
+    });
   });
 });

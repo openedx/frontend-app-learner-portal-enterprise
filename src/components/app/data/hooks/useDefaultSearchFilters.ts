@@ -88,7 +88,10 @@ export default function useDefaultSearchFilters(): string {
   const enterpriseCustomerResult = useEnterpriseCustomer();
   const enterpriseCustomer = enterpriseCustomerResult.data as EnterpriseCustomer;
   const searchCatalogs = useSearchCatalogs();
-  const { catalogUuidsToCatalogQueryUuids, shouldUseSecuredAlgoliaApiKey } = useAlgoliaSearch();
+  const {
+    catalogUuidsToCatalogQueryUuids,
+    shouldUseSecuredAlgoliaApiKey,
+  } = useAlgoliaSearch();
 
   useEffect(() => {
     // default to showing all catalogs if there are no confined search catalogs
