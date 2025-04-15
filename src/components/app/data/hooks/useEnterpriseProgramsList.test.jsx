@@ -56,7 +56,7 @@ const mockProgramsListData = [
 describe('useEnterpriseProgramsList', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      <Suspense fallback="loading">
+      <Suspense fallback={<div>Loading...</div>}>
         {children}
       </Suspense>
     </QueryClientProvider>

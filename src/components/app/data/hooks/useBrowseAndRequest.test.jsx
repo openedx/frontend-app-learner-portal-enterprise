@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -30,7 +31,9 @@ const mockCouponCodeRequests = ['test-couponCode1, test-couponCode2'];
 const Wrapper = ({ children }) => (
   <QueryClientProvider client={queryClient()}>
     <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </AppContext.Provider>
   </QueryClientProvider>
 );

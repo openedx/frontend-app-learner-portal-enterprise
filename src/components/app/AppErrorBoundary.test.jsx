@@ -1,11 +1,13 @@
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { useAsyncError, useRouteError } from 'react-router-dom';
+import { AppContext } from '@edx/frontend-platform/react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../utils/tests';
 import AppErrorBoundary from './AppErrorBoundary';
+import { authenticatedUserFactory } from './data/services/data/__factories__';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -13,9 +15,18 @@ jest.mock('react-router-dom', () => ({
   useAsyncError: jest.fn(),
 }));
 
+const mockAuthenticatedUser = authenticatedUserFactory();
+
 const AppErrorBoundaryWrapper = () => (
   <IntlProvider locale="en">
-    <AppErrorBoundary />
+    <AppContext.Provider
+      value={{
+        authenticatedUser: mockAuthenticatedUser,
+        config: {},
+      }}
+    >
+      <AppErrorBoundary />
+    </AppContext.Provider>
   </IntlProvider>
 );
 const originalNodeEnv = process.env.NODE_ENV;
@@ -44,7 +55,8 @@ describe('AppErrorBoundary', () => {
     expect(screen.getByText('We apologize for the inconvenience. Please try again later.')).toBeInTheDocument();
   });
 
-  it('uses customAttributes.httpErrorResponseData for axios errors', () => {
+  it('uses customAttributes.httpErrorResponseData for axios errors', async () => {
+    const user = userEvent.setup();
     const error = new Error('RouteErrorWithCustomAttributes');
     error.customAttributes = {
       httpErrorResponseData: {
@@ -55,6 +67,7 @@ describe('AppErrorBoundary', () => {
     renderWithRouterProvider(<AppErrorBoundaryWrapper />);
     expect(screen.getByText('An error occurred while processing your request')).toBeInTheDocument();
     expect(screen.getByText('We apologize for the inconvenience. Please try again later.')).toBeInTheDocument();
+    await user.click(screen.getByText('View error details'));
     expect(screen.getByText('Custom attributes:', { exact: false })).toBeInTheDocument();
   });
 

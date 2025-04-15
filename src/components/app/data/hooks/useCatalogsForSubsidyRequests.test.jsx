@@ -1,6 +1,4 @@
 import { renderHook } from '@testing-library/react';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from '../../../../utils/tests';
 import useCatalogsForSubsidyRequest from './useCatalogsForSubsidyRequests';
 import { getBaseSubscriptionsData } from '../constants';
 import useSubscriptions from './useSubscriptions';
@@ -24,11 +22,6 @@ const mockBrowseAndRequestConfiguration = {
 };
 
 describe('useCatalogsForSubsidyRequests', () => {
-  const Wrapper = ({ children }) => (
-    <QueryClientProvider client={queryClient()}>
-      {children}
-    </QueryClientProvider>
-  );
   beforeEach(() => {
     jest.clearAllMocks();
     useBrowseAndRequestConfiguration.mockReturnValue({ data: mockBrowseAndRequestConfiguration });
@@ -36,7 +29,7 @@ describe('useCatalogsForSubsidyRequests', () => {
     useCouponCodes.mockReturnValue({ data: { couponsOverview: mockCouponsOverviewResponse } });
   });
   it('should handle return when subsidy request not enabled for browseAndRequestConfiguration', () => {
-    const { result } = renderHook(() => useCatalogsForSubsidyRequest(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useCatalogsForSubsidyRequest());
     expect(result.current).toEqual([]);
   });
   it('should handle return when subsidyType is a license', () => {
@@ -55,7 +48,7 @@ describe('useCatalogsForSubsidyRequests', () => {
     useBrowseAndRequestConfiguration.mockReturnValue({ data: mockUpdatedBrowseAndRequestConfiguration });
     useSubscriptions.mockReturnValue({ data: mockUpdatedSubscriptionsData });
     useCouponCodes.mockReturnValue({ data: { couponsOverview: mockCouponsOverviewResponse } });
-    const { result } = renderHook(() => useCatalogsForSubsidyRequest(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useCatalogsForSubsidyRequest());
 
     expect(result.current).toEqual(['test-catalog1', 'test-catalog2']);
   });
@@ -108,7 +101,7 @@ describe('useCatalogsForSubsidyRequests', () => {
     useBrowseAndRequestConfiguration.mockReturnValue({ data: mockUpdatedBrowseAndRequestConfiguration });
     useSubscriptions.mockReturnValue({ data: baseSubscriptionsData });
     useCouponCodes.mockReturnValue({ data: { couponsOverview: mockUpdatedCouponsOverviewResponse } });
-    const { result } = renderHook(() => useCatalogsForSubsidyRequest(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useCatalogsForSubsidyRequest());
 
     expect(result.current).toEqual(['test-catalog4', 'test-catalog5', 'test-catalog6']);
   });

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -85,7 +86,9 @@ const mockExpectedUseCouseRedemptionEligibilityReturn = transformCourseRedemptio
 describe('useCourseRedemptionEligibility', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -194,15 +197,6 @@ describe('useCourseRedemptionEligibility', () => {
     const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
     await waitFor(() => {
       expect(result.current.data.redeemableSubsidyAccessPolicy).toEqual(expectedRedeemableSubsidyAccessPolicy);
-    });
-  });
-  it('should return the original and transformed data when select is passed', async () => {
-    const { result } = renderHook(() => useCourseRedemptionEligibility({
-      select: (data) => data,
-    }), { wrapper: Wrapper });
-    await waitFor(() => {
-      expect(result.current.data.original).toEqual(mockCanRedeemData);
-      expect(result.current.data.transformed).toEqual(mockExpectedUseCouseRedemptionEligibilityReturn);
     });
   });
 

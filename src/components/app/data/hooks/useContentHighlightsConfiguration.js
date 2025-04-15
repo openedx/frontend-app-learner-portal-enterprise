@@ -1,18 +1,18 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { queryContentHighlightsConfiguration } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 
 /**
  * Retrieves the content highlights configuration for the active enterprise customer user.
- * @param {object} queryOptions The query options for the content highlights configuration.
  * @returns The query results for the content highlights configuration.
  */
-export default function useContentHighlightsConfiguration(queryOptions = {}) {
+export default function useContentHighlightsConfiguration(options = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  return useQuery({
+  const { select } = options;
+  return useSuspenseQuery({
     ...queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
-    ...queryOptions,
+    select,
   });
 }
 

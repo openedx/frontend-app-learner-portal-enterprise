@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+
 import { queryClient } from '../../../../utils/tests';
 import { fetchCourseReviews } from '../services';
 import useVideoCourseMetadata from './useVideoCourseMetadata';
@@ -35,7 +37,9 @@ const courseKey = 'edX+DemoX';
 describe('useVideoCourseReviews', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {

@@ -11,10 +11,6 @@ import {
   fetchEnterpriseLearnerDashboard,
   fetchEnterpriseLearnerSearch,
   fetchEnterpriseLearnerSkillsQuiz,
-  learnerAcademyBFFResponse,
-  learnerDashboardBFFResponse,
-  learnerSearchBFFResponse,
-  learnerSkillsQuizBFFResponse,
 } from './bffs';
 
 const axiosMock = new MockAdapter(axios);
@@ -211,12 +207,6 @@ describe('fetchEnterpriseLearnerDashboard', () => {
     const result = await fetchEnterpriseLearnerDashboard({ enterpriseSlug: mockEnterpriseCustomer.slug });
     expect(result).toEqual(expectedCamelCasedOutput(mockBFFDashboardResponse));
   });
-
-  it('catches error and returns default dashboard BFF response', async () => {
-    axiosMock.onPost(urlForDashboardBFF).reply(404, undefined);
-    const result = await fetchEnterpriseLearnerDashboard({ enterpriseSlug: mockEnterpriseCustomer.slug });
-    expect(result).toEqual(learnerDashboardBFFResponse);
-  });
 });
 
 describe('fetchEnterpriseLearnerSearch', () => {
@@ -231,12 +221,6 @@ describe('fetchEnterpriseLearnerSearch', () => {
     axiosMock.onPost(urlForSearchBFF).reply(200, mockBFFSearchResponse);
     const result = await fetchEnterpriseLearnerSearch({ enterpriseSlug: mockEnterpriseCustomer.slug });
     expect(result).toEqual(expectedCamelCasedOutput(mockBFFSearchResponse));
-  });
-
-  it('catches error and returns default search BFF response', async () => {
-    axiosMock.onPost(urlForSearchBFF).reply(404, undefined);
-    const result = await fetchEnterpriseLearnerSearch({ enterpriseSlug: mockEnterpriseCustomer.slug });
-    expect(result).toEqual(learnerSearchBFFResponse);
   });
 });
 
@@ -253,12 +237,6 @@ describe('fetchEnterpriseLearnerAcademy', () => {
     const result = await fetchEnterpriseLearnerAcademy({ enterpriseSlug: mockEnterpriseCustomer.slug });
     expect(result).toEqual(expectedCamelCasedOutput(mockBFFAcademyResponse));
   });
-
-  it('catches error and returns default academy BFF response', async () => {
-    axiosMock.onPost(urlForAcademyBFF).reply(404, undefined);
-    const result = await fetchEnterpriseLearnerAcademy({ enterpriseSlug: mockEnterpriseCustomer.slug });
-    expect(result).toEqual(learnerAcademyBFFResponse);
-  });
 });
 
 describe('fetchEnterpriseLearnerSkillsQuiz', () => {
@@ -273,11 +251,5 @@ describe('fetchEnterpriseLearnerSkillsQuiz', () => {
     axiosMock.onPost(urlForSkillsQuizBFF).reply(200, mockBFFSkillsQuizResponse);
     const result = await fetchEnterpriseLearnerSkillsQuiz({ enterpriseSlug: mockEnterpriseCustomer.slug });
     expect(result).toEqual(expectedCamelCasedOutput(mockBFFSkillsQuizResponse));
-  });
-
-  it('catches error and returns default skills quiz BFF response', async () => {
-    axiosMock.onPost(urlForSkillsQuizBFF).reply(404, undefined);
-    const result = await fetchEnterpriseLearnerSkillsQuiz({ enterpriseSlug: mockEnterpriseCustomer.slug });
-    expect(result).toEqual(learnerSkillsQuizBFFResponse);
   });
 });

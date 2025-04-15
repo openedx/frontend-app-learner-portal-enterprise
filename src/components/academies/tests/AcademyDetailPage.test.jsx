@@ -5,8 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { LEARNING_TYPE_COURSE } from '@edx/frontend-enterprise-catalog-search/data/constants';
 import { AppContext } from '@edx/frontend-platform/react';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { generateTestPermutations, queryClient, renderWithRouter } from '../../../utils/tests';
+import { generateTestPermutations, renderWithRouter } from '../../../utils/tests';
 
 import AcademyDetailPage from '../AcademyDetailPage';
 import { useAcademyDetails, useAlgoliaSearch, useEnterpriseCustomer } from '../../app/data';
@@ -76,13 +75,11 @@ const appContextValue = {
 };
 
 const AcademyDetailPageWrapper = () => (
-  <QueryClientProvider client={queryClient()}>
-    <IntlProvider locale="en">
-      <AppContext.Provider value={appContextValue}>
-        <AcademyDetailPage />
-      </AppContext.Provider>
-    </IntlProvider>
-  </QueryClientProvider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <AcademyDetailPage />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -121,6 +118,7 @@ describe('<AcademyDetailPage />', () => {
     renderWithRouter(<AcademyDetailPageWrapper />);
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });
+
   it.each(
     generateTestPermutations({
       shouldUseSecuredAlgoliaApiKey: [true, false],

@@ -112,7 +112,8 @@ type SafeEnsureQueryDataArgs<TData = unknown> = {
 };
 
 /**
- * Wraps a promise in a try/catch block and returns null if the promise is rejected.
+ * Wraps a promise in a try/catch block and returns null if the promise is rejected. Using
+ * this helper function ensures that errors are handled gracefully within route loaders.
  */
 export async function safeEnsureQueryData<TData = unknown>({
   queryClient,

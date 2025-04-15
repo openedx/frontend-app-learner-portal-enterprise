@@ -34,7 +34,7 @@ function useAppQueryClient() {
         // relying on the cached data until the `staleTime` window has exceeded. This may be modified
         // per-query, as needed, if certain queries expect to be more up-to-date than others. Allows
         // `useQuery` to be used as a state manager.
-        staleTime: 1000 * 10, // 20 seconds
+        staleTime: 1000 * 20, // 20 seconds
         // To prevent hard loading states if/when query keys change during automatic query background
         // re-fetches, we can utilize `keepPreviousData` to keep the previous data until the new
         // data is fetched. By enabling this option, UI components generally will not need to consider

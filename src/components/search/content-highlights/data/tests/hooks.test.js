@@ -10,9 +10,6 @@ import { useHighlightedContentCardData } from '../hooks';
 jest.mock('../../../../app/data', () => ({
   fetchContentHighlights: jest.fn(() => Promise.resolve({ data: { results: [] } })),
 }));
-jest.mock('../service.js', () => ({
-  getEnterpriseCuration: jest.fn(() => Promise.resolve({ data: { results: [] } })),
-}));
 jest.mock('../utils', () => ({
   getHighlightedContentCardVariant: jest.fn(() => 'default'),
   getFormattedContentType: jest.fn(() => 'default'),

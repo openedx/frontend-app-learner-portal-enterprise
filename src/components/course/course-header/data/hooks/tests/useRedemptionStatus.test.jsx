@@ -14,7 +14,9 @@ global.location = {
 };
 
 const wrapper = ({ children }) => (
-  <QueryClientProvider client={queryClient()}>{children}</QueryClientProvider>
+  <QueryClientProvider client={queryClient()}>
+    {children}
+  </QueryClientProvider>
 );
 
 describe('useRedemptionStatus', () => {

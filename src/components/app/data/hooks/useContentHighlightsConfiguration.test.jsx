@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../../../../utils/tests';
@@ -22,7 +23,9 @@ const mockEnterpriseCurations = {
 };
 const Wrapper = ({ children }) => (
   <QueryClientProvider client={queryClient()}>
-    {children}
+    <Suspense fallback={<div>Loading...</div>}>
+      {children}
+    </Suspense>
   </QueryClientProvider>
 );
 

@@ -86,7 +86,6 @@ describe('App', () => {
         queries: expect.objectContaining({
           staleTime: 1000 * 20, // 20 seconds
           placeholderData: keepPreviousData,
-          throwOnError: false,
           retry: defaultQueryClientRetryHandler,
         }),
       }),

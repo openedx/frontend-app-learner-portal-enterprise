@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { getConfig } from '@edx/frontend-platform';
+
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
@@ -47,7 +49,9 @@ const mockContentHighlightSets = [
 describe('useContentHighlightSets', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -93,17 +97,6 @@ describe('useContentHighlightSets', () => {
         }),
       );
     });
-  });
-  it('should handle resolved value correctly when select is not passed as a parameter and FEATURE_CONTENT_HIGHLIGHTS is disabled', () => {
-    getConfig.mockReturnValue({
-      FEATURE_CONTENT_HIGHLIGHTS: false,
-    });
-    const { result } = renderHook(() => useContentHighlightSets(), { wrapper: Wrapper });
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: undefined,
-      }),
-    );
   });
   it('should handle resolved value correctly when select is passed as a parameter, and filters empty highlight sets', async () => {
     const mockUpdatedContentHighlightSets = [

@@ -1,13 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
-import { getConfig } from '@edx/frontend-platform';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryContentHighlightSets } from '../queries';
 
-export default function useContentHighlightSets(queryOptions = {}) {
-  const { select, ...queryOptionsRest } = queryOptions;
+export default function useContentHighlightSets(options = {}) {
+  const { select } = options;
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  return useQuery({
+  return useSuspenseQuery({
     ...queryContentHighlightSets(enterpriseCustomer.uuid),
     select: (data) => {
       const highlightSetsWithContent = data.filter(highlightSet => highlightSet.highlightedContent.length > 0);
@@ -19,7 +18,5 @@ export default function useContentHighlightSets(queryOptions = {}) {
       }
       return highlightSetsWithContent;
     },
-    enabled: !!getConfig().FEATURE_CONTENT_HIGHLIGHTS,
-    ...queryOptionsRest,
   });
 }

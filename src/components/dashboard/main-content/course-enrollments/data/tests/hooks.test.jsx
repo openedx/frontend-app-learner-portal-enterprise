@@ -261,7 +261,6 @@ describe('useCourseUpgradeData', () => {
       expect(useSubscriptions).toHaveBeenCalledWith(
         expect.objectContaining({
           select: expect.any(Function),
-          enabled: true,
         }),
       );
       const useSubscriptionsSelectFn = useSubscriptions.mock.calls[0][0].select;
@@ -350,7 +349,6 @@ describe('useCourseUpgradeData', () => {
       expect(useCouponCodes).toHaveBeenCalledWith(
         expect.objectContaining({
           select: expect.any(Function),
-          enabled: true,
         }),
       );
       const useCouponCodesSelectFn = useCouponCodes.mock.calls[0][0].select;
@@ -362,7 +360,6 @@ describe('useCourseUpgradeData', () => {
         courseRunKey,
         expect.objectContaining({
           select: expect.any(Function),
-          enabled: true,
         }),
       );
       const useCourseRunMetadataSelectFn = useCourseRunMetadata.mock.calls[0][1].select;

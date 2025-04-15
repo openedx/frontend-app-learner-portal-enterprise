@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useParams, useSearchParams } from 'react-router-dom';
+
 import { queryClient } from '../../../../utils/tests';
 import { fetchCourseMetadata } from '../services';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
@@ -95,7 +97,9 @@ const mockBaseRedeemablePolicies = {
 describe('useCourseMetadata', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {

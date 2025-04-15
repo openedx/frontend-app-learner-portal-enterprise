@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import ContentHighlights from '../ContentHighlights';
-import { useContentHighlightSets, useEnterpriseCustomer } from '../../../app/data';
+import { useCanOnlyViewHighlights, useContentHighlightSets, useEnterpriseCustomer } from '../../../app/data';
 import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/config', () => ({
@@ -16,6 +16,7 @@ jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
   useContentHighlightSets: jest.fn(),
+  useCanOnlyViewHighlights: jest.fn(),
 }));
 
 const mockHighlightedContent = {};
@@ -44,6 +45,7 @@ describe('ContentHighlights', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useContentHighlightSets.mockReturnValue({ data: [] });
+    useCanOnlyViewHighlights.mockReturnValue({ data: false });
   });
 
   describe('feature flag disabled', () => {

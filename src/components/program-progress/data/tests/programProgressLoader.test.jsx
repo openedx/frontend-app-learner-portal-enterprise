@@ -6,7 +6,6 @@ import makeProgramProgressLoader from '../programProgressLoader';
 import { ensureAuthenticatedUser } from '../../../app/routes/data';
 import {
   extractEnterpriseCustomer,
-  queryEnterpriseCourseEnrollments,
   queryLearnerProgramProgressData,
 } from '../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
@@ -69,16 +68,10 @@ describe('programProgressLoader', () => {
 
     expect(await screen.findByText('hello world')).toBeInTheDocument();
 
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(2);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: queryLearnerProgramProgressData(mockProgramUUID).queryKey,
-        queryFn: expect.any(Function),
-      }),
-    );
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
-      expect.objectContaining({
-        queryKey: queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey,
         queryFn: expect.any(Function),
       }),
     );

@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
+
 import { queryClient } from '../../../../utils/tests';
 import { fetchLearnerSkillLevels } from '../services';
 import useLearnerSkillLevels from './useLearnerSkillLevels';
@@ -14,7 +16,9 @@ const mockLearnerSkillLevels = [
 describe('useLearnerSkillLevels', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {

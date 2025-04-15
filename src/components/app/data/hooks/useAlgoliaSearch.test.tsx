@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -124,15 +125,17 @@ describe('useAlgoliaSearch', () => {
     initialEntries = [], children,
   }: { initialEntries?: string[] | undefined; children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient()}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <Routes>
-          <Route path=":enterpriseSlug" element={children} />
-          <Route path=":enterpriseSlug/search" element={children} />
-          <Route path=":enterpriseSlug/academies/:academyUUID" element={children} />
-          <Route path=":enterpriseSlug/skills-quiz" element={children} />
-          <Route path=":enterpriseSlug/unsupported-bff-route" element={children} />
-        </Routes>
-      </MemoryRouter>
+      <Suspense fallback={<div>Loading...</div>}>
+        <MemoryRouter initialEntries={initialEntries}>
+          <Routes>
+            <Route path=":enterpriseSlug" element={children} />
+            <Route path=":enterpriseSlug/search" element={children} />
+            <Route path=":enterpriseSlug/academies/:academyUUID" element={children} />
+            <Route path=":enterpriseSlug/skills-quiz" element={children} />
+            <Route path=":enterpriseSlug/unsupported-bff-route" element={children} />
+          </Routes>
+        </MemoryRouter>
+      </Suspense>
     </QueryClientProvider>
   );
 

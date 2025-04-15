@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useParams } from 'react-router-dom';
+
 import { queryClient } from '../../../../utils/tests';
 import { queryVideoDetail } from '../queries';
 import useVideoDetails from './useVideoDetails';
@@ -33,7 +35,9 @@ describe('useVideoDetails', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
       <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-        {children}
+        <Suspense fallback={<div>Loading...</div>}>
+          {children}
+        </Suspense>
       </AppContext.Provider>
     </QueryClientProvider>
   );
@@ -58,33 +62,6 @@ describe('useVideoDetails', () => {
           isFetching: false,
         }),
       );
-    });
-  });
-
-  it('should handle loading state correctly', () => {
-    queryVideoDetail.mockImplementation(() => ({
-      queryKey: ['videoDetail'],
-      queryFn: () => new Promise(() => {}), // Simulate loading
-    }));
-
-    const { result } = renderHook(() => useVideoDetails(), { wrapper: Wrapper });
-
-    expect(result.current.isPending).toBe(true);
-    expect(result.current.isFetching).toBe(true);
-  });
-
-  it('should handle error state correctly', async () => {
-    const mockError = new Error('Failed to fetch video details');
-    queryVideoDetail.mockImplementation(() => ({
-      queryKey: ['videoDetail', mockError],
-      queryFn: () => Promise.reject(mockError),
-    }));
-
-    const { result } = renderHook(() => useVideoDetails(), { wrapper: Wrapper });
-    await waitFor(() => {
-      expect(result.current.error).toEqual(mockError);
-      expect(result.current.isPending).toBe(false);
-      expect(result.current.isFetching).toBe(false);
     });
   });
 });

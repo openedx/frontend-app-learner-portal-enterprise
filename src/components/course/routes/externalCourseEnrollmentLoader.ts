@@ -58,10 +58,36 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
         if (!courseMetadata) {
           return;
         }
-        const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-          enterpriseUuid: enterpriseCustomer.uuid,
-          lmsUserId: authenticatedUser.userId,
-        }));
+        const redeemableLearnerCreditPolicies = await safeEnsureQueryData({
+          queryClient,
+          query: queryRedeemablePolicies({
+            enterpriseUuid: enterpriseCustomer.uuid,
+            lmsUserId: authenticatedUser.userId,
+          }),
+          fallbackData: {
+            redeemablePolicies: [],
+            expiredPolicies: [],
+            unexpiredPolicies: [],
+            learnerContentAssignments: {
+              assignments: [],
+              hasAssignments: false,
+              allocatedAssignments: [],
+              hasAllocatedAssignments: false,
+              acceptedAssignments: [],
+              hasAcceptedAssignments: false,
+              canceledAssignments: [],
+              hasCanceledAssignments: false,
+              expiredAssignments: [],
+              hasExpiredAssignments: false,
+              erroredAssignments: [],
+              hasErroredAssignments: false,
+              assignmentsForDisplay: [],
+              hasAssignmentsForDisplay: false,
+              reversedAssignments: [],
+              hasReversedAssignments: false,
+            },
+          },
+        });
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
           redeemableLearnerCreditPolicies.redeemablePolicies,
         );

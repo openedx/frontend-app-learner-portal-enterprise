@@ -57,6 +57,9 @@ const mockBFFDashboardData = {
 const mockExpectedEnterpriseLearner = (isMatchedBFFRoute) => (isMatchedBFFRoute
   ? {
     enterpriseCustomer: mockBFFDashboardData.enterpriseCustomer,
+    activeEnterpriseCustomer: mockBFFDashboardData.activeEnterpriseCustomer,
+    staffEnterpriseCustomer: mockBFFDashboardData.staffEnterpriseCustomer,
+    shouldUpdateActiveEnterpriseCustomerUser: mockBFFDashboardData.shouldUpdateActiveEnterpriseCustomerUser,
     allLinkedEnterpriseCustomerUsers: mockBFFDashboardData.allLinkedEnterpriseCustomerUsers,
     enterpriseFeatures: mockBFFDashboardData.enterpriseFeatures,
   }
@@ -65,15 +68,15 @@ const mockExpectedEnterpriseLearner = (isMatchedBFFRoute) => (isMatchedBFFRoute
 describe('useEnterpriseLearner', () => {
   const Wrapper = ({ initialEntries = [], children }) => (
     <QueryClientProvider client={queryClient()}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <Suspense fallback="loading...">
+      <Suspense fallback={<div>Loading...</div>}>
+        <MemoryRouter initialEntries={initialEntries}>
           <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
             <Routes>
               <Route path=":enterpriseSlug/unsupported-bff-route?" element={children} />
             </Routes>
           </AppContext.Provider>
-        </Suspense>
-      </MemoryRouter>
+        </MemoryRouter>
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {

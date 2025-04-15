@@ -49,10 +49,36 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
     // Load enrollments, policies, and conditionally redirect for new users
     const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([
       queryClient.ensureQueryData(dashboardBFFQuery({ enterpriseSlug })),
-      queryClient.ensureQueryData(queryRedeemablePolicies({
-        enterpriseUuid: enterpriseCustomer.uuid,
-        lmsUserId: authenticatedUser.userId,
-      })),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryRedeemablePolicies({
+          enterpriseUuid: enterpriseCustomer.uuid,
+          lmsUserId: authenticatedUser.userId,
+        }),
+        fallbackData: {
+          redeemablePolicies: [],
+          expiredPolicies: [],
+          unexpiredPolicies: [],
+          learnerContentAssignments: {
+            assignments: [],
+            hasAssignments: false,
+            allocatedAssignments: [],
+            hasAllocatedAssignments: false,
+            acceptedAssignments: [],
+            hasAcceptedAssignments: false,
+            canceledAssignments: [],
+            hasCanceledAssignments: false,
+            expiredAssignments: [],
+            hasExpiredAssignments: false,
+            erroredAssignments: [],
+            hasErroredAssignments: false,
+            assignmentsForDisplay: [],
+            hasAssignmentsForDisplay: false,
+            reversedAssignments: [],
+            hasReversedAssignments: false,
+          },
+        },
+      }),
     ]).then((responses) => {
       const { enterpriseCourseEnrollments } = responses[0];
       const redeemablePolicies = responses[1];

@@ -6,7 +6,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 
-import InProgressCourseCard from '../InProgressCourseCard';
+import InProgressCourseCard, { UpgradeableInProgressCourseCard } from '../InProgressCourseCard';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_MODES_MAP,
@@ -62,6 +62,7 @@ jest.mock('../../../../../app/data', () => ({
 }));
 
 const InProgressCourseCardWrapper = ({
+  Component = InProgressCourseCard,
   appContextValue = defaultAppContextValue,
   courseEnrollmentContextValue = defaultCourseEnrollmentContextValue,
   ...rest
@@ -70,7 +71,7 @@ const InProgressCourseCardWrapper = ({
     <IntlProvider locale="en">
       <AppContext.Provider value={appContextValue}>
         <CourseEnrollmentsContext.Provider value={courseEnrollmentContextValue}>
-          <InProgressCourseCard {...rest} />
+          <Component {...rest} />
         </CourseEnrollmentsContext.Provider>
       </AppContext.Provider>
     </IntlProvider>
@@ -142,7 +143,7 @@ describe('<InProgressCourseCard />', () => {
       hasUpgradeAndConfirm: true,
       redeem: mockRedeem,
     });
-    renderWithRouter(<InProgressCourseCardWrapper {...baseProps} />);
+    renderWithRouter(<InProgressCourseCardWrapper Component={UpgradeableInProgressCourseCard} {...baseProps} />);
     expect(screen.getByTestId('upgrade-course-button')).toBeInTheDocument();
   });
 
@@ -160,7 +161,7 @@ describe('<InProgressCourseCard />', () => {
       hasUpgradeAndConfirm: true,
       redeem: mockRedeem,
     });
-    renderWithRouter(<InProgressCourseCardWrapper {...baseProps} />);
+    renderWithRouter(<InProgressCourseCardWrapper Component={UpgradeableInProgressCourseCard} {...baseProps} />);
 
     const useCourseUpgradeDataArgs = useCourseUpgradeData.mock.calls[1][0];
     expect(useCourseUpgradeDataArgs).toEqual(

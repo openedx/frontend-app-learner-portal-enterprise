@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../services/data/__factories__';
 import { generateTestPermutations, queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseLearnerDashboard, fetchEnterpriseLearnerData } from '../services';
@@ -54,13 +56,15 @@ const mockExpectedEnterpriseFeatures = (isMatchedBFFRoute) => (isMatchedBFFRoute
 describe('useEnterpriseFeatures', () => {
   const Wrapper = ({ initialEntries = [], children }) => (
     <QueryClientProvider client={queryClient()}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-          <Routes>
-            <Route path=":enterpriseSlug/unsupported-bff-route?" element={children} />
-          </Routes>
-        </AppContext.Provider>
-      </MemoryRouter>
+      <Suspense fallback={<div>Loading...</div>}>
+        <MemoryRouter initialEntries={initialEntries}>
+          <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+            <Routes>
+              <Route path=":enterpriseSlug/unsupported-bff-route?" element={children} />
+            </Routes>
+          </AppContext.Provider>
+        </MemoryRouter>
+      </Suspense>
     </QueryClientProvider>
   );
 

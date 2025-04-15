@@ -22,19 +22,23 @@ export async function fetchEnterpriseCuration(enterpriseUUID, options = {}) {
   return data.results[0] ?? null;
 }
 
+type ContentHighlightRaw = {
+  uuid: string;
+};
+
 /** Content Highlights Sets
  *
  * @param enterpriseUUID
  * @param options
  * @returns
  */
-export async function fetchContentHighlights(enterpriseUUID, options = {}) {
+export async function fetchContentHighlights(enterpriseUUID: string, options = {}) {
   const queryParams = new URLSearchParams({
     enterprise_customer: enterpriseUUID,
-    page_size: MAX_HIGHLIGHT_SETS,
+    page_size: MAX_HIGHLIGHT_SETS.toString(),
     ...options,
   });
   const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/highlight-sets/?${queryParams.toString()}`;
-  const { results } = await fetchPaginatedData(url);
+  const { results } = await fetchPaginatedData<ContentHighlightRaw>(url);
   return results;
 }
