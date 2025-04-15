@@ -463,7 +463,7 @@ describe('<Dashboard />', () => {
         expectedText: 'minute.',
         expectedTimeDiff: (dayjs().add(90, 'seconds')).diff(dayjs(), 'minute'),
       },
-    ])('should render expiration modal with (%s)', ({
+    ])('should render expiration modal with (%s)', async ({
       expirationDate,
       daysUntilExpirationIncludingRenewals,
       expectedText,
@@ -487,7 +487,7 @@ describe('<Dashboard />', () => {
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
-      waitFor(() => {
+      await waitFor(() => {
         expect(screen.getByText(expectedTimeDiff)).toBeTruthy();
         expect(screen.getByText(expectedText)).toBeTruthy();
       });
@@ -593,11 +593,10 @@ describe('<Dashboard />', () => {
       expect(hasExpirationModal).toEqual(true);
     });
 
-    it.each([{
-      threshold: 30,
-    }, {
-      threshold: 60,
-    }])('should not show the modal if localstorage has been set (%s)', ({ threshold }) => {
+    it.each([
+      { threshold: 30 },
+      { threshold: 60 },
+    ])('should not show the modal if localstorage has been set (%s)', ({ threshold }) => {
       const subscriptionPlanId = `expiring-plan-${threshold}`;
       useSubscriptions.mockReturnValue({
         data: {
