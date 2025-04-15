@@ -43,7 +43,7 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
   const { select: selectEnrollment, ...enrollmentQueryOptionsRest } = enrollmentQueryOptions;
   const { select: selectLicenseRequest, ...licenseRequestQueryOptionsRest } = licenseRequestQueryOptions;
   const { select: selectCouponCodeRequest, ...couponCodeRequestQueryOptionsRest } = couponCodeRequestQueryOptions;
-  const { select: selectContentAssignment, ...contentAssignmentQueryOptionsRest } = contentAssignmentQueryOptions;
+  const { select: selectContentAssignment } = contentAssignmentQueryOptions;
 
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
@@ -142,7 +142,6 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
       }
       return transformedAssignments;
     },
-    ...contentAssignmentQueryOptionsRest,
   });
 
   // TODO: Talk about how we don't have access to weeksToComplete on the dashboard page.

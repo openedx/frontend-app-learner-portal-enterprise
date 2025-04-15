@@ -1,10 +1,17 @@
+import type { AxiosResponse } from 'axios';
+import { CamelCasedPropertiesDeep } from 'type-fest';
+
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { logError } from '@edx/frontend-platform/logging';
 
-import { getErrorResponseStatusCode } from '../../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../../../constants';
 import { fetchPaginatedData } from '../utils';
+
+type BrowseAndRequestConfigurationAxiosResponseRaw = AxiosResponse<BrowseAndRequestConfigurationResponseRaw>;
+type BrowseAndRequestConfigurationAxiosResponseDataRaw = BrowseAndRequestConfigurationAxiosResponseRaw['data'];
+type BrowseAndRequestConfigurationAxiosResponseData = (
+  CamelCasedPropertiesDeep<BrowseAndRequestConfigurationAxiosResponseDataRaw>
+);
 
 /**
  * TODO
@@ -13,8 +20,8 @@ import { fetchPaginatedData } from '../utils';
  */
 export async function fetchBrowseAndRequestConfiguration(enterpriseUUID) {
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  const response: AxiosResponse<BrowseAndRequestConfigurationResponseRaw> = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data) as BrowseAndRequestConfigurationAxiosResponseData;
 }
 
 /**
@@ -35,7 +42,7 @@ export async function fetchLicenseRequests(
     state,
   });
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/license-requests/?${queryParams.toString()}`;
-  const { results } = await fetchPaginatedData(url);
+  const { results } = await fetchPaginatedData<LicenseRequestRaw>(url);
   return results;
 }
 
@@ -58,6 +65,6 @@ export async function fetchCouponCodeRequests(
   });
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
-  const { results } = await fetchPaginatedData(url);
+  const { results } = await fetchPaginatedData<CouponCodeRequestRaw>(url);
   return results;
 }

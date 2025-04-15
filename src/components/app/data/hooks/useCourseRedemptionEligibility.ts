@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 import useCourseMetadata from './useCourseMetadata';
@@ -86,16 +86,14 @@ export function transformCourseRedemptionEligibility({
  * Retrieves the course redemption eligibility for the given enterprise customer and course key.
  * @returns The query results for the course redemption eligibility.
  */
-export default function useCourseRedemptionEligibility(queryOptions = {}) {
+export default function useCourseRedemptionEligibility() {
   const { courseRunKey } = useParams();
-  const { select, ...queryOptionsRest } = queryOptions;
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
   const { data: courseMetadata } = useCourseMetadata();
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
 
-  return useQuery({
+  return useSuspenseQuery({
     ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
-    enabled: !!courseMetadata,
     select: (data) => {
       // Among other things, transformCourseRedemptionEligibility() removes
       // restricted runs that fail the policy's can-redeem check.
@@ -104,14 +102,7 @@ export default function useCourseRedemptionEligibility(queryOptions = {}) {
         canRedeemData: data,
         courseRunKey,
       });
-      if (select) {
-        return select({
-          original: data,
-          transformed: transformedData,
-        });
-      }
       return transformedData;
     },
-    ...queryOptionsRest,
   });
 }

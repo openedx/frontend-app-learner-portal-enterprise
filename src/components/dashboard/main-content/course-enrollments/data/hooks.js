@@ -76,14 +76,10 @@ export const useCourseUpgradeData = ({
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   // Metadata required to determine if the course run is contained in the customer's content catalog(s)
-  const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey], {
-    enabled: canUpgradeToVerifiedEnrollment,
-  });
+  const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
 
   // Metadata required to allow upgrade via applicable learner credit subsidy
-  const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(courseRunKey, {
-    enabled: canUpgradeToVerifiedEnrollment,
-  });
+  const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(courseRunKey);
 
   // Metadata required to allow upgrade via applicable subscription license
   const { data: subscriptionLicense } = useSubscriptions({
@@ -102,13 +98,11 @@ export const useCourseUpgradeData = ({
       }
       return license;
     },
-    enabled: !!customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment,
   });
 
   // Metadata required to allow upgrade via applicable coupon code
   const { data: applicableCouponCode } = useCouponCodes({
     select: (data) => findCouponCodeForCourse(data.couponCodeAssignments, customerContainsContent?.catalogList),
-    enabled: !!customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment,
   });
 
   // If coupon codes are eligible, retrieve the course run's product SKU metadata from API
@@ -117,12 +111,9 @@ export const useCourseUpgradeData = ({
       ...data,
       sku: findHighestLevelSeatSku(data.seats),
     }),
-    enabled: !!applicableCouponCode && canUpgradeToVerifiedEnrollment,
   });
 
-  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments({
-    enabled: canUpgradeToVerifiedEnrollment,
-  });
+  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
 
   const { redeem: redeemLearnerCredit } = useStatefulEnroll({
     contentKey: courseRunKey,

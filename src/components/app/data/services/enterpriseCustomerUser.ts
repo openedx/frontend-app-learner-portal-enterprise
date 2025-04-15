@@ -6,7 +6,6 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { determineEnterpriseCustomerUserForDisplay, transformEnterpriseCustomer } from '../utils';
 import { fetchPaginatedData } from './utils';
-import { getErrorResponseStatusCode } from '../../../../utils/common';
 
 /**
  * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
@@ -54,7 +53,7 @@ export async function fetchEnterpriseCustomerForSlug(enterpriseSlug: string) {
 
 type ResponseWithEnterpriseFeatures = {
   enterpriseFeatures: EnterpriseFeatures;
-}
+};
 
 /**
  * Fetches the enterprise learner data for the authenticated user, including all

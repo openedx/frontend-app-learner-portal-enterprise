@@ -1,5 +1,4 @@
 import { getConfig } from '@edx/frontend-platform';
-import { logError } from '@edx/frontend-platform/logging';
 
 import { fetchPaginatedData } from '../utils';
 import { hasValidStartExpirationDates } from '../../../../../utils/common';
@@ -13,7 +12,7 @@ import { findCouponCodeRedemptionCount } from '../../../../enterprise-user-subsi
  * @param {*} options
  * @returns
  */
-export async function fetchCouponCodeAssignments(enterpriseId, options = {}) {
+export async function fetchCouponCodeAssignments(enterpriseId: string, options = {}) {
   const queryParams = new URLSearchParams({
     enterprise_uuid: enterpriseId,
     full_discount_only: 'True', // Must be a string because the API does a string compare not a true JSON boolean compare.
@@ -21,7 +20,7 @@ export async function fetchCouponCodeAssignments(enterpriseId, options = {}) {
     ...options,
   });
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/?${queryParams.toString()}`;
-  const { results } = await fetchPaginatedData(url);
+  const { results } = await fetchPaginatedData<CouponCodeAssignmentRaw>(url);
   const transformedResults = results.map((couponCode) => ({
     ...couponCode,
     available: hasValidStartExpirationDates({
@@ -38,23 +37,22 @@ export async function fetchCouponCodeAssignments(enterpriseId, options = {}) {
  * @param {*} options
  * @returns
  */
-export async function fetchCouponsOverview(enterpriseId, options = {}) {
+export async function fetchCouponsOverview(enterpriseId: string, options = {}) {
   const queryParams = new URLSearchParams({
-    page: 1,
-    page_size: 100,
+    page: '1',
+    page_size: '100',
     ...options,
   });
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/coupons/${enterpriseId}/overview/?${queryParams.toString()}`;
-  const { results } = await fetchPaginatedData(url);
+  const { results } = await fetchPaginatedData<CouponOverviewRaw>(url);
   return results;
 }
 
 /**
  * TODO
- * @param {*} param0
  * @returns
  */
-export async function fetchCouponCodes(enterpriseUuid) {
+export async function fetchCouponCodes(enterpriseUuid): Promise<CouponCodes> {
   const results = await Promise.all([
     fetchCouponsOverview(enterpriseUuid),
     fetchCouponCodeAssignments(enterpriseUuid),

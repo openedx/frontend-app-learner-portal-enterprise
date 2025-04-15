@@ -2,18 +2,26 @@ import { querySubscriptions } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { useSuspenseBFF } from './useBFF';
 
+type UseSubscriptionsQueryOptionsSelectFnArgs = {
+  original: unknown;
+  transformed: unknown;
+};
+
+type UseSubscriptionsQueryOptions = {
+  enabled?: boolean;
+  select?: (data: UseSubscriptionsQueryOptionsSelectFnArgs) => unknown;
+};
+
 /**
  * Custom hook to get subscriptions data for the enterprise.
- * @param {object} [queryOptions]
  * @returns The query results for the subscriptions.
  */
-export default function useSubscriptions(queryOptions = {}) {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { select, ...queryOptionsRest } = queryOptions;
+export default function useSubscriptions(queryOptions: UseSubscriptionsQueryOptions = {}) {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
+  const { select } = queryOptions;
 
   return useSuspenseBFF({
     bffQueryOptions: {
-      ...queryOptionsRest,
       select: (data) => {
         const transformedData = data?.enterpriseCustomerUserSubsidies?.subscriptions;
 
@@ -31,7 +39,7 @@ export default function useSubscriptions(queryOptions = {}) {
     },
     fallbackQueryConfig: {
       ...querySubscriptions(enterpriseCustomer.uuid),
-      ...queryOptions,
+      select,
     },
   });
 }

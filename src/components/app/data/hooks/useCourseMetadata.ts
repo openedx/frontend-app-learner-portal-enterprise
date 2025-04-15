@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import { queryCourseMetadata } from '../queries';
@@ -10,13 +10,18 @@ import {
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import useRedeemablePolicies from './useRedeemablePolicies';
 
+type UseCourseMetadataQueryOptions = {
+  select?: (data: unknown) => unknown;
+};
+
 /**
  * Retrieves the course metadata for the given enterprise customer and course key.
  * @returns The query results for the course metadata.
  */
-export default function useCourseMetadata(queryOptions = {}) {
-  const { select, ...queryOptionsRest } = queryOptions;
-  const { courseKey } = useParams();
+export default function useCourseMetadata(queryOptions: UseCourseMetadataQueryOptions = {}) {
+  const { select } = queryOptions;
+  const params = useParams();
+  const courseKey = params.courseKey!;
   const [searchParams] = useSearchParams();
   const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const {
@@ -31,13 +36,10 @@ export default function useCourseMetadata(queryOptions = {}) {
   if (!courseRunKey && hasAssignedCourseRuns) {
     courseRunKey = hasMultipleAssignedCourseRuns ? null : allocatedCourseRunAssignmentKeys[0];
   }
-  const lateEnrollmentBufferDays = useLateEnrollmentBufferDays({
-    enabled: !!courseKey,
-  });
-  return useQuery({
+  const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
+
+  return useSuspenseQuery({
     ...queryCourseMetadata(courseKey, courseRunKey),
-    enabled: !!courseKey,
-    ...queryOptionsRest,
     select: (data) => {
       if (!data) {
         return data;

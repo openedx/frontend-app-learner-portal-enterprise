@@ -39,8 +39,9 @@ declare global {
   };
 
   type AuthenticatedUser = {
-    userId: string;
+    userId: number;
     username: string;
+    email: string;
     roles: string[];
     administrator: boolean;
     extendedProfile?: Record<string, any>;
@@ -97,6 +98,30 @@ declare global {
 
   type LearnerContentAssignmentRaw = enterpriseAccessOpenApi.components['schemas']['LearnerContentAssignmentWithLearnerAcknowledgedResponse'];
   type LearnerContentAssignment = CamelCasedPropertiesDeep<LearnerContentAssignmentRaw>;
+
+  type CouponCodeAssignmentRaw = {
+    coupon_start_date: string;
+    coupon_end_date: string;
+  };
+  type CouponOverviewRaw = {};
+  type CouponCodes = {
+    couponsOverview: CamelCasedPropertiesDeep<CouponOverviewRaw[]>;
+    couponCodeAssignments: CamelCasedPropertiesDeep<CouponCodeAssignmentRaw[]>;
+    couponCodeRedemptionCount: number;
+  };
+
+  type BrowseAndRequestConfigurationResponseRaw = enterpriseAccessOpenApi.components['schemas']['SubsidyRequestCustomerConfiguration'];
+  type BrowseAndRequestConfigurationResponse = CamelCasedPropertiesDeep<BrowseAndRequestConfigurationResponseRaw>;
+
+  type LicenseRequestsResponseRaw = enterpriseAccessOpenApi.components['schemas']['PaginatedLicenseRequestList'];
+  type LicenseRequestsResponse = CamelCasedPropertiesDeep<LicenseRequestsResponseRaw>;
+  type LicenseRequestRaw = enterpriseAccessOpenApi.components['schemas']['LicenseRequest'];
+  type LicenseRequest = CamelCasedPropertiesDeep<LicenseRequestRaw>;
+
+  type CouponCodeRequestsResponseRaw = enterpriseAccessOpenApi.components['schemas']['PaginatedCouponCodeRequestList'];
+  type CouponCodeRequestsResponse = CamelCasedPropertiesDeep<CouponCodeRequestsResponseRaw>;
+  type CouponCodeRequestRaw = enterpriseAccessOpenApi.components['schemas']['CouponCodeRequest'];
+  type CouponCodeRequest = CamelCasedPropertiesDeep<CouponCodeRequestRaw>;
 
   // BFFs
 

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { QueryClientProvider, UseQueryResult } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { renderHook, waitFor } from '@testing-library/react';
 import { getConfig } from '@edx/frontend-platform';
@@ -36,10 +36,8 @@ jest.mock('@edx/frontend-platform', () => ({
   ...jest.requireActual('@edx/frontend-platform'),
   getConfig: jest.fn(),
 }));
-const mockedUseEnterpriseCustomer = useEnterpriseCustomer as
-  jest.Mock<UseQueryResult<EnterpriseCustomer>>;
-const mockedUseEnterpriseFeatures = useEnterpriseFeatures as
-  jest.Mock<UseQueryResult<EnterpriseFeatures>, [Record<string, any>?]>;
+const mockedUseEnterpriseCustomer = useEnterpriseCustomer as jest.Mock;
+const mockedUseEnterpriseFeatures = useEnterpriseFeatures as jest.Mock;
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseFeatures = {
@@ -140,11 +138,10 @@ describe('useAlgoliaSearch', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (mockedUseEnterpriseCustomer as jest.Mock).mockReturnValue({
+    mockedUseEnterpriseCustomer.mockReturnValue({
       data: mockEnterpriseCustomer,
     });
-    // @ts-ignore
-    useEnterpriseFeatures.mockReturnValue({
+    mockedUseEnterpriseFeatures.mockReturnValue({
       data: mockEnterpriseFeatures,
     });
     (fetchEnterpriseLearnerDashboard as jest.Mock).mockResolvedValue(mockBaseBFFData);

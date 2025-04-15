@@ -1,11 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryCourseReviews } from '../queries';
 import useCourseMetadata from './useCourseMetadata';
 
-export default function useCourseReviews(queryOptions = {}) {
+export default function useCourseReviews() {
   const { data: courseMetadata } = useCourseMetadata();
-  return useQuery({
+  return useSuspenseQuery({
     ...queryCourseReviews(courseMetadata.key),
-    ...queryOptions,
   });
 }

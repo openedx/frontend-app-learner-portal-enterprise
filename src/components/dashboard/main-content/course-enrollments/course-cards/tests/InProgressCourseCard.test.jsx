@@ -6,7 +6,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 
-import { InProgressCourseCard } from '../InProgressCourseCard';
+import InProgressCourseCard from '../InProgressCourseCard';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_MODES_MAP,

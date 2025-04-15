@@ -43,13 +43,13 @@ import {
   useBrowseAndRequest,
   useBrowseAndRequestConfiguration,
   useCatalogsForSubsidyRequests,
-  useCouponCodes,
   useCourseMetadata,
   useCourseRedemptionEligibility,
   useEnterpriseCustomer,
-  useEnterpriseCustomerContainsContent,
   useEnterpriseOffers,
   useRedeemablePolicies,
+  useCouponCodes,
+  useEnterpriseCustomerContainsContent,
   useSubscriptions,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';

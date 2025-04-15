@@ -1,18 +1,17 @@
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryEnterpriseProgram } from '../queries';
 
 /**
  * Retrieves the course details related to the programs page.
- * @param {object} queryOptions - The query options.
  * @returns The query results for the browse and request configuration.
  */
-export default function useProgramDetails(queryOptions = {}) {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { programUUID } = useParams();
-  return useQuery({
+export default function useProgramDetails() {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
+  const params = useParams();
+  const programUUID = params.programUUID!;
+  return useSuspenseQuery({
     ...queryEnterpriseProgram(enterpriseCustomer.uuid, programUUID),
-    ...queryOptions,
   });
 }

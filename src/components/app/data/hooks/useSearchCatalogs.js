@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 
-import useCouponCodes from './useCouponCodes';
 import useEnterpriseOffers from './useEnterpriseOffers';
 import useRedeemablePolicies from './useRedeemablePolicies';
-import useSubscriptions from './useSubscriptions';
 import useCatalogsForSubsidyRequests from './useCatalogsForSubsidyRequests';
 import { getSearchCatalogs } from '../utils';
+import useSubscriptions from './useSubscriptions';
+import useCouponCodes from './useCouponCodes';
 
 /**
  * Determines the enterprise catalog UUIDs to filter on, if any, based on the subsidies

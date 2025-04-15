@@ -204,16 +204,16 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
         fallbackData: null,
       }),
       otherSubsidyQueries.then(async (subsidyResponses) => {
-        const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[1];
-        const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[2];
+        const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[0];
+        const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[1];
         const {
           couponCodeAssignments,
           couponCodeRedemptionCount,
           couponsOverview,
-        } = subsidyResponses[3];
-        const licenseRequests = subsidyResponses[4];
-        const couponCodeRequests = subsidyResponses[5];
-        const browseAndRequestConfiguration = subsidyResponses[6];
+        } = subsidyResponses[2];
+        const licenseRequests = subsidyResponses[3];
+        const couponCodeRequests = subsidyResponses[4];
+        const browseAndRequestConfiguration = subsidyResponses[5];
         const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
           subscriptionPlan,
           subscriptionLicense,

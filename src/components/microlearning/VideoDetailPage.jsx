@@ -10,7 +10,10 @@ import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { Person, Speed, Timelapse } from '@openedx/paragon/icons';
 import { Link } from 'react-router-dom';
 import {
-  useEnterpriseCustomer, useHasValidLicenseOrSubscriptionRequestsEnabled, useVideoCourseMetadata, useVideoDetails,
+  useEnterpriseCustomer,
+  useHasValidLicenseOrSubscriptionRequestsEnabled,
+  useVideoCourseMetadata,
+  useVideoDetails,
 } from '../app/data';
 import './styles/VideoDetailPage.scss';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';

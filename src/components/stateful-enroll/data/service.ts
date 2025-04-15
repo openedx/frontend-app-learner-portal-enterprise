@@ -3,7 +3,7 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 type SubmitRedemptionRequestArgs = {
   policyRedemptionUrl: string;
-  userId: string;
+  userId: number;
   contentKey: string;
   metadata?: Record<string, unknown>;
 };

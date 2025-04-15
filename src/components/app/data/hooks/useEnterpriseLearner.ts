@@ -4,25 +4,40 @@ import { useParams } from 'react-router-dom';
 import { queryEnterpriseLearner } from '../queries';
 import { useSuspenseBFF } from './useBFF';
 
+type UseEnterpriseLearnerSelectFnArgs = {
+  original: EnterpriseLearnerData | BFFResponse;
+  transformed: EnterpriseLearnerData;
+};
+
+type UseEnterpriseLearnerQueryOptions = {
+  select?: (data: UseEnterpriseLearnerSelectFnArgs) => unknown;
+};
+
 /**
  * Retrieves the enterprise learner data for the authenticated user.
  * @param {object} queryOptions - The query options.
  * @returns The query results for the enterprise learner data.
  */
-export default function useEnterpriseLearner(queryOptions = {}) {
-  const { authenticatedUser } = useContext(AppContext);
+export default function useEnterpriseLearner<TData = EnterpriseLearnerData>(
+  queryOptions: UseEnterpriseLearnerQueryOptions = {},
+) {
+  const { authenticatedUser }: AppContextValue = useContext(AppContext);
   const { enterpriseSlug } = useParams();
   const { select } = queryOptions;
 
-  return useSuspenseBFF({
+  return useSuspenseBFF<TData>({
     bffQueryOptions: {
       select: (data) => {
-        const transformedData = {
-          enterpriseCustomer: data.enterpriseCustomer,
-          allLinkedEnterpriseCustomerUsers: data.allLinkedEnterpriseCustomerUsers,
-          enterpriseFeatures: data.enterpriseFeatures,
+        const transformedData: EnterpriseLearnerData = {
+          enterpriseCustomer: data.enterpriseCustomer as EnterpriseCustomer | null,
+          activeEnterpriseCustomer: data.activeEnterpriseCustomer as EnterpriseCustomer | null,
+          staffEnterpriseCustomer: data.staffEnterpriseCustomer as EnterpriseCustomer | null,
+          shouldUpdateActiveEnterpriseCustomerUser: data.shouldUpdateActiveEnterpriseCustomerUser,
+          allLinkedEnterpriseCustomerUsers: data.allLinkedEnterpriseCustomerUsers as EnterpriseCustomerUser[],
+          enterpriseFeatures: data.enterpriseFeatures as EnterpriseFeatures,
         };
-        // When custom `select` function is provided in `queryOptions`, call it with original and transformed data.
+
+        // If custom `select` function is provided in `queryOptions`, call it with original and transformed data.
         if (select) {
           return select({
             original: data,
@@ -36,7 +51,6 @@ export default function useEnterpriseLearner(queryOptions = {}) {
     },
     fallbackQueryConfig: {
       ...queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
-      ...queryOptions,
       select: (data) => {
         // To maintain parity with BFF-enabled routes in the function signature passed to the custom `select`
         // function, the legacy `queryEnterpriseLearner` also passes its `data` to the custom `select` function
@@ -47,7 +61,8 @@ export default function useEnterpriseLearner(queryOptions = {}) {
             transformed: data,
           });
         }
-        return data;
+        const transformedData = data;
+        return transformedData;
       },
     },
   });

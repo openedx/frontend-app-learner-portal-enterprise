@@ -157,7 +157,7 @@ export function querySubscriptions(enterpriseUuid: string) {
     ._ctx.subscriptions;
 }
 
-export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
+export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }: { enterpriseUuid: string; lmsUserId: number }) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { queryEnterpriseCustomerContainsContent } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -7,10 +7,9 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
  * Determines whether the given content identifier is contained within the enterprise customer's catalogs.
  * @returns The query result.
  */
-export default function useEnterpriseCustomerContainsContent(contentIdentifiers, queryOptions = {}) {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  return useQuery({
+export default function useEnterpriseCustomerContainsContent(contentIdentifiers: string[]) {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
+  return useSuspenseQuery({
     ...queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, contentIdentifiers),
-    ...queryOptions,
   });
 }

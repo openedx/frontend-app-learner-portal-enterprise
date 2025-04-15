@@ -11,30 +11,31 @@ import LearnerCreditSummaryCard from './LearnerCreditSummaryCard';
 import {
   useAcademies,
   useBrowseAndRequest,
-  useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
   useEnterpriseOffers,
   useHasAvailableSubsidiesOrRequests,
   useIsAssignmentsOnlyLearner,
+  useCouponCodes,
 } from '../../app/data';
 import { COURSE_STATUSES } from '../../../constants';
 import { getStatusMetadata } from '../data/utils';
 import useExpirationMetadata from '../../budget-expiry-notification/data/hooks/useExpirationMetadata';
+
+type EnrollmentsForAssignedStatus = { assignmentsForDisplay: Record<string, unknown>[] };
 
 const SearchCoursesCta = ({
   ctaButtonVariant,
   showSearchCoursesCta,
   isProgramProgressPage,
 }) => {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
   const { data: academies } = useAcademies();
   const isOneAcademy = enterpriseCustomer?.enableOneAcademy;
 
   if (enterpriseCustomer.disableSearch || !showSearchCoursesCta || isProgramProgressPage) {
     return null;
   }
-
   const ctaLinkDestination = isOneAcademy && academies[0]?.uuid ? `academies/${academies[0]?.uuid}` : 'search';
 
   return (
@@ -105,7 +106,7 @@ const SubsidiesSummary = ({
     const hasCourseEnrollments = Object.entries(allEnrollmentsByStatus)
       .map(([enrollmentStatus, enrollmentsForStatus]) => {
         if (enrollmentStatus === COURSE_STATUSES.assigned) {
-          return enrollmentsForStatus.assignmentsForDisplay;
+          return (enrollmentsForStatus as EnrollmentsForAssignedStatus).assignmentsForDisplay;
         }
         return enrollmentsForStatus;
       })

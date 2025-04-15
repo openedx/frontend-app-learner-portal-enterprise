@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 
 import { useBrowseAndRequestConfiguration } from './useBrowseAndRequest';
-import useCouponCodes from './useCouponCodes';
 import useSubscriptions from './useSubscriptions';
 import { getCatalogsForSubsidyRequests } from '../utils';
+import useCouponCodes from './useCouponCodes';
 
 /**
  * A custom hook that returns the catalogs that can be used for subsidy requests.
