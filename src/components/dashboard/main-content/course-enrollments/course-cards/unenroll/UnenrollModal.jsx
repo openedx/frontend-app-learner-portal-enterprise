@@ -114,6 +114,7 @@ const UnenrollModal = ({
           </StatefulButton>
         </ActionRow>
       )}
+      isOverflowVisible={false}
     >
       <>
         <Alert

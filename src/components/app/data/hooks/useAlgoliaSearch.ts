@@ -3,8 +3,8 @@ import { useEffect, useMemo } from 'react';
 import algoliasearch from 'algoliasearch';
 import { logError } from '@edx/frontend-platform/logging';
 import { SearchClient, SearchIndex } from 'algoliasearch/lite';
-import { UseQueryResult } from '@tanstack/react-query';
-import useBFF from './useBFF';
+import { UseSuspenseQueryResult } from '@tanstack/react-query';
+import { useSuspenseBFF } from './useBFF';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useEnterpriseFeatures from './useEnterpriseFeatures';
 import { queryDefaultEmptyFallback } from '../queries';
@@ -88,9 +88,9 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
   const config: AlgoliaConfiguration = getConfig();
   const unsupportedSecuredAlgoliaIndices = [config.ALGOLIA_INDEX_NAME_JOBS];
   const enterpriseCustomerResult = useEnterpriseCustomer();
-  const enterpriseCustomer: EnterpriseCustomer = enterpriseCustomerResult.data!;
+  const enterpriseCustomer = enterpriseCustomerResult.data as EnterpriseCustomer;
   const enterpriseFeaturesResult = useEnterpriseFeatures();
-  const enterpriseFeatures: EnterpriseFeatures = enterpriseFeaturesResult.data!;
+  const enterpriseFeatures = enterpriseFeaturesResult.data as EnterpriseFeatures;
   // Enable catalog filters only if the waffle flag is enabled and Algolia app id is defined
   const isCatalogQueryFiltersEnabled = !!(
     enterpriseFeatures?.catalogQuerySearchFiltersEnabled && config.ALGOLIA_APP_ID
@@ -112,7 +112,7 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
   // Retrieve secured algolia key from the BFF if the route is enabled
   // or perform a no-op query that resolves to the default secured
   // algolia api key data structure
-  const queryResult: UseQueryResult<SecuredAlgoliaApiData> = useBFF({
+  const { data: securedAlgoliaMetadata } = useSuspenseBFF({
     bffQueryOptions: {
       ...queryOptions,
     },
@@ -120,9 +120,7 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
       ...queryDefaultEmptyFallback(),
       ...queryOptions,
     },
-  });
-
-  const securedAlgoliaMetadata = queryResult.data!;
+  }) as UseSuspenseQueryResult<SecuredAlgoliaApiData>;
 
   useEffect(() => {
     if (isCatalogQueryFiltersEnabled

@@ -1,10 +1,11 @@
+import { CamelCasedPropertiesDeep } from 'type-fest';
+import type { AxiosResponse } from 'axios';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { determineEnterpriseCustomerUserForDisplay, transformEnterpriseCustomer } from '../utils';
 import { fetchPaginatedData } from './utils';
-import { getErrorResponseStatusCode } from '../../../../utils/common';
 
 /**
  * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
@@ -32,21 +33,27 @@ export async function postLinkEnterpriseLearner(inviteKeyUUID) {
   return camelCaseObject(response.data);
 }
 
+type PaginatedEnterpriseCustomerResponseRaw = Paginated<EnterpriseCustomerRaw>;
+type EnterpriseCustomerResponseRaw = AxiosResponse<PaginatedEnterpriseCustomerResponseRaw>;
+type EnterpriseCustomerResponse = CamelCasedPropertiesDeep<PaginatedEnterpriseCustomerResponseRaw>;
+
 /**
- * TODO
+ * Retrieves enterprise customer metadata for the given slug, used to masquerade
+ * as an enterprise customer user while authenticated as a staff user.
+ * @deprecated
  */
-export async function fetchEnterpriseCustomerForSlug(enterpriseSlug) {
+export async function fetchEnterpriseCustomerForSlug(enterpriseSlug: string) {
   const queryParams = new URLSearchParams({ slug: enterpriseSlug });
   const url = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/?${queryParams.toString()}`;
-  try {
-    const response = await getAuthenticatedHttpClient().get(url);
-    const { results } = camelCaseObject(response.data);
-    return results[0] ?? null;
-  } catch (error) {
-    logError(error);
-    return null;
-  }
+  const response: EnterpriseCustomerResponseRaw = await getAuthenticatedHttpClient().get(url);
+  const { results }: EnterpriseCustomerResponse = camelCaseObject(response.data);
+  const enterpriseCustomer = results[0];
+  return enterpriseCustomer ?? null;
 }
+
+type ResponseWithEnterpriseFeatures = {
+  enterpriseFeatures: EnterpriseFeatures;
+};
 
 /**
  * Fetches the enterprise learner data for the authenticated user, including all
@@ -66,99 +73,80 @@ Promise<EnterpriseLearnerData> {
     ...options,
   });
   const url = `${enterpriseLearnerUrl}?${queryParams.toString()}`;
-  try {
-    const {
-      results: enterpriseCustomersUsers,
-      response: enterpriseCustomerUsersResponse,
-    } = await fetchPaginatedData(url);
-    const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
-    // Transform enterprise customer user results
-    const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers
-      .filter(enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer.enableLearnerPortal)
-      .map(
-        enterpriseCustomerUser => ({
-          ...enterpriseCustomerUser,
-          enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
-        }),
-      );
-
-    const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
-      enterpriseCustomerUser => enterpriseCustomerUser.active,
+  const {
+    results: enterpriseCustomersUsers,
+    response: enterpriseCustomerUsersResponse,
+  } = await fetchPaginatedData<EnterpriseCustomerUserRaw, ResponseWithEnterpriseFeatures>(url);
+  const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
+  // Transform enterprise customer user results
+  const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers
+    .filter(enterpriseCustomerUser => !!enterpriseCustomerUser.enterpriseCustomer.enableLearnerPortal)
+    .map(
+      enterpriseCustomerUser => ({
+        ...enterpriseCustomerUser,
+        enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
+      }),
     );
 
-    const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer || null;
+  const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
+    enterpriseCustomerUser => enterpriseCustomerUser.active,
+  );
 
-    // Find enterprise customer metadata for the currently viewed
-    // enterprise slug in the page route params.
-    const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
-      enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
-    );
+  const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer || null;
 
-    // If no enterprise customer is found (i.e., authenticated user not explicitly
-    // linked), but the authenticated user is staff, attempt to retrieve enterprise
-    // customer metadata from the `/enterprise-customer` LMS API.
-    let staffEnterpriseCustomer: EnterpriseCustomer | null = null;
-    if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
-      const staffEnterpriseCustomerResult = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
-      if (staffEnterpriseCustomerResult?.enableLearnerPortal) {
-        staffEnterpriseCustomer = transformEnterpriseCustomer(staffEnterpriseCustomerResult);
-      }
+  // Find enterprise customer metadata for the currently viewed
+  // enterprise slug in the page route params.
+  const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
+    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
+  );
+
+  // If no enterprise customer is found (i.e., authenticated user not explicitly
+  // linked), but the authenticated user is staff, attempt to retrieve enterprise
+  // customer metadata from the `/enterprise-customer` LMS API.
+  let staffEnterpriseCustomer: EnterpriseCustomer | null = null;
+  if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
+    const staffEnterpriseCustomerResult = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
+    if (staffEnterpriseCustomerResult?.enableLearnerPortal) {
+      staffEnterpriseCustomer = transformEnterpriseCustomer(staffEnterpriseCustomerResult);
     }
-
-    const {
-      enterpriseCustomer,
-    } = determineEnterpriseCustomerUserForDisplay({
-      activeEnterpriseCustomer,
-      enterpriseSlug,
-      foundEnterpriseCustomerUserForCurrentSlug,
-      staffEnterpriseCustomer,
-    });
-
-    // shouldUpdateActiveEnterpriseCustomerUser should always be null since its generated primarily from the BFF
-    // layer to act as a flag on whether to update the active enterprise customer
-    return {
-      enterpriseCustomer,
-      activeEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
-      enterpriseFeatures,
-      staffEnterpriseCustomer,
-      shouldUpdateActiveEnterpriseCustomerUser: false,
-    };
-  } catch (error) {
-    logError(error);
-    return {
-      enterpriseCustomer: null,
-      activeEnterpriseCustomer: null,
-      allLinkedEnterpriseCustomerUsers: [],
-      enterpriseFeatures: {},
-      staffEnterpriseCustomer: null,
-      shouldUpdateActiveEnterpriseCustomerUser: false,
-    };
   }
+
+  const {
+    enterpriseCustomer,
+  } = determineEnterpriseCustomerUserForDisplay({
+    activeEnterpriseCustomer,
+    enterpriseSlug,
+    foundEnterpriseCustomerUserForCurrentSlug,
+    staffEnterpriseCustomer,
+  });
+
+  // shouldUpdateActiveEnterpriseCustomerUser should always be ``false`` since it's only generated
+  // from the BFF layer to act as a flag on whether to update the active enterprise customer.
+  return {
+    enterpriseCustomer,
+    activeEnterpriseCustomer,
+    allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
+    enterpriseFeatures,
+    staffEnterpriseCustomer,
+    shouldUpdateActiveEnterpriseCustomerUser: false,
+  };
 }
 
 /**
- * TODO
- * @param {*} enterpriseId
- * @param {*} options
- * @returns
+ * @returns List of enterprise course enrollments.
  */
-export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {}) {
+export async function fetchEnterpriseCourseEnrollments(
+  enterpriseId: string,
+  options = {},
+): Promise<EnterpriseCourseEnrollment[]> {
   const queryParams = new URLSearchParams({
     enterprise_id: enterpriseId,
     is_active: 'true',
     ...options,
   });
   const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
-  try {
-    const response = await getAuthenticatedHttpClient().get(url);
-    return camelCaseObject(response.data);
-  } catch (error) {
-    if (error instanceof Error && getErrorResponseStatusCode(error) !== 404) {
-      logError(error);
-    }
-    return [];
-  }
+  const response: AxiosResponse = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
 }
 
 /**
@@ -168,13 +156,8 @@ export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {
  */
 export async function fetchLearnerProgramsList(enterpriseUUID) {
   const url = `${getConfig().LMS_BASE_URL}/api/dashboard/v0/programs/${enterpriseUUID}/`;
-  try {
-    const response = await getAuthenticatedHttpClient().get(url);
-    return camelCaseObject(response.data);
-  } catch (error) {
-    logError(error);
-    return [];
-  }
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
 }
 
 /**
@@ -185,13 +168,8 @@ export async function fetchLearnerProgramsList(enterpriseUUID) {
 export async function fetchInProgressPathways() {
   // TODO: after adding support of filtering on enterprise UUID, send the uuid to endpoint as well
   const url = `${getConfig().LMS_BASE_URL}/api/learner-pathway-progress/v1/progress/`;
-  try {
-    const { results } = await fetchPaginatedData(url);
-    return results;
-  } catch (error) {
-    logError(error);
-    return [];
-  }
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }
 
 /**

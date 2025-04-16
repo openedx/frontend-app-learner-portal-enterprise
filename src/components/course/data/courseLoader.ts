@@ -1,9 +1,12 @@
-import { generatePath, redirect } from 'react-router-dom';
+import {
+  generatePath, LoaderFunctionArgs, Params, redirect,
+} from 'react-router-dom';
 
 import {
   determineAllocatedAssignmentsForCourse,
   determineLearnerHasContentAssignmentsOnly,
   extractEnterpriseCustomer,
+  getBaseSubscriptionsData,
   getCatalogsForSubsidyRequests,
   getLateEnrollmentBufferDays,
   getSearchCatalogs,
@@ -21,16 +24,18 @@ import {
   queryRedeemablePolicies,
   querySubscriptions,
   queryUserEntitlements,
+  safeEnsureQueryData,
   transformCourseMetadataByAllocatedCourseRunAssignments,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
+import { getErrorResponseStatusCode } from '../../../utils/common';
 
-type CourseRouteParams<Key extends string = string> = RouteParams<Key> & {
+type CourseRouteParams<Key extends string = string> = Params<Key> & {
   readonly courseKey: string;
   readonly enterpriseSlug: string;
 };
-interface CourseLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface CourseLoaderFunctionArgs extends LoaderFunctionArgs {
   params: CourseRouteParams;
 }
 type CourseMetadata = {
@@ -52,7 +57,7 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     const { courseKey, enterpriseSlug } = params;
     // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
     // need to replace it with `+` again to be a valid course run key.
-    let courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
+    const courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
       requestUrl,
@@ -63,40 +68,92 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     if (!enterpriseCustomer) {
       return null;
     }
-    const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-      enterpriseUuid: enterpriseCustomer.uuid,
-      lmsUserId: authenticatedUser.userId,
-    }));
-    const otherSubsidyQueries = Promise.all([
-      queryClient.ensureQueryData(queryRedeemablePolicies({
+    const redeemableLearnerCreditPolicies = await safeEnsureQueryData({
+      queryClient,
+      query: queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: authenticatedUser.userId,
-      })),
-      queryClient.ensureQueryData(querySubscriptions(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryEnterpriseLearnerOffers(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryCouponCodes(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryLicenseRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
-      queryClient.ensureQueryData(queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
-      queryClient.ensureQueryData(queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid)),
+      }),
+      fallbackData: {
+        redeemablePolicies: [],
+        expiredPolicies: [],
+        unexpiredPolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          allocatedAssignments: [],
+          hasAllocatedAssignments: false,
+          acceptedAssignments: [],
+          hasAcceptedAssignments: false,
+          canceledAssignments: [],
+          hasCanceledAssignments: false,
+          expiredAssignments: [],
+          hasExpiredAssignments: false,
+          erroredAssignments: [],
+          hasErroredAssignments: false,
+          assignmentsForDisplay: [],
+          hasAssignmentsForDisplay: false,
+          reversedAssignments: [],
+          hasReversedAssignments: false,
+        },
+      },
+    });
+    const otherSubsidyQueries = Promise.all([
+      safeEnsureQueryData({
+        queryClient,
+        query: querySubscriptions(enterpriseCustomer.uuid),
+        fallbackData: getBaseSubscriptionsData().baseSubscriptionsData,
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
+        fallbackData: {
+          enterpriseOffers: [],
+          currentEnterpriseOffers: [],
+          canEnrollWithEnterpriseOffers: false,
+          hasCurrentEnterpriseOffers: false,
+          hasLowEnterpriseOffersBalance: false,
+          hasNoEnterpriseOffersBalance: false,
+        },
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryCouponCodes(enterpriseCustomer.uuid),
+        fallbackData: {
+          couponsOverview: [],
+          couponCodeAssignments: [],
+          couponCodeRedemptionCount: 0,
+        },
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryLicenseRequests(enterpriseCustomer.uuid, authenticatedUser.email),
+        fallbackData: [],
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email),
+        fallbackData: [],
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
+        shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+      }),
     ]);
 
     const {
       allocatedCourseRunAssignmentKeys,
-      hasAssignedCourseRuns,
-      hasMultipleAssignedCourseRuns,
     } = determineAllocatedAssignmentsForCourse({
       courseKey,
       redeemableLearnerCreditPolicies,
     });
-    // only override `courseRunKey` when learner has a single allocated assignment
-    if (!courseRunKey && hasAssignedCourseRuns) {
-      courseRunKey = hasMultipleAssignedCourseRuns ? null : allocatedCourseRunAssignmentKeys[0];
-    }
+
     await Promise.all([
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
-      queryClient.ensureQueryData<CourseMetadata | undefined>(queryCourseMetadata(courseKey, courseRunKey))
+      queryClient.ensureQueryData<CourseMetadata | undefined>(queryCourseMetadata(courseKey))
         .then(async (courseMetadata) => {
           if (!courseMetadata) {
             return null;
@@ -105,29 +162,53 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
             redeemableLearnerCreditPolicies.redeemablePolicies,
           );
           const transformedCourseMetadata = transformCourseMetadataByAllocatedCourseRunAssignments({
-            hasMultipleAssignedCourseRuns,
             courseMetadata,
             allocatedCourseRunAssignmentKeys,
+            courseRunKey,
           });
-          return queryClient.ensureQueryData(
-            queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
-          );
+          return safeEnsureQueryData({
+            queryClient,
+            query: queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
+            shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+            fallbackData: [],
+          });
         }),
-      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryUserEntitlements()),
-      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey])),
-      queryClient.ensureQueryData(queryCourseReviews(courseKey)),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
+        shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+        fallbackData: [],
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryUserEntitlements(),
+        fallbackData: [],
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey]),
+        fallbackData: {
+          containsContentItems: false,
+          catalogList: [],
+        },
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryCourseReviews(courseKey),
+        shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+        fallbackData: null,
+      }),
       otherSubsidyQueries.then(async (subsidyResponses) => {
-        const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[1];
-        const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[2];
+        const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[0];
+        const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[1];
         const {
           couponCodeAssignments,
           couponCodeRedemptionCount,
           couponsOverview,
-        } = subsidyResponses[3];
-        const licenseRequests = subsidyResponses[4];
-        const couponCodeRequests = subsidyResponses[5];
-        const browseAndRequestConfiguration = subsidyResponses[6];
+        } = subsidyResponses[2];
+        const licenseRequests = subsidyResponses[3];
+        const couponCodeRequests = subsidyResponses[4];
+        const browseAndRequestConfiguration = subsidyResponses[5];
         const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
           subscriptionPlan,
           subscriptionLicense,
@@ -159,18 +240,25 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
           currentEnterpriseOffers,
           subscriptionLicense,
         });
-        return queryClient.ensureQueryData(queryCourseRecommendations(
-          enterpriseCustomer.uuid,
-          courseKey,
-          searchCatalogs,
-        ));
+        return safeEnsureQueryData({
+          queryClient,
+          query: queryCourseRecommendations(
+            enterpriseCustomer.uuid,
+            courseKey,
+            searchCatalogs,
+          ),
+          fallbackData: {
+            allRecommendations: [],
+            samePartnerRecommendations: [],
+          },
+        });
       }),
     ]);
 
     // If the course metadata (pre-fetched above) does not exist or is not available in
     // the enterprise's catalog(s), return with empty data.
     const courseMetadata = queryClient.getQueryData<CourseMetadata>(
-      queryCourseMetadata(courseKey, courseRunKey).queryKey,
+      queryCourseMetadata(courseKey).queryKey,
     );
     if (!courseMetadata) {
       return null;

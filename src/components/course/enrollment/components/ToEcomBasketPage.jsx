@@ -8,7 +8,11 @@ import {
   useTrackSearchConversionClickHandler,
   useUserSubsidyApplicableToCourse,
 } from '../../data';
-import { useCouponCodes, useCourseMetadata, useEnterpriseCourseEnrollments } from '../../../app/data';
+import {
+  useCouponCodes,
+  useCourseMetadata,
+  useEnterpriseCourseEnrollments,
+} from '../../../app/data';
 
 /**
  * ToEcom page component implemention for Enroll Button.

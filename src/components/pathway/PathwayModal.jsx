@@ -116,6 +116,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
           />
         </ModalDialog.Hero>
       )}
+      isOverflowVisible={false}
     >
 
       {isLoading ? (

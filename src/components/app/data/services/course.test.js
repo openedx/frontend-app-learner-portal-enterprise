@@ -2,10 +2,8 @@ import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-import { logError } from '@edx/frontend-platform/logging';
 import { fetchCanRedeem, fetchCourseMetadata, fetchCourseRunMetadata } from './course';
 import { findHighestLevelEntitlementSku, getActiveCourseRun } from '../utils';
-import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { COURSE_MODES_MAP } from '../constants';
 import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 
@@ -62,19 +60,6 @@ describe('fetchCourseMetadata', () => {
     };
     expect(result).toEqual(expectedResult);
   });
-
-  it.each([404, 500])('catches error and returns null (%s)', async (httpStatusCode) => {
-    getErrorResponseStatusCode.mockReturnValue(httpStatusCode);
-    axiosMock.onGet(CONTENT_METADATA_URL).reply(httpStatusCode, {});
-    const result = await fetchCourseMetadata(courseMetadata);
-    if (httpStatusCode === 404) {
-      expect(result).toBeNull();
-    } else {
-      expect(logError).toHaveBeenCalledTimes(1);
-      expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
-      expect(result).toEqual(null);
-    }
-  });
 });
 
 describe('fetchCourseRunMetadata', () => {
@@ -116,19 +101,6 @@ describe('fetchCourseRunMetadata', () => {
     };
     expect(result).toEqual(expectedResult);
   });
-
-  it.each([404, 500])('catches error and returns null (%s)', async (httpStatusCode) => {
-    getErrorResponseStatusCode.mockReturnValue(httpStatusCode);
-    axiosMock.onGet(COURSE_RUN_METADATA).reply(httpStatusCode, {});
-    const result = await fetchCourseRunMetadata(COURSE_RUN_METADATA);
-    if (httpStatusCode === 404) {
-      expect(result).toBeNull();
-    } else {
-      expect(logError).toHaveBeenCalledTimes(1);
-      expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
-      expect(result).toEqual(null);
-    }
-  });
 });
 
 describe('fetchCanRedeem', () => {
@@ -153,11 +125,5 @@ describe('fetchCanRedeem', () => {
     axiosMock.onGet(CAN_REDEEM_URL).reply(200, canRedeemData);
     const result = await fetchCanRedeem(mockEnterpriseId, [mockCourseKey, mockCourseKeyTwo]);
     expect(result).toEqual(canRedeemData);
-  });
-
-  it.each([404, 500])('catches error and returns empty array (%s)', async (httpStatusCode) => {
-    axiosMock.onGet(CAN_REDEEM_URL).reply(httpStatusCode);
-    const result = await fetchCanRedeem(mockEnterpriseId, [mockCourseKey, mockCourseKeyTwo]);
-    expect(result).toEqual([]);
   });
 });

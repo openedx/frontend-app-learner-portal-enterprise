@@ -1,6 +1,8 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+
 import { queryClient } from '../../../../utils/tests';
 import { fetchCourseReviews } from '../services';
 import useCourseMetadata from './useCourseMetadata';
@@ -33,7 +35,9 @@ const mockCourseMetadata = {
 describe('useCourseReviews', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -42,15 +46,15 @@ describe('useCourseReviews', () => {
     fetchCourseReviews.mockResolvedValue(mockCourseReviews);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCourseReviews(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockCourseReviews,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useCourseReviews(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockCourseReviews,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

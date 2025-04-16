@@ -1,7 +1,6 @@
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform';
 import { fetchAcademies, fetchAcademiesDetail } from './academies';
 import { fetchPaginatedData } from './utils';
@@ -90,14 +89,6 @@ describe('fetchAcademiesDetail', () => {
     const result = await fetchAcademiesDetail(mockAcademyUUID, mockEnterpriseId);
     expect(result).toEqual(camelCaseObject(mockAcademyDetailResponse));
   });
-  it('returns the api call with a 404 and logs an error', async () => {
-    axiosMock.onGet(ACADEMIES_DETAIL_URL).reply(404, {});
-
-    const result = await fetchAcademiesDetail(mockAcademyUUID, mockEnterpriseId);
-    expect(logError).toHaveBeenCalledTimes(1);
-    expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
-    expect(result).toEqual(null);
-  });
 });
 
 describe('fetchAcademies', () => {
@@ -122,13 +113,5 @@ describe('fetchAcademies', () => {
     axiosMock.onGet(ACADEMIES_LIST_URL).reply(200, mockAcademyListResponse);
     const result = await fetchAcademies(mockAcademyUUID);
     expect(result).toEqual(camelCaseObject(mockAcademyListResponse.results));
-  });
-  it('returns the api call with a 404 and logs an error', async () => {
-    axiosMock.onGet(ACADEMIES_LIST_URL).reply(404, {});
-
-    const result = await fetchAcademiesDetail(mockAcademyUUID, mockEnterpriseId);
-    expect(logError).toHaveBeenCalledTimes(1);
-    expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
-    expect(result).toEqual(null);
   });
 });

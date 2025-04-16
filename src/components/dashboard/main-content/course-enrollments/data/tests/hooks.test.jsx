@@ -1,10 +1,9 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import * as logger from '@edx/frontend-platform/logging';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import dayjs from 'dayjs';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { queryClient } from '../../../../../../utils/tests';
 import {
@@ -262,7 +261,6 @@ describe('useCourseUpgradeData', () => {
       expect(useSubscriptions).toHaveBeenCalledWith(
         expect.objectContaining({
           select: expect.any(Function),
-          enabled: true,
         }),
       );
       const useSubscriptionsSelectFn = useSubscriptions.mock.calls[0][0].select;
@@ -351,7 +349,6 @@ describe('useCourseUpgradeData', () => {
       expect(useCouponCodes).toHaveBeenCalledWith(
         expect.objectContaining({
           select: expect.any(Function),
-          enabled: true,
         }),
       );
       const useCouponCodesSelectFn = useCouponCodes.mock.calls[0][0].select;
@@ -363,7 +360,6 @@ describe('useCourseUpgradeData', () => {
         courseRunKey,
         expect.objectContaining({
           select: expect.any(Function),
-          enabled: true,
         }),
       );
       const useCourseRunMetadataSelectFn = useCourseRunMetadata.mock.calls[0][1].select;
@@ -617,7 +613,7 @@ describe('useContentAssignments', () => {
       },
     };
     mockUseEnterpriseCourseEnrollments(mockPoliciesWithCanceledAssignments);
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => useContentAssignments(),
       { wrapper },
     );
@@ -652,10 +648,9 @@ describe('useContentAssignments', () => {
     );
 
     // Dismiss the canceled assignments alert and verify the `credits_available` query cache is invalidated.
-    act(() => {
+    await act(() => {
       result.current.handleAcknowledgeAssignments({ assignmentState: ASSIGNMENT_TYPES.CANCELED });
     });
-    await waitForNextUpdate();
     expect(service.acknowledgeContentAssignments).toHaveBeenCalledTimes(1);
     expect(service.acknowledgeContentAssignments).toHaveBeenCalledWith({
       assignmentConfigurationId: mockAssignmentConfigurationId,
@@ -686,7 +681,7 @@ describe('useContentAssignments', () => {
       },
     };
     mockUseEnterpriseCourseEnrollments(mockPoliciesWithExpiredAssignments);
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => useContentAssignments(),
       { wrapper },
     );
@@ -719,10 +714,9 @@ describe('useContentAssignments', () => {
     );
 
     // Dismiss the expired assignments alert and verify that the `credits_available` query cache is invalidated.
-    act(() => {
+    await act(() => {
       result.current.handleAcknowledgeAssignments({ assignmentState: ASSIGNMENT_TYPES.EXPIRED });
     });
-    await waitForNextUpdate();
     expect(service.acknowledgeContentAssignments).toHaveBeenCalledTimes(1);
     expect(service.acknowledgeContentAssignments).toHaveBeenCalledWith({
       assignmentConfigurationId: mockAssignmentConfigurationId,

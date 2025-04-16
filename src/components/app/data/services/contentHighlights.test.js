@@ -50,12 +50,6 @@ describe('fetchEnterpriseCuration', () => {
       expect(result).toBeNull();
     }
   });
-
-  it('catches 500 error and returns null', async () => {
-    axiosMock.onGet(HIGHLIGHTS_CONFIG_URL).reply(500);
-    const result = await fetchEnterpriseCuration(mockEnterpriseId);
-    expect(result).toBeNull();
-  });
 });
 
 describe('fetchContentHighlights', () => {
@@ -80,11 +74,5 @@ describe('fetchContentHighlights', () => {
     axiosMock.onGet(HIGHLIGHT_SETS_URL).reply(200, mockResponse);
     const result = await fetchContentHighlights(mockEnterpriseId);
     expect(result).toEqual(mockResponse.results);
-  });
-
-  it('catches error and returns empty list', async () => {
-    axiosMock.onGet(HIGHLIGHT_SETS_URL).reply(500);
-    const result = await fetchContentHighlights(mockEnterpriseId);
-    expect(result).toEqual([]);
   });
 });

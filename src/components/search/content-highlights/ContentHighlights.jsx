@@ -4,11 +4,13 @@ import { Container, Stack } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 
 import ContentHighlightSet from './ContentHighlightSet';
-import { useContentHighlightSets, useEnterpriseCustomer } from '../../app/data';
+import { useCanOnlyViewHighlights, useContentHighlightSets, useEnterpriseCustomer } from '../../app/data';
+import SearchNoResults from '../SearchNoResults';
 
 const ContentHighlights = ({ className }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: contentHighlights } = useContentHighlightSets(enterpriseCustomer.uuid);
+  const { data: canOnlyViewHighlights } = useCanOnlyViewHighlights();
 
   const mappedContentHighlightSetCards = useMemo(() => {
     const contentHighlightSets = contentHighlights || [];
@@ -18,6 +20,13 @@ const ContentHighlights = ({ className }) => {
   }, [contentHighlights]);
 
   if (mappedContentHighlightSetCards.length === 0) {
+    if (canOnlyViewHighlights) {
+      return (
+        <Container size="lg" className={className}>
+          <SearchNoResults title="highlights" />
+        </Container>
+      );
+    }
     return null;
   }
 

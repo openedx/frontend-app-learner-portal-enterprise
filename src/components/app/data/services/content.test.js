@@ -73,13 +73,4 @@ describe('fetchEnterpriseCustomerContainsContent', () => {
     const result = await fetchEnterpriseCustomerContainsContent(mockEnterpriseCustomer.uuid, allContentIdentifiers);
     expect(result).toEqual(mockResponse);
   });
-
-  it('catches error and returns empty list', async () => {
-    axiosMock.onGet(CONTAINS_CONTENT_ITEMS_URL).reply(500);
-    const result = await fetchEnterpriseCustomerContainsContent(mockEnterpriseCustomer.uuid, [mockCourseKey]);
-    expect(result).toEqual({
-      containsContentItems: false,
-      catalogList: [],
-    });
-  });
 });

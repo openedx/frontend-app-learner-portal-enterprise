@@ -1,5 +1,7 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
+
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
@@ -20,7 +22,9 @@ const mockEnterpriseCustomerContainsContent = {
 describe('useEnterpriseCustomerContainsContent', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -29,18 +33,18 @@ describe('useEnterpriseCustomerContainsContent', () => {
     fetchEnterpriseCustomerContainsContent.mockResolvedValue(mockEnterpriseCustomerContainsContent);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => useEnterpriseCustomerContainsContent(),
       { wrapper: Wrapper },
     );
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockEnterpriseCustomerContainsContent,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockEnterpriseCustomerContainsContent,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

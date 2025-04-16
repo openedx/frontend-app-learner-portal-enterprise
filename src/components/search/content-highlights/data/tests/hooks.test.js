@@ -1,22 +1,14 @@
-import { logError } from '@edx/frontend-platform/logging';
-import { getConfig } from '@edx/frontend-platform/config';
-import { renderHook } from '@testing-library/react-hooks';
-import {
-  getEnterpriseCuration,
-} from '../service';
+import { renderHook } from '@testing-library/react';
 import {
   getHighlightedContentCardVariant,
   getFormattedContentType,
   getAuthoringOrganizations,
   getContentPageUrl,
 } from '../utils';
-import { useHighlightedContentCardData, useEnterpriseCuration } from '../hooks';
+import { useHighlightedContentCardData } from '../hooks';
 
 jest.mock('../../../../app/data', () => ({
   fetchContentHighlights: jest.fn(() => Promise.resolve({ data: { results: [] } })),
-}));
-jest.mock('../service.js', () => ({
-  getEnterpriseCuration: jest.fn(() => Promise.resolve({ data: { results: [] } })),
 }));
 jest.mock('../utils', () => ({
   getHighlightedContentCardVariant: jest.fn(() => 'default'),
@@ -64,70 +56,5 @@ describe('useHighlightedContentCardData', () => {
       cardImageUrl: highlightedContent.cardImageUrl,
       authoringOrganizations: [],
     });
-  });
-});
-describe('useEnterpriseCuration', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it.each([
-    { hasResults: true, hasFallbackCuration: false },
-    { hasResults: false, hasFallbackCuration: true },
-  ])('should fetch enterprise curation and set it to state', async ({ hasResults, hasFallbackCuration }) => {
-    const enterpriseUUID = '123';
-    const enterpriseCuration = {
-      id: '123',
-      name: 'Test Enterprise',
-      canOnlyViewHighlightSets: false,
-    };
-    const fallbackEnterpriseCuration = {
-      canOnlyViewHighlightSets: false,
-    };
-    getEnterpriseCuration.mockResolvedValue({
-      data: {
-        results: hasResults ? [enterpriseCuration] : [],
-      },
-    });
-    getConfig.mockReturnValue({ FEATURE_CONTENT_HIGHLIGHTS: true });
-
-    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCuration(enterpriseUUID));
-
-    expect(result.current.isLoading).toBe(true);
-    expect(result.current.enterpriseCuration).toEqual({});
-
-    await waitForNextUpdate();
-
-    expect(getEnterpriseCuration).toHaveBeenCalledWith(enterpriseUUID);
-    expect(result.current.isLoading).toBe(false);
-
-    if (hasFallbackCuration) {
-      expect(result.current.enterpriseCuration).toEqual(fallbackEnterpriseCuration);
-    } else {
-      expect(result.current.enterpriseCuration).toEqual(enterpriseCuration);
-    }
-  });
-
-  it('should handle fetch errors and set error to state', async () => {
-    const enterpriseUUID = '123';
-    const fetchError = new Error('Test error');
-    getEnterpriseCuration.mockRejectedValue(fetchError);
-    getConfig.mockReturnValue({ FEATURE_CONTENT_HIGHLIGHTS: true });
-
-    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCuration(enterpriseUUID));
-
-    expect(result.current.isLoading).toBe(true);
-    expect(result.current.enterpriseCuration).toEqual({});
-    expect(result.current.fetchError).toBeUndefined();
-
-    await waitForNextUpdate();
-
-    expect(getEnterpriseCuration).toHaveBeenCalledWith(enterpriseUUID);
-    expect(logError).toHaveBeenCalledWith(fetchError);
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.enterpriseCuration).toEqual({
-      canOnlyViewHighlightSets: false,
-    });
-    expect(result.current.fetchError).toEqual(fetchError);
   });
 });

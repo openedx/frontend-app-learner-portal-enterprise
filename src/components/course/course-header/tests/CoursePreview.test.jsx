@@ -57,6 +57,7 @@ describe('Course Preview Tests', () => {
   });
 
   it('Renders video play button and starts playing when user clicks on play.', async () => {
+    const user = userEvent.setup();
     const { container } = renderWithRouter(
       <IntlProvider locale="en">
         <CoursePreview previewImage={imageURL} previewVideoURL={ytUrl} />,
@@ -70,7 +71,7 @@ describe('Course Preview Tests', () => {
 
     // Start video play
     expect(screen.queryByText('Play Video')).toBeInTheDocument();
-    userEvent.click(screen.getByText('Play Video'));
+    await user.click(screen.getByText('Play Video'));
 
     expect(container.querySelector('.video-trigger')).toBeFalsy();
     expect(container.querySelector('.video-wrapper')).toBeTruthy();

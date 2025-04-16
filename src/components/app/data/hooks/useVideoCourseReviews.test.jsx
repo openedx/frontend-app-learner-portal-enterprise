@@ -1,6 +1,8 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+
 import { queryClient } from '../../../../utils/tests';
 import { fetchCourseReviews } from '../services';
 import useVideoCourseMetadata from './useVideoCourseMetadata';
@@ -35,7 +37,9 @@ const courseKey = 'edX+DemoX';
 describe('useVideoCourseReviews', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -44,15 +48,15 @@ describe('useVideoCourseReviews', () => {
     fetchCourseReviews.mockResolvedValue(mockCourseReviews);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useVideoCourseReviews(courseKey), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockCourseReviews,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useVideoCourseReviews(courseKey), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockCourseReviews,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

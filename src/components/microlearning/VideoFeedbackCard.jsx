@@ -87,29 +87,31 @@ const VideoFeedbackCard = ({
             actions={(
               <ActionRow className="pt-1">
                 <IconButton
-                  key="dark"
+                  key="feedback-thumbs-up"
                   src={response === true ? ThumbUp : ThumbUpOutline}
                   iconAs={Icon}
                   onClick={() => handleThumbClick(true)}
                   variant="dark"
                   className="border rounded-circle border-1 border-light-400 p-3 mr-2"
-                  aria-label="thumbs up"
+                  alt="thumbs up"
                 />
                 <IconButton
-                  key="dark"
+                  key="feedback-thumbs-down"
                   src={response === false ? ThumbDownAlt : ThumbDownOffAlt}
                   iconAs={Icon}
                   onClick={() => handleThumbClick(false)}
                   variant="dark"
                   className="border rounded-circle border-1 border-light-400 p-3 mr-2"
-                  aria-label="thumbs down"
+                  alt="thumbs down"
                 />
                 <div className="border-left border-1 border-light-400" style={{ height: 52, marginTop: -8 }} />
                 <IconButton
+                  key="feedback-close"
                   className="ml-3"
                   src={Close}
                   iconAs={Icon}
                   onClick={() => setShowFeedbackCard(false)}
+                  alt="Close feedback card"
                 />
               </ActionRow>
             )}
@@ -194,12 +196,14 @@ const VideoFeedbackCard = ({
             actions={(
               <ActionRow className="pt-1">
                 <IconButton
+                  key="feedback-close"
                   className=""
                   src={Close}
                   iconAs={Icon}
                   onClick={() => {
                     setShowFeedbackSubmittedCard(false);
                   }}
+                  alt="Close feedback card"
                 />
               </ActionRow>
             )}

@@ -101,7 +101,7 @@ const UserEnrollmentForm = ({ className }) => {
     navigate('complete');
   };
 
-  const { redeem } = useStatefulEnroll({
+  const redeem = useStatefulEnroll({
     contentKey: courseRunKey,
     subsidyAccessPolicy: userSubsidyApplicableToCourse,
     onSuccess: handleFormSubmissionSuccess,

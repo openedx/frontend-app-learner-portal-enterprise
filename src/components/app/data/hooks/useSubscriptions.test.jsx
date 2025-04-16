@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
@@ -34,7 +35,9 @@ const { baseSubscriptionsData, baseLicensesByStatus } = getBaseSubscriptionsData
 describe('useSubscriptions', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
 
@@ -105,7 +108,7 @@ describe('useSubscriptions', () => {
     }
     fetchSubscriptions.mockResolvedValue(mockSubscriptionsDataWithLicense);
 
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => {
         if (queryOptions) {
           return useSubscriptions(queryOptions);
@@ -114,31 +117,31 @@ describe('useSubscriptions', () => {
       },
       { wrapper: Wrapper },
     );
-
-    await waitForNextUpdate();
-
     const expectedSubscriptionsdata = {
       ...mockSubscriptionsDataWithLicense,
       subscriptionLicensesByStatus: mockSubscriptionLicensesByStatus,
     };
 
     if (hasQueryOptions && isBFFQueryEnabled) {
-      expect(mockSelect).toHaveBeenCalledWith({
-        original: {
-          enterpriseCustomerUserSubsidies: {
-            subscriptions: mockSubscriptionsDataWithLicense,
+      await waitFor(() => {
+        expect(mockSelect).toHaveBeenCalledWith({
+          original: {
+            enterpriseCustomerUserSubsidies: {
+              subscriptions: mockSubscriptionsDataWithLicense,
+            },
           },
-        },
-        transformed: expectedSubscriptionsdata,
+          transformed: expectedSubscriptionsdata,
+        });
       });
     }
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: hasQueryOptions && isBFFQueryEnabled ? mockSubscriptionLicense : expectedSubscriptionsdata,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: hasQueryOptions && isBFFQueryEnabled ? mockSubscriptionLicense : expectedSubscriptionsdata,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

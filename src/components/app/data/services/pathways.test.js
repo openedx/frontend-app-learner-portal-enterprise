@@ -2,7 +2,6 @@ import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform';
-import { logError } from '@edx/frontend-platform/logging';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchPathwayProgressDetails } from './pathways';
 
@@ -145,13 +144,5 @@ describe('fetchAcademiesDetail', () => {
     axiosMock.onGet(PATHWAY_PROGRESS_DETAILS_URL).reply(200, mockPathwayProgressResponse);
     const result = await fetchPathwayProgressDetails(mockPathwayUUID);
     expect(result).toEqual(camelCaseObject(mockPathwayProgressResponse));
-  });
-  it('returns the api call with a 404 and logs an error', async () => {
-    axiosMock.onGet(PATHWAY_PROGRESS_DETAILS_URL).reply(404, {});
-
-    const result = await fetchPathwayProgressDetails(mockPathwayUUID);
-    expect(logError).toHaveBeenCalledTimes(1);
-    expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
-    expect(result).toEqual(null);
   });
 });

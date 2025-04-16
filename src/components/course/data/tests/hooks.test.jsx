@@ -1,5 +1,6 @@
-import { renderHook } from '@testing-library/react-hooks';
-import { render, screen, waitFor } from '@testing-library/react';
+import {
+  render, renderHook, screen, waitFor,
+} from '@testing-library/react';
 import {
   BrowserRouter, MemoryRouter, useLocation, useParams,
 } from 'react-router-dom';
@@ -88,7 +89,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
-  useQuery: jest.fn().mockReturnValue({ data: undefined, isInitialLoading: false }),
+  useQuery: jest.fn().mockReturnValue({ data: undefined }),
 }));
 
 jest.mock('../utils', () => ({

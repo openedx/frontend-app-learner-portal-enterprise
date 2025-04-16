@@ -1,14 +1,12 @@
-import {
-  matchPath, Outlet,
-} from 'react-router-dom';
+import { QueryClient } from '@tanstack/react-query';
+import { matchPath, Outlet, RouteObject } from 'react-router-dom';
 import { PageWrap } from '@edx/frontend-platform/react';
 
-import RouteErrorBoundary from './components/app/routes/RouteErrorBoundary';
+import AppErrorBoundary from './components/app/AppErrorBoundary';
 import Root from './components/app/Root';
 import Layout from './components/app/Layout';
 import { makeRootLoader } from './components/app/routes/loaders';
 import NotFoundPage from './components/NotFoundPage';
-import AppErrorBoundary from './components/app/AppErrorBoundary';
 
 /**
  * Returns the route loader function if a queryClient is available; otherwise, returns null.
@@ -257,13 +255,11 @@ export function getRoutes(queryClient?: QueryClient) {
       path: '/',
       element: (
         <PageWrap>
-          <AppErrorBoundary>
-            <Root />
-          </AppErrorBoundary>
+          <Root />
         </PageWrap>
       ),
       children: rootChildRoutes,
-      errorElement: <RouteErrorBoundary />,
+      errorElement: <AppErrorBoundary />,
     },
   ];
 

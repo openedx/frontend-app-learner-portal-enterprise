@@ -4,10 +4,9 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { QueryClientProvider } from '@tanstack/react-query';
 import SearchProgramCard from '../SearchProgramCard';
 
-import { queryClient, renderWithRouter } from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG } from './constants';
 import { useEnterpriseCustomer } from '../../app/data';
 
@@ -29,13 +28,11 @@ const initialAppState = {
 };
 
 const SearchProgramCardWithAppContext = (props) => (
-  <QueryClientProvider client={queryClient()}>
-    <IntlProvider locale="en">
-      <AppContext.Provider value={initialAppState}>
-        <SearchProgramCard {...props} />
-      </AppContext.Provider>
-    </IntlProvider>
-  </QueryClientProvider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <SearchProgramCard {...props} />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
@@ -108,9 +105,10 @@ describe('<SearchProgramCard />', () => {
 
   // TODO: Fix this test
   test('handles card click', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-program-card');
-    userEvent.click(cardEl);
+    await user.click(cardEl);
     await waitFor(() => {
       expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
     });
@@ -138,9 +136,10 @@ describe('<SearchProgramCard />', () => {
   });
 
   test('sends correct event data upon click on view the course link', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-program-card');
-    userEvent.click(cardEl);
+    await user.click(cardEl);
     await waitFor(() => expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       enterpriseUuid,
       'edx.ui.enterprise.learner_portal.search.program.card.clicked',

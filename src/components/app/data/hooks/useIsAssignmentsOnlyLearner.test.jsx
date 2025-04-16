@@ -1,6 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from '../../../../utils/tests';
+import { renderHook } from '@testing-library/react';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import useIsAssignmentsOnlyLearner from './useIsAssignmentsOnlyLearner';
 import useBrowseAndRequest from './useBrowseAndRequest';
@@ -19,14 +17,10 @@ jest.mock('./useSubscriptions');
 jest.mock('./useRedeemablePolicies');
 
 describe('useIsAssignmentsOnlyLearner', () => {
-  const Wrapper = ({ children }) => (
-    <QueryClientProvider client={queryClient()}>
-      {children}
-    </QueryClientProvider>
-  );
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   it.each([
     /**
      * - `isAssignmentLearnerOnly`: true
@@ -477,7 +471,7 @@ describe('useIsAssignmentsOnlyLearner', () => {
         subscriptionLicense,
       },
     });
-    const { result } = renderHook(() => useIsAssignmentsOnlyLearner(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useIsAssignmentsOnlyLearner());
     expect(result.current).toEqual(isAssignmentLearnerOnly);
   });
 });

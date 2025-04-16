@@ -1,4 +1,6 @@
-import { generatePath, redirect } from 'react-router-dom';
+import {
+  generatePath, LoaderFunctionArgs, Params, redirect,
+} from 'react-router-dom';
 
 import {
   extractEnterpriseCustomer,
@@ -6,16 +8,18 @@ import {
   queryCanRedeem,
   queryCourseMetadata,
   queryRedeemablePolicies,
+  safeEnsureQueryData,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
+import { getErrorResponseStatusCode } from '../../../utils/common';
 
-type ExternalCourseEnrollmentRouteParams<Key extends string = string> = RouteParams<Key> & {
+type ExternalCourseEnrollmentRouteParams<Key extends string = string> = Params<Key> & {
   readonly courseType: string;
   readonly courseKey: string;
   readonly courseRunKey: string;
   readonly enterpriseSlug: string;
 };
-interface ExternalCourseEnrollmentLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface ExternalCourseEnrollmentLoaderFunctionArgs extends LoaderFunctionArgs {
   params: ExternalCourseEnrollmentRouteParams;
 }
 
@@ -46,6 +50,7 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
       if (!enterpriseCustomer) {
         return null;
       }
+
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
@@ -53,16 +58,45 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
         if (!courseMetadata) {
           return;
         }
-        const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-          enterpriseUuid: enterpriseCustomer.uuid,
-          lmsUserId: authenticatedUser.userId,
-        }));
+        const redeemableLearnerCreditPolicies = await safeEnsureQueryData({
+          queryClient,
+          query: queryRedeemablePolicies({
+            enterpriseUuid: enterpriseCustomer.uuid,
+            lmsUserId: authenticatedUser.userId,
+          }),
+          fallbackData: {
+            redeemablePolicies: [],
+            expiredPolicies: [],
+            unexpiredPolicies: [],
+            learnerContentAssignments: {
+              assignments: [],
+              hasAssignments: false,
+              allocatedAssignments: [],
+              hasAllocatedAssignments: false,
+              acceptedAssignments: [],
+              hasAcceptedAssignments: false,
+              canceledAssignments: [],
+              hasCanceledAssignments: false,
+              expiredAssignments: [],
+              hasExpiredAssignments: false,
+              erroredAssignments: [],
+              hasErroredAssignments: false,
+              assignmentsForDisplay: [],
+              hasAssignmentsForDisplay: false,
+              reversedAssignments: [],
+              hasReversedAssignments: false,
+            },
+          },
+        });
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
           redeemableLearnerCreditPolicies.redeemablePolicies,
         );
-        const canRedeem = await queryClient.ensureQueryData(
-          queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
-        );
+        const canRedeem = await safeEnsureQueryData<CanRedeemResponse>({
+          queryClient,
+          query: queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+          shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+          fallbackData: [],
+        });
         const hasSuccessfulRedemption = !!canRedeem.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption;
         if (hasSuccessfulRedemption) {
           const redirectUrl = generatePath(

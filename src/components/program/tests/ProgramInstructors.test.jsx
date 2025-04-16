@@ -1,3 +1,4 @@
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -45,6 +46,12 @@ const initialState = {
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
+const ProgramInstructorsWrapper = () => (
+  <IntlProvider locale="en">
+    <ProgramInstructors />
+  </IntlProvider>
+);
+
 describe('<ProgramInstructors />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -53,7 +60,7 @@ describe('<ProgramInstructors />', () => {
   });
 
   test('renders program authoring organizations', () => {
-    render(<ProgramInstructors />);
+    render(<ProgramInstructorsWrapper />);
     initialState.authoringOrganizations.forEach((org) => {
       expect(screen.getByAltText(`${org.name} logo`)).toHaveAttribute('src', org.logoImageUrl);
       expect(screen.getByText(org.name)).toHaveAttribute('href', org.marketingUrl);
@@ -61,7 +68,7 @@ describe('<ProgramInstructors />', () => {
   });
 
   test('renders program instructors', () => {
-    render(<ProgramInstructors />);
+    render(<ProgramInstructorsWrapper />);
     initialState.staff.forEach((staff) => {
       const fullName = `${staff.givenName} ${staff.familyName}`;
       expect(screen.queryByText(fullName)).toBeInTheDocument();

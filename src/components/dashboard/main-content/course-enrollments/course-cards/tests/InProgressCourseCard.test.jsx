@@ -6,7 +6,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 
-import { InProgressCourseCard } from '../InProgressCourseCard';
+import InProgressCourseCard, { UpgradeableInProgressCourseCard } from '../InProgressCourseCard';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_MODES_MAP,
@@ -62,6 +62,7 @@ jest.mock('../../../../../app/data', () => ({
 }));
 
 const InProgressCourseCardWrapper = ({
+  Component = InProgressCourseCard,
   appContextValue = defaultAppContextValue,
   courseEnrollmentContextValue = defaultCourseEnrollmentContextValue,
   ...rest
@@ -70,7 +71,7 @@ const InProgressCourseCardWrapper = ({
     <IntlProvider locale="en">
       <AppContext.Provider value={appContextValue}>
         <CourseEnrollmentsContext.Provider value={courseEnrollmentContextValue}>
-          <InProgressCourseCard {...rest} />
+          <Component {...rest} />
         </CourseEnrollmentsContext.Provider>
       </AppContext.Provider>
     </IntlProvider>
@@ -142,7 +143,7 @@ describe('<InProgressCourseCard />', () => {
       hasUpgradeAndConfirm: true,
       redeem: mockRedeem,
     });
-    renderWithRouter(<InProgressCourseCardWrapper {...baseProps} />);
+    renderWithRouter(<InProgressCourseCardWrapper Component={UpgradeableInProgressCourseCard} {...baseProps} />);
     expect(screen.getByTestId('upgrade-course-button')).toBeInTheDocument();
   });
 
@@ -150,6 +151,7 @@ describe('<InProgressCourseCard />', () => {
     { shouldAttemptRedemption: true },
     { shouldAttemptRedemption: false }, // dismisses the modal
   ])('should render upgrade course button when hasUpgradeAndConfirm=true (learner credit) | (%s)', async ({ shouldAttemptRedemption }) => {
+    const user = userEvent.setup();
     useCourseUpgradeData.mockReturnValue({
       courseRunPrice: 100,
       subsidyForCourse: {
@@ -159,7 +161,7 @@ describe('<InProgressCourseCard />', () => {
       hasUpgradeAndConfirm: true,
       redeem: mockRedeem,
     });
-    renderWithRouter(<InProgressCourseCardWrapper {...baseProps} />);
+    renderWithRouter(<InProgressCourseCardWrapper Component={UpgradeableInProgressCourseCard} {...baseProps} />);
 
     const useCourseUpgradeDataArgs = useCourseUpgradeData.mock.calls[1][0];
     expect(useCourseUpgradeDataArgs).toEqual(
@@ -173,7 +175,7 @@ describe('<InProgressCourseCard />', () => {
     // Open upgrade confirmation modal
     const upgradeCTA = screen.getByTestId('upgrade-course-button');
     expect(upgradeCTA).toBeInTheDocument();
-    userEvent.click(upgradeCTA);
+    await user.click(upgradeCTA);
 
     // Verify upgrade confirmation modal is open
     expect(screen.getByText(messages.learnerCreditModalTitle.defaultMessage, { selector: 'h2' })).toBeInTheDocument();
@@ -181,7 +183,7 @@ describe('<InProgressCourseCard />', () => {
     if (shouldAttemptRedemption) {
       // Proceed with upgrade confirmation
       const upgradeModalCTA = screen.getByRole('button', { name: messages.upgradeModalConfirmCta.defaultMessage });
-      userEvent.click(upgradeModalCTA);
+      await user.click(upgradeModalCTA);
       expect(mockRedeem).toHaveBeenCalledTimes(1);
 
       // Verify `onRedeem` sets confirmation CTA as pending & sends analytics event
@@ -216,7 +218,7 @@ describe('<InProgressCourseCard />', () => {
     } else {
       // Dismiss upgrade confirmation modal
       const cancelModalCTA = screen.getByRole('button', { name: messages.modalCancelCta.defaultMessage });
-      userEvent.click(cancelModalCTA);
+      await user.click(cancelModalCTA);
 
       // Verify upgrade confirmation modal is no longer open
       expect(screen.queryByText(messages.learnerCreditModalTitle.defaultMessage, { selector: 'h2' })).not.toBeInTheDocument();

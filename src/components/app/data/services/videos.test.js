@@ -1,7 +1,6 @@
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform';
 import { fetchVideoDetail } from './videos';
 import { transformVideoData } from '../../../microlearning/data/utils';
@@ -72,15 +71,5 @@ describe('fetchVideoDetail', () => {
     const result = await fetchVideoDetail(mockVideoID);
 
     expect(result).toEqual(camelCaseObject(transformVideoData(result?.data || {})));
-  });
-
-  it('returns the api call with a 404 and logs an error', async () => {
-    axiosMock.onGet(VIDEO_DETAIL_URL).reply(404, {});
-
-    const result = await fetchVideoDetail(mockVideoID);
-
-    expect(logError).toHaveBeenCalledTimes(1);
-    expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
-    expect(result).toEqual(null);
   });
 });

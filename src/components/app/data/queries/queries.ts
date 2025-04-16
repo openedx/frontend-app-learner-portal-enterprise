@@ -51,18 +51,18 @@ export function queryEnterprisePathwaysList(enterpriseUuid: string) {
     ._ctx.pathways;
 }
 
-export function queryCourseMetadata(courseKey: string, courseRunKey?: string) {
+export function queryCourseMetadata(courseKey: string) {
   return queries
     .content
     .course(courseKey)
-    ._ctx.metadata(courseRunKey);
+    ._ctx.metadata;
 }
 
-export function queryCourseRunMetadata(courseRunKey: string) {
+export function queryCourseRunMetadata() {
   return queries
     .content
     .course(null)
-    ._ctx.metadata(courseRunKey)
+    ._ctx.metadata
     ._ctx.courseRun;
 }
 
@@ -157,7 +157,7 @@ export function querySubscriptions(enterpriseUuid: string) {
     ._ctx.subscriptions;
 }
 
-export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
+export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }: { enterpriseUuid: string; lmsUserId: number }) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
@@ -166,13 +166,13 @@ export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
     ._ctx.redeemablePolicies(lmsUserId);
 }
 
-export function queryPolicyTransaction(enterpriseUuid: string, transaction) {
+export function queryPolicyTransaction(enterpriseUuid: string, transactionStatusApiUrl?: string) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.subsidies
     ._ctx.policy
-    ._ctx.transaction(transaction);
+    ._ctx.transaction(transactionStatusApiUrl);
 }
 
 export function queryEnterpriseLearnerOffers(enterpriseUuid: string) {
@@ -268,7 +268,7 @@ export function queryVideoDetail(videoUUID: string, enterpriseUUID: string) {
 
 // BFF queries
 
-export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)
@@ -276,7 +276,7 @@ export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }) {
     ._ctx.dashboard;
 }
 
-export function queryEnterpriseLearnerSearchBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerSearchBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)
@@ -284,7 +284,7 @@ export function queryEnterpriseLearnerSearchBFF({ enterpriseSlug }) {
     ._ctx.search;
 }
 
-export function queryEnterpriseLearnerAcademyBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerAcademyBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)
@@ -292,7 +292,7 @@ export function queryEnterpriseLearnerAcademyBFF({ enterpriseSlug }) {
     ._ctx.academy;
 }
 
-export function queryEnterpriseLearnerSkillsQuizBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerSkillsQuizBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)

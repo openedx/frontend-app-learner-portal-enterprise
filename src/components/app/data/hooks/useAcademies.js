@@ -1,11 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryAcademiesList } from '../queries';
 
-export default function useAcademies(queryOptions = {}) {
+export default function useAcademies() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  return useQuery({
-    ...queryAcademiesList(enterpriseCustomer.uuid),
-    ...queryOptions,
-  });
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryAcademiesList(enterpriseCustomer.uuid),
+    }),
+  );
 }

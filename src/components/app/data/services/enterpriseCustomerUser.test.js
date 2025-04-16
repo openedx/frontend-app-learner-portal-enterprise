@@ -168,25 +168,6 @@ describe('fetchEnterpriseLearnerData', () => {
       shouldUpdateActiveEnterpriseCustomerUser: false,
     });
   });
-
-  it('catches API error', async () => {
-    const username = 'test-username';
-    const enterpriseLearnerQueryParams = new URLSearchParams({
-      username,
-      page: 1,
-    });
-    const enterpriseLearnerUrl = `${APP_CONFIG.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/?${enterpriseLearnerQueryParams.toString()}`;
-    axiosMock.onGet(enterpriseLearnerUrl).reply(500);
-    const response = await fetchEnterpriseLearnerData(username, mockEnterpriseSlug);
-    expect(response).toEqual({
-      enterpriseFeatures: {},
-      enterpriseCustomer: null,
-      activeEnterpriseCustomer: null,
-      allLinkedEnterpriseCustomerUsers: [],
-      staffEnterpriseCustomer: null,
-      shouldUpdateActiveEnterpriseCustomerUser: false,
-    });
-  });
 });
 
 describe('fetchEnterpriseCourseEnrollments', () => {
@@ -206,12 +187,6 @@ describe('fetchEnterpriseCourseEnrollments', () => {
     axiosMock.onGet(COURSE_ENROLLMENTS_ENDPOINT).reply(200, courseEnrollments);
     const response = await fetchEnterpriseCourseEnrollments(mockEnterpriseId);
     expect(response).toEqual(courseEnrollments);
-  });
-
-  it.each([404, 500])('returns empty array when 404 error occurs', async (httpStatusCode) => {
-    axiosMock.onGet(COURSE_ENROLLMENTS_ENDPOINT).reply(httpStatusCode);
-    const response = await fetchEnterpriseCourseEnrollments(mockEnterpriseId);
-    expect(response).toEqual([]);
   });
 });
 
@@ -252,12 +227,6 @@ describe('fetchLearnerProgramsList', () => {
     const response = await fetchLearnerProgramsList(mockEnterpriseId);
     expect(response).toEqual(programsList);
   });
-
-  it('returns empty array when 404 error occurs', async () => {
-    axiosMock.onGet(PROGRAMS_ENDPOINT).reply(500);
-    const response = await fetchLearnerProgramsList(mockEnterpriseId);
-    expect(response).toEqual([]);
-  });
 });
 
 describe('fetchInProgressPathways', () => {
@@ -282,12 +251,6 @@ describe('fetchInProgressPathways', () => {
     expect(response).toEqual(mockPathways);
   });
 
-  it('returns empty array when 500 error occurs', async () => {
-    axiosMock.onGet(PATHWAYS_PROGRESS_URL).reply(500);
-    const response = await fetchInProgressPathways();
-    expect(response).toEqual([]);
-  });
-
   it('pass learner csod params', async () => {
     const SAVE_CSOD_LEARNER_PARAMS_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/integrated_channels/api/v1/cornerstone/save-learner-information`;
     const data = {
@@ -303,6 +266,7 @@ describe('fetchInProgressPathways', () => {
     expect(response.status).toEqual(200);
   });
 });
+
 describe('postUnlinkUserFromEnterprise', () => {
   const mockEnterpriseCustomerUserUUID = 'test-enterprise-customer-user-uuid';
   const UNLINK_USER_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/${mockEnterpriseCustomerUserUUID}/unlink_self/`;

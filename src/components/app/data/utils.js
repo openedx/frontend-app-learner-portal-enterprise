@@ -484,6 +484,10 @@ export const getTransformedAllocatedAssignments = (assignments, enterpriseSlug) 
   return updatedAssignments;
 };
 
+/**
+ * Retrieves the error stack for display.
+ * @param {Error | unknown} [error]
+ */
 export function retrieveErrorMessageForDisplay(error) {
   if (!error) {
     return null;
@@ -493,6 +497,17 @@ export function retrieveErrorMessageForDisplay(error) {
     errorMessage += `\nCustom attributes: ${error.customAttributes.httpErrorResponseData}`;
   }
   return errorMessage;
+}
+
+/**
+ * Retrieves the error stack for display.
+ * @param {Error | unknown} [error]
+ */
+export function retrieveErrorStackForDisplay(error) {
+  if (!error) {
+    return null;
+  }
+  return error.stack;
 }
 
 /**
@@ -900,21 +915,26 @@ export function determineAllocatedAssignmentsForCourse({
  * }
  */
 export function transformCourseMetadataByAllocatedCourseRunAssignments({
-  hasMultipleAssignedCourseRuns,
   courseMetadata,
   allocatedCourseRunAssignmentKeys,
+  courseRunKey,
 }) {
-  if (hasMultipleAssignedCourseRuns && allocatedCourseRunAssignmentKeys.length > 1) {
+  const keysToCheck = [];
+  if (courseRunKey) {
+    keysToCheck.push(courseRunKey);
+  } else if (allocatedCourseRunAssignmentKeys?.length > 0) {
+    keysToCheck.push(...allocatedCourseRunAssignmentKeys);
+  }
+  if (keysToCheck.length > 0) {
+    const filterForCourseRunKeys = (courseRun) => keysToCheck.includes(courseRun.key);
     return {
       ...courseMetadata,
-      courseRuns: courseMetadata.courseRuns.filter(
-        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
-      ),
-      availableCourseRuns: courseMetadata.availableCourseRuns?.filter(
-        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
-      ),
+      courseRuns: courseMetadata.courseRuns.filter(filterForCourseRunKeys),
+      availableCourseRuns: courseMetadata.availableCourseRuns?.filter(filterForCourseRunKeys),
+      courseRunKeys: courseMetadata.courseRunKeys?.filter(filterForCourseRunKeys),
     };
   }
+
   return courseMetadata;
 }
 

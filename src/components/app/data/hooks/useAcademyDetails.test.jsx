@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useParams } from 'react-router-dom';
@@ -45,7 +46,9 @@ describe('useAcademiesDetails', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
       <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-        {children}
+        <Suspense fallback={<div>Loading...</div>}>
+          {children}
+        </Suspense>
       </AppContext.Provider>
     </QueryClientProvider>
   );
@@ -56,15 +59,15 @@ describe('useAcademiesDetails', () => {
     fetchAcademiesDetail.mockResolvedValue(mockAcademyDetailsData);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useAcademyDetails(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockAcademyDetailsData,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useAcademyDetails(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockAcademyDetailsData,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

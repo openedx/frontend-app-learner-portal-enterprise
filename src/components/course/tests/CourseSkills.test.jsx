@@ -66,9 +66,10 @@ describe('<CourseSkills />', () => {
   });
 
   test('renders tooltip with course skill description on hover', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<CourseSkillsWrapper />);
     mockCourseMetadata.skills.forEach(async (skill) => {
-      userEvent.hover(screen.getByText(skill.name));
+      await user.hover(screen.getByText(skill.name));
       await waitFor(() => {
         expect(screen.getByText(skill.description)).toBeVisible();
       });
@@ -76,6 +77,7 @@ describe('<CourseSkills />', () => {
   });
 
   test('renders tooltip text only till maximum cutoff value when skill description is too long', async () => {
+    const user = userEvent.setup();
     // set a skill description greater than description cutoff limit
     const newCourseMetadata = {
       ...mockCourseMetadata,
@@ -90,7 +92,7 @@ describe('<CourseSkills />', () => {
     renderWithRouter(<CourseSkillsWrapper />);
     const { skills } = newCourseMetadata;
     const maxVisibleDesc = shortenString(skills[0].description, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR);
-    userEvent.hover(screen.getByText(skills[0].name));
+    await user.hover(screen.getByText(skills[0].name));
     await waitFor(() => {
       expect(screen.getByText(maxVisibleDesc)).toBeVisible();
     });

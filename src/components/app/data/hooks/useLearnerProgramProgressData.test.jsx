@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { queryClient } from '../../../../utils/tests';
@@ -24,7 +25,9 @@ const mockLearnerProgramProgressData = {
 describe('useLearnerProgramProgressData', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -33,15 +36,15 @@ describe('useLearnerProgramProgressData', () => {
     useParams.mockReturnValue({ programUUID: 'test-program-uuid' });
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useLearnerProgramProgressData(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockLearnerProgramProgressData,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useLearnerProgramProgressData(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockLearnerProgramProgressData,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

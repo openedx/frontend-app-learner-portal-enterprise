@@ -56,7 +56,7 @@ const StatefulEnroll = ({
     ...labels,
   };
 
-  const { redeem } = useStatefulEnroll({
+  const redeem = useStatefulEnroll({
     contentKey,
     subsidyAccessPolicy,
     onBeginRedeem: () => {

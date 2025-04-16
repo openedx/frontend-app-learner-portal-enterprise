@@ -49,12 +49,6 @@ describe('fetchCouponCodeAssignments', () => {
     const expectedCouponsOverviewResponse = [{ ...couponCodeAssignmentsResponse.results[0], available: false }];
     expect(result).toEqual(expectedCouponsOverviewResponse);
   });
-
-  it('returns empty array on error', async () => {
-    axiosMock.onGet(COUPON_CODE_ASSIGNMENTS_URL).reply(500);
-    const result = await fetchCouponCodeAssignments(enterpriseId);
-    expect(result).toEqual([]);
-  });
 });
 
 describe('fetchCouponsOverview', () => {
@@ -67,12 +61,6 @@ describe('fetchCouponsOverview', () => {
     axiosMock.onGet(COUPONS_OVERVIEW_URL).reply(200, couponsOverviewResponse);
     const result = await fetchCouponsOverview(enterpriseId);
     expect(result).toEqual(couponsOverviewResponse.results);
-  });
-
-  it('returns empty array on error', async () => {
-    axiosMock.onGet(COUPONS_OVERVIEW_URL).reply(500);
-    const result = await fetchCouponsOverview(enterpriseId);
-    expect(result).toEqual([]);
   });
 });
 

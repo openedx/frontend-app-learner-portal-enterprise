@@ -1,6 +1,8 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { camelCaseObject } from '@edx/frontend-platform';
+
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
@@ -18,7 +20,9 @@ const camelCasedLearnerPathwayData = camelCaseObject(learnerPathwayData);
 describe('useEnterprisePathwaysList', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -27,15 +31,15 @@ describe('useEnterprisePathwaysList', () => {
     fetchInProgressPathways.mockResolvedValue(camelCasedLearnerPathwayData);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useEnterprisePathwaysList(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: camelCasedLearnerPathwayData,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useEnterprisePathwaysList(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: camelCasedLearnerPathwayData,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

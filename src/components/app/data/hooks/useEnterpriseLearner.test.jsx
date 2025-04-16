@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
@@ -56,6 +57,9 @@ const mockBFFDashboardData = {
 const mockExpectedEnterpriseLearner = (isMatchedBFFRoute) => (isMatchedBFFRoute
   ? {
     enterpriseCustomer: mockBFFDashboardData.enterpriseCustomer,
+    activeEnterpriseCustomer: mockBFFDashboardData.activeEnterpriseCustomer,
+    staffEnterpriseCustomer: mockBFFDashboardData.staffEnterpriseCustomer,
+    shouldUpdateActiveEnterpriseCustomerUser: mockBFFDashboardData.shouldUpdateActiveEnterpriseCustomerUser,
     allLinkedEnterpriseCustomerUsers: mockBFFDashboardData.allLinkedEnterpriseCustomerUsers,
     enterpriseFeatures: mockBFFDashboardData.enterpriseFeatures,
   }
@@ -64,13 +68,15 @@ const mockExpectedEnterpriseLearner = (isMatchedBFFRoute) => (isMatchedBFFRoute
 describe('useEnterpriseLearner', () => {
   const Wrapper = ({ initialEntries = [], children }) => (
     <QueryClientProvider client={queryClient()}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-          <Routes>
-            <Route path=":enterpriseSlug/unsupported-bff-route?" element={children} />
-          </Routes>
-        </AppContext.Provider>
-      </MemoryRouter>
+      <Suspense fallback={<div>Loading...</div>}>
+        <MemoryRouter initialEntries={initialEntries}>
+          <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+            <Routes>
+              <Route path=":enterpriseSlug/unsupported-bff-route?" element={children} />
+            </Routes>
+          </AppContext.Provider>
+        </MemoryRouter>
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -95,7 +101,7 @@ describe('useEnterpriseLearner', () => {
     const mockSelect = jest.fn(data => data.transformed);
     const initialEntries = isMatchedBFFRoute ? ['/test-enterprise'] : ['/test-enterprise/unsupported-bff-route'];
     const enterpriseLearnerHookArgs = hasCustomSelect ? { select: mockSelect } : {};
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => (useEnterpriseLearner(enterpriseLearnerHookArgs)),
       {
         wrapper: ({ children }) => (
@@ -106,19 +112,19 @@ describe('useEnterpriseLearner', () => {
       },
     );
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      if (hasCustomSelect) {
+        expect(mockSelect).toHaveBeenCalledTimes(2);
+        expect(mockSelect).toHaveBeenCalledWith({
+          original: isMatchedBFFRoute ? mockBFFDashboardData : mockEnterpriseLearnerData,
+          transformed: mockExpectedEnterpriseLearner(isMatchedBFFRoute),
+        });
+      } else {
+        expect(mockSelect).toHaveBeenCalledTimes(0);
+      }
+    });
 
-    if (hasCustomSelect) {
-      expect(mockSelect).toHaveBeenCalledTimes(2);
-      expect(mockSelect).toHaveBeenCalledWith({
-        original: isMatchedBFFRoute ? mockBFFDashboardData : mockEnterpriseLearnerData,
-        transformed: mockExpectedEnterpriseLearner(isMatchedBFFRoute),
-      });
-    } else {
-      expect(mockSelect).toHaveBeenCalledTimes(0);
-    }
-
-    const actualEnterpriseFeatures = result.current.data;
-    expect(actualEnterpriseFeatures).toEqual(mockExpectedEnterpriseLearner(isMatchedBFFRoute));
+    const actualEnterpriseLearner = result.current.data;
+    expect(actualEnterpriseLearner).toEqual(mockExpectedEnterpriseLearner(isMatchedBFFRoute));
   });
 });

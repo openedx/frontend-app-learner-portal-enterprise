@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -14,7 +15,7 @@ import {
 } from '../services';
 import useEnterpriseCourseEnrollments from './useEnterpriseCourseEnrollments';
 import { COURSE_STATUSES } from '../../../../constants';
-import useBFF from './useBFF';
+import { useSuspenseBFF } from './useBFF';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('../services', () => ({
@@ -142,9 +143,11 @@ const expectedTransformedRequest = (request) => ({
 describe('useEnterpriseCourseEnrollments', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-        {children}
-      </AppContext.Provider>
+      <Suspense fallback={<div>Loading...</div>}>
+        <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+          {children}
+        </AppContext.Provider>
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -155,7 +158,7 @@ describe('useEnterpriseCourseEnrollments', () => {
     fetchLicenseRequests.mockResolvedValue([mockLicenseRequest]);
     fetchCouponCodeRequests.mockResolvedValue([mockCouponCodeRequest]);
     fetchRedeemablePolicies.mockResolvedValue(mockRedeemablePolicies);
-    useBFF.mockReturnValue({
+    useSuspenseBFF.mockReturnValue({
       data: {
         enrollments: [mockTransformedCourseEnrollment],
         enrollmentsByStatus: {
@@ -238,7 +241,7 @@ describe('useEnterpriseCourseEnrollments', () => {
       contentAssignmentQueryOptions: { select: mockSelectContentAssignment },
     };
     const queryOptions = hasQueryOptions ? mockQueryOptions : undefined;
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => {
         if (hasQueryOptions) {
           return useEnterpriseCourseEnrollments(queryOptions);
@@ -247,12 +250,11 @@ describe('useEnterpriseCourseEnrollments', () => {
       },
       { wrapper: Wrapper },
     );
-    await waitForNextUpdate();
 
-    // Call the useBFF's select functions
-    const useBFFArgs = useBFF.mock.calls[0][0];
-    const { select: selectBFFQuery } = useBFFArgs.bffQueryOptions;
-    const { select: selectFallbackBFFQuery } = useBFFArgs.fallbackQueryConfig;
+    // Call the useSuspenseBFF's select functions
+    const useSuspenseBFFArgs = useSuspenseBFF.mock.calls[0][0];
+    const { select: selectBFFQuery } = useSuspenseBFFArgs.bffQueryOptions;
+    const { select: selectFallbackBFFQuery } = useSuspenseBFFArgs.fallbackQueryConfig;
     selectBFFQuery({
       enterpriseCourseEnrollments: expectedEnterpriseCourseEnrollmentsData.enrollments,
       allEnrollmentsByStatus: expectedEnterpriseCourseEnrollmentsData.enrollmentsByStatus,
@@ -261,59 +263,63 @@ describe('useEnterpriseCourseEnrollments', () => {
 
     // Assert that passed select fn query options were called with the correct arguments
     if (hasQueryOptions) {
-      expect(mockSelectLicenseRequest).toHaveBeenCalledWith({
-        original: [mockLicenseRequest],
-        transformed: expectedRequests.subscriptionLicenses,
-      });
-      expect(mockSelectCouponCodeRequest).toHaveBeenCalledWith({
-        original: [mockCouponCodeRequest],
-        transformed: expectedRequests.couponCodes,
-      });
-      expect(mockSelectContentAssignment).toHaveBeenCalledWith({
-        original: mockRedeemablePolicies,
-        transformed: expectedContentAssignmentData,
-      });
-      expect(mockSelectEnrollment).toHaveBeenCalledTimes(2);
-      expect(mockSelectEnrollment).toHaveBeenCalledWith({
-        original: {
-          enterpriseCourseEnrollments: expectedEnterpriseCourseEnrollmentsData.enrollments,
-          allEnrollmentsByStatus: expectedEnterpriseCourseEnrollmentsData.enrollmentsByStatus,
-        },
-        transformed: expectedEnterpriseCourseEnrollmentsData,
-      });
-      expect(mockSelectEnrollment).toHaveBeenCalledWith({
-        original: [mockCourseEnrollment],
-        transformed: expectedEnterpriseCourseEnrollmentsData,
+      await waitFor(() => {
+        expect(mockSelectLicenseRequest).toHaveBeenCalledWith({
+          original: [mockLicenseRequest],
+          transformed: expectedRequests.subscriptionLicenses,
+        });
+        expect(mockSelectCouponCodeRequest).toHaveBeenCalledWith({
+          original: [mockCouponCodeRequest],
+          transformed: expectedRequests.couponCodes,
+        });
+        expect(mockSelectContentAssignment).toHaveBeenCalledWith({
+          original: mockRedeemablePolicies,
+          transformed: expectedContentAssignmentData,
+        });
+        expect(mockSelectEnrollment).toHaveBeenCalledTimes(2);
+        expect(mockSelectEnrollment).toHaveBeenCalledWith({
+          original: {
+            enterpriseCourseEnrollments: expectedEnterpriseCourseEnrollmentsData.enrollments,
+            allEnrollmentsByStatus: expectedEnterpriseCourseEnrollmentsData.enrollmentsByStatus,
+          },
+          transformed: expectedEnterpriseCourseEnrollmentsData,
+        });
+        expect(mockSelectEnrollment).toHaveBeenCalledWith({
+          original: [mockCourseEnrollment],
+          transformed: expectedEnterpriseCourseEnrollmentsData,
+        });
       });
     }
 
-    const {
-      allEnrollmentsByStatus,
-      enterpriseCourseEnrollments,
-    } = result.current.data;
+    await waitFor(() => {
+      const {
+        allEnrollmentsByStatus,
+        enterpriseCourseEnrollments,
+      } = result.current.data;
 
-    // Verify enrollments by status
-    expect(allEnrollmentsByStatus.inProgress).toEqual(
-      expectedTransformedAllEnrollmentsByStatus.inProgress,
-    );
-    expect(allEnrollmentsByStatus.upcoming).toEqual(
-      expectedTransformedAllEnrollmentsByStatus.upcoming,
-    );
-    expect(allEnrollmentsByStatus.completed).toEqual(
-      expectedTransformedAllEnrollmentsByStatus.completed,
-    );
-    expect(allEnrollmentsByStatus.savedForLater).toEqual(
-      expectedTransformedAllEnrollmentsByStatus.savedForLater,
-    );
+      // Verify enrollments by status
+      expect(allEnrollmentsByStatus.inProgress).toEqual(
+        expectedTransformedAllEnrollmentsByStatus.inProgress,
+      );
+      expect(allEnrollmentsByStatus.upcoming).toEqual(
+        expectedTransformedAllEnrollmentsByStatus.upcoming,
+      );
+      expect(allEnrollmentsByStatus.completed).toEqual(
+        expectedTransformedAllEnrollmentsByStatus.completed,
+      );
+      expect(allEnrollmentsByStatus.savedForLater).toEqual(
+        expectedTransformedAllEnrollmentsByStatus.savedForLater,
+      );
 
-    // Verify enrollments
-    expect(enterpriseCourseEnrollments).toEqual(expectedEnterpriseCourseEnrollmentsData.enrollments);
+      // Verify enrollments
+      expect(enterpriseCourseEnrollments).toEqual(expectedEnterpriseCourseEnrollmentsData.enrollments);
 
-    // Verify requests
-    expect(result.current.data.requests.subscriptionLicenses).toEqual(expectedRequests.subscriptionLicenses);
-    expect(result.current.data.requests.couponCodes).toEqual(expectedRequests.couponCodes);
+      // Verify requests
+      expect(result.current.data.requests.subscriptionLicenses).toEqual(expectedRequests.subscriptionLicenses);
+      expect(result.current.data.requests.couponCodes).toEqual(expectedRequests.couponCodes);
 
-    // Verify content assignments
-    expect(result.current.data.contentAssignments).toEqual(expectedContentAssignmentData);
+      // Verify content assignments
+      expect(result.current.data.contentAssignments).toEqual(expectedContentAssignmentData);
+    });
   });
 });
