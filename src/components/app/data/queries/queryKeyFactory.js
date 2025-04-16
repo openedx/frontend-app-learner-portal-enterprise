@@ -239,9 +239,9 @@ const content = createQueryKeys('content', {
     queryKey: [courseKey],
     contextQueries: {
       // queryCourseMetadata
-      metadata: (courseRunKey) => ({
-        queryKey: [courseRunKey],
-        queryFn: ({ queryKey }) => fetchCourseMetadata(queryKey[2], queryKey[4]),
+      metadata: {
+        queryKey: null,
+        queryFn: ({ queryKey }) => fetchCourseMetadata(queryKey[2]),
         contextQueries: {
           // queryCourseRunMetadata
           courseRun: {
@@ -249,7 +249,7 @@ const content = createQueryKeys('content', {
             queryFn: ({ queryKey }) => fetchCourseRunMetadata(queryKey[4]),
           },
         },
-      }),
+      },
       // queryCourseReviews
       reviews: {
         queryKey: null,

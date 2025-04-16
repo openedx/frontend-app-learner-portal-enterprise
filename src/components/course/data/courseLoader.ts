@@ -57,7 +57,7 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     const { courseKey, enterpriseSlug } = params;
     // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
     // need to replace it with `+` again to be a valid course run key.
-    let courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
+    const courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
       requestUrl,
@@ -144,21 +144,16 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
 
     const {
       allocatedCourseRunAssignmentKeys,
-      hasAssignedCourseRuns,
-      hasMultipleAssignedCourseRuns,
     } = determineAllocatedAssignmentsForCourse({
       courseKey,
       redeemableLearnerCreditPolicies,
     });
-    // only override `courseRunKey` when learner has a single allocated assignment
-    if (!courseRunKey && hasAssignedCourseRuns) {
-      courseRunKey = hasMultipleAssignedCourseRuns ? null : allocatedCourseRunAssignmentKeys[0];
-    }
+
     await Promise.all([
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
-      queryClient.ensureQueryData<CourseMetadata | undefined>(queryCourseMetadata(courseKey, courseRunKey))
+      queryClient.ensureQueryData<CourseMetadata | undefined>(queryCourseMetadata(courseKey))
         .then(async (courseMetadata) => {
           if (!courseMetadata) {
             return null;
@@ -167,9 +162,9 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
             redeemableLearnerCreditPolicies.redeemablePolicies,
           );
           const transformedCourseMetadata = transformCourseMetadataByAllocatedCourseRunAssignments({
-            hasMultipleAssignedCourseRuns,
             courseMetadata,
             allocatedCourseRunAssignmentKeys,
+            courseRunKey,
           });
           return safeEnsureQueryData({
             queryClient,
@@ -263,7 +258,7 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     // If the course metadata (pre-fetched above) does not exist or is not available in
     // the enterprise's catalog(s), return with empty data.
     const courseMetadata = queryClient.getQueryData<CourseMetadata>(
-      queryCourseMetadata(courseKey, courseRunKey).queryKey,
+      queryCourseMetadata(courseKey).queryKey,
     );
     if (!courseMetadata) {
       return null;

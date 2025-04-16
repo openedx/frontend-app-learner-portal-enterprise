@@ -115,7 +115,7 @@ export const useCourseUpgradeData = ({
 
   const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
 
-  const { redeem: redeemLearnerCredit } = useStatefulEnroll({
+  const redeemLearnerCredit = useStatefulEnroll({
     contentKey: courseRunKey,
     subsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy,
     onBeginRedeem: onRedeem,

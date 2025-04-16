@@ -51,18 +51,18 @@ export function queryEnterprisePathwaysList(enterpriseUuid: string) {
     ._ctx.pathways;
 }
 
-export function queryCourseMetadata(courseKey: string, courseRunKey?: string) {
+export function queryCourseMetadata(courseKey: string) {
   return queries
     .content
     .course(courseKey)
-    ._ctx.metadata(courseRunKey);
+    ._ctx.metadata;
 }
 
-export function queryCourseRunMetadata(courseRunKey: string) {
+export function queryCourseRunMetadata() {
   return queries
     .content
     .course(null)
-    ._ctx.metadata(courseRunKey)
+    ._ctx.metadata
     ._ctx.courseRun;
 }
 

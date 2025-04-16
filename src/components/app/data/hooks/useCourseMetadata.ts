@@ -26,21 +26,16 @@ export default function useCourseMetadata(options: UseCourseMetadataQueryOptions
   const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const {
     allocatedCourseRunAssignmentKeys,
-    hasAssignedCourseRuns,
-    hasMultipleAssignedCourseRuns,
   } = determineAllocatedAssignmentsForCourse({ courseKey, redeemableLearnerCreditPolicies });
   // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
   // need to replace it with `+` again to be a valid course run key.
-  let courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
-  // only override `courseRunKey` when learner has a single allocated assignment
-  if (!courseRunKey && hasAssignedCourseRuns) {
-    courseRunKey = hasMultipleAssignedCourseRuns ? null : allocatedCourseRunAssignmentKeys[0];
-  }
+  const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
+
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
 
   return useSuspenseQuery(
     queryOptions({
-      ...queryCourseMetadata(courseKey, courseRunKey),
+      ...queryCourseMetadata(courseKey),
       select: (data) => {
         if (!data) {
           return data;
@@ -48,7 +43,7 @@ export default function useCourseMetadata(options: UseCourseMetadataQueryOptions
         // NOTE: The results from this call includes restricted runs, some of
         // which might not be ACTUALLY available depending on the subsidy being
         // applied.  However, we don't know the subsidy being applied at this
-        // point of the code, so just return all of the basically available
+        // point of the code, so just return all the available
         // restricted runs regardless of catalog inclusion.
         const availableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
         let transformedData = {
@@ -58,9 +53,9 @@ export default function useCourseMetadata(options: UseCourseMetadataQueryOptions
         // This logic should appropriately handle multiple course runs being
         // assigned, and return the appropriate metadata
         transformedData = transformCourseMetadataByAllocatedCourseRunAssignments({
-          hasMultipleAssignedCourseRuns,
           courseMetadata: transformedData,
           allocatedCourseRunAssignmentKeys,
+          courseRunKey,
         });
         if (select) {
           return select({
