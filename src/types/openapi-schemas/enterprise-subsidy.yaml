@@ -370,6 +370,8 @@ paths:
           name: uuid
           schema:
             type: string
+            format: uuid
+          description: A UUID string identifying this Subsidy.
           required: true
       tags:
         - subsidy

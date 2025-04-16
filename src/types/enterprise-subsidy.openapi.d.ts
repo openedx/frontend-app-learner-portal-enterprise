@@ -954,6 +954,7 @@ export interface operations {
         subsidy_access_policy_uuid?: string;
       };
       path: {
+        /** @description A UUID string identifying this Subsidy. */
         uuid: string;
       };
     };
