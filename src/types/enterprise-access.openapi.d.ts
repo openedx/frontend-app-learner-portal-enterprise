@@ -5,6 +5,16 @@
 
 
 export interface paths {
+  "/api/v1/{enterprise_uuid}/delete-group-association/{group_uuid}": {
+    /**
+     * Delete a PolicyGroupAssociation record.
+     * @description Delete all `PolicyGroupAssociation` records associated with the group uuid.
+     * Params:
+     *     enterprise_uuid: (required) The enterprise customer associated with the EnterpriseGroup
+     *     group_uuid: (required) The uuid associated with the EnterpriseGroup in edx-enterprise
+     */
+    delete: operations["api_v1_delete_group_association_destroy"];
+  };
   "/api/v1/admin-view/learner_profile/": {
     /**
      * Retrieve a profile for a learner from the admin portal.
@@ -835,7 +845,7 @@ export interface components {
       course_partners: unknown;
       /** Format: uuid */
       enterprise_customer_uuid: string;
-      state: components["schemas"]["StateF86Enum"];
+      state: components["schemas"]["State7b6Enum"];
       /** Format: date-time */
       reviewed_at: string | null;
       reviewer_lms_user_id: number | null;
@@ -884,6 +894,22 @@ export interface components {
       date: string;
       /** Format: uri */
       url: string;
+    };
+    /** @description Catalog object serializer for provisioning requests. */
+    EnterpriseCatalogRequest: {
+      /** @description The name of the Enterprise Catalog. */
+      title: string;
+      /** @description The id of the related Catalog Query. */
+      catalog_query_id: number;
+    };
+    /** @description Catalog object serializer for provisioning responses. */
+    EnterpriseCatalogResponse: {
+      /** Format: uuid */
+      uuid: string;
+      /** Format: uuid */
+      enterprise_customer_uuid: string;
+      title: string;
+      catalog_query_id: number;
     };
     /** @description Serializer for enterprise course enrollment. */
     EnterpriseCourseEnrollment: {
@@ -1809,7 +1835,7 @@ export interface components {
       course_partners: unknown;
       /** Format: uuid */
       enterprise_customer_uuid: string;
-      state: components["schemas"]["StateF86Enum"];
+      state: components["schemas"]["State7b6Enum"];
       /** Format: date-time */
       reviewed_at: string | null;
       reviewer_lms_user_id: number | null;
@@ -2196,12 +2222,28 @@ export interface components {
       enterprise_customer: components["schemas"]["EnterpriseCustomerRequest"];
       /** @description List of objects containing requested customer admin email addresses. */
       pending_admins: components["schemas"]["PendingCustomerAdminRequest"][];
+      /** @description Object describing the requested Enterprise Catalog. */
+      enterprise_catalog: components["schemas"]["EnterpriseCatalogRequest"];
     };
     /** @description Response serializer for provisioning create view. */
     ProvisioningResponse: {
       enterprise_customer: components["schemas"]["EnterpriseCustomerResponse"];
       customer_admins: components["schemas"]["AdminObjectResponse"];
+      enterprise_catalog: components["schemas"]["EnterpriseCatalogResponse"];
     };
+    /**
+     * @description * `requested` - Requested
+     * * `pending` - Pending
+     * * `approved` - Approved
+     * * `declined` - Declined
+     * * `error` - Error
+     * * `accepted` - Accepted
+     * * `cancelled` - Cancelled
+     * * `expired` - Expired
+     * * `reversed` - Reversed
+     * @enum {string}
+     */
+    State7b6Enum: "requested" | "pending" | "approved" | "declined" | "error" | "accepted" | "cancelled" | "expired" | "reversed";
     /**
      * @description * `allocated` - Allocated
      * * `accepted` - Accepted
@@ -2212,15 +2254,6 @@ export interface components {
      * @enum {string}
      */
     StateBedEnum: "allocated" | "accepted" | "cancelled" | "errored" | "expired" | "reversed";
-    /**
-     * @description * `requested` - Requested
-     * * `pending` - Pending
-     * * `approved` - Approved
-     * * `declined` - Declined
-     * * `error` - Error
-     * @enum {string}
-     */
-    StateF86Enum: "requested" | "pending" | "approved" | "declined" | "error";
     /** @description Serializer for subscription license. */
     SubscriptionLicense: {
       /** Format: uuid */
@@ -2488,7 +2521,9 @@ export interface components {
        */
       per_learner_spend_limit?: number | null;
       /** Format: uuid */
-      assignment_configuration: string | null;
+      learner_credit_request_config?: string | null;
+      /** Format: uuid */
+      assignment_configuration?: string | null;
     };
     /**
      * @description Request Serializer to validate policy redeem endpoint POST data.
@@ -2575,7 +2610,9 @@ export interface components {
        */
       per_learner_spend_limit?: number | null;
       /** Format: uuid */
-      assignment_configuration: string | null;
+      learner_credit_request_config?: string | null;
+      /** Format: uuid */
+      assignment_configuration?: string | null;
     };
     /** @description A read-only Serializer for responding to requests for ``SubsidyAccessPolicy`` records. */
     SubsidyAccessPolicyResponse: {
@@ -2758,6 +2795,31 @@ export type external = Record<string, never>;
 
 export interface operations {
 
+  /**
+   * Delete a PolicyGroupAssociation record.
+   * @description Delete all `PolicyGroupAssociation` records associated with the group uuid.
+   * Params:
+   *     enterprise_uuid: (required) The enterprise customer associated with the EnterpriseGroup
+   *     group_uuid: (required) The uuid associated with the EnterpriseGroup in edx-enterprise
+   */
+  api_v1_delete_group_association_destroy: {
+    parameters: {
+      path: {
+        enterprise_uuid: string;
+        group_uuid: string;
+      };
+    };
+    responses: {
+      /** @description No response body */
+      204: {
+        content: never;
+      };
+      /** @description No response body */
+      404: {
+        content: never;
+      };
+    };
+  };
   /**
    * Retrieve a profile for a learner from the admin portal.
    * @description Retrieves all licenses, subscriptions, and enrollments associated with
@@ -3195,7 +3257,6 @@ export interface operations {
     parameters: {
       path: {
         assignment_configuration_uuid: string;
-        /** @description A UUID string identifying this learner content assignment. */
         uuid: string;
       };
     };

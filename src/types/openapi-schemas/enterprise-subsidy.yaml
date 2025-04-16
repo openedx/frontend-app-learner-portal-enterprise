@@ -2,8 +2,7 @@ openapi: 3.0.3
 info:
   title: Enterprise Subsidy API
   version: 1.0.0
-  description: API for controlling disbursement of value for ledger-based subsidy
-    records.
+  description: API for controlling disbursement of value for ledger-based subsidy records.
 paths:
   /api/v1/content-metadata/{content_identifier}/:
     get:
@@ -28,23 +27,23 @@ paths:
                 - The content metadata payload does not contain an appropriate entitlement mode and price or the
                     content's associated product source
       parameters:
-      - in: path
-        name: content_identifier
-        schema:
-          type: string
-        required: true
-      - in: query
-        name: enterprise_customer_uuid
-        schema:
-          type: string
-          format: uuid
-          minLength: 1
-        description: The UUID associated with the requesting user's enterprise customer.
-        required: true
+        - in: path
+          name: content_identifier
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: enterprise_customer_uuid
+          schema:
+            type: string
+            format: uuid
+            minLength: 1
+          description: The UUID associated with the requesting user's enterprise customer.
+          required: true
       tags:
-      - api
+        - api
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: No response body
@@ -60,22 +59,22 @@ paths:
           GET /api/v1/subsidies/{subsidy_uuid}/
           GET /api/v1/subsidies/{subsidy_uuid}/can_redeem/
       parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
       tags:
-      - api
+        - api
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -91,7 +90,7 @@ paths:
 
         Endpoint Location: POST /api/v1/subsidies/
       tags:
-      - subsidy
+        - subsidy
       requestBody:
         content:
           application/json:
@@ -105,21 +104,21 @@ paths:
               $ref: '#/components/schemas/SubsidyCreationRequest'
         required: true
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Subsidy'
-          description: ''
         '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subsidy'
           description: ''
-        '403':
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subsidy'
+          description: ''
+        '400':
           content:
             application/json:
               schema:
@@ -127,7 +126,7 @@ paths:
                 additionalProperties: {}
                 description: Unspecified response body
           description: ''
-        '400':
+        '403':
           content:
             application/json:
               schema:
@@ -155,17 +154,17 @@ paths:
           GET /api/v1/subsidies/{subsidy_uuid}/
           GET /api/v1/subsidies/{subsidy_uuid}/can_redeem/
       parameters:
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Subsidy.
-        required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this Subsidy.
+          required: true
       tags:
-      - api
+        - api
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -180,15 +179,15 @@ paths:
 
         Endpoint Location: PUT /api/v1/subsidies/{uuid}/
       parameters:
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Subsidy.
-        required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this Subsidy.
+          required: true
       tags:
-      - subsidy
+        - subsidy
       requestBody:
         content:
           application/json:
@@ -202,7 +201,7 @@ paths:
               $ref: '#/components/schemas/SubsidyUpdateRequest'
         required: true
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -210,7 +209,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Subsidy'
           description: ''
-        '403':
+        '400':
           content:
             application/json:
               schema:
@@ -218,7 +217,7 @@ paths:
                 additionalProperties: {}
                 description: Unspecified response body
           description: ''
-        '400':
+        '403':
           content:
             application/json:
               schema:
@@ -241,15 +240,15 @@ paths:
 
         Endpoint Location: PATCH /api/v1/subsidies/{uuid}/
       parameters:
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Subsidy.
-        required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this Subsidy.
+          required: true
       tags:
-      - subsidy
+        - subsidy
       requestBody:
         content:
           application/json:
@@ -262,7 +261,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedSubsidyUpdateRequest'
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -270,7 +269,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Subsidy'
           description: ''
-        '403':
+        '400':
           content:
             application/json:
               schema:
@@ -278,7 +277,7 @@ paths:
                 additionalProperties: {}
                 description: Unspecified response body
           description: ''
-        '400':
+        '403':
           content:
             application/json:
               schema:
@@ -301,31 +300,31 @@ paths:
 
         Endpoint Location: DELETE /api/v1/subsidies/{uuid}/
       parameters:
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Subsidy.
-        required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this Subsidy.
+          required: true
       tags:
-      - subsidy
+        - subsidy
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Subsidy'
-          description: ''
         '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Subsidy'
           description: ''
-        '403':
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subsidy'
+          description: ''
+        '400':
           content:
             application/json:
               schema:
@@ -333,7 +332,7 @@ paths:
                 additionalProperties: {}
                 description: Unspecified response body
           description: ''
-        '400':
+        '403':
           content:
             application/json:
               schema:
@@ -352,27 +351,30 @@ paths:
   /api/v1/subsidies/{uuid}/aggregates-by-learner:
     get:
       operationId: api_v1_subsidies_aggregates_by_learner_retrieve
-      description: |-
-        Fetch aggregated data by learner pertaining to a subsidy. Response data is not paginated.
+      description: >-
+        Fetch aggregated data by learner pertaining to a subsidy. Response data
+        is not paginated.
+
 
         Endpoint Location: GET /api/v1/subsidies/{uuid}/aggregates-by-learner
       parameters:
-      - in: query
-        name: subsidy_access_policy_uuid
-        schema:
-          type: string
-          format: uuid
-        description: The UUID associated with the subsidy access policy to which the
-          query pertains.
-      - in: path
-        name: uuid
-        schema:
-          type: string
-        required: true
+        - in: query
+          name: subsidy_access_policy_uuid
+          schema:
+            type: string
+            format: uuid
+          description: >-
+            The UUID associated with the subsidy access policy to which the
+            query pertains.
+        - in: path
+          name: uuid
+          schema:
+            type: string
+          required: true
       tags:
-      - subsidy
+        - subsidy
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -407,39 +409,47 @@ paths:
   /api/v1/subsidies/{uuid}/can_redeem/:
     get:
       operationId: api_v1_subsidies_can_redeem_retrieve
-      description: |-
+      description: >-
         Answers the query "can the given user redeem for the given content_key
+
         in this subsidy?"
 
-        Returns an object indicating if there is sufficient value remainin in the
+
+        Returns an object indicating if there is sufficient value remainin in
+        the
+
         subsidy for this content, along with the quantity/unit required.
-        Note that this endpoint will determine the price of the given content key
-        from the course-discovery service. The caller of this endpoint need not provide a price.
+
+        Note that this endpoint will determine the price of the given content
+        key
+
+        from the course-discovery service. The caller of this endpoint need not
+        provide a price.
       parameters:
-      - in: query
-        name: content_key
-        schema:
-          type: string
-          minLength: 1
-        description: The content key/identifier to which the query pertains.
-        required: true
-      - in: query
-        name: lms_user_id
-        schema:
-          type: integer
-        description: The user identifier to whom the query pertains.
-        required: true
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Subsidy.
-        required: true
+        - in: query
+          name: content_key
+          schema:
+            type: string
+            minLength: 1
+          description: The content key/identifier to which the query pertains.
+          required: true
+        - in: query
+          name: lms_user_id
+          schema:
+            type: integer
+          description: The user identifier to whom the query pertains.
+          required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this Subsidy.
+          required: true
       tags:
-      - subsidy
+        - subsidy
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -461,29 +471,32 @@ paths:
   /api/v1/subsidies/{uuid}/get_aggregates_by_learner/:
     get:
       operationId: api_v1_subsidies_get_aggregates_by_learner_retrieve
-      description: |-
-        Fetch aggregated data by learner pertaining to a subsidy. Response data is not paginated.
+      description: >-
+        Fetch aggregated data by learner pertaining to a subsidy. Response data
+        is not paginated.
+
 
         Endpoint Location: GET /api/v1/subsidies/{uuid}/aggregates-by-learner
       parameters:
-      - in: query
-        name: subsidy_access_policy_uuid
-        schema:
-          type: string
-          format: uuid
-        description: The UUID associated with the subsidy access policy to which the
-          query pertains.
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Subsidy.
-        required: true
+        - in: query
+          name: subsidy_access_policy_uuid
+          schema:
+            type: string
+            format: uuid
+          description: >-
+            The UUID associated with the subsidy access policy to which the
+            query pertains.
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this Subsidy.
+          required: true
       tags:
-      - subsidy
+        - subsidy
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -518,15 +531,22 @@ paths:
   /api/v1/transactions/:
     get:
       operationId: api_v1_transactions_list
-      description: |-
+      description: >-
         List Transactions.
 
-        Implemented as a passthrough to super, but require a `subsidy_uuid` query param.
+
+        Implemented as a passthrough to super, but require a `subsidy_uuid`
+        query param.
+
 
         Endpoint Location:
-        GET /api/v1/transactions/?subsidy_uuid=<subsidy_uuid>&enterprise_customer_uuid=<enterprise_customer_uui>
+
+        GET
+        /api/v1/transactions/?subsidy_uuid=<subsidy_uuid>&enterprise_customer_uuid=<enterprise_customer_uui>
+
 
         Request Arguments:
+
         - ``subsidy_uuid`` (query param, required):
               The uuid (primary key) of the subsidy from which transactions should be listed.
         - ``enterprise_customer_uuid`` (query param, optional):
@@ -542,39 +562,45 @@ paths:
               If "true", include the ``aggregates`` key (quantities, number of transactions) in the response.
 
         Response codes:
-        - ``400``: If there are missing or otherwise invalid input parameters.  Response body is JSON with a single
+
+        - ``400``: If there are missing or otherwise invalid input parameters. 
+        Response body is JSON with a single
+
         `Error` key.
-        - ``200``: In all other cases, return 200 regardless of whether any transactions were found.  Response body is
+
+        - ``200``: In all other cases, return 200 regardless of whether any
+        transactions were found.  Response body is
+
         JSON with a paginated list of serialized Transactions.
       parameters:
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
       tags:
-      - api
+        - api
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -584,14 +610,19 @@ paths:
           description: ''
     post:
       operationId: api_v1_transactions_create
-      description: |-
+      description: >-
         Attempt to redeem subsidy for a given user and content.
 
-        This is called to create an enrollment (or entitlement) and associated Transaction.
+
+        This is called to create an enrollment (or entitlement) and associated
+        Transaction.
+
 
         Endpoint Location: POST /api/v1/transactions/
 
+
         Request Arguments:
+
         - ``subsidy_uuid`` (POST data, required):
               The uuid (primary key) of the subsidy for which transactions should be created.
         - ``lms_user_id`` (POST data, required):
@@ -615,7 +646,7 @@ paths:
                      `Error` key.
                 201: A Transaction was successfully created.  Response body is JSON with a serialized Transaction.
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -629,7 +660,7 @@ paths:
               $ref: '#/components/schemas/Transaction'
         required: true
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '201':
           content:
@@ -656,15 +687,15 @@ paths:
                 403/404: If the requester does not have permission to access the transaction, or it does not exist.
                 200: If a Transaction was successfully retrieved.  Response body is JSON with a serialized Transaction.
       parameters:
-      - in: path
-        name: uuid
-        schema:
-          type: string
-        required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+          required: true
       tags:
-      - api
+        - api
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -675,18 +706,20 @@ paths:
   /api/v2/subsidies/{subsidy_uuid}/admin/deposits/:
     post:
       operationId: api_v2_subsidies_admin_deposits_create
-      description: |-
+      description: >-
         A create-only API view for deposits.
 
-        This is only accessible to admins of the related subsidy's enterprise customer.
+
+        This is only accessible to admins of the related subsidy's enterprise
+        customer.
       parameters:
-      - in: path
-        name: subsidy_uuid
-        schema:
-          type: string
-        required: true
+        - in: path
+          name: subsidy_uuid
+          schema:
+            type: string
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -700,7 +733,7 @@ paths:
               $ref: '#/components/schemas/DepositCreationRequest'
         required: true
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '201':
           content:
@@ -711,88 +744,105 @@ paths:
   /api/v2/subsidies/{subsidy_uuid}/admin/transactions/:
     get:
       operationId: api_v2_subsidies_admin_transactions_list
-      description: |-
+      description: >-
         A list view that is accessible only to admins
+
         of the related subsidy's enterprise customer.  It lists all transactions
-        for the requested subsidy, or a subset thereof, depending on the query parameters.
 
-        Note that `TransactionListPaginator`, the pagination_class for this view,
+        for the requested subsidy, or a subset thereof, depending on the query
+        parameters.
+
+
+        Note that `TransactionListPaginator`, the pagination_class for this
+        view,
+
         allows for the inclusion of an `include_aggregates` query parameter,
-        which if set to `true`, will include an `aggregates` key in the response
-        describing the total quantity of transactions returned in the response `results`.
-      parameters:
-      - in: query
-        name: content_key
-        schema:
-          type: string
-        description: The globally unique content identifier.  Joinable with ContentMetadata.content_key
-          in enterprise-catalog.
-      - in: query
-        name: lms_user_id
-        schema:
-          type: integer
-        description: The id of the Open edX LMS user record with which this Transaction
-          is associated.
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      - in: query
-        name: state
-        schema:
-          type: array
-          items:
-            type: string
-            enum:
-            - committed
-            - created
-            - failed
-            - pending
-        description: |-
-          The current state of the Transaction. One of: ['Created', 'Pending', 'Committed', 'Failed']
 
-          * `created` - Created
-          * `pending` - Pending
-          * `committed` - Committed
-          * `failed` - Failed
-        explode: true
-        style: form
-      - in: query
-        name: subsidy_access_policy_uuid
-        schema:
-          type: string
-          format: uuid
-        description: A reference to the subsidy access policy which was used to create
-          a transaction for the content.
-      - in: path
-        name: subsidy_uuid
-        schema:
-          type: string
-        required: true
+        which if set to `true`, will include an `aggregates` key in the response
+
+        describing the total quantity of transactions returned in the response
+        `results`.
+      parameters:
+        - in: query
+          name: content_key
+          schema:
+            type: string
+          description: >-
+            The globally unique content identifier.  Joinable with
+            ContentMetadata.content_key in enterprise-catalog.
+        - in: query
+          name: lms_user_id
+          schema:
+            type: integer
+          description: >-
+            The id of the Open edX LMS user record with which this Transaction
+            is associated.
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+        - in: query
+          name: state
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - committed
+                - created
+                - failed
+                - pending
+          description: >-
+            The current state of the Transaction. One of: ['Created', 'Pending',
+            'Committed', 'Failed']
+
+
+            * `created` - Created
+
+            * `pending` - Pending
+
+            * `committed` - Committed
+
+            * `failed` - Failed
+          explode: true
+          style: form
+        - in: query
+          name: subsidy_access_policy_uuid
+          schema:
+            type: string
+            format: uuid
+          description: >-
+            A reference to the subsidy access policy which was used to create a
+            transaction for the content.
+        - in: path
+          name: subsidy_uuid
+          schema:
+            type: string
+          required: true
       tags:
-      - transactions
+        - transactions
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -810,30 +860,49 @@ paths:
           description: ''
     post:
       operationId: api_v2_subsidies_admin_transactions_create
-      description: |-
+      description: >-
         A create view that is accessible only to operators of the system.
 
-        It creates (or just gets, if a matching Transaction is found with same ledger and idempotency_key) a
-        transaction via the `Subsidy.redeem()` method.  Normally, the logic of this view
-        is responsible for determining the price of the requested content key, with which
+
+        It creates (or just gets, if a matching Transaction is found with same
+        ledger and idempotency_key) a
+
+        transaction via the `Subsidy.redeem()` method.  Normally, the logic of
+        this view
+
+        is responsible for determining the price of the requested content key,
+        with which
+
         the redeemed transaction's quantity will be valued.
 
-        Note that, under some circumstances (for example, assigned learner content), it is
-        appropriate and allowable for the *caller* of this view to request a specific price
-        at which a redeemed transaction should occur.  In these circumstances, this service
-        still does some validation of the requested price to ensure that it falls within
-        a reasonable interval around the *true* price of the related content key. See:
+
+        Note that, under some circumstances (for example, assigned learner
+        content), it is
+
+        appropriate and allowable for the *caller* of this view to request a
+        specific price
+
+        at which a redeemed transaction should occur.  In these circumstances,
+        this service
+
+        still does some validation of the requested price to ensure that it
+        falls within
+
+        a reasonable interval around the *true* price of the related content
+        key. See:
+
 
         https://github.com/openedx/enterprise-access/blob/main/docs/decisions/0012-assignment-based-policies.rst
+
         https://github.com/openedx/enterprise-access/blob/main/docs/decisions/0014-assignment-price-validation.rst
       parameters:
-      - in: path
-        name: subsidy_uuid
-        schema:
-          type: string
-        required: true
+        - in: path
+          name: subsidy_uuid
+          schema:
+            type: string
+          required: true
       tags:
-      - transactions
+        - transactions
       requestBody:
         content:
           application/json:
@@ -847,7 +916,7 @@ paths:
               $ref: '#/components/schemas/TransactionCreationRequest'
         required: true
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -869,7 +938,7 @@ paths:
                 additionalProperties: {}
                 description: Unspecified response body
           description: ''
-        '429':
+        '422':
           content:
             application/json:
               schema:
@@ -877,7 +946,7 @@ paths:
                 additionalProperties: {}
                 description: Unspecified response body
           description: ''
-        '422':
+        '429':
           content:
             application/json:
               schema:
@@ -888,31 +957,33 @@ paths:
   /api/v2/subsidies/{subsidy_uuid}/transactions/:
     get:
       operationId: api_v2_subsidies_transactions_list
-      description: |-
-        Lists all transactions in the given ``subsidy_uuid`` with an ``lms_user_id``
+      description: >-
+        Lists all transactions in the given ``subsidy_uuid`` with an
+        ``lms_user_id``
+
         value equal to the requesting user's lms user id.
       parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - in: path
-        name: subsidy_uuid
-        schema:
-          type: string
-        required: true
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - in: path
+          name: subsidy_uuid
+          schema:
+            type: string
+          required: true
       tags:
-      - transactions
+        - transactions
       security:
-      - cookieAuth: []
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -941,11 +1012,11 @@ paths:
       operationId: csrf_api_v1_token_retrieve
       description: GET /csrf/api/v1/token
       tags:
-      - csrf
+        - csrf
       security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
+        - cookieAuth: []
+        - basicAuth: []
+        - {}
       responses:
         '200':
           description: No response body
@@ -974,17 +1045,19 @@ components:
           items:
             $ref: '#/components/schemas/Transaction'
           nullable: true
-          description: All existing transactions for the requested combination of
-            (subsidy, access policy, lms_user_id, content_key).  This includes active
-            (committed without reversal), reversed, failed, pending, or created transactions.
+          description: >-
+            All existing transactions for the requested combination of (subsidy,
+            access policy, lms_user_id, content_key).  This includes active
+            (committed without reversal), reversed, failed, pending, or created
+            transactions.
         active:
           type: boolean
           default: false
           description: Whether the subsidy is considered `is_active` and not expired.
     DefaultRevenueCategoryEnum:
       enum:
-      - bulk-enrollment-prepay
-      - partner-no-rev-prepay
+        - bulk-enrollment-prepay
+        - partner-no-rev-prepay
       type: string
       description: |-
         * `bulk-enrollment-prepay` - bulk-enrollment-prepay
@@ -995,32 +1068,35 @@ components:
       properties:
         desired_deposit_quantity:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 9223372036854776000
           minimum: 1
           format: int64
           description: How many units to deposit via related transaction.
         sales_contract_reference_id:
           type: string
           nullable: true
-          description: ('The reference ID for the specific sales contract which beget
-            this deposit. The source system which ', 'stores the sales object is identified
-            by the sales_contract_reference_provider field.')
+          description: >-
+            ('The reference ID for the specific sales contract which beget this
+            deposit. The source system which ', 'stores the sales object is
+            identified by the sales_contract_reference_provider field.')
           maxLength: 255
         sales_contract_reference_provider:
           type: string
           description: A unique slug for this sales contract reference provider.
         idempotency_key:
           type: string
-          description: An optional idempotency key that a client may want to associate
-            with the related Transaction instance to be created.
+          description: >-
+            An optional idempotency key that a client may want to associate with
+            the related Transaction instance to be created.
         metadata:
           nullable: true
-          description: Any additional metadata that a client may want to associate
-            with the related Transaction instance to be created.
+          description: >-
+            Any additional metadata that a client may want to associate with the
+            related Transaction instance to be created.
       required:
-      - desired_deposit_quantity
-      - sales_contract_reference_id
-      - sales_contract_reference_provider
+        - desired_deposit_quantity
+        - sales_contract_reference_id
+        - sales_contract_reference_provider
     Exception:
       type: object
       description: Read-only serializer for responding with data about errors.
@@ -1029,12 +1105,12 @@ components:
           type: string
           description: A description of the reason for the error.
       required:
-      - detail
+        - detail
     PaginatedSubsidyList:
       type: object
       required:
-      - count
-      - results
+        - count
+        - results
       properties:
         count:
           type: integer
@@ -1056,8 +1132,8 @@ components:
     PaginatedTransactionList:
       type: object
       required:
-      - count
-      - results
+        - count
+        - results
       properties:
         count:
           type: integer
@@ -1083,7 +1159,8 @@ components:
         title:
           type: string
           nullable: true
-          description: A human-readable title decided by the staff that is provisioning
+          description: >-
+            A human-readable title decided by the staff that is provisioning
             this Subisdy for the customer.
           maxLength: 255
         enterprise_customer_uuid:
@@ -1094,57 +1171,73 @@ components:
           type: string
           format: date-time
           nullable: true
-          description: The datetime when this Subsidy is considered active.  If null,
-            this Subsidy is considered inactive.
+          description: >-
+            The datetime when this Subsidy is considered active.  If null, this
+            Subsidy is considered inactive.
         expiration_datetime:
           type: string
           format: date-time
           nullable: true
-          description: The datetime when this Subsidy is considered expired.  If null,
-            this Subsidy is considered active.
+          description: >-
+            The datetime when this Subsidy is considered expired.  If null, this
+            Subsidy is considered active.
         unit:
           allOf:
-          - $ref: '#/components/schemas/UnitEnum'
-          description: |-
-            Unit of currency used for all values of quantity for this Subsidy and associated transactions.
+            - $ref: '#/components/schemas/UnitEnum'
+          description: >-
+            Unit of currency used for all values of quantity for this Subsidy
+            and associated transactions.
+
 
             * `usd_cents` - U.S. Dollar (Cents)
+
             * `seats` - Seats in a course
         reference_id:
           type: string
           nullable: true
-          description: Identifier of the upstream Salesforce object that represents
-            the deal that led to the creation of this Subsidy.
+          description: >-
+            Identifier of the upstream Salesforce object that represents the
+            deal that led to the creation of this Subsidy.
           maxLength: 255
         reference_type:
           allOf:
-          - $ref: '#/components/schemas/ReferenceTypeEnum'
-          description: |-
-            The type of object identified by the <code>reference_id</code> field.  Likely to be a type of Salesforce object.
+            - $ref: '#/components/schemas/ReferenceTypeEnum'
+          description: >-
+            The type of object identified by the <code>reference_id</code>
+            field.  Likely to be a type of Salesforce object.
 
-            * `salesforce_opportunity_line_item` - Salesforce OpportunityLineItem (i.e. Opportunity Product)
+
+            * `salesforce_opportunity_line_item` - Salesforce
+            OpportunityLineItem (i.e. Opportunity Product)
         internal_only:
           type: boolean
-          description: If set, this subsidy will not be customer facing, nor have
-            any influence on enterprise customers.
+          description: >-
+            If set, this subsidy will not be customer facing, nor have any
+            influence on enterprise customers.
         revenue_category:
           allOf:
-          - $ref: '#/components/schemas/RevenueCategoryEnum'
-          description: |-
-            Control how revenue is recognized for subsidized enrollments.  In spirit, this is equivalent to the "Cataloge Category" for Coupons.  This field is only used downstream analytics and does not change any business logic.
+            - $ref: '#/components/schemas/RevenueCategoryEnum'
+          description: >-
+            Control how revenue is recognized for subsidized enrollments.  In
+            spirit, this is equivalent to the "Cataloge Category" for Coupons. 
+            This field is only used downstream analytics and does not change any
+            business logic.
+
 
             * `bulk-enrollment-prepay` - bulk-enrollment-prepay
+
             * `partner-no-rev-prepay` - partner-no-rev-prepay
     ReferenceTypeEnum:
       enum:
-      - salesforce_opportunity_line_item
+        - salesforce_opportunity_line_item
       type: string
-      description: '* `salesforce_opportunity_line_item` - Salesforce OpportunityLineItem
-        (i.e. Opportunity Product)'
+      description: >-
+        * `salesforce_opportunity_line_item` - Salesforce OpportunityLineItem
+        (i.e. Opportunity Product)
     RevenueCategoryEnum:
       enum:
-      - bulk-enrollment-prepay
-      - partner-no-rev-prepay
+        - bulk-enrollment-prepay
+        - partner-no-rev-prepay
       type: string
       description: |-
         * `bulk-enrollment-prepay` - bulk-enrollment-prepay
@@ -1159,38 +1252,47 @@ components:
           readOnly: true
         state:
           allOf:
-          - $ref: '#/components/schemas/StateEnum'
-          description: |-
-            The current state of the Transaction. One of: ['Created', 'Pending', 'Committed', 'Failed']
+            - $ref: '#/components/schemas/StateEnum'
+          description: >-
+            The current state of the Transaction. One of: ['Created', 'Pending',
+            'Committed', 'Failed']
+
 
             * `created` - Created
+
             * `pending` - Pending
+
             * `committed` - Committed
+
             * `failed` - Failed
         idempotency_key:
           type: string
-          description: An idempotency key is a unique value generated by the client
-            of the Ledger API which the Ledger and Transaction APIs use to recognize
-            subsequent retries of the same redemption (i.e. a Transaction that leads
-            to the fulfillment of an enrollment or entitlement for a particular user
-            id in a particular content key).We suggest incorporating V4 UUIDs along
-            with sufficiently unique or random values representing the desired redemption
-            to avoid unintended collisions.In particular, a Transaction's idempotency_key
-            should incorporate it's corresponding ledger's idempotency_key.Utility
-            methods are provided in the ``utils.py`` module to help clients generate
-            appropriate idempotency keys.
+          description: >-
+            An idempotency key is a unique value generated by the client of the
+            Ledger API which the Ledger and Transaction APIs use to recognize
+            subsequent retries of the same redemption (i.e. a Transaction that
+            leads to the fulfillment of an enrollment or entitlement for a
+            particular user id in a particular content key).We suggest
+            incorporating V4 UUIDs along with sufficiently unique or random
+            values representing the desired redemption to avoid unintended
+            collisions.In particular, a Transaction's idempotency_key should
+            incorporate it's corresponding ledger's idempotency_key.Utility
+            methods are provided in the ``utils.py`` module to help clients
+            generate appropriate idempotency keys.
           maxLength: 255
         quantity:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
+          maximum: 9223372036854776000
+          minimum: -9223372036854776000
           format: int64
-          description: How many units (as defined in the associated Ledger instance)
-            this Transaction represents.
+          description: >-
+            How many units (as defined in the associated Ledger instance) this
+            Transaction represents.
         metadata:
           readOnly: true
-          description: Any additional metadata that a client may want to associate
-            with this Reversal instance.
+          description: >-
+            Any additional metadata that a client may want to associate with
+            this Reversal instance.
         created:
           type: string
           format: date-time
@@ -1200,18 +1302,18 @@ components:
           format: date-time
           readOnly: true
       required:
-      - created
-      - idempotency_key
-      - metadata
-      - modified
-      - quantity
-      - uuid
+        - created
+        - idempotency_key
+        - metadata
+        - modified
+        - quantity
+        - uuid
     StateEnum:
       enum:
-      - created
-      - pending
-      - committed
-      - failed
+        - created
+        - pending
+        - committed
+        - failed
       type: string
       description: |-
         * `created` - Created
@@ -1229,7 +1331,8 @@ components:
         title:
           type: string
           nullable: true
-          description: A human-readable title decided by the staff that is provisioning
+          description: >-
+            A human-readable title decided by the staff that is provisioning
             this Subisdy for the customer.
           maxLength: 255
         enterprise_customer_uuid:
@@ -1240,35 +1343,44 @@ components:
           type: string
           format: date-time
           nullable: true
-          description: The datetime when this Subsidy is considered active.  If null,
-            this Subsidy is considered inactive.
+          description: >-
+            The datetime when this Subsidy is considered active.  If null, this
+            Subsidy is considered inactive.
         expiration_datetime:
           type: string
           format: date-time
           nullable: true
-          description: The datetime when this Subsidy is considered expired.  If null,
-            this Subsidy is considered active.
+          description: >-
+            The datetime when this Subsidy is considered expired.  If null, this
+            Subsidy is considered active.
         unit:
           allOf:
-          - $ref: '#/components/schemas/UnitEnum'
-          description: |-
-            Unit of currency used for all values of quantity for this Subsidy and associated transactions.
+            - $ref: '#/components/schemas/UnitEnum'
+          description: >-
+            Unit of currency used for all values of quantity for this Subsidy
+            and associated transactions.
+
 
             * `usd_cents` - U.S. Dollar (Cents)
+
             * `seats` - Seats in a course
         reference_id:
           type: string
           nullable: true
-          description: Identifier of the upstream Salesforce object that represents
-            the deal that led to the creation of this Subsidy.
+          description: >-
+            Identifier of the upstream Salesforce object that represents the
+            deal that led to the creation of this Subsidy.
           maxLength: 255
         reference_type:
           allOf:
-          - $ref: '#/components/schemas/ReferenceTypeEnum'
-          description: |-
-            The type of object identified by the <code>reference_id</code> field.  Likely to be a type of Salesforce object.
+            - $ref: '#/components/schemas/ReferenceTypeEnum'
+          description: >-
+            The type of object identified by the <code>reference_id</code>
+            field.  Likely to be a type of Salesforce object.
 
-            * `salesforce_opportunity_line_item` - Salesforce OpportunityLineItem (i.e. Opportunity Product)
+
+            * `salesforce_opportunity_line_item` - Salesforce
+            OpportunityLineItem (i.e. Opportunity Product)
         current_balance:
           type: integer
           readOnly: true
@@ -1276,19 +1388,26 @@ components:
         starting_balance:
           type: integer
           readOnly: true
-          description: The positive balance this Subidy will be initially provisioned
-            to start with.
+          description: >-
+            The positive balance this Subidy will be initially provisioned to
+            start with.
         internal_only:
           type: boolean
-          description: If set, this subsidy will not be customer facing, nor have
-            any influence on enterprise customers.
+          description: >-
+            If set, this subsidy will not be customer facing, nor have any
+            influence on enterprise customers.
         revenue_category:
           allOf:
-          - $ref: '#/components/schemas/RevenueCategoryEnum'
-          description: |-
-            Control how revenue is recognized for subsidized enrollments.  In spirit, this is equivalent to the "Cataloge Category" for Coupons.  This field is only used downstream analytics and does not change any business logic.
+            - $ref: '#/components/schemas/RevenueCategoryEnum'
+          description: >-
+            Control how revenue is recognized for subsidized enrollments.  In
+            spirit, this is equivalent to the "Cataloge Category" for Coupons. 
+            This field is only used downstream analytics and does not change any
+            business logic.
+
 
             * `bulk-enrollment-prepay` - bulk-enrollment-prepay
+
             * `partner-no-rev-prepay` - partner-no-rev-prepay
         is_active:
           type: boolean
@@ -1296,8 +1415,9 @@ components:
           description: Whether this subsidy is currently active.
         total_deposits:
           type: integer
-          description: The aggregate of the initial balance plus all adjustments made
-            on the subsidy in usd cents
+          description: >-
+            The aggregate of the initial balance plus all adjustments made on
+            the subsidy in usd cents
         created:
           type: string
           format: date-time
@@ -1307,26 +1427,28 @@ components:
           format: date-time
           readOnly: true
       required:
-      - created
-      - current_balance
-      - enterprise_customer_uuid
-      - is_active
-      - modified
-      - starting_balance
-      - total_deposits
-      - uuid
+        - created
+        - current_balance
+        - enterprise_customer_uuid
+        - is_active
+        - modified
+        - starting_balance
+        - total_deposits
+        - uuid
     SubsidyCreationRequest:
       type: object
       description: Serializer for creating a subsidy request
       properties:
         reference_id:
           type: string
-          description: Identifier of the upstream Salesforce object that represents
-            the deal that led to the creation of this Subsidy. For test subsidy records,
-            see the note below about ``default_internal_only``.
+          description: >-
+            Identifier of the upstream Salesforce object that represents the
+            deal that led to the creation of this Subsidy. For test subsidy
+            records, see the note below about ``default_internal_only``.
         default_title:
           type: string
-          description: A human-readable title decided by the staff that is provisioning
+          description: >-
+            A human-readable title decided by the staff that is provisioning
             this Subisdy for the customer.
         default_enterprise_customer_uuid:
           type: string
@@ -1335,52 +1457,64 @@ components:
         default_active_datetime:
           type: string
           format: date-time
-          description: The datetime when this Subsidy is considered active.  If null,
-            this Subsidy is considered active.
+          description: >-
+            The datetime when this Subsidy is considered active.  If null, this
+            Subsidy is considered active.
         default_expiration_datetime:
           type: string
           format: date-time
-          description: The datetime when this Subsidy is considered expired.  If null,
-            this Subsidy is considered active.
+          description: >-
+            The datetime when this Subsidy is considered expired.  If null, this
+            Subsidy is considered active.
         default_unit:
           type: string
-          description: Unit of currency used for all values of quantity for this Subsidy
+          description: >-
+            Unit of currency used for all values of quantity for this Subsidy
             and associated transactions.
         default_starting_balance:
           type: integer
-          description: The positive balance this Subidy will be initially provisioned
-            to start with.
+          description: >-
+            The positive balance this Subidy will be initially provisioned to
+            start with.
         default_revenue_category:
           allOf:
-          - $ref: '#/components/schemas/DefaultRevenueCategoryEnum'
-          description: |-
-            Control how revenue is recognized for subsidized enrollments.  In spirit, this is equivalent to the "Cataloge Category" for Coupons.  This field is only used downstream analytics and does not change any business logic.
+            - $ref: '#/components/schemas/DefaultRevenueCategoryEnum'
+          description: >-
+            Control how revenue is recognized for subsidized enrollments.  In
+            spirit, this is equivalent to the "Cataloge Category" for Coupons. 
+            This field is only used downstream analytics and does not change any
+            business logic.
+
 
             * `bulk-enrollment-prepay` - bulk-enrollment-prepay
+
             * `partner-no-rev-prepay` - partner-no-rev-prepay
         default_internal_only:
           type: boolean
-          description: If set, this subsidy will not be customer facing, nor have
-            any influence on enterprise customers.If ``default_internal_only`` is
-            False and an existing subsidy is found with the given ``reference_id``,
-            all `default_*` arguments are ignored and this view returns that existing
-            record. However, when ``default_internal_only`` is True, this view will
-            simply create a new record, regardless of any existing records with the
-            same ``reference_id`` (we assume that the reference_id is essentially
+          description: >-
+            If set, this subsidy will not be customer facing, nor have any
+            influence on enterprise customers.If ``default_internal_only`` is
+            False and an existing subsidy is found with the given
+            ``reference_id``, all `default_*` arguments are ignored and this
+            view returns that existing record. However, when
+            ``default_internal_only`` is True, this view will simply create a
+            new record, regardless of any existing records with the same
+            ``reference_id`` (we assume that the reference_id is essentially
             meaningless for test subsidy records).
       required:
-      - default_active_datetime
-      - default_enterprise_customer_uuid
-      - default_expiration_datetime
-      - default_internal_only
-      - default_revenue_category
-      - default_starting_balance
-      - default_title
-      - default_unit
-      - reference_id
+        - default_active_datetime
+        - default_enterprise_customer_uuid
+        - default_expiration_datetime
+        - default_internal_only
+        - default_revenue_category
+        - default_starting_balance
+        - default_title
+        - default_unit
+        - reference_id
     SubsidyLearnerAggregate:
       type: object
-      description: Serializer for providing responses to queries about aggregate enrollment
+      description: >-
+        Serializer for providing responses to queries about aggregate enrollment
         data for a particular subsidy
       properties:
         lms_user_id:
@@ -1390,8 +1524,8 @@ components:
           type: integer
           description: Number of enrollments found for the user.
       required:
-      - lms_user_id
-      - total
+        - lms_user_id
+        - total
     SubsidyUpdateRequest:
       type: object
       description: Serializer for updating a subsidy
@@ -1399,7 +1533,8 @@ components:
         title:
           type: string
           nullable: true
-          description: A human-readable title decided by the staff that is provisioning
+          description: >-
+            A human-readable title decided by the staff that is provisioning
             this Subisdy for the customer.
           maxLength: 255
         enterprise_customer_uuid:
@@ -1410,55 +1545,72 @@ components:
           type: string
           format: date-time
           nullable: true
-          description: The datetime when this Subsidy is considered active.  If null,
-            this Subsidy is considered inactive.
+          description: >-
+            The datetime when this Subsidy is considered active.  If null, this
+            Subsidy is considered inactive.
         expiration_datetime:
           type: string
           format: date-time
           nullable: true
-          description: The datetime when this Subsidy is considered expired.  If null,
-            this Subsidy is considered active.
+          description: >-
+            The datetime when this Subsidy is considered expired.  If null, this
+            Subsidy is considered active.
         unit:
           allOf:
-          - $ref: '#/components/schemas/UnitEnum'
-          description: |-
-            Unit of currency used for all values of quantity for this Subsidy and associated transactions.
+            - $ref: '#/components/schemas/UnitEnum'
+          description: >-
+            Unit of currency used for all values of quantity for this Subsidy
+            and associated transactions.
+
 
             * `usd_cents` - U.S. Dollar (Cents)
+
             * `seats` - Seats in a course
         reference_id:
           type: string
           nullable: true
-          description: Identifier of the upstream Salesforce object that represents
-            the deal that led to the creation of this Subsidy.
+          description: >-
+            Identifier of the upstream Salesforce object that represents the
+            deal that led to the creation of this Subsidy.
           maxLength: 255
         reference_type:
           allOf:
-          - $ref: '#/components/schemas/ReferenceTypeEnum'
-          description: |-
-            The type of object identified by the <code>reference_id</code> field.  Likely to be a type of Salesforce object.
+            - $ref: '#/components/schemas/ReferenceTypeEnum'
+          description: >-
+            The type of object identified by the <code>reference_id</code>
+            field.  Likely to be a type of Salesforce object.
 
-            * `salesforce_opportunity_line_item` - Salesforce OpportunityLineItem (i.e. Opportunity Product)
+
+            * `salesforce_opportunity_line_item` - Salesforce
+            OpportunityLineItem (i.e. Opportunity Product)
         internal_only:
           type: boolean
-          description: If set, this subsidy will not be customer facing, nor have
-            any influence on enterprise customers.
+          description: >-
+            If set, this subsidy will not be customer facing, nor have any
+            influence on enterprise customers.
         revenue_category:
           allOf:
-          - $ref: '#/components/schemas/RevenueCategoryEnum'
-          description: |-
-            Control how revenue is recognized for subsidized enrollments.  In spirit, this is equivalent to the "Cataloge Category" for Coupons.  This field is only used downstream analytics and does not change any business logic.
+            - $ref: '#/components/schemas/RevenueCategoryEnum'
+          description: >-
+            Control how revenue is recognized for subsidized enrollments.  In
+            spirit, this is equivalent to the "Cataloge Category" for Coupons. 
+            This field is only used downstream analytics and does not change any
+            business logic.
+
 
             * `bulk-enrollment-prepay` - bulk-enrollment-prepay
+
             * `partner-no-rev-prepay` - partner-no-rev-prepay
       required:
-      - enterprise_customer_uuid
+        - enterprise_customer_uuid
     Transaction:
       type: object
-      description: |-
+      description: >-
         Serializer for the `Transaction` model.
 
-        When using this serializer on a queryset, it can help with performance to select_related reversals:
+
+        When using this serializer on a queryset, it can help with performance
+        to select_related reversals:
 
           Transaction.objects.select_related("reversal")
       properties:
@@ -1468,90 +1620,106 @@ components:
           readOnly: true
         state:
           allOf:
-          - $ref: '#/components/schemas/StateEnum'
-          description: |-
-            The current state of the Transaction. One of: ['Created', 'Pending', 'Committed', 'Failed']
+            - $ref: '#/components/schemas/StateEnum'
+          description: >-
+            The current state of the Transaction. One of: ['Created', 'Pending',
+            'Committed', 'Failed']
+
 
             * `created` - Created
+
             * `pending` - Pending
+
             * `committed` - Committed
+
             * `failed` - Failed
         idempotency_key:
           type: string
-          description: An idempotency key is a unique value generated by the client
-            of the Ledger API which the Ledger and Transaction APIs use to recognize
-            subsequent retries of the same redemption (i.e. a Transaction that leads
-            to the fulfillment of an enrollment or entitlement for a particular user
-            id in a particular content key).We suggest incorporating V4 UUIDs along
-            with sufficiently unique or random values representing the desired redemption
-            to avoid unintended collisions.In particular, a Transaction's idempotency_key
-            should incorporate it's corresponding ledger's idempotency_key.Utility
-            methods are provided in the ``utils.py`` module to help clients generate
-            appropriate idempotency keys.
+          description: >-
+            An idempotency key is a unique value generated by the client of the
+            Ledger API which the Ledger and Transaction APIs use to recognize
+            subsequent retries of the same redemption (i.e. a Transaction that
+            leads to the fulfillment of an enrollment or entitlement for a
+            particular user id in a particular content key).We suggest
+            incorporating V4 UUIDs along with sufficiently unique or random
+            values representing the desired redemption to avoid unintended
+            collisions.In particular, a Transaction's idempotency_key should
+            incorporate it's corresponding ledger's idempotency_key.Utility
+            methods are provided in the ``utils.py`` module to help clients
+            generate appropriate idempotency keys.
           maxLength: 255
         lms_user_id:
           type: integer
           maximum: 2147483647
           minimum: -2147483648
           nullable: true
-          description: The id of the Open edX LMS user record with which this Transaction
+          description: >-
+            The id of the Open edX LMS user record with which this Transaction
             is associated.
         lms_user_email:
           type: string
           nullable: true
-          description: The email of the Open edX LMS user record with which this Transaction
-            is associated.The email is captured at the time the Transaction is created
-            and may not be up to date.
+          description: >-
+            The email of the Open edX LMS user record with which this
+            Transaction is associated.The email is captured at the time the
+            Transaction is created and may not be up to date.
           maxLength: 255
         content_key:
           type: string
           nullable: true
-          description: The globally unique content identifier.  Joinable with ContentMetadata.content_key
-            in enterprise-catalog.
+          description: >-
+            The globally unique content identifier.  Joinable with
+            ContentMetadata.content_key in enterprise-catalog.
           maxLength: 255
         parent_content_key:
           type: string
           nullable: true
-          description: Identifier for the parent of the content_key.  Also should
-            be joinable with ContentMetadata.content_key in enterprise-catalog. In
+          description: >-
+            Identifier for the parent of the content_key.  Also should be
+            joinable with ContentMetadata.content_key in enterprise-catalog. In
             practice, this is the course key corresponding to a course run key.
           maxLength: 255
         content_title:
           type: string
           nullable: true
-          description: The title of the content associated with this Transaction.The
-            title is captured at the time the Transaction is created and may not be
-            up to date.
+          description: >-
+            The title of the content associated with this Transaction.The title
+            is captured at the time the Transaction is created and may not be up
+            to date.
           maxLength: 255
         quantity:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
+          maximum: 9223372036854776000
+          minimum: -9223372036854776000
           format: int64
-          description: How many units (as defined in the associated Ledger instance)
-            this Transaction represents.
+          description: >-
+            How many units (as defined in the associated Ledger instance) this
+            Transaction represents.
         unit:
           allOf:
-          - $ref: '#/components/schemas/UnitEnum'
+            - $ref: '#/components/schemas/UnitEnum'
           description: The unit in which this transaction's quantity is denominated.
           readOnly: true
         fulfillment_identifier:
           type: string
           nullable: true
-          description: The UUID identifier of the subsidized enrollment record for
-            a learner generated durning the enrollmentcall made to enterprise/edx
+          description: >-
+            The UUID identifier of the subsidized enrollment record for a
+            learner generated durning the enrollmentcall made to enterprise/edx
             platform e.g. a LearnerCreditEnterpriseCourseEnrollment UUID.
           maxLength: 255
         subsidy_access_policy_uuid:
           type: string
           format: uuid
           nullable: true
-          description: A reference to the subsidy access policy which was used to
-            create a transaction for the content.
+          description: >-
+            A reference to the subsidy access policy which was used to create a
+            transaction for the content.
         metadata:
           readOnly: true
-          description: Any additional metadata that a client may want to associate
-            with this Transaction instance.
+          description: >-
+            Any additional metadata that a client may want to associate with
+            this Transaction instance.
         created:
           type: string
           format: date-time
@@ -1562,14 +1730,15 @@ components:
           readOnly: true
         reversal:
           allOf:
-          - $ref: '#/components/schemas/Reversal'
+            - $ref: '#/components/schemas/Reversal'
           readOnly: true
         external_reference:
           type: array
           items:
             type: string
-            description: The identifier for the external reference operation. This
-              is typically the name of the system that the reference is associated
+            description: >-
+              The identifier for the external reference operation. This is
+              typically the name of the system that the reference is associated
               with.
         transaction_status_api_url:
           type: string
@@ -1580,75 +1749,83 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: The URL to the courseware page for this transaction's content_key.The
-            courseware_url today only supports OCM courses, and should not be used
-            for external, non-OCM course types.
+          description: >-
+            The URL to the courseware page for this transaction's
+            content_key.The courseware_url today only supports OCM courses, and
+            should not be used for external, non-OCM course types.
       required:
-      - courseware_url
-      - created
-      - external_reference
-      - idempotency_key
-      - metadata
-      - modified
-      - quantity
-      - reversal
-      - transaction_status_api_url
-      - unit
-      - uuid
+        - courseware_url
+        - created
+        - external_reference
+        - idempotency_key
+        - metadata
+        - modified
+        - quantity
+        - reversal
+        - transaction_status_api_url
+        - unit
+        - uuid
     TransactionCreationRequest:
       type: object
       description: Serializer for creating instances of the `Transaction` model.
       properties:
         idempotency_key:
           type: string
-          description: An idempotency key is a unique value generated by the client
-            of the Ledger API which the Ledger and Transaction APIs use to recognize
-            subsequent retries of the same redemption (i.e. a Transaction that leads
-            to the fulfillment of an enrollment or entitlement for a particular user
-            id in a particular content key).We suggest incorporating V4 UUIDs along
-            with sufficiently unique or random values representing the desired redemption
-            to avoid unintended collisions.In particular, a Transaction's idempotency_key
-            should incorporate it's corresponding ledger's idempotency_key.Utility
-            methods are provided in the ``utils.py`` module to help clients generate
-            appropriate idempotency keys.
+          description: >-
+            An idempotency key is a unique value generated by the client of the
+            Ledger API which the Ledger and Transaction APIs use to recognize
+            subsequent retries of the same redemption (i.e. a Transaction that
+            leads to the fulfillment of an enrollment or entitlement for a
+            particular user id in a particular content key).We suggest
+            incorporating V4 UUIDs along with sufficiently unique or random
+            values representing the desired redemption to avoid unintended
+            collisions.In particular, a Transaction's idempotency_key should
+            incorporate it's corresponding ledger's idempotency_key.Utility
+            methods are provided in the ``utils.py`` module to help clients
+            generate appropriate idempotency keys.
           maxLength: 255
         lms_user_id:
           type: integer
           maximum: 2147483647
           minimum: -2147483648
           nullable: true
-          description: The id of the Open edX LMS user record with which this Transaction
+          description: >-
+            The id of the Open edX LMS user record with which this Transaction
             is associated.
         content_key:
           type: string
           nullable: true
-          description: The globally unique content identifier.  Joinable with ContentMetadata.content_key
-            in enterprise-catalog.
+          description: >-
+            The globally unique content identifier.  Joinable with
+            ContentMetadata.content_key in enterprise-catalog.
           maxLength: 255
         subsidy_access_policy_uuid:
           type: string
           format: uuid
           nullable: true
-          description: A reference to the subsidy access policy which was used to
-            create a transaction for the content.
+          description: >-
+            A reference to the subsidy access policy which was used to create a
+            transaction for the content.
         metadata:
           nullable: true
-          description: Any additional metadata that a client may want to associate
-            with this Transaction instance.
+          description: >-
+            Any additional metadata that a client may want to associate with
+            this Transaction instance.
         requested_price_cents:
           type: integer
           minimum: 0
           nullable: true
-          description: The price, in USD cents, at which the caller requests the redemption
+          description: >-
+            The price, in USD cents, at which the caller requests the redemption
             be made. Must be >= 0.
       required:
-      - content_key
-      - lms_user_id
-      - subsidy_access_policy_uuid
+        - content_key
+        - lms_user_id
+        - subsidy_access_policy_uuid
     UnitEnum:
       enum:
-      - usd_cents
-      - seats
+        - usd_cents
+        - seats
       type: string
       description: |-
         * `usd_cents` - U.S. Dollar (Cents)
@@ -1662,10 +1839,13 @@ components:
       in: cookie
       name: enterprise_subsidy_sessionid
 tags:
-- name: subsidy
-  description: <h3>All endpoints that query or command directly against Subsidy records.</h3>
-- name: transactions
-  description: <h3>All endpoints that query or command directly against Transaction
-    records</h3>.
-- name: api
-  description: <h3>All endpoints not tagged by anything else.</h3>
+  - name: subsidy
+    description: >-
+      <h3>All endpoints that query or command directly against Subsidy
+      records.</h3>
+  - name: transactions
+    description: >-
+      <h3>All endpoints that query or command directly against Transaction
+      records</h3>.
+  - name: api
+    description: <h3>All endpoints not tagged by anything else.</h3>
