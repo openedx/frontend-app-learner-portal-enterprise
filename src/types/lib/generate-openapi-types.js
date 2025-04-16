@@ -16,7 +16,7 @@ const OPENAPI_SCHEMA_URLS = {
 };
 
 /**
- * Downloads OpenAPI schemas from configured services.
+ * Downloads Open API schemas from configured services.
  */
 async function downloadOpenApiSchemas() {
   const downloadTasks = Object.entries(OPENAPI_SCHEMA_URLS).map(async ([serviceName, url]) => {
