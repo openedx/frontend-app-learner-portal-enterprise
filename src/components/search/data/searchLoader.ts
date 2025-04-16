@@ -44,7 +44,13 @@ const makeSearchLoader: MakeRouteLoaderFunctionWithQueryClient = function makeSe
 
     const academiesListQuery = queryAcademiesList(enterpriseCustomer.uuid);
 
-    const searchData = [queryClient.ensureQueryData(academiesListQuery)];
+    const searchData = [
+      safeEnsureQueryData({
+        queryClient,
+        query: academiesListQuery,
+        fallbackData: [],
+      }),
+    ];
     if (getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
       searchData.push(
         safeEnsureQueryData({
