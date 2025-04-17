@@ -14,12 +14,15 @@ import { ELLIPSIS_STR } from '../course/data/constants';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { MAX_VISIBLE_SKILLS_COURSE, SKILL_NAME_CUTOFF_LIMIT } from './constants';
 import { useEnterpriseCustomer } from '../app/data';
+import { useSelectedSkillsAndJobSkills } from './data/hooks';
 
 const CourseCard = ({
-  isLoading, course, allSkills,
+  isLoading, course,
 }) => {
   const { authenticatedUser: { userId } } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
+
   const partnerDetails = useMemo(() => {
     if (!Object.keys(course).length || !isDefinedAndNotNull(course.partners)) {
       return {};
@@ -62,6 +65,7 @@ const CourseCard = ({
         srcAlt=""
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}
+        imageLoadingType="lazy"
       />
       <Card.Header
         title={(
@@ -105,7 +109,6 @@ CourseCard.propTypes = {
     partners: PropTypes.arrayOf(PropTypes.shape()).isRequired,
     skillNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   }).isRequired,
-  allSkills: PropTypes.arrayOf(PropTypes.string).isRequired,
   isLoading: PropTypes.bool.isRequired,
 };
 

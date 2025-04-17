@@ -46,8 +46,12 @@ export default class AlgoliaFilterBuilder {
    *   new AlgoliaFilterBuilder().and('type', 'course').build()
    *   // → "type:course"
    */
-  and(attribute: string, value: string) {
+  and(attribute: string, value: string, stringify = false) {
     if (attribute && value) {
+      if (stringify) {
+        this.filters.push(`${attribute}:"${value}"`);
+        return this;
+      }
       this.filters.push(`${attribute}:${value}`);
     }
     return this;
@@ -56,18 +60,26 @@ export default class AlgoliaFilterBuilder {
   /**
    * Adds an OR group for a single attribute with multiple values.
    *
-   * @param attribute - The name of the attribute to filter on.
+   * @param attribute - The name (key) of the attribute to filter on.
    * @param values - An array of values for which to construct the OR clause.
+   * @param stringify - Boolean to wrap value in quotations.
    * @returns The current AlgoliaFilterBuilder instance for chaining.
    *
    * @example
    *   new AlgoliaFilterBuilder().or('level', ['beginner', 'intermediate']).build()
-   *   // → "(level:beginner OR level:intermediate)"
+   *   // → '(level:beginner OR level:intermediate)'
+   *   new AlgoliaFilterBuilder().or('skill_names, ['SQL', 'Agile']).build()
+   *   // → '(skill_names:"SQL" OR skill_names:"Agile")'
    */
-  or(attribute: string, values: string[]) {
+  or(attribute: string, values: string[], stringify = false) {
     const validValues = values.filter(Boolean);
     if (attribute && validValues.length > 0) {
-      const clause = validValues.map(v => `${attribute}:${v}`).join(' OR ');
+      const clause = validValues.map(v => {
+        if (stringify) {
+          return `${attribute}:"${v}"`;
+        }
+        return `${attribute}:${v}`;
+      }).join(' OR ');
       this.filters.push(`(${clause})`);
     }
     return this;

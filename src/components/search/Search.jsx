@@ -148,7 +148,7 @@ const Search = () => {
       </>
     );
   }
-
+  console.log(filters, contentType);
   return (
     <>
       <CustomSubscriptionExpirationModal />

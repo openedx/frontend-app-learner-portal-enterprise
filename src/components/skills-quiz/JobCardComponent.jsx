@@ -10,7 +10,6 @@ const JobCardComponent = ({ jobs, isLoading }) => {
   if (!jobs) {
     return null;
   }
-
   return (
     <CardGrid>
       {jobs?.map(job => (
@@ -27,7 +26,7 @@ const JobCardComponent = ({ jobs, isLoading }) => {
                       description="Label for median US salary on the job card within the skills quiz v1 page."
                     />
                   </span>
-                  {job.job_postings?.length > 0 ? `$${ formatStringAsNumber(job.job_postings[0].median_salary)}`
+                  {job.jobPostings?.length > 0 ? `$${ formatStringAsNumber(job.jobPostings[0].medianSalary)}`
                     : NOT_AVAILABLE }
                 </p>
                 <p className="m-0 medium-font">
@@ -38,7 +37,7 @@ const JobCardComponent = ({ jobs, isLoading }) => {
                       description="Label for job postings on the job card within the skills quiz v1 page."
                     />
                   </span>
-                  {job.job_postings?.length > 0 ? formatStringAsNumber(job.job_postings[0].unique_postings)
+                  {job.jobPostings?.length > 0 ? formatStringAsNumber(job.jobPostings[0].uniquePostings)
                     : NOT_AVAILABLE }
                 </p>
               </div>
