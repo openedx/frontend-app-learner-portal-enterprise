@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet';
 import { Outlet, useMatch } from 'react-router-dom';
-import FooterSlot from '@openedx/frontend-slot-footer';
+import { FooterSlot } from '@edx/frontend-component-footer';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import { isSystemMaintenanceAlertOpen, useEnterpriseCustomer } from './data';

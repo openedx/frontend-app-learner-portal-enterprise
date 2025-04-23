@@ -22,7 +22,9 @@ const mockDefaultAppContextValue = {
   },
 };
 
-jest.mock('@openedx/frontend-slot-footer', () => jest.fn(() => <div data-testid="site-footer" />));
+jest.mock('@edx/frontend-component-footer', () => ({
+  FooterSlot: jest.fn(() => <div data-testid="site-footer" />),
+}));
 jest.mock('@edx/frontend-platform/logging', () => ({
   getLoggingService: jest.fn(),
 }));
