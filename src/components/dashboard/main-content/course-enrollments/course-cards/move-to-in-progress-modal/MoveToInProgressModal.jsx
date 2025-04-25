@@ -75,6 +75,7 @@ const MoveToInProgressModal = ({
         onClose={handleModalOnClose}
         hasCloseButton
         isFullscreenOnMobile
+        isOverflowVisible={false}
         footerNode={(
           <ActionRow>
             <Button variant="tertiary" onClick={onClose}>Cancel</Button>

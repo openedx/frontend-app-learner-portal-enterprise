@@ -117,6 +117,7 @@ class EmailSettingsModal extends Component {
         onClose={this.handleOnClose}
         hasCloseButton
         isFullscreenOnMobile
+        isOverflowVisible={false}
         footerNode={(
           <ActionRow>
             <Button variant="tertiary" onClick={this.handleOnClose} data-testid="email-setting-modal-close-btn">Close</Button>

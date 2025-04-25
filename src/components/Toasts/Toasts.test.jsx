@@ -53,13 +53,11 @@ describe('ToastsProvider', () => {
     expect(toastsContext.toasts[0].message).toBe('Hello World');
     expect(screen.getByText('Hello World')).toBeTruthy();
     const closeButton = screen.getByLabelText('Close');
-    const toastContainerClassesBefore = screen.getAllByRole('alert')[1].className;
+    const toastContainer = screen.getByRole('alert');
 
-    expect(toastContainerClassesBefore.match(/show/)).toBeTruthy();
+    expect(toastContainer.className).toMatch(/show/);
 
     userEvent.click(closeButton);
-    const toastContainerClassesAfter = screen.getAllByRole('alert')[0].className;
-
-    expect(toastContainerClassesAfter.match(/show/)).toBeFalsy();
+    expect(screen.queryByText('Hello World')).toBeFalsy();
   });
 });

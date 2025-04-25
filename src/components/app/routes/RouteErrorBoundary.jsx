@@ -116,6 +116,7 @@ const RouteErrorBoundary = ({
         variant="danger"
         isOpen={isAppUpdateAvailable}
         onClose={() => {}}
+        isOverflowVisible={false}
         footerNode={(
           <ActionRow>
             <Button
