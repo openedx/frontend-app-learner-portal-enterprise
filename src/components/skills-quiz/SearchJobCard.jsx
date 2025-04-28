@@ -13,12 +13,11 @@ import { useAlgoliaSearch } from '../app/data';
 import { SET_KEY_VALUE } from './data/constants';
 
 const JobHits = ({
-  hits, isLoading,
+  hits, isLoading, isSkillQuizV2,
 }) => {
   const { dispatch } = useContext(SkillsContext);
   const { refinements } = useContext(SearchContext);
   const { current_job: currentJob } = refinements;
-
   useEffect(() => {
     if (hits.length > 0) {
       if (currentJob?.length > 0) {
@@ -26,10 +25,9 @@ const JobHits = ({
       }
       dispatch({ type: SET_KEY_VALUE, key: 'interestedJobs', value: hits });
     }
-  }, [dispatch, hits]);
-
-  if (false) {
-    <JobCardComponentV2 jobs={hits} isLoading={isLoading} jobIndex={index} courseIndex={courseIndex} />;
+  }, [currentJob?.length, dispatch, hits]);
+  if (isSkillQuizV2) {
+    return <JobCardComponentV2 jobs={hits} isLoading={isLoading} />;
   }
   return <JobCardComponent jobs={hits} isLoading={isLoading} />;
 };
@@ -37,11 +35,16 @@ const JobHits = ({
 JobHits.propTypes = {
   isLoading: PropTypes.bool,
   hits: PropTypes.arrayOf(PropTypes.shape()),
+  isSkillQuizV2: PropTypes.bool,
+};
+
+JobHits.defaultProps = {
+  isSkillQuizV2: false,
 };
 
 const ConnectedJobHits = withCamelCasedStateResults(JobHits);
 
-const SearchJobCard = () => {
+const SearchJobCard = ({ isSkillQuizV2 = false }) => {
   const config = getConfig();
   const {
     searchIndex: jobIndex,
@@ -69,9 +72,17 @@ const SearchJobCard = () => {
       searchClient={jobSearchClient}
     >
       <Configure filters={searchFilters} hitsPerPage={3} />
-      <ConnectedJobHits />
+      <ConnectedJobHits isSkillQuizV2={isSkillQuizV2} />
     </InstantSearch>
   );
+};
+
+SearchJobCard.propTypes = {
+  isSkillQuizV2: PropTypes.bool,
+};
+
+SearchJobCard.defaultProps = {
+  isSkillQuizV2: false,
 };
 
 export default SearchJobCard;

@@ -7,7 +7,6 @@ import { useAlgoliaSearch } from '../app/data';
 import { SearchUnavailableAlert } from '../search-unavailable-alert';
 
 const SkillsQuizContentCards = () => {
-  console.log('SkillsQuizContentCards');
   const {
     searchClient,
     searchIndex: courseIndex,
@@ -15,6 +14,7 @@ const SkillsQuizContentCards = () => {
   if (!searchClient || !courseIndex) {
     return <SearchUnavailableAlert />;
   }
+  // TODO: Refactor individual card components to move away from index.search to Configure
   return (
     <InstantSearch
       searchClient={searchClient}

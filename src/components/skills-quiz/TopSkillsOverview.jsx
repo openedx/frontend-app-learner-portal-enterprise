@@ -1,14 +1,18 @@
-import {
-  useContext, useEffect, useMemo, useState,
-} from 'react';
+import { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Card } from '@openedx/paragon';
+import { Badge, Card, Skeleton } from '@openedx/paragon';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { getConfig } from '@edx/frontend-platform/config';
+import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { SkillsContext } from './SkillsContextProvider';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';
 import SelectedJobSkills from './SelectedJobSkills';
 import SimilarJobs from './SimilarJobs';
 import JobDescriptions from './JobDescriptions';
+import { useAlgoliaSearch } from '../app/data';
+import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
+import CardLoadingSkeleton from './CardLoadingSkeleton';
+import { withCamelCasedStateResults } from '../utils/skills-quiz';
 
 const getJobSkills = (job) => {
   const jobSkills = job[0]?.skills?.sort((a, b) => (
@@ -16,16 +20,18 @@ const getJobSkills = (job) => {
   return jobSkills?.slice(0, 7);
 };
 
-const TopSkillsOverview = ({ index }) => {
+const TopSkillsHits = ({ hits, isLoading }) => {
   const {
     state: {
       selectedJob, goal, currentJobRole, interestedJobs,
     },
   } = useContext(SkillsContext);
+
   const { refinements: { current_job: currentJob, industry_names: industryNames } } = useContext(SearchContext);
-  const [currentJobDetails, setCurrentJobDetails] = useState(null);
   const jobSelected = goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? currentJobRole : interestedJobs;
-  console.log(jobSelected, currentJobRole, interestedJobs);
+  console.log({
+    jobSelected, selectedJob, currentJobRole, interestedJobs,
+  });
   const selectedJobDetails = useMemo(
     () => jobSelected?.filter(job => job?.name === selectedJob) || [],
     [jobSelected, selectedJob],
@@ -44,25 +50,21 @@ const TopSkillsOverview = ({ index }) => {
     [industryNames, selectedJobDetails],
   );
 
-  useEffect(
-    () => {
-      async function fetchJobDetails() {
-        const { hits } = await index.search('', {
-          facetFilters: [
-            [`name:${currentJob}`],
-          ],
-        });
-        if (hits.length > 0) {
-          setCurrentJobDetails(hits);
-        } else {
-          setCurrentJobDetails(null);
-        }
-      }
-      fetchJobDetails();
-    },
-    [currentJob, index],
-  );
-
+  if (isLoading) {
+    return (
+      <>
+        <div className="mt-4">
+          <div className="skills-badge">
+            <div className="mb-3">
+              <Skeleton count={2} height={25} />
+            </div>
+          </div>
+        </div>
+        <CardLoadingSkeleton />
+      </>
+    );
+  }
+  console.log({ selectedJobDetails });
   return (
     <div className="mt-4 mb-4">
       <div className="col-12 skills-overview">
@@ -98,12 +100,12 @@ const TopSkillsOverview = ({ index }) => {
           </Card.Section>
           <Card.Section>
             <div className="row skill-overview-body">
-              {currentJobDetails?.length > 0 && selectedJobDetails?.length > 0
+              {hits?.length > 0 && selectedJobDetails?.length > 0
                 && (
                   <JobDescriptions
-                    currentJobID={currentJobDetails[0].externalId}
+                    currentJobID={hits[0].externalId}
                     futureJobID={selectedJobDetails[0].externalId}
-                    currentJobDescription={currentJobDetails[0].description}
+                    currentJobDescription={hits[0].description}
                     futureJobDescription={selectedJobDetails[0].description}
                     goal={goal}
                   />
@@ -120,20 +122,20 @@ const TopSkillsOverview = ({ index }) => {
                 </div>
               ) }
               {goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE
-              && currentJob
-              && currentJob?.length !== 0
-              && currentJobDetails
-              && (
-                <div className="col-6">
-                  <SelectedJobSkills
-                    heading={`Skills you might already have as a ${currentJob}`}
-                    skills={getJobSkills(currentJobDetails)}
-                    industrySkills={industrySkills}
-                  />
-                </div>
-              )}
+                && currentJob
+                && currentJob?.length !== 0
+                && hits
+                && (
+                  <div className="col-6">
+                    <SelectedJobSkills
+                      heading={`Skills you might already have as a ${currentJob}`}
+                      skills={getJobSkills(hits)}
+                      industrySkills={industrySkills}
+                    />
+                  </div>
+                )}
               <div className="similar-jobs-section">
-                <SimilarJobs selectedJobDetails={selectedJobDetails} index={index} />
+                {false && <SimilarJobs selectedJobDetails={selectedJobDetails} />}
               </div>
             </div>
           </Card.Section>
@@ -143,12 +145,38 @@ const TopSkillsOverview = ({ index }) => {
   );
 };
 
-TopSkillsOverview.propTypes = {
-  index: PropTypes.shape({
-    appId: PropTypes.string,
-    indexName: PropTypes.string,
-    search: PropTypes.func.isRequired,
-  }).isRequired,
+const ConnectTopSkillsHits = withCamelCasedStateResults(TopSkillsHits);
+
+TopSkillsHits.propTypes = {
+  isLoading: PropTypes.bool,
+  hits: PropTypes.arrayOf(PropTypes.shape()),
+};
+
+const TopSkillsOverview = () => {
+  const config = getConfig();
+  const {
+    searchIndex: jobIndex,
+    searchClient: jobSearchClient,
+  } = useAlgoliaSearch(config.ALGOLIA_INDEX_NAME_JOBS);
+  const { refinements: { current_job: currentJob } } = useContext(SearchContext);
+  console.log({ currentJob });
+  const searchFilters = useMemo(() => {
+    if (currentJob?.length) {
+      return new AlgoliaFilterBuilder()
+        .and('name', currentJob[0], true)
+        .build();
+    }
+    return '';
+  }, [currentJob]);
+  return (
+    <InstantSearch
+      indexName={jobIndex.indexName}
+      searchClient={jobSearchClient}
+    >
+      <Configure filters={searchFilters} hitsPerPage={3} />
+      <ConnectTopSkillsHits />
+    </InstantSearch>
+  );
 };
 
 export default TopSkillsOverview;

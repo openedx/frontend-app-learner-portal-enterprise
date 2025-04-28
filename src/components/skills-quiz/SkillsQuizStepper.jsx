@@ -39,11 +39,6 @@ import SkillsQuizContentCards from './SkillsQuizContentCards';
 
 const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const config = getConfig();
-
-  const {
-    searchClient: courseSearchClient,
-    searchIndex: courseIndex,
-  } = useAlgoliaSearch(config.ALGOLIA_INDEX_NAME);
   const {
     searchIndex: jobIndex,
     searchClient: jobSearchClient,
@@ -274,10 +269,10 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                   {industryAndJobsDropdownsVisible && (
                     <>
                       {goalExceptImproveAndJobSelected ? (
-                        <SearchJobCard index={jobIndex} />
+                        <SearchJobCard />
                       ) : null}
                       {improveGoalAndCurrentJobSelected ? (
-                        <SearchCurrentJobCard index={jobIndex} />
+                        <SearchCurrentJobCard />
                       ) : null}
                     </>
                   )}
@@ -301,7 +296,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                 <div className="search-job-card">
                   {canContinueToRecommendedCourses ? <SelectJobCard /> : null}
                 </div>
-                <TopSkillsOverview index={jobIndex} />
+                <TopSkillsOverview />
                 <div>
                   {(selectedJob
                     || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) && (

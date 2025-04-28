@@ -29,7 +29,8 @@ const SkillsQuiz = () => {
           <MainContent>
             <SearchData>
               <SkillsContextProvider>
-                {(isExperimentVariationB || v2) ? (
+                {/* {(isExperimentVariationB || v2) ? ( */}
+                {true ? (
                   <SkillsQuizV2 isStyleAutoSuggest />
                 ) : (
                   <SkillsQuizStepper isStyleAutoSuggest={false} />

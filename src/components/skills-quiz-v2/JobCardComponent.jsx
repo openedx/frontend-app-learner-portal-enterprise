@@ -14,14 +14,11 @@ import { fetchCourseEnrollments } from '../skills-quiz/data/service';
 import { saveSkillsGoalsAndJobsUserSelected } from '../skills-quiz/data/utils';
 import SkillsQuizContentCards from '../skills-quiz/SkillsQuizContentCards';
 
-const JobCardComponent = ({
-  jobs, isLoading, jobIndex, courseIndex,
-}) => {
+const JobCardComponent = ({ jobs, isLoading }) => {
   const { dispatch, state } = useContext(SkillsContext);
   const { goal, currentJobRole, interestedJobs } = state;
   const [jobSelected, setJobSelected] = useState(undefined);
   const [showMoreRecommendedCourses, setShowMoreRecommendedCourses] = useState(false);
-
   useEffect(() => {
     if (jobs?.length > 0) {
       setJobSelected(jobs[0]?.name);
@@ -69,7 +66,7 @@ const JobCardComponent = ({
     setShowMoreRecommendedCourses(false);
   };
 
-  if (!isLoading) {
+  if (isLoading) {
     return (
       <Spinner
         animation="border"
@@ -122,7 +119,7 @@ const JobCardComponent = ({
           </SelectableBox>
         ))}
       </SelectableBox.Set>
-      <TopSkillsOverview index={jobIndex} />
+      <TopSkillsOverview />
       <SkillsQuizContentCards />
       <div className="text-center py-4">
         {!showMoreRecommendedCourses && (
@@ -138,7 +135,7 @@ const JobCardComponent = ({
           </Button>
         )}
       </div>
-      {showMoreRecommendedCourses && <SkillsCourses index={courseIndex} />}
+      {showMoreRecommendedCourses && <SkillsCourses />}
     </div>
   );
 };
@@ -146,23 +143,11 @@ const JobCardComponent = ({
 JobCardComponent.defaultProps = {
   jobs: undefined,
   isLoading: false,
-  jobIndex: undefined,
-  courseIndex: undefined,
 };
 
 JobCardComponent.propTypes = {
   isLoading: PropTypes.bool,
   jobs: PropTypes.arrayOf(PropTypes.shape()),
-  jobIndex: PropTypes.shape({
-    appId: PropTypes.string,
-    indexName: PropTypes.string,
-    search: PropTypes.func.isRequired,
-  }),
-  courseIndex: PropTypes.shape({
-    appId: PropTypes.string,
-    indexName: PropTypes.string,
-    search: PropTypes.func.isRequired,
-  }),
 };
 
 export default JobCardComponent;

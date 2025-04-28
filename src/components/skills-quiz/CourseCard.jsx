@@ -65,7 +65,6 @@ const CourseCard = ({
         srcAlt=""
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}
-        imageLoadingType="lazy"
       />
       <Card.Header
         title={(
