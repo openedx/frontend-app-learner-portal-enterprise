@@ -1,5 +1,5 @@
 import {
-  useCallback, useContext, useEffect, useMemo, useState,
+  Fragment, useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import { SearchContext, setRefinementAction } from '@edx/frontend-enterprise-catalog-search';
@@ -88,17 +88,16 @@ const SimilarJobs = ({ selectedJobDetails }) => {
       <div className="mt-4">
         <p>{`Explore similar jobs to ${selectedJob}: `}
           {selectedJobDetails[0]?.similarJobs?.map((job, index) => (
-            <>
+            <Fragment key={`${job}`}>
               {index ? ', ' : ''}
               <Hyperlink
-                key={`${job}`}
                 onClick={() => {
                   handleSimilarJobClick(job);
                 }}
               >
                 {job}
               </Hyperlink>
-            </>
+            </Fragment>
           ))}
         </p>
       </div>

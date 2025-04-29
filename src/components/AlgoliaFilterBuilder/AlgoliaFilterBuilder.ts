@@ -68,7 +68,7 @@ export default class AlgoliaFilterBuilder {
    * @example
    *   new AlgoliaFilterBuilder().or('level', ['beginner', 'intermediate']).build()
    *   // → '(level:beginner OR level:intermediate)'
-   *   new AlgoliaFilterBuilder().or('skill_names, ['SQL', 'Agile']).build()
+   *   new AlgoliaFilterBuilder().or('skill_names', ['SQL', 'Agile']).build()
    *   // → '(skill_names:"SQL" OR skill_names:"Agile")'
    */
   or(attribute: string, values: string[], stringify = false) {
