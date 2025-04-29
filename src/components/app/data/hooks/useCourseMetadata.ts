@@ -1,5 +1,5 @@
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { queryCourseMetadata } from '../queries';
 import {
@@ -9,31 +9,36 @@ import {
 } from '../utils';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import useRedeemablePolicies from './useRedeemablePolicies';
+import useCourseRunKeyQueryParam from './useCourseRunKeyQueryParam';
 
-type UseCourseMetadataQueryOptions = {
-  select?: (data: unknown) => unknown;
+type UseCourseMetataSelectFnArgs = {
+  original: CourseMetadata;
+  transformed: CourseMetadataWithAvailableRuns;
+};
+
+type UseCourseMetadataQueryOptions<TData = unknown> = {
+  select?: (args: UseCourseMetataSelectFnArgs) => TData;
 };
 
 /**
  * Retrieves the course metadata for the given enterprise customer and course key.
  * @returns The query results for the course metadata.
  */
-export default function useCourseMetadata(options: UseCourseMetadataQueryOptions = {}) {
+export default function useCourseMetadata<TData = CourseMetadataWithAvailableRuns>(
+  options: UseCourseMetadataQueryOptions<TData> = {},
+) {
   const { select } = options;
   const params = useParams();
   const courseKey = params.courseKey!;
-  const [searchParams] = useSearchParams();
+  const courseRunKey = useCourseRunKeyQueryParam();
   const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const {
     allocatedCourseRunAssignmentKeys,
   } = determineAllocatedAssignmentsForCourse({ courseKey, redeemableLearnerCreditPolicies });
-  // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
-  // need to replace it with `+` again to be a valid course run key.
-  const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
 
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
 
-  return useSuspenseQuery(
+  return useSuspenseQuery<CourseMetadata, Error, TData>(
     queryOptions({
       ...queryCourseMetadata(courseKey),
       select: (data) => {
@@ -45,7 +50,11 @@ export default function useCourseMetadata(options: UseCourseMetadataQueryOptions
         // applied.  However, we don't know the subsidy being applied at this
         // point of the code, so just return all the available
         // restricted runs regardless of catalog inclusion.
-        const availableCourseRuns = getAvailableCourseRuns({ course: data, lateEnrollmentBufferDays });
+        const availableCourseRuns = getAvailableCourseRuns({
+          course: data,
+          lateEnrollmentBufferDays,
+          courseRunKey,
+        });
         let transformedData = {
           ...data,
           availableCourseRuns,
@@ -55,7 +64,6 @@ export default function useCourseMetadata(options: UseCourseMetadataQueryOptions
         transformedData = transformCourseMetadataByAllocatedCourseRunAssignments({
           courseMetadata: transformedData,
           allocatedCourseRunAssignmentKeys,
-          courseRunKey,
         });
         if (select) {
           return select({
@@ -63,7 +71,7 @@ export default function useCourseMetadata(options: UseCourseMetadataQueryOptions
             transformed: transformedData,
           });
         }
-        return transformedData;
+        return transformedData as TData;
       },
     }),
   );

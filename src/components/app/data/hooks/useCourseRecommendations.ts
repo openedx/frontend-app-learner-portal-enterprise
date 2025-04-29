@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { queryCourseRecommendations } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -10,7 +10,7 @@ export default function useCourseRecommendations() {
   const params = useParams();
   const courseKey = params.courseKey!;
   const searchCatalogs = useSearchCatalogs();
-  return useSuspenseQuery(
+  return useQuery(
     queryOptions({
       ...queryCourseRecommendations(enterpriseCustomer.uuid, courseKey, searchCatalogs),
     }),

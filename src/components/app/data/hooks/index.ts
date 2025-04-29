@@ -49,3 +49,4 @@ export { default as useBFF, useSuspenseBFF } from './useBFF';
 export { default as useIsBFFEnabled } from './useIsBFFEnabled';
 export { default as useHasValidLicenseOrSubscriptionRequestsEnabled } from './useHasValidLicenseOrSubscriptionRequestsEnabled';
 export { default as useAlgoliaSearch } from './useAlgoliaSearch';
+export { default as useCourseRunKeyQueryParam } from './useCourseRunKeyQueryParam';

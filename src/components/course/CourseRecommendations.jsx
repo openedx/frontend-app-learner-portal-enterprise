@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { CardGrid } from '@openedx/paragon';
+import { CardGrid, Skeleton } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import CourseRecommendationCard from './CourseRecommendationCard';
 import { useCourseMetadata, useCourseRecommendations } from '../app/data';
@@ -7,16 +7,22 @@ import { useCourseMetadata, useCourseRecommendations } from '../app/data';
 const CourseRecommendations = () => {
   const { data: courseMetadata } = useCourseMetadata();
   const {
-    data: {
-      allRecommendations,
-      samePartnerRecommendations,
-    },
+    isPending,
+    data: recommendationsData,
   } = useCourseRecommendations();
+
+  const allRecommendations = useMemo(
+    () => recommendationsData?.allRecommendations || [],
+    [recommendationsData?.allRecommendations],
+  );
+  const samePartnerRecommendations = useMemo(
+    () => recommendationsData?.samePartnerRecommendations || [],
+    [recommendationsData?.samePartnerRecommendations],
+  );
 
   const allRecommendationsCards = useMemo(() => allRecommendations.map(recommendation => (
     <CourseRecommendationCard key={recommendation.key} course={recommendation} />
   )), [allRecommendations]);
-
   const samePartnerRecommendationsCards = useMemo(() => samePartnerRecommendations.map(recommendation => (
     <CourseRecommendationCard
       key={recommendation.key}
@@ -27,7 +33,7 @@ const CourseRecommendations = () => {
 
   return (
     <div className="mt-1">
-      {allRecommendationsCards.length > 0 && (
+      {(isPending || allRecommendationsCards.length > 0) && (
         <div className="mb-3">
           <h3 className="mb-3">
             <FormattedMessage
@@ -36,10 +42,14 @@ const CourseRecommendations = () => {
               description="Title for the section that lists the courses that are recommended."
             />
           </h3>
-          <CardGrid>{allRecommendationsCards}</CardGrid>
+          {isPending ? (
+            <Skeleton height={60} count={3} />
+          ) : (
+            <CardGrid>{allRecommendationsCards}</CardGrid>
+          )}
         </div>
       )}
-      {samePartnerRecommendations.length > 0 && (
+      {(isPending || samePartnerRecommendations.length > 0) && (
         <div className="mb-3">
           <h3 className="mb-3">
             <FormattedMessage
@@ -49,7 +59,11 @@ const CourseRecommendations = () => {
               values={{ firstCourseOwner: courseMetadata.owners[0].name }}
             />
           </h3>
-          <CardGrid>{samePartnerRecommendationsCards}</CardGrid>
+          {isPending ? (
+            <Skeleton height={60} count={3} />
+          ) : (
+            <CardGrid>{samePartnerRecommendationsCards}</CardGrid>
+          )}
         </div>
       )}
     </div>

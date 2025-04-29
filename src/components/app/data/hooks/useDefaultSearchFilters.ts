@@ -99,6 +99,7 @@ export default function useDefaultSearchFilters(): string {
       dispatch(setRefinementAction(SHOW_ALL_NAME, 1));
     }
   }, [dispatch, searchCatalogs, showAllRefinement]);
+
   return useMemo(
     () => {
       // If there is a catalog uuid to catalog query uuid mapping, use the secured algolia

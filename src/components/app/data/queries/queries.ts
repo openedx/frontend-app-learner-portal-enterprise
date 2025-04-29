@@ -1,6 +1,5 @@
 import queries from './queryKeyFactory';
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
-import { getAvailableCourseRuns } from '../utils';
 
 /**
  * Helper function to assist querying with React Query package
@@ -128,17 +127,16 @@ export function queryCanRedeemContextQueryKey(enterpriseUuid: string, courseKey:
     ._ctx.canRedeem._def;
 }
 
-export function queryCanRedeem(enterpriseUuid: string, courseMetadata, lateEnrollmentBufferDays: number | undefined) {
-  const availableCourseRuns = getAvailableCourseRuns({
-    course: courseMetadata,
-    lateEnrollmentBufferDays,
-  });
-  const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
+export function queryCanRedeem(
+  enterpriseUuid: string,
+  courseKey,
+  courseRunKeys,
+) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course(courseMetadata.key)
-    ._ctx.canRedeem(availableCourseRunKeys);
+    ._ctx.course(courseKey)
+    ._ctx.canRedeem(courseRunKeys);
 }
 
 export function queryCanUpgradeWithLearnerCredit(enterpriseUuid: string, courseRunKey: string) {

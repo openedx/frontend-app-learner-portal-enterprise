@@ -4,6 +4,7 @@ import {
 
 import {
   extractEnterpriseCustomer,
+  getCourseRunKeysForRedemption,
   getLateEnrollmentBufferDays,
   queryCanRedeem,
   queryCourseMetadata,
@@ -54,7 +55,7 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
-      await queryClient.ensureQueryData(queryCourseMetadata(courseKey, courseRunKey)).then(async (courseMetadata) => {
+      await queryClient.ensureQueryData(queryCourseMetadata(courseKey)).then(async (courseMetadata) => {
         if (!courseMetadata) {
           return;
         }
@@ -91,9 +92,15 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
           redeemableLearnerCreditPolicies.redeemablePolicies,
         );
+        const courseRunKeysForRedemption = getCourseRunKeysForRedemption({
+          course: courseMetadata,
+          lateEnrollmentBufferDays,
+          courseRunKey,
+          redeemableLearnerCreditPolicies,
+        });
         const canRedeem = await safeEnsureQueryData<CanRedeemResponse>({
           queryClient,
-          query: queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+          query: queryCanRedeem(enterpriseCustomer.uuid, courseMetadata.key, courseRunKeysForRedemption),
           shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
           fallbackData: [],
         });

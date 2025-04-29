@@ -1,11 +1,14 @@
 import { useParams } from 'react-router-dom';
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 import useCourseMetadata from './useCourseMetadata';
 import { queryCanRedeem } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
+import { getCourseRunKeysForRedemption } from '../utils';
+import useCourseRunKeyQueryParam from './useCourseRunKeyQueryParam';
+import useRedeemablePolicies from './useRedeemablePolicies';
 
 const getContentListPriceRange = ({ courseRuns }) => {
   const flatContentPrice = courseRuns.flatMap(run => run.listPrice?.usd).filter(x => !!x);
@@ -87,14 +90,24 @@ export function transformCourseRedemptionEligibility({
  * @returns The query results for the course redemption eligibility.
  */
 export default function useCourseRedemptionEligibility() {
-  const { courseRunKey } = useParams();
+  const { courseRunKey: courseRunKeyRouteParam } = useParams();
+  const courseRunKeyQueryParam = useCourseRunKeyQueryParam();
+  const courseRunKey = courseRunKeyRouteParam || courseRunKeyQueryParam;
+
   const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
   const { data: courseMetadata } = useCourseMetadata();
+  const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
+  const courseRunKeysForRedemption = getCourseRunKeysForRedemption({
+    course: courseMetadata,
+    lateEnrollmentBufferDays,
+    courseRunKey,
+    redeemableLearnerCreditPolicies,
+  });
 
-  return useSuspenseQuery(
+  return useQuery(
     queryOptions({
-      ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata, lateEnrollmentBufferDays),
+      ...queryCanRedeem(enterpriseCustomer.uuid, courseMetadata.key, courseRunKeysForRedemption),
       select: (data) => {
         // Among other things, transformCourseRedemptionEligibility() removes
         // restricted runs that fail the policy's can-redeem check.

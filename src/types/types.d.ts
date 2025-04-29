@@ -50,6 +50,20 @@ declare global {
     authenticatedUser: AuthenticatedUser;
   };
 
+  type CourseRunMetadata = {
+    key: string;
+  };
+
+  type CourseMetadata = {
+    key: string;
+    courseType: string;
+    courseRuns: CourseRunMetadata[];
+  };
+
+  type CourseMetadataWithAvailableRuns = CourseMetadata & {
+    availableCourseRuns: CourseRunMetadata[];
+  };
+
   // Application Date (config)
 
   type AlgoliaConfiguration = {

@@ -3,7 +3,6 @@ import {
 } from '@openedx/paragon';
 import { Calendar } from '@openedx/paragon/icons';
 import dayjs from 'dayjs';
-import { useSearchParams } from 'react-router-dom';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import {
@@ -14,7 +13,7 @@ import {
   hasCourseStarted,
   useIsCourseAssigned,
 } from '../data';
-import { useCourseMetadata } from '../../app/data';
+import { useCourseMetadata, useCourseRunKeyQueryParam } from '../../app/data';
 
 const messages = defineMessages({
   importantDates: {
@@ -70,8 +69,7 @@ const CourseImportantDates = () => {
     hasAssignedCourseRuns,
   } = useIsCourseAssigned();
 
-  const [searchParams] = useSearchParams();
-  const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
+  const courseRunKey = useCourseRunKeyQueryParam();
   // Check if the corresponding course run key from query parameters matches an allocated assignment course run key
   const doesNotHaveCourseRunAssignmentForCourseRunKey = !!courseRunKey && !allocatedCourseRunAssignmentKeys.includes(
     courseRunKey,

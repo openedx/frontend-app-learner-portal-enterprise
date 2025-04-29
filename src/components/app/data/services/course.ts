@@ -4,30 +4,13 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { findHighestLevelEntitlementSku, getActiveCourseRun } from '../utils';
 import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 
-export const transformCourseRunKey = ({ transformedData, courseRunKey }) => {
-  const clonedTransformedData = { ...transformedData };
-  // If a specific courseRunKey is requested, and that courseRunKey belongs
-  // to the specified course, narrow the returned runs to just the one run.
-  const courseRunKeys = transformedData.courseRuns.map(({ key }) => key);
-  if (courseRunKey && courseRunKeys.includes(courseRunKey)) {
-    clonedTransformedData.canonicalCourseRunKey = courseRunKey;
-    clonedTransformedData.courseRunKeys = [courseRunKey];
-    clonedTransformedData.courseRuns = clonedTransformedData.courseRuns.filter(
-      courseRun => courseRun.key === courseRunKey,
-    );
-  }
-  return clonedTransformedData;
-};
-
 /**
- * TODO
+ * Service method to fetch course metadata for a given course key.
  * @param {string} enterpriseId
  * @param {string} courseKey
- * @param {string} [courseRunKey]
- * @param {object} [options]
  * @returns
  */
-export async function fetchCourseMetadata(courseKey) {
+export async function fetchCourseMetadata(courseKey): Promise<CourseMetadata> {
   const contentMetadataUrl = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/courses/${courseKey}/`;
   const queryParams = new URLSearchParams();
   // Always include restricted/custom-b2b-enterprise runs in case one has been requested.
@@ -43,16 +26,6 @@ export async function fetchCourseMetadata(courseKey) {
   transformedData.activeCourseRun = getActiveCourseRun(transformedData);
   transformedData.courseEntitlementProductSku = findHighestLevelEntitlementSku(transformedData.entitlements);
 
-  // If a specific courseRunKey is requested, and that courseRunKey belongs
-  // to the specified course, narrow the returned runs to just the one run.
-  // const courseRunKeys = transformedData.courseRuns.map(({ key }) => key);
-  // if (courseRunKey && courseRunKeys.includes(courseRunKey)) {
-  //   transformedData.canonicalCourseRunKey = courseRunKey;
-  //   transformedData.courseRunKeys = [courseRunKey];
-  //   transformedData.courseRuns = transformedData.courseRuns.filter(
-  //     courseRun => courseRun.key === courseRunKey,
-  //   );
-  // }
   return transformedData;
 }
 

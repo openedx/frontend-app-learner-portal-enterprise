@@ -5,9 +5,11 @@ import {
 import {
   determineAllocatedAssignmentsForCourse,
   determineLearnerHasContentAssignmentsOnly,
+  extractCourseRunKeyFromSearchParams,
   extractEnterpriseCustomer,
   getBaseSubscriptionsData,
   getCatalogsForSubsidyRequests,
+  getCourseRunKeysForRedemption,
   getLateEnrollmentBufferDays,
   getSearchCatalogs,
   queryBrowseAndRequestConfiguration,
@@ -25,7 +27,6 @@ import {
   querySubscriptions,
   queryUserEntitlements,
   safeEnsureQueryData,
-  transformCourseMetadataByAllocatedCourseRunAssignments,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
@@ -38,9 +39,6 @@ type CourseRouteParams<Key extends string = string> = Params<Key> & {
 interface CourseLoaderFunctionArgs extends LoaderFunctionArgs {
   params: CourseRouteParams;
 }
-type CourseMetadata = {
-  courseType: string;
-};
 
 /**
  * Course loader for the course related page routes.
@@ -55,9 +53,7 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     }
 
     const { courseKey, enterpriseSlug } = params;
-    // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
-    // need to replace it with `+` again to be a valid course run key.
-    const courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
+    const courseRunKey = extractCourseRunKeyFromSearchParams(requestUrl.searchParams);
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
       requestUrl,
@@ -142,18 +138,11 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
       }),
     ]);
 
-    const {
-      allocatedCourseRunAssignmentKeys,
-    } = determineAllocatedAssignmentsForCourse({
-      courseKey,
-      redeemableLearnerCreditPolicies,
-    });
-
     await Promise.all([
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
-      queryClient.ensureQueryData<CourseMetadata | undefined>(queryCourseMetadata(courseKey))
+      queryClient.ensureQueryData(queryCourseMetadata(courseKey))
         .then(async (courseMetadata) => {
           if (!courseMetadata) {
             return null;
@@ -161,14 +150,15 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
           const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
             redeemableLearnerCreditPolicies.redeemablePolicies,
           );
-          const transformedCourseMetadata = transformCourseMetadataByAllocatedCourseRunAssignments({
-            courseMetadata,
-            allocatedCourseRunAssignmentKeys,
+          const courseRunKeysForRedemption = getCourseRunKeysForRedemption({
+            course: courseMetadata,
+            lateEnrollmentBufferDays,
             courseRunKey,
+            redeemableLearnerCreditPolicies,
           });
           return safeEnsureQueryData({
             queryClient,
-            query: queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
+            query: queryCanRedeem(enterpriseCustomer.uuid, courseMetadata.key, courseRunKeysForRedemption),
             shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
             fallbackData: [],
           });
