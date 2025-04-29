@@ -26,6 +26,7 @@ const JobHits = ({
       dispatch({ type: SET_KEY_VALUE, key: 'interestedJobs', value: hits });
     }
   }, [currentJob?.length, dispatch, hits]);
+
   if (isSkillQuizV2) {
     return <JobCardComponentV2 jobs={hits} isLoading={isLoading} />;
   }
@@ -54,16 +55,18 @@ const SearchJobCard = ({ isSkillQuizV2 = false }) => {
   const { name: jobs, current_job: currentJob } = refinements;
 
   const searchFilters = useMemo(() => {
-    if (!jobs?.length) { return null; }
+    if (jobs?.length) {
+      return new AlgoliaFilterBuilder()
+        .and('job_sources', JOB_SOURCE_COURSE_SKILL)
+        .or('name', jobs, true)
+        .build();
+    }
     if (currentJob?.length) {
       return new AlgoliaFilterBuilder()
         .and('name', currentJob[0], true)
         .build();
     }
-    return new AlgoliaFilterBuilder()
-      .and('job_sources', JOB_SOURCE_COURSE_SKILL)
-      .or('name', jobs, true)
-      .build();
+    return null;
   }, [currentJob, jobs]);
 
   return (

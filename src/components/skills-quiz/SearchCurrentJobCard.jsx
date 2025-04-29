@@ -13,7 +13,6 @@ const JobHits = ({
   hits, isLoading,
 }) => {
   const { dispatch } = useContext(SkillsContext);
-
   useEffect(() => {
     if (hits.length > 0) {
       dispatch({ type: 'SET_KEY_VALUE', key: 'currentJobRole', value: hits });
@@ -46,6 +45,7 @@ const SearchCurrentJobCard = () => {
       .and('name', currentJob[0], true)
       .build();
   }, [currentJob]);
+
   return (
     <InstantSearch
       indexName={jobIndex.indexName}

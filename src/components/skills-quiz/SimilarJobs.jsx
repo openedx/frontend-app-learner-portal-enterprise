@@ -2,7 +2,7 @@ import {
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import PropTypes from 'prop-types';
-import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { SearchContext, setRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { Hyperlink } from '@openedx/paragon';
@@ -13,65 +13,6 @@ import { useAlgoliaSearch } from '../app/data';
 import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
 import { withCamelCasedStateResults } from '../utils/skills-quiz';
 
-// const SimilarJobs = ({ selectedJobDetails, index }) => {
-//   const {
-//     state: {
-//       selectedJob, goal, interestedJobs,
-//     },
-//     dispatch: skillsDispatch,
-//   } = useContext(SkillsContext);
-//   const { refinements: { name }, dispatch } = useContext(SearchContext);
-//
-//   async function handleSimilarJobClick(jobName) {
-//     const { hits } = await index.search('', {
-//       facetFilters: [
-//         [`name:${jobName}`],
-//       ],
-//     });
-//     if (hits.length > 0) {
-//       const interestedJobsCopy = interestedJobs?.filter((job) => job.name !== selectedJob);
-//       const nameCopy = name?.filter((jobObj) => jobObj !== selectedJob);
-//       skillsDispatch({
-//         type: SET_KEY_VALUE,
-//         key: 'selectedJob',
-//         value: hits[0].name,
-//       });
-//
-//       if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) {
-//         skillsDispatch({
-//           type: SET_KEY_VALUE,
-//           key: 'currentJobRole',
-//           value: [hits[0]],
-//         });
-//       } else {
-//         dispatch(setRefinementAction('name', [...nameCopy, hits[0].name]));
-//         skillsDispatch({
-//           type: SET_KEY_VALUE,
-//           key: 'interestedJobs',
-//           value: [...interestedJobsCopy, hits[0]],
-//         });
-//       }
-//     }
-//   }
-//
-//   return (
-//     <div className="mt-4">
-//       <p>{`Explore similar jobs to ${selectedJob}: `}
-//         {selectedJobDetails[0]?.similar_jobs?.map((job, jobIndex) => (
-//           <Hyperlink
-//             key={`${job}`}
-//             onClick={() => {
-//               handleSimilarJobClick(job);
-//             }}
-//           >
-//             { (jobIndex ? ', ' : '') + job }
-//           </Hyperlink>
-//         ))}
-//       </p>
-//     </div>
-//   );
-// };
-
 const SimilarJobHits = ({ hits, isLoading }) => {
   const {
     state: {
@@ -80,44 +21,38 @@ const SimilarJobHits = ({ hits, isLoading }) => {
     dispatch: skillsDispatch,
   } = useContext(SkillsContext);
   const { refinements: { name }, dispatch } = useContext(SearchContext);
-
-  const interestedJobsCopy = useMemo(
-    () => hits.length > 0 && interestedJobs.filter((job) => job.name !== selectedJob),
-    [hits.length, interestedJobs, selectedJob],
-  );
-  const nameCopy = useMemo(
-    () => hits.length > 0 && name.filter((jobObj) => jobObj !== selectedJob),
-    [hits.length, name, selectedJob],
-  );
-  console.log({ interestedJobsCopy, nameCopy, hits });
+  const { interestedJobsCopy, nameCopy } = useMemo(() => ({
+    interestedJobsCopy: interestedJobs?.filter((job) => job.name !== selectedJob) || [],
+    nameCopy: name?.filter((jobObj) => jobObj !== selectedJob) || [],
+  }), [interestedJobs, name, selectedJob]);
   const updateDispatch = useCallback(() => {
-    if (!isLoading && hits?.length > 0) {
+    skillsDispatch({
+      type: SET_KEY_VALUE,
+      key: 'selectedJob',
+      value: hits[0].name,
+    });
+
+    if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) {
       skillsDispatch({
         type: SET_KEY_VALUE,
-        key: 'selectedJob',
-        value: hits[0].name,
+        key: 'currentJobRole',
+        value: [hits[0]],
       });
-
-      if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) {
-        skillsDispatch({
-          type: SET_KEY_VALUE,
-          key: 'currentJobRole',
-          value: [hits[0]],
-        });
-      } else {
-        // dispatch(setRefinementAction('name', [...nameCopy, hits[0].name]));
-        skillsDispatch({
-          type: SET_KEY_VALUE,
-          key: 'interestedJobs',
-          value: [...interestedJobsCopy, hits[0]],
-        });
-      }
+    } else {
+      dispatch(setRefinementAction('name', [...nameCopy, hits[0].name]));
+      skillsDispatch({
+        type: SET_KEY_VALUE,
+        key: 'interestedJobs',
+        value: [...interestedJobsCopy, hits[0]],
+      });
     }
-  }, [goal, hits, isLoading, skillsDispatch]);
+  }, [dispatch, goal, hits, interestedJobsCopy, nameCopy, skillsDispatch]);
 
   useEffect(() => {
-    updateDispatch();
-  }, [updateDispatch]);
+    if (!isLoading && hits?.length > 0 && (hits[0]?.name !== selectedJob)) {
+      updateDispatch();
+    }
+  }, [hits, interestedJobs, isLoading, selectedJob, updateDispatch]);
   return null;
 };
 SimilarJobHits.propTypes = {
@@ -143,23 +78,27 @@ const SimilarJobs = ({ selectedJobDetails }) => {
     setSearchFilters(new AlgoliaFilterBuilder()
       .and('name', jobName, true).build());
   }, []);
+
   return (
     <InstantSearch
       indexName={jobIndex.indexName}
       searchClient={jobSearchClient}
     >
-      <Configure filters={searchFilters} />
+      {searchFilters && <Configure filters={searchFilters} />}
       <div className="mt-4">
         <p>{`Explore similar jobs to ${selectedJob}: `}
           {selectedJobDetails[0]?.similarJobs?.map((job, index) => (
-            <Hyperlink
-              key={`${job}`}
-              onClick={() => {
-                handleSimilarJobClick(job);
-              }}
-            >
-              { (index ? ', ' : '') + job }
-            </Hyperlink>
+            <>
+              {index ? ', ' : ''}
+              <Hyperlink
+                key={`${job}`}
+                onClick={() => {
+                  handleSimilarJobClick(job);
+                }}
+              >
+                {job}
+              </Hyperlink>
+            </>
           ))}
         </p>
       </div>

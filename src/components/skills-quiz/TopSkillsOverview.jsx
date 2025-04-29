@@ -7,12 +7,12 @@ import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { SkillsContext } from './SkillsContextProvider';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';
 import SelectedJobSkills from './SelectedJobSkills';
-import SimilarJobs from './SimilarJobs';
 import JobDescriptions from './JobDescriptions';
-import { useAlgoliaSearch } from '../app/data';
+import { isObjEmpty, useAlgoliaSearch } from '../app/data';
 import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 import { withCamelCasedStateResults } from '../utils/skills-quiz';
+import SimilarJobs from './SimilarJobs';
 
 const getJobSkills = (job) => {
   const jobSkills = job[0]?.skills?.sort((a, b) => (
@@ -29,9 +29,7 @@ const TopSkillsHits = ({ hits, isLoading }) => {
 
   const { refinements: { current_job: currentJob, industry_names: industryNames } } = useContext(SearchContext);
   const jobSelected = goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? currentJobRole : interestedJobs;
-  console.log({
-    jobSelected, selectedJob, currentJobRole, interestedJobs,
-  });
+
   const selectedJobDetails = useMemo(
     () => jobSelected?.filter(job => job?.name === selectedJob) || [],
     [jobSelected, selectedJob],
@@ -64,7 +62,7 @@ const TopSkillsHits = ({ hits, isLoading }) => {
       </>
     );
   }
-  console.log({ selectedJobDetails });
+
   return (
     <div className="mt-4 mb-4">
       <div className="col-12 skills-overview">
@@ -135,7 +133,7 @@ const TopSkillsHits = ({ hits, isLoading }) => {
                   </div>
                 )}
               <div className="similar-jobs-section">
-                {false && <SimilarJobs selectedJobDetails={selectedJobDetails} />}
+                {!isObjEmpty(selectedJobDetails) && <SimilarJobs selectedJobDetails={selectedJobDetails} />}
               </div>
             </div>
           </Card.Section>
@@ -159,7 +157,7 @@ const TopSkillsOverview = () => {
     searchClient: jobSearchClient,
   } = useAlgoliaSearch(config.ALGOLIA_INDEX_NAME_JOBS);
   const { refinements: { current_job: currentJob } } = useContext(SearchContext);
-  console.log({ currentJob });
+
   const searchFilters = useMemo(() => {
     if (currentJob?.length) {
       return new AlgoliaFilterBuilder()

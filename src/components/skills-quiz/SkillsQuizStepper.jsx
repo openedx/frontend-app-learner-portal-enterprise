@@ -28,7 +28,6 @@ import {
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
-import TopSkillsOverview from './TopSkillsOverview';
 import SkillsQuizHeader from './SkillsQuizHeader';
 
 import headerImage from './images/headerImage.png';
@@ -36,6 +35,7 @@ import { saveSkillsGoalsAndJobsUserSelected } from './data/utils';
 import { fetchCourseEnrollments } from './data/service';
 import { useAlgoliaSearch, useEnterpriseCustomer } from '../app/data';
 import SkillsQuizContentCards from './SkillsQuizContentCards';
+import TopSkillsOverview from './TopSkillsOverview';
 
 const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const config = getConfig();

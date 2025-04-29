@@ -9,7 +9,6 @@ const JobDescriptions = ({
 }) => {
   const [isLoadingJobPathDescription, jobPathDescription] = useJobPathDescription({ currentJobID, futureJobID, goal });
   const jobDescription = goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? currentJobDescription : futureJobDescription;
-
   return (
     <div className="job-descriptions-container">
       <div className="disclaimer mb-3">
