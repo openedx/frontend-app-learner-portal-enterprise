@@ -9,8 +9,9 @@ import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 import { renderWithRouter } from '../../../utils/tests';
 import SkillsQuiz from '../SkillsQuiz';
 import { SkillsContextProvider } from '../SkillsContextProvider';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { setFakeHits } from '../__mocks__/react-instantsearch-dom';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -21,6 +22,8 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
+  useDefaultSearchFilters: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -47,10 +50,35 @@ const SkillsQuizWithContext = ({
   </IntlProvider>
 );
 
+const mockAlgoliaSearch = {
+  searchClient: {
+    search: jest.fn(), appId: 'test-app-id',
+  },
+  searchIndex: {
+    indexName: 'mock-index-name',
+  },
+};
+
+const hits = [
+  {
+    skills: [
+      'JavaScript',
+      'React',
+      'Node.js',
+      'Python',
+      'Django',
+      'SQL',
+      'AWS',
+    ],
+  },
+];
+setFakeHits(hits);
 describe('<SkillsQuiz />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
 
   it('renders skills quiz V1 page successfully.', () => {

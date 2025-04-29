@@ -6,7 +6,7 @@ const MockReactInstantSearch = jest.genMockFromModule(
   'react-instantsearch-dom',
 );
 
-const fakeHits = [
+let fakeHits = [
   {
     objectID: '1',
     title: 'bla',
@@ -28,6 +28,11 @@ const fakeHits = [
     course_keys: [],
   },
 ];
+
+// This allows you to override the built-in hits object
+const setFakeHits = hits => {
+  fakeHits = hits;
+};
 
 MockReactInstantSearch.configure = {
   nbHits: 2,
@@ -76,4 +81,7 @@ MockReactInstantSearch.Configure = function Configure() { return <div>CONFIGURED
 MockReactInstantSearch.Index = function Index({ children }) { return children; };
 
 // It is necessary to export this way, or tests not using the mock will fail
-module.exports = MockReactInstantSearch;
+module.exports = {
+  ...MockReactInstantSearch,
+  setFakeHits,
+};

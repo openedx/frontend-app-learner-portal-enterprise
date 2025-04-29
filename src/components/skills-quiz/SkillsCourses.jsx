@@ -135,7 +135,6 @@ const SkillsCourses = () => {
   const { searchIndex, searchClient } = useAlgoliaSearch();
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
   const filters = useDefaultSearchFilters();
-
   const searchFilters = useMemo(() => new AlgoliaFilterBuilder()
     .and('content_type', 'course')
     .andRaw(filters)

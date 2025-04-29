@@ -22,7 +22,7 @@ import {
   GOAL_DROPDOWN_DEFAULT_OPTION,
   INDUSTRY_FACET,
 } from '../constants';
-import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
+import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -41,6 +41,7 @@ jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
   useDefaultSearchFilters: jest.fn(),
 }));
 
@@ -99,11 +100,21 @@ const SkillsQuizStepperWrapper = ({
   </IntlProvider>
 );
 
+const mockAlgoliaSearch = {
+  searchClient: {
+    search: jest.fn(), appId: 'test-app-id',
+  },
+  searchIndex: {
+    indexName: 'mock-index-name',
+  },
+};
+
 describe('<SkillsQuizStepper />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
 
   it('checks header is correctly rendered', () => {
@@ -144,6 +155,7 @@ describe('<SkillsQuizStepper />', () => {
 
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
+      dispatch: jest.fn(),
     };
 
     renderWithRouter(
@@ -160,6 +172,7 @@ describe('<SkillsQuizStepper />', () => {
     };
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
+      dispatch: jest.fn(),
     };
 
     renderWithRouter(

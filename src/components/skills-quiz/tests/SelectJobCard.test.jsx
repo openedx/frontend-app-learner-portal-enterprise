@@ -60,10 +60,10 @@ describe('<SelectJobCard />', () => {
       interestedJobs: [{
         name: 'TEST_JOB_TITLE',
         objectID: 'TEST_JOB_KEY',
-        job_postings: [
+        jobPostings: [
           {
-            median_salary: TEST_MEDIAN_SALARY,
-            unique_postings: TEST_UNIQUE_POSTINGS,
+            medianSalary: TEST_MEDIAN_SALARY,
+            uniquePostings: TEST_UNIQUE_POSTINGS,
           },
         ],
 
@@ -86,10 +86,10 @@ describe('<SelectJobCard />', () => {
       interestedJobs: [{
         name: 'TEST_JOB_TITLE',
         objectID: 'TEST_JOB_KEY',
-        job_postings: [
+        jobPostings: [
           {
-            median_salary: TEST_MEDIAN_SALARY,
-            unique_postings: TEST_UNIQUE_POSTINGS,
+            medianSalary: TEST_MEDIAN_SALARY,
+            uniquePostings: TEST_UNIQUE_POSTINGS,
           },
         ],
 
@@ -113,10 +113,10 @@ describe('<SelectJobCard />', () => {
       interestedJobs: [{
         name: 'Engineer',
         objectID: '11',
-        job_postings: [
+        jobPostings: [
           {
-            median_salary: TEST_MEDIAN_SALARY,
-            unique_postings: TEST_UNIQUE_POSTINGS,
+            medianSalary: TEST_MEDIAN_SALARY,
+            uniquePostings: TEST_UNIQUE_POSTINGS,
           },
         ],
 
@@ -124,10 +124,10 @@ describe('<SelectJobCard />', () => {
       {
         name: 'Programmer',
         objectID: '12',
-        job_postings: [
+        jobPostings: [
           {
-            median_salary: TEST_MEDIAN_SALARY_2,
-            unique_postings: TEST_UNIQUE_POSTINGS_2,
+            medianSalary: TEST_MEDIAN_SALARY_2,
+            uniquePostings: TEST_UNIQUE_POSTINGS_2,
           },
         ],
 
@@ -152,9 +152,9 @@ describe('<SelectJobCard />', () => {
       interestedJobs: [{
         name: 'Engineer',
         objectID: '11',
-        job_postings: [
+        jobPostings: [
           {
-            median_salary: TEST_MEDIAN_SALARY,
+            medianSalary: TEST_MEDIAN_SALARY,
           },
         ],
       },
@@ -177,9 +177,9 @@ describe('<SelectJobCard />', () => {
       interestedJobs: [{
         name: 'Engineer',
         objectID: '11',
-        job_postings: [
+        jobPostings: [
           {
-            unique_postings: TEST_UNIQUE_POSTINGS,
+            uniquePostings: TEST_UNIQUE_POSTINGS,
           },
         ],
       },

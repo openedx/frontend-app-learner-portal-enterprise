@@ -9,7 +9,9 @@ import { renderWithRouter } from '../../../utils/tests';
 import { SkillsContext } from '../../skills-quiz/SkillsContextProvider';
 import { GOAL_DROPDOWN_DEFAULT_OPTION } from '../../skills-quiz/constants';
 import SkillQuizForm from '../SkillsQuizForm';
-import { authenticatedUserFactory } from '../../app/data/services/data/__factories__';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
+import { setFakeHits } from '../../skills-quiz/__mocks__/react-instantsearch-dom';
 
 jest.mock('algoliasearch/lite', () => jest.fn());
 const mockSearch = jest.fn().mockResolvedValue({ hits: [] });
@@ -19,6 +21,13 @@ const mockInitIndex = jest.fn().mockReturnValue({
 algoliasearch.mockReturnValue({
   initIndex: mockInitIndex,
 });
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
+  useDefaultSearchFilters: jest.fn(),
+}));
 
 const mockAuthenticatedUser = authenticatedUserFactory();
 
@@ -51,9 +60,38 @@ const SkillsQuizFormWrapper = () => (
   </IntlProvider>
 );
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
+const mockAlgoliaSearch = {
+  searchClient: {
+    search: jest.fn(), appId: 'test-app-id',
+  },
+  searchIndex: {
+    indexName: 'mock-index-name',
+    search: jest.fn().mockReturnValue({ hits: [] }),
+  },
+};
+
+const hits = [
+  {
+    skills: [
+      'JavaScript',
+      'React',
+      'Node.js',
+      'Python',
+      'Django',
+      'SQL',
+      'AWS',
+    ],
+  },
+];
+setFakeHits(hits);
 describe('<SkillQuizForm />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
 
   it('renders skills quiz v2 page', async () => {

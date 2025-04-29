@@ -6,8 +6,9 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SearchJobCard from '../SearchJobCard';
-import { useEnterpriseCustomer } from '../../app/data';
-import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useAlgoliaSearch, useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { setFakeHits } from '../__mocks__/react-instantsearch-dom';
 
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
@@ -17,16 +18,19 @@ jest.mock('react-loading-skeleton', () => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
 }));
+
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const initialAppState = {
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const SearchJobCardWithContext = ({
-  index,
   appState = initialAppState,
   initialSearchState,
   initialJobsState,
@@ -35,7 +39,7 @@ const SearchJobCardWithContext = ({
     <AppContext.Provider value={appState}>
       <SearchContext.Provider value={initialSearchState}>
         <SkillsContextProvider initialState={initialJobsState}>
-          <SearchJobCard index={index} />
+          <SearchJobCard />
         </SkillsContextProvider>
       </SearchContext.Provider>
     </AppContext.Provider>
@@ -66,11 +70,6 @@ const hitObject = {
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-const testIndex = {
-  indexName: 'test-index-name',
-  search: jest.fn().mockImplementation(() => Promise.resolve(hitObject)),
-};
-
 const initialSearchState = {
   refinements: { name: [], current_job: ['test-current-job'] },
   dispatch: () => null,
@@ -83,15 +82,25 @@ const initialJobsState = {
   dispatch: () => null,
 };
 
+const mockAlgoliaSearch = {
+  searchClient: {
+    search: jest.fn(), appId: 'test-app-id',
+  },
+  searchIndex: {
+    indexName: 'mock-index-name',
+  },
+};
+
+setFakeHits(hitObject.hits);
 describe('<SearchJobCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
   });
   test('renders the data in job cards correctly', async () => {
     render(
       <SearchJobCardWithContext
-        index={testIndex}
         initialAppState={initialAppState}
         initialSearchState={initialSearchState}
         initialJobsState={initialJobsState}
@@ -109,7 +118,6 @@ describe('<SearchJobCard />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithHideLaborMarketData });
     render(
       <SearchJobCardWithContext
-        index={testIndex}
         initialAppState={initialAppState}
         initialSearchState={initialSearchState}
         initialJobsState={initialJobsState}

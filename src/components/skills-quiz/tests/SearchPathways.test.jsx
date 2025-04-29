@@ -7,7 +7,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import SearchPathways from '../SearchPathways';
 import { renderWithRouter } from '../../../utils/tests';
 import { SkillsContext } from '../SkillsContextProvider';
-import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -87,7 +87,7 @@ describe('<SearchPathways />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
   test('renders the correct data', async () => {
     renderWithRouter(<SearchPathwaysWithContext index={testIndex} />);
