@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Col } from '@openedx/paragon';
 import { Helmet } from 'react-helmet';
 
-import FooterSlot from '@openedx/frontend-slot-footer';
+import { FooterSlot } from '@edx/frontend-component-footer';
 import ErrorPageHeader from './ErrorPageHeader';
 import ErrorPageTitle from './ErrorPageTitle';
 import ErrorPageSubtitle from './ErrorPageSubtitle';

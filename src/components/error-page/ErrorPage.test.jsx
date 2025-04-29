@@ -4,9 +4,9 @@ import '@testing-library/jest-dom/extend-expect';
 
 import ErrorPage from './ErrorPage';
 
-jest.mock('@openedx/frontend-slot-footer', () => function MockFrontendComponentFooter() {
-  return <div data-testid="site-footer" />;
-});
+jest.mock('@edx/frontend-component-footer', () => ({
+  FooterSlot: jest.fn(() => <div data-testid="site-footer" />),
+}));
 
 const ErrorPageWrapper = (component) => renderer
   .create((
