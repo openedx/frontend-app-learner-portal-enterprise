@@ -151,7 +151,12 @@ export const useCourseUpgradeData = ({
     const applicableSubsidy = getSubsidyToApplyForCourse({
       applicableSubscriptionLicense: subscriptionLicense,
       applicableCouponCode,
-      applicableSubsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy,
+      applicableSubsidyAccessPolicy: {
+        ...learnerCreditMetadata?.applicableSubsidyAccessPolicy,
+        // The original field, 'redeemableSubsidyAccessPolicy', was spread into applicableSubsidyAccessPolicy
+        // 'redeemableSubsidyAccessPolicy' added to match data-structure
+        redeemableSubsidyAccessPolicy: learnerCreditMetadata.applicableSubsidyAccessPolicy,
+      },
     });
 
     // No applicable subsidy found, return early.

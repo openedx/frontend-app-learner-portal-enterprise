@@ -26,6 +26,9 @@ export default function useCanUpgradeWithLearnerCredit(courseRunKey, queryOption
       const redeemableCourseRun = data.filter((canRedeemData) => (
         canRedeemData.canRedeem && canRedeemData.redeemableSubsidyAccessPolicy
       ))[0];
+
+      // TODO: Consolidate redemption and upgrade data-structure into one.
+      // See usage in components/dashboard/main-content/course-enrollments/data/hooks.js -> useCourseUpgradeData()
       if (redeemableCourseRun) {
         const applicableSubsidyAccessPolicy = redeemableCourseRun.redeemableSubsidyAccessPolicy;
         applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled = true;
