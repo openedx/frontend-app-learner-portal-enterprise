@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { CardGrid } from '@openedx/paragon';
+import { Card, CardGrid } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform';
 
 import CourseRunCard from './CourseRunCard';
@@ -20,6 +20,7 @@ import {
 const CourseRunCards = () => {
   const { courseKey } = useParams();
   const {
+    isPending: isPendingUserSubsidyApplicableToCourse,
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
   } = useUserSubsidyApplicableToCourse();
@@ -46,6 +47,15 @@ const CourseRunCards = () => {
       hasEqualColumnHeights={false}
     >
       {courseRunsToDisplay.map((courseRun) => {
+        if (isPendingUserSubsidyApplicableToCourse) {
+          return (
+            <Card isLoading>
+              <Card.Header />
+              <Card.Section />
+              <Card.Footer />
+            </Card>
+          );
+        }
         if (shouldUseDeprecatedCourseRunCard) {
           return (
             <DeprecatedCourseRunCard

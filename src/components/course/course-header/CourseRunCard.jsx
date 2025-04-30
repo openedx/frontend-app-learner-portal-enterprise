@@ -15,7 +15,9 @@ import { useCanUserRequestSubsidyForCourse, useUserSubsidyApplicableToCourse } f
 const CourseRunCard = ({ courseRun }) => {
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
   const { data: courseMetadata } = useCourseMetadata();
-  const { userSubsidyApplicableToCourse, missingUserSubsidyReason } = useUserSubsidyApplicableToCourse();
+  const {
+    missingUserSubsidyReason,
+  } = useUserSubsidyApplicableToCourse();
   const userCanRequestSubsidyForCourse = useCanUserRequestSubsidyForCourse();
 
   const userEnrollmentForCourseRun = findUserEnrollmentForCourseRun({
@@ -33,7 +35,6 @@ const CourseRunCard = ({ courseRun }) => {
     userEnrollment: userEnrollmentForCourseRun,
     courseRunUrl: userEnrollmentForCourseRun?.linkToCourse,
     userCanRequestSubsidyForCourse,
-    subsidyAccessPolicy: userSubsidyApplicableToCourse,
   });
 
   return (

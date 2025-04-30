@@ -22,7 +22,6 @@ import CourseMaterialsButton from '../CourseMaterialsButton';
 import {
   isArchived,
   useCourseMetadata,
-  useCourseRedemptionEligibility,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContent,
   useIsAssignmentsOnlyLearner,
@@ -34,10 +33,9 @@ const CourseHeader = () => {
   const { courseKey } = useParams();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
-  const { data: { isPolicyRedemptionEnabled } } = useCourseRedemptionEligibility();
   const { data: { containsContentItems } } = useEnterpriseCustomerContainsContent([courseKey]);
   const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();
-  const { isCourseAssigned } = useIsCourseAssigned();
+  const { shouldDisplayAssignmentsOnly } = useIsCourseAssigned();
   const isCourseArchived = courseMetadata.courseRuns.every((courseRun) => isArchived(courseRun));
   const [partners] = useCoursePartners(courseMetadata);
   const defaultProgram = useMemo(
@@ -101,7 +99,7 @@ const CourseHeader = () => {
               )}
             >
               <h2 className="mb-0">{courseMetadata.title}</h2>
-              {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned) && (
+              {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && shouldDisplayAssignmentsOnly) && (
                 <Badge variant="info" className="ml-4">
                   <FormattedMessage
                     id="enterprise.course.about.page.assigned.badge.label"
@@ -119,10 +117,9 @@ const CourseHeader = () => {
               />
             )}
             <CourseSkills />
-            {isPolicyRedemptionEnabled && <CourseRunCards />}
             {containsContentItems && (
               <>
-                {!isPolicyRedemptionEnabled && <CourseRunCards />}
+                <CourseRunCards />
                 <SubsidyRequestButton />
               </>
             )}

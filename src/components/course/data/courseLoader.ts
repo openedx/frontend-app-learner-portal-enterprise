@@ -7,9 +7,10 @@ import {
   determineLearnerHasContentAssignmentsOnly,
   extractCourseRunKeyFromSearchParams,
   extractEnterpriseCustomer,
+  findCouponCodeForCourse,
   getBaseSubscriptionsData,
   getCatalogsForSubsidyRequests,
-  getCourseRunKeysForRedemption,
+  getCourseRunsForRedemption,
   getLateEnrollmentBufferDays,
   getSearchCatalogs,
   queryBrowseAndRequestConfiguration,
@@ -29,8 +30,11 @@ import {
   safeEnsureQueryData,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
+import {
+  getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug,
+} from './utils';
 import { getErrorResponseStatusCode } from '../../../utils/common';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 type CourseRouteParams<Key extends string = string> = Params<Key> & {
   readonly courseKey: string;
@@ -64,42 +68,68 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     if (!enterpriseCustomer) {
       return null;
     }
-    const redeemableLearnerCreditPolicies = await safeEnsureQueryData({
-      queryClient,
-      query: queryRedeemablePolicies({
-        enterpriseUuid: enterpriseCustomer.uuid,
-        lmsUserId: authenticatedUser.userId,
-      }),
-      fallbackData: {
-        redeemablePolicies: [],
-        expiredPolicies: [],
-        unexpiredPolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          allocatedAssignments: [],
-          hasAllocatedAssignments: false,
-          acceptedAssignments: [],
-          hasAcceptedAssignments: false,
-          canceledAssignments: [],
-          hasCanceledAssignments: false,
-          expiredAssignments: [],
-          hasExpiredAssignments: false,
-          erroredAssignments: [],
-          hasErroredAssignments: false,
-          assignmentsForDisplay: [],
-          hasAssignmentsForDisplay: false,
-          reversedAssignments: [],
-          hasReversedAssignments: false,
+    const prerequisiteQueries = await Promise.all([
+      safeEnsureQueryData({
+        queryClient,
+        query: queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey]),
+        fallbackData: {
+          containsContentItems: false,
+          catalogList: [],
         },
-      },
-    });
-    const otherSubsidyQueries = Promise.all([
+      }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryCouponCodes(enterpriseCustomer.uuid),
+        fallbackData: {
+          couponsOverview: [],
+          couponCodeAssignments: [],
+          couponCodeRedemptionCount: 0,
+        },
+      }),
       safeEnsureQueryData({
         queryClient,
         query: querySubscriptions(enterpriseCustomer.uuid),
         fallbackData: getBaseSubscriptionsData().baseSubscriptionsData,
       }),
+      safeEnsureQueryData({
+        queryClient,
+        query: queryRedeemablePolicies({
+          enterpriseUuid: enterpriseCustomer.uuid,
+          lmsUserId: authenticatedUser.userId,
+        }),
+        fallbackData: {
+          redeemablePolicies: [],
+          expiredPolicies: [],
+          unexpiredPolicies: [],
+          learnerContentAssignments: {
+            assignments: [],
+            hasAssignments: false,
+            allocatedAssignments: [],
+            hasAllocatedAssignments: false,
+            acceptedAssignments: [],
+            hasAcceptedAssignments: false,
+            canceledAssignments: [],
+            hasCanceledAssignments: false,
+            expiredAssignments: [],
+            hasExpiredAssignments: false,
+            erroredAssignments: [],
+            hasErroredAssignments: false,
+            assignmentsForDisplay: [],
+            hasAssignmentsForDisplay: false,
+            reversedAssignments: [],
+            hasReversedAssignments: false,
+          },
+        },
+      }),
+    ]);
+    const [
+      { containsContentItems: catalogsWithCourse },
+      { couponsOverview, couponCodeAssignments, couponCodeRedemptionCount },
+      { customerAgreement, subscriptionLicense, subscriptionPlan },
+      redeemableLearnerCreditPolicies,
+    ] = prerequisiteQueries;
+
+    const otherSubsidyQueries = Promise.all([
       safeEnsureQueryData({
         queryClient,
         query: queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
@@ -110,15 +140,6 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
           hasCurrentEnterpriseOffers: false,
           hasLowEnterpriseOffersBalance: false,
           hasNoEnterpriseOffersBalance: false,
-        },
-      }),
-      safeEnsureQueryData({
-        queryClient,
-        query: queryCouponCodes(enterpriseCustomer.uuid),
-        fallbackData: {
-          couponsOverview: [],
-          couponCodeAssignments: [],
-          couponCodeRedemptionCount: 0,
         },
       }),
       safeEnsureQueryData({
@@ -150,11 +171,21 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
           const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
             redeemableLearnerCreditPolicies.redeemablePolicies,
           );
-          const courseRunKeysForRedemption = getCourseRunKeysForRedemption({
+          const isSubscriptionLicenseApplicable = (
+            subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
+            && subscriptionLicense?.subscriptionPlan.isCurrent
+            && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
+          );
+          const applicableCouponCode = findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse);
+
+          const hasSubsidyPrioritizedOverLearnerCredit = isSubscriptionLicenseApplicable
+            || applicableCouponCode?.couponCodeRedemptionCount > 0;
+          const { courseRunKeys: courseRunKeysForRedemption } = getCourseRunsForRedemption({
             course: courseMetadata,
             lateEnrollmentBufferDays,
             courseRunKey,
             redeemableLearnerCreditPolicies,
+            hasSubsidyPrioritizedOverLearnerCredit,
           });
           return safeEnsureQueryData({
             queryClient,
@@ -176,29 +207,15 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
       }),
       safeEnsureQueryData({
         queryClient,
-        query: queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey]),
-        fallbackData: {
-          containsContentItems: false,
-          catalogList: [],
-        },
-      }),
-      safeEnsureQueryData({
-        queryClient,
         query: queryCourseReviews(courseKey),
         shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
         fallbackData: null,
       }),
       otherSubsidyQueries.then(async (subsidyResponses) => {
-        const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[0];
-        const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[1];
-        const {
-          couponCodeAssignments,
-          couponCodeRedemptionCount,
-          couponsOverview,
-        } = subsidyResponses[2];
-        const licenseRequests = subsidyResponses[3];
-        const couponCodeRequests = subsidyResponses[4];
-        const browseAndRequestConfiguration = subsidyResponses[5];
+        const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[0];
+        const licenseRequests = subsidyResponses[1];
+        const couponCodeRequests = subsidyResponses[2];
+        const browseAndRequestConfiguration = subsidyResponses[3];
         const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
           subscriptionPlan,
           subscriptionLicense,

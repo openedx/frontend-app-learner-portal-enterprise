@@ -7,7 +7,6 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { DISABLED_ENROLL_REASON_TYPES } from '../constants';
 import {
-  findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getCouponCodesDisabledEnrollmentReasonType,
   getCourseStartDate,
@@ -22,6 +21,7 @@ import {
   transformedCourseMetadata,
 } from '../utils';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
+import { findCouponCodeForCourse } from '../../../app/data';
 
 jest.mock('@edx/frontend-platform', () => ({
   ensureConfig: jest.fn(),

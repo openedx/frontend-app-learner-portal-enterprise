@@ -4,6 +4,7 @@ import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/da
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import {
   getBrandColorsFromCSSVariables,
+  hasValidStartExpirationDates,
   isDefinedAndNotNull,
   isTodayBetweenDates,
   isTodayWithinDateThreshold,
@@ -615,19 +616,6 @@ export function getAvailableCourseRuns({
   );
 }
 
-export function getAvailableCourseRunKeys({
-  course,
-  lateEnrollmentBufferDays,
-  courseRunKey,
-}) {
-  const availableCourseRuns = getAvailableCourseRuns({
-    course,
-    lateEnrollmentBufferDays,
-    courseRunKey,
-  });
-  return availableCourseRuns.map((courseRun) => courseRun.key);
-}
-
 export function getCatalogsForSubsidyRequests({
   browseAndRequestConfiguration,
   customerAgreement,
@@ -771,7 +759,6 @@ export const filterPoliciesByExpirationAndActive = (policies) => {
   };
 };
 
-/* eslint-disable max-len */
 /**
  * Returns a formatted object based on the subsidy or subsides passed
  *
@@ -785,9 +772,7 @@ export const filterPoliciesByExpirationAndActive = (policies) => {
  * @param applicableCouponCode
  * @param applicableEnterpriseOffer
  * @param applicableSubsidyAccessPolicy
- * @returns {{perLearnerSpendLimit: (number|null|Number|*), policyRedemptionUrl: (string|string|*), discountType: string, discountValue: number, subsidyType: string, perLearnerEnrollmentLimit: (null|*)}|{subsidyId, discountType: string, discountValue: number, startDate, subsidyType: string, expirationDate, status}|undefined|{maxUserApplications: (null|*), endDate: (string|*), subsidyType: string, offerType: *, isCurrent, remainingApplications: (number|null|*), remainingApplicationsForUser: (number|null|*), discountType: string, remainingBalance, remainingBalanceForUser, discountValue, startDate: (string|*), maxUserDiscount}|{code, endDate: (string|*), discountType: (string|*), discountValue: (number|*), startDate: (string|*), subsidyType: string, catalogUuid: (string|*)}}
  */
-/* eslint-enable max-len */
 export const getSubsidyToApplyForCourse = ({
   applicableSubscriptionLicense = undefined,
   applicableCouponCode = undefined,
@@ -817,15 +802,19 @@ export const getSubsidyToApplyForCourse = ({
     };
   }
 
-  if (applicableSubsidyAccessPolicy?.isPolicyRedemptionEnabled) {
+  if (
+    applicableSubsidyAccessPolicy?.isPolicyRedemptionEnabled
+    && applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy
+  ) {
     const { redeemableSubsidyAccessPolicy, availableCourseRuns } = applicableSubsidyAccessPolicy;
     return {
       discountType: 'percentage',
       discountValue: 100,
       subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-      perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
-      perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
-      policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+      perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy.perLearnerEnrollmentLimit,
+      perLearnerSpendLimit: redeemableSubsidyAccessPolicy.perLearnerSpendLimit,
+      policyRedemptionUrl: redeemableSubsidyAccessPolicy.policyRedemptionUrl,
+      policyType: redeemableSubsidyAccessPolicy.policyType,
       availableCourseRuns,
     };
   }
@@ -994,25 +983,60 @@ export function extractCourseRunKeyFromSearchParams(searchParams) {
   return courseRunKey;
 }
 
-export function getCourseRunKeysForRedemption({
+/**
+ * Returns the course runs available for redemption based on the course and learner credit policies.
+ */
+export function getCourseRunsForRedemption({
   course,
   lateEnrollmentBufferDays,
   courseRunKey,
   redeemableLearnerCreditPolicies,
+  hasSubsidyPrioritizedOverLearnerCredit,
 }) {
-  const availableCourseRunKeys = getAvailableCourseRunKeys({
+  const availableCourseRuns = getAvailableCourseRuns({
     course,
     lateEnrollmentBufferDays,
     courseRunKey,
   });
+  const availableCourseRunKeys = availableCourseRuns.map((courseRun) => courseRun.key);
+  const defaultReturnValue = {
+    courseRuns: availableCourseRuns,
+    courseRunKeys: availableCourseRunKeys,
+  };
+  if (hasSubsidyPrioritizedOverLearnerCredit) {
+    // If subsidies are prioritized over learner credit, return all available course runs.
+    // For example, subscriptions take precedence over learner credit.
+    return defaultReturnValue;
+  }
   const {
     allocatedCourseRunAssignmentKeys,
   } = determineAllocatedAssignmentsForCourse({
     courseKey: course.key,
     redeemableLearnerCreditPolicies,
   });
-  // Filter available course run keys to only those that have an associated allocated assignment.
-  return availableCourseRunKeys.filter((key) => (
-    allocatedCourseRunAssignmentKeys.includes(key)
-  ));
+  if (allocatedCourseRunAssignmentKeys.length > 0) {
+    // Filter available course run keys to only those that have an associated allocated assignment.
+    return {
+      courseRuns: availableCourseRuns.filter((courseRun) => (
+        allocatedCourseRunAssignmentKeys.includes(courseRun.key)
+      )),
+      courseRunKeys: availableCourseRunKeys.filter((key) => (
+        allocatedCourseRunAssignmentKeys.includes(key)
+      )),
+    };
+  }
+  return defaultReturnValue;
+}
+
+/**
+ * Finds a coupon code that is applicable to the course based on the catalog list.
+ * @param couponCodes
+ * @param catalogList
+ * @returns {*}
+ */
+export function findCouponCodeForCourse(couponCodes, catalogList = []) {
+  return couponCodes.find((couponCode) => catalogList?.includes(couponCode.catalog) && hasValidStartExpirationDates({
+    startDate: couponCode.couponStartDate,
+    endDate: couponCode.couponEndDate,
+  }));
 }

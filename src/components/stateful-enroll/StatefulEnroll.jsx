@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { StatefulButton } from '@openedx/paragon';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
 import { useStatefulEnroll } from './data';
+import { useUserSubsidyApplicableToCourse } from '../course/data';
 
 const messages = defineMessages({
   buttonLabelEnroll: {
@@ -26,6 +27,11 @@ const messages = defineMessages({
     defaultMessage: 'Try again',
     description: 'Label for enroll button when enrollment errored.',
   },
+  buttonLabelLoadingApplicableSubsidy: {
+    id: 'StatefulEnroll.buttonLabel.loadingApplicableSubsidy',
+    defaultMessage: 'Please wait...',
+    description: 'Label for enroll button when loading applicable subsidy.',
+  },
 });
 
 /**
@@ -36,18 +42,37 @@ const messages = defineMessages({
  */
 const StatefulEnroll = ({
   contentKey,
-  subsidyAccessPolicy,
   labels,
   variant,
   onClick,
   onSuccess,
   onError,
+  options = {},
   ...props
 }) => {
   const intl = useIntl();
   const [buttonState, setButtonState] = useState('default');
+  const {
+    trackSearchConversionEventName,
+  } = options;
+
+  // Handle background re-fetches of `canRedeem`, which may trigger hard loading state due to the query key change
+  // when the potentially redeemable course run keys are updated (e.g., if an admin cancels a learner's assignment
+  // while the user is on the course page).
+  const {
+    isPending: isPendingApplicableSubsidy,
+    userSubsidyApplicableToCourse,
+  } = useUserSubsidyApplicableToCourse();
+  useEffect(() => {
+    if (isPendingApplicableSubsidy) {
+      setButtonState('loadingApplicableSubsidy');
+    } else {
+      setButtonState('default');
+    }
+  }, [isPendingApplicableSubsidy]);
 
   const buttonLabels = {
+    loadingApplicableSubsidy: intl.formatMessage(messages.buttonLabelLoadingApplicableSubsidy),
     default: intl.formatMessage(messages.buttonLabelEnroll),
     pending: intl.formatMessage(messages.buttonLabelEnrolling),
     complete: intl.formatMessage(messages.buttonLabelEnrolled),
@@ -55,10 +80,14 @@ const StatefulEnroll = ({
     // overrides default labels with any provided custom labels
     ...labels,
   };
+  const disabledButtonStates = ['loadingApplicableSubsidy', 'pending', 'complete'];
 
   const redeem = useStatefulEnroll({
     contentKey,
-    subsidyAccessPolicy,
+    subsidyAccessPolicy: userSubsidyApplicableToCourse,
+    options: {
+      trackSearchConversionEventName,
+    },
     onBeginRedeem: () => {
       setButtonState('pending');
     },
@@ -88,6 +117,7 @@ const StatefulEnroll = ({
       labels={buttonLabels}
       variant={variant}
       state={buttonState}
+      disabledStates={disabledButtonStates}
       onClick={handleEnrollButtonClick}
       {...props}
     />
@@ -109,6 +139,9 @@ StatefulEnroll.propTypes = {
   onClick: PropTypes.func,
   onSuccess: PropTypes.func,
   onError: PropTypes.func,
+  options: PropTypes.shape({
+    trackSearchConversionEventName: PropTypes.string,
+  }),
 };
 
 StatefulEnroll.defaultProps = {

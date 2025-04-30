@@ -20,7 +20,7 @@ import XSeriesSvgIcon from '../../../assets/icons/xseries.svg';
 import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
-import { formatPrice, hasValidStartExpirationDates, isDefinedAndNotNull } from '../../../utils/common';
+import { formatPrice, isDefinedAndNotNull } from '../../../utils/common';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import {
   findHighestLevelEntitlementSku,
@@ -174,19 +174,6 @@ export const getContentPriceDisplay = (priceRange) => {
   }
   return formatPrice(priceRange[0]);
 };
-
-/**
- *
- * @param couponCodes
- * @param catalogList
- * @returns {*}
- */
-export function findCouponCodeForCourse(couponCodes, catalogList = []) {
-  return couponCodes.find((couponCode) => catalogList?.includes(couponCode.catalog) && hasValidStartExpirationDates({
-    startDate: couponCode.couponStartDate,
-    endDate: couponCode.couponEndDate,
-  }));
-}
 
 /**
  * Determines if the enterprise offer fields passed are able to deem the offer as redeemable

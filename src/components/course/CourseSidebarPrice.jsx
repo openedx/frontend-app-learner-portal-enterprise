@@ -22,8 +22,8 @@ const CourseSidebarPrice = () => {
   const { coursePrice, currency } = useCoursePrice();
   const { isCourseAssigned } = useIsCourseAssigned();
   const canRequestSubsidy = useCanUserRequestSubsidyForCourse();
-  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
-  if (!coursePrice) {
+  const { userSubsidyApplicableToCourse, isPending } = useUserSubsidyApplicableToCourse();
+  if (!coursePrice || isPending) {
     return <Skeleton containerTestId="course-price-skeleton" height={24} />;
   }
   const originalPriceDisplay = getContentPriceDisplay(coursePrice.listRange);

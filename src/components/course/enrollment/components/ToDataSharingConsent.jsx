@@ -5,19 +5,15 @@ import {
   useTrackSearchConversionClickHandler,
 } from '../../data/hooks';
 import { EnrollButtonCta } from '../common';
-import { useCourseMetadata, useEnterpriseCourseEnrollments } from '../../../app/data';
+import { useEnterpriseCourseEnrollments } from '../../../app/data';
 
 // Data sharing consent
-const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
-  const {
-    data: {
-      activeCourseRun: { key: courseRunKey },
-    },
-  } = useCourseMetadata();
+const ToDataSharingConsentPage = ({ courseRunKey, enrollLabel, enrollmentUrl }) => {
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
 
   const analyticsHandler = useTrackSearchConversionClickHandler({
     href: enrollmentUrl,
+    courseRunKey,
     eventName: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_dsc.clicked',
   });
   const optimizelyHandler = useOptimizelyEnrollmentClickHandler({
@@ -40,6 +36,7 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
 };
 
 ToDataSharingConsentPage.propTypes = {
+  courseRunKey: PropTypes.string.isRequired,
   enrollLabel: PropTypes.node.isRequired,
   enrollmentUrl: PropTypes.string.isRequired,
 };

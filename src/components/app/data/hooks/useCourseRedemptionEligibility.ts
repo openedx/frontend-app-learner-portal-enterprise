@@ -6,9 +6,13 @@ import useCourseMetadata from './useCourseMetadata';
 import { queryCanRedeem } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
-import { getCourseRunKeysForRedemption } from '../utils';
+import { findCouponCodeForCourse, getCourseRunsForRedemption } from '../utils';
 import useCourseRunKeyQueryParam from './useCourseRunKeyQueryParam';
 import useRedeemablePolicies from './useRedeemablePolicies';
+import useSubscriptions from './useSubscriptions';
+import useCouponCodes from './useCouponCodes';
+import useEnterpriseCustomerContainsContent from './useEnterpriseCustomerContainsContent';
+import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 
 const getContentListPriceRange = ({ courseRuns }) => {
   const flatContentPrice = courseRuns.flatMap(run => run.listPrice?.usd).filter(x => !!x);
@@ -29,12 +33,13 @@ export function transformCourseRedemptionEligibility({
   courseMetadata,
   canRedeemData,
   courseRunKey,
+  courseRunsForRedemption,
 }) {
   // Begin by excluding restricted runs that should not be visible to the requester.
   //
   // NOTE: This filtering does ultimately control the visibility of individual course runs
   // on the course about page IFF the applicable subsidy type is Learner Credit.
-  const availableCourseRuns = courseMetadata.availableCourseRuns.filter(courseRunMetadata => {
+  const availableCourseRuns = courseRunsForRedemption.filter((courseRunMetadata) => {
     if (!courseRunMetadata.restrictionType) {
       // If a run is generally unrestricted, always show the run. Pre-filtering on the
       // upstream `courseMetadata.availableCourseRuns` already excluded runs that are
@@ -95,14 +100,46 @@ export default function useCourseRedemptionEligibility() {
   const courseRunKey = courseRunKeyRouteParam || courseRunKeyQueryParam;
 
   const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
-  const { data: courseMetadata } = useCourseMetadata();
   const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
-  const courseRunKeysForRedemption = getCourseRunKeysForRedemption({
+  const { data: courseMetadata } = useCourseMetadata();
+
+  const {
+    // @ts-expect-error
+    data: { subscriptionLicense },
+  } = useSubscriptions();
+
+  const { courseKey } = useParams();
+  const {
+    data: {
+      catalogList: catalogsWithCourse,
+    },
+  } = useEnterpriseCustomerContainsContent([courseKey!]);
+
+  const {
+    data: {
+      couponCodeAssignments,
+    },
+  } = useCouponCodes();
+  const applicableCouponCode = findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse);
+
+  const isSubscriptionLicenseApplicable = (
+    subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
+    && subscriptionLicense?.subscriptionPlan.isCurrent
+    && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
+  );
+  const hasSubsidyPrioritizedOverLearnerCredit = isSubscriptionLicenseApplicable
+    || applicableCouponCode?.couponCodeRedemptionCount > 0;
+
+  const {
+    courseRuns: courseRunsForRedemption,
+    courseRunKeys: courseRunKeysForRedemption,
+  } = getCourseRunsForRedemption({
     course: courseMetadata,
     lateEnrollmentBufferDays,
     courseRunKey,
     redeemableLearnerCreditPolicies,
+    hasSubsidyPrioritizedOverLearnerCredit,
   });
 
   return useQuery(
@@ -115,6 +152,7 @@ export default function useCourseRedemptionEligibility() {
           courseMetadata,
           canRedeemData: data,
           courseRunKey,
+          courseRunsForRedemption,
         });
         return transformedData;
       },

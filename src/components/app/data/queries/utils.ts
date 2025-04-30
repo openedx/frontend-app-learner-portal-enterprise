@@ -122,7 +122,8 @@ export async function safeEnsureQueryData<TData = unknown>({
   fallbackData,
 }: SafeEnsureQueryDataArgs<TData>) {
   try {
-    return await queryClient.ensureQueryData<TData>(query);
+    const data = await queryClient.ensureQueryData<TData>(query);
+    return data;
   } catch (err) {
     const shouldLogErrorResult = typeof shouldLogError === 'function'
       ? shouldLogError(err as Error)

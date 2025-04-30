@@ -13,13 +13,13 @@ import { HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
 import {
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
-  findCouponCodeForCourse,
   findHighestLevelSeatSku,
 } from '../../../../course/data/utils';
 import { getExpiringAssignmentsAcknowledgementState, getHasUnacknowledgedAssignments } from '../../../data/utils';
 import {
   ASSIGNMENT_TYPES,
   COUPON_CODE_SUBSIDY_TYPE,
+  findCouponCodeForCourse,
   getSubsidyToApplyForCourse,
   isEnrollmentUpgradeable,
   LEARNER_CREDIT_SUBSIDY_TYPE,
@@ -113,7 +113,7 @@ export const useCourseUpgradeData = ({
     }),
   });
 
-  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
+  const { data: enterpriseCourseEnrollmentsMetadata } = useEnterpriseCourseEnrollments();
 
   const redeemLearnerCredit = useStatefulEnroll({
     contentKey: courseRunKey,
@@ -121,7 +121,7 @@ export const useCourseUpgradeData = ({
     onBeginRedeem: onRedeem,
     onSuccess: onRedeemSuccess,
     onError: onRedeemError,
-    userEnrollments: enterpriseCourseEnrollments,
+    userEnrollments: enterpriseCourseEnrollmentsMetadata.enterpriseCourseEnrollments,
   });
 
   return useMemo(() => {

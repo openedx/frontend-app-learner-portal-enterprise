@@ -11,7 +11,6 @@ const NavigateToCourseware = ({
   contentKey,
   courseRunUrl,
   shouldUpgradeUserEnrollment,
-  subsidyAccessPolicy,
   onUpgradeClick,
   onUpgradeSuccess,
   onUpgradeError,
@@ -19,7 +18,6 @@ const NavigateToCourseware = ({
   if (shouldUpgradeUserEnrollment) {
     return (
       <UpgradeAndNavigateToCourseware
-        subsidyAccessPolicy={subsidyAccessPolicy}
         contentKey={contentKey}
         onUpgradeClick={onUpgradeClick}
         onUpgradeSuccess={onUpgradeSuccess}
@@ -38,11 +36,6 @@ NavigateToCourseware.propTypes = {
   onUpgradeClick: PropTypes.func.isRequired,
   onUpgradeSuccess: PropTypes.func.isRequired,
   onUpgradeError: PropTypes.func.isRequired,
-  subsidyAccessPolicy: PropTypes.shape(),
-};
-
-NavigateToCourseware.defaultProps = {
-  subsidyAccessPolicy: undefined,
 };
 
 export default NavigateToCourseware;

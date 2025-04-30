@@ -27,7 +27,6 @@ import {
   useUserSubsidyApplicableToCourse,
 } from '../hooks';
 import {
-  findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getCoursePrice,
   getCourseTypeConfig,
@@ -44,6 +43,7 @@ import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../ap
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  findCouponCodeForCourse,
   getSubsidyToApplyForCourse,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,

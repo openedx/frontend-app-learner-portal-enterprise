@@ -8,6 +8,7 @@ import RedemptionStatusText from '../../RedemptionStatusText';
 import useRedemptionStatus from './useRedemptionStatus';
 import { ToastsContext } from '../../../../Toasts';
 import { COURSE_MODES_MAP } from '../../../../app/data';
+import { EVENT_NAMES, useUserSubsidyApplicableToCourse } from '../../../data';
 
 /**
  * Checks whether the user's existing enrollment should be upgraded based on its mode and whether
@@ -34,7 +35,6 @@ const checkUserEnrollmentUpgradeEligibility = ({
  * @param {string} args.courseRunUrl The course run url to navigate to courseware.
  * @param {string} args.externalCourseEnrollmentUrl The url to navigate to the course enrollment page
  * @param {string} args.contentKey The course run key.
- * @param {string} args.subsidyAccessPolicy The redeemable subsidy access policy applicable to the course, if any.
  * @param {boolean} args.userCanRequestSubsidyForCourse, Whether the user can request a subsidy for the course.
  *
  * @returns A JSX element to render as the CTA for the course run.
@@ -45,10 +45,10 @@ const useCourseRunCardAction = ({
   courseRunUrl,
   externalCourseEnrollmentUrl,
   contentKey,
-  subsidyAccessPolicy,
   userCanRequestSubsidyForCourse,
   course,
 }) => {
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
   const {
     redemptionStatus,
     handleRedeemClick,
@@ -68,7 +68,7 @@ const useCourseRunCardAction = ({
   if (isUserEnrolled) {
     const shouldUpgradeUserEnrollment = checkUserEnrollmentUpgradeEligibility({
       userEnrollment,
-      subsidyAccessPolicy,
+      subsidyAccessPolicy: userSubsidyApplicableToCourse,
     });
     return (
       <Stack gap={2}>
@@ -76,7 +76,6 @@ const useCourseRunCardAction = ({
           shouldUpgradeUserEnrollment={shouldUpgradeUserEnrollment}
           contentKey={contentKey}
           courseRunUrl={courseRunUrl}
-          subsidyAccessPolicy={subsidyAccessPolicy}
           onUpgradeClick={handleRedeemClick}
           onUpgradeSuccess={handleRedeemSuccess}
           onUpgradeError={handleRedeemError}
@@ -96,7 +95,7 @@ const useCourseRunCardAction = ({
     return null;
   }
 
-  if (!subsidyAccessPolicy) {
+  if (!userSubsidyApplicableToCourse) {
     return <Button data-testid="disabled-enroll-missing-subsidy-access-policy" disabled block>Enroll</Button>;
   }
 
@@ -109,11 +108,13 @@ const useCourseRunCardAction = ({
   return (
     <Stack gap={2}>
       <StatefulEnroll
-        subsidyAccessPolicy={subsidyAccessPolicy}
         contentKey={contentKey}
         onClick={handleRedeemClick}
         onSuccess={handleRedemptionSuccess}
         onError={handleRedeemError}
+        options={{
+          trackSearchConversionEventName: EVENT_NAMES.sucessfulEnrollment,
+        }}
       />
       <RedemptionStatusText redemptionStatus={redemptionStatus} />
     </Stack>

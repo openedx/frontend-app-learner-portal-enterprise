@@ -61,22 +61,9 @@ CourseImportantDate.propTypes = {
 };
 
 const CourseImportantDates = () => {
-  const { data: courseMetadata } = useCourseMetadata();
   const intl = useIntl();
-  const {
-    allocatedCourseRunAssignments,
-    allocatedCourseRunAssignmentKeys,
-    hasAssignedCourseRuns,
-  } = useIsCourseAssigned();
-
-  const courseRunKey = useCourseRunKeyQueryParam();
-  // Check if the corresponding course run key from query parameters matches an allocated assignment course run key
-  const doesNotHaveCourseRunAssignmentForCourseRunKey = !!courseRunKey && !allocatedCourseRunAssignmentKeys.includes(
-    courseRunKey,
-  );
-  if (!hasAssignedCourseRuns || doesNotHaveCourseRunAssignmentForCourseRunKey) {
-    return null;
-  }
+  const { data: courseMetadata } = useCourseMetadata();
+  const { allocatedCourseRunAssignments } = useIsCourseAssigned();
 
   // Retrieve soonest expiring enroll-by date
   const { soonestExpirationDate, soonestExpiringAssignment } = getSoonestEarliestPossibleExpirationData({
@@ -126,4 +113,33 @@ const CourseImportantDates = () => {
   );
 };
 
-export default CourseImportantDates;
+const CourseImportantDatesWrapper = () => {
+  const {
+    isCourseAssigned,
+    shouldDisplayAssignmentsOnly,
+    allocatedCourseRunAssignmentKeys,
+    hasAssignedCourseRuns,
+  } = useIsCourseAssigned();
+
+  const courseRunKey = useCourseRunKeyQueryParam();
+
+  const conditionsToDisplay = [
+    isCourseAssigned,
+    hasAssignedCourseRuns,
+    shouldDisplayAssignmentsOnly,
+  ];
+  if (courseRunKey) {
+    // Check if the course run key from query params is included in the allocated assignments
+    conditionsToDisplay.push(
+      allocatedCourseRunAssignmentKeys.includes(courseRunKey),
+    );
+  }
+
+  if (!conditionsToDisplay.every(Boolean)) {
+    return null;
+  }
+
+  return <CourseImportantDates />;
+};
+
+export default CourseImportantDatesWrapper;

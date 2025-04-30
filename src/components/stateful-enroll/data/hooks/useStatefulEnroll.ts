@@ -5,21 +5,23 @@ import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { useOptimizelyEnrollmentClickHandler, useTrackSearchConversionClickHandler } from '../../../course/data/hooks';
-import { EVENT_NAMES } from '../../../course/data/constants';
 import { queryPolicyTransaction, useEnterpriseCustomer } from '../../../app/data';
 
 import { submitRedemptionRequest } from '../service';
 
-interface BaseArgs {
+type BaseArgs = {
   contentKey: string;
   subsidyAccessPolicy?: SubsidyAccessPolicy;
   onBeginRedeem?: () => void;
   onSuccess: (transaction: SubsidyTransaction) => void;
   onError: (error: Error) => void;
-}
+};
 
 interface UseStatefulEnrollArgs extends BaseArgs {
   userEnrollments: EnterpriseCourseEnrollment[];
+  options?: {
+    trackSearchConversionEventName?: string;
+  };
 }
 
 interface UseRedemptionArgs extends BaseArgs {
@@ -155,8 +157,12 @@ const useStatefulEnroll = ({
   onError,
   onBeginRedeem,
   userEnrollments,
+  options = {},
 }: UseStatefulEnrollArgs) => {
   const { authenticatedUser }: AppContextValue = useContext(AppContext);
+  const {
+    trackSearchConversionEventName,
+  } = options;
   const [transaction, setTransaction] = useState<SubsidyTransaction>();
 
   // Analytics handlers
@@ -165,7 +171,8 @@ const useStatefulEnroll = ({
     userEnrollments,
   });
   const searchHandler = useTrackSearchConversionClickHandler({
-    eventName: EVENT_NAMES.sucessfulEnrollment,
+    courseRunKey: contentKey,
+    eventName: trackSearchConversionEventName,
   });
 
   // Handle success for both redemption AND transaction status

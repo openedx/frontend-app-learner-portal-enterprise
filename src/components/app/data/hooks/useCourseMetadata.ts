@@ -2,13 +2,8 @@ import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 
 import { queryCourseMetadata } from '../queries';
-import {
-  determineAllocatedAssignmentsForCourse,
-  getAvailableCourseRuns,
-  transformCourseMetadataByAllocatedCourseRunAssignments,
-} from '../utils';
+import { getAvailableCourseRuns } from '../utils';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
-import useRedeemablePolicies from './useRedeemablePolicies';
 import useCourseRunKeyQueryParam from './useCourseRunKeyQueryParam';
 
 type UseCourseMetataSelectFnArgs = {
@@ -31,10 +26,6 @@ export default function useCourseMetadata<TData = CourseMetadataWithAvailableRun
   const params = useParams();
   const courseKey = params.courseKey!;
   const courseRunKey = useCourseRunKeyQueryParam();
-  const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
-  const {
-    allocatedCourseRunAssignmentKeys,
-  } = determineAllocatedAssignmentsForCourse({ courseKey, redeemableLearnerCreditPolicies });
 
   const lateEnrollmentBufferDays = useLateEnrollmentBufferDays();
 
@@ -55,16 +46,10 @@ export default function useCourseMetadata<TData = CourseMetadataWithAvailableRun
           lateEnrollmentBufferDays,
           courseRunKey,
         });
-        let transformedData = {
+        const transformedData = {
           ...data,
           availableCourseRuns,
         };
-        // This logic should appropriately handle multiple course runs being
-        // assigned, and return the appropriate metadata
-        transformedData = transformCourseMetadataByAllocatedCourseRunAssignments({
-          courseMetadata: transformedData,
-          allocatedCourseRunAssignmentKeys,
-        });
         if (select) {
           return select({
             original: data,

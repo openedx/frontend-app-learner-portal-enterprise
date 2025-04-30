@@ -13,7 +13,6 @@ import { features } from '../../../config';
 import {
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
-  findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getCourseOrganizationDetails,
   getCoursePrice,
@@ -51,9 +50,12 @@ import {
   useCouponCodes,
   useEnterpriseCustomerContainsContent,
   useSubscriptions,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  findCouponCodeForCourse,
 } from '../../app/data';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CourseContext } from '../CourseContextProvider';
+import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -182,80 +184,6 @@ export function useCoursePacingType(courseRun) {
  * @property {CoursePrice} coursePrice The course price.
  * @property {string} currency The currency code.
  */
-
-/**
- * Determines course price based on userSubsidy and course info.
- * @param {Object} args Arguments.
- * @param {Object} args.userSubsidyApplicableToCourse User subsidy
- * @param {Object} args.listPrice List price for course
- *
- * @returns {useCoursePriceForUserSubsidyResult} The course price and currency.
- */
-export const useCoursePriceForUserSubsidy = ({
-  userSubsidyApplicableToCourse,
-  listPrice,
-}) => {
-  const currency = CURRENCY_USD;
-  const coursePrice = useMemo(
-    () => {
-      if (!listPrice) {
-        return null;
-      }
-
-      const onlyListPrice = {
-        listRange: listPrice,
-      };
-
-      if (userSubsidyApplicableToCourse) {
-        const { discountType, discountValue } = userSubsidyApplicableToCourse;
-        let discountedPriceList = [];
-
-        if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()) {
-          discountedPriceList = onlyListPrice.listRange.map(
-            (individualPrice) => individualPrice - (individualPrice * (discountValue / 100)),
-          );
-        }
-
-        if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()) {
-          discountedPriceList = onlyListPrice.listRange.map(
-            (individualPrice) => Math.max(individualPrice - discountValue, 0),
-          );
-        }
-
-        if (isDefinedAndNotNull(discountedPriceList)) {
-          return {
-            ...onlyListPrice,
-            discountedList: discountedPriceList,
-          };
-        }
-        return {
-          ...onlyListPrice,
-          discountedList: onlyListPrice.listRange,
-        };
-      }
-
-      // Case 2: No subsidy available for course
-      return onlyListPrice;
-    },
-    [userSubsidyApplicableToCourse, listPrice],
-  );
-
-  return useMemo(() => ({
-    coursePrice,
-    currency,
-  }), [coursePrice, currency]);
-};
-
-useCoursePriceForUserSubsidy.propTypes = {
-  userSubsidyApplicableToCourse: PropTypes.shape({
-    discountType: PropTypes.string.isRequired,
-    discountValue: PropTypes.number.isRequired,
-    expirationDate: PropTypes.string.isRequired,
-    startDate: PropTypes.string.isRequired,
-    subsidyId: PropTypes.string.isRequired,
-  }).isRequired,
-  listPrice: PropTypes.number,
-};
 
 /**
  * Get enrollment url for a particular course
@@ -398,22 +326,24 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  * a imperceivable delay is introduced to allow enough time for analytic event request to resolve.
  *
  * @param {object} args
+ * @param {string} args.courseRunKey Key of the course run
  * @param {string} [args.href] Optional: If click handler is used on a hyperlink, this is the destination url.
- * @param {string} args.eventName Name of the event
+ * @param {string} [args.eventName] Name of the event
  *
  * @returns Click handler function for clicks on buttons, external hyperlinks (with a delay), and
  * internal hyperlinks (e.g., using ``Link``).
  */
-export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
+export const useTrackSearchConversionClickHandler = ({
+  courseRunKey,
+  href,
+  eventName,
+}) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  // Note: this hook is used on dashboard, and the courseKey param for this query doesnt exist
-  const { data: courseMetadata } = useCourseMetadata();
-  const activeCourseRun = courseMetadata?.activeCourseRun;
   const { algoliaSearchParams } = useContext(CourseContext) || {};
 
   const handleClick = useCallback(
     (e) => {
-      if (!activeCourseRun) {
+      if (!courseRunKey || !eventName) {
         return;
       }
       const { queryId, objectId } = algoliaSearchParams;
@@ -432,12 +362,12 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
           products: [{ objectID: objectId }],
           index: getConfig().ALGOLIA_INDEX_NAME,
           queryID: queryId,
-          courseKey: activeCourseRun.key,
+          courseKey: courseRunKey,
         },
       );
     },
     [
-      activeCourseRun,
+      courseRunKey,
       algoliaSearchParams,
       href,
       enterpriseCustomer.uuid,
@@ -523,8 +453,23 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
 }
 
 export function useCourseListPrice() {
-  const { data: { listPrice } } = useCourseRedemptionEligibility();
-  const resolveListPrice = ({ transformed }) => (listPrice.length > 0 ? listPrice : getCoursePrice(transformed));
+  const [accessListPrice, setAccessListPrice] = useState();
+  const courseRedemptionEligibilityResult = useCourseRedemptionEligibility();
+
+  useEffect(() => {
+    if (courseRedemptionEligibilityResult.isPending) {
+      return;
+    }
+    setAccessListPrice(courseRedemptionEligibilityResult.data?.listPrice);
+  }, [courseRedemptionEligibilityResult.isPending, courseRedemptionEligibilityResult.data]);
+
+  const resolveListPrice = ({ transformed }) => {
+    if (accessListPrice?.length > 0) {
+      return accessListPrice;
+    }
+    return getCoursePrice(transformed);
+  };
+
   return useCourseMetadata({
     select: resolveListPrice,
   });
@@ -534,17 +479,20 @@ export function useCourseListPrice() {
  * Given the state of a user's redeemable subsidy access policy and/or other subsidies, determine
  * which subsidy, if any, is applicable to the course.
  *
+ * Note: The `canRedeem` query has a dynamic query key that may change on a background re-fetch of a
+ * dependent query. Consumers of this hook may need to handle the `isPending` state.
+ *
  * Returns:
  * {
  *  userSubsidyApplicableToCourse: null,
  *  missingUserSubsidyReason: null,
+ *  isPending: false,
  * }
  *
  * @returns A subsidy that may be redeemed for the course.
  */
 export const useUserSubsidyApplicableToCourse = () => {
   const { courseKey } = useParams();
-  const { data: courseMetadata } = useCourseMetadata();
   const resolvedTransformedEnterpriseCustomerData = ({ transformed }) => ({
     fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
     contactEmail: transformed.contactEmail,
@@ -576,14 +524,14 @@ export const useUserSubsidyApplicableToCourse = () => {
       currentEnterpriseOffers,
     },
   } = useEnterpriseOffers();
+  const courseRedemptionEligibilityResult = useCourseRedemptionEligibility();
+  const { isPending } = courseRedemptionEligibilityResult;
   const {
-    data: {
-      isPolicyRedemptionEnabled,
-      redeemableSubsidyAccessPolicy,
-      missingSubsidyAccessPolicyReason,
-      availableCourseRuns,
-    },
-  } = useCourseRedemptionEligibility();
+    isPolicyRedemptionEnabled = false,
+    redeemableSubsidyAccessPolicy = null,
+    availableCourseRuns: availableCourseRunsForLearnerCredit = [],
+    missingSubsidyAccessPolicyReason = null,
+  } = courseRedemptionEligibilityResult.data || {};
   const {
     data: {
       couponCodeAssignments,
@@ -598,7 +546,11 @@ export const useUserSubsidyApplicableToCourse = () => {
   );
   const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
     applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
-    applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy, availableCourseRuns },
+    applicableSubsidyAccessPolicy: {
+      isPolicyRedemptionEnabled,
+      redeemableSubsidyAccessPolicy,
+      availableCourseRuns: availableCourseRunsForLearnerCredit,
+    },
     applicableCouponCode: findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse),
     applicableEnterpriseOffer: findEnterpriseOfferForCourse({
       enterpriseOffers: currentEnterpriseOffers,
@@ -624,6 +576,7 @@ export const useUserSubsidyApplicableToCourse = () => {
       enterpriseOffers,
     });
   }
+  const { data: courseMetadata } = useCourseMetadata();
   if (userSubsidyApplicableToCourse) {
     // Augment the selected subsidy object to backfill availableCourseRuns in case it isn't
     // supplied. Fallback to all unrestricted, available course runs.
@@ -636,7 +589,81 @@ export const useUserSubsidyApplicableToCourse = () => {
   return useMemo(() => ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
-  }), [userSubsidyApplicableToCourse, missingUserSubsidyReason]);
+    isPending,
+  }), [userSubsidyApplicableToCourse, missingUserSubsidyReason, isPending]);
+};
+
+/**
+ * Determines course price based on userSubsidy and course info.
+ * @param {Object} args Arguments.
+ * @param {Object} args.listPrice List price for course
+ *
+ * @returns {useCoursePriceForUserSubsidyResult} The course price and currency.
+ */
+export const useCoursePriceForUserSubsidy = ({
+  listPrice,
+}) => {
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  const currency = CURRENCY_USD;
+  const coursePrice = useMemo(
+    () => {
+      if (!listPrice) {
+        return null;
+      }
+
+      const onlyListPrice = {
+        listRange: listPrice,
+      };
+
+      if (userSubsidyApplicableToCourse) {
+        const { discountType, discountValue } = userSubsidyApplicableToCourse;
+        let discountedPriceList = [];
+
+        if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()) {
+          discountedPriceList = onlyListPrice.listRange.map(
+            (individualPrice) => individualPrice - (individualPrice * (discountValue / 100)),
+          );
+        }
+
+        if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()) {
+          discountedPriceList = onlyListPrice.listRange.map(
+            (individualPrice) => Math.max(individualPrice - discountValue, 0),
+          );
+        }
+
+        if (isDefinedAndNotNull(discountedPriceList)) {
+          return {
+            ...onlyListPrice,
+            discountedList: discountedPriceList,
+          };
+        }
+        return {
+          ...onlyListPrice,
+          discountedList: onlyListPrice.listRange,
+        };
+      }
+
+      // Case 2: No subsidy available for course
+      return onlyListPrice;
+    },
+    [userSubsidyApplicableToCourse, listPrice],
+  );
+
+  return useMemo(() => ({
+    coursePrice,
+    currency,
+  }), [coursePrice, currency]);
+};
+
+useCoursePriceForUserSubsidy.propTypes = {
+  userSubsidyApplicableToCourse: PropTypes.shape({
+    discountType: PropTypes.string.isRequired,
+    discountValue: PropTypes.number.isRequired,
+    expirationDate: PropTypes.string.isRequired,
+    startDate: PropTypes.string.isRequired,
+    subsidyId: PropTypes.string.isRequired,
+  }).isRequired,
+  listPrice: PropTypes.number,
 };
 
 /**
@@ -647,9 +674,7 @@ export const useUserSubsidyApplicableToCourse = () => {
 */
 export function useCoursePrice() {
   const { data: courseListPrice } = useCourseListPrice();
-  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
   return useCoursePriceForUserSubsidy({
-    userSubsidyApplicableToCourse,
     listPrice: courseListPrice,
   });
 }
@@ -755,6 +780,7 @@ export const useExternalEnrollmentFailureReason = () => {
 export const useIsCourseAssigned = () => {
   const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
   const { data: courseMetadata } = useCourseMetadata();
+  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
 
   const {
     isCourseAssigned,
@@ -768,8 +794,18 @@ export const useIsCourseAssigned = () => {
     redeemableLearnerCreditPolicies,
   });
 
+  const getDisplayAssignmentsOnly = () => {
+    const isLearnerCreditRedemption = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
+    const isRedemptionSubsidyAssignmentPolicy = (
+      isLearnerCreditRedemption
+      && userSubsidyApplicableToCourse.policyType === POLICY_TYPES.ASSIGNED_CREDIT
+    );
+    return isRedemptionSubsidyAssignmentPolicy;
+  };
+
   return {
     isCourseAssigned,
+    shouldDisplayAssignmentsOnly: getDisplayAssignmentsOnly(),
     allocatedAssignmentsForCourse,
     allocatedCourseRunAssignmentKeys,
     allocatedCourseRunAssignments,

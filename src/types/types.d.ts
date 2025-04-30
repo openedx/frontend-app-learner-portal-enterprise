@@ -52,6 +52,7 @@ declare global {
 
   type CourseRunMetadata = {
     key: string;
+    restrictionType: string | null;
   };
 
   type CourseMetadata = {
@@ -159,6 +160,12 @@ declare global {
   type EnterpriseCourseEnrollment = CamelCasedPropertiesDeep<EnterpriseCourseEnrollmentRaw>;
 
   // Application Data (subsidy)
+
+  type CustomerAgreementRaw = enterpriseAccessOpenApi.components['schemas']['CustomerAgreement'];
+  type CustomerAgreement = CamelCasedPropertiesDeep<CustomerAgreementRaw>;
+
+  type SubscriptionLicenseRaw = enterpriseAccessOpenApi.components['schemas']['SubscriptionLicense'];
+  type SubscriptionLicense = CamelCasedPropertiesDeep<SubscriptionLicenseRaw>;
 
   type SubsidyRequestState = typeof SUBSIDY_REQUEST_STATE[keyof typeof SUBSIDY_REQUEST_STATE];
 

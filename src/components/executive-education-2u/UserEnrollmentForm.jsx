@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
@@ -30,7 +30,7 @@ import {
   useEnterpriseCustomer,
   useIsBFFEnabled,
 } from '../app/data';
-import { useUserSubsidyApplicableToCourse } from '../course/data';
+import { EVENT_NAMES, useUserSubsidyApplicableToCourse } from '../course/data';
 
 const UserEnrollmentForm = ({ className }) => {
   const navigate = useNavigate();
@@ -42,7 +42,10 @@ const UserEnrollmentForm = ({ className }) => {
   } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments();
-  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  const {
+    userSubsidyApplicableToCourse,
+    isPending: isPendingUserSubsidyApplicableToCourse,
+  } = useUserSubsidyApplicableToCourse();
   const { courseKey, courseRunKey } = useParams();
   const {
     externalCourseFormSubmissionError,
@@ -55,6 +58,14 @@ const UserEnrollmentForm = ({ className }) => {
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [enrollButtonState, setEnrollButtonState] = useState('default');
+
+  useEffect(() => {
+    if (isPendingUserSubsidyApplicableToCourse) {
+      setEnrollButtonState('loadingApplicableSubsidy');
+    } else {
+      setEnrollButtonState('default');
+    }
+  }, [isPendingUserSubsidyApplicableToCourse]);
 
   const handleQueryInvalidationForEnrollSuccess = () => {
     const canRedeemQueryKey = queryCanRedeemContextQueryKey(enterpriseCustomer.uuid, courseKey);
@@ -111,6 +122,9 @@ const UserEnrollmentForm = ({ className }) => {
       logError(error);
     },
     userEnrollments: enterpriseCourseEnrollments,
+    options: {
+      trackSearchConversionEventName: EVENT_NAMES.sucessfulExternalEnrollment,
+    },
   });
 
   const handleFormValidation = (values) => {
@@ -479,6 +493,11 @@ const UserEnrollmentForm = ({ className }) => {
               type="submit"
               variant="primary"
               labels={{
+                loadingApplicableSubsidy: intl.formatMessage({
+                  id: 'executive.education.external.course.enrollment.page.loading.applicable.subsidy.button',
+                  defaultMessage: 'Please wait...',
+                  description: 'Label for the button when loading applicable subsidy for enrolling in the executive education course.',
+                }),
                 default: intl.formatMessage({
                   id: 'executive.education.external.course.enrollment.page.confirm.registration.button',
                   defaultMessage: 'Confirm registration',

@@ -57,12 +57,12 @@ export function queryCourseMetadata(courseKey: string) {
     ._ctx.metadata;
 }
 
-export function queryCourseRunMetadata() {
+export function queryCourseRunMetadata(courseRunKey) {
   return queries
     .content
     .course(null)
     ._ctx.metadata
-    ._ctx.courseRun;
+    ._ctx.courseRun(courseRunKey);
 }
 
 export function queryCourseReviews(courseKey: string) {

@@ -4,7 +4,7 @@ import {
 
 import {
   extractEnterpriseCustomer,
-  getCourseRunKeysForRedemption,
+  getCourseRunsForRedemption,
   getLateEnrollmentBufferDays,
   queryCanRedeem,
   queryCourseMetadata,
@@ -92,7 +92,7 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
           redeemableLearnerCreditPolicies.redeemablePolicies,
         );
-        const courseRunKeysForRedemption = getCourseRunKeysForRedemption({
+        const { courseRunKeys: courseRunKeysForRedemption } = getCourseRunsForRedemption({
           course: courseMetadata,
           lateEnrollmentBufferDays,
           courseRunKey,
