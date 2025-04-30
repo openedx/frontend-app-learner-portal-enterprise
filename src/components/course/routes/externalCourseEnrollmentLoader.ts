@@ -3,12 +3,18 @@ import {
 } from 'react-router-dom';
 
 import {
+  determineSubscriptionLicenseApplicable,
   extractEnterpriseCustomer,
+  findCouponCodeForCourse,
+  getBaseSubscriptionsData,
   getCourseRunsForRedemption,
   getLateEnrollmentBufferDays,
   queryCanRedeem,
+  queryCouponCodes,
   queryCourseMetadata,
+  queryEnterpriseCustomerContainsContent,
   queryRedeemablePolicies,
+  querySubscriptions,
   safeEnsureQueryData,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
@@ -59,44 +65,82 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
         if (!courseMetadata) {
           return;
         }
-        const redeemableLearnerCreditPolicies = await safeEnsureQueryData({
-          queryClient,
-          query: queryRedeemablePolicies({
-            enterpriseUuid: enterpriseCustomer.uuid,
-            lmsUserId: authenticatedUser.userId,
-          }),
-          fallbackData: {
-            redeemablePolicies: [],
-            expiredPolicies: [],
-            unexpiredPolicies: [],
-            learnerContentAssignments: {
-              assignments: [],
-              hasAssignments: false,
-              allocatedAssignments: [],
-              hasAllocatedAssignments: false,
-              acceptedAssignments: [],
-              hasAcceptedAssignments: false,
-              canceledAssignments: [],
-              hasCanceledAssignments: false,
-              expiredAssignments: [],
-              hasExpiredAssignments: false,
-              erroredAssignments: [],
-              hasErroredAssignments: false,
-              assignmentsForDisplay: [],
-              hasAssignmentsForDisplay: false,
-              reversedAssignments: [],
-              hasReversedAssignments: false,
+        const prerequisiteQueries = await Promise.all([
+          safeEnsureQueryData({
+            queryClient,
+            query: queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey]),
+            fallbackData: {
+              containsContentItems: false,
+              catalogList: [],
             },
-          },
-        });
+          }),
+          safeEnsureQueryData({
+            queryClient,
+            query: queryCouponCodes(enterpriseCustomer.uuid),
+            fallbackData: {
+              couponsOverview: [],
+              couponCodeAssignments: [],
+              couponCodeRedemptionCount: 0,
+            },
+          }),
+          safeEnsureQueryData({
+            queryClient,
+            query: querySubscriptions(enterpriseCustomer.uuid),
+            fallbackData: getBaseSubscriptionsData().baseSubscriptionsData,
+          }),
+          safeEnsureQueryData({
+            queryClient,
+            query: queryRedeemablePolicies({
+              enterpriseUuid: enterpriseCustomer.uuid,
+              lmsUserId: authenticatedUser.userId,
+            }),
+            fallbackData: {
+              redeemablePolicies: [],
+              expiredPolicies: [],
+              unexpiredPolicies: [],
+              learnerContentAssignments: {
+                assignments: [],
+                hasAssignments: false,
+                allocatedAssignments: [],
+                hasAllocatedAssignments: false,
+                acceptedAssignments: [],
+                hasAcceptedAssignments: false,
+                canceledAssignments: [],
+                hasCanceledAssignments: false,
+                expiredAssignments: [],
+                hasExpiredAssignments: false,
+                erroredAssignments: [],
+                hasErroredAssignments: false,
+                assignmentsForDisplay: [],
+                hasAssignmentsForDisplay: false,
+                reversedAssignments: [],
+                hasReversedAssignments: false,
+              },
+            },
+          }),
+        ]);
+        const [
+          { catalogList: catalogsWithCourse },
+          { couponCodeAssignments },
+          { subscriptionLicense },
+          redeemableLearnerCreditPolicies,
+        ] = prerequisiteQueries;
         const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
           redeemableLearnerCreditPolicies.redeemablePolicies,
         );
+        const isSubscriptionLicenseApplicable = determineSubscriptionLicenseApplicable(
+          subscriptionLicense,
+          catalogsWithCourse,
+        );
+        const applicableCouponCode = findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse);
+        const hasSubsidyPrioritizedOverLearnerCredit = isSubscriptionLicenseApplicable
+          || applicableCouponCode?.couponCodeRedemptionCount > 0;
         const { courseRunKeys: courseRunKeysForRedemption } = getCourseRunsForRedemption({
           course: courseMetadata,
           lateEnrollmentBufferDays,
           courseRunKey,
           redeemableLearnerCreditPolicies,
+          hasSubsidyPrioritizedOverLearnerCredit,
         });
         const canRedeem = await safeEnsureQueryData<CanRedeemResponse>({
           queryClient,

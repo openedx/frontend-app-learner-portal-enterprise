@@ -1040,3 +1040,11 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
     endDate: couponCode.couponEndDate,
   }));
 }
+
+export function determineSubscriptionLicenseApplicable(subscriptionLicense, catalogsWithCourse) {
+  return (
+    subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
+    && subscriptionLicense?.subscriptionPlan.isCurrent
+    && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
+  );
+}

@@ -5,6 +5,7 @@ import {
 import {
   determineAllocatedAssignmentsForCourse,
   determineLearnerHasContentAssignmentsOnly,
+  determineSubscriptionLicenseApplicable,
   extractCourseRunKeyFromSearchParams,
   extractEnterpriseCustomer,
   findCouponCodeForCourse,
@@ -34,7 +35,6 @@ import {
   getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug,
 } from './utils';
 import { getErrorResponseStatusCode } from '../../../utils/common';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 type CourseRouteParams<Key extends string = string> = Params<Key> & {
   readonly courseKey: string;
@@ -123,7 +123,7 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
       }),
     ]);
     const [
-      { containsContentItems: catalogsWithCourse },
+      { catalogList: catalogsWithCourse },
       { couponsOverview, couponCodeAssignments, couponCodeRedemptionCount },
       { customerAgreement, subscriptionLicense, subscriptionPlan },
       redeemableLearnerCreditPolicies,
@@ -171,13 +171,11 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
           const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
             redeemableLearnerCreditPolicies.redeemablePolicies,
           );
-          const isSubscriptionLicenseApplicable = (
-            subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
-            && subscriptionLicense?.subscriptionPlan.isCurrent
-            && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
+          const isSubscriptionLicenseApplicable = determineSubscriptionLicenseApplicable(
+            subscriptionLicense,
+            catalogsWithCourse,
           );
           const applicableCouponCode = findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse);
-
           const hasSubsidyPrioritizedOverLearnerCredit = isSubscriptionLicenseApplicable
             || applicableCouponCode?.couponCodeRedemptionCount > 0;
           const { courseRunKeys: courseRunKeysForRedemption } = getCourseRunsForRedemption({

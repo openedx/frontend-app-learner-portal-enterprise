@@ -6,13 +6,12 @@ import useCourseMetadata from './useCourseMetadata';
 import { queryCanRedeem } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
-import { findCouponCodeForCourse, getCourseRunsForRedemption } from '../utils';
+import { determineSubscriptionLicenseApplicable, findCouponCodeForCourse, getCourseRunsForRedemption } from '../utils';
 import useCourseRunKeyQueryParam from './useCourseRunKeyQueryParam';
 import useRedeemablePolicies from './useRedeemablePolicies';
 import useSubscriptions from './useSubscriptions';
 import useCouponCodes from './useCouponCodes';
 import useEnterpriseCustomerContainsContent from './useEnterpriseCustomerContainsContent';
-import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 
 const getContentListPriceRange = ({ courseRuns }) => {
   const flatContentPrice = courseRuns.flatMap(run => run.listPrice?.usd).filter(x => !!x);
@@ -123,10 +122,9 @@ export default function useCourseRedemptionEligibility() {
   } = useCouponCodes();
   const applicableCouponCode = findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse);
 
-  const isSubscriptionLicenseApplicable = (
-    subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
-    && subscriptionLicense?.subscriptionPlan.isCurrent
-    && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
+  const isSubscriptionLicenseApplicable = determineSubscriptionLicenseApplicable(
+    subscriptionLicense,
+    catalogsWithCourse,
   );
   const hasSubsidyPrioritizedOverLearnerCredit = isSubscriptionLicenseApplicable
     || applicableCouponCode?.couponCodeRedemptionCount > 0;

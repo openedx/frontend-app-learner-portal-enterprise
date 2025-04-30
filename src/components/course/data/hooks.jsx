@@ -52,8 +52,8 @@ import {
   useSubscriptions,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   findCouponCodeForCourse,
+  determineSubscriptionLicenseApplicable,
 } from '../../app/data';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CourseContext } from '../CourseContextProvider';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
@@ -539,10 +539,9 @@ export const useUserSubsidyApplicableToCourse = () => {
     },
   } = useCouponCodes();
 
-  const isSubscriptionLicenseApplicable = (
-    subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
-    && subscriptionLicense?.subscriptionPlan.isCurrent
-    && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
+  const isSubscriptionLicenseApplicable = determineSubscriptionLicenseApplicable(
+    subscriptionLicense,
+    catalogsWithCourse,
   );
   const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
     applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
