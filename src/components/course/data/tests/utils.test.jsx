@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { render, screen } from '@testing-library/react';
 import MockDate from 'mockdate';
 import '@testing-library/jest-dom/extend-expect';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { getConfig } from '@edx/frontend-platform';
 import { DISABLED_ENROLL_REASON_TYPES } from '../constants';
@@ -344,6 +345,12 @@ describe('getCourseStartDate tests', () => {
 });
 
 describe('getMissingSubsidyReasonActions', () => {
+  const renderWithIntl = (component) => render(
+    <IntlProvider locale="en">
+      {component}
+    </IntlProvider>,
+  );
+
   it.each([
     DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
     DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED,
@@ -353,7 +360,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [],
       contactEmail: 'randomEmail@edx.org',
     });
-    render(ActionsComponent);
+    renderWithIntl(ActionsComponent);
     const ctaBtn = screen.getByText('Learn about limits');
     expect(ctaBtn).toBeInTheDocument();
     expect(ctaBtn.getAttribute('href')).toEqual('https://limits.url');
@@ -365,7 +372,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [],
       contactEmail: 'randomEmail@edx.org',
     });
-    render(ActionsComponent);
+    renderWithIntl(ActionsComponent);
     const ctaBtn = screen.getByText('Learn about deactivation');
     expect(ctaBtn).toBeInTheDocument();
     expect(ctaBtn.getAttribute('href')).toEqual('https://deactivation.url');
@@ -386,7 +393,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [{ email: 'admin@example.com' }],
       contactEmail: undefined,
     });
-    render(ActionsComponent);
+    renderWithIntl(ActionsComponent);
     const ctaBtn = screen.getByText('Contact administrator');
     expect(ctaBtn).toBeInTheDocument();
     expect(ctaBtn.getAttribute('href')).toEqual('mailto:admin@example.com');
@@ -407,7 +414,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [{ email: 'admin@example.com' }],
       contactEmail: 'testEmail@edx.org',
     });
-    render(ActionsComponent);
+    renderWithIntl(ActionsComponent);
     const ctaBtn = screen.getByText('Contact administrator');
     expect(ctaBtn).toBeInTheDocument();
     expect(ctaBtn.getAttribute('href')).toEqual('mailto:testEmail@edx.org');
@@ -428,7 +435,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [],
       contactEmail: 'randomEmail@edx.org',
     });
-    const { container } = render(ActionsComponent);
+    const { container } = renderWithIntl(ActionsComponent);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -438,7 +445,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [],
       contactEmail: 'randomEmail@edx.org',
     });
-    const { container } = render(ActionsComponent);
+    const { container } = renderWithIntl(ActionsComponent);
     expect(container).toBeEmptyDOMElement();
   });
 });

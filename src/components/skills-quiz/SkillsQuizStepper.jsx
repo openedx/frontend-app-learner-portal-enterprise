@@ -186,6 +186,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
         size="fullscreen"
         className="bg-light-200 skills-quiz-modal"
         isOpen
+        isOverflowVisible={false}
         onClose={closeSkillsQuiz}
       >
         <ModalDialog.Hero className="bg-img">

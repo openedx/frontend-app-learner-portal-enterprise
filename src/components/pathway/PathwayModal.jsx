@@ -107,6 +107,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
       isOpen={isOpen}
       onClose={onClose}
       size="xl"
+      isOverflowVisible={false}
       heroNode={isLoading ? <Skeleton height={120} data-testid="pathway-banner-loading" /> : (
         <ModalDialog.Hero>
           <ModalDialog.Hero.Background

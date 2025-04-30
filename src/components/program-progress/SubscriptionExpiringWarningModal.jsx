@@ -51,6 +51,7 @@ const SubscriptionExpirationWarningModal = ({
       isOpen={isSubscriptionExpiringWarningModalOpen}
       onClose={onSubscriptionExpiringWarningModalClose}
       hasCloseButton={false}
+      isOverflowVisible={false}
       footerNode={(
         <ActionRow>
           <Button onClick={onSubscriptionExpiringWarningModalClose}>OK</Button>
