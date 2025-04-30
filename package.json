@@ -108,6 +108,7 @@
     "start:stage:with-theme": "paragon install-theme && npm run start:stage && npm install",
     "test": "fedx-scripts jest --coverage --passWithNoTests --maxWorkers=50%",
     "test:watch": "npm run test -- --watch",
+    "test:watch:no-cov": "npm run test:watch -- --collectCoverage=false",
     "serve": "fedx-scripts serve",
     "build:serve": "npm run build && npm run serve",
     "build:with-theme:serve": "npm run build:with-theme && npm run serve",
