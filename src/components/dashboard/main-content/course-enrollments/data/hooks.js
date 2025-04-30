@@ -153,8 +153,9 @@ export const useCourseUpgradeData = ({
       applicableCouponCode,
       applicableSubsidyAccessPolicy: {
         ...learnerCreditMetadata?.applicableSubsidyAccessPolicy,
-        // The original field, 'redeemableSubsidyAccessPolicy', was spread into applicableSubsidyAccessPolicy
-        // 'redeemableSubsidyAccessPolicy' added to match data-structure
+        // The original field, 'redeemableSubsidyAccessPolicy', was spread into applicableSubsidyAccessPolicy.
+        // 'redeemableSubsidyAccessPolicy' is intentionally duplicated from 'applicableSubsidyAccessPolicy'
+        // to match the expected data structure required by downstream consumers of this object.
         redeemableSubsidyAccessPolicy: learnerCreditMetadata.applicableSubsidyAccessPolicy,
       },
     });
