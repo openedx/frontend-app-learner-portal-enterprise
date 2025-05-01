@@ -11,7 +11,7 @@ import { GOAL_DROPDOWN_DEFAULT_OPTION } from '../../skills-quiz/constants';
 import SkillQuizForm from '../SkillsQuizForm';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
-import { setFakeHits } from '../../skills-quiz/__mocks__/react-instantsearch-dom';
+import { resetMockReactInstantSearch, setFakeHits } from '../../skills-quiz/__mocks__/react-instantsearch-dom';
 
 jest.mock('algoliasearch/lite', () => jest.fn());
 const mockSearch = jest.fn().mockResolvedValue({ hits: [] });
@@ -85,15 +85,17 @@ const hits = [
     ],
   },
 ];
-setFakeHits(hits);
 describe('<SkillQuizForm />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
     useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    setFakeHits(hits);
   });
-
+  afterEach(() => {
+    resetMockReactInstantSearch();
+  });
   it('renders skills quiz v2 page', async () => {
     renderWithRouter(
       <SkillsQuizFormWrapper />,

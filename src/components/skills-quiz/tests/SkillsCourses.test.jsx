@@ -13,7 +13,7 @@ import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
-import { setFakeHits } from '../__mocks__/react-instantsearch-dom';
+import { resetMockReactInstantSearch, setFakeHits } from '../__mocks__/react-instantsearch-dom';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -106,15 +106,17 @@ const mockAlgoliaSearch = {
   },
 };
 
-setFakeHits(courses.hits);
 describe('<SkillsCourses />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
     useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
+    setFakeHits(courses.hits);
   });
-
+  afterEach(() => {
+    resetMockReactInstantSearch();
+  });
   test('renders the correct data', async () => {
     const { container } = renderWithRouter(
       <SkillsCoursesWithContext />,

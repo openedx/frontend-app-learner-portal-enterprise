@@ -6,45 +6,52 @@ const MockReactInstantSearch = jest.genMockFromModule(
   'react-instantsearch-dom',
 );
 
-let fakeHits = [
-  {
-    objectID: '1',
-    title: 'bla',
-    key: 'Bees101',
-    type: 'course',
-    aggregation_key: 'course:Bees101',
-    authoring_organizations: [],
-    card_image_url: 'https://fake.image',
-    course_keys: [],
-  },
-  {
-    objectID: '2',
-    title: 'blp',
-    key: 'Wasps200',
-    type: 'course',
-    aggregation_key: 'course:Wasps200',
-    authoring_organizations: [],
-    card_image_url: 'https://fake.image',
-    course_keys: [],
-  },
-];
+let mockState = {
+  hits: [
+    {
+      objectID: '1',
+      title: 'bla',
+      key: 'Bees101',
+      type: 'course',
+      aggregation_key: 'course:Bees101',
+      authoring_organizations: [],
+      card_image_url: 'https://fake.image',
+      course_keys: [],
+    },
+    {
+      objectID: '2',
+      title: 'blp',
+      key: 'Wasps200',
+      type: 'course',
+      aggregation_key: 'course:Wasps200',
+      authoring_organizations: [],
+      card_image_url: 'https://fake.image',
+      course_keys: [],
+    },
+  ],
+  nbHits: 2,
+};
 
 // This allows you to override the built-in hits object
 const setFakeHits = hits => {
-  fakeHits = hits;
+  mockState.hits = hits;
+  mockState.nbHits = hits.length;
 };
 
-MockReactInstantSearch.configure = {
-  nbHits: 2,
+const resetMockReactInstantSearch = () => {
+  mockState = {
+    hits: [...mockState.hits], // deep clone if needed
+    nbHits: 2,
+  };
 };
 
 MockReactInstantSearch.connectStateResults = Component => (props) => (
   <Component
     searchResults={{
-      hits: MockReactInstantSearch.configure.nbHits === 0 ? [] : fakeHits,
+      hits: mockState.hits,
       hitsPerPage: 25,
-      nbHits: MockReactInstantSearch.configure.nbHits,
-      nbPages: MockReactInstantSearch.configure.nbHits === 0 ? 0 : 1,
+      nbHits: mockState.nbHits,
+      nbPages: mockState.nbHits === 0 ? 0 : 1,
       page: 1,
     }}
     isSearchStalled={false}
@@ -57,7 +64,7 @@ MockReactInstantSearch.connectStateResults = Component => (props) => (
 
 MockReactInstantSearch.connectPagination = Component => (props) => (
   <Component
-    nbPages={MockReactInstantSearch.configure.nbHits === 0 ? 0 : 1}
+    nbPages={mockState.nbHits === 0 ? 0 : 1}
     currentRefinement={1}
     maxPagesDisplayed={5}
     {...props}
@@ -84,4 +91,5 @@ MockReactInstantSearch.Index = function Index({ children }) { return children; }
 module.exports = {
   ...MockReactInstantSearch,
   setFakeHits,
+  resetMockReactInstantSearch,
 };

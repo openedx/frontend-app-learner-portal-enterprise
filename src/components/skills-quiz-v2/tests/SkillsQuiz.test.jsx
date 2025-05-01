@@ -8,7 +8,7 @@ import { renderWithRouter } from '../../../utils/tests';
 import SkillsQuizV2 from '../SkillsQuiz';
 import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
-import { setFakeHits } from '../../skills-quiz/__mocks__/react-instantsearch-dom';
+import { resetMockReactInstantSearch, setFakeHits } from '../../skills-quiz/__mocks__/react-instantsearch-dom';
 
 // [tech debt] We appear to attempting to call legit Algolia APIs in these tests; lots
 // of test output related to Algolia errors. Does not appear to impact the test results.
@@ -58,15 +58,17 @@ const hits = [
     ],
   },
 ];
-setFakeHits(hits);
 describe('<SkillsQuizV2 />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
     useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    setFakeHits(hits);
   });
-
+  afterEach(() => {
+    resetMockReactInstantSearch();
+  });
   it('renders SkillsQuizV2 component correctly', () => {
     renderWithRouter(
       <IntlProvider locale="en">

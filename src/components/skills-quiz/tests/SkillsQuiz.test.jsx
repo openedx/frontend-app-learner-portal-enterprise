@@ -11,7 +11,7 @@ import SkillsQuiz from '../SkillsQuiz';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
-import { setFakeHits } from '../__mocks__/react-instantsearch-dom';
+import { resetMockReactInstantSearch, setFakeHits } from '../__mocks__/react-instantsearch-dom';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -72,15 +72,17 @@ const hits = [
     ],
   },
 ];
-setFakeHits(hits);
 describe('<SkillsQuiz />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
     useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    setFakeHits(hits);
   });
-
+  afterEach(() => {
+    resetMockReactInstantSearch();
+  });
   it('renders skills quiz V1 page successfully.', () => {
     renderWithRouter(
       <SkillsQuizWithContext />,

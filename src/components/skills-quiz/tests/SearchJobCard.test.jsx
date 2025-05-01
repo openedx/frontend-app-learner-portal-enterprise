@@ -8,7 +8,7 @@ import { SkillsContextProvider } from '../SkillsContextProvider';
 import SearchJobCard from '../SearchJobCard';
 import { useAlgoliaSearch, useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
-import { setFakeHits } from '../__mocks__/react-instantsearch-dom';
+import { resetMockReactInstantSearch, setFakeHits } from '../__mocks__/react-instantsearch-dom';
 
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
@@ -91,12 +91,15 @@ const mockAlgoliaSearch = {
   },
 };
 
-setFakeHits(hitObject.hits);
 describe('<SearchJobCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
+    setFakeHits(hitObject.hits);
+  });
+  afterEach(() => {
+    resetMockReactInstantSearch();
   });
   test('renders the data in job cards correctly', async () => {
     render(
