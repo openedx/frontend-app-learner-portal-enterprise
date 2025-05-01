@@ -31,7 +31,6 @@ const IntegrationWarningModal = ({
       title={MODAL_TITLE}
       isOpen={dismissed}
       onClose={handleModalOnClose}
-      isOverflowVisible={false}
       footerNode={(
         <Button
           variant="primary"

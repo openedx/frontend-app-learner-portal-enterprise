@@ -102,7 +102,6 @@ const SubscriptionExpirationModal = () => {
         className={`${MODAL_DIALOG_CLASS_NAME} expired`}
         isOpen={isOpen}
         data-testid="expired-modal"
-        isOverflowVisible={false}
         footerNode={(
           <ActionRow>
             <Button variant="primary" onClick={handleSubscriptionExpiredModalDismissal} data-testid="subscription-expiration-button">OK</Button>
@@ -166,7 +165,6 @@ const SubscriptionExpirationModal = () => {
       // Mark that the user has seen this range's expiration modal when they close it
       isOpen={isOpen}
       data-testid="expiration-modal"
-      isOverflowVisible={false}
       footerNode={(
         <ActionRow>
           <Button variant="primary" onClick={handleSubscriptionExpiringModalDismissal} data-testid="subscription-expiration-button">OK</Button>

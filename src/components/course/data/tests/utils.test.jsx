@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 import { render, screen } from '@testing-library/react';
 import MockDate from 'mockdate';
 import '@testing-library/jest-dom/extend-expect';
-import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { DISABLED_ENROLL_REASON_TYPES } from '../constants';
 import {
