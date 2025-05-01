@@ -6199,9 +6199,10 @@ components:
           format: date-time
           description: The date at which the related Subsidy record expires.
         learner_content_assignments:
-          allOf:
-            - $ref: >-
-                #/components/schemas/LearnerContentAssignmentWithLearnerAcknowledgedResponse
+          type: array
+          items:
+            $ref: >-
+              #/components/schemas/LearnerContentAssignmentWithLearnerAcknowledgedResponse
           readOnly: true
         group_associations:
           type: string

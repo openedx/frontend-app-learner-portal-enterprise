@@ -2460,7 +2460,7 @@ export interface components {
        * @description The date at which the related Subsidy record expires.
        */
       subsidy_expiration_date: string;
-      learner_content_assignments: components["schemas"]["LearnerContentAssignmentWithLearnerAcknowledgedResponse"];
+      learner_content_assignments: readonly components["schemas"]["LearnerContentAssignmentWithLearnerAcknowledgedResponse"][];
       group_associations: string;
       /** @description The type of this policy (e.g. the name of an access policy proxy model). */
       policy_type: string;
