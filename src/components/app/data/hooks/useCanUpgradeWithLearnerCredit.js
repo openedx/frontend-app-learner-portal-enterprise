@@ -17,22 +17,23 @@ export default function useCanUpgradeWithLearnerCredit(courseRunKey, queryOption
     select: (data) => {
       // Base transformed data
       const transformedData = {
-        applicableSubsidyAccessPolicy: null,
+        applicableSubsidyAccessPolicy: {
+          isPolicyRedemptionEnabled: false,
+          redeemableSubsidyAccessPolicy: null,
+        },
         listPrice: null,
       };
-
       // Determine whether the course run key is redeemable. If so, update the transformed data with the
       // applicable subsidy access policy and list price.
-      const redeemableCourseRun = data.filter((canRedeemData) => (
+      const redeemableCourseRun = data.find((canRedeemData) => (
         canRedeemData.canRedeem && canRedeemData.redeemableSubsidyAccessPolicy
-      ))[0];
+      ));
 
-      // TODO: Consolidate redemption and upgrade data-structure into one.
-      // See usage in components/dashboard/main-content/course-enrollments/data/hooks.js -> useCourseUpgradeData()
       if (redeemableCourseRun) {
-        const applicableSubsidyAccessPolicy = redeemableCourseRun.redeemableSubsidyAccessPolicy;
-        applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled = true;
-        transformedData.applicableSubsidyAccessPolicy = applicableSubsidyAccessPolicy;
+        transformedData.applicableSubsidyAccessPolicy = {
+          isPolicyRedemptionEnabled: true,
+          redeemableSubsidyAccessPolicy: redeemableCourseRun.redeemableSubsidyAccessPolicy,
+        };
         transformedData.listPrice = redeemableCourseRun.listPrice.usd;
       }
 

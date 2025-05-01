@@ -151,13 +151,7 @@ export const useCourseUpgradeData = ({
     const applicableSubsidy = getSubsidyToApplyForCourse({
       applicableSubscriptionLicense: subscriptionLicense,
       applicableCouponCode,
-      applicableSubsidyAccessPolicy: {
-        ...learnerCreditMetadata?.applicableSubsidyAccessPolicy,
-        // The original field, 'redeemableSubsidyAccessPolicy', was spread into applicableSubsidyAccessPolicy.
-        // 'redeemableSubsidyAccessPolicy' is intentionally duplicated from 'applicableSubsidyAccessPolicy'
-        // to match the expected data structure required by downstream consumers of this object.
-        redeemableSubsidyAccessPolicy: learnerCreditMetadata.applicableSubsidyAccessPolicy,
-      },
+      applicableSubsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy,
     });
 
     // No applicable subsidy found, return early.
@@ -213,7 +207,8 @@ export const useCourseUpgradeData = ({
 
     // Construct and return learner credit based upgrade url
     if (applicableSubsidy.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
-      applicableSubsidy.redemptionUrl = learnerCreditMetadata.applicableSubsidyAccessPolicy.policyRedemptionUrl;
+      applicableSubsidy.redemptionUrl = learnerCreditMetadata
+        .applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy.policyRedemptionUrl;
       return {
         ...defaultReturn,
         subsidyForCourse: applicableSubsidy,
