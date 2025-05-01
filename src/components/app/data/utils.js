@@ -769,7 +769,8 @@ export const getSubsidyToApplyForCourse = ({
     };
   }
 
-  if (applicableSubsidyAccessPolicy?.isPolicyRedemptionEnabled) {
+  if (applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled
+    && applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy) {
     const { redeemableSubsidyAccessPolicy, availableCourseRuns } = applicableSubsidyAccessPolicy;
     return {
       discountType: 'percentage',

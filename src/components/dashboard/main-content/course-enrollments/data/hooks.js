@@ -207,7 +207,8 @@ export const useCourseUpgradeData = ({
 
     // Construct and return learner credit based upgrade url
     if (applicableSubsidy.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
-      applicableSubsidy.redemptionUrl = learnerCreditMetadata.applicableSubsidyAccessPolicy.policyRedemptionUrl;
+      applicableSubsidy.redemptionUrl = learnerCreditMetadata
+        .applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy.policyRedemptionUrl;
       return {
         ...defaultReturn,
         subsidyForCourse: applicableSubsidy,
