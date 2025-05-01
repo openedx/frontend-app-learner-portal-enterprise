@@ -5,9 +5,10 @@ import PropTypes from 'prop-types';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
 import { SkillsContext } from './SkillsContextProvider';
-import { withCamelCasedStateResults } from '../utils/skills-quiz';
 import JobCardComponent from './JobCardComponent';
 import { useAlgoliaSearch } from '../app/data';
+
+import { withCamelCasedStateResults } from '../../utils/HOC';
 
 const JobHits = ({
   hits, isLoading,
@@ -42,7 +43,7 @@ const SearchCurrentJobCard = () => {
   const searchFilters = useMemo(() => {
     if (!currentJob?.length) { return null; }
     return new AlgoliaFilterBuilder()
-      .and('name', currentJob[0], true)
+      .and('name', currentJob[0], { stringify: true })
       .build();
   }, [currentJob]);
 

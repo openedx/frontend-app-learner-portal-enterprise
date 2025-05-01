@@ -8,9 +8,10 @@ import JobCardComponentV2 from '../skills-quiz-v2/JobCardComponent';
 import JobCardComponent from './JobCardComponent';
 import { JOB_SOURCE_COURSE_SKILL } from './constants';
 import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
-import { withCamelCasedStateResults } from '../utils/skills-quiz';
 import { useAlgoliaSearch } from '../app/data';
 import { SET_KEY_VALUE } from './data/constants';
+
+import { withCamelCasedStateResults } from '../../utils/HOC';
 
 const JobHits = ({
   hits, isLoading, isSkillQuizV2,
@@ -58,12 +59,12 @@ const SearchJobCard = ({ isSkillQuizV2 = false }) => {
     if (jobs?.length) {
       return new AlgoliaFilterBuilder()
         .and('job_sources', JOB_SOURCE_COURSE_SKILL)
-        .or('name', jobs, true)
+        .or('name', jobs, { stringify: true })
         .build();
     }
     if (currentJob?.length) {
       return new AlgoliaFilterBuilder()
-        .and('name', currentJob[0], true)
+        .and('name', currentJob[0], { stringify: true })
         .build();
     }
     return null;

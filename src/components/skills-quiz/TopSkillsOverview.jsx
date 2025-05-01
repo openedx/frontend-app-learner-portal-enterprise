@@ -11,8 +11,9 @@ import JobDescriptions from './JobDescriptions';
 import { isObjEmpty, useAlgoliaSearch } from '../app/data';
 import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
-import { withCamelCasedStateResults } from '../utils/skills-quiz';
 import SimilarJobs from './SimilarJobs';
+
+import { withCamelCasedStateResults } from '../../utils/HOC';
 
 const getJobSkills = (job) => {
   const jobSkills = job[0]?.skills?.sort((a, b) => (
@@ -161,7 +162,7 @@ const TopSkillsOverview = () => {
   const searchFilters = useMemo(() => {
     if (currentJob?.length) {
       return new AlgoliaFilterBuilder()
-        .and('name', currentJob[0], true)
+        .and('name', currentJob[0], { stringify: true })
         .build();
     }
     return '';

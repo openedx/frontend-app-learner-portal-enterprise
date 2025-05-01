@@ -16,7 +16,8 @@ import CourseCard from './CourseCard';
 import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
-import { withCamelCasedStateResults } from '../utils/skills-quiz';
+
+import { withCamelCasedStateResults } from '../../utils/HOC';
 
 const SkillsHits = ({ hits, isLoading }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -115,7 +116,7 @@ const SkillsHits = ({ hits, isLoading }) => {
           </div>
           <CardGrid>
             {cs.value.map(course => (
-              <CourseCard key={uuidv4()} course={course} />
+              <CourseCard key={uuidv4()} course={course} isLoading={isLoading} />
             ))}
           </CardGrid>
         </Fragment>
@@ -138,7 +139,7 @@ const SkillsCourses = () => {
   const searchFilters = useMemo(() => new AlgoliaFilterBuilder()
     .and('content_type', 'course')
     .andRaw(filters)
-    .or('skill_names', allSkills, true)
+    .or('skill_names', allSkills, { stringify: true })
     .build(), [filters, allSkills]);
 
   return (

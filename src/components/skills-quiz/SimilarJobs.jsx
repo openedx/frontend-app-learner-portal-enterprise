@@ -11,7 +11,8 @@ import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';
 import { SET_KEY_VALUE } from './data/constants';
 import { useAlgoliaSearch } from '../app/data';
 import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
-import { withCamelCasedStateResults } from '../utils/skills-quiz';
+
+import { withCamelCasedStateResults } from '../../utils/HOC';
 
 const SimilarJobHits = ({ hits, isLoading }) => {
   const {
@@ -76,7 +77,7 @@ const SimilarJobs = ({ selectedJobDetails }) => {
   const [searchFilters, setSearchFilters] = useState('');
   const handleSimilarJobClick = useCallback((jobName) => {
     setSearchFilters(new AlgoliaFilterBuilder()
-      .and('name', jobName, true).build());
+      .and('name', jobName, { stringify: true }).build());
   }, []);
 
   return (
