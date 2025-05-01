@@ -79,7 +79,7 @@ describe('useCanUpgradeWithLearnerCredit', () => {
     );
     const expectedTransformedResult = {
       applicableSubsidyAccessPolicy: {
-        ...mockCanRedeemData[0].redeemableSubsidyAccessPolicy,
+        redeemableSubsidyAccessPolicy: mockCanRedeemData[0].redeemableSubsidyAccessPolicy,
         isPolicyRedemptionEnabled: true,
       },
       listPrice: mockCanRedeemData[0].listPrice.usd,

@@ -53,7 +53,7 @@ jest.mock('./data', () => ({
 const mockRedeem = jest.fn();
 jest.mock('../stateful-enroll/data', () => ({
   ...jest.requireActual('../stateful-enroll/data'),
-  useStatefulEnroll: jest.fn(() => ({ redeem: mockRedeem })),
+  useStatefulEnroll: jest.fn(() => mockRedeem),
 }));
 
 jest.mock('../app/data', () => ({
@@ -263,6 +263,7 @@ describe('UserEnrollmentForm', () => {
       userSubsidyApplicableToCourse: {
         subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
       },
+      isPending: false,
     });
     const expectedEnterpriseCustomer = isDSCEnabled
       ? mockEnterpriseCustomer

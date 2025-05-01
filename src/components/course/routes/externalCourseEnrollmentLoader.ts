@@ -6,16 +6,15 @@ import {
   determineSubscriptionLicenseApplicable,
   extractEnterpriseCustomer,
   findCouponCodeForCourse,
-  getBaseSubscriptionsData,
   getCourseRunsForRedemption,
   getLateEnrollmentBufferDays,
   queryCanRedeem,
-  queryCouponCodes,
   queryCourseMetadata,
-  queryEnterpriseCustomerContainsContent,
-  queryRedeemablePolicies,
-  querySubscriptions,
   safeEnsureQueryData,
+  safeEnsureQueryDataCouponCodes,
+  safeEnsureQueryDataCustomerContainsContent,
+  safeEnsureQueryDataRedeemablePolicies,
+  safeEnsureQueryDataSubscriptions,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import { getErrorResponseStatusCode } from '../../../utils/common';
@@ -66,57 +65,23 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
           return;
         }
         const prerequisiteQueries = await Promise.all([
-          safeEnsureQueryData({
+          safeEnsureQueryDataCustomerContainsContent({
             queryClient,
-            query: queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey]),
-            fallbackData: {
-              containsContentItems: false,
-              catalogList: [],
-            },
+            enterpriseCustomer,
+            courseKey,
           }),
-          safeEnsureQueryData({
+          safeEnsureQueryDataCouponCodes({
             queryClient,
-            query: queryCouponCodes(enterpriseCustomer.uuid),
-            fallbackData: {
-              couponsOverview: [],
-              couponCodeAssignments: [],
-              couponCodeRedemptionCount: 0,
-            },
+            enterpriseCustomer,
           }),
-          safeEnsureQueryData({
+          safeEnsureQueryDataSubscriptions({
             queryClient,
-            query: querySubscriptions(enterpriseCustomer.uuid),
-            fallbackData: getBaseSubscriptionsData().baseSubscriptionsData,
+            enterpriseCustomer,
           }),
-          safeEnsureQueryData({
+          safeEnsureQueryDataRedeemablePolicies({
             queryClient,
-            query: queryRedeemablePolicies({
-              enterpriseUuid: enterpriseCustomer.uuid,
-              lmsUserId: authenticatedUser.userId,
-            }),
-            fallbackData: {
-              redeemablePolicies: [],
-              expiredPolicies: [],
-              unexpiredPolicies: [],
-              learnerContentAssignments: {
-                assignments: [],
-                hasAssignments: false,
-                allocatedAssignments: [],
-                hasAllocatedAssignments: false,
-                acceptedAssignments: [],
-                hasAcceptedAssignments: false,
-                canceledAssignments: [],
-                hasCanceledAssignments: false,
-                expiredAssignments: [],
-                hasExpiredAssignments: false,
-                erroredAssignments: [],
-                hasErroredAssignments: false,
-                assignmentsForDisplay: [],
-                hasAssignmentsForDisplay: false,
-                reversedAssignments: [],
-                hasReversedAssignments: false,
-              },
-            },
+            enterpriseCustomer,
+            authenticatedUser,
           }),
         ]);
         const [
@@ -142,6 +107,7 @@ const makeExternalCourseEnrollmentLoader: MakeRouteLoaderFunctionWithQueryClient
           redeemableLearnerCreditPolicies,
           hasSubsidyPrioritizedOverLearnerCredit,
         });
+
         const canRedeem = await safeEnsureQueryData<CanRedeemResponse>({
           queryClient,
           query: queryCanRedeem(enterpriseCustomer.uuid, courseMetadata.key, courseRunKeysForRedemption),

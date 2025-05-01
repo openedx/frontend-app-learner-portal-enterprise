@@ -7,21 +7,18 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { isDefinedAndNotNull } from '../../../utils/common';
-import { features } from '../../../config';
+import { isDefinedAndNotNull } from '../../../../utils/common';
+import { features } from '../../../../config';
 
 import {
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
-  findEnterpriseOfferForCourse,
   getCourseOrganizationDetails,
-  getCoursePrice,
   getCourseTypeConfig,
-  getMissingApplicableSubsidyReason,
   isCourseInstructorPaced,
   isCourseSelfPaced,
   transformedCourseMetadata,
-} from './utils';
+} from '../utils';
 import {
   COURSE_PACING_MAP,
   CURRENCY_USD,
@@ -29,15 +26,14 @@ import {
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   ENROLLMENT_FAILED_QUERY_PARAM,
   SUBSIDY_DISCOUNT_TYPE_MAP,
-} from './constants';
-import { EVENTS, pushEvent } from '../../../utils/optimizely';
-import { canUserRequestSubsidyForCourse, getExternalCourseEnrollmentUrl } from '../enrollment/utils';
-import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
-import { SUBSIDY_TYPE } from '../../../constants';
+} from '../constants';
+import { EVENTS, pushEvent } from '../../../../utils/optimizely';
+import { canUserRequestSubsidyForCourse, getExternalCourseEnrollmentUrl } from '../../enrollment/utils';
+import { createExecutiveEducationFailureMessage } from '../../../executive-education-2u/ExecutiveEducation2UError';
+import { SUBSIDY_TYPE } from '../../../../constants';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   determineAllocatedAssignmentsForCourse,
-  getSubsidyToApplyForCourse,
   LICENSE_SUBSIDY_TYPE,
   useBrowseAndRequest,
   useBrowseAndRequestConfiguration,
@@ -45,17 +41,14 @@ import {
   useCourseMetadata,
   useCourseRedemptionEligibility,
   useEnterpriseCustomer,
-  useEnterpriseOffers,
   useRedeemablePolicies,
-  useCouponCodes,
   useEnterpriseCustomerContainsContent,
-  useSubscriptions,
   LEARNER_CREDIT_SUBSIDY_TYPE,
-  findCouponCodeForCourse,
-  determineSubscriptionLicenseApplicable,
-} from '../../app/data';
-import { CourseContext } from '../CourseContextProvider';
-import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+} from '../../../app/data';
+import { CourseContext } from '../../CourseContextProvider';
+import { POLICY_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import useUserSubsidyApplicableToCourse from './useUserSubsidyApplicableToCourse';
+import useCourseListPrice from './useCourseListPrice';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -346,7 +339,7 @@ export const useTrackSearchConversionClickHandler = ({
       if (!courseRunKey || !eventName) {
         return;
       }
-      const { queryId, objectId } = algoliaSearchParams;
+      const { queryId, objectId } = algoliaSearchParams || {};
       // If tracking is on a link with an external href destination, we must intentionally delay the default click
       // behavior to allow enough time for the async analytics event call to resolve.
       if (href) {
@@ -451,146 +444,6 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
       return false;
   }
 }
-
-export function useCourseListPrice() {
-  const [accessListPrice, setAccessListPrice] = useState();
-  const courseRedemptionEligibilityResult = useCourseRedemptionEligibility();
-
-  useEffect(() => {
-    if (courseRedemptionEligibilityResult.isPending) {
-      return;
-    }
-    setAccessListPrice(courseRedemptionEligibilityResult.data?.listPrice);
-  }, [courseRedemptionEligibilityResult.isPending, courseRedemptionEligibilityResult.data]);
-
-  const resolveListPrice = ({ transformed }) => {
-    if (accessListPrice?.length > 0) {
-      return accessListPrice;
-    }
-    return getCoursePrice(transformed);
-  };
-
-  return useCourseMetadata({
-    select: resolveListPrice,
-  });
-}
-
-/**
- * Given the state of a user's redeemable subsidy access policy and/or other subsidies, determine
- * which subsidy, if any, is applicable to the course.
- *
- * Note: The `canRedeem` query has a dynamic query key that may change on a background re-fetch of a
- * dependent query. Consumers of this hook may need to handle the `isPending` state.
- *
- * Returns:
- * {
- *  userSubsidyApplicableToCourse: null,
- *  missingUserSubsidyReason: null,
- *  isPending: false,
- * }
- *
- * @returns A subsidy that may be redeemed for the course.
- */
-export const useUserSubsidyApplicableToCourse = () => {
-  const { courseKey } = useParams();
-  const resolvedTransformedEnterpriseCustomerData = ({ transformed }) => ({
-    fallbackAdminUsers: transformed.adminUsers.map(user => user.email),
-    contactEmail: transformed.contactEmail,
-  });
-  const {
-    data: {
-      fallbackAdminUsers,
-      contactEmail,
-    },
-  } = useEnterpriseCustomer({
-    select: resolvedTransformedEnterpriseCustomerData,
-  });
-  const { data: courseListPrice } = useCourseListPrice();
-  const {
-    data: {
-      customerAgreement,
-      subscriptionLicense,
-    },
-  } = useSubscriptions();
-  const {
-    data: {
-      containsContentItems,
-      catalogList: catalogsWithCourse,
-    },
-  } = useEnterpriseCustomerContainsContent([courseKey]);
-  const {
-    data: {
-      enterpriseOffers,
-      currentEnterpriseOffers,
-    },
-  } = useEnterpriseOffers();
-  const courseRedemptionEligibilityResult = useCourseRedemptionEligibility();
-  const { isPending } = courseRedemptionEligibilityResult;
-  const {
-    isPolicyRedemptionEnabled = false,
-    redeemableSubsidyAccessPolicy = null,
-    availableCourseRuns: availableCourseRunsForLearnerCredit = [],
-    missingSubsidyAccessPolicyReason = null,
-  } = courseRedemptionEligibilityResult.data || {};
-  const {
-    data: {
-      couponCodeAssignments,
-      couponsOverview,
-    },
-  } = useCouponCodes();
-
-  const isSubscriptionLicenseApplicable = determineSubscriptionLicenseApplicable(
-    subscriptionLicense,
-    catalogsWithCourse,
-  );
-  const userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
-    applicableSubscriptionLicense: isSubscriptionLicenseApplicable ? subscriptionLicense : null,
-    applicableSubsidyAccessPolicy: {
-      isPolicyRedemptionEnabled,
-      redeemableSubsidyAccessPolicy,
-      availableCourseRuns: availableCourseRunsForLearnerCredit,
-    },
-    applicableCouponCode: findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse),
-    applicableEnterpriseOffer: findEnterpriseOfferForCourse({
-      enterpriseOffers: currentEnterpriseOffers,
-      catalogsWithCourse,
-      coursePrice: courseListPrice,
-    }),
-  });
-  let missingUserSubsidyReason;
-  if (!userSubsidyApplicableToCourse) {
-    const enterpriseAdminUsers = (
-      missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
-    );
-    missingUserSubsidyReason = getMissingApplicableSubsidyReason({
-      enterpriseAdminUsers,
-      contactEmail,
-      catalogsWithCourse,
-      couponCodes: couponCodeAssignments,
-      couponsOverview,
-      customerAgreement,
-      subscriptionLicense,
-      containsContentItems,
-      missingSubsidyAccessPolicyReason,
-      enterpriseOffers,
-    });
-  }
-  const { data: courseMetadata } = useCourseMetadata();
-  if (userSubsidyApplicableToCourse) {
-    // Augment the selected subsidy object to backfill availableCourseRuns in case it isn't
-    // supplied. Fallback to all unrestricted, available course runs.
-    const onlyUnrestrictedCourseRuns = courseMetadata?.availableCourseRuns.filter(r => !r.restrictionType) || [];
-    userSubsidyApplicableToCourse.availableCourseRuns = (
-      userSubsidyApplicableToCourse?.availableCourseRuns || onlyUnrestrictedCourseRuns
-    );
-  }
-
-  return useMemo(() => ({
-    userSubsidyApplicableToCourse,
-    missingUserSubsidyReason,
-    isPending,
-  }), [userSubsidyApplicableToCourse, missingUserSubsidyReason, isPending]);
-};
 
 /**
  * Determines course price based on userSubsidy and course info.

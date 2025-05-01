@@ -2,11 +2,10 @@ import { LoaderFunctionArgs, Params } from 'react-router-dom';
 import { ensureAuthenticatedUser, redirectToSearchPageForNewUser } from '../../app/routes/data';
 import {
   extractEnterpriseCustomer,
-  queryEnterprisePathwaysList,
-  queryEnterpriseProgramsList,
-  queryRedeemablePolicies,
   resolveBFFQuery,
-  safeEnsureQueryData,
+  safeEnsureQueryDataPathwaysList,
+  safeEnsureQueryDataProgramsList,
+  safeEnsureQueryDataRedeemablePolicies,
 } from '../../app/data';
 
 type DashboardRouteParams<Key extends string = string> = Params<Key> & {
@@ -49,35 +48,10 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
     // Load enrollments, policies, and conditionally redirect for new users
     const loadEnrollmentsPoliciesAndRedirectForNewUsers = Promise.all([
       queryClient.ensureQueryData(dashboardBFFQuery({ enterpriseSlug })),
-      safeEnsureQueryData({
+      safeEnsureQueryDataRedeemablePolicies({
         queryClient,
-        query: queryRedeemablePolicies({
-          enterpriseUuid: enterpriseCustomer.uuid,
-          lmsUserId: authenticatedUser.userId,
-        }),
-        fallbackData: {
-          redeemablePolicies: [],
-          expiredPolicies: [],
-          unexpiredPolicies: [],
-          learnerContentAssignments: {
-            assignments: [],
-            hasAssignments: false,
-            allocatedAssignments: [],
-            hasAllocatedAssignments: false,
-            acceptedAssignments: [],
-            hasAcceptedAssignments: false,
-            canceledAssignments: [],
-            hasCanceledAssignments: false,
-            expiredAssignments: [],
-            hasExpiredAssignments: false,
-            erroredAssignments: [],
-            hasErroredAssignments: false,
-            assignmentsForDisplay: [],
-            hasAssignmentsForDisplay: false,
-            reversedAssignments: [],
-            hasReversedAssignments: false,
-          },
-        },
+        enterpriseCustomer,
+        authenticatedUser,
       }),
     ]).then((responses) => {
       const { enterpriseCourseEnrollments } = responses[0];
@@ -92,15 +66,13 @@ const makeDashboardLoader: MakeRouteLoaderFunctionWithQueryClient = function mak
 
     await Promise.all([
       loadEnrollmentsPoliciesAndRedirectForNewUsers,
-      safeEnsureQueryData({
+      safeEnsureQueryDataProgramsList({
         queryClient,
-        query: queryEnterpriseProgramsList(enterpriseCustomer.uuid),
-        fallbackData: [],
+        enterpriseCustomer,
       }),
-      safeEnsureQueryData({
+      safeEnsureQueryDataPathwaysList({
         queryClient,
-        query: queryEnterprisePathwaysList(enterpriseCustomer.uuid),
-        fallbackData: [],
+        enterpriseCustomer,
       }),
     ]);
 

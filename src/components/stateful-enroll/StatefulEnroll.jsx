@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { StatefulButton } from '@openedx/paragon';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
+import { logError } from '@edx/frontend-platform/logging';
 
 import { useStatefulEnroll } from './data';
 import { useUserSubsidyApplicableToCourse } from '../course/data';
+import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../app/data';
 
 const messages = defineMessages({
   buttonLabelEnroll: {
@@ -42,12 +44,12 @@ const messages = defineMessages({
  */
 const StatefulEnroll = ({
   contentKey,
-  labels,
-  variant,
   onClick,
   onSuccess,
   onError,
   options = {},
+  labels = {},
+  variant = 'primary',
   ...props
 }) => {
   const intl = useIntl();
@@ -63,6 +65,16 @@ const StatefulEnroll = ({
     isPending: isPendingApplicableSubsidy,
     userSubsidyApplicableToCourse,
   } = useUserSubsidyApplicableToCourse();
+
+  useEffect(() => {
+    if (isPendingApplicableSubsidy) {
+      return;
+    }
+    if (userSubsidyApplicableToCourse?.subsidyType !== LEARNER_CREDIT_SUBSIDY_TYPE) {
+      logError('StatefulEnroll component can only be used with learner credit subsidies.');
+    }
+  }, [isPendingApplicableSubsidy, userSubsidyApplicableToCourse]);
+
   useEffect(() => {
     if (isPendingApplicableSubsidy) {
       setButtonState('loadingApplicableSubsidy');
@@ -126,9 +138,6 @@ const StatefulEnroll = ({
 
 StatefulEnroll.propTypes = {
   contentKey: PropTypes.string.isRequired,
-  subsidyAccessPolicy: PropTypes.shape({
-    policyRedemptionUrl: PropTypes.string.isRequired,
-  }).isRequired,
   variant: PropTypes.string,
   labels: PropTypes.shape({
     default: PropTypes.string,
@@ -142,14 +151,6 @@ StatefulEnroll.propTypes = {
   options: PropTypes.shape({
     trackSearchConversionEventName: PropTypes.string,
   }),
-};
-
-StatefulEnroll.defaultProps = {
-  variant: 'primary',
-  labels: {},
-  onClick: undefined,
-  onSuccess: undefined,
-  onError: undefined,
 };
 
 export default StatefulEnroll;

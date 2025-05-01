@@ -2,8 +2,8 @@ import { screen } from '@testing-library/react';
 import { when } from 'jest-when';
 import '@testing-library/jest-dom/extend-expect';
 
-import { renderWithRouterProvider } from '../../../utils/tests';
-import makeCourseLoader from './courseLoader';
+import { renderWithRouterProvider } from '../../../../utils/tests';
+import makeCourseLoader from '../courseLoader';
 import {
   extractEnterpriseCustomer,
   queryBrowseAndRequestConfiguration,
@@ -20,17 +20,17 @@ import {
   queryRedeemablePolicies,
   querySubscriptions,
   queryUserEntitlements,
-} from '../../app/data';
-import { ensureAuthenticatedUser } from '../../app/routes/data';
-import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+} from '../../../app/data';
+import { ensureAuthenticatedUser } from '../../../app/routes/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 
-jest.mock('../../app/routes/data', () => ({
-  ...jest.requireActual('../../app/routes/data'),
+jest.mock('../../../app/routes/data', () => ({
+  ...jest.requireActual('../../../app/routes/data'),
   ensureAuthenticatedUser: jest.fn(),
 }));
-jest.mock('../../app/data', () => ({
-  ...jest.requireActual('../../app/data'),
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
   extractEnterpriseCustomer: jest.fn(),
 }));
 
@@ -162,7 +162,7 @@ describe('courseLoader', () => {
     const mockCourseMetadata = {
       key: mockCourseKey,
       courseRuns: [{
-        key: 'course-run-key',
+        key: mockCourseRunKey,
         isMarketable: true,
         isEnrollable: true,
         availability: 'Current',
@@ -174,14 +174,10 @@ describe('courseLoader', () => {
     // When `ensureQueryData` is called with the course metadata
     // query, ensure its mock return value is the course metadata
     // for the dependent course redemption eligibility query.
-    let courseMetadataQuery = queryCourseMetadata(mockCourseKey);
-    const hasAssignedCourseRunsForCourse = mockAllocatedAssignments.some(
-      (assignment) => assignment.isAssignedCourseRun && assignment.parentContentKey === mockCourseKey,
-    );
-    if (hasAssignedCourseRunsForCourse) {
-      courseMetadataQuery = queryCourseMetadata(mockCourseKey, mockCourseRunKey);
-    }
+    const courseMetadataQuery = queryCourseMetadata(mockCourseKey);
 
+    // When `ensureQueryData`/`getQueryData` is called with the course metadata query,
+    // ensure its mock return value is valid.
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: courseMetadataQuery.queryKey,
@@ -301,7 +297,9 @@ describe('courseLoader', () => {
       expect.objectContaining({
         queryKey: queryEnterpriseCustomerContainsContent(mockEnterpriseCustomer.uuid, [mockCourseKey]).queryKey,
       }),
-    ).mockResolvedValue(true);
+    ).mockResolvedValue({
+      catalogList: ['test-catalog-uuid'],
+    });
 
     // When `ensureQueryData` is called with the course recommendations query,
     // ensure its mock return value is valid.
@@ -414,17 +412,22 @@ describe('courseLoader', () => {
     );
 
     // Course redemption eligibility query
+    const canRedeemQuery = queryCanRedeem(
+      mockEnterpriseCustomer.uuid,
+      mockCourseMetadata.key,
+      [mockCourseRunKey],
+    );
     if (hasCourseMetadata) {
       expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
         expect.objectContaining({
-          queryKey: queryCanRedeem(mockEnterpriseCustomer.uuid, mockCourseMetadata).queryKey,
+          queryKey: canRedeemQuery.queryKey,
           queryFn: expect.any(Function),
         }),
       );
     } else {
       expect(mockQueryClient.ensureQueryData).not.toHaveBeenCalledWith(
         expect.objectContaining({
-          queryKey: queryCanRedeem(mockEnterpriseCustomer.uuid, mockCourseMetadata).queryKey,
+          queryKey: canRedeemQuery.queryKey,
           queryFn: expect.any(Function),
         }),
       );

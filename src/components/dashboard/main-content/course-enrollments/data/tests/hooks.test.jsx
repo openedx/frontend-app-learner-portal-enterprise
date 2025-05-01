@@ -154,23 +154,22 @@ describe('useCourseUpgradeData', () => {
     });
     useCouponCodes.mockReturnValue({ data: null });
     useCourseRunMetadata.mockReturnValue({ data: null });
-    useEnterpriseCourseEnrollments.mockReturnValue({ data: null });
-    useStatefulEnroll.mockReturnValue({
-      redeem: mockStatefulRedeem,
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: {
+        enterpriseCourseEnrollments: [],
+      },
     });
+    useStatefulEnroll.mockReturnValue(mockStatefulRedeem);
   });
 
   afterAll(() => {
     global.location = realLocation;
   });
 
-  it.each([
-    true,
-    false,
-  ])("should return null for upgrade urls if the course isn't contained by the subsidies' catalogs (%s)", (containsContentItems) => {
+  it("should return null for upgrade urls if the course isn't contained by the subsidies' catalogs", () => {
     useEnterpriseCustomerContainsContent.mockReturnValue({
       data: {
-        containsContentItems,
+        containsContentItems: false,
         catalogList: [],
       },
     });
@@ -438,21 +437,22 @@ describe('useCourseUpgradeData', () => {
       },
       canRedeem: true,
       reasons: [],
-      isPolicyRedemptionEnabled: true,
       policyRedemptionUrl: mockRedemptionUrl,
     };
+
     beforeEach(() => {
       jest.clearAllMocks();
       useCanUpgradeWithLearnerCredit.mockReturnValue({
         data: {
           applicableSubsidyAccessPolicy: {
-            ...mockCanUpgradeWithLearnerCredit.redeemableSubsidyAccessPolicy,
+            redeemableSubsidyAccessPolicy: mockCanUpgradeWithLearnerCredit.redeemableSubsidyAccessPolicy,
             isPolicyRedemptionEnabled: true,
           },
           listPrice: mockCanUpgradeWithLearnerCredit.listPrice.usd,
         },
       });
     });
+
     it('should return a learner credit upgrade url', async () => {
       useEnterpriseCustomerContainsContent.mockReturnValue({
         data: {

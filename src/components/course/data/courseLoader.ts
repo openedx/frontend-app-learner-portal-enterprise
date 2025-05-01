@@ -9,32 +9,29 @@ import {
   extractCourseRunKeyFromSearchParams,
   extractEnterpriseCustomer,
   findCouponCodeForCourse,
-  getBaseSubscriptionsData,
   getCatalogsForSubsidyRequests,
   getCourseRunsForRedemption,
   getLateEnrollmentBufferDays,
   getSearchCatalogs,
-  queryBrowseAndRequestConfiguration,
-  queryCanRedeem,
-  queryCouponCodeRequests,
-  queryCouponCodes,
   queryCourseMetadata,
-  queryCourseRecommendations,
-  queryCourseReviews,
-  queryEnterpriseCourseEnrollments,
-  queryEnterpriseCustomerContainsContent,
-  queryEnterpriseLearnerOffers,
-  queryLicenseRequests,
-  queryRedeemablePolicies,
-  querySubscriptions,
-  queryUserEntitlements,
-  safeEnsureQueryData,
+  safeEnsureQueryDataBrowseAndRequestConfiguration,
+  safeEnsureQueryDataCanRedeem,
+  safeEnsureQueryDataCouponCodeRequests,
+  safeEnsureQueryDataCouponCodes,
+  safeEnsureQueryDataCourseRecommendations,
+  safeEnsureQueryDataCourseReviews,
+  safeEnsureQueryDataCustomerContainsContent,
+  safeEnsureQueryDataEnterpriseCourseEnrollments,
+  safeEnsureQueryDataEnterpriseOffers,
+  safeEnsureQueryDataLicenseRequests,
+  safeEnsureQueryDataRedeemablePolicies,
+  safeEnsureQueryDataSubscriptions,
+  safeEnsureQueryDataUserEntitlements,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 import {
   getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug,
 } from './utils';
-import { getErrorResponseStatusCode } from '../../../utils/common';
 
 type CourseRouteParams<Key extends string = string> = Params<Key> & {
   readonly courseKey: string;
@@ -69,57 +66,23 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
       return null;
     }
     const prerequisiteQueries = await Promise.all([
-      safeEnsureQueryData({
+      safeEnsureQueryDataCustomerContainsContent({
         queryClient,
-        query: queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey]),
-        fallbackData: {
-          containsContentItems: false,
-          catalogList: [],
-        },
+        enterpriseCustomer,
+        courseKey,
       }),
-      safeEnsureQueryData({
+      safeEnsureQueryDataCouponCodes({
         queryClient,
-        query: queryCouponCodes(enterpriseCustomer.uuid),
-        fallbackData: {
-          couponsOverview: [],
-          couponCodeAssignments: [],
-          couponCodeRedemptionCount: 0,
-        },
+        enterpriseCustomer,
       }),
-      safeEnsureQueryData({
+      safeEnsureQueryDataSubscriptions({
         queryClient,
-        query: querySubscriptions(enterpriseCustomer.uuid),
-        fallbackData: getBaseSubscriptionsData().baseSubscriptionsData,
+        enterpriseCustomer,
       }),
-      safeEnsureQueryData({
+      safeEnsureQueryDataRedeemablePolicies({
         queryClient,
-        query: queryRedeemablePolicies({
-          enterpriseUuid: enterpriseCustomer.uuid,
-          lmsUserId: authenticatedUser.userId,
-        }),
-        fallbackData: {
-          redeemablePolicies: [],
-          expiredPolicies: [],
-          unexpiredPolicies: [],
-          learnerContentAssignments: {
-            assignments: [],
-            hasAssignments: false,
-            allocatedAssignments: [],
-            hasAllocatedAssignments: false,
-            acceptedAssignments: [],
-            hasAcceptedAssignments: false,
-            canceledAssignments: [],
-            hasCanceledAssignments: false,
-            expiredAssignments: [],
-            hasExpiredAssignments: false,
-            erroredAssignments: [],
-            hasErroredAssignments: false,
-            assignmentsForDisplay: [],
-            hasAssignmentsForDisplay: false,
-            reversedAssignments: [],
-            hasReversedAssignments: false,
-          },
-        },
+        enterpriseCustomer,
+        authenticatedUser,
       }),
     ]);
     const [
@@ -130,32 +93,23 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     ] = prerequisiteQueries;
 
     const otherSubsidyQueries = Promise.all([
-      safeEnsureQueryData({
+      safeEnsureQueryDataEnterpriseOffers({
         queryClient,
-        query: queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
-        fallbackData: {
-          enterpriseOffers: [],
-          currentEnterpriseOffers: [],
-          canEnrollWithEnterpriseOffers: false,
-          hasCurrentEnterpriseOffers: false,
-          hasLowEnterpriseOffersBalance: false,
-          hasNoEnterpriseOffersBalance: false,
-        },
+        enterpriseCustomer,
       }),
-      safeEnsureQueryData({
+      safeEnsureQueryDataLicenseRequests({
         queryClient,
-        query: queryLicenseRequests(enterpriseCustomer.uuid, authenticatedUser.email),
-        fallbackData: [],
+        enterpriseCustomer,
+        authenticatedUser,
       }),
-      safeEnsureQueryData({
+      safeEnsureQueryDataCouponCodeRequests({
         queryClient,
-        query: queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email),
-        fallbackData: [],
+        enterpriseCustomer,
+        authenticatedUser,
       }),
-      safeEnsureQueryData({
+      safeEnsureQueryDataBrowseAndRequestConfiguration({
         queryClient,
-        query: queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
-        shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+        enterpriseCustomer,
       }),
     ]);
 
@@ -185,29 +139,23 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
             redeemableLearnerCreditPolicies,
             hasSubsidyPrioritizedOverLearnerCredit,
           });
-          return safeEnsureQueryData({
+          return safeEnsureQueryDataCanRedeem({
             queryClient,
-            query: queryCanRedeem(enterpriseCustomer.uuid, courseMetadata.key, courseRunKeysForRedemption),
-            shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
-            fallbackData: [],
+            enterpriseCustomer,
+            courseMetadata,
+            courseRunKeysForRedemption,
           });
         }),
-      safeEnsureQueryData({
+      safeEnsureQueryDataEnterpriseCourseEnrollments({
         queryClient,
-        query: queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
-        shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
-        fallbackData: [],
+        enterpriseCustomer,
       }),
-      safeEnsureQueryData({
+      safeEnsureQueryDataUserEntitlements({
         queryClient,
-        query: queryUserEntitlements(),
-        fallbackData: [],
       }),
-      safeEnsureQueryData({
+      safeEnsureQueryDataCourseReviews({
         queryClient,
-        query: queryCourseReviews(courseKey),
-        shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
-        fallbackData: null,
+        courseKey,
       }),
       otherSubsidyQueries.then(async (subsidyResponses) => {
         const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[0];
@@ -245,17 +193,11 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
           currentEnterpriseOffers,
           subscriptionLicense,
         });
-        return safeEnsureQueryData({
+        return safeEnsureQueryDataCourseRecommendations({
           queryClient,
-          query: queryCourseRecommendations(
-            enterpriseCustomer.uuid,
-            courseKey,
-            searchCatalogs,
-          ),
-          fallbackData: {
-            allRecommendations: [],
-            samePartnerRecommendations: [],
-          },
+          enterpriseCustomer,
+          courseKey,
+          searchCatalogs,
         });
       }),
     ]);

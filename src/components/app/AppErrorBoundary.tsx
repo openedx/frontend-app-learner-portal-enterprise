@@ -22,42 +22,42 @@ interface AppErrorBoundaryProps {
 
 const messages = defineMessages({
   errorTitle: {
-    id: 'errorBoundary.title',
+    id: 'enterprise.learner_portal.error_boundary.title',
     defaultMessage: 'An error occurred while processing your request',
     description: 'Title for the error boundary page',
   },
   errorSubtitle: {
-    id: 'errorBoundary.subtitle',
+    id: 'enterprise.learner_portal.error_boundary.subtitle',
     defaultMessage: 'We apologize for the inconvenience. Please try again later.',
     description: 'Subtitle for the error boundary page',
   },
   errorBody: {
-    id: 'errorBoundary.body',
+    id: 'enterprise.learner_portal.error_boundary.body',
     defaultMessage: 'This may be caused by a problem with your internet connection or a temporary issue on our end. Please check your connection and try again, or return later if the issue persists.',
     description: 'Body for the error boundary page',
   },
   viewErrorDetails: {
-    id: 'errorBoundary.viewErrorDetails',
+    id: 'enterprise.learner_portal.error_boundary.view_error_details',
     defaultMessage: 'View error details',
     description: 'Label for the button to view error details',
   },
   tryAgainCTA: {
-    id: 'errorBoundary.tryAgainCTA',
+    id: 'enterprise.learner_portal.error_boundary.try_again',
     defaultMessage: 'Try again',
     description: 'CTA to try again by reloading the page',
   },
   updateAvailableModalHeading: {
-    id: 'updateAvailableModal.heading',
+    id: 'enterprise.learner_portal.update_available_modal.heading',
     defaultMessage: 'Update: New Version Available',
     description: 'Heading for the update available modal',
   },
   updateAvailableModalContent: {
-    id: 'updateAvailableModal.content',
+    id: 'enterprise.learner_portal.update_available_modal.content',
     defaultMessage: 'Attention: A new version of the website was released. To leverage the latest features and improvements, please perform a page refresh.',
     description: 'Content for the update available modal',
   },
   updateAvailableModalRefreshButtonText: {
-    id: 'updateAvailableModal.refreshButtonText',
+    id: 'enterprise.learner_portal.update_available_modal.refresh_button_text',
     defaultMessage: 'Refresh',
     description: 'Button text to refresh the page',
   },

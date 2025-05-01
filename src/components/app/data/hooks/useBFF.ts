@@ -14,12 +14,11 @@ function useMatchedBFFQuery() {
  * Retrieves the query key for the BFF query or the fallback query.
  */
 function useQueryKey({
+  matchedBFFQuery,
   bffQueryAdditionalParams,
   fallbackQueryConfig,
 }) {
-  const matchedBFFQuery = useMatchedBFFQuery();
   const { enterpriseSlug } = useParams();
-
   if (matchedBFFQuery) {
     return matchedBFFQuery({
       enterpriseSlug,
@@ -33,12 +32,11 @@ function useQueryKey({
  * Retrieves the query function for the BFF query or the fallback query.
  */
 function useQueryFn({
+  matchedBFFQuery,
   bffQueryAdditionalParams,
   fallbackQueryConfig,
 }) {
-  const matchedBFFQuery = useMatchedBFFQuery();
   const { enterpriseSlug } = useParams();
-
   if (matchedBFFQuery) {
     const bffQueryConfig = matchedBFFQuery({
       enterpriseSlug,
@@ -53,10 +51,10 @@ function useQueryFn({
  * Retrieves the select transform function for the BFF query or the fallback query.
  */
 function useBFFSelectFn({
+  matchedBFFQuery,
   bffQueryOptions,
   fallbackQueryConfig,
 }) {
-  const matchedBFFQuery = useMatchedBFFQuery();
   if (matchedBFFQuery && bffQueryOptions.select) {
     return bffQueryOptions.select;
   }
@@ -74,15 +72,19 @@ function useBFFQueryConfig({
   bffQueryOptions,
   fallbackQueryConfig,
 }) {
+  const matchedBFFQuery = useMatchedBFFQuery();
   const queryKey = useQueryKey({
+    matchedBFFQuery,
     bffQueryAdditionalParams,
     fallbackQueryConfig,
   });
   const queryFn = useQueryFn({
+    matchedBFFQuery,
     bffQueryAdditionalParams,
     fallbackQueryConfig,
   });
   const selectFn = useBFFSelectFn({
+    matchedBFFQuery,
     bffQueryOptions,
     fallbackQueryConfig,
   });

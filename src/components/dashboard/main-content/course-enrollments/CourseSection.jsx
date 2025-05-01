@@ -108,14 +108,14 @@ const CourseSection = ({
   const renderCourseCards = () => courseRuns.map(courseRun => {
     const isAuditEnrollment = isEnrollmentUpgradeable(courseRun);
     const isInProgressEnrollment = courseRun.courseRunStatus === COURSE_STATUSES.inProgress;
-    const isPotentiallyUpgradeable = isAuditEnrollment && isInProgressEnrollment;
+    const inProgressCourseRunCardVariant = isAuditEnrollment && isInProgressEnrollment ? 'upgradeable' : 'default';
 
     // Determine the component to render based on course status and enrollment type.
     const Component = isInProgressEnrollment
-      ? CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus][isPotentiallyUpgradeable ? 'upgradeable' : 'default']
+      ? CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus][inProgressCourseRunCardVariant]
       : CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
 
-    if (isPotentiallyUpgradeable) {
+    if (inProgressCourseRunCardVariant === 'upgradeable') {
       return (
         <Suspense
           key={courseRun.courseRunId}

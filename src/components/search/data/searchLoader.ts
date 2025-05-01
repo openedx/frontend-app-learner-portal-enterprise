@@ -6,8 +6,8 @@ import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
 import {
   extractEnterpriseCustomer,
   queryAcademiesList,
-  queryContentHighlightSets,
-  safeEnsureQueryData,
+  safeEnsureQueryDataAcademiesList,
+  safeEnsureQueryDataContentHighlightSets,
 } from '../../app/data';
 
 type SearchRouteParams<Key extends string = string> = Params<Key> & {
@@ -42,27 +42,24 @@ const makeSearchLoader: MakeRouteLoaderFunctionWithQueryClient = function makeSe
       return null;
     }
 
-    const academiesListQuery = queryAcademiesList(enterpriseCustomer.uuid);
-
     const searchData = [
-      safeEnsureQueryData({
+      safeEnsureQueryDataAcademiesList({
         queryClient,
-        query: academiesListQuery,
-        fallbackData: [],
+        enterpriseCustomer,
       }),
     ];
     if (getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
       searchData.push(
-        safeEnsureQueryData({
+        safeEnsureQueryDataContentHighlightSets({
           queryClient,
-          query: queryContentHighlightSets(enterpriseCustomer.uuid),
-          fallbackData: [],
+          enterpriseCustomer,
         }),
       );
     }
 
     await Promise.all(searchData);
 
+    const academiesListQuery = queryAcademiesList(enterpriseCustomer.uuid);
     const academies = queryClient.getQueryData<Academy[]>(academiesListQuery.queryKey);
     if (enterpriseCustomer.enableOneAcademy && academies?.length === 1) {
       const redirectPath = generatePath('/:enterpriseSlug/academies/:academyUUID', {

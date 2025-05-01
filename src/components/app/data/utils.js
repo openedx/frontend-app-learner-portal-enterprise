@@ -551,7 +551,7 @@ export function isArchived(courseRun) {
  * - isEnrollable: The run is enrollable, meaning the enrollment window is open.
  */
 export const standardAvailableCourseRunsFilter = (courseRun, courseRunKey) => {
-  const isStandardlyAvailable = (
+  const isStandardAvailable = (
     (courseRun.isMarketable || courseRun.isMarketableExternal)
     && !isArchived(courseRun)
     && courseRun.isEnrollable
@@ -559,10 +559,10 @@ export const standardAvailableCourseRunsFilter = (courseRun, courseRunKey) => {
 
   if (courseRunKey) {
     // If a courseRunKey is provided, we also check that the courseRun matches its key.
-    return courseRun.key === courseRunKey && isStandardlyAvailable;
+    return courseRun.key === courseRunKey && isStandardAvailable;
   }
 
-  return isStandardlyAvailable;
+  return isStandardAvailable;
 };
 
 /**
@@ -811,10 +811,10 @@ export const getSubsidyToApplyForCourse = ({
       discountType: 'percentage',
       discountValue: 100,
       subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+      policyType: redeemableSubsidyAccessPolicy.policyType,
       perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy.perLearnerEnrollmentLimit,
       perLearnerSpendLimit: redeemableSubsidyAccessPolicy.perLearnerSpendLimit,
       policyRedemptionUrl: redeemableSubsidyAccessPolicy.policyRedemptionUrl,
-      policyType: redeemableSubsidyAccessPolicy.policyType,
       availableCourseRuns,
     };
   }

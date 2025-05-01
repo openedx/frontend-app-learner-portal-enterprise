@@ -117,7 +117,7 @@ export const useCourseUpgradeData = ({
 
   const redeemLearnerCredit = useStatefulEnroll({
     contentKey: courseRunKey,
-    subsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy,
+    subsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy?.redeemableSubsidyAccessPolicy,
     onBeginRedeem: onRedeem,
     onSuccess: onRedeemSuccess,
     onError: onRedeemError,
@@ -198,7 +198,8 @@ export const useCourseUpgradeData = ({
 
     // Construct and return learner credit based upgrade url
     if (applicableSubsidy.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
-      applicableSubsidy.redemptionUrl = learnerCreditMetadata.applicableSubsidyAccessPolicy.policyRedemptionUrl;
+      const { policyRedemptionUrl } = learnerCreditMetadata.applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy;
+      applicableSubsidy.redemptionUrl = policyRedemptionUrl;
       return {
         ...defaultReturn,
         subsidyForCourse: applicableSubsidy,

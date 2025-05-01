@@ -7,11 +7,11 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
 import useStatefulEnroll from './useStatefulEnroll';
-import * as hooks from '../../../course/data/hooks';
 import { EVENT_NAMES } from '../../../course/data/constants';
 import { useEnterpriseCustomer } from '../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import { queryClient } from '../../../../utils/tests';
+import { useOptimizelyEnrollmentClickHandler, useTrackSearchConversionClickHandler } from '../../../course/data';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
@@ -30,10 +30,13 @@ const onSuccess = jest.fn();
 const onError = jest.fn();
 const userEnrollments = [];
 
-const trackSearchClick = jest.fn();
-const optimizelyClick = jest.fn();
-const trackSearchSpy = jest.spyOn(hooks, 'useTrackSearchConversionClickHandler').mockReturnValue(trackSearchClick);
-const optimizelySpy = jest.spyOn(hooks, 'useOptimizelyEnrollmentClickHandler').mockReturnValue(optimizelyClick);
+const mockTrackSearchClick = jest.fn();
+const mockOptimizelyClick = jest.fn();
+jest.mock('../../../course/data/hooks', () => ({
+  ...jest.requireActual('../../../course/data/hooks'),
+  useTrackSearchConversionClickHandler: jest.fn(() => mockTrackSearchClick),
+  useOptimizelyEnrollmentClickHandler: jest.fn(() => mockOptimizelyClick),
+}));
 
 const mockAuthenticatedUser = authenticatedUserFactory();
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -44,6 +47,9 @@ type RedeemWithUseStatefulEnrollArgs = {
   hasSubsidyAccessPolicy?: boolean;
   metadata?: Record<string, unknown>;
   shouldThrowError?: boolean;
+  options?: {
+    trackSearchConversionEventName?: string;
+  };
 };
 
 describe('useStatefulEnroll', () => {
@@ -81,6 +87,7 @@ describe('useStatefulEnroll', () => {
   const redeemWithUseStatefulEnroll = async ({
     hasSubsidyAccessPolicy = true,
     metadata,
+    options = {},
   }: RedeemWithUseStatefulEnrollArgs = {}) => {
     const wrapper = ({ children }) => (
       <QueryClientProvider client={queryClient()}>
@@ -104,6 +111,7 @@ describe('useStatefulEnroll', () => {
       onError,
       onBeginRedeem,
       userEnrollments,
+      options,
     }), { wrapper });
 
     const redeem = result.current;
@@ -132,6 +140,7 @@ describe('useStatefulEnroll', () => {
     mockTransactionStates(['pending', 'committed']);
     await redeemWithUseStatefulEnroll({
       metadata: hasRedemptionMetadata ? { mock: 'data' } : undefined,
+      options: { trackSearchConversionEventName: EVENT_NAMES.sucessfulEnrollment },
     });
 
     expect(onBeginRedeem).toHaveBeenCalledTimes(1);
@@ -159,8 +168,17 @@ describe('useStatefulEnroll', () => {
       transactionStatusApiUrl: mockTransactionStatusApiUrl,
     } as SubsidyTransaction);
 
-    expect(trackSearchSpy).toHaveBeenCalledWith({ eventName: EVENT_NAMES.sucessfulEnrollment });
-    expect(optimizelySpy).toHaveBeenCalledWith({ courseRunKey: 'content_key', userEnrollments: [] });
+    expect(useTrackSearchConversionClickHandler).toHaveBeenCalledWith({
+      courseRunKey: mockContentKey,
+      eventName: EVENT_NAMES.sucessfulEnrollment,
+    });
+    expect(mockTrackSearchClick).toHaveBeenCalledTimes(1);
+
+    expect(useOptimizelyEnrollmentClickHandler).toHaveBeenCalledWith({
+      courseRunKey: mockContentKey,
+      userEnrollments,
+    });
+    expect(mockOptimizelyClick).toHaveBeenCalledTimes(1);
   });
 
   test('should handle redemption request with failed transaction', async () => {

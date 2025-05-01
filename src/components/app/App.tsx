@@ -40,7 +40,7 @@ function useAppQueryClient() {
         // data is fetched. By enabling this option, UI components generally will not need to consider
         // hard loading states when query keys change.
         placeholderData: keepPreviousData,
-        // TODO: Write purpose.
+        // If a query fails, it will retry up to 3 times for queries with non-404 errors.
         retry: defaultQueryClientRetryHandler,
       },
     },

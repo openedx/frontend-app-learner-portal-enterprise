@@ -71,7 +71,6 @@ const mockCourseRun = {
   linkToCourse: mockCourseRunUrl,
 };
 
-const mockUserSubsidy = { subsidyType: 'learnerCredit' };
 const mockUserCanRequestSubsidy = false;
 const mockAuthenticatedUser = authenticatedUserFactory();
 const CourseRunCardWrapper = (props) => (
@@ -140,7 +139,6 @@ describe('<CourseRunCard />', () => {
       courseRun: mockCourseRun,
       courseRunUrl: mockUserEnrollment.courseRunUrl,
       userEnrollment: mockUserEnrollment,
-      subsidyAccessPolicy: mockUserSubsidy,
       userCanRequestSubsidyForCourse: mockUserCanRequestSubsidy,
     });
   });

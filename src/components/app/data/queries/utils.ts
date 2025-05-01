@@ -3,12 +3,32 @@ import { logError } from '@edx/frontend-platform/logging';
 import { QueryClient, QueryFunction, QueryKey } from '@tanstack/react-query';
 
 import {
+  queryAcademiesList,
+  queryBrowseAndRequestConfiguration,
+  queryCanRedeem,
+  queryContentHighlightSets,
+  queryCouponCodeRequests,
+  queryCouponCodes,
+  queryCourseMetadata,
+  queryCourseRecommendations,
+  queryCourseReviews,
+  queryEnterpriseCourseEnrollments,
+  queryEnterpriseCustomerContainsContent,
   queryEnterpriseLearner,
   queryEnterpriseLearnerAcademyBFF,
   queryEnterpriseLearnerDashboardBFF,
+  queryEnterpriseLearnerOffers,
   queryEnterpriseLearnerSearchBFF,
   queryEnterpriseLearnerSkillsQuizBFF,
+  queryEnterprisePathwaysList,
+  queryEnterpriseProgramsList,
+  queryLicenseRequests,
+  queryRedeemablePolicies,
+  querySubscriptions,
+  queryUserEntitlements,
 } from './queries';
+import { getBaseSubscriptionsData } from '../constants';
+import { getErrorResponseStatusCode } from '../../../../utils/common';
 
 /**
  * Resolves the appropriate BFF query function to use for the current route.
@@ -111,6 +131,10 @@ type SafeEnsureQueryDataArgs<TData = unknown> = {
   fallbackData?: TData;
 };
 
+export function ignoreQueryResponseError404(error) {
+  return getErrorResponseStatusCode(error) !== 404;
+}
+
 /**
  * Wraps a promise in a try/catch block and returns null if the promise is rejected. Using
  * this helper function ensures that errors are handled gracefully within route loaders.
@@ -138,4 +162,261 @@ export async function safeEnsureQueryData<TData = unknown>({
     queryClient.setQueryData(queryKey, fallbackData);
     return fallbackData as TData;
   }
+}
+
+export async function safeEnsureQueryDataCustomerContainsContent({
+  queryClient,
+  enterpriseCustomer,
+  courseKey,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey]),
+    fallbackData: {
+      containsContentItems: false,
+      catalogList: [],
+    },
+  });
+}
+
+export async function safeEnsureQueryDataRedeemablePolicies({ queryClient, authenticatedUser, enterpriseCustomer }) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryRedeemablePolicies({
+      enterpriseUuid: enterpriseCustomer.uuid,
+      lmsUserId: authenticatedUser.userId,
+    }),
+    fallbackData: {
+      redeemablePolicies: [],
+      expiredPolicies: [],
+      unexpiredPolicies: [],
+      learnerContentAssignments: {
+        assignments: [],
+        hasAssignments: false,
+        allocatedAssignments: [],
+        hasAllocatedAssignments: false,
+        acceptedAssignments: [],
+        hasAcceptedAssignments: false,
+        canceledAssignments: [],
+        hasCanceledAssignments: false,
+        expiredAssignments: [],
+        hasExpiredAssignments: false,
+        erroredAssignments: [],
+        hasErroredAssignments: false,
+        assignmentsForDisplay: [],
+        hasAssignmentsForDisplay: false,
+        reversedAssignments: [],
+        hasReversedAssignments: false,
+      },
+    },
+  });
+}
+
+export async function safeEnsureQueryDataCouponCodes({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryCouponCodes(enterpriseCustomer.uuid),
+    fallbackData: {
+      couponsOverview: [],
+      couponCodeAssignments: [],
+      couponCodeRedemptionCount: 0,
+    },
+  });
+}
+
+export async function safeEnsureQueryDataSubscriptions({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: querySubscriptions(enterpriseCustomer.uuid),
+    fallbackData: getBaseSubscriptionsData().baseSubscriptionsData,
+  });
+}
+
+export async function safeEnsureQueryDataEnterpriseOffers({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
+    fallbackData: {
+      enterpriseOffers: [],
+      currentEnterpriseOffers: [],
+      canEnrollWithEnterpriseOffers: false,
+      hasCurrentEnterpriseOffers: false,
+      hasLowEnterpriseOffersBalance: false,
+      hasNoEnterpriseOffersBalance: false,
+    },
+  });
+}
+
+export async function safeEnsureQueryDataLicenseRequests({
+  queryClient,
+  enterpriseCustomer,
+  authenticatedUser,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryLicenseRequests(enterpriseCustomer.uuid, authenticatedUser.email),
+    fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataCouponCodeRequests({
+  queryClient,
+  enterpriseCustomer,
+  authenticatedUser,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email),
+    fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataBrowseAndRequestConfiguration({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
+    shouldLogError: ignoreQueryResponseError404,
+  });
+}
+
+export async function safeEnsureQueryDataCanRedeem({
+  queryClient,
+  enterpriseCustomer,
+  courseMetadata,
+  courseRunKeysForRedemption = [],
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryCanRedeem(enterpriseCustomer.uuid, courseMetadata.key, courseRunKeysForRedemption),
+    shouldLogError: ignoreQueryResponseError404,
+    fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataEnterpriseCourseEnrollments({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid),
+    shouldLogError: ignoreQueryResponseError404,
+    fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataUserEntitlements({
+  queryClient,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryUserEntitlements(),
+    fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataCourseReviews({
+  queryClient,
+  courseKey,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryCourseReviews(courseKey),
+    shouldLogError: ignoreQueryResponseError404,
+    fallbackData: null,
+  });
+}
+
+type SafeEnsureQueryDataCourseRecommendationsArgs = {
+  queryClient: QueryClient;
+  enterpriseCustomer: EnterpriseCustomer;
+  courseKey: string;
+  searchCatalogs?: string[];
+};
+
+export async function safeEnsureQueryDataCourseRecommendations({
+  queryClient,
+  enterpriseCustomer,
+  courseKey,
+  searchCatalogs = [],
+}: SafeEnsureQueryDataCourseRecommendationsArgs) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryCourseRecommendations(
+      enterpriseCustomer.uuid,
+      courseKey,
+      searchCatalogs,
+    ),
+    fallbackData: {
+      allRecommendations: [],
+      samePartnerRecommendations: [],
+    },
+  });
+}
+
+export async function safeEnsureQueryDataProgramsList({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryEnterpriseProgramsList(enterpriseCustomer.uuid),
+    fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataPathwaysList({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryEnterprisePathwaysList(enterpriseCustomer.uuid),
+    fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataCourseMetadata({
+  queryClient,
+  courseKey,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryCourseMetadata(courseKey),
+    fallbackData: null,
+  });
+}
+
+export async function safeEnsureQueryDataAcademiesList({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryAcademiesList(enterpriseCustomer.uuid),
+    fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataContentHighlightSets({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryContentHighlightSets(enterpriseCustomer.uuid),
+    fallbackData: [],
+  });
 }
