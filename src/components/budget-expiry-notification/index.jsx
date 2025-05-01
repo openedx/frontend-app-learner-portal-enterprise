@@ -89,6 +89,7 @@ const BudgetExpiryNotification = () => {
           size="md"
           isOpen={modalIsOpen}
           onClose={dismissModal}
+          isOverflowVisible={false}
           footerNode={(
             <ActionRow>
               <Button variant="primary" onClick={dismissModal}>OK</Button>

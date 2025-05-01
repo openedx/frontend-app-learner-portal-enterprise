@@ -41,6 +41,7 @@ const CustomSubscriptionExpirationModal = () => {
       title={<h3 className="mb-2">{customerAgreement.modalHeaderTextV2}</h3>}
       isOpen={isOpen}
       isBlocking
+      isOverflowVisible={false}
       footerNode={(
         <ActionRow>
           <StatefulButton
