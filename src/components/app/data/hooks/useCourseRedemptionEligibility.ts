@@ -73,7 +73,6 @@ export function transformCourseRedemptionEligibility({
   const hasSuccessfulRedemption = courseRunKey
     ? !!canRedeemDataForAvailableRuns.find(r => r.contentKey === courseRunKey)?.hasSuccessfulRedemption
     : canRedeemDataForAvailableRuns.some(r => r.hasSuccessfulRedemption);
-
   // If there is a redeemable subsidy access policy for the active course run, use that. Otherwise, use any other
   // redeemable subsidy access policy for any of the content keys.
   const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || anyRedeemableSubsidyAccessPolicy;

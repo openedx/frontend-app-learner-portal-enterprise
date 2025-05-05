@@ -142,7 +142,10 @@ describe('useCourseUpgradeData', () => {
     useSubscriptions.mockReturnValue({ data: null });
     useCanUpgradeWithLearnerCredit.mockReturnValue({
       data: {
-        applicableSubsidyAccessPolicy: null,
+        applicableSubsidyAccessPolicy: {
+          isPolicyRedemptionEnabled: false,
+          redeemableSubsidyAccessPolicy: null,
+        },
         listPrice: null,
       },
     });
