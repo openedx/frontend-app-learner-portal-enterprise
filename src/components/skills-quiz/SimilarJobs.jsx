@@ -26,7 +26,7 @@ const SimilarJobHits = ({ hits, isLoading }) => {
     interestedJobsCopy: interestedJobs?.filter((job) => job.name !== selectedJob) || [],
     nameCopy: name?.filter((jobObj) => jobObj !== selectedJob) || [],
   }), [interestedJobs, name, selectedJob]);
-  const updateDispatch = useCallback(() => {
+  const updateSkillsSelectedJob = useCallback(() => {
     skillsDispatch({
       type: SET_KEY_VALUE,
       key: 'selectedJob',
@@ -51,9 +51,9 @@ const SimilarJobHits = ({ hits, isLoading }) => {
 
   useEffect(() => {
     if (!isLoading && hits?.length > 0 && (hits[0]?.name !== selectedJob)) {
-      updateDispatch();
+      updateSkillsSelectedJob();
     }
-  }, [hits, interestedJobs, isLoading, selectedJob, updateDispatch]);
+  }, [hits, interestedJobs, isLoading, selectedJob, updateSkillsSelectedJob]);
   return null;
 };
 SimilarJobHits.propTypes = {

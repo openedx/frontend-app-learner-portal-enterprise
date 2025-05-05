@@ -32,7 +32,7 @@ const TopSkillsHits = ({ hits, isLoading }) => {
   const jobSelected = goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? currentJobRole : interestedJobs;
 
   const selectedJobDetails = useMemo(
-    () => jobSelected?.filter(job => job?.name === selectedJob) || [],
+    () => jobSelected?.filter(job => job.name === selectedJob) || [],
     [jobSelected, selectedJob],
   );
 
