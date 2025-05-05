@@ -65,7 +65,7 @@ declare global {
     availableCourseRuns: CourseRunMetadata[];
   };
 
-  // Application Date (config)
+  // Application Data (config)
 
   type AlgoliaConfiguration = {
     ALGOLIA_APP_ID: string | null;

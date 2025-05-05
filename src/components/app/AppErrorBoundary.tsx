@@ -145,7 +145,6 @@ const AppErrorBoundary = ({
         title={intl.formatMessage(messages.updateAvailableModalHeading)}
         variant="danger"
         isOpen={isAppUpdateAvailable}
-        onClose={() => {}}
         footerNode={(
           <ActionRow>
             <Button
