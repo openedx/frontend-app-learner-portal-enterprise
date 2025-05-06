@@ -190,7 +190,6 @@ describe('<SkillsQuizStepper />', () => {
   });
 
   it('check continue is enable while some jobs are selected and working correctly', async () => {
-    const user = userEvent.setup();
     const searchContext = {
       refinements: { current_job: ['test-current-job'] },
       industry_names: ['Retail Trade'],
