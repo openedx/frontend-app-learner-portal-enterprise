@@ -9,7 +9,7 @@ import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 import { renderWithRouter } from '../../../utils/tests';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SkillsQuizPage from '../SkillsQuizPage';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useAlgoliaSearch, useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -20,6 +20,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -52,10 +53,20 @@ const SkillsQuizPageWithContext = ({
   );
 };
 
+const mockAlgoliaSearch = {
+  searchClient: {
+    search: jest.fn(), appId: 'test-app-id',
+  },
+  searchIndex: {
+    indexName: 'mock-index-name',
+  },
+};
+
 describe('SkillsQuizPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
   });
   it('should render SkillsQuiz', async () => {
     renderWithRouter(

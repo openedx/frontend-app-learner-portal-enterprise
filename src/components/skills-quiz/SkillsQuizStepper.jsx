@@ -1,10 +1,8 @@
-import {
-  useContext, useEffect, useMemo, useState,
-} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
-  Button, Container, Form, ModalDialog, Stack, Stepper,
+  Button, Container, Form, ModalDialog, Stepper,
 } from '@openedx/paragon';
 import { InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -15,16 +13,12 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
-import algoliasearch from 'algoliasearch/lite';
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import CurrentJobDropdown from './CurrentJobDropdown';
 import IndustryDropdown from './IndustryDropdown';
 import SearchJobCard from './SearchJobCard';
 import SearchCurrentJobCard from './SearchCurrentJobCard';
-import SearchCourseCard from './SearchCourseCard';
-import SearchProgramCard from './SearchProgramCard';
-import SearchPathways from './SearchPathways';
 import SelectJobCard from './SelectJobCard';
 import SkillsCourses from './SkillsCourses';
 
@@ -34,32 +28,21 @@ import {
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
-import TopSkillsOverview from './TopSkillsOverview';
 import SkillsQuizHeader from './SkillsQuizHeader';
 
 import headerImage from './images/headerImage.png';
 import { saveSkillsGoalsAndJobsUserSelected } from './data/utils';
 import { fetchCourseEnrollments } from './data/service';
-import { useEnterpriseCustomer } from '../app/data';
+import { useAlgoliaSearch, useEnterpriseCustomer } from '../app/data';
+import SkillsQuizContentCards from './SkillsQuizContentCards';
+import TopSkillsOverview from './TopSkillsOverview';
 
 const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const config = getConfig();
-
-  const [searchClient, courseIndex, jobIndex] = useMemo(() => {
-    const client = algoliasearch(
-      config.ALGOLIA_APP_ID,
-      config.ALGOLIA_SEARCH_API_KEY,
-    );
-    const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
-    const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
-    return [client, cIndex, jIndex];
-  }, [
-    config.ALGOLIA_APP_ID,
-    config.ALGOLIA_INDEX_NAME,
-    config.ALGOLIA_INDEX_NAME_JOBS,
-    config.ALGOLIA_SEARCH_API_KEY,
-  ]);
-
+  const {
+    searchIndex: jobIndex,
+    searchClient: jobSearchClient,
+  } = useAlgoliaSearch(config.ALGOLIA_INDEX_NAME_JOBS);
   const [currentStep, setCurrentStep] = useState(STEP1);
   const [isStudentChecked, setIsStudentChecked] = useState(false);
   const handleIsStudentCheckedChange = (e) => setIsStudentChecked(e.target.checked);
@@ -93,7 +76,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
 
   const flipToRecommendedCourses = () => {
     saveSkillsGoalsAndJobsUserSelected(goal, currentJobRole, interestedJobs);
-    // show  courses if learner has selected skills or jobs.
+    // show courses if learner has selected skills or jobs.
     if (goalExceptImproveAndJobSelected) {
       // verify if selectedJob is still checked and within first 3 jobs else
       // set first job as selected by default to show courses.
@@ -202,31 +185,31 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
         </ModalDialog.Hero>
         <ModalDialog.Body>
           <Container size="lg">
-            <Stepper.Step eventKey="skills-search" title="Skills Search">
-              <div className="skills-quiz-dropdown my-4">
-                <p>
-                  <FormattedMessage
-                    id="enterprise.skills.quiz.v1.skills.search.heading"
-                    defaultMessage="Let edX be your guide. We combine the educational expertise of the world's leading institutions with labor market data to find the right course(s) and program(s) to help you reach your learning and professional goals."
-                    description="Skills search heading on skills quiz v1 page"
-                  />
-                </p>
-                <p className="mt-4.5">
-                  <FormattedMessage
-                    id="enterprise.skills.quiz.v1.goal.selection.label"
-                    defaultMessage="First, tell us a bit more about what you want to achieve."
-                    description="Goal selection label prompting the user to select their goal on the skills quiz v1 page."
-                  />
-                </p>
-                <div className="mt-2">
-                  <GoalDropdown />
-                </div>
-                {industryAndJobsDropdownsVisible && (
-                  <div>
-                    <InstantSearch
-                      indexName={config.ALGOLIA_INDEX_NAME_JOBS}
-                      searchClient={searchClient}
-                    >
+            <InstantSearch
+              indexName={jobIndex.indexName}
+              searchClient={jobSearchClient}
+            >
+              <Stepper.Step eventKey="skills-search" title="Skills Search">
+                <div className="skills-quiz-dropdown my-4">
+                  <p>
+                    <FormattedMessage
+                      id="enterprise.skills.quiz.v1.skills.search.heading"
+                      defaultMessage="Let edX be your guide. We combine the educational expertise of the world's leading institutions with labor market data to find the right course(s) and program(s) to help you reach your learning and professional goals."
+                      description="Skills search heading on skills quiz v1 page"
+                    />
+                  </p>
+                  <p className="mt-4.5">
+                    <FormattedMessage
+                      id="enterprise.skills.quiz.v1.goal.selection.label"
+                      defaultMessage="First, tell us a bit more about what you want to achieve."
+                      description="Goal selection label prompting the user to select their goal on the skills quiz v1 page."
+                    />
+                  </p>
+                  <div className="mt-2">
+                    <GoalDropdown />
+                  </div>
+                  {industryAndJobsDropdownsVisible && (
+                    <div>
                       <div className="mt-4.5">
                         <FormattedMessage
                           id="enterprise.skills.quiz.v1.industry.selection.label"
@@ -239,7 +222,6 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                           isStyleAutoSuggest={isStyleAutoSuggest}
                         />
                       </div>
-
                       <p className="mt-4.5">
                         <FormattedMessage
                           id="enterprise.skills.quiz.v1.current.job.title"
@@ -266,7 +248,6 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                           />
                         </Form.Checkbox>
                       </div>
-
                       <div>
                         {goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? (
                           <>
@@ -286,21 +267,21 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                           </>
                         ) : null}
                       </div>
-                    </InstantSearch>
-                  </div>
-                )}
-                {industryAndJobsDropdownsVisible && (
-                  <>
-                    {goalExceptImproveAndJobSelected ? (
-                      <SearchJobCard index={jobIndex} />
-                    ) : null}
-                    {improveGoalAndCurrentJobSelected ? (
-                      <SearchCurrentJobCard index={jobIndex} />
-                    ) : null}
-                  </>
-                )}
-              </div>
-            </Stepper.Step>
+                    </div>
+                  )}
+                  {industryAndJobsDropdownsVisible && (
+                    <>
+                      {goalExceptImproveAndJobSelected ? (
+                        <SearchJobCard />
+                      ) : null}
+                      {improveGoalAndCurrentJobSelected ? (
+                        <SearchCurrentJobCard />
+                      ) : null}
+                    </>
+                  )}
+                </div>
+              </Stepper.Step>
+            </InstantSearch>
             <Stepper.Step
               eventKey="courses-with-jobs"
               title="Recommended Courses With Jobs"
@@ -318,15 +299,11 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                 <div className="search-job-card">
                   {canContinueToRecommendedCourses ? <SelectJobCard /> : null}
                 </div>
-                <TopSkillsOverview index={jobIndex} />
+                <TopSkillsOverview />
                 <div>
                   {(selectedJob
                     || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) && (
-                    <Stack gap={4}>
-                      <SearchCourseCard index={courseIndex} />
-                      <SearchProgramCard index={courseIndex} />
-                      <SearchPathways index={courseIndex} />
-                    </Stack>
+                    <SkillsQuizContentCards />
                   )}
                 </div>
               </div>
@@ -347,7 +324,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
               eventKey="courses-with-skills"
               title="Recommended Courses With Skills"
             >
-              <SkillsCourses index={courseIndex} />
+              <SkillsCourses />
             </Stepper.Step>
           </Container>
         </ModalDialog.Body>

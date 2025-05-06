@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
-import * as MockReactInstantSearch from '../../skills-quiz/__mocks__/react-instantsearch-dom';
+import { resetMockReactInstantSearch, setFakeHits } from '../../skills-quiz/__mocks__/react-instantsearch-dom';
 import { generateTestPermutations, renderWithRouter } from '../../../utils/tests';
 import '@testing-library/jest-dom';
 import Search from '../Search';
@@ -84,7 +84,9 @@ describe('<Search />', () => {
       searchClient: mockSearchClient,
       searchIndex: mockSearchIndex,
     });
-    MockReactInstantSearch.configure.nbHits = 2;
+  });
+  afterEach(() => {
+    resetMockReactInstantSearch();
   });
   it('renders the video beta banner component', () => {
     features.FEATURE_ENABLE_VIDEO_CATALOG = true;
@@ -96,7 +98,7 @@ describe('<Search />', () => {
     expect(screen.getByText('Videos Now Available with Your Subscription')).toBeInTheDocument();
   });
   it('renders correctly when no search results are found', () => {
-    MockReactInstantSearch.configure.nbHits = 0;
+    setFakeHits([]);
 
     renderWithRouter(
       <SearchWrapper>

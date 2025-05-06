@@ -1,97 +1,91 @@
-import {
-  useContext, useState, useEffect, useMemo,
-} from 'react';
+import { useContext, useEffect, useMemo } from 'react';
+import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import PropTypes from 'prop-types';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { getConfig } from '@edx/frontend-platform/config';
 import { SkillsContext } from './SkillsContextProvider';
-import { SET_KEY_VALUE } from './data/constants';
 import JobCardComponentV2 from '../skills-quiz-v2/JobCardComponent';
 import JobCardComponent from './JobCardComponent';
-import { JOB_FILTERS } from './constants';
+import { JOB_SOURCE_COURSE_SKILL } from './constants';
+import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
+import { useAlgoliaSearch } from '../app/data';
+import { SET_KEY_VALUE } from './data/constants';
 
-const SearchJobCard = ({ index, isSkillQuizV2, courseIndex }) => {
+import { withCamelCasedStateResults } from '../../utils/HOC';
+
+const JobHits = ({
+  hits, isLoading, isSkillQuizV2,
+}) => {
+  const { dispatch } = useContext(SkillsContext);
+  const { refinements } = useContext(SearchContext);
+  const { current_job: currentJob } = refinements;
+  useEffect(() => {
+    if (hits.length > 0) {
+      if (currentJob?.length > 0) {
+        dispatch({ type: SET_KEY_VALUE, key: 'currentJobRole', value: hits });
+      }
+      dispatch({ type: SET_KEY_VALUE, key: 'interestedJobs', value: hits });
+    }
+  }, [currentJob?.length, dispatch, hits]);
+
+  if (isSkillQuizV2) {
+    return <JobCardComponentV2 jobs={hits} isLoading={isLoading} />;
+  }
+  return <JobCardComponent jobs={hits} isLoading={isLoading} />;
+};
+
+JobHits.propTypes = {
+  isLoading: PropTypes.bool,
+  hits: PropTypes.arrayOf(PropTypes.shape()),
+  isSkillQuizV2: PropTypes.bool,
+};
+
+JobHits.defaultProps = {
+  isSkillQuizV2: false,
+};
+
+const ConnectedJobHits = withCamelCasedStateResults(JobHits);
+
+const SearchJobCard = ({ isSkillQuizV2 = false }) => {
+  const config = getConfig();
+  const {
+    searchIndex: jobIndex,
+    searchClient: jobSearchClient,
+  } = useAlgoliaSearch(config.ALGOLIA_INDEX_NAME_JOBS);
   const { refinements } = useContext(SearchContext);
   const { name: jobs, current_job: currentJob } = refinements;
-  const [isLoading, setIsLoading] = useState(true);
-  const { dispatch, state } = useContext(SkillsContext);
-  const { interestedJobs } = state;
 
-  const jobsToFetch = useMemo(() => {
-    const jobsArray = [];
-    if (jobs) {
-      jobs.forEach(job => jobsArray.push(`name:${job}`));
+  const searchFilters = useMemo(() => {
+    if (jobs?.length) {
+      return new AlgoliaFilterBuilder()
+        .and('job_sources', JOB_SOURCE_COURSE_SKILL)
+        .or('name', jobs, { stringify: true })
+        .build();
     }
-    return jobsArray;
-  }, [jobs]);
-  const jobToFetch = useMemo(() => {
-    const jobArray = [];
-    if (currentJob?.length > 0) {
-      jobArray.push(`name:${currentJob[0]}`);
+    if (currentJob?.length) {
+      return new AlgoliaFilterBuilder()
+        .and('name', currentJob[0], { stringify: true })
+        .build();
     }
-    return jobArray;
-  }, [currentJob]);
-
-  useEffect(
-    () => {
-      let fetch = true;
-      async function fetchJobs() {
-        setIsLoading(true);
-        const { hits } = await index.search('', {
-          filters: JOB_FILTERS.JOB_SOURCE_COURSE_SKILL,
-          facetFilters: [
-            jobsToFetch,
-          ],
-        });
-        if (!fetch) { return; }
-        const jobHits = hits.length <= 3 ? hits : hits.slice(0, 3);
-        dispatch({ type: SET_KEY_VALUE, key: 'interestedJobs', value: jobHits });
-        setIsLoading(false);
-      }
-      fetchJobs();
-      return () => { fetch = false; };
-    },
-    [dispatch, index, jobs, jobsToFetch],
-  );
-  useEffect(() => {
-    let fetch = true;
-    async function fetchJob() {
-      const { hits } = await index.search('', {
-        facetFilters: [
-          jobToFetch,
-        ],
-      });
-      if (!fetch) { return; }
-      dispatch({ type: SET_KEY_VALUE, key: 'currentJobRole', value: hits });
-    }
-    if (currentJob) {
-      fetchJob();
-    }
-    return () => { fetch = false; };
-  }, [dispatch, index, currentJob, jobToFetch]);
+    return null;
+  }, [currentJob, jobs]);
 
   return (
-    isSkillQuizV2
-      ? <JobCardComponentV2 jobs={interestedJobs} isLoading={isLoading} jobIndex={index} courseIndex={courseIndex} />
-      : <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />
+    <InstantSearch
+      indexName={jobIndex.indexName}
+      searchClient={jobSearchClient}
+    >
+      <Configure filters={searchFilters} hitsPerPage={3} />
+      <ConnectedJobHits isSkillQuizV2={isSkillQuizV2} />
+    </InstantSearch>
   );
 };
 
 SearchJobCard.propTypes = {
-  index: PropTypes.shape({
-    appId: PropTypes.string,
-    indexName: PropTypes.string,
-    search: PropTypes.func.isRequired,
-  }).isRequired,
-  courseIndex: PropTypes.shape({
-    appId: PropTypes.string,
-    indexName: PropTypes.string,
-    search: PropTypes.func.isRequired,
-  }),
   isSkillQuizV2: PropTypes.bool,
 };
 
 SearchJobCard.defaultProps = {
-  courseIndex: undefined,
   isSkillQuizV2: false,
 };
 

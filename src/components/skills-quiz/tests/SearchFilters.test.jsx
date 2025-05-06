@@ -7,15 +7,14 @@ import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import {
-  DESIRED_JOB_FACET,
-  INDUSTRY_FACET,
   CURRENT_JOB_FACET,
-  GOAL_DROPDOWN_DEFAULT_OPTION,
+  DESIRED_JOB_FACET,
   DROPDOWN_OPTION_GET_PROMOTED,
+  GOAL_DROPDOWN_DEFAULT_OPTION,
+  INDUSTRY_FACET,
 } from '../constants';
-
 import SkillsQuizStepper from '../SkillsQuizStepper';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useAlgoliaSearch, useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -26,6 +25,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -37,10 +37,20 @@ const defaultAppState = {
 
 const facetsToTest = [DESIRED_JOB_FACET, INDUSTRY_FACET, CURRENT_JOB_FACET];
 
+const mockAlgoliaSearch = {
+  searchClient: {
+    search: jest.fn(), appId: 'test-app-id',
+  },
+  searchIndex: {
+    indexName: 'mock-index-name',
+  },
+};
+
 describe('<SearchFilters />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
   });
 
   test('renders skills and jobs dropdown with a label', async () => {

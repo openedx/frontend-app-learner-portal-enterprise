@@ -73,15 +73,7 @@ describe('<CategoryCard />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
-    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
-    const searchIndex = jest.fn(() => ({
-      hits: [],
-    }));
-    algoliasearch.mockReturnValue({
-      initIndex: () => ({
-        search: searchIndex,
-      }),
-    });
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
   it('renders the CategoryCard component', async () => {
     const user = userEvent.setup();

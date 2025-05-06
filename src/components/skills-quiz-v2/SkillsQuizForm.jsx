@@ -1,40 +1,28 @@
 import { Button } from '@openedx/paragon';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { InstantSearch } from 'react-instantsearch-dom';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import algoliasearch from 'algoliasearch/lite';
 import SearchJobDropdown from '../skills-quiz/SearchJobDropdown';
 import CurrentJobDropdown from '../skills-quiz/CurrentJobDropdown';
 import IndustryDropdown from '../skills-quiz/IndustryDropdown';
 import GoalDropdown from '../skills-quiz/GoalDropdown';
 import SearchJobCard from '../skills-quiz/SearchJobCard';
+import { useAlgoliaSearch } from '../app/data';
 
 const SkillQuizForm = ({ isStyleAutoSuggest }) => {
-  const config = getConfig();
-  const [searchClient, courseIndex, jobIndex] = useMemo(() => {
-    const client = algoliasearch(
-      config.ALGOLIA_APP_ID,
-      config.ALGOLIA_SEARCH_API_KEY,
-    );
-    const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
-    const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
-    return [client, cIndex, jIndex];
-  }, [
-    config.ALGOLIA_APP_ID,
-    config.ALGOLIA_INDEX_NAME,
-    config.ALGOLIA_INDEX_NAME_JOBS,
-    config.ALGOLIA_SEARCH_API_KEY,
-  ]);
-
   const [hide, setHide] = useState(true);
-
+  const config = getConfig();
+  const {
+    searchIndex: jobIndex,
+    searchClient: jobSearchClient,
+  } = useAlgoliaSearch(config.ALGOLIA_INDEX_NAME_JOBS);
   return (
     <div className="form">
       <InstantSearch
-        indexName={config.ALGOLIA_INDEX_NAME_JOBS}
-        searchClient={searchClient}
+        indexName={jobIndex.indexName}
+        searchClient={jobSearchClient}
       >
         <p className="mt-4 font-weight-bold">
           <FormattedMessage
@@ -95,7 +83,7 @@ const SkillQuizForm = ({ isStyleAutoSuggest }) => {
             <IndustryDropdown key="industry" isStyleSearchBox />
           </div>
         )}
-        <SearchJobCard index={jobIndex} courseIndex={courseIndex} isSkillQuizV2 />
+        <SearchJobCard isSkillQuizV2 />
       </InstantSearch>
     </div>
   );

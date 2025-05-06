@@ -1,6 +1,8 @@
 import { logError } from '@edx/frontend-platform/logging';
-import dayjs from './dayjs';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
+import memoize from 'lodash.memoize';
 import { COURSE_STATUSES } from '../constants';
+import dayjs from './dayjs';
 
 export const isCourseEnded = endDate => dayjs(endDate).isBefore(dayjs());
 
@@ -201,3 +203,5 @@ export function findCourseStatusKey(statusValue) {
   }
   return undefined;
 }
+
+export const memoizedCamelCaseObject = memoize(camelCaseObject);

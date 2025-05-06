@@ -11,7 +11,7 @@ import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import { NO_COURSES_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -108,7 +108,7 @@ describe('<SearchCourseCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
 
   test('renders the correct data', async () => {

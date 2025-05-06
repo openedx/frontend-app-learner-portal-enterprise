@@ -11,8 +11,9 @@ import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
-import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+import { resetMockReactInstantSearch, setFakeHits } from '../__mocks__/react-instantsearch-dom';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -22,6 +23,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useAlgoliaSearch: jest.fn(),
   useDefaultSearchFilters: jest.fn(),
 }));
 
@@ -47,17 +49,11 @@ const courses = {
   nbHits: 1,
 };
 
-const testIndex = {
-  indexName: 'test-index-name',
-  search: jest.fn().mockImplementation(() => Promise.resolve(courses)),
-};
-
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const defaultAppState = {
-  authenticatedUser: {
-    username: 'myspace-tom',
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const defaultSearchContext = {
@@ -89,29 +85,41 @@ const SkillsCoursesWithContext = ({
   initialAppState = defaultAppState,
   initialSkillsState = defaultSkillsState,
   searchContext = defaultSearchContext,
-  index,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
       <SearchContext.Provider value={searchContext}>
         <SkillsContext.Provider value={initialSkillsState}>
-          <SkillsCourses index={index} />
+          <SkillsCourses />
         </SkillsContext.Provider>
       </SearchContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );
 
+const mockAlgoliaSearch = {
+  searchClient: {
+    search: jest.fn(), appId: 'test-app-id',
+  },
+  searchIndex: {
+    indexName: 'mock-index-name',
+  },
+};
+
 describe('<SkillsCourses />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    useAlgoliaSearch.mockReturnValue(mockAlgoliaSearch);
+    setFakeHits(courses.hits);
   });
-
+  afterEach(() => {
+    resetMockReactInstantSearch();
+  });
   test('renders the correct data', async () => {
     const user = userEvent.setup();
-    const { container } = renderWithRouter(<SkillsCoursesWithContext index={testIndex} />);
+    const { container } = renderWithRouter(<SkillsCoursesWithContext />);
 
     await waitFor(() => {
       expect(screen.getByText(SKILLS_HEADING)).toBeInTheDocument();
@@ -133,16 +141,10 @@ describe('<SkillsCourses />', () => {
   test('renders an alert in case of no courses returned', async () => {
     const noCourses = {
       hits: [],
-      nbHits: 0,
     };
-    const courseIndex = {
-      indexName: 'test-index-name',
-      search: jest.fn().mockImplementation(() => Promise.resolve(noCourses)),
-    };
+    setFakeHits(noCourses.hits);
     renderWithRouter(
-      <SkillsCoursesWithContext
-        index={courseIndex}
-      />,
+      <SkillsCoursesWithContext />,
     );
     expect(await screen.findByText(NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS)).toBeInTheDocument();
   });

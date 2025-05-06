@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../utils/tests';
 import SkillsRecommendationCourses from '../SkillsRecommendationCourses';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
-import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
@@ -108,7 +108,7 @@ describe('<SkillsRecommendationCourses />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids: ${mockEnterpriseCustomer.uuid}` });
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids: ${mockEnterpriseCustomer.uuid}`);
   });
 
   it('renders the SkillsRecommendationCourses component with recommendations', async () => {

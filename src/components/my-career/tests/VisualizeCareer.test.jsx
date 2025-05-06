@@ -180,7 +180,7 @@ describe('<VisualizeCareer />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useLearnerSkillLevels.mockReturnValue({ data: mockLearnerSkillsData });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
-    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
     useAlgoliaSearch.mockReturnValue({
       searchClient: {
         search: jest.fn(), appId: 'test-app-id',

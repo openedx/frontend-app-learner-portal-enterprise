@@ -10,7 +10,7 @@ import SearchProgramCard from '../SearchProgramCard';
 import { renderWithRouter } from '../../../utils/tests';
 import { NO_PROGRAMS_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { useEnterpriseCustomer, useDefaultSearchFilters } from '../../app/data';
+import { useDefaultSearchFilters, useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -111,7 +111,7 @@ describe('<SearchProgramCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
 
   test('renders the correct data', async () => {

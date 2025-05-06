@@ -1,98 +1,74 @@
-import {
-  useEffect, useState, useContext, useMemo, Fragment,
-} from 'react';
+import { Fragment, useMemo } from 'react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
-  Button,
-  Badge,
-  Alert,
-  Skeleton,
-  CardGrid,
+  Alert, Badge, Button, CardGrid, Skeleton,
 } from '@openedx/paragon';
-import {
-  SearchContext,
-} from '@edx/frontend-enterprise-catalog-search';
 import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
-import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { ZoomOut } from '@openedx/paragon/icons';
-import PropTypes from 'prop-types';
 
+import { Configure, InstantSearch } from 'react-instantsearch-dom';
+import PropTypes from 'prop-types';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { sortSkillsCoursesWithCourseCount } from './data/utils';
-import { SkillsContext } from './SkillsContextProvider';
-import {
-  NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS,
-} from './constants';
-import CardLoadingSkeleton from './CardLoadingSkeleton';
+import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from './constants';
 import CourseCard from './CourseCard';
-import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
+import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
+import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
+import CardLoadingSkeleton from './CardLoadingSkeleton';
 
-const SkillsCourses = ({ index }) => {
+import { withCamelCasedStateResults } from '../../utils/HOC';
+
+const SkillsHits = ({ hits, isLoading }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { state: { selectedJob } } = useContext(SkillsContext);
-  const [isLoading, setIsLoading] = useState(false);
-  const [courses, setCourses] = useState([]);
-  const [hitCount, setHitCount] = useState(undefined);
-  const { refinements: { skill_names: skills } } = useContext(SearchContext);
-  const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
-  const filters = useDefaultSearchFilters();
-
-  const skillsFacetFilter = useMemo(
-    () => {
-      if (allSkills) {
-        return allSkills.map((skill) => `skill_names:${skill}`);
-      }
-      return [];
-    },
-    [allSkills],
-  );
-
-  useEffect(
-    () => {
-      async function fetchCourses() {
-        setIsLoading(true);
-        const { hits, nbHits } = await index.search('', {
-          filters: `content_type:course AND ${filters}`,
-          facetFilters: [
-            skillsFacetFilter,
-          ],
-        });
-        if (nbHits > 0) {
-          setCourses(camelCaseObject(hits));
-          setHitCount(nbHits);
-          setIsLoading(false);
-        } else {
-          setHitCount(nbHits);
-          setIsLoading(false);
-        }
-      }
-      fetchCourses();
-    },
-    [selectedJob, skills, index, filters, skillsFacetFilter],
-  );
   const skillsWithSignificanceOrder = useSelectedSkillsAndJobSkills({
     getAllSkills: false,
     getAllSkillsWithSignificanceOrder: true,
   });
+
   const coursesWithSkills = useMemo(() => {
-    const coursesWithSkill = [];
-    skillsWithSignificanceOrder.forEach((skill) => {
-      const coursesWithCurrentSkill = courses.filter(course => course.skillNames.includes(skill.key))
-        .slice(0, 3);
-      if (coursesWithCurrentSkill.length > 0) {
-        coursesWithSkill.push({
-          key: skill.key,
-          value: coursesWithCurrentSkill,
-        });
+    const grouped = [];
+    skillsWithSignificanceOrder.forEach(skill => {
+      const matching = hits.filter(h => h.skillNames?.includes(skill.key)).slice(0, 3);
+      if (matching.length > 0) {
+        grouped.push({ key: skill.key, value: matching });
       }
     });
-    return sortSkillsCoursesWithCourseCount(coursesWithSkill);
-  }, [courses, skillsWithSignificanceOrder]);
+    return sortSkillsCoursesWithCourseCount(grouped);
+  }, [hits, skillsWithSignificanceOrder]);
+
+  if (isLoading) {
+    return (
+      <>
+        <div className="mt-4">
+          <div className="skills-badge">
+            <div className="mb-3">
+              <Skeleton count={2} height={25} />
+            </div>
+          </div>
+        </div>
+        <CardLoadingSkeleton />
+      </>
+    );
+  }
+
+  if (!hits?.length) {
+    return (
+      <Alert
+        className="mt-4 mb-5"
+        variant="info"
+        dismissible={false}
+        icon={ZoomOut}
+        show
+      >
+        { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS }
+      </Alert>
+    );
+  }
 
   return (
-    <div className="mt-4">
-      {hitCount > 0 && (
+    <>
+      <div className="mt-4">
         <h3>
           <FormattedMessage
             id="enterprise.skills.quiz.v1.skills.page.heading"
@@ -100,40 +76,33 @@ const SkillsCourses = ({ index }) => {
             description="Skills heading on skills quiz v1 page."
           />
         </h3>
-      )}
-      <div className="skills-badge">
-        {isLoading ? (
-          <div className="mb-3">
-            <Skeleton count={2} height={25} />
-          </div>
-        ) : coursesWithSkills?.map(coursesWithSkill => (
-          <Badge
-            as={Link}
-            to={`/${enterpriseCustomer.slug}/search?skill_names=${coursesWithSkill.key}`}
-            key={coursesWithSkill.key}
-            className="course-skill"
-            variant="light"
-          >
-            {coursesWithSkill.key}
-          </Badge>
-        ))}
+        <div className="skills-badge">
+          {coursesWithSkills.map(cs => (
+            <Badge
+              key={cs.key}
+              to={`/${enterpriseCustomer.slug}/search?skill_names=${cs.key}`}
+              as={Link}
+              className="course-skill"
+              variant="light"
+            >
+              {cs.key}
+            </Badge>
+          ))}
+        </div>
       </div>
-      {isLoading ? (
-        <CardLoadingSkeleton />
-      ) : coursesWithSkills?.map((coursesWithSkill) => (
+      {coursesWithSkills.map(cs => (
         <Fragment key={uuidv4()}>
           <div className="my-4 d-flex align-items-center justify-content-between">
             <h3 className="mb-0">
               <FormattedMessage
                 id="enterprise.skills.quiz.v1.skills.page.top.courses.heading"
                 defaultMessage="Top courses in {skill}"
-                description="Heading indicating the top courses related to a specific skill on the skills quiz v1 page."
-                values={{ skill: coursesWithSkill.key }}
+                values={{ skill: cs.key }}
               />
             </h3>
             <Button
               as={Link}
-              to={`/${enterpriseCustomer.slug}/search?skill_names=${coursesWithSkill.key}`}
+              to={`/${enterpriseCustomer.slug}/search?skill_names=${cs.key}`}
               variant="link"
               size="inline"
             >
@@ -141,45 +110,45 @@ const SkillsCourses = ({ index }) => {
                 id="enterprise.skills.quiz.v1.skills.page.see.more.courses.button.label"
                 defaultMessage="See more courses >"
                 description="See more courses button label on the skills quiz v1 page."
-                values={{ skill: coursesWithSkill.key }}
+                values={{ skill: cs.key }}
               />
             </Button>
           </div>
           <CardGrid>
-            {coursesWithSkill?.value.map((course) => (
-              <CourseCard
-                isLoading={isLoading}
-                course={course}
-                allSkills={allSkills}
-                key={uuidv4()}
-              />
+            {cs.value.map(course => (
+              <CourseCard key={uuidv4()} course={course} isLoading={isLoading} />
             ))}
           </CardGrid>
         </Fragment>
       ))}
-      <div>
-        { hitCount === 0 && (
-          <Alert
-            className="mt-4 mb-5"
-            variant="info"
-            dismissible={false}
-            icon={ZoomOut}
-            show
-          >
-            { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS }
-          </Alert>
-        )}
-      </div>
-    </div>
+    </>
   );
 };
 
-SkillsCourses.propTypes = {
-  index: PropTypes.shape({
-    appId: PropTypes.string,
-    indexName: PropTypes.string,
-    search: PropTypes.func.isRequired,
-  }).isRequired,
+const ConnectedSkillsHits = withCamelCasedStateResults(SkillsHits);
+
+SkillsHits.propTypes = {
+  isLoading: PropTypes.bool,
+  hits: PropTypes.arrayOf(PropTypes.shape()),
+};
+
+const SkillsCourses = () => {
+  const { searchIndex, searchClient } = useAlgoliaSearch();
+  const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
+  const filters = useDefaultSearchFilters();
+  const searchFilters = useMemo(() => new AlgoliaFilterBuilder()
+    .and('content_type', 'course')
+    .andRaw(filters)
+    .or('skill_names', allSkills, { stringify: true })
+    .build(), [filters, allSkills]);
+
+  return (
+    <InstantSearch indexName={searchIndex.indexName} searchClient={searchClient}>
+      <Configure filters={searchFilters} />
+      <ConnectedSkillsHits />
+    </InstantSearch>
+
+  );
 };
 
 export default SkillsCourses;
