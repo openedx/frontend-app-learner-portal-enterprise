@@ -1,5 +1,5 @@
 import {
-  useContext, useMemo, useState, useEffect,
+  useContext, useEffect, useMemo, useState,
 } from 'react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
@@ -95,7 +95,6 @@ const SearchCourseCard = ({ index }) => {
             key={uuidv4()}
             isLoading={isLoading}
             course={course}
-            allSkills={selectedJobSkills}
           />
         ))}
       </CardGrid>

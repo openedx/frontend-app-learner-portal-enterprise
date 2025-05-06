@@ -40,36 +40,61 @@ export default class AlgoliaFilterBuilder {
    *
    * @param attribute - The name of the attribute to filter on.
    * @param value - The value the attribute must match.
+   * @param options - Optional configuration object.
+   * @param options.stringify - Whether to quote the value for string-based filters (default: false).
    * @returns The current AlgoliaFilterBuilder instance for chaining.
    *
    * @example
    *   new AlgoliaFilterBuilder().and('type', 'course').build()
    *   // → "type:course"
    */
-  and(attribute: string, value: string) {
+  and(
+    attribute: string,
+    value: string,
+    options: { stringify?: boolean } = {},
+  ) {
+    const { stringify = false } = options;
+
     if (attribute && value) {
-      this.filters.push(`${attribute}:${value}`);
+      const formatted = stringify
+        ? `${attribute}:"${value}"`
+        : `${attribute}:${value}`;
+      this.filters.push(formatted);
     }
+
     return this;
   }
 
   /**
    * Adds an OR group for a single attribute with multiple values.
    *
-   * @param attribute - The name of the attribute to filter on.
-   * @param values - An array of values for which to construct the OR clause.
+   * @param attribute - The name of the attribute to filter on (e.g. 'level', 'skill_names').
+   * @param values - An array of values to match for the attribute.
+   * @param options - Optional configuration object.
+   * @param options.stringify - Whether to wrap each value in double quotes (default: false).
    * @returns The current AlgoliaFilterBuilder instance for chaining.
    *
    * @example
    *   new AlgoliaFilterBuilder().or('level', ['beginner', 'intermediate']).build()
-   *   // → "(level:beginner OR level:intermediate)"
+   *   // → '(level:beginner OR level:intermediate)'
+   *   new AlgoliaFilterBuilder().or('skill_names', ['SQL', 'Agile']).build()
+   *   // → '(skill_names:"SQL" OR skill_names:"Agile")'
    */
-  or(attribute: string, values: string[]) {
+  or(
+    attribute: string,
+    values: string[],
+    options: { stringify?: boolean } = {},
+  ): this {
+    const { stringify = false } = options;
     const validValues = values.filter(Boolean);
+
     if (attribute && validValues.length > 0) {
-      const clause = validValues.map(v => `${attribute}:${v}`).join(' OR ');
+      const clause = validValues
+        .map(value => (stringify ? `${attribute}:"${value}"` : `${attribute}:${value}`))
+        .join(' OR ');
       this.filters.push(`(${clause})`);
     }
+
     return this;
   }
 

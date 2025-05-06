@@ -23,7 +23,6 @@ const SelectJobCard = () => {
     jobSelected = selectedJob;
     jobsCard = interestedJobs;
   }
-
   return (
     <div>
       <h3 id="skills-quiz-jobs-skills-selections">
@@ -61,8 +60,8 @@ const SelectJobCard = () => {
                         description="Label for median US salary on the job selection card within the skills quiz v1 page."
                       />
                     </span>
-                    {job.job_postings?.length > 0 && job.job_postings[0].median_salary
-                      ? `$${ formatStringAsNumber(job.job_postings[0].median_salary)}` : NOT_AVAILABLE }
+                    {job.jobPostings?.length > 0 && job.jobPostings[0].medianSalary
+                      ? `$${ formatStringAsNumber(job.jobPostings[0].medianSalary)}` : NOT_AVAILABLE }
                   </p>
                   <p className="m-0 medium-font">
                     <span style={{ fontWeight: 700 }}>
@@ -72,8 +71,8 @@ const SelectJobCard = () => {
                         description="Label for job postings on the job selection card within the skills quiz v1 page."
                       />
                     </span>
-                    {job.job_postings?.length > 0 && job.job_postings[0].unique_postings
-                      ? formatStringAsNumber(job.job_postings[0].unique_postings)
+                    {job.jobPostings?.length > 0 && job.jobPostings[0].uniquePostings
+                      ? formatStringAsNumber(job.jobPostings[0].uniquePostings)
                       : NOT_AVAILABLE }
                   </p>
                 </div>

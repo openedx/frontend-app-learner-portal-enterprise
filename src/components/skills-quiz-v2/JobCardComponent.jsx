@@ -1,6 +1,6 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
-  SelectableBox, Chip, Spinner, Stack, Button,
+  Button, Chip, SelectableBox, Spinner,
 } from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
@@ -9,21 +9,16 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { SkillsContext } from '../skills-quiz/SkillsContextProvider';
 import { SET_KEY_VALUE } from '../skills-quiz/data/constants';
 import TopSkillsOverview from '../skills-quiz/TopSkillsOverview';
-import SearchCourseCard from '../skills-quiz/SearchCourseCard';
-import SearchProgramCard from '../skills-quiz/SearchProgramCard';
-import SearchPathways from '../skills-quiz/SearchPathways';
 import SkillsCourses from '../skills-quiz/SkillsCourses';
 import { fetchCourseEnrollments } from '../skills-quiz/data/service';
 import { saveSkillsGoalsAndJobsUserSelected } from '../skills-quiz/data/utils';
+import SkillsQuizContentCards from '../skills-quiz/SkillsQuizContentCards';
 
-const JobCardComponent = ({
-  jobs, isLoading, jobIndex, courseIndex,
-}) => {
+const JobCardComponent = ({ jobs, isLoading }) => {
   const { dispatch, state } = useContext(SkillsContext);
   const { goal, currentJobRole, interestedJobs } = state;
   const [jobSelected, setJobSelected] = useState(undefined);
   const [showMoreRecommendedCourses, setShowMoreRecommendedCourses] = useState(false);
-
   useEffect(() => {
     if (jobs?.length > 0) {
       setJobSelected(jobs[0]?.name);
@@ -71,7 +66,7 @@ const JobCardComponent = ({
     setShowMoreRecommendedCourses(false);
   };
 
-  if (!isLoading) {
+  if (isLoading) {
     return (
       <Spinner
         animation="border"
@@ -124,12 +119,8 @@ const JobCardComponent = ({
           </SelectableBox>
         ))}
       </SelectableBox.Set>
-      <TopSkillsOverview index={jobIndex} />
-      <Stack gap={4}>
-        <SearchCourseCard index={courseIndex} />
-        <SearchProgramCard index={courseIndex} />
-        <SearchPathways index={courseIndex} />
-      </Stack>
+      <TopSkillsOverview />
+      <SkillsQuizContentCards />
       <div className="text-center py-4">
         {!showMoreRecommendedCourses && (
           <Button
@@ -144,7 +135,7 @@ const JobCardComponent = ({
           </Button>
         )}
       </div>
-      {showMoreRecommendedCourses && <SkillsCourses index={courseIndex} />}
+      {showMoreRecommendedCourses && <SkillsCourses />}
     </div>
   );
 };
@@ -152,23 +143,11 @@ const JobCardComponent = ({
 JobCardComponent.defaultProps = {
   jobs: undefined,
   isLoading: false,
-  jobIndex: undefined,
-  courseIndex: undefined,
 };
 
 JobCardComponent.propTypes = {
   isLoading: PropTypes.bool,
   jobs: PropTypes.arrayOf(PropTypes.shape()),
-  jobIndex: PropTypes.shape({
-    appId: PropTypes.string,
-    indexName: PropTypes.string,
-    search: PropTypes.func.isRequired,
-  }),
-  courseIndex: PropTypes.shape({
-    appId: PropTypes.string,
-    indexName: PropTypes.string,
-    search: PropTypes.func.isRequired,
-  }),
 };
 
 export default JobCardComponent;

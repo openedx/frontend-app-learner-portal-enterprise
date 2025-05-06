@@ -71,7 +71,7 @@ describe('<CategoryCard />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
-    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+    useDefaultSearchFilters.mockReturnValue(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
   it('renders the CategoryCard component', () => {
     renderWithRouter(<CategoryCardWithContext />);
