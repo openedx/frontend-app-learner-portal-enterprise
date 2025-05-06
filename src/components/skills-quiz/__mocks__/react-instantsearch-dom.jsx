@@ -32,7 +32,7 @@ const originalState = {
   nbHits: 2,
 };
 
-let mockState = {
+const mockState = {
   hits: originalState.hits,
   nbHits: originalState.nbHits,
 };
@@ -44,10 +44,8 @@ const setFakeHits = hits => {
 };
 
 const resetMockReactInstantSearch = () => {
-  mockState = {
-    hits: originalState.hits, // deep clone if needed
-    nbHits: originalState.nbHits,
-  };
+  mockState.hits = originalState.hits;
+  mockState.nbHits = originalState.nbHits;
 };
 
 MockReactInstantSearch.connectStateResults = Component => (props) => (
