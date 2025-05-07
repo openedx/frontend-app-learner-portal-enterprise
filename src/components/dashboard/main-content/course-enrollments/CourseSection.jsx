@@ -1,8 +1,9 @@
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { Bubble, Collapsible, Skeleton } from '@openedx/paragon';
+import { Bubble, Collapsible, Skeleton, ProgressBar } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
+import { getProgressTabData } from './course-cards/mark-complete-modal/data/service';
 
 import {
   AssignedCourseCard,
@@ -101,9 +102,27 @@ const CourseSection = ({
     );
   };
 
+  const [progress, setProgress] = useState({});
+  const fetchData = useCallback(
+    async (courseRun) => {
+      try {
+        const result = await getProgressTabData(courseRun);
+        setProgress(result);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [],
+  );
+
   const renderCourseCards = () => courseRuns.map(courseRun => {
     const Component = CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
     const isAuditEnrollment = isEnrollmentUpgradeable(courseRun);
+    useEffect(() => {
+      fetchData(courseRun.courseRunId);
+    }, [fetchData]);
+    const numTotalUnits = progress?.completionSummary?.completeCount + progress?.completionSummary?.incompleteCount + progress?.completionSummary?.lockedCount;
+    const completePercentage = progress?.completionSummary?.completeCount ? Number(((progress?.completionSummary?.completeCount / numTotalUnits) * 100).toFixed(0)) : 0;
     if (isAuditEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
       return (
         <Suspense
@@ -115,15 +134,27 @@ const CourseSection = ({
             </DelayedFallbackContainer>
           )}
         >
-          <Component {...getCourseRunProps(courseRun)} />
+          <div>
+            <Component
+              {...getCourseRunProps(courseRun)}
+              key={courseRun.courseRunId}
+            />
+            <ProgressBar now={`${completePercentage}%`} label={`${completePercentage}%`} variant="primary" />
+            <br />
+          </div>
         </Suspense>
       );
     }
     return (
-      <Component
-        {...getCourseRunProps(courseRun)}
-        key={courseRun.courseRunId}
-      />
+      <div>
+        <Component
+          {...getCourseRunProps(courseRun)}
+          key={courseRun.courseRunId}
+        />
+        <ProgressBar now={`${completePercentage}%`} label={`${completePercentage}%`} variant="primary" />
+        <br />
+      </div>
+
     );
   });
 
