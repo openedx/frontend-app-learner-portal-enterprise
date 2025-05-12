@@ -8,6 +8,17 @@ import { SEARCH_INDEX_IDS } from '../../constants';
 import SearchResults from './SearchResults';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 
+/**
+ * Renders the pathway-specific Algolia search results section.
+ *
+ * @component
+ * @param {{ filter: string }} props
+ * @param {string} props.filter - A fully formed Algolia filter string that already includes
+ * the `content_type:pathway` clause. This ensures only pathway records are shown in results.
+ *
+ * @example
+ * <SearchPathway filter="content_type:pathway AND topic:ai" />
+ */
 const SearchPathway = ({ filter }) => {
   const config = getConfig();
   const intl = useIntl();

@@ -7,6 +7,16 @@ import { SEARCH_INDEX_IDS } from '../../constants';
 import SearchResults from './SearchResults';
 import SearchCourseCard from './SearchCourseCard';
 
+/**
+ * Renders the course-specific Algolia search results.
+ *
+ * @param {{ filter: string }} props
+ * @param {string} props.filter - A fully constructed Algolia filter string that already includes the
+ * `content_type:course` condition. This filter is applied to restrict results to relevant courses.
+ *
+ * @example
+ * <SearchCourse filter="content_type:course AND level:beginner" />
+ */
 const SearchCourse = ({ filter }) => {
   const config = getConfig();
   const intl = useIntl();

@@ -207,7 +207,8 @@ const Search = () => {
               && <SearchPathway filter={pathwayFilter} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false)
               && <SearchProgram filter={programFilter} />}
-            {canOnlyViewHighlightSets === false && <SearchCourse filter={courseFilter} />}
+            {canOnlyViewHighlightSets === false
+              && <SearchCourse filter={courseFilter} />}
             {enableVideos && (
               <SearchVideo
                 filter={videoFilter}

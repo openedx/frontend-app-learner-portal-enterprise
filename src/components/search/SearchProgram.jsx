@@ -8,6 +8,16 @@ import { SEARCH_INDEX_IDS } from '../../constants';
 import SearchResults from './SearchResults';
 import SearchProgramCard from './SearchProgramCard';
 
+/**
+ * Renders the program-specific Algolia search results.
+ *
+ * @param {{ filter: string }} props
+ * @param {string} props.filter - A preconstructed Algolia filter string that includes the
+ * `content_type:program` clause. This filter ensures only program results are returned.
+ *
+ * @example
+ * <SearchProgram filter="content_type:program AND level:advanced" />
+ */
 const SearchProgram = ({ filter }) => {
   const config = getConfig();
   const intl = useIntl();

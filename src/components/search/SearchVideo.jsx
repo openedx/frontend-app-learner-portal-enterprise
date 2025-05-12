@@ -7,6 +7,32 @@ import { SEARCH_INDEX_IDS } from '../../constants';
 import SearchResults from './SearchResults';
 import SearchVideoCard from './SearchVideoCard';
 
+/**
+ * Renders the video-specific Algolia search results section.
+ *
+ * @component
+ * @param {{
+ *   filter: string,
+ *   showVideosBanner: () => void,
+ *   hideVideosBanner: () => void
+ * }} props
+ *
+ * @param {string} props.filter - A fully constructed Algolia filter string that includes
+ * the `content_type:video` clause. Filters the search results to video content.
+ *
+ * @param {Function} props.showVideosBanner - Callback executed when search results are found.
+ * Typically used to display a banner or announcement related to video results.
+ *
+ * @param {Function} props.hideVideosBanner - Callback executed when no search results are found.
+ * Used to hide the banner or related UI elements when there are no matching video results.
+ *
+ * @example
+ * <SearchVideo
+ *   filter="content_type:video AND duration:<5"
+ *   showVideosBanner={() => setBannerVisible(true)}
+ *   hideVideosBanner={() => setBannerVisible(false)}
+ * />
+ */
 const SearchVideo = ({
   filter, showVideosBanner, hideVideosBanner,
 }) => {
