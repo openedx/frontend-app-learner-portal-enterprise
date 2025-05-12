@@ -1,5 +1,5 @@
 import {
-  useContext, useMemo, useState, useEffect,
+  useContext, useEffect, useMemo, useState,
 } from 'react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
@@ -8,21 +8,21 @@ import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
-  Badge, Card, Icon, Alert, CardGrid, Stack, Truncate,
+  Alert, Badge, Card, CardGrid, Icon, Stack, Truncate,
 } from '@openedx/paragon';
 import { Program, ZoomOut } from '@openedx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { SkillsContext } from './SkillsContextProvider';
-import { isDefinedAndNotNull, getPrimaryPartnerLogo } from '../../utils/common';
+import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 import { ELLIPSIS_STR } from '../course/data/constants';
 import { shortenString } from '../course/data/utils';
-import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_PROGRAM, NO_PROGRAMS_ALERT_MESSAGE } from './constants';
+import { MAX_VISIBLE_SKILLS_PROGRAM, NO_PROGRAMS_ALERT_MESSAGE, SKILL_NAME_CUTOFF_LIMIT } from './constants';
 import getCommonSkills from './data/utils';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { ProgramType } from '../search/SearchProgramCard';
-import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
+import { useContentTypeFilter, useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 
 const linkToProgram = (program, slug, programUuid) => {
   if (!Object.keys(program).length) {
@@ -35,7 +35,9 @@ const SearchProgramCard = ({ index }) => {
   const { authenticatedUser: { userId } } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const filters = useDefaultSearchFilters();
-
+  const {
+    programFilter,
+  } = useContentTypeFilter({ filter: filters });
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);
   const [programs, setPrograms] = useState([]);
@@ -60,7 +62,7 @@ const SearchProgramCard = ({ index }) => {
       async function fetchPrograms() {
         setIsLoading(true);
         const { hits, nbHits } = await index.search('', {
-          filters: `content_type:program AND ${filters}`, // eslint-disable-line object-shorthand
+          filters: programFilter, // eslint-disable-line object-shorthand
           facetFilters: [
             skillsFacetFilter,
           ],
@@ -78,7 +80,7 @@ const SearchProgramCard = ({ index }) => {
       fetchPrograms();
       return () => { fetch = false; };
     },
-    [filters, index, selectedJob, skills, skillsFacetFilter],
+    [filters, index, programFilter, selectedJob, skills, skillsFacetFilter],
   );
 
   const partnerDetails = useMemo(

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Configure, Index } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { CONTENT_TYPE_VIDEO, NUM_RESULTS_VIDEO, VIDEO_TITLE } from './constants';
+import { NUM_RESULTS_VIDEO, VIDEO_TITLE } from './constants';
 import { SEARCH_INDEX_IDS } from '../../constants';
 import SearchResults from './SearchResults';
 import SearchVideoCard from './SearchVideoCard';
@@ -10,7 +10,6 @@ import SearchVideoCard from './SearchVideoCard';
 const SearchVideo = ({
   filter, showVideosBanner, hideVideosBanner,
 }) => {
-  const defaultFilter = `content_type:${CONTENT_TYPE_VIDEO} AND ${filter}`;
   const config = getConfig();
   const intl = useIntl();
 
@@ -18,7 +17,7 @@ const SearchVideo = ({
     <Index indexName={config.ALGOLIA_REPLICA_INDEX_NAME} indexId={SEARCH_INDEX_IDS.VIDEOS}>
       <Configure
         hitsPerPage={NUM_RESULTS_VIDEO}
-        filters={defaultFilter}
+        filters={filter}
         clickAnalytics
       />
       <SearchResults

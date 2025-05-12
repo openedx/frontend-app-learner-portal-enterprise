@@ -2,20 +2,19 @@ import PropTypes from 'prop-types';
 import { Configure, Index } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { NUM_RESULTS_COURSE, CONTENT_TYPE_COURSE, COURSE_TITLE } from './constants';
+import { COURSE_TITLE, NUM_RESULTS_COURSE } from './constants';
 import { SEARCH_INDEX_IDS } from '../../constants';
 import SearchResults from './SearchResults';
 import SearchCourseCard from './SearchCourseCard';
 
 const SearchCourse = ({ filter }) => {
-  const defaultFilter = `content_type:${CONTENT_TYPE_COURSE} AND ${filter}`;
   const config = getConfig();
   const intl = useIntl();
   return (
     <Index indexName={config.ALGOLIA_INDEX_NAME} indexId={SEARCH_INDEX_IDS.COURSE}>
       <Configure
         hitsPerPage={NUM_RESULTS_COURSE}
-        filters={defaultFilter}
+        filters={filter}
         clickAnalytics
       />
       <SearchResults

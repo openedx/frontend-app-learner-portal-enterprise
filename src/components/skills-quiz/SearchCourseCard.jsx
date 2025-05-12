@@ -13,11 +13,13 @@ import { SkillsContext } from './SkillsContextProvider';
 import { NO_COURSES_ALERT_MESSAGE } from './constants';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import CourseCard from './CourseCard';
-import { useDefaultSearchFilters } from '../app/data';
+import { useContentTypeFilter, useDefaultSearchFilters } from '../app/data';
 
 const SearchCourseCard = ({ index }) => {
   const filters = useDefaultSearchFilters();
-
+  const {
+    courseFilter,
+  } = useContentTypeFilter({ filter: filters });
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState([]);
@@ -41,7 +43,7 @@ const SearchCourseCard = ({ index }) => {
       async function fetchCourses() {
         setIsLoading(true);
         const { hits, nbHits } = await index.search('', {
-          filters: `content_type:course AND ${filters}`, // eslint-disable-line object-shorthand
+          filters: courseFilter, // eslint-disable-line object-shorthand
           facetFilters: [
             skillsFacetFilter,
           ],
@@ -63,7 +65,7 @@ const SearchCourseCard = ({ index }) => {
       }
       fetchCourses();
     },
-    [enrolledCourseIds, filters, index, selectedJob, skills, skillsFacetFilter],
+    [courseFilter, enrolledCourseIds, filters, index, selectedJob, skills, skillsFacetFilter],
   );
 
   if (hitCount === 0) {

@@ -24,6 +24,7 @@ import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import {
   useAlgoliaSearch,
   useCanOnlyViewHighlights,
+  useContentTypeFilter,
   useDefaultSearchFilters,
   useEnterpriseCustomer,
   useEnterpriseOffers,
@@ -61,7 +62,15 @@ const Search = () => {
   const navigate = useNavigate();
 
   const { refinements } = useContext(SearchContext);
+  const { content_type: contentType } = refinements;
   const filters = useDefaultSearchFilters();
+  const {
+    courseFilter,
+    programFilter,
+    pathwayFilter,
+    videoFilter,
+    contentTypeFilter,
+  } = useContentTypeFilter({ filters, contentType });
 
   const {
     searchIndex,
@@ -125,7 +134,6 @@ const Search = () => {
     );
   }
 
-  const { content_type: contentType } = refinements;
   const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
   if (!searchClient) {
@@ -161,7 +169,7 @@ const Search = () => {
         {contentType?.length > 0 && (
           <Configure
             hitsPerPage={NUM_RESULTS_PER_PAGE}
-            filters={`content_type:${contentType[0]} AND ${filters}`}
+            filters={contentTypeFilter}
             clickAnalytics
           />
         )}
@@ -193,13 +201,16 @@ const Search = () => {
           <Stack className="my-5" gap={5}>
             {shouldShowVideosBanner && <VideoBanner />}
             {!hasRefinements && <ContentHighlights />}
-            {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <SearchAcademy />}
-            {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
-            {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
-            {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} />}
+            {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies
+              && <SearchAcademy />}
+            {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false)
+              && <SearchPathway filter={pathwayFilter} />}
+            {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false)
+              && <SearchProgram filter={programFilter} />}
+            {canOnlyViewHighlightSets === false && <SearchCourse filter={courseFilter} />}
             {enableVideos && (
               <SearchVideo
-                filter={filters}
+                filter={videoFilter}
                 showVideosBanner={showVideosBanner}
                 hideVideosBanner={hideVideosBanner}
               />
