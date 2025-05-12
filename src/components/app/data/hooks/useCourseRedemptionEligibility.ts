@@ -65,6 +65,7 @@ export function transformCourseRedemptionEligibility({
     r => r.contentKey === courseMetadata.activeCourseRun?.key,
   );
   const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
+  const missingSubsidyAccessPolicyDisplayReason = redeemabilityForActiveCourseRun?.displayReason;
   const preferredSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
   const anyRedeemableSubsidyAccessPolicy = canRedeemDataForAvailableRuns.find(
     r => r.redeemableSubsidyAccessPolicy,
@@ -83,6 +84,7 @@ export function transformCourseRedemptionEligibility({
     availableCourseRuns,
     redeemableSubsidyAccessPolicy,
     missingSubsidyAccessPolicyReason,
+    missingSubsidyAccessPolicyDisplayReason,
     hasSuccessfulRedemption,
     listPrice,
   };

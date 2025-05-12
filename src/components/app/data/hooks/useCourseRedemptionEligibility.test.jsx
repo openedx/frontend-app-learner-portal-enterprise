@@ -10,13 +10,13 @@ import { queryClient } from '../../../../utils/tests';
 import { fetchCanRedeem } from '../services';
 import useCourseMetadata from './useCourseMetadata';
 import {
-  useCourseRedemptionEligibility,
-  useLateEnrollmentBufferDays,
-  useEnterpriseCustomerContainsContent,
-  useRedeemablePolicies,
-  useCourseRunKeyQueryParam,
-  useSubscriptions,
   useCouponCodes,
+  useCourseRedemptionEligibility,
+  useCourseRunKeyQueryParam,
+  useEnterpriseCustomerContainsContent,
+  useLateEnrollmentBufferDays,
+  useRedeemablePolicies,
+  useSubscriptions,
 } from '.';
 import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 
@@ -83,6 +83,7 @@ const mockCanRedeemData = [{
   redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
   canRedeem: true,
   reasons: [],
+  displayReason: null,
 }];
 
 describe('useCourseRedemptionEligibility', () => {
@@ -137,12 +138,14 @@ describe('useCourseRedemptionEligibility', () => {
                 canRedeem: true,
                 redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
                 reasons: [],
+                displayReason: null,
                 hasSuccessfulRedemption: false,
               }),
             ],
             availableCourseRuns: [mockCourseRun],
             redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
             missingSubsidyAccessPolicyReason: undefined,
+            missingSubsidyAccessPolicyDisplayReason: null,
             hasSuccessfulRedemption: false,
             listPrice: [1],
           },
@@ -238,6 +241,44 @@ describe('useCourseRedemptionEligibility', () => {
     const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
     await waitFor(() => {
       expect(result.current.data.redeemableSubsidyAccessPolicy).toEqual(expectedRedeemableSubsidyAccessPolicy);
+    });
+  });
+
+  it('should use displayReason when available', async () => {
+    const canRedeemData = [
+      {
+        ...mockCanRedeemData[0],
+        contentKey: mockCourseRunKey,
+        displayReason: 'Display reason text 1',
+        reasons: [{
+          userMessage: 'Display reason text 1',
+        },
+        {
+          userMessage: 'Display reason text 2',
+        },
+        ],
+      },
+    ];
+    fetchCanRedeem.mockResolvedValue(canRedeemData);
+    const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current.data.missingSubsidyAccessPolicyDisplayReason).toEqual('Display reason text 1');
+    });
+  });
+
+  it('should handle empty displayReason', async () => {
+    const canRedeemData = [
+      {
+        ...mockCanRedeemData[0],
+        contentKey: mockCourseRunKey,
+        displayReason: null,
+        reasons: [],
+      },
+    ];
+    fetchCanRedeem.mockResolvedValue(canRedeemData);
+    const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current.data.missingSubsidyAccessPolicyDisplayReason).toEqual(null);
     });
   });
 
