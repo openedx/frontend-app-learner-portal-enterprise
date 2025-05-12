@@ -59,7 +59,6 @@ describe('NavigateToCourseware', () => {
     expect(screen.getByTestId('upgrade-navigate-to-courseware')).toBeInTheDocument();
     expect(UpgradeAndNavigateToCourseware.mock.calls[0][0]).toEqual(
       expect.objectContaining({
-        subsidyAccessPolicy: MOCK_SUBSIDY_LEARNER_CREDIT,
         contentKey: MOCK_COURSE_RUN_KEY,
         onUpgradeClick: mockUpgradeCallbacks.onUpgradeClick,
         onUpgradeSuccess: mockUpgradeCallbacks.onUpgradeSuccess,

@@ -49,7 +49,9 @@ export const REVIEW_SECTION_CONTENT = {
 export const EVENT_NAMES = {
   missingActiveCourseRun: 'edx.ui.enterprise.learner_portal.course.activeCourseRunNotFound',
   clickedToEnrollPage: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_enroll.clicked',
-  sucessfulEnrollment: 'edx.ui.enterprise.learner_portal.course.external_enrollment_form.enrolled',
+  sucessfulEnrollment: 'edx.ui.enterprise.learner_portal.course.enrolled',
+  sucessfulExternalEnrollment: 'edx.ui.enterprise.learner_portal.course.external_enrollment_form.enrolled',
+  sucessfulUpgradeEnrollment: 'edx.ui.enterprise.learner_portal.course.enrolled',
 };
 
 // TODO: Put logo in external repository and link to it with internal config

@@ -4,6 +4,7 @@ import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/da
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import {
   getBrandColorsFromCSSVariables,
+  hasValidStartExpirationDates,
   isDefinedAndNotNull,
   isTodayBetweenDates,
   isTodayWithinDateThreshold,
@@ -484,6 +485,10 @@ export const getTransformedAllocatedAssignments = (assignments, enterpriseSlug) 
   return updatedAssignments;
 };
 
+/**
+ * Retrieves the error stack for display.
+ * @param {Error | unknown} [error]
+ */
 export function retrieveErrorMessageForDisplay(error) {
   if (!error) {
     return null;
@@ -493,6 +498,17 @@ export function retrieveErrorMessageForDisplay(error) {
     errorMessage += `\nCustom attributes: ${error.customAttributes.httpErrorResponseData}`;
   }
   return errorMessage;
+}
+
+/**
+ * Retrieves the error stack for display.
+ * @param {Error | unknown} [error]
+ */
+export function retrieveErrorStackForDisplay(error) {
+  if (!error) {
+    return null;
+  }
+  return error.stack;
 }
 
 /**
@@ -528,10 +544,26 @@ export function isArchived(courseRun) {
   return false;
 }
 
-// These are the standard rules used for determining whether a run is "available".
-export const standardAvailableCourseRunsFilter = (courseRun) => (
-  (courseRun.isMarketable || courseRun.isMarketableExternal) && !isArchived(courseRun) && courseRun.isEnrollable
-);
+/**
+ * These are the standard rules used for determining whether a run is "available":
+ * - isMarketable or isMarketableExternal: The run is marketable for enterprise use cases.
+ * - !isArchived: The run is not archived.
+ * - isEnrollable: The run is enrollable, meaning the enrollment window is open.
+ */
+export const standardAvailableCourseRunsFilter = (courseRun, courseRunKey) => {
+  const isStandardAvailable = (
+    (courseRun.isMarketable || courseRun.isMarketableExternal)
+    && !isArchived(courseRun)
+    && courseRun.isEnrollable
+  );
+
+  if (courseRunKey) {
+    // If a courseRunKey is provided, we also check that the courseRun matches its key.
+    return courseRun.key === courseRunKey && isStandardAvailable;
+  }
+
+  return isStandardAvailable;
+};
 
 /**
  * Returns list of available runs that are marketable, enrollable, and not archived.
@@ -542,7 +574,11 @@ export const standardAvailableCourseRunsFilter = (courseRun) => (
  * @param {number} lateEnrollmentBufferDays - number of days to buffer the enrollment end date, or undefined.
  * @returns List of course runs.
  */
-export function getAvailableCourseRuns({ course, lateEnrollmentBufferDays }) {
+export function getAvailableCourseRuns({
+  course,
+  lateEnrollmentBufferDays,
+  courseRunKey,
+}) {
   if (!course?.courseRuns) {
     return [];
   }
@@ -567,7 +603,7 @@ export function getAvailableCourseRuns({ course, lateEnrollmentBufferDays }) {
     const today = dayjs();
     if (!courseRun.enrollmentEnd || (courseRun.enrollmentStart && today.isBefore(dayjs(courseRun.enrollmentStart)))) {
       // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
-      return standardAvailableCourseRunsFilter(courseRun);
+      return standardAvailableCourseRunsFilter(courseRun, courseRunKey);
     }
     const bufferedEnrollDeadline = dayjs(courseRun.enrollmentEnd).add(lateEnrollmentBufferDays, 'day');
     return today.isBefore(bufferedEnrollDeadline);
@@ -576,7 +612,7 @@ export function getAvailableCourseRuns({ course, lateEnrollmentBufferDays }) {
   return course.courseRuns.filter(
     isDefinedAndNotNull(lateEnrollmentBufferDays)
       ? lateEnrollmentAvailableCourseRunsFilter
-      : standardAvailableCourseRunsFilter,
+      : (courseRun) => standardAvailableCourseRunsFilter(courseRun, courseRunKey),
   );
 }
 
@@ -723,7 +759,6 @@ export const filterPoliciesByExpirationAndActive = (policies) => {
   };
 };
 
-/* eslint-disable max-len */
 /**
  * Returns a formatted object based on the subsidy or subsides passed
  *
@@ -737,9 +772,7 @@ export const filterPoliciesByExpirationAndActive = (policies) => {
  * @param applicableCouponCode
  * @param applicableEnterpriseOffer
  * @param applicableSubsidyAccessPolicy
- * @returns {{perLearnerSpendLimit: (number|null|Number|*), policyRedemptionUrl: (string|string|*), discountType: string, discountValue: number, subsidyType: string, perLearnerEnrollmentLimit: (null|*)}|{subsidyId, discountType: string, discountValue: number, startDate, subsidyType: string, expirationDate, status}|undefined|{maxUserApplications: (null|*), endDate: (string|*), subsidyType: string, offerType: *, isCurrent, remainingApplications: (number|null|*), remainingApplicationsForUser: (number|null|*), discountType: string, remainingBalance, remainingBalanceForUser, discountValue, startDate: (string|*), maxUserDiscount}|{code, endDate: (string|*), discountType: (string|*), discountValue: (number|*), startDate: (string|*), subsidyType: string, catalogUuid: (string|*)}}
  */
-/* eslint-enable max-len */
 export const getSubsidyToApplyForCourse = ({
   applicableSubscriptionLicense = undefined,
   applicableCouponCode = undefined,
@@ -769,16 +802,19 @@ export const getSubsidyToApplyForCourse = ({
     };
   }
 
-  if (applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled
-    && applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy) {
+  if (
+    applicableSubsidyAccessPolicy?.isPolicyRedemptionEnabled
+    && applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy
+  ) {
     const { redeemableSubsidyAccessPolicy, availableCourseRuns } = applicableSubsidyAccessPolicy;
     return {
       discountType: 'percentage',
       discountValue: 100,
       subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-      perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
-      perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
-      policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+      policyType: redeemableSubsidyAccessPolicy.policyType,
+      perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy.perLearnerEnrollmentLimit,
+      perLearnerSpendLimit: redeemableSubsidyAccessPolicy.perLearnerSpendLimit,
+      policyRedemptionUrl: redeemableSubsidyAccessPolicy.policyRedemptionUrl,
       availableCourseRuns,
     };
   }
@@ -895,27 +931,26 @@ export function determineAllocatedAssignmentsForCourse({
  *  (* &
  *    {
  *      courseRuns: *,
- *      availableCourseRuns: *
+ *      availableCourseRuns: *,
+ *      courseRunKeys: *
  *    }
  *  )
  * }
  */
 export function transformCourseMetadataByAllocatedCourseRunAssignments({
-  hasMultipleAssignedCourseRuns,
   courseMetadata,
   allocatedCourseRunAssignmentKeys,
 }) {
-  if (hasMultipleAssignedCourseRuns && allocatedCourseRunAssignmentKeys.length > 1) {
+  if (allocatedCourseRunAssignmentKeys.length > 0) {
+    const filterForCourseRunKeys = (courseRun) => allocatedCourseRunAssignmentKeys.includes(courseRun.key);
     return {
       ...courseMetadata,
-      courseRuns: courseMetadata.courseRuns.filter(
-        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
-      ),
-      availableCourseRuns: courseMetadata.availableCourseRuns?.filter(
-        courseRun => allocatedCourseRunAssignmentKeys.includes(courseRun.key),
-      ),
+      courseRuns: courseMetadata.courseRuns.filter(filterForCourseRunKeys),
+      availableCourseRuns: courseMetadata.availableCourseRuns?.filter(filterForCourseRunKeys),
+      courseRunKeys: courseMetadata.courseRunKeys?.filter(filterForCourseRunKeys),
     };
   }
+
   return courseMetadata;
 }
 
@@ -934,4 +969,82 @@ export function addLicenseToSubscriptionLicensesByStatus({ subscriptionLicensesB
   }
   updatedLicensesByStatus[licenseStatus].push(subscriptionLicense);
   return updatedLicensesByStatus;
+}
+
+/**
+ * Extracts the course run key from the search parameters of a URL.
+ * @param {Object} searchParams - The URLSearchParams object containing the search parameters.
+ * @returns {string|undefined} - Returns the course run key if present, or null if not.
+ */
+export function extractCourseRunKeyFromSearchParams(searchParams) {
+  // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
+  // need to replace it with `+` again to be a valid course run key.
+  const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
+  return courseRunKey;
+}
+
+/**
+ * Returns the course runs available for redemption based on the course and learner credit policies.
+ */
+export function getCourseRunsForRedemption({
+  course,
+  lateEnrollmentBufferDays,
+  courseRunKey,
+  redeemableLearnerCreditPolicies,
+  hasSubsidyPrioritizedOverLearnerCredit,
+}) {
+  const availableCourseRuns = getAvailableCourseRuns({
+    course,
+    lateEnrollmentBufferDays,
+    courseRunKey,
+  });
+  const availableCourseRunKeys = availableCourseRuns.map((courseRun) => courseRun.key);
+  const defaultReturnValue = {
+    courseRuns: availableCourseRuns,
+    courseRunKeys: availableCourseRunKeys,
+  };
+  if (hasSubsidyPrioritizedOverLearnerCredit) {
+    // If subsidies are prioritized over learner credit, return all available course runs.
+    // For example, subscriptions take precedence over learner credit.
+    return defaultReturnValue;
+  }
+  const {
+    allocatedCourseRunAssignmentKeys,
+  } = determineAllocatedAssignmentsForCourse({
+    courseKey: course.key,
+    redeemableLearnerCreditPolicies,
+  });
+  if (allocatedCourseRunAssignmentKeys.length > 0) {
+    // Filter available course run keys to only those that have an associated allocated assignment.
+    return {
+      courseRuns: availableCourseRuns.filter((courseRun) => (
+        allocatedCourseRunAssignmentKeys.includes(courseRun.key)
+      )),
+      courseRunKeys: availableCourseRunKeys.filter((key) => (
+        allocatedCourseRunAssignmentKeys.includes(key)
+      )),
+    };
+  }
+  return defaultReturnValue;
+}
+
+/**
+ * Finds a coupon code that is applicable to the course based on the catalog list.
+ * @param couponCodes
+ * @param catalogList
+ * @returns {*}
+ */
+export function findCouponCodeForCourse(couponCodes, catalogList = []) {
+  return couponCodes.find((couponCode) => catalogList?.includes(couponCode.catalog) && hasValidStartExpirationDates({
+    startDate: couponCode.couponStartDate,
+    endDate: couponCode.couponEndDate,
+  }));
+}
+
+export function determineSubscriptionLicenseApplicable(subscriptionLicense, catalogsWithCourse) {
+  return (
+    subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
+    && subscriptionLicense?.subscriptionPlan.isCurrent
+    && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
+  );
 }

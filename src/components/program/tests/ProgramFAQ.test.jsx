@@ -49,18 +49,17 @@ describe('<ProgramFAQ />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useProgramDetails.mockReturnValue({ data: initialProgramState });
   });
-  test('renders program FAQs', () => {
-    render(
-      <ProgramFAQWithContext />,
-    );
+  test('renders program FAQs', async () => {
+    const user = userEvent.setup();
+    render(<ProgramFAQWithContext />);
 
     const questionA = screen.getByText('question a');
     const questionB = screen.getByText('question b');
     expect(questionA).toBeInTheDocument();
     expect(questionB).toBeInTheDocument();
-    userEvent.click(questionA);
+    await user.click(questionA);
     expect(screen.getByText('answer a')).toBeInTheDocument();
-    userEvent.click(questionB);
+    await user.click(questionB);
     expect(screen.getByText('answer b')).toBeInTheDocument();
   });
 

@@ -13,13 +13,13 @@ import { HAS_USER_DISMISSED_NEW_GROUP_ALERT } from './constants';
 import {
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
-  findCouponCodeForCourse,
   findHighestLevelSeatSku,
 } from '../../../../course/data/utils';
 import { getExpiringAssignmentsAcknowledgementState, getHasUnacknowledgedAssignments } from '../../../data/utils';
 import {
   ASSIGNMENT_TYPES,
   COUPON_CODE_SUBSIDY_TYPE,
+  findCouponCodeForCourse,
   getSubsidyToApplyForCourse,
   isEnrollmentUpgradeable,
   LEARNER_CREDIT_SUBSIDY_TYPE,
@@ -76,14 +76,10 @@ export const useCourseUpgradeData = ({
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   // Metadata required to determine if the course run is contained in the customer's content catalog(s)
-  const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey], {
-    enabled: canUpgradeToVerifiedEnrollment,
-  });
+  const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
 
   // Metadata required to allow upgrade via applicable learner credit subsidy
-  const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(courseRunKey, {
-    enabled: canUpgradeToVerifiedEnrollment,
-  });
+  const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(courseRunKey);
 
   // Metadata required to allow upgrade via applicable subscription license
   const { data: subscriptionLicense } = useSubscriptions({
@@ -102,13 +98,11 @@ export const useCourseUpgradeData = ({
       }
       return license;
     },
-    enabled: !!customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment,
   });
 
   // Metadata required to allow upgrade via applicable coupon code
   const { data: applicableCouponCode } = useCouponCodes({
     select: (data) => findCouponCodeForCourse(data.couponCodeAssignments, customerContainsContent?.catalogList),
-    enabled: !!customerContainsContent?.containsContentItems && canUpgradeToVerifiedEnrollment,
   });
 
   // If coupon codes are eligible, retrieve the course run's product SKU metadata from API
@@ -117,20 +111,17 @@ export const useCourseUpgradeData = ({
       ...data,
       sku: findHighestLevelSeatSku(data.seats),
     }),
-    enabled: !!applicableCouponCode && canUpgradeToVerifiedEnrollment,
   });
 
-  const { data: enterpriseCourseEnrollments } = useEnterpriseCourseEnrollments({
-    enabled: canUpgradeToVerifiedEnrollment,
-  });
+  const { data: enterpriseCourseEnrollmentsMetadata } = useEnterpriseCourseEnrollments();
 
-  const { redeem: redeemLearnerCredit } = useStatefulEnroll({
+  const redeemLearnerCredit = useStatefulEnroll({
     contentKey: courseRunKey,
-    subsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy,
+    subsidyAccessPolicy: learnerCreditMetadata?.applicableSubsidyAccessPolicy?.redeemableSubsidyAccessPolicy,
     onBeginRedeem: onRedeem,
     onSuccess: onRedeemSuccess,
     onError: onRedeemError,
-    userEnrollments: enterpriseCourseEnrollments,
+    userEnrollments: enterpriseCourseEnrollmentsMetadata.enterpriseCourseEnrollments,
   });
 
   return useMemo(() => {
@@ -207,8 +198,8 @@ export const useCourseUpgradeData = ({
 
     // Construct and return learner credit based upgrade url
     if (applicableSubsidy.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
-      applicableSubsidy.redemptionUrl = learnerCreditMetadata
-        .applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy.policyRedemptionUrl;
+      const { policyRedemptionUrl } = learnerCreditMetadata.applicableSubsidyAccessPolicy.redeemableSubsidyAccessPolicy;
+      applicableSubsidy.redemptionUrl = policyRedemptionUrl;
       return {
         ...defaultReturn,
         subsidyForCourse: applicableSubsidy,
@@ -310,7 +301,7 @@ export function useContentAssignments() {
 
   const {
     mutateAsync,
-    isLoading: isLoadingMutation,
+    isLoading: isPendingMutation,
   } = useAcknowledgeContentAssignments({ enterpriseId: enterpriseCustomer.uuid, userId });
 
   const handleAcknowledgeAssignments = useCallback(async ({ assignmentState }) => {
@@ -320,7 +311,7 @@ export function useContentAssignments() {
     };
 
     // Fail early if mutation is already in progress.
-    if (isLoadingMutation) {
+    if (isPendingMutation) {
       logError('Attempted to acknowledge assignments while mutation is already in progress.');
       return;
     }
@@ -352,7 +343,7 @@ export function useContentAssignments() {
     setIsAcknowledgingAssignments(true);
     await mutateAsync({ assignmentsByAssignmentConfiguration });
     setIsAcknowledgingAssignments(false);
-  }, [mutateAsync, assignments, isLoadingMutation]);
+  }, [mutateAsync, assignments, isPendingMutation]);
 
   /**
    * Parses the learner content assignments from the redeemableLearnerCreditPolicies

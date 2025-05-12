@@ -1,10 +1,12 @@
+import { LoaderFunctionArgs, Params } from 'react-router-dom';
+
 import { queryLearnerPathwayProgressData } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
-type PathwayProgressRouteParams<Key extends string = string> = RouteParams<Key> & {
+type PathwayProgressRouteParams<Key extends string = string> = Params<Key> & {
   readonly pathwayUUID: string;
 };
-interface PathwayProgressLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface PathwayProgressLoaderFunctionArgs extends LoaderFunctionArgs {
   params: PathwayProgressRouteParams;
 }
 

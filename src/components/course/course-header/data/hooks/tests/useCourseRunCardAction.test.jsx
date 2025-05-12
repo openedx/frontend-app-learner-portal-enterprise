@@ -1,6 +1,5 @@
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { renderHook } from '@testing-library/react-hooks';
-import { render } from '@testing-library/react';
+import { render, renderHook } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import useCourseRunCardAction from '../useCourseRunCardAction';
@@ -14,6 +13,7 @@ import {
   MOCK_ENROLLMENT_AUDIT,
   MOCK_REDEEMABLE_SUBSIDY,
 } from './constants';
+import { useUserSubsidyApplicableToCourse } from '../../../../data';
 
 jest.mock('../../../../../stateful-enroll', () => jest.fn(() => <div data-testid="stateful-enroll" />));
 jest.mock('../../../RedemptionStatusText', () => jest.fn(() => <div data-testid="redemption-status-text" />));
@@ -28,6 +28,10 @@ const mockRedemptionActions = {
   handleRedeemError: jest.fn(),
 };
 jest.mock('../useRedemptionStatus', () => jest.fn(() => mockRedemptionActions));
+jest.mock('../../../../data', () => ({
+  ...jest.requireActual('../../../../data'),
+  useUserSubsidyApplicableToCourse: jest.fn(),
+}));
 
 const wrapper = ({ children }) => (
   <IntlProvider locale="en">{children}</IntlProvider>
@@ -48,6 +52,10 @@ const renderUseCourseRunCardActionHook = (args) => {
 describe('useCourseRunCardAction', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: undefined,
+      isPending: false,
+    });
   });
 
   it('returns disabled enroll button if user is not yet enrolled and does not have a subsidy access policy', () => {
@@ -57,7 +65,6 @@ describe('useCourseRunCardAction', () => {
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
-      subsidyAccessPolicy: undefined,
     });
 
     // expected disabled button exists
@@ -65,26 +72,30 @@ describe('useCourseRunCardAction', () => {
   });
 
   it('returns button link to course route for the given course type', () => {
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: MOCK_REDEEMABLE_SUBSIDY,
+    });
     const { getByTestId } = renderUseCourseRunCardActionHook({
       isUserEnrolled: false,
       userEnrollment: undefined,
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: '/enterprise-slug/executive-education-2u',
       contentKey: MOCK_COURSE_RUN_KEY,
-      subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
     });
 
     expect(getByTestId('to-executive-education-2u')).toBeInTheDocument();
   });
 
   it('returns stateful enroll if user is not yet enrolled and has a subsidy access policy', () => {
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: MOCK_REDEEMABLE_SUBSIDY,
+    });
     const { getByTestId } = renderUseCourseRunCardActionHook({
       isUserEnrolled: false,
       userEnrollment: undefined,
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
-      subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
     });
 
     // expected components exists
@@ -109,7 +120,6 @@ describe('useCourseRunCardAction', () => {
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
-      subsidyAccessPolicy: undefined,
     });
 
     // expected components exists
@@ -120,7 +130,6 @@ describe('useCourseRunCardAction', () => {
     expect(NavigateToCourseware.mock.calls[0][0]).toEqual(
       expect.objectContaining({
         shouldUpgradeUserEnrollment: false,
-        subsidyAccessPolicy: undefined,
         contentKey: MOCK_COURSE_RUN_KEY,
         courseRunUrl: MOCK_COURSE_RUN_URL,
         onUpgradeClick: expect.any(Function),
@@ -137,7 +146,6 @@ describe('useCourseRunCardAction', () => {
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
-      subsidyAccessPolicy: undefined,
     });
 
     // expected components exists
@@ -148,7 +156,6 @@ describe('useCourseRunCardAction', () => {
     expect(NavigateToCourseware.mock.calls[0][0]).toEqual(
       expect.objectContaining({
         shouldUpgradeUserEnrollment: false,
-        subsidyAccessPolicy: undefined,
         contentKey: MOCK_COURSE_RUN_KEY,
         courseRunUrl: MOCK_COURSE_RUN_URL,
         onUpgradeClick: expect.any(Function),
@@ -162,13 +169,15 @@ describe('useCourseRunCardAction', () => {
     { shouldUpgradeEnrollment: true },
     { shouldUpgradeEnrollment: false },
   ])('returns courseware CTA if user is already enrolled (audit mode) with upgrade (%s)', () => {
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: MOCK_REDEEMABLE_SUBSIDY,
+    });
     const { getByTestId } = renderUseCourseRunCardActionHook({
       isUserEnrolled: true,
       userEnrollment: MOCK_ENROLLMENT_AUDIT,
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
-      subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
     });
 
     // expected components exists
@@ -179,7 +188,6 @@ describe('useCourseRunCardAction', () => {
     expect(NavigateToCourseware.mock.calls[0][0]).toEqual(
       expect.objectContaining({
         shouldUpgradeUserEnrollment: true,
-        subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
         contentKey: MOCK_COURSE_RUN_KEY,
         courseRunUrl: MOCK_COURSE_RUN_URL,
         onUpgradeClick: expect.any(Function),

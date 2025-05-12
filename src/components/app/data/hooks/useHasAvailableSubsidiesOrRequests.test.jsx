@@ -1,5 +1,5 @@
 import { AppContext } from '@edx/frontend-platform/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import useSubscriptions from './useSubscriptions';

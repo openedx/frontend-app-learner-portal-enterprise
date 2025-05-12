@@ -1,5 +1,5 @@
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import MockDate from 'mockdate';
 import dayjs from 'dayjs';
 import '@testing-library/jest-dom/extend-expect';

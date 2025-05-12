@@ -96,12 +96,11 @@ describe('<SiteHeader />', () => {
   });
 
   test('renders link with logo to dashboard', () => {
-    renderWithRouter(
-      <SiteHeaderWithContext />,
-    );
+    renderWithRouter(<SiteHeaderWithContext />);
     expect(screen.getByTestId('header-logo-image-id'));
     expect(screen.getByTestId('header-logo-link-id'));
   });
+
   test('does not render link with logo to dashboard when search is disabled', () => {
     const mockEnterpriseCustomerWithDisabledSearch = enterpriseCustomerFactory({
       disable_search: true,
@@ -124,19 +123,20 @@ describe('<SiteHeader />', () => {
     expect(screen.getByTestId('header-logo-image-id'));
     expect(screen.queryByTestId('header-logo-link-id')).toBeFalsy();
   });
-  test('renders regular logout link in absence of IDP', () => {
-    useEnterpriseLearner.mockReturnValue({ data: baseEnterpriseLearner });
-    renderWithRouter(
-      <SiteHeaderWithContext initialAppState={appState} />,
-    );
 
-    userEvent.click(screen.getByText(mockAuthenticatedUser.username));
+  test('renders regular logout link in absence of IDP', async () => {
+    const user = userEvent.setup();
+    useEnterpriseLearner.mockReturnValue({ data: baseEnterpriseLearner });
+    renderWithRouter(<SiteHeaderWithContext initialAppState={appState} />);
+    await user.click(screen.getByText(mockAuthenticatedUser.username));
     expect(screen.getByText('Sign out')).toBeInTheDocument();
     const logoutLink = screen.getByText('Sign out');
     // note: the values of these come from the process.env vars in setupTest.js
     expect(logoutLink.getAttribute('href')).toBe(`http://localhost:18000/logout?next=http://localhost:8734/${mockEnterpriseCustomer.slug}`);
   });
-  test('renders logout-specific logout link in presence of IDP', () => {
+
+  test('renders logout-specific logout link in presence of IDP', async () => {
+    const user = userEvent.setup();
     const mockEnterpriseCustomerWithIDP = enterpriseCustomerFactory({
       identity_provider: 'a-provider',
     });
@@ -152,10 +152,8 @@ describe('<SiteHeader />', () => {
         ],
       },
     });
-    renderWithRouter(
-      <SiteHeaderWithContext />,
-    );
-    userEvent.click(screen.getByText(mockAuthenticatedUser.username));
+    renderWithRouter(<SiteHeaderWithContext />);
+    await user.click(screen.getByText(mockAuthenticatedUser.username));
     expect(screen.getByText('Sign out')).toBeInTheDocument();
     const logoutLink = screen.getByText('Sign out');
     // note: the values of these come from the process.env vars in setupTest.js

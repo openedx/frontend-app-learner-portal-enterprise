@@ -1,9 +1,9 @@
+import { Suspense } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { QueryClientProvider, UseQueryResult } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import { getConfig } from '@edx/frontend-platform';
-import { waitFor } from '@testing-library/react';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import { generateTestPermutations, queryClient } from '../../../../utils/tests';
 import {
@@ -37,10 +37,8 @@ jest.mock('@edx/frontend-platform', () => ({
   ...jest.requireActual('@edx/frontend-platform'),
   getConfig: jest.fn(),
 }));
-const mockedUseEnterpriseCustomer = useEnterpriseCustomer as
-  jest.Mock<UseQueryResult<EnterpriseCustomer>>;
-const mockedUseEnterpriseFeatures = useEnterpriseFeatures as
-  jest.Mock<UseQueryResult<EnterpriseFeatures>, [Record<string, any>?]>;
+const mockedUseEnterpriseCustomer = useEnterpriseCustomer as jest.Mock;
+const mockedUseEnterpriseFeatures = useEnterpriseFeatures as jest.Mock;
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockEnterpriseFeatures = {
@@ -127,25 +125,26 @@ describe('useAlgoliaSearch', () => {
     initialEntries = [], children,
   }: { initialEntries?: string[] | undefined; children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient()}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <Routes>
-          <Route path=":enterpriseSlug" element={children} />
-          <Route path=":enterpriseSlug/search" element={children} />
-          <Route path=":enterpriseSlug/academies/:academyUUID" element={children} />
-          <Route path=":enterpriseSlug/skills-quiz" element={children} />
-          <Route path=":enterpriseSlug/unsupported-bff-route" element={children} />
-        </Routes>
-      </MemoryRouter>
+      <Suspense fallback={<div>Loading...</div>}>
+        <MemoryRouter initialEntries={initialEntries}>
+          <Routes>
+            <Route path=":enterpriseSlug" element={children} />
+            <Route path=":enterpriseSlug/search" element={children} />
+            <Route path=":enterpriseSlug/academies/:academyUUID" element={children} />
+            <Route path=":enterpriseSlug/skills-quiz" element={children} />
+            <Route path=":enterpriseSlug/unsupported-bff-route" element={children} />
+          </Routes>
+        </MemoryRouter>
+      </Suspense>
     </QueryClientProvider>
   );
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (mockedUseEnterpriseCustomer as jest.Mock).mockReturnValue({
+    mockedUseEnterpriseCustomer.mockReturnValue({
       data: mockEnterpriseCustomer,
     });
-    // @ts-ignore
-    useEnterpriseFeatures.mockReturnValue({
+    mockedUseEnterpriseFeatures.mockReturnValue({
       data: mockEnterpriseFeatures,
     });
     (fetchEnterpriseLearnerDashboard as jest.Mock).mockResolvedValue(mockBaseBFFData);
@@ -200,12 +199,11 @@ describe('useAlgoliaSearch', () => {
     const mockedEnterpriseFeatures = {
       catalogQuerySearchFiltersEnabled: isCatalogQueryFiltersEnabled,
     };
-    // @ts-ignore
-    mockedUseEnterpriseFeatures.mockReturnValue({
+    (mockedUseEnterpriseFeatures as jest.Mock).mockReturnValue({
       data: mockedEnterpriseFeatures,
     });
 
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => useAlgoliaSearch(indexName),
       {
         wrapper: ({ children }) => (
@@ -215,7 +213,6 @@ describe('useAlgoliaSearch', () => {
         ),
       },
     );
-    await waitForNextUpdate();
     await waitFor(() => {
       expect(result.current).toEqual(
         expect.objectContaining(expectedData),

@@ -8,12 +8,16 @@ import {
   extractEnterpriseCustomer,
   getLateEnrollmentBufferDays,
   queryCanRedeem,
+  queryCouponCodes,
   queryCourseMetadata,
+  queryEnterpriseCustomerContainsContent,
   queryRedeemablePolicies,
+  querySubscriptions,
 } from '../../../app/data';
 import { ensureAuthenticatedUser } from '../../../app/routes/data/utils';
 import { enterpriseCustomerFactory, authenticatedUserFactory } from '../../../app/data/services/data/__factories__';
 import { isDefinedAndNotNull } from '../../../../utils/common';
+import { POLICY_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 jest.mock('../../../app/routes/data/utils', () => ({
   ...jest.requireActual('../../../app/routes/data/utils'),
@@ -94,10 +98,11 @@ describe('externalCourseEnrollmentLoader', () => {
     lateEnrollmentBufferDays,
     hasSuccessfulRedemption,
   }) => {
+    const mockEnterpriseCatalogUuid = 'test-catalog-uuid';
     const mockCourseMetadata = {
       key: mockCourseKey,
       courseRuns: [{
-        key: 'course-run-key',
+        key: mockCourseRunKey,
         isMarketable: true,
         isEnrollable: true,
         availability: 'Current',
@@ -107,6 +112,8 @@ describe('externalCourseEnrollmentLoader', () => {
     };
     const mockSubsidyAccessPolicy = {
       uuid: 'redeemable-policy-uuid',
+      enterpriseCatalogUuid: mockEnterpriseCatalogUuid,
+      policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
       isLateRedemptionAllowed: isDefinedAndNotNull(lateEnrollmentBufferDays),
     };
 
@@ -140,14 +147,51 @@ describe('externalCourseEnrollmentLoader', () => {
       },
     });
 
+    // When `ensureQueryData` is called with the contains content query,
+    // ensure its mock return value is valid.
+    when(mockQueryClient.ensureQueryData).calledWith(
+      expect.objectContaining({
+        queryKey: queryEnterpriseCustomerContainsContent(mockEnterpriseCustomer.uuid, [mockCourseKey]).queryKey,
+      }),
+    ).mockResolvedValue({
+      catalogList: [mockEnterpriseCatalogUuid],
+    });
+
+    // When `ensureQueryData` is called with the coupon codes query,
+    // ensure its mock return value is valid.
+    when(mockQueryClient.ensureQueryData).calledWith(
+      expect.objectContaining({
+        queryKey: queryCouponCodes(mockEnterpriseCustomer.uuid).queryKey,
+      }),
+    ).mockResolvedValue({
+      couponCodeAssignments: [],
+    });
+
+    // When `ensureQueryData` is called with the subscriptions query,
+    // ensure its mock return value is valid.
+    const mockSubscriptionsData = {
+      subscriptionLicense: null,
+      subscriptionPlan: null,
+      customerAgreement: null,
+    };
+    when(mockQueryClient.ensureQueryData).calledWith(
+      expect.objectContaining({
+        queryKey: querySubscriptions(mockEnterpriseCustomer.uuid).queryKey,
+      }),
+    ).mockResolvedValue({
+      customerAgreement: mockSubscriptionsData.customerAgreement,
+      subscriptionLicense: mockSubscriptionsData.subscriptionLicense,
+      subscriptionPlan: mockSubscriptionsData.subscriptionPlan,
+    });
+
     // When `ensureQueryData` is called with the canRedeem query,
     // ensure its mock return value is valid.
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: queryCanRedeem(
           mockEnterpriseCustomer.uuid,
-          mockCourseMetadata,
-          lateEnrollmentBufferDays,
+          mockCourseMetadata.key,
+          [mockCourseRunKey],
         ).queryKey,
       }),
     ).mockResolvedValue([{
@@ -195,7 +239,11 @@ describe('externalCourseEnrollmentLoader', () => {
       );
       expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
         expect.objectContaining({
-          queryKey: queryCanRedeem(mockEnterpriseCustomer.uuid, mockCourseMetadata, lateEnrollmentBufferDays).queryKey,
+          queryKey: queryCanRedeem(
+            mockEnterpriseCustomer.uuid,
+            mockCourseMetadata.key,
+            [mockCourseRunKey],
+          ).queryKey,
           queryFn: expect.any(Function),
         }),
       );

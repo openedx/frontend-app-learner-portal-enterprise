@@ -186,6 +186,13 @@ export async function activateOrAutoApplySubscriptionLicense({
   return activatedOrAutoAppliedLicense;
 }
 
+/**
+ *
+ * @param {object} args
+ * @param {CustomerAgreement} args.customerAgreement The customer agreement object.
+ * @param {SubscriptionLicense[]} args.subscriptionLicenses The array of subscription
+ * @returns {object} The transformed subscriptions data object.
+ */
 export function transformSubscriptionsData({ customerAgreement, subscriptionLicenses }) {
   const { baseSubscriptionsData } = getBaseSubscriptionsData();
   const subscriptionsData = { ...baseSubscriptionsData };
@@ -255,19 +262,13 @@ export async function fetchSubscriptions(enterpriseUUID) {
    * Example: an activated license will be chosen as the applicable license because activated licenses
    * come first in ``subscriptionLicensesByStatus`` even if the user also has a revoked license.
    */
-  try {
-    const {
-      results: subscriptionLicenses,
-      response,
-    } = await fetchPaginatedData(url);
-    const { customerAgreement } = response;
-    return transformSubscriptionsData({
-      customerAgreement,
-      subscriptionLicenses,
-    });
-  } catch (error) {
-    logError(error);
-    const { baseSubscriptionsData } = getBaseSubscriptionsData();
-    return baseSubscriptionsData;
-  }
+  const {
+    results: subscriptionLicenses,
+    response,
+  } = await fetchPaginatedData(url);
+  const { customerAgreement } = response;
+  return transformSubscriptionsData({
+    customerAgreement,
+    subscriptionLicenses,
+  });
 }

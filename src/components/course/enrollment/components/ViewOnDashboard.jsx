@@ -5,9 +5,10 @@ import { useTrackSearchConversionClickHandler } from '../../data/hooks';
 import { EnrollButtonCta } from '../common';
 import { useEnterpriseCustomer } from '../../../app/data';
 
-const ViewOnDashboard = ({ enrollLabel }) => {
+const ViewOnDashboard = ({ courseRunKey, enrollLabel }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const handleClick = useTrackSearchConversionClickHandler({
+    courseRunKey,
     eventName: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_dashboard.clicked',
   });
 
@@ -23,6 +24,7 @@ const ViewOnDashboard = ({ enrollLabel }) => {
 };
 
 ViewOnDashboard.propTypes = {
+  courseRunKey: PropTypes.string.isRequired,
   enrollLabel: PropTypes.node.isRequired,
 };
 

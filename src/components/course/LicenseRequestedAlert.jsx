@@ -8,7 +8,11 @@ import {
   LICENSE_REQUESTED_ALERT_HEADING,
   LICENSE_REQUESTED_ALERT_TEXT,
 } from './data/constants';
-import { useBrowseAndRequest, useEnterpriseCustomerContainsContent, useSubscriptions } from '../app/data';
+import {
+  useBrowseAndRequest,
+  useEnterpriseCustomerContainsContent,
+  useSubscriptions,
+} from '../app/data';
 
 /**
  * A component to render an alert when a learner has a license request that is pending review.

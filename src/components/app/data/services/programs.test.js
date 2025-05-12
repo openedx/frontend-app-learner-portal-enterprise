@@ -1,7 +1,6 @@
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { fetchLearnerProgramProgressDetail, fetchProgramDetails } from './programs';
 import { fetchEnterpriseCustomerContainsContent } from './content';
@@ -81,14 +80,6 @@ const mockProgramProgressResponse = {
     },
   },
 };
-const mockEmptyProgressResponse = {
-  certificateData: [],
-  courseData: null,
-  creditPathways: [],
-  industryPathways: [],
-  programData: null,
-  urls: null,
-};
 
 const mockProgramUUID = 'test-program-uuid';
 
@@ -105,14 +96,6 @@ describe('fetchLearnerProgramProgressDetail', () => {
 
     const result = await fetchLearnerProgramProgressDetail(mockProgramUUID);
     expect(result).toEqual(mockProgramProgressResponse);
-  });
-  it('returns the api call with a 404 and logs an error', async () => {
-    axiosMock.onGet(PROGRAM_PROGRESS_DETAIL_URL).reply(404, mockProgramProgressResponse);
-
-    const result = await fetchLearnerProgramProgressDetail(mockProgramUUID);
-    expect(logError).toHaveBeenCalledTimes(1);
-    expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
-    expect(result).toEqual(mockEmptyProgressResponse);
   });
 });
 
@@ -162,7 +145,7 @@ describe('fetchProgramDetails', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    axiosMock.resetHistory();
+    axiosMock.reset();
   });
 
   it('fetches program data with program uuid belongs to enterprise', async () => {
@@ -189,25 +172,5 @@ describe('fetchProgramDetails', () => {
     expectedResponse.courses[0].enterpriseHasCourse = false;
     expectedResponse.courses[1].enterpriseHasCourse = false;
     expect(data).toEqual(expectedResponse);
-  });
-
-  it('fetches program data with empty return', async () => {
-    fetchEnterpriseCustomerContainsContent.mockReturnValue({ containsContentItems: false, catalogList: [] });
-
-    axiosMock.onGet(PROGRAM_API_ENDPOINT).reply(200, {});
-
-    const data = await fetchProgramDetails(ENTERPRISE_UUID, PROGRAM_UUID);
-    expect(data).toEqual(null);
-  });
-
-  it('returns the api call with a 404 and logs an error', async () => {
-    fetchEnterpriseCustomerContainsContent.mockReturnValue({ containsContentItems: false, catalogList: [] });
-
-    axiosMock.onGet(PROGRAM_API_ENDPOINT).reply(404, {});
-
-    const data = await fetchProgramDetails(ENTERPRISE_UUID, PROGRAM_UUID);
-    expect(logError).toHaveBeenCalledTimes(1);
-    expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 404'));
-    expect(data).toEqual(null);
   });
 });

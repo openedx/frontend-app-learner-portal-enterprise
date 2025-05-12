@@ -1,6 +1,8 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
+
 import { queryClient } from '../../../../utils/tests';
 import { fetchProgramDetails } from '../services';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -39,7 +41,9 @@ const mockProgramDetails = {
 describe('useProgramDetails', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -49,15 +53,15 @@ describe('useProgramDetails', () => {
     useParams.mockReturnValue({ programUUID: 'test-program-uuid' });
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useProgramDetails(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockProgramDetails,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useProgramDetails(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockProgramDetails,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

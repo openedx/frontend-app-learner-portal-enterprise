@@ -3,7 +3,6 @@ import {
 } from '@openedx/paragon';
 import { Calendar } from '@openedx/paragon/icons';
 import dayjs from 'dayjs';
-import { useSearchParams } from 'react-router-dom';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import {
@@ -14,7 +13,7 @@ import {
   hasCourseStarted,
   useIsCourseAssigned,
 } from '../data';
-import { useCourseMetadata } from '../../app/data';
+import { useCourseMetadata, useCourseRunKeyQueryParam } from '../../app/data';
 
 const messages = defineMessages({
   importantDates: {
@@ -62,23 +61,9 @@ CourseImportantDate.propTypes = {
 };
 
 const CourseImportantDates = () => {
-  const { data: courseMetadata } = useCourseMetadata();
   const intl = useIntl();
-  const {
-    allocatedCourseRunAssignments,
-    allocatedCourseRunAssignmentKeys,
-    hasAssignedCourseRuns,
-  } = useIsCourseAssigned();
-
-  const [searchParams] = useSearchParams();
-  const courseRunKey = searchParams.get('course_run_key')?.replaceAll(' ', '+');
-  // Check if the corresponding course run key from query parameters matches an allocated assignment course run key
-  const doesNotHaveCourseRunAssignmentForCourseRunKey = !!courseRunKey && !allocatedCourseRunAssignmentKeys.includes(
-    courseRunKey,
-  );
-  if (!hasAssignedCourseRuns || doesNotHaveCourseRunAssignmentForCourseRunKey) {
-    return null;
-  }
+  const { data: courseMetadata } = useCourseMetadata();
+  const { allocatedCourseRunAssignments } = useIsCourseAssigned();
 
   // Retrieve soonest expiring enroll-by date
   const { soonestExpirationDate, soonestExpiringAssignment } = getSoonestEarliestPossibleExpirationData({
@@ -128,4 +113,33 @@ const CourseImportantDates = () => {
   );
 };
 
-export default CourseImportantDates;
+const CourseImportantDatesWrapper = () => {
+  const {
+    isCourseAssigned,
+    shouldDisplayAssignmentsOnly,
+    allocatedCourseRunAssignmentKeys,
+    hasAssignedCourseRuns,
+  } = useIsCourseAssigned();
+
+  const courseRunKey = useCourseRunKeyQueryParam();
+
+  const conditionsToDisplay = [
+    isCourseAssigned,
+    hasAssignedCourseRuns,
+    shouldDisplayAssignmentsOnly,
+  ];
+  if (courseRunKey) {
+    // Check if the course run key from query params is included in the allocated assignments
+    conditionsToDisplay.push(
+      allocatedCourseRunAssignmentKeys.includes(courseRunKey),
+    );
+  }
+
+  if (!conditionsToDisplay.every(Boolean)) {
+    return null;
+  }
+
+  return <CourseImportantDates />;
+};
+
+export default CourseImportantDatesWrapper;

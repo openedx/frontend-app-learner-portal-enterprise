@@ -1,12 +1,19 @@
-import { generatePath, redirect } from 'react-router-dom';
+import {
+  generatePath, LoaderFunctionArgs, Params, redirect,
+} from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { ensureAuthenticatedUser } from '../../app/routes/data/utils';
-import { extractEnterpriseCustomer, queryAcademiesList, queryContentHighlightSets } from '../../app/data';
+import {
+  extractEnterpriseCustomer,
+  queryAcademiesList,
+  safeEnsureQueryDataAcademiesList,
+  safeEnsureQueryDataContentHighlightSets,
+} from '../../app/data';
 
-type SearchRouteParams<Key extends string = string> = RouteParams<Key> & {
+type SearchRouteParams<Key extends string = string> = Params<Key> & {
   readonly enterpriseSlug: string;
 };
-interface SearchLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface SearchLoaderFunctionArgs extends LoaderFunctionArgs {
   params: SearchRouteParams;
 }
 interface Academy {
@@ -35,19 +42,24 @@ const makeSearchLoader: MakeRouteLoaderFunctionWithQueryClient = function makeSe
       return null;
     }
 
-    const academiesListQuery = queryAcademiesList(enterpriseCustomer.uuid);
-
-    const searchData = [queryClient.ensureQueryData(academiesListQuery)];
+    const searchData = [
+      safeEnsureQueryDataAcademiesList({
+        queryClient,
+        enterpriseCustomer,
+      }),
+    ];
     if (getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
       searchData.push(
-        queryClient.ensureQueryData(
-          queryContentHighlightSets(enterpriseCustomer.uuid),
-        ),
+        safeEnsureQueryDataContentHighlightSets({
+          queryClient,
+          enterpriseCustomer,
+        }),
       );
     }
 
     await Promise.all(searchData);
 
+    const academiesListQuery = queryAcademiesList(enterpriseCustomer.uuid);
     const academies = queryClient.getQueryData<Academy[]>(academiesListQuery.queryKey);
     if (enterpriseCustomer.enableOneAcademy && academies?.length === 1) {
       const redirectPath = generatePath('/:enterpriseSlug/academies/:academyUUID', {

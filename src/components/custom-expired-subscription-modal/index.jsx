@@ -41,7 +41,6 @@ const CustomSubscriptionExpirationModal = () => {
       title={<h3 className="mb-2">{customerAgreement.modalHeaderTextV2}</h3>}
       isOpen={isOpen}
       isBlocking
-      isOverflowVisible={false}
       footerNode={(
         <ActionRow>
           <StatefulButton
@@ -51,6 +50,7 @@ const CustomSubscriptionExpirationModal = () => {
           />
         </ActionRow>
       )}
+      isOverflowVisible={false}
     >
       {/* eslint-disable-next-line react/no-danger */}
       <div dangerouslySetInnerHTML={{

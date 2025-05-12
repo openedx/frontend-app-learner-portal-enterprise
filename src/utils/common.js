@@ -46,11 +46,9 @@ export const sumOfArray = (values) => (values.every(item => typeof item === 'num
   ? values.reduce((prev, next) => prev + next, 0)
   : null);
 
-export const hasValidStartExpirationDates = ({ startDate, expirationDate, endDate }) => {
+export const hasValidStartExpirationDates = ({ startDate, endDate }) => {
   const now = dayjs();
-  // Subscriptions use "expirationDate" while Codes use "endDate"
-  const realEndDate = expirationDate || endDate;
-  return now.isBetween(startDate, realEndDate);
+  return now.isBetween(startDate, endDate);
 };
 
 export const fixedEncodeURIComponent = (str) => encodeURIComponent(str).replace(/[!()*]/g, (c) => `%${ c.charCodeAt(0).toString(16)}`);

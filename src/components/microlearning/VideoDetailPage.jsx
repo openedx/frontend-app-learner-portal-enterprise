@@ -10,7 +10,10 @@ import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { Person, Speed, Timelapse } from '@openedx/paragon/icons';
 import { Link } from 'react-router-dom';
 import {
-  useEnterpriseCustomer, useHasValidLicenseOrSubscriptionRequestsEnabled, useVideoCourseMetadata, useVideoDetails,
+  useEnterpriseCustomer,
+  useHasValidLicenseOrSubscriptionRequestsEnabled,
+  useVideoCourseMetadata,
+  useVideoDetails,
 } from '../app/data';
 import './styles/VideoDetailPage.scss';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
@@ -166,7 +169,7 @@ const VideoDetailPage = () => {
             </div>
           )}
         </article>
-        {isDefinedAndNotNull(courseMetadata.activeCourseRun) && (
+        {isDefinedAndNotNull(courseMetadata?.activeCourseRun) && (
           <article className="col-12 col-lg-3 pr-0 pb-3">
             <div className="d-flex flex-column align-items-start">
               <h3 className="m-0">

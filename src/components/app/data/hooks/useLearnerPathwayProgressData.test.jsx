@@ -1,7 +1,9 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { camelCaseObject } from '@edx/frontend-platform';
+
 import { queryClient } from '../../../../utils/tests';
 import { fetchPathwayProgressDetails } from '../services';
 import { useLearnerPathwayProgressData } from './index';
@@ -19,7 +21,9 @@ const mockLearnerPathwayProgressData = camelCaseObject(LearnerPathwayProgressDat
 describe('useLearnerPathwayProgressData', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
   beforeEach(() => {
@@ -28,15 +32,15 @@ describe('useLearnerPathwayProgressData', () => {
     useParams.mockReturnValue({ pathwayUUID: 'test-pathway-uuid' });
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useLearnerPathwayProgressData(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockLearnerPathwayProgressData,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useLearnerPathwayProgressData(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockLearnerPathwayProgressData,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

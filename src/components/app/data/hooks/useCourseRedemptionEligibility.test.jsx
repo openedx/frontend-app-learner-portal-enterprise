@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -12,14 +13,21 @@ import {
   useCourseRedemptionEligibility,
   useLateEnrollmentBufferDays,
   useEnterpriseCustomerContainsContent,
-} from './index';
-import { transformCourseRedemptionEligibility } from './useCourseRedemptionEligibility';
+  useRedeemablePolicies,
+  useCourseRunKeyQueryParam,
+  useSubscriptions,
+  useCouponCodes,
+} from '.';
 import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useCourseMetadata');
 jest.mock('./useLateEnrollmentBufferDays');
 jest.mock('./useEnterpriseCustomerContainsContent');
+jest.mock('./useCourseRunKeyQueryParam');
+jest.mock('./useRedeemablePolicies');
+jest.mock('./useSubscriptions');
+jest.mock('./useCouponCodes');
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
   fetchCanRedeem: jest.fn().mockResolvedValue(null),
@@ -28,22 +36,41 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(),
 }));
+
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockCourseRunKey = 'course-v1:edX+DemoX+T2024';
+const mockCourseRun = {
+  key: mockCourseRunKey,
+  isMarketable: true,
+  availability: 'Current',
+  enrollmentStart: dayjs().add(10, 'day').toISOString(),
+  enrollmentEnd: dayjs().add(15, 'day').toISOString(),
+  isEnrollable: true,
+  restrictionType: null,
+};
 const mockCourseMetadata = {
   key: 'edX+DemoX',
-  availableCourseRuns: [{
-    key: mockCourseRunKey,
-    isMarketable: true,
-    availability: 'Current',
-    enrollmentStart: dayjs().add(10, 'day').toISOString(),
-    enrollmentEnd: dayjs().add(15, 'day').toISOString(),
-    isEnrollable: true,
-    restrictionType: null,
-  }],
-  activeCourseRun: {
-    key: mockCourseRunKey,
-  },
+  courseRuns: [mockCourseRun],
+  activeCourseRun: mockCourseRun,
+};
+const mockRedeemableSubsidyAccessPolicy = {
+  uuid: 'test-access-policy-uuid',
+  policyRedemptionUrl: 'https://enterprise-access.stage.edx.org/api/v1/policy-redemption/8c4a92c7-3578-407d-9ba1-9127c4e4cc0b/redeem/',
+  isLateRedemptionAllowed: false,
+  policyType: 'PerLearnerSpendCreditAccessPolicy',
+  enterpriseCustomerUuid: mockEnterpriseCustomer.uuid,
+  displayName: 'Learner driven plan --- Open Courses',
+  description: 'Initial Policy Display Name: Learner driven plan --- Open Courses, Initial Policy Value: $10,000, Initial Subsidy Value: $260,000',
+  active: true,
+  retired: false,
+  catalogUuid: 'test-catalog-uuid',
+  subsidyUuid: 'test-subsidy-uuid',
+  accessMethod: 'direct',
+  spendLimit: 1000000,
+  lateRedemptionAllowedUntil: null,
+  perLearnerEnrollmentLimit: null,
+  perLearnerSpendLimit: null,
+  assignmentConfiguration: null,
 };
 const mockCanRedeemData = [{
   contentKey: mockCourseRunKey,
@@ -53,41 +80,20 @@ const mockCanRedeemData = [{
   },
   redemptions: [],
   hasSuccessfulRedemption: false,
-  redeemableSubsidyAccessPolicy: {
-    uuid: 'test-access-policy-uuid',
-    policyRedemptionUrl: 'https://enterprise-access.stage.edx.org/api/v1/policy-redemption/8c4a92c7-3578-407d-9ba1-9127c4e4cc0b/redeem/',
-    isLateRedemptionAllowed: false,
-    policyType: 'PerLearnerSpendCreditAccessPolicy',
-    enterpriseCustomerUuid: mockEnterpriseCustomer.uuid,
-    displayName: 'Learner driven plan --- Open Courses',
-    description: 'Initial Policy Display Name: Learner driven plan --- Open Courses, Initial Policy Value: $10,000, Initial Subsidy Value: $260,000',
-    active: true,
-    retired: false,
-    catalogUuid: 'test-catalog-uuid',
-    subsidyUuid: 'test-subsidy-uuid',
-    accessMethod: 'direct',
-    spendLimit: 1000000,
-    lateRedemptionAllowedUntil: null,
-    perLearnerEnrollmentLimit: null,
-    perLearnerSpendLimit: null,
-    assignmentConfiguration: null,
-  },
+  redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
   canRedeem: true,
   reasons: [],
 }];
 
-const mockExpectedUseCouseRedemptionEligibilityReturn = transformCourseRedemptionEligibility({
-  courseMetadata: mockCourseMetadata,
-  courseRunKey: mockCourseRunKey,
-  canRedeemData: mockCanRedeemData,
-});
-
 describe('useCourseRedemptionEligibility', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </QueryClientProvider>
   );
+
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
@@ -95,19 +101,56 @@ describe('useCourseRedemptionEligibility', () => {
     useParams.mockReturnValue({ courseRunKey: mockCourseRunKey });
     useCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
     useLateEnrollmentBufferDays.mockReturnValue(undefined);
-    useEnterpriseCustomerContainsContent.mockReturnValue({ data: {} });
+    useEnterpriseCustomerContainsContent.mockReturnValue({
+      data: {
+        catalogList: ['test-catalog-uuid'],
+      },
+    });
+    useRedeemablePolicies.mockReturnValue({
+      data: {
+        redeemablePolicies: [mockRedeemableSubsidyAccessPolicy],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          allocatedAssignments: [],
+          hasAllocatedAssignments: false,
+        },
+        expiredPolicies: [],
+        unexpiredPolicies: [],
+      },
+    });
+    useSubscriptions.mockReturnValue({ data: { subscriptionLicense: null } });
+    useCouponCodes.mockReturnValue({ data: { couponCodeAssignments: [] } });
+    useCourseRunKeyQueryParam.mockReturnValue(null);
   });
-  it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
-    await waitForNextUpdate();
 
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockExpectedUseCouseRedemptionEligibilityReturn,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+  it('should handle resolved value correctly', async () => {
+    const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: {
+            isPolicyRedemptionEnabled: true,
+            redeemabilityPerContentKey: [
+              expect.objectContaining({
+                contentKey: mockCourseRunKey,
+                canRedeem: true,
+                redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
+                reasons: [],
+                hasSuccessfulRedemption: false,
+              }),
+            ],
+            availableCourseRuns: [mockCourseRun],
+            redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
+            missingSubsidyAccessPolicyReason: undefined,
+            hasSuccessfulRedemption: false,
+            listPrice: [1],
+          },
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 
   it.each([
@@ -158,10 +201,12 @@ describe('useCourseRedemptionEligibility', () => {
     useParams.mockReturnValue({ courseRunKey });
     fetchCanRedeem.mockResolvedValue(canRedeemData);
 
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current.data.hasSuccessfulRedemption).toEqual(expectedHasSuccessfulRedemption);
+    const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current.data.hasSuccessfulRedemption).toEqual(expectedHasSuccessfulRedemption);
+    });
   });
+
   it.each([
     {
       courseMetadata: mockCourseMetadata,
@@ -190,18 +235,10 @@ describe('useCourseRedemptionEligibility', () => {
   }) => {
     useCourseMetadata.mockReturnValue({ data: courseMetadata });
     fetchCanRedeem.mockResolvedValue(canRedeemData);
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current.data.redeemableSubsidyAccessPolicy).toEqual(expectedRedeemableSubsidyAccessPolicy);
-  });
-  it('should return the original and transformed data when select is passed', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility({
-      select: (data) => data,
-    }), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current.data.original).toEqual(mockCanRedeemData);
-    expect(result.current.data.transformed).toEqual(mockExpectedUseCouseRedemptionEligibilityReturn);
+    const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current.data.redeemableSubsidyAccessPolicy).toEqual(expectedRedeemableSubsidyAccessPolicy);
+    });
   });
 
   it.each([
@@ -223,10 +260,10 @@ describe('useCourseRedemptionEligibility', () => {
       ],
       useCourseMetadataData: {
         ...mockCourseMetadata,
-        availableCourseRuns: [
-          mockCourseMetadata.availableCourseRuns[0],
+        courseRuns: [
+          mockCourseMetadata.courseRuns[0],
           {
-            ...mockCourseMetadata.availableCourseRuns[0],
+            ...mockCourseMetadata.courseRuns[0],
             key: `${mockCourseRunKey}-restricted`,
             restrictionType: ENTERPRISE_RESTRICTION_TYPE,
           },
@@ -258,11 +295,11 @@ describe('useCourseRedemptionEligibility', () => {
       ],
       useCourseMetadataData: {
         ...mockCourseMetadata,
-        availableCourseRuns: [
-          mockCourseMetadata.availableCourseRuns[0],
+        courseRuns: [
+          mockCourseMetadata.courseRuns[0],
           {
-            ...mockCourseMetadata.availableCourseRuns[0],
-            key: `${mockCourseRunKey}-restricted`,
+            ...mockCourseMetadata.courseRuns[0],
+            key: `${mockCourseRunKey}-courseRuns`,
             restrictionType: ENTERPRISE_RESTRICTION_TYPE,
           },
         ],
@@ -286,9 +323,9 @@ describe('useCourseRedemptionEligibility', () => {
       ],
       useCourseMetadataData: {
         ...mockCourseMetadata,
-        availableCourseRuns: [
+        courseRuns: [
           {
-            ...mockCourseMetadata.availableCourseRuns[0],
+            ...mockCourseMetadata.courseRuns[0],
             key: `${mockCourseRunKey}-restricted`,
             restrictionType: ENTERPRISE_RESTRICTION_TYPE,
           },
@@ -317,10 +354,10 @@ describe('useCourseRedemptionEligibility', () => {
       ],
       useCourseMetadataData: {
         ...mockCourseMetadata,
-        availableCourseRuns: [
-          mockCourseMetadata.availableCourseRuns[0],
+        courseRuns: [
+          mockCourseMetadata.courseRuns[0],
           {
-            ...mockCourseMetadata.availableCourseRuns[0],
+            ...mockCourseMetadata.courseRuns[0],
             key: `${mockCourseRunKey}-restricted`,
             restrictionType: 'other-restriction-type',
           },
@@ -345,9 +382,9 @@ describe('useCourseRedemptionEligibility', () => {
       ],
       useCourseMetadataData: {
         ...mockCourseMetadata,
-        availableCourseRuns: [
+        courseRuns: [
           {
-            ...mockCourseMetadata.availableCourseRuns[0],
+            ...mockCourseMetadata.courseRuns[0],
             key: `${mockCourseRunKey}-restricted`,
             restrictionType: ENTERPRISE_RESTRICTION_TYPE,
           },
@@ -369,11 +406,12 @@ describe('useCourseRedemptionEligibility', () => {
     fetchCanRedeem.mockResolvedValue(canRedeemData);
     useCourseMetadata.mockReturnValue({ data: useCourseMetadataData });
 
-    const { result, waitForNextUpdate } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current.data.hasSuccessfulRedemption).toEqual(expectedHasSuccessfulRedemption);
-    expect(
-      result.current.data.availableCourseRuns.map(run => run.key),
-    ).toEqual(expectedAvailableCourseRunKeys);
+    const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current.data.hasSuccessfulRedemption).toEqual(expectedHasSuccessfulRedemption);
+      expect(
+        result.current.data.availableCourseRuns.map(run => run.key),
+      ).toEqual(expectedAvailableCourseRunKeys);
+    });
   });
 });

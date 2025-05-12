@@ -1,6 +1,8 @@
 import { render, screen, act } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom/extend-expect';
+
 import ToastsProvider, { ToastsContext } from './ToastsProvider';
 import Toasts from './Toasts';
 
@@ -32,7 +34,9 @@ describe('ToastsProvider', () => {
     expect(toastsContext.toasts.length).toBe(0);
     expect(screen.queryByText('Hello World')).toBeFalsy();
   });
-  it('should remove toasts when the user clicks', () => {
+
+  it('should remove toasts when the user clicks', async () => {
+    const user = userEvent.setup();
     let toastsContext;
     render(
       <IntlProvider locale="en">
@@ -53,11 +57,10 @@ describe('ToastsProvider', () => {
     expect(toastsContext.toasts[0].message).toBe('Hello World');
     expect(screen.getByText('Hello World')).toBeTruthy();
     const closeButton = screen.getByLabelText('Close');
-    const toastContainer = screen.getByRole('alert');
+    const toastContainerClasses = screen.getAllByRole('alert')[0].className;
+    expect(toastContainerClasses.match(/show/)).toBeTruthy();
 
-    expect(toastContainer.className).toMatch(/show/);
-
-    userEvent.click(closeButton);
-    expect(screen.queryByText('Hello World')).toBeFalsy();
+    await user.click(closeButton);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

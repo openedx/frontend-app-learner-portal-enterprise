@@ -285,7 +285,6 @@ const EnrollModal = ({
       isOpen={isModalOpen}
       closeLabel={intl.formatMessage(messages.modalCancelCta)}
       title={titleText}
-      isOverflowVisible={false}
       footerNode={(
         <ActionRow>
           <Button
@@ -303,6 +302,7 @@ const EnrollModal = ({
         </ActionRow>
       )}
       onClose={dismissModal}
+      isOverflowVisible={false}
     >
       {enrollText}
     </AlertModal>

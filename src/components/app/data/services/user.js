@@ -15,7 +15,6 @@ import { fetchPaginatedData } from './utils';
 export async function fetchLearnerSkillLevels(jobId) {
   const url = `${getConfig().LMS_BASE_URL}/api/user/v1/skill_level/${jobId}/`;
   const response = await getAuthenticatedHttpClient().get(url);
-  // Note: this API is *not* called within a route loader; it does not need a try/catch.
   return camelCaseObject(response.data);
 }
 
@@ -55,11 +54,6 @@ export const fetchNotices = async () => {
  */
 export async function fetchUserEntitlements() {
   const url = `${getConfig().LMS_BASE_URL}/api/entitlements/v1/entitlements/`;
-  try {
-    const { results } = await fetchPaginatedData(url);
-    return results;
-  } catch (error) {
-    logError(error);
-    return [];
-  }
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }

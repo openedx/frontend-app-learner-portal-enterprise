@@ -40,12 +40,13 @@ describe('<CourseAssociatedPrograms />', () => {
     useCourseMetadata.mockReturnValue({ data: { programs: mockPrograms } });
   });
 
-  test('renders programs with title', () => {
+  test('renders programs with title', async () => {
+    const user = userEvent.setup();
     render(<CourseAssociatedProgramsWrapper />);
-    mockPrograms.forEach((program, index) => {
+    mockPrograms.forEach(async (program, index) => {
       expect(screen.queryByText(program.title)).toBeInTheDocument();
       const button = screen.getByText(program.title);
-      userEvent.click(button);
+      await user.click(button);
       expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(index + 1);
     });
   });

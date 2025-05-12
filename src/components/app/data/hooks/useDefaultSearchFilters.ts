@@ -85,7 +85,8 @@ const queryByCatalogQuery = ({
 export default function useDefaultSearchFilters(): string {
   const { refinements, dispatch } = useContext(SearchContext) as SearchContextValue;
   const showAllRefinement = !!refinements[SHOW_ALL_NAME];
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const enterpriseCustomerResult = useEnterpriseCustomer();
+  const enterpriseCustomer = enterpriseCustomerResult.data as EnterpriseCustomer;
   const searchCatalogs = useSearchCatalogs();
   const {
     catalogUuidsToCatalogQueryUuids,
@@ -98,6 +99,7 @@ export default function useDefaultSearchFilters(): string {
       dispatch(setRefinementAction(SHOW_ALL_NAME, 1));
     }
   }, [dispatch, searchCatalogs, showAllRefinement]);
+
   return useMemo(
     () => {
       // If there is a catalog uuid to catalog query uuid mapping, use the secured algolia

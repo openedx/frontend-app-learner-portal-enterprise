@@ -96,7 +96,6 @@ const UnenrollModal = ({
       title="Unenroll from course?"
       isOpen={isOpen}
       onClose={handleClose}
-      isOverflowVisible={false}
       footerNode={(
         <ActionRow>
           <Button
@@ -115,6 +114,7 @@ const UnenrollModal = ({
           </StatefulButton>
         </ActionRow>
       )}
+      isOverflowVisible={false}
     >
       <>
         <Alert

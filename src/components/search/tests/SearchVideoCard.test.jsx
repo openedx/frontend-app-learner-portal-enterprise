@@ -87,10 +87,11 @@ describe('<SearchVideoCard />', () => {
     });
   });
 
-  test('handles card click', () => {
+  test('handles card click', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<SearchVideoCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-video-card');
-    userEvent.click(cardEl);
+    await user.click(cardEl);
     expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/videos/${TEST_AGGREGATION_KEY}/`);
   });
 

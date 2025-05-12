@@ -1,158 +1,114 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Form, Alert, StatefulButton, ActionRow, Button, StandardModal,
 } from '@openedx/paragon';
 import { Error } from '@openedx/paragon/icons';
-
 import { updateEmailSettings } from './data';
 
-class EmailSettingsModal extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      hasEmailsEnabled: false,
-      isSubmitting: false,
-      isSuccessful: false,
-      isFormChanged: false,
-      hasSavedForm: false,
-      error: null,
-    };
-  }
+const EmailSettingsModal = ({
+  onClose,
+  courseRunId,
+  hasEmailsEnabled: initialEmailsEnabled,
+  open,
+}) => {
+  const [hasEmailsEnabled, setHasEmailsEnabled] = useState(initialEmailsEnabled);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccessful, setIsSuccessful] = useState(false);
+  const [isFormChanged, setIsFormChanged] = useState(false);
+  const [hasSavedForm, setHasSavedForm] = useState(false);
+  const [error, setError] = useState(null);
 
-  componentDidUpdate(prevProps) {
-    const { hasEmailsEnabled } = this.props;
-
-    if (hasEmailsEnabled !== prevProps.hasEmailsEnabled) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({
-        hasEmailsEnabled,
-      });
+  useEffect(() => {
+    if (open) {
+      setHasEmailsEnabled(initialEmailsEnabled);
+      setIsFormChanged(false);
+      setHasSavedForm(false);
     }
-  }
+  }, [initialEmailsEnabled, open]);
 
-  getButtonState = () => {
-    const { isSubmitting, isSuccessful } = this.state;
+  const getButtonState = () => {
     if (isSubmitting) {
       return 'pending';
     }
     if (isSuccessful) {
       return 'complete';
     }
-
     return 'default';
   };
 
-  getDisabledStates = () => {
-    const { isFormChanged } = this.state;
-    if (isFormChanged) {
-      return ['pending', 'complete'];
-    }
-    return ['pending', 'complete', 'default'];
-  };
+  const getDisabledStates = () => (isFormChanged ? ['pending', 'complete'] : ['pending', 'complete', 'default']);
 
-  handleSaveButtonClick = () => {
-    const { hasEmailsEnabled } = this.state;
-    const { courseRunId } = this.props; // eslint-disable-line no-shadow
-    this.setState({
-      isSubmitting: true,
-    }, async () => {
-      try {
-        await updateEmailSettings(courseRunId, hasEmailsEnabled);
-        this.setState({
-          isSuccessful: true,
-          isSubmitting: false,
-          isFormChanged: false,
-          hasSavedForm: true,
-          error: null,
-        });
-      } catch (error) {
-        this.setState({
-          isSubmitting: false,
-          isFormChanged: false,
-          error,
-        });
-      }
-    });
-  };
-
-  handleOnClose = () => {
-    const { hasEmailsEnabled, hasSavedForm } = this.state;
-    const { onClose } = this.props;
-    this.setState({
-      isSubmitting: false,
-      isSuccessful: false,
-      isFormChanged: false,
-      hasSavedForm: false,
-      error: null,
-    });
-    if (hasSavedForm) {
-      onClose(hasEmailsEnabled);
-    } else {
-      onClose();
+  const handleSaveButtonClick = async () => {
+    setIsSubmitting(true);
+    try {
+      await updateEmailSettings(courseRunId, hasEmailsEnabled);
+      setIsSuccessful(true);
+      setIsFormChanged(false);
+      setHasSavedForm(true);
+      setError(null);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  handleEmailSettingsChange = (e) => {
-    const { hasEmailsEnabled } = this.state;
+  const handleOnClose = () => {
+    setIsSubmitting(false);
+    setIsSuccessful(false);
+    setIsFormChanged(false);
+    setHasSavedForm(false);
+    setError(null);
+    onClose(hasSavedForm ? hasEmailsEnabled : undefined);
+  };
+
+  const handleEmailSettingsChange = (e) => {
     const isChecked = e.target.checked;
-    this.setState({
-      isSuccessful: false,
-      hasSavedForm: false,
-      isFormChanged: isChecked !== hasEmailsEnabled,
-      hasEmailsEnabled: isChecked,
-    });
+    setIsSuccessful(false);
+    setHasSavedForm(false);
+    setIsFormChanged(isChecked !== initialEmailsEnabled);
+    setHasEmailsEnabled(isChecked);
   };
 
-  render() {
-    const {
-      error, hasEmailsEnabled, isSubmitting,
-    } = this.state;
-    const { open } = this.props;
-
-    return (
-      <StandardModal
-        title="Email settings"
-        isOpen={open}
-        onClose={this.handleOnClose}
-        hasCloseButton
-        isFullscreenOnMobile
-        isOverflowVisible={false}
-        footerNode={(
-          <ActionRow>
-            <Button variant="tertiary" onClick={this.handleOnClose} data-testid="email-setting-modal-close-btn">Close</Button>
-            <StatefulButton
-              labels={{
-                default: 'Save',
-                pending: 'Saving',
-                complete: 'Saved',
-              }}
-              disabledStates={this.getDisabledStates()}
-              state={this.getButtonState()}
-              onClick={this.handleSaveButtonClick}
-            />
-          </ActionRow>
-        )}
-      >
-        {error && (
-          <Alert variant="danger" icon={Error}>
-            An error occurred while saving your email settings. Please try again.
-          </Alert>
-        )}
-        <Form.Group>
-          <Form.Checkbox
-            checked={hasEmailsEnabled}
-            disabled={isSubmitting}
-            onChange={this.handleEmailSettingsChange}
-            className="email-checkbox"
-          >
-            Receive course emails such as reminders, schedule updates, and other critical announcements.
-          </Form.Checkbox>
-        </Form.Group>
-      </StandardModal>
-    );
-  }
-}
+  return (
+    <StandardModal
+      title="Email settings"
+      isOpen={open}
+      onClose={handleOnClose}
+      hasCloseButton
+      footerNode={(
+        <ActionRow>
+          <Button variant="tertiary" onClick={handleOnClose} data-testid="email-setting-modal-close-btn">Close</Button>
+          <StatefulButton
+            labels={{ default: 'Save', pending: 'Saving', complete: 'Saved' }}
+            disabledStates={getDisabledStates()}
+            state={getButtonState()}
+            onClick={handleSaveButtonClick}
+          />
+        </ActionRow>
+      )}
+      isOverflowVisible={false}
+      isFullscreenOnMobile
+    >
+      {error && (
+        <Alert variant="danger" icon={Error}>
+          An error occurred while saving your email settings. Please try again.
+        </Alert>
+      )}
+      <Form.Group>
+        <Form.Checkbox
+          checked={hasEmailsEnabled}
+          disabled={isSubmitting}
+          onChange={handleEmailSettingsChange}
+          className="email-checkbox"
+        >
+          Receive course emails such as reminders, schedule updates, and other critical announcements.
+        </Form.Checkbox>
+      </Form.Group>
+    </StandardModal>
+  );
+};
 
 EmailSettingsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
@@ -165,7 +121,5 @@ EmailSettingsModal.defaultProps = {
   hasEmailsEnabled: false,
   open: false,
 };
-
-export { EmailSettingsModal };
 
 export default EmailSettingsModal;

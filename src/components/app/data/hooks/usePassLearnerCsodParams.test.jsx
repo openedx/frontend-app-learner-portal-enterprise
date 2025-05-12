@@ -1,9 +1,8 @@
-import { renderHook } from '@testing-library/react-hooks';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react';
 import { useLocation, useParams } from 'react-router-dom';
+
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
-import { queryClient } from '../../../../utils/tests';
 import { updateUserCsodParams } from '../services';
 import usePassLearnerCsodParams from './usePassLearnerCsodParams';
 
@@ -25,11 +24,6 @@ const mockedSubdomain = 'test-subdomain';
 const mockedSearchString = new URLSearchParams(`?userGuid=${mockedUserGuid}&sessionToken=${mockedSessionToken}&callbackUrl=${mockedCallbackUrl}&subdomain=${mockedSubdomain}`);
 
 describe('usePassLearnerCsodParams', () => {
-  const Wrapper = ({ children }) => (
-    <QueryClientProvider client={queryClient()}>
-      {children}
-    </QueryClientProvider>
-  );
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
@@ -39,7 +33,7 @@ describe('usePassLearnerCsodParams', () => {
   });
   it('should call performCsodParamsUpdate with expected data', () => {
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
-    renderHook(() => usePassLearnerCsodParams(), { wrapper: Wrapper });
+    renderHook(() => usePassLearnerCsodParams());
     expect(updateUserCsodParams).toHaveBeenCalledTimes(1);
     expect(updateUserCsodParams).toHaveBeenCalledWith(
       {
@@ -91,7 +85,7 @@ describe('usePassLearnerCsodParams', () => {
     if (courseKey) {
       useParams.mockReturnValue({ courseKey });
     }
-    renderHook(() => usePassLearnerCsodParams(), { wrapper: Wrapper });
+    renderHook(() => usePassLearnerCsodParams());
 
     expect(updateUserCsodParams).not.toHaveBeenCalled();
   });

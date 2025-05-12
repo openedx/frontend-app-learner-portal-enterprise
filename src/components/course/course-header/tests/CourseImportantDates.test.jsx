@@ -2,10 +2,10 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import CourseImportantDates from '../CourseImportantDates';
-import { renderWithRouterProvider } from '../../../../utils/tests';
+import { generateTestPermutations, renderWithRouterProvider } from '../../../../utils/tests';
 import { authenticatedUserFactory } from '../../../app/data/services/data/__factories__';
 import { useCourseMetadata } from '../../../app/data';
 import {
@@ -26,6 +26,7 @@ jest.mock('../../../app/data', () => ({
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(),
+  useSearchParams: jest.fn(),
 }));
 
 jest.mock('../../data', () => ({
@@ -107,33 +108,56 @@ describe('<CourseImportantDates />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
+    useSearchParams.mockReturnValue([new URLSearchParams(), jest.fn()]);
     useCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
+    const hasAllocatedAssignments = mockAllocatedAssignments.length > 0;
     useIsCourseAssigned.mockReturnValue({
+      isCourseAssigned: hasAllocatedAssignments,
+      shouldDisplayAssignmentsOnly: hasAllocatedAssignments,
       allocatedCourseRunAssignments: mockAllocatedAssignments,
       allocatedCourseRunAssignmentKeys: mockAllocatedAssignments.map((assignment) => assignment.contentKey),
-      hasAssignedCourseRuns: mockAllocatedAssignments.length > 0,
+      hasAssignedCourseRuns: hasAllocatedAssignments,
     });
   });
 
-  it('does not render without run-based assignments', () => {
+  it.each(
+    generateTestPermutations({
+      isCourseAssigned: [false, true],
+      shouldDisplayAssignmentsOnly: [false, true],
+      hasAssignedCourseRuns: [false, true],
+    }),
+  )('renders depending on whether run-based assignments are allocated/prioritized (%s)', ({
+    isCourseAssigned,
+    shouldDisplayAssignmentsOnly,
+    hasAssignedCourseRuns,
+  }) => {
+    const mockAllocatedCourseRunAssignments = [];
+    if (hasAssignedCourseRuns) {
+      mockAllocatedCourseRunAssignments.push(...mockAllocatedAssignments);
+    }
+    const mockAllocatedCourseRunAssignmentKeys = mockAllocatedCourseRunAssignments.map(
+      (assignment) => assignment.contentKey,
+    );
     useIsCourseAssigned.mockReturnValue({
-      allocatedCourseRunAssignments: [],
-      allocatedCourseRunAssignmentKeys: [],
-      hasAssignedCourseRuns: false,
+      isCourseAssigned,
+      shouldDisplayAssignmentsOnly,
+      allocatedCourseRunAssignments: mockAllocatedCourseRunAssignments,
+      allocatedCourseRunAssignmentKeys: mockAllocatedCourseRunAssignmentKeys,
+      hasAssignedCourseRuns,
     });
+    const shouldDisplayImportantDates = isCourseAssigned && shouldDisplayAssignmentsOnly && hasAssignedCourseRuns;
     const { container } = renderWithRouterProvider(<CourseImportantDatesWrapper />);
-    expect(container).toBeEmptyDOMElement();
-  });
+    if (shouldDisplayImportantDates) {
+      expect(container).not.toBeEmptyDOMElement();
+      expect(screen.getByText('Important dates')).toBeInTheDocument();
+      expect(screen.getByText('Enroll-by date')).toBeInTheDocument();
+      expect(screen.getByText('Course starts')).toBeInTheDocument();
 
-  it('renders expected dates for run-based assignments', () => {
-    renderWithRouterProvider(<CourseImportantDatesWrapper />);
-
-    expect(screen.getByText('Important dates')).toBeInTheDocument();
-    expect(screen.getByText('Enroll-by date')).toBeInTheDocument();
-    expect(screen.getByText('Course starts')).toBeInTheDocument();
-
-    expect(screen.getByText(dayjs(now).format(DATETIME_FORMAT))).toBeInTheDocument();
-    expect(screen.getByText(dayjs(mockCourseStartDate).format(DATE_FORMAT))).toBeInTheDocument();
+      expect(screen.getByText(dayjs(now).format(DATETIME_FORMAT))).toBeInTheDocument();
+      expect(screen.getByText(dayjs(mockCourseStartDate).format(DATE_FORMAT))).toBeInTheDocument();
+    } else {
+      expect(container).toBeEmptyDOMElement();
+    }
   });
 
   it.each([{

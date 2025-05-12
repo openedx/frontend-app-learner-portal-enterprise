@@ -21,12 +21,12 @@ import {
 
 const props = {
   labels: {
+    loadingApplicableSubsidy: 'Please wait...',
     request: 'Request enrollment',
-    pending: 'Requesting',
+    pending: 'Requesting...',
     requested: 'Awaiting approval',
   },
-  disabledStates: ['requested'],
-  variant: 'primary',
+  disabledStates: ['loadingApplicableSubsidy', 'pending', 'requested'],
   className: 'mb-4 mt-1',
 };
 
@@ -37,7 +37,10 @@ const SubsidyRequestButton = () => {
   const [loadingRequest, setLoadingRequest] = useState(false);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: browseAndRequestConfiguration } = useBrowseAndRequestConfiguration();
-  const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  const {
+    userSubsidyApplicableToCourse,
+    isPending: isPendingUserSubsidyApplicableToCourse,
+  } = useUserSubsidyApplicableToCourse();
   const { data: courseMetadata } = useCourseMetadata();
   const { data: { enterpriseCourseEnrollments: userEnrollments } } = useEnterpriseCourseEnrollments();
   const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseMetadata.key);
@@ -94,9 +97,13 @@ const SubsidyRequestButton = () => {
    * @returns {string} one of `request`, `pending`, or `requested`
    */
   const getButtonState = () => {
+    if (isPendingUserSubsidyApplicableToCourse) {
+      return 'loadingApplicableSubsidy';
+    }
     if (loadingRequest) {
       return 'pending';
-    } if (userHasSubsidyRequest) {
+    }
+    if (userHasSubsidyRequest) {
       return 'requested';
     }
     return 'request';
@@ -123,7 +130,11 @@ const SubsidyRequestButton = () => {
   };
 
   return (
-    <StatefulButton {...props} state={getButtonState()} onClick={handleRequestButtonClick} />
+    <StatefulButton
+      {...props}
+      state={getButtonState()}
+      onClick={handleRequestButtonClick}
+    />
   );
 };
 

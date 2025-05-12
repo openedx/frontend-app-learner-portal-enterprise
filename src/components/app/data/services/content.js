@@ -1,6 +1,5 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { logError } from '@edx/frontend-platform/logging';
 import { validate as isValidUUID } from 'uuid';
 
 /**
@@ -34,14 +33,6 @@ export async function fetchEnterpriseCustomerContainsContent(enterpriseId, conte
   }
 
   const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseId}/contains_content_items/?${queryParams.toString()}`;
-  try {
-    const response = await getAuthenticatedHttpClient().get(url);
-    return camelCaseObject(response.data);
-  } catch (error) {
-    logError(error);
-    return {
-      containsContentItems: false,
-      catalogList: [],
-    };
-  }
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
 }

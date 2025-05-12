@@ -22,9 +22,9 @@ const CouponCodesWarningModal = ({ isCouponCodeWarningModalOpen, onCouponCodeWar
     <StandardModal
       title={renderTitle()}
       isOpen={isCouponCodeWarningModalOpen}
-      onClose={onCouponCodeWarningModalClose}
       hasCloseButton={false}
       isOverflowVisible={false}
+      onClose={onCouponCodeWarningModalClose}
       footerNode={(
         <ActionRow>
           <Button onClick={onCouponCodeWarningModalClose}>OK</Button>

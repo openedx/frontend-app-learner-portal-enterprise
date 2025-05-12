@@ -29,6 +29,8 @@ const {
  * @param {React.Component} args.enrollLabel label component to use.
  * @param {string} args.userEnrollment enrollment if applicable, or null.
  * @param {string} args.subscriptionLicense user license if applicable, or null.
+ * @param {string} args.courseRunKey course run key if applicable, or null.
+ * @param {number} args.courseRunPrice course run price if applicable.
  */
 const EnrollAction = ({
   enrollmentType,
@@ -36,12 +38,14 @@ const EnrollAction = ({
   enrollLabel,
   userEnrollment,
   subscriptionLicense,
+  courseRunKey,
   courseRunPrice,
 }) => {
   switch (enrollmentType) {
     case TO_COURSEWARE_PAGE: // scenario 1: already enrolled
       return (
         <ToCoursewarePage
+          courseRunKey={courseRunKey}
           enrollLabel={enrollLabel}
           enrollmentUrl={enrollmentUrl}
           userEnrollment={userEnrollment}
@@ -49,12 +53,13 @@ const EnrollAction = ({
         />
       );
     case VIEW_ON_DASHBOARD: // scenario 2: already enrolled
-      return <ViewOnDashboard enrollLabel={enrollLabel} />;
+      return <ViewOnDashboard courseRunKey={courseRunKey} enrollLabel={enrollLabel} />;
     case ENROLL_DISABLED: // scenario 3 and 4: no enrollment possible
       return <EnrollBtnDisabled enrollLabel={enrollLabel} />;
     case TO_DATASHARING_CONSENT:
       return (
         <ToDataSharingConsentPage
+          courseRunKey={courseRunKey}
           enrollLabel={enrollLabel}
           enrollmentUrl={enrollmentUrl}
         />
@@ -62,12 +67,14 @@ const EnrollAction = ({
     case TO_EXECUTIVE_EDUCATION_2U_ENROLLMENT:
       return (
         <ToExecutiveEducation2UEnrollment
+          courseRunKey={courseRunKey}
           enrollmentUrl={enrollmentUrl}
         />
       );
     case TO_ECOM_BASKET:
       return (
         <ToEcomBasketPage
+          courseRunKey={courseRunKey}
           enrollmentUrl={enrollmentUrl}
           enrollLabel={enrollLabel}
           courseRunPrice={courseRunPrice}
@@ -80,6 +87,7 @@ const EnrollAction = ({
 };
 
 EnrollAction.propTypes = {
+  courseRunKey: PropTypes.string.isRequired,
   enrollmentType: PropTypes.string.isRequired,
   enrollLabel: PropTypes.node.isRequired,
   enrollmentUrl: PropTypes.string,

@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -50,7 +51,9 @@ const mockCanRedeemData = [{
 
 const Wrapper = ({ children }) => (
   <QueryClientProvider client={queryClient()}>
-    {children}
+    <Suspense fallback={<div>Loading...</div>}>
+      {children}
+    </Suspense>
   </QueryClientProvider>
 );
 
@@ -70,11 +73,10 @@ describe('useCanUpgradeWithLearnerCredit', () => {
       // mock the custom select transform function to simply return the same transformed data
       queryOptions.select = jest.fn(data => data.transformed);
     }
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => useCanUpgradeWithLearnerCredit(mockCourseRunKey, queryOptions),
       { wrapper: Wrapper },
     );
-    await waitForNextUpdate();
     const expectedTransformedResult = {
       applicableSubsidyAccessPolicy: {
         redeemableSubsidyAccessPolicy: mockCanRedeemData[0].redeemableSubsidyAccessPolicy,
@@ -83,16 +85,20 @@ describe('useCanUpgradeWithLearnerCredit', () => {
       listPrice: mockCanRedeemData[0].listPrice.usd,
     };
     if (hasCustomSelect) {
-      expect(queryOptions.select).toHaveBeenCalledWith({
-        original: mockCanRedeemData,
-        transformed: expectedTransformedResult,
+      await waitFor(() => {
+        expect(queryOptions.select).toHaveBeenCalledWith({
+          original: mockCanRedeemData,
+          transformed: expectedTransformedResult,
+        });
       });
     }
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: expectedTransformedResult,
-        isLoading: false,
-      }),
-    );
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: expectedTransformedResult,
+          isPending: false,
+        }),
+      );
+    });
   });
 });

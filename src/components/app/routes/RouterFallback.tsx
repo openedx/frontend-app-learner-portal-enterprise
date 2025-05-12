@@ -1,10 +1,10 @@
 import { useNProgressLoader, UseNProgressLoaderOptions } from '../data';
 
 interface RouterFallbackProps {
-  loaderOptions: UseNProgressLoaderOptions;
+  loaderOptions?: UseNProgressLoaderOptions;
 }
 
-const RouterFallback = ({ loaderOptions }: RouterFallbackProps) => {
+const RouterFallback = ({ loaderOptions = {} as UseNProgressLoaderOptions }: RouterFallbackProps) => {
   useNProgressLoader(loaderOptions);
   return null;
 };

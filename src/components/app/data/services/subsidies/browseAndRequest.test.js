@@ -34,12 +34,6 @@ describe('fetchBrowseAndRequestConfiguration', () => {
     const result = await fetchBrowseAndRequestConfiguration(mockEnterpriseId);
     expect(result).toEqual(mockConfig);
   });
-
-  it.each([404, 500])('returns null when error', async (httpStatusCode) => {
-    axiosMock.onGet(BNR_CONFIG_URL).reply(httpStatusCode);
-    const result = await fetchBrowseAndRequestConfiguration(mockEnterpriseId);
-    expect(result).toBeNull();
-  });
 });
 
 describe('fetchLicenseRequests', () => {

@@ -8,6 +8,7 @@ import {
   AssignedCourseCard,
   CompletedCourseCard,
   InProgressCourseCard,
+  UpgradeableInProgressCourseCard,
   RequestedCourseCard,
   SavedForLaterCourseCard,
   UpcomingCourseCard,
@@ -20,7 +21,10 @@ import DelayedFallbackContainer from '../../../DelayedFallback/DelayedFallbackCo
 
 const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.upcoming]: UpcomingCourseCard,
-  [COURSE_STATUSES.inProgress]: InProgressCourseCard,
+  [COURSE_STATUSES.inProgress]: {
+    default: InProgressCourseCard,
+    upgradeable: UpgradeableInProgressCourseCard,
+  },
   [COURSE_STATUSES.completed]: CompletedCourseCard,
   [COURSE_STATUSES.savedForLater]: SavedForLaterCourseCard,
   [COURSE_STATUSES.requested]: RequestedCourseCard,
@@ -102,9 +106,16 @@ const CourseSection = ({
   };
 
   const renderCourseCards = () => courseRuns.map(courseRun => {
-    const Component = CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
     const isAuditEnrollment = isEnrollmentUpgradeable(courseRun);
-    if (isAuditEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
+    const isInProgressEnrollment = courseRun.courseRunStatus === COURSE_STATUSES.inProgress;
+    const inProgressCourseRunCardVariant = isAuditEnrollment && isInProgressEnrollment ? 'upgradeable' : 'default';
+
+    // Determine the component to render based on course status and enrollment type.
+    const Component = isInProgressEnrollment
+      ? CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus][inProgressCourseRunCardVariant]
+      : CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
+
+    if (inProgressCourseRunCardVariant === 'upgradeable') {
       return (
         <Suspense
           key={courseRun.courseRunId}

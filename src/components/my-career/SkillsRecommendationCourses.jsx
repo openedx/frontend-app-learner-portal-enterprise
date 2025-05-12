@@ -35,7 +35,7 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
       async function fetchCourses() {
         setIsLoading(true);
         const { hits, nbHits } = await index.search('', {
-          filters: `content_type:course AND ${filters}`, // eslint-disable-line object-shorthand
+          filters: `content_type:course AND ${filters}`,
           facetFilters: [
             skillsFacetFilter,
           ],

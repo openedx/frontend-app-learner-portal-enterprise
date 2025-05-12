@@ -3,6 +3,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 
 import StatefulEnroll from '../../../stateful-enroll';
 import { messages } from './data';
+import { EVENT_NAMES } from '../../data';
 
 /**
  * Handles upgrading the user's enrollment from audit to paid (e.g., verified) mode for
@@ -10,7 +11,6 @@ import { messages } from './data';
  * back to rendering a hyperlink to the courseware.
  */
 const UpgradeAndNavigateToCourseware = ({
-  subsidyAccessPolicy,
   contentKey,
   onUpgradeClick,
   onUpgradeSuccess,
@@ -19,7 +19,6 @@ const UpgradeAndNavigateToCourseware = ({
   const intl = useIntl();
   return (
     <StatefulEnroll
-      subsidyAccessPolicy={subsidyAccessPolicy}
       labels={{
         default: intl.formatMessage(messages.viewCourse),
         pending: intl.formatMessage(messages.upgrading),
@@ -29,13 +28,15 @@ const UpgradeAndNavigateToCourseware = ({
       onClick={onUpgradeClick}
       onSuccess={onUpgradeSuccess}
       onError={onUpgradeError}
+      options={{
+        trackSearchConversionEventName: EVENT_NAMES.sucessfulUpgradeEnrollment,
+      }}
     />
   );
 };
 
 UpgradeAndNavigateToCourseware.propTypes = {
   contentKey: PropTypes.string.isRequired,
-  subsidyAccessPolicy: PropTypes.shape().isRequired,
   onUpgradeClick: PropTypes.func.isRequired,
   onUpgradeSuccess: PropTypes.func.isRequired,
   onUpgradeError: PropTypes.func.isRequired,

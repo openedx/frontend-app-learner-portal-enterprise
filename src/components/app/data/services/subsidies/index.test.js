@@ -3,7 +3,6 @@ import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-import { logError } from '@edx/frontend-platform/logging';
 import { fetchEnterpriseOffers, fetchRedeemablePolicies } from '.';
 import {
   ENTERPRISE_OFFER_STATUS,
@@ -61,22 +60,6 @@ describe('fetchEnterpriseOffers', () => {
       hasNoEnterpriseOffersBalance: currentEnterpriseOffers.every(offer => offer.isOutOfBalance),
     };
     expect(result).toEqual(expectedResults);
-  });
-
-  it('returns array with empty data on error', async () => {
-    const expectedEmptyResult = {
-      canEnrollWithEnterpriseOffers: false,
-      currentEnterpriseOffers: [],
-      enterpriseOffers: [],
-      hasCurrentEnterpriseOffers: false,
-      hasLowEnterpriseOffersBalance: false,
-      hasNoEnterpriseOffersBalance: false,
-    };
-    axiosMock.onGet(ENTERPRISE_OFFERS_URL).reply(500);
-    const result = await fetchEnterpriseOffers(mockEnterpriseId);
-    expect(logError).toHaveBeenCalledTimes(1);
-    expect(logError).toHaveBeenCalledWith(new Error('Request failed with status code 500'));
-    expect(result).toEqual(expectedEmptyResult);
   });
 });
 
@@ -139,37 +122,5 @@ describe('fetchRedeemablePolicies', () => {
       },
     };
     expect(result).toEqual(expectedRedeemablePolicies);
-  });
-
-  it('returns empty array on error', async () => {
-    const userID = 3;
-    const queryParams = new URLSearchParams({
-      enterprise_customer_uuid: mockEnterpriseId,
-      lms_user_id: userID,
-    });
-    const POLICY_REDEMPTION_URL = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/credits_available/?${queryParams.toString()}`;
-    axiosMock.onGet(POLICY_REDEMPTION_URL).reply(500);
-    const result = await fetchRedeemablePolicies(mockEnterpriseId, userID);
-    expect(result).toEqual({
-      redeemablePolicies: [],
-      expiredPolicies: [],
-      unexpiredPolicies: [],
-      learnerContentAssignments: {
-        assignments: [],
-        hasAssignments: false,
-        allocatedAssignments: [],
-        hasAllocatedAssignments: false,
-        acceptedAssignments: [],
-        hasAcceptedAssignments: false,
-        canceledAssignments: [],
-        hasCanceledAssignments: false,
-        expiredAssignments: [],
-        hasExpiredAssignments: false,
-        erroredAssignments: [],
-        hasErroredAssignments: false,
-        assignmentsForDisplay: [],
-        hasAssignmentsForDisplay: false,
-      },
-    });
   });
 });

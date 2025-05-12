@@ -2,9 +2,8 @@ import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { resetMockReactInstantSearch, setFakeHits } from '../../skills-quiz/__mocks__/react-instantsearch-dom';
-import { generateTestPermutations, queryClient, renderWithRouter } from '../../../utils/tests';
+import { generateTestPermutations, renderWithRouter } from '../../../utils/tests';
 import '@testing-library/jest-dom';
 import Search from '../Search';
 import {
@@ -63,15 +62,13 @@ const SearchWrapper = ({
   searchContext = searchContext4,
   children,
 }) => (
-  <QueryClientProvider client={queryClient()}>
-    <IntlProvider locale="en">
-      <AppContext.Provider value={appState}>
-        <SearchContext.Provider value={searchContext}>
-          {children}
-        </SearchContext.Provider>
-      </AppContext.Provider>
-    </IntlProvider>
-  </QueryClientProvider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appState}>
+      <SearchContext.Provider value={searchContext}>
+        {children}
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockFilter = `enterprise_customer_uuids: ${mockEnterpriseCustomer.uuid}`;

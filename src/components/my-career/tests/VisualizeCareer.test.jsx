@@ -198,7 +198,7 @@ describe('<VisualizeCareer />', () => {
   });
 
   it('renders the LoadingSpinner component when data is not loaded yet', () => {
-    useLearnerSkillLevels.mockReturnValue({ data: null, isLoading: true });
+    useLearnerSkillLevels.mockReturnValue({ data: null, isPending: true });
     renderWithRouter(<VisualizeCareerWithContext />);
     expect(screen.getByRole('status')).toBeInTheDocument();
   });

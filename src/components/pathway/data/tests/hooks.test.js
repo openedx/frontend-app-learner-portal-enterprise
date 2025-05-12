@@ -2,7 +2,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 
 import { useLearnerPathwayData } from '../hooks';
 import { TEST_PATHWAY_DATA } from '../../tests/constants';
@@ -32,9 +32,10 @@ describe('useLearnerPathwayData', () => {
 
   it('returns correct data', async () => {
     const learnerPathwayUuid = '9d7c7c42-682d-4fa4-a133-2913e939f771';
-    const { result, waitForNextUpdate } = renderHook(() => useLearnerPathwayData({ learnerPathwayUuid }));
-    await waitForNextUpdate();
-    expect(result.current).toEqual([camelCaseObject(TEST_PATHWAY_DATA), false, undefined]);
+    const { result } = renderHook(() => useLearnerPathwayData({ learnerPathwayUuid }));
+    await waitFor(() => {
+      expect(result.current).toEqual([camelCaseObject(TEST_PATHWAY_DATA), false, undefined]);
+    });
   });
 
   it('returns error if api call fails', async () => {
@@ -42,8 +43,9 @@ describe('useLearnerPathwayData', () => {
     axiosMock.onGet(LEARNER_PATHWAY_API_URL).reply(() => { throw error; });
 
     const learnerPathwayUuid = '9d7c7c42-682d-4fa4-a133-2913e939f771';
-    const { result, waitForNextUpdate } = renderHook(() => useLearnerPathwayData({ learnerPathwayUuid }));
-    await waitForNextUpdate();
-    expect(result.current[2]).toBe(error);
+    const { result } = renderHook(() => useLearnerPathwayData({ learnerPathwayUuid }));
+    await waitFor(() => {
+      expect(result.current[2]).toBe(error);
+    });
   });
 });

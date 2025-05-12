@@ -5,11 +5,15 @@ import '@testing-library/jest-dom/extend-expect';
 
 import StatefulEnroll from './StatefulEnroll';
 import { useStatefulEnroll } from './data';
+import { useUserSubsidyApplicableToCourse } from '../course/data';
 
 const mockRedeem = jest.fn();
 jest.mock('./data', () => ({
   ...jest.requireActual('./data'),
-  useStatefulEnroll: jest.fn(() => ({ redeem: mockRedeem })),
+  useStatefulEnroll: jest.fn(() => mockRedeem),
+}));
+jest.mock('../course/data', () => ({
+  useUserSubsidyApplicableToCourse: jest.fn(),
 }));
 
 const mockCallbackProps = {
@@ -27,7 +31,6 @@ const StatefulEnrollWrapper = (props) => (
   <IntlProvider locale="en">
     <StatefulEnroll
       contentKey={MOCK_COURSE_RUN_KEY}
-      subsidyAccessPolicy={MOCK_SUBSIDY_ACCESS_POLICY}
       {...mockCallbackProps}
       {...props}
     />
@@ -37,12 +40,14 @@ const StatefulEnrollWrapper = (props) => (
 describe('StatefulEnroll', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useUserSubsidyApplicableToCourse.mockReturnValue(MOCK_SUBSIDY_ACCESS_POLICY);
   });
 
   const clickEnrollButton = async () => {
     expect(useStatefulEnroll).toHaveBeenCalledTimes(1);
     const enrollBtn = screen.getByText('Enroll');
-    userEvent.click(enrollBtn);
+    const user = userEvent.setup();
+    await user.click(enrollBtn);
     const onClickSpy = jest.spyOn(mockCallbackProps, 'onClick');
     expect(onClickSpy).toHaveBeenCalledTimes(1);
     expect(mockRedeem).toHaveBeenCalledTimes(1);

@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseCuration } from '../services';
@@ -22,7 +23,9 @@ const mockEnterpriseCurations = {
 };
 const Wrapper = ({ children }) => (
   <QueryClientProvider client={queryClient()}>
-    {children}
+    <Suspense fallback={<div>Loading...</div>}>
+      {children}
+    </Suspense>
   </QueryClientProvider>
 );
 
@@ -34,16 +37,16 @@ describe('useContentHighlightsConfiguration', () => {
     jest.clearAllMocks();
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useContentHighlightsConfiguration(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockEnterpriseCurations,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useContentHighlightsConfiguration(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockEnterpriseCurations,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });
 
@@ -52,16 +55,16 @@ describe('useCanOnlyViewHighlights', () => {
     jest.clearAllMocks();
   });
   it('should handle resolved value correctly when isHighlightFeatureActive is enabled', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useCanOnlyViewHighlights(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: mockEnterpriseCurations.canOnlyViewHighlightSets,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useCanOnlyViewHighlights(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: mockEnterpriseCurations.canOnlyViewHighlightSets,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
   it('should handle resolved value correctly when isHighlightFeatureActive is disabled', async () => {
     const updatedMockEnterpriseCuration = {
@@ -69,29 +72,29 @@ describe('useCanOnlyViewHighlights', () => {
       isHighlightFeatureActive: false,
     };
     fetchEnterpriseCuration.mockResolvedValue(updatedMockEnterpriseCuration);
-    const { result, waitForNextUpdate } = renderHook(() => useCanOnlyViewHighlights(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: false,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useCanOnlyViewHighlights(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: false,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
   it('should handle resolved value correctly when isHighlightFeatureActive is not present in the object', async () => {
     delete mockEnterpriseCurations.isHighlightFeatureActive;
     fetchEnterpriseCuration.mockResolvedValue(mockEnterpriseCurations);
-    const { result, waitForNextUpdate } = renderHook(() => useCanOnlyViewHighlights(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-
-    expect(result.current).toEqual(
-      expect.objectContaining({
-        data: false,
-        isLoading: false,
-        isFetching: false,
-      }),
-    );
+    const { result } = renderHook(() => useCanOnlyViewHighlights(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          data: false,
+          isPending: false,
+          isFetching: false,
+        }),
+      );
+    });
   });
 });

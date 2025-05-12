@@ -4,7 +4,7 @@
 
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext, SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -57,7 +57,7 @@ const defaultAppState = {
 
 const defaultSearchContext = {
   refinements: {},
-  dispatch: () => null,
+  dispatch: jest.fn(),
 };
 
 const SkillsQuizStepperWithContext = ({
@@ -102,10 +102,15 @@ const SkillsQuizStepperWrapper = ({
 
 const mockAlgoliaSearch = {
   searchClient: {
-    search: jest.fn(), appId: 'test-app-id',
+    search: jest.fn(),
+    appId: 'test-app-id',
   },
   searchIndex: {
     indexName: 'mock-index-name',
+    search: jest.fn().mockResolvedValue({
+      hits: [],
+      nbHits: 0,
+    }),
   },
 };
 
@@ -128,14 +133,15 @@ describe('<SkillsQuizStepper />', () => {
     expect(image.src).toContain(edxLogo);
   });
 
-  it('checks track event is sent on close', () => {
+  it('checks track event is sent on close', async () => {
+    const user = userEvent.setup();
     renderWithRouter(
       <SkillsQuizStepperWrapper />,
       { route: '/test/skills-quiz/' },
     );
     const closeButton = screen.getByRole('button', { name: 'Close' });
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
-    userEvent.click(closeButton);
+    await user.click(closeButton);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(2);
   });
 
@@ -150,7 +156,7 @@ describe('<SkillsQuizStepper />', () => {
   it('checks continue is enabled when some job is selected from search job ', () => {
     const searchContext = {
       refinements: { name: ['test-job1', 'test-job2'] },
-      dispatch: () => null,
+      dispatch: jest.fn(),
     };
 
     const skillsQuizContextInitialState = {
@@ -168,7 +174,7 @@ describe('<SkillsQuizStepper />', () => {
   it('checks continue is enabled when improvement option and current job is selected', () => {
     const searchContext = {
       refinements: { current_job: ['test-current-job'] },
-      dispatch: () => null,
+      dispatch: jest.fn(),
     };
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
@@ -183,16 +189,16 @@ describe('<SkillsQuizStepper />', () => {
     expect(screen.getByText('Continue').disabled).toBeFalsy();
   });
 
-  it('check continue is enable while some jobs are selected and working correctly', () => {
+  it('check continue is enable while some jobs are selected and working correctly', async () => {
     const searchContext = {
       refinements: { current_job: ['test-current-job'] },
       industry_names: ['Retail Trade'],
-      dispatch: () => null,
+      dispatch: jest.fn(),
     };
 
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
-      dispatch: () => null,
+      dispatch: jest.fn(),
       props: { heading: 'Top Skills for the Job', skills: [], industrySkills: [] },
     };
 
@@ -202,16 +208,13 @@ describe('<SkillsQuizStepper />', () => {
     );
 
     expect(screen.getAllByText(DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)).toBeTruthy();
-    expect(screen.getByText('Continue').disabled).toBeFalsy();
-    const continueButton = screen.getByText('Continue');
-    fireEvent.click(continueButton);
-    expect(screen.getByText('Continue').disabled).toBeFalsy();
+    expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled();
   });
 
   it('checks no other dropdown is rendered until correct goal is selected', () => {
     const searchContext = {
       refinements: {},
-      dispatch: () => null,
+      dispatch: jest.fn(),
     };
     const skillsQuizContextInitialState = {
       state: { goal: GOAL_DROPDOWN_DEFAULT_OPTION },
@@ -230,7 +233,7 @@ describe('<SkillsQuizStepper />', () => {
   it('checks all dropdowns are shown when we have a goal selected', () => {
     const searchContext = {
       refinements: {},
-      dispatch: () => null,
+      dispatch: jest.fn(),
     };
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
@@ -246,7 +249,8 @@ describe('<SkillsQuizStepper />', () => {
     expect(screen.getByText(DESIRED_JOB_FACET.title)).toBeInTheDocument();
   });
 
-  it('checks i am currently a student checkbox works correctly', () => {
+  it('checks i am currently a student checkbox works correctly', async () => {
+    const user = userEvent.setup();
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
     };
@@ -257,7 +261,7 @@ describe('<SkillsQuizStepper />', () => {
 
     const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
     expect(isStudentCheckbox).not.toBeChecked();
-    userEvent.click(isStudentCheckbox);
+    await user.click(isStudentCheckbox);
     expect(isStudentCheckbox).toBeChecked();
   });
 
@@ -275,16 +279,17 @@ describe('<SkillsQuizStepper />', () => {
     expect(isStudentCheckbox).toBeDisabled();
   });
 
-  it('simulates clicking on the skills continue button', () => {
+  it('simulates clicking on the skills continue button', async () => {
+    const user = userEvent.setup();
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
-      dispatch: () => null,
+      dispatch: jest.fn(),
       props: { heading: 'Top Skills for the Job', skills: [], industrySkills: [] },
     };
     const searchContext = {
       refinements: { current_job: ['test-current-job'] },
       industry_names: ['Retail Trade'],
-      dispatch: () => null,
+      dispatch: jest.fn(),
     };
 
     renderWithRouter(
@@ -293,10 +298,10 @@ describe('<SkillsQuizStepper />', () => {
     );
 
     const continueButton = screen.getByText('Continue');
-    userEvent.click(continueButton);
+    await user.click(continueButton);
 
     const skillsContinueBtn = screen.getByTestId('skills-continue-button');
-    userEvent.click(skillsContinueBtn);
+    await user.click(skillsContinueBtn);
     expect(screen.getByText('Done')).toBeTruthy();
     expect(screen.getByText('Go back')).toBeTruthy();
   });

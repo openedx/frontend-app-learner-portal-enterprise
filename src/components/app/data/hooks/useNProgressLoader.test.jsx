@@ -1,8 +1,7 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import nprogress from 'accessible-nprogress';
 import { useFetchers, useNavigation } from 'react-router-dom';
-import { waitFor } from '@testing-library/react';
 
 import useNProgressLoader from './useNProgressLoader';
 import { authenticatedUserFactory } from '../services/data/__factories__';

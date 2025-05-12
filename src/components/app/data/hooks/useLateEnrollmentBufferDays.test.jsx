@@ -1,7 +1,9 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { Suspense } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { AppContext } from '@edx/frontend-platform/react';
+
 import { queryClient } from '../../../../utils/tests';
 import { fetchRedeemablePolicies } from '../services';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
@@ -68,7 +70,9 @@ describe('useLateEnrollmentBufferDays', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
       <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
-        {children}
+        <Suspense fallback={<div>Loading...</div>}>
+          {children}
+        </Suspense>
       </AppContext.Provider>
     </QueryClientProvider>
   );
@@ -78,9 +82,10 @@ describe('useLateEnrollmentBufferDays', () => {
     fetchRedeemablePolicies.mockResolvedValue(mockRedeemablePolicies);
   });
   it('should handle resolved value correctly', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useLateEnrollmentBufferDays(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current).toEqual(LATE_ENROLLMENTS_BUFFER_DAYS);
+    const { result } = renderHook(() => useLateEnrollmentBufferDays(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(LATE_ENROLLMENTS_BUFFER_DAYS);
+    });
   });
   it('should return undefined if no late redemption is enabled', async () => {
     // Copy of redeemablePolicies but no policies have late redemption allowed.
@@ -110,8 +115,9 @@ describe('useLateEnrollmentBufferDays', () => {
     };
     fetchRedeemablePolicies.mockResolvedValue(updatedMockRedeemablePolicies);
 
-    const { result, waitForNextUpdate } = renderHook(() => useLateEnrollmentBufferDays(), { wrapper: Wrapper });
-    await waitForNextUpdate();
-    expect(result.current).toEqual(undefined);
+    const { result } = renderHook(() => useLateEnrollmentBufferDays(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current).toEqual(undefined);
+    });
   });
 });

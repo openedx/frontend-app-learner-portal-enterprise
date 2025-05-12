@@ -1,11 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryEnterpriseProgramsList } from '../queries';
 
-export default function useEnterpriseProgramsList(queryOptions = {}) {
+export default function useEnterpriseProgramsList() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  return useQuery({
-    ...queryEnterpriseProgramsList(enterpriseCustomer.uuid),
-    ...queryOptions,
-  });
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryEnterpriseProgramsList(enterpriseCustomer.uuid),
+    }),
+  );
 }

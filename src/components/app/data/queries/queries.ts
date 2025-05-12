@@ -1,6 +1,5 @@
 import queries from './queryKeyFactory';
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
-import { getAvailableCourseRuns } from '../utils';
 
 /**
  * Helper function to assist querying with React Query package
@@ -51,19 +50,19 @@ export function queryEnterprisePathwaysList(enterpriseUuid: string) {
     ._ctx.pathways;
 }
 
-export function queryCourseMetadata(courseKey: string, courseRunKey?: string) {
+export function queryCourseMetadata(courseKey: string) {
   return queries
     .content
     .course(courseKey)
-    ._ctx.metadata(courseRunKey);
+    ._ctx.metadata;
 }
 
-export function queryCourseRunMetadata(courseRunKey: string) {
+export function queryCourseRunMetadata(courseRunKey) {
   return queries
     .content
     .course(null)
-    ._ctx.metadata(courseRunKey)
-    ._ctx.courseRun;
+    ._ctx.metadata
+    ._ctx.courseRun(courseRunKey);
 }
 
 export function queryCourseReviews(courseKey: string) {
@@ -128,17 +127,16 @@ export function queryCanRedeemContextQueryKey(enterpriseUuid: string, courseKey:
     ._ctx.canRedeem._def;
 }
 
-export function queryCanRedeem(enterpriseUuid: string, courseMetadata, lateEnrollmentBufferDays: number | undefined) {
-  const availableCourseRuns = getAvailableCourseRuns({
-    course: courseMetadata,
-    lateEnrollmentBufferDays,
-  });
-  const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
+export function queryCanRedeem(
+  enterpriseUuid: string,
+  courseKey,
+  courseRunKeys,
+) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course(courseMetadata.key)
-    ._ctx.canRedeem(availableCourseRunKeys);
+    ._ctx.course(courseKey)
+    ._ctx.canRedeem(courseRunKeys);
 }
 
 export function queryCanUpgradeWithLearnerCredit(enterpriseUuid: string, courseRunKey: string) {
@@ -157,7 +155,7 @@ export function querySubscriptions(enterpriseUuid: string) {
     ._ctx.subscriptions;
 }
 
-export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
+export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }: { enterpriseUuid: string; lmsUserId: number }) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
@@ -166,13 +164,13 @@ export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
     ._ctx.redeemablePolicies(lmsUserId);
 }
 
-export function queryPolicyTransaction(enterpriseUuid: string, transaction) {
+export function queryPolicyTransaction(enterpriseUuid: string, transactionStatusApiUrl?: string) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.subsidies
     ._ctx.policy
-    ._ctx.transaction(transaction);
+    ._ctx.transaction(transactionStatusApiUrl);
 }
 
 export function queryEnterpriseLearnerOffers(enterpriseUuid: string) {
@@ -268,7 +266,7 @@ export function queryVideoDetail(videoUUID: string, enterpriseUUID: string) {
 
 // BFF queries
 
-export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)
@@ -276,7 +274,7 @@ export function queryEnterpriseLearnerDashboardBFF({ enterpriseSlug }) {
     ._ctx.dashboard;
 }
 
-export function queryEnterpriseLearnerSearchBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerSearchBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)
@@ -284,7 +282,7 @@ export function queryEnterpriseLearnerSearchBFF({ enterpriseSlug }) {
     ._ctx.search;
 }
 
-export function queryEnterpriseLearnerAcademyBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerAcademyBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)
@@ -292,7 +290,7 @@ export function queryEnterpriseLearnerAcademyBFF({ enterpriseSlug }) {
     ._ctx.academy;
 }
 
-export function queryEnterpriseLearnerSkillsQuizBFF({ enterpriseSlug }) {
+export function queryEnterpriseLearnerSkillsQuizBFF({ enterpriseSlug }: BFFRequestOptions) {
   return queries
     .bff
     .enterpriseSlug(enterpriseSlug)

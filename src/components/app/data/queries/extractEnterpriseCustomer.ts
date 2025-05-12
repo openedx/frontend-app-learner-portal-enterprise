@@ -1,4 +1,6 @@
+import { QueryClient } from '@tanstack/react-query';
 import { logInfo } from '@edx/frontend-platform/logging';
+
 import { getEnterpriseLearnerQueryData } from './utils';
 
 interface ExtractEnterpriseCustomerArgs {

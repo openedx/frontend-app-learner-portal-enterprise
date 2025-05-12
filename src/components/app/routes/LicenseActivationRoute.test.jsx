@@ -1,8 +1,8 @@
 import { AppContext } from '@edx/frontend-platform/react';
 import { mergeConfig } from '@edx/frontend-platform';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { authenticatedUserFactory } from '../data/services/data/__factories__';
 import LicenseActivationRoute from './LicenseActivationRoute';

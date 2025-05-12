@@ -71,10 +71,10 @@ const enterprise = createQueryKeys('enterprise', {
           }),
         },
       },
-      // queryContentHighlightsConfiguration
       contentHighlights: {
         queryKey: null,
         contextQueries: {
+          // queryContentHighlightsConfiguration
           configuration: {
             queryKey: null,
             queryFn: ({ queryKey }) => fetchEnterpriseCuration(queryKey[2]),
@@ -94,20 +94,24 @@ const enterprise = createQueryKeys('enterprise', {
             queryKey: [availableCourseRunKeys],
             queryFn: ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
           }),
+          // queryCourseRecommendations
           recommendations: (searchCatalogs) => ({
             queryKey: [searchCatalogs],
             queryFn: ({ queryKey }) => fetchCourseRecommendations(queryKey[2], queryKey[4], searchCatalogs),
           }),
         },
       }),
+      // queryEnterpriseCustomerContainsContent
       containsContent: (contentIdentifiers) => ({
         queryKey: [contentIdentifiers],
         queryFn: ({ queryKey }) => fetchEnterpriseCustomerContainsContent(queryKey[2], contentIdentifiers),
       }),
+      // queryEnterpriseCourseEnrollments
       enrollments: {
         queryKey: null,
         queryFn: ({ queryKey }) => fetchEnterpriseCourseEnrollments(queryKey[2]),
       },
+      // queryEnterpriseProgramsList
       programs: {
         queryKey: null,
         queryFn: ({ queryKey }) => fetchLearnerProgramsList(queryKey[2]),
@@ -119,6 +123,7 @@ const enterprise = createQueryKeys('enterprise', {
           }),
         },
       },
+      // queryEnterprisePathwaysList
       pathways: {
         queryKey: null,
         queryFn: ({ queryKey }) => fetchInProgressPathways(queryKey[2]),
@@ -170,9 +175,9 @@ const enterprise = createQueryKeys('enterprise', {
                 queryFn: ({ queryKey }) => fetchRedeemablePolicies(queryKey[2], lmsUserId),
               }),
               // queryPolicyTransaction
-              transaction: (transaction) => ({
-                queryKey: [transaction],
-                queryFn: () => checkTransactionStatus(transaction),
+              transaction: (transactionStatusApiUrl) => ({
+                queryKey: [transactionStatusApiUrl],
+                queryFn: () => checkTransactionStatus(transactionStatusApiUrl),
               }),
             },
           },
@@ -195,6 +200,7 @@ const enterprise = createQueryKeys('enterprise', {
       },
     },
   }),
+  // queryEnterpriseLearner
   enterpriseLearner: (username, enterpriseSlug) => ({
     queryKey: [username, enterpriseSlug],
     queryFn: () => fetchEnterpriseLearnerData(username, enterpriseSlug),
@@ -202,14 +208,17 @@ const enterprise = createQueryKeys('enterprise', {
 });
 
 const user = createQueryKeys('user', {
+  // queryUserEntitlements
   entitlements: {
     queryKey: null,
     queryFn: () => fetchUserEntitlements(),
   },
+  // queryNotices
   notices: {
     queryKey: null,
     queryFn: () => fetchNotices(),
   },
+  // queryLearnerSkillLevels
   skillLevels: (jobId) => ({
     queryKey: [jobId],
     queryFn: ({ queryKey }) => fetchLearnerSkillLevels(queryKey[2]),
@@ -229,16 +238,19 @@ const content = createQueryKeys('content', {
   course: (courseKey) => ({
     queryKey: [courseKey],
     contextQueries: {
-      metadata: (courseRunKey) => ({
-        queryKey: [courseRunKey],
-        queryFn: ({ queryKey }) => fetchCourseMetadata(queryKey[2], queryKey[4]),
+      // queryCourseMetadata
+      metadata: {
+        queryKey: null,
+        queryFn: ({ queryKey }) => fetchCourseMetadata(queryKey[2]),
         contextQueries: {
-          courseRun: {
-            queryKey: null,
-            queryFn: ({ queryKey }) => fetchCourseRunMetadata(queryKey[4]),
-          },
+          // queryCourseRunMetadata
+          courseRun: (courseRunKey) => ({
+            queryKey: [courseRunKey],
+            queryFn: ({ queryKey }) => fetchCourseRunMetadata(queryKey[5]),
+          }),
         },
-      }),
+      },
+      // queryCourseReviews
       reviews: {
         queryKey: null,
         queryFn: ({ queryKey }) => fetchCourseReviews(queryKey[2]),
@@ -274,18 +286,22 @@ const bff = createQueryKeys('bff', {
       route: {
         queryKey: null,
         contextQueries: {
+          // queryEnterpriseLearnerDashboard
           dashboard: ({
             queryKey: null,
             queryFn: ({ queryKey }) => fetchEnterpriseLearnerDashboard({ enterpriseSlug: queryKey[2] }),
           }),
+          // queryEnterpriseLearnerSearch
           search: ({
             queryKey: null,
             queryFn: ({ queryKey }) => fetchEnterpriseLearnerSearch({ enterpriseSlug: queryKey[2] }),
           }),
+          // queryEnterpriseLearnerAcademy
           academy: ({
             queryKey: null,
             queryFn: ({ queryKey }) => fetchEnterpriseLearnerAcademy({ enterpriseSlug: queryKey[2] }),
           }),
+          // queryEnterpriseLearnerSkillsQuiz
           skillsQuiz: ({
             queryKey: null,
             queryFn: ({ queryKey }) => fetchEnterpriseLearnerSkillsQuiz({ enterpriseSlug: queryKey[2] }),

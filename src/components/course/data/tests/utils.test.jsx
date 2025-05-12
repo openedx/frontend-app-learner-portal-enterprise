@@ -1,13 +1,12 @@
+import { getConfig } from '@edx/frontend-platform';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import dayjs from 'dayjs';
 import { render, screen } from '@testing-library/react';
 import MockDate from 'mockdate';
 import '@testing-library/jest-dom/extend-expect';
-import { IntlProvider } from '@edx/frontend-platform/i18n';
 
-import { getConfig } from '@edx/frontend-platform';
 import { DISABLED_ENROLL_REASON_TYPES } from '../constants';
 import {
-  findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getCouponCodesDisabledEnrollmentReasonType,
   getCourseStartDate,
@@ -22,6 +21,7 @@ import {
   transformedCourseMetadata,
 } from '../utils';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
+import { findCouponCodeForCourse } from '../../../app/data';
 
 jest.mock('@edx/frontend-platform', () => ({
   ensureConfig: jest.fn(),
@@ -345,10 +345,10 @@ describe('getCourseStartDate tests', () => {
 });
 
 describe('getMissingSubsidyReasonActions', () => {
-  const renderWithIntl = (component) => render(
+  const ActionsComponentWrapper = ({ children }) => (
     <IntlProvider locale="en">
-      {component}
-    </IntlProvider>,
+      {children}
+    </IntlProvider>
   );
 
   it.each([
@@ -360,7 +360,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [],
       contactEmail: 'randomEmail@edx.org',
     });
-    renderWithIntl(ActionsComponent);
+    render(<ActionsComponentWrapper>{ActionsComponent}</ActionsComponentWrapper>);
     const ctaBtn = screen.getByText('Learn about limits');
     expect(ctaBtn).toBeInTheDocument();
     expect(ctaBtn.getAttribute('href')).toEqual('https://limits.url');
@@ -372,7 +372,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [],
       contactEmail: 'randomEmail@edx.org',
     });
-    renderWithIntl(ActionsComponent);
+    render(<ActionsComponentWrapper>{ActionsComponent}</ActionsComponentWrapper>);
     const ctaBtn = screen.getByText('Learn about deactivation');
     expect(ctaBtn).toBeInTheDocument();
     expect(ctaBtn.getAttribute('href')).toEqual('https://deactivation.url');
@@ -393,7 +393,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [{ email: 'admin@example.com' }],
       contactEmail: undefined,
     });
-    renderWithIntl(ActionsComponent);
+    render(<ActionsComponentWrapper>{ActionsComponent}</ActionsComponentWrapper>);
     const ctaBtn = screen.getByText('Contact administrator');
     expect(ctaBtn).toBeInTheDocument();
     expect(ctaBtn.getAttribute('href')).toEqual('mailto:admin@example.com');
@@ -414,7 +414,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [{ email: 'admin@example.com' }],
       contactEmail: 'testEmail@edx.org',
     });
-    renderWithIntl(ActionsComponent);
+    render(<ActionsComponentWrapper>{ActionsComponent}</ActionsComponentWrapper>);
     const ctaBtn = screen.getByText('Contact administrator');
     expect(ctaBtn).toBeInTheDocument();
     expect(ctaBtn.getAttribute('href')).toEqual('mailto:testEmail@edx.org');
@@ -435,7 +435,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [],
       contactEmail: 'randomEmail@edx.org',
     });
-    const { container } = renderWithIntl(ActionsComponent);
+    const { container } = render(<ActionsComponentWrapper>{ActionsComponent}</ActionsComponentWrapper>);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -445,7 +445,7 @@ describe('getMissingSubsidyReasonActions', () => {
       enterpriseAdminUsers: [],
       contactEmail: 'randomEmail@edx.org',
     });
-    const { container } = renderWithIntl(ActionsComponent);
+    const { container } = render(<ActionsComponentWrapper>{ActionsComponent}</ActionsComponentWrapper>);
     expect(container).toBeEmptyDOMElement();
   });
 });

@@ -64,7 +64,8 @@ describe('<SearchPathwayCard />', () => {
     window.history.pushState({}, '', '/');
   });
 
-  test('renders the correct data', () => {
+  test('renders the correct data', async () => {
+    const user = userEvent.setup();
     const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
 
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
@@ -77,7 +78,7 @@ describe('<SearchPathwayCard />', () => {
     });
 
     const cardEl = screen.getByTestId('search-pathway-card');
-    userEvent.click(cardEl);
+    await user.click(cardEl);
     expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_ENTERPRISE_UUID,
@@ -88,7 +89,8 @@ describe('<SearchPathwayCard />', () => {
     );
   });
 
-  test('renders the correct data when clicked from skills quiz page', () => {
+  test('renders the correct data when clicked from skills quiz page', async () => {
+    const user = userEvent.setup();
     const propsForSkillQuiz = { ...defaultProps, isSkillQuizResult: true };
     const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...propsForSkillQuiz} />);
 
@@ -102,7 +104,7 @@ describe('<SearchPathwayCard />', () => {
     });
 
     const cardEl = screen.getByTestId('search-pathway-card');
-    userEvent.click(cardEl);
+    await user.click(cardEl);
     expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_ENTERPRISE_UUID,
@@ -130,7 +132,8 @@ describe('<SearchPathwayCard />', () => {
     expect(screen.queryByText(fourthSkillName)).not.toBeInTheDocument();
   });
 
-  test('renders the loading state', () => {
+  test('renders the loading state', async () => {
+    const user = userEvent.setup();
     const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...propsForLoading} />);
 
     // ensure `Card` was passed `isLoading` by asserting each `Card` subcomponent
@@ -139,7 +142,7 @@ describe('<SearchPathwayCard />', () => {
 
     // does not do anything when clicked
     const cardEl = screen.getByTestId('search-pathway-card');
-    userEvent.click(cardEl);
+    await user.click(cardEl);
     expect(window.location.pathname).toEqual('/');
   });
 });

@@ -40,10 +40,11 @@ const PathwayModalWithAppContext = (props) => (
   </IntlProvider>
 );
 
+const mockClose = jest.fn();
 const defaultProps = {
   learnerPathwayUuid: TEST_PATHWAY_DATA.uuid,
   isOpen: true,
-  close: () => {},
+  onClose: mockClose,
 };
 
 const nodePageLink = (node) => {
@@ -62,7 +63,8 @@ describe('<PathwayModal />', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
-  test('renders the correct data', () => {
+  test('renders the correct data', async () => {
+    const user = userEvent.setup();
     useLearnerPathwayData.mockImplementation(() => ([camelCaseObject(TEST_PATHWAY_DATA), false, null]));
 
     renderWithRouter(<PathwayModalWithAppContext {...defaultProps} />);
@@ -80,23 +82,20 @@ describe('<PathwayModal />', () => {
     expect(screen.getByText('Learn at zero cost to you')).toBeInTheDocument();
 
     // verify Collapsibles
-    for (let i = 0; i < TEST_PATHWAY_DATA.steps.length; i++) {
-      const step = TEST_PATHWAY_DATA.steps[i];
+    TEST_PATHWAY_DATA.steps.forEach(async (step, i) => {
       const collapsibleTitle = `Requirement ${i + 1}`;
       expect(screen.getByText(collapsibleTitle)).toBeInTheDocument();
-      userEvent.click(screen.getByText(collapsibleTitle));
-
+      await user.click(screen.getByText(collapsibleTitle));
       const allNodes = [].concat(step.courses, step.programs);
-      for (i = 0; i < allNodes.length; i++) {
-        const node = allNodes[i];
+      allNodes.forEach((node, j) => {
         const buttonText = node.content_type === 'course' ? 'Course Details' : 'Program Details';
-        const imgTestId = `card-image-${step.uuid}-${i}`;
+        const imgTestId = `card-image-${step.uuid}-${j}`;
         expect(screen.getByText(node.title)).toBeInTheDocument();
         expect(screen.getByText(node.short_description)).toBeInTheDocument();
         expect(screen.getByRole('link', { name: buttonText })).toHaveAttribute('href', nodePageLink(node));
         expect(screen.getByTestId(imgTestId)).toHaveAttribute('src', node.card_image_url);
-      }
-    }
+      });
+    });
   });
 
   test('renders the loading state', () => {

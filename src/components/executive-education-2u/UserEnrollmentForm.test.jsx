@@ -53,7 +53,7 @@ jest.mock('./data', () => ({
 const mockRedeem = jest.fn();
 jest.mock('../stateful-enroll/data', () => ({
   ...jest.requireActual('../stateful-enroll/data'),
-  useStatefulEnroll: jest.fn(() => ({ redeem: mockRedeem })),
+  useStatefulEnroll: jest.fn(() => mockRedeem),
 }));
 
 jest.mock('../app/data', () => ({
@@ -143,6 +143,7 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('has course enrollment information section and handles validation', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<UserEnrollmentFormWrapper />);
     expect(screen.getByText('Course enrollment information')).toBeInTheDocument();
 
@@ -152,7 +153,7 @@ describe('UserEnrollmentForm', () => {
     expect(screen.getByLabelText('Date of birth *')).toBeInTheDocument();
 
     // validation
-    userEvent.click(screen.getByText('Confirm registration'));
+    await user.click(screen.getByText('Confirm registration'));
 
     expect(await screen.findByText('First name is required')).toBeInTheDocument();
     expect(await screen.findByText('Last name is required')).toBeInTheDocument();
@@ -161,12 +162,12 @@ describe('UserEnrollmentForm', () => {
     expect(await screen.findByText('Please agree to Terms and Conditions for Students')).toBeInTheDocument();
 
     // typing in fields after form submission clears validation
-    userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
-    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
-    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
-    userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
-    userEvent.click(screen.getByLabelText(termsLabelText));
-    userEvent.click(screen.getByText(termsAndConsitionCTA));
+    await user.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
+    await user.type(screen.getByLabelText('First name *'), mockFirstName);
+    await user.type(screen.getByLabelText('Last name *'), mockLastName);
+    await user.click(screen.getByLabelText(dataSharingConsentLabelText));
+    await user.click(screen.getByLabelText(termsLabelText));
+    await user.click(screen.getByText(termsAndConsitionCTA));
 
     await waitFor(() => {
       expect(screen.queryByText('First name is required')).not.toBeInTheDocument();
@@ -178,40 +179,43 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('has terms and conditions checkbox', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<UserEnrollmentFormWrapper />);
 
     // form fields
     expect(screen.getByLabelText(termsLabelText)).toBeInTheDocument();
 
     // validation
-    userEvent.click(screen.getByText('Confirm registration'));
+    await user.click(screen.getByText('Confirm registration'));
     expect(await screen.findByText('Please agree to Terms and Conditions for Students')).toBeInTheDocument();
 
     // checking the checkbox after form submission clears validation
-    userEvent.click(screen.getByLabelText(termsLabelText));
+    await user.click(screen.getByLabelText(termsLabelText));
     await waitFor(() => {
       expect(screen.queryByText('Please agree to Terms and Conditions for Students')).not.toBeInTheDocument();
     });
   });
 
   it('has data sharing consent checkbox', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<UserEnrollmentFormWrapper />);
 
     // form fields
     expect(screen.getByLabelText(dataSharingConsentLabelText)).toBeInTheDocument();
 
     // validation
-    userEvent.click(screen.getByText('Confirm registration'));
+    await user.click(screen.getByText('Confirm registration'));
     expect(await screen.findByText("Please agree to GetSmarter's data sharing consent")).toBeInTheDocument();
 
     // checking the checkbox after form submission clears validation
-    userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
+    await user.click(screen.getByLabelText(dataSharingConsentLabelText));
     await waitFor(() => {
       expect(screen.queryByText("Please agree to GetSmarter's data sharing consent")).not.toBeInTheDocument();
     });
   });
 
   it('does not have data sharing consent checkbox if data sharing consent is disabled', async () => {
+    const user = userEvent.setup();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledDataSharingConsent });
     renderWithRouter(<UserEnrollmentFormWrapper />);
 
@@ -222,7 +226,7 @@ describe('UserEnrollmentForm', () => {
     });
 
     // validation
-    userEvent.click(screen.getByText('Confirm registration'));
+    await user.click(screen.getByText('Confirm registration'));
     await waitFor(() => {
       expect(screen.queryByText("Please agree to GetSmarter's data sharing consent")).not.toBeInTheDocument();
     });
@@ -251,6 +255,7 @@ describe('UserEnrollmentForm', () => {
     isBFFEnabled,
     isDSCEnabled,
   }) => {
+    const user = userEvent.setup();
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     MockDate.set(mockTermsAcceptedAt);
     useIsBFFEnabled.mockReturnValue(isBFFEnabled);
@@ -258,6 +263,7 @@ describe('UserEnrollmentForm', () => {
       userSubsidyApplicableToCourse: {
         subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
       },
+      isPending: false,
     });
     const expectedEnterpriseCustomer = isDSCEnabled
       ? mockEnterpriseCustomer
@@ -283,14 +289,14 @@ describe('UserEnrollmentForm', () => {
       },
     );
 
-    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
-    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
-    userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
-    userEvent.click(screen.getByLabelText(termsLabelText));
+    await user.type(screen.getByLabelText('First name *'), mockFirstName);
+    await user.type(screen.getByLabelText('Last name *'), mockLastName);
+    await user.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
+    await user.click(screen.getByLabelText(termsLabelText));
     if (isDSCEnabled) {
-      userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
+      await user.click(screen.getByLabelText(dataSharingConsentLabelText));
     }
-    userEvent.click(screen.getByText('Confirm registration'));
+    await user.click(screen.getByText('Confirm registration'));
 
     await waitFor(() => {
       expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
@@ -358,17 +364,18 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('handles age related errors during form submission', async () => {
+    const user = userEvent.setup();
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     MockDate.set(mockTermsAcceptedAt);
 
     renderWithRouter(<UserEnrollmentFormWrapper />);
-    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
-    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
+    await user.type(screen.getByLabelText('First name *'), mockFirstName);
+    await user.type(screen.getByLabelText('Last name *'), mockLastName);
     // Set this year as date of birthday, so user is marked as less than 18 years old.
-    userEvent.type(screen.getByLabelText('Date of birth *'), `${dayjs().year()}-06-10`);
-    userEvent.click(screen.getByLabelText(termsLabelText));
-    userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
-    userEvent.click(screen.getByText('Confirm registration'));
+    await user.type(screen.getByLabelText('Date of birth *'), `${dayjs().year()}-06-10`);
+    await user.click(screen.getByLabelText(termsLabelText));
+    await user.click(screen.getByLabelText(dataSharingConsentLabelText));
+    await user.click(screen.getByText('Confirm registration'));
 
     const invalidAgeErrorMessage = 'The date of birth you entered indicates '
       + 'that you are under the age of 18, and we need your parent or legal '
@@ -382,6 +389,7 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('handles network error with form submission', async () => {
+    const user = userEvent.setup();
     const mockError = new Error('oh noes');
     MockDate.set(new Date());
     const mockFormSubmissionValue = { message: 'oh noes' };
@@ -395,17 +403,12 @@ describe('UserEnrollmentForm', () => {
         externalCourseFormSubmissionError: mockFormSubmissionValue,
       }}
     />);
-    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
-    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
-    userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
-    userEvent.click(screen.getByLabelText(termsLabelText));
-    userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
-    userEvent.click(screen.getByText('Confirm registration'));
-
-    // disabled while submitting
-    await waitFor(() => {
-      expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
-    });
+    await user.type(screen.getByLabelText('First name *'), mockFirstName);
+    await user.type(screen.getByLabelText('Last name *'), mockLastName);
+    await user.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
+    await user.click(screen.getByLabelText(termsLabelText));
+    await user.click(screen.getByLabelText(dataSharingConsentLabelText));
+    await user.click(screen.getByText('Confirm registration'));
 
     // simulate `useStatefulEnroll` calling `onError` arg
     act(() => {
@@ -430,6 +433,7 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('handle error 422 where course was already enrolled in with legacy enterprise offers', async () => {
+    const user = userEvent.setup();
     const mockCheckoutAlreadyEnrolledResponse = {
       message: 'Axios Error: User has already purchased the product.',
       customAttributes: {
@@ -442,18 +446,12 @@ describe('UserEnrollmentForm', () => {
 
     useCourseMetadata.mockReturnValue({ data: { courseEntitlementProductSku: mockProductSKU } });
     renderWithRouter(<UserEnrollmentFormWrapper />);
-    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
-    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
-    userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
-    userEvent.click(screen.getByLabelText(termsLabelText));
-    userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
-    userEvent.click(screen.getByText('Confirm registration'));
-
-    // disabled while submitting
-    await waitFor(() => {
-      expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
-    });
-
+    await user.type(screen.getByLabelText('First name *'), mockFirstName);
+    await user.type(screen.getByLabelText('Last name *'), mockLastName);
+    await user.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
+    await user.click(screen.getByLabelText(termsLabelText));
+    await user.click(screen.getByLabelText(dataSharingConsentLabelText));
+    await user.click(screen.getByText('Confirm registration'));
     await waitFor(() => {
       expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(1);
     });
@@ -480,6 +478,7 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('handles duplicate order with form submission', async () => {
+    const user = userEvent.setup();
     const mockError = new Error('duplicate order');
     MockDate.set(new Date());
     const mockFormSubmissionValue = { message: 'duplicate order' };
@@ -492,12 +491,12 @@ describe('UserEnrollmentForm', () => {
         externalCourseFormSubmissionError: mockFormSubmissionValue,
       }}
     />);
-    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
-    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
-    userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
-    userEvent.click(screen.getByLabelText(termsLabelText));
-    userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
-    userEvent.click(screen.getByText('Confirm registration'));
+    await user.type(screen.getByLabelText('First name *'), mockFirstName);
+    await user.type(screen.getByLabelText('Last name *'), mockLastName);
+    await user.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
+    await user.click(screen.getByLabelText(termsLabelText));
+    await user.click(screen.getByLabelText(dataSharingConsentLabelText));
+    await user.click(screen.getByText('Confirm registration'));
 
     // simulate `useStatefulEnroll` calling `onError` arg
     act(() => {

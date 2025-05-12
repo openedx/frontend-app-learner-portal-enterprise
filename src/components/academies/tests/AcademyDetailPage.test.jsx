@@ -5,8 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { LEARNING_TYPE_COURSE } from '@edx/frontend-enterprise-catalog-search/data/constants';
 import { AppContext } from '@edx/frontend-platform/react';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { generateTestPermutations, queryClient, renderWithRouter } from '../../../utils/tests';
+import { generateTestPermutations, renderWithRouter } from '../../../utils/tests';
 
 import AcademyDetailPage from '../AcademyDetailPage';
 import { useAcademyDetails, useAlgoliaSearch, useEnterpriseCustomer } from '../../app/data';
@@ -76,13 +75,11 @@ const appContextValue = {
 };
 
 const AcademyDetailPageWrapper = () => (
-  <QueryClientProvider client={queryClient()}>
-    <IntlProvider locale="en">
-      <AppContext.Provider value={appContextValue}>
-        <AcademyDetailPage />
-      </AppContext.Provider>
-    </IntlProvider>
-  </QueryClientProvider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <AcademyDetailPage />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -99,10 +96,11 @@ describe('<AcademyDetailPage />', () => {
     });
     useAcademyDetails.mockReturnValue({ data: ACADEMY_MOCK_DATA });
   });
+
   it('renders academy detail page', async () => {
     renderWithRouter(<AcademyDetailPageWrapper />);
 
-    const headingElement = await screen.getByTestId('academy-all-courses-title');
+    const headingElement = await screen.findByTestId('academy-all-courses-title');
     const expectedHeadingElement = `All ${ACADEMY_MOCK_DATA.title} Academy Courses`;
     expect(headingElement.textContent).toBe(expectedHeadingElement);
     const academyTags = screen.getAllByTestId('academy-tag').map((tag) => tag.textContent);
@@ -114,11 +112,13 @@ describe('<AcademyDetailPage />', () => {
     expect(screen.getAllByTestId('academy-course-card').length).toEqual(1);
     expect(screen.getByText(ALOGLIA_MOCK_DATA.hits[0].title)).toBeInTheDocument();
   });
+
   it('renders a not found page', () => {
     useAcademyDetails.mockReturnValue({ data: null });
     renderWithRouter(<AcademyDetailPageWrapper />);
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });
+
   it.each(
     generateTestPermutations({
       shouldUseSecuredAlgoliaApiKey: [true, false],

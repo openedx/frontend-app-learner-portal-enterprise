@@ -80,8 +80,6 @@ const MarkCompleteModal = ({
         isOpen={isOpen && !confirmSuccessful}
         onClose={handleModalOnClose}
         hasCloseButton
-        isFullscreenOnMobile
-        isOverflowVisible={false}
         footerNode={(
           <ActionRow>
             <Button variant="tertiary" onClick={handleModalOnClose} data-testid="mark-complete-modal-cancel-btn">Cancel</Button>
@@ -97,6 +95,8 @@ const MarkCompleteModal = ({
             />
           </ActionRow>
         )}
+        isOverflowVisible={false}
+        isFullscreenOnMobile
       >
         <ModalBody />
       </StandardModal>

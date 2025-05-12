@@ -1,13 +1,15 @@
-import { generatePath, redirect } from 'react-router-dom';
+import {
+  generatePath, LoaderFunctionArgs, Params, redirect,
+} from 'react-router-dom';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { postLinkEnterpriseLearner } from '../../data';
 import { ensureAuthenticatedUser } from '../data';
 
-type EnterpriseInviteParams<Key extends string = string> = RouteParams<Key> & {
+type EnterpriseInviteParams<Key extends string = string> = Params<Key> & {
   readonly enterpriseCustomerInviteKey: string;
 };
-interface EnterpriseInviteLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface EnterpriseInviteLoaderFunctionArgs extends LoaderFunctionArgs {
   params: EnterpriseInviteParams;
 }
 

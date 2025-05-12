@@ -50,9 +50,10 @@ describe('<PathwayProgressCard />', () => {
     expect(screen.getByTestId('completed-count')).toHaveTextContent('1');
   });
 
-  it('redirects to correct page when clicked', () => {
+  it('redirects to correct page when clicked', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<PathwayProgressListingCardWrapper pathwayData={pathwayData} />);
-    userEvent.click(screen.getByTestId('pathway-progress-listing-card'));
+    await user.click(screen.getByTestId('pathway-progress-listing-card'));
     expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/pathway/0a017cbe-0f1c-4e5f-9095-2101823fac93/progress`);
   });
 });

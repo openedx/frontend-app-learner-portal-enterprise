@@ -1,41 +1,45 @@
-import { generatePath, redirect } from 'react-router-dom';
+import {
+  generatePath, LoaderFunctionArgs, Params, redirect,
+} from 'react-router-dom';
 
 import {
   determineAllocatedAssignmentsForCourse,
   determineLearnerHasContentAssignmentsOnly,
+  determineSubscriptionLicenseApplicable,
+  extractCourseRunKeyFromSearchParams,
   extractEnterpriseCustomer,
+  findCouponCodeForCourse,
   getCatalogsForSubsidyRequests,
+  getCourseRunsForRedemption,
   getLateEnrollmentBufferDays,
   getSearchCatalogs,
-  queryBrowseAndRequestConfiguration,
-  queryCanRedeem,
-  queryCouponCodeRequests,
-  queryCouponCodes,
   queryCourseMetadata,
-  queryCourseRecommendations,
-  queryCourseReviews,
-  queryEnterpriseCourseEnrollments,
-  queryEnterpriseCustomerContainsContent,
-  queryEnterpriseLearnerOffers,
-  queryLicenseRequests,
-  queryRedeemablePolicies,
-  querySubscriptions,
-  queryUserEntitlements,
-  transformCourseMetadataByAllocatedCourseRunAssignments,
+  safeEnsureQueryDataBrowseAndRequestConfiguration,
+  safeEnsureQueryDataCanRedeem,
+  safeEnsureQueryDataCouponCodeRequests,
+  safeEnsureQueryDataCouponCodes,
+  safeEnsureQueryDataCourseRecommendations,
+  safeEnsureQueryDataCourseReviews,
+  safeEnsureQueryDataCustomerContainsContent,
+  safeEnsureQueryDataEnterpriseCourseEnrollments,
+  safeEnsureQueryDataEnterpriseOffers,
+  safeEnsureQueryDataLicenseRequests,
+  safeEnsureQueryDataRedeemablePolicies,
+  safeEnsureQueryDataSubscriptions,
+  safeEnsureQueryDataUserEntitlements,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from './utils';
+import {
+  getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug,
+} from './utils';
 
-type CourseRouteParams<Key extends string = string> = RouteParams<Key> & {
+type CourseRouteParams<Key extends string = string> = Params<Key> & {
   readonly courseKey: string;
   readonly enterpriseSlug: string;
 };
-interface CourseLoaderFunctionArgs extends RouteLoaderFunctionArgs {
+interface CourseLoaderFunctionArgs extends LoaderFunctionArgs {
   params: CourseRouteParams;
 }
-type CourseMetadata = {
-  courseType: string;
-};
 
 /**
  * Course loader for the course related page routes.
@@ -50,9 +54,7 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     }
 
     const { courseKey, enterpriseSlug } = params;
-    // `requestUrl.searchParams` uses `URLSearchParams`, which decodes `+` as a space, so we
-    // need to replace it with `+` again to be a valid course run key.
-    let courseRunKey = requestUrl.searchParams.get('course_run_key')?.replaceAll(' ', '+');
+    const courseRunKey = extractCourseRunKeyFromSearchParams(requestUrl.searchParams);
 
     const enterpriseCustomer = await extractEnterpriseCustomer({
       requestUrl,
@@ -63,40 +65,59 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     if (!enterpriseCustomer) {
       return null;
     }
-    const redeemableLearnerCreditPolicies = await queryClient.ensureQueryData(queryRedeemablePolicies({
-      enterpriseUuid: enterpriseCustomer.uuid,
-      lmsUserId: authenticatedUser.userId,
-    }));
+    const prerequisiteQueries = await Promise.all([
+      safeEnsureQueryDataCustomerContainsContent({
+        queryClient,
+        enterpriseCustomer,
+        courseKey,
+      }),
+      safeEnsureQueryDataCouponCodes({
+        queryClient,
+        enterpriseCustomer,
+      }),
+      safeEnsureQueryDataSubscriptions({
+        queryClient,
+        enterpriseCustomer,
+      }),
+      safeEnsureQueryDataRedeemablePolicies({
+        queryClient,
+        enterpriseCustomer,
+        authenticatedUser,
+      }),
+    ]);
+    const [
+      { catalogList: catalogsWithCourse },
+      { couponsOverview, couponCodeAssignments, couponCodeRedemptionCount },
+      { customerAgreement, subscriptionLicense, subscriptionPlan },
+      redeemableLearnerCreditPolicies,
+    ] = prerequisiteQueries;
+
     const otherSubsidyQueries = Promise.all([
-      queryClient.ensureQueryData(queryRedeemablePolicies({
-        enterpriseUuid: enterpriseCustomer.uuid,
-        lmsUserId: authenticatedUser.userId,
-      })),
-      queryClient.ensureQueryData(querySubscriptions(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryEnterpriseLearnerOffers(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryCouponCodes(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryLicenseRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
-      queryClient.ensureQueryData(queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email)),
-      queryClient.ensureQueryData(queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid)),
+      safeEnsureQueryDataEnterpriseOffers({
+        queryClient,
+        enterpriseCustomer,
+      }),
+      safeEnsureQueryDataLicenseRequests({
+        queryClient,
+        enterpriseCustomer,
+        authenticatedUser,
+      }),
+      safeEnsureQueryDataCouponCodeRequests({
+        queryClient,
+        enterpriseCustomer,
+        authenticatedUser,
+      }),
+      safeEnsureQueryDataBrowseAndRequestConfiguration({
+        queryClient,
+        enterpriseCustomer,
+      }),
     ]);
 
-    const {
-      allocatedCourseRunAssignmentKeys,
-      hasAssignedCourseRuns,
-      hasMultipleAssignedCourseRuns,
-    } = determineAllocatedAssignmentsForCourse({
-      courseKey,
-      redeemableLearnerCreditPolicies,
-    });
-    // only override `courseRunKey` when learner has a single allocated assignment
-    if (!courseRunKey && hasAssignedCourseRuns) {
-      courseRunKey = hasMultipleAssignedCourseRuns ? null : allocatedCourseRunAssignmentKeys[0];
-    }
     await Promise.all([
       // Fetch course metadata, and then check if the user can redeem the course.
       // TODO: This should be refactored such that `can-redeem` can be called independently
       // of `course-metadata` to avoid an unnecessary request waterfall.
-      queryClient.ensureQueryData<CourseMetadata | undefined>(queryCourseMetadata(courseKey, courseRunKey))
+      queryClient.ensureQueryData(queryCourseMetadata(courseKey))
         .then(async (courseMetadata) => {
           if (!courseMetadata) {
             return null;
@@ -104,30 +125,43 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
           const lateEnrollmentBufferDays = getLateEnrollmentBufferDays(
             redeemableLearnerCreditPolicies.redeemablePolicies,
           );
-          const transformedCourseMetadata = transformCourseMetadataByAllocatedCourseRunAssignments({
-            hasMultipleAssignedCourseRuns,
-            courseMetadata,
-            allocatedCourseRunAssignmentKeys,
-          });
-          return queryClient.ensureQueryData(
-            queryCanRedeem(enterpriseCustomer.uuid, transformedCourseMetadata, lateEnrollmentBufferDays),
+          const isSubscriptionLicenseApplicable = determineSubscriptionLicenseApplicable(
+            subscriptionLicense,
+            catalogsWithCourse,
           );
+          const applicableCouponCode = findCouponCodeForCourse(couponCodeAssignments, catalogsWithCourse);
+          const hasSubsidyPrioritizedOverLearnerCredit = isSubscriptionLicenseApplicable
+            || applicableCouponCode?.couponCodeRedemptionCount > 0;
+          const { courseRunKeys: courseRunKeysForRedemption } = getCourseRunsForRedemption({
+            course: courseMetadata,
+            lateEnrollmentBufferDays,
+            courseRunKey,
+            redeemableLearnerCreditPolicies,
+            hasSubsidyPrioritizedOverLearnerCredit,
+          });
+          return safeEnsureQueryDataCanRedeem({
+            queryClient,
+            enterpriseCustomer,
+            courseMetadata,
+            courseRunKeysForRedemption,
+          });
         }),
-      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid)),
-      queryClient.ensureQueryData(queryUserEntitlements()),
-      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, [courseKey])),
-      queryClient.ensureQueryData(queryCourseReviews(courseKey)),
+      safeEnsureQueryDataEnterpriseCourseEnrollments({
+        queryClient,
+        enterpriseCustomer,
+      }),
+      safeEnsureQueryDataUserEntitlements({
+        queryClient,
+      }),
+      safeEnsureQueryDataCourseReviews({
+        queryClient,
+        courseKey,
+      }),
       otherSubsidyQueries.then(async (subsidyResponses) => {
-        const { customerAgreement, subscriptionPlan, subscriptionLicense } = subsidyResponses[1];
-        const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[2];
-        const {
-          couponCodeAssignments,
-          couponCodeRedemptionCount,
-          couponsOverview,
-        } = subsidyResponses[3];
-        const licenseRequests = subsidyResponses[4];
-        const couponCodeRequests = subsidyResponses[5];
-        const browseAndRequestConfiguration = subsidyResponses[6];
+        const { hasCurrentEnterpriseOffers, currentEnterpriseOffers } = subsidyResponses[0];
+        const licenseRequests = subsidyResponses[1];
+        const couponCodeRequests = subsidyResponses[2];
+        const browseAndRequestConfiguration = subsidyResponses[3];
         const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
           subscriptionPlan,
           subscriptionLicense,
@@ -159,18 +193,19 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
           currentEnterpriseOffers,
           subscriptionLicense,
         });
-        return queryClient.ensureQueryData(queryCourseRecommendations(
-          enterpriseCustomer.uuid,
+        return safeEnsureQueryDataCourseRecommendations({
+          queryClient,
+          enterpriseCustomer,
           courseKey,
           searchCatalogs,
-        ));
+        });
       }),
     ]);
 
     // If the course metadata (pre-fetched above) does not exist or is not available in
     // the enterprise's catalog(s), return with empty data.
     const courseMetadata = queryClient.getQueryData<CourseMetadata>(
-      queryCourseMetadata(courseKey, courseRunKey).queryKey,
+      queryCourseMetadata(courseKey).queryKey,
     );
     if (!courseMetadata) {
       return null;
