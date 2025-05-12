@@ -70,7 +70,7 @@ const Search = () => {
     pathwayFilter,
     videoFilter,
     contentTypeFilter,
-  } = useContentTypeFilter({ filters, contentType });
+  } = useContentTypeFilter({ filter: filters, contentTypes: contentType });
 
   const {
     searchIndex,

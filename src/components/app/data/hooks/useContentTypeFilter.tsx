@@ -7,7 +7,20 @@ import {
 } from '../../../search/constants';
 import { AlgoliaFilterBuilder } from '../../../AlgoliaFilterBuilder';
 
-const buildContentTypeFilter = (filter: string, contentType: string) => {
+interface UseContentTypeFilterParams {
+  filter: string;
+  contentTypes?: string[];
+}
+
+interface ContentTypeFilterResult {
+  courseFilter: string;
+  programFilter: string;
+  pathwayFilter: string;
+  videoFilter: string;
+  contentTypeFilter: string | null;
+}
+
+const buildContentTypeFilter = (filter: string, contentType: string): string => {
   const baseFilter = new AlgoliaFilterBuilder().and('content_type', contentType);
   if (filter) {
     baseFilter.andRaw(filter);
@@ -15,7 +28,9 @@ const buildContentTypeFilter = (filter: string, contentType: string) => {
   return baseFilter.build();
 };
 
-const useContentTypeFilter = ({ filter, contentTypes = [] }) => useMemo(() => ({
+const useContentTypeFilter = (
+  { filter, contentTypes = [] }: UseContentTypeFilterParams,
+): ContentTypeFilterResult => useMemo(() => ({
   courseFilter: buildContentTypeFilter(filter, CONTENT_TYPE_COURSE),
   programFilter: buildContentTypeFilter(filter, CONTENT_TYPE_PROGRAM),
   pathwayFilter: buildContentTypeFilter(filter, CONTENT_TYPE_PATHWAY),
