@@ -149,9 +149,9 @@ const CourseEnrollments = ({ children }) => {
               defaultMessage: 'Your learning journey starts now!',
               description: 'Title for the assigned courses section when the user visits the dashboard for the first time.',
             }) : intl.formatMessage({
-              id: 'enterprise.dashboard.course.enrollments.assigned.section.title',
-              defaultMessage: 'Assigned Courses',
-              description: 'Title for the assigned courses section.',
+              id: 'enterprise.dashboard.course.enrollments.pending.section.title',
+              defaultMessage: 'Pending enrollments',
+              description: 'Title for the pending enrollments section.',
             })}
             courseRuns={assignments}
           />

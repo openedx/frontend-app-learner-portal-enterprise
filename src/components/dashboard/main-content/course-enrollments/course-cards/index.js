@@ -4,3 +4,5 @@ export { default as UpcomingCourseCard } from './UpcomingCourseCard';
 export { default as SavedForLaterCourseCard } from './SavedForLaterCourseCard';
 export { default as RequestedCourseCard } from './RequestedCourseCard';
 export { default as AssignedCourseCard } from './AssignedCourseCard';
+export { default as ApprovedCourseCard } from './ApprovedCourseCard';
+export { default as LCRequestedCourseCard } from './LCRequestedCourseCard';
