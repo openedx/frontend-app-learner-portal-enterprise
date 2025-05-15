@@ -1,5 +1,6 @@
 import { useContext, useEffect, useMemo } from 'react';
 import { SearchContext, setRefinementAction, SHOW_ALL_NAME } from '@edx/frontend-enterprise-catalog-search';
+import { logInfo } from '@edx/frontend-platform/logging';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
 import useAlgoliaSearch from './useAlgoliaSearch';
@@ -104,21 +105,35 @@ export default function useDefaultSearchFilters(): string {
     () => {
       // If there is a catalog uuid to catalog query uuid mapping, use the secured algolia
       // api key compatible filter query
+      let filter: string | null;
       if (shouldUseSecuredAlgoliaApiKey) {
-        return queryByCatalogQuery({
+        filter = queryByCatalogQuery({
           searchCatalogs,
           catalogUuidsToCatalogQueryUuids,
           showAllRefinement,
         });
+      } else {
+        // Uses the legacy Algolia filter if there is no catalog uuid to catalog query uuid mapping
+        // Once the waffle flag (catalogQuerySearchFiltersEnabled) has been enabled to allow all users
+        // to use the secured algolia api key this fallback should no longer exist and should be removed.
+        filter = queryByCatalog({
+          enterpriseCustomer,
+          searchCatalogs,
+          showAllRefinement,
+        });
       }
-      // Uses the legacy Algolia filter if there is no catalog uuid to catalog query uuid mapping
-      // Once the waffle flag (catalogQuerySearchFiltersEnabled) has been enabled to allow all users
-      // to use the secured algolia api key this fallback should no longer exist, and should be removed.
-      return queryByCatalog({
-        enterpriseCustomer,
-        searchCatalogs,
-        showAllRefinement,
-      });
+
+      if (!filter) {
+        logInfo(
+          `No filter was generated from useDefaultSearchFilters:
+          enterpriseCustomerUuid: ${enterpriseCustomer.uuid},
+          searchCatalogs: ${searchCatalogs},
+          catalogUuidsToCatalogQueryUuids: ${catalogUuidsToCatalogQueryUuids},
+          showAllRefinement: ${showAllRefinement}`,
+        );
+      }
+
+      return filter;
     },
     [
       catalogUuidsToCatalogQueryUuids,

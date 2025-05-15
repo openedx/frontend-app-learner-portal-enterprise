@@ -70,7 +70,7 @@ const Search = () => {
     pathwayFilter,
     videoFilter,
     contentTypeFilter,
-  } = useContentTypeFilter({ filter: filters, contentTypes: contentType });
+  } = useContentTypeFilter({ filter: filters, contentType: contentType?.[0] });
 
   const {
     searchIndex,
@@ -124,7 +124,7 @@ const Search = () => {
     description: 'Title for the enterprise search page header.',
   });
 
-  // If learner only has content assignments available, show the assignments-only empty state.
+  // If the learner only has content assignments available, show the assignments-only empty state.
   if (isAssignmentOnlyLearner) {
     return (
       <>
@@ -197,30 +197,31 @@ const Search = () => {
         )}
 
         {/* No content type refinement  */}
-        {(contentType === undefined || contentType.length === 0) && (
-          <Stack className="my-5" gap={5}>
-            {shouldShowVideosBanner && <VideoBanner />}
-            {!hasRefinements && <ContentHighlights />}
-            {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies
+        {!contentType?.length
+          ? (
+            <Stack className="my-5" gap={5}>
+              {shouldShowVideosBanner && <VideoBanner />}
+              {!hasRefinements && <ContentHighlights />}
+              {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies
               && <SearchAcademy />}
-            {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false)
+              {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false)
               && <SearchPathway filter={pathwayFilter} />}
-            {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false)
+              {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false)
               && <SearchProgram filter={programFilter} />}
-            {canOnlyViewHighlightSets === false
+              {canOnlyViewHighlightSets === false
               && <SearchCourse filter={courseFilter} />}
-            {enableVideos && (
-              <SearchVideo
-                filter={videoFilter}
-                showVideosBanner={showVideosBanner}
-                hideVideosBanner={hideVideosBanner}
-              />
-            )}
-          </Stack>
-        )}
-        {/* render a single contentType if the refinement
-            exist and is either a course, program or learnerpathway */}
-        {contentType?.length > 0 && <ContentTypeSearchResultsContainer contentType={contentType[0]} />}
+              {enableVideos && (
+                <SearchVideo
+                  filter={videoFilter}
+                  showVideosBanner={showVideosBanner}
+                  hideVideosBanner={hideVideosBanner}
+                />
+              )}
+            </Stack>
+          )
+        /* render a single contentType if the refinement
+            exists and is either a course, program or learnerpathway */
+          : <ContentTypeSearchResultsContainer contentType={contentType[0]} />}
       </InstantSearch>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
     </>
