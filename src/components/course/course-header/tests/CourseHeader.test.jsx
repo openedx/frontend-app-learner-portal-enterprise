@@ -16,7 +16,7 @@ import {
   useCourseReviews,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useIsAssignmentsOnlyLearner,
   useRedeemablePolicies,
 } from '../../../app/data';
@@ -45,7 +45,7 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseCourseEnrollments: jest.fn(),
   useCourseMetadata: jest.fn(),
   useCourseRedemptionEligibility: jest.fn(),
-  useEnterpriseCustomerContainsContent: jest.fn(),
+  useEnterpriseCustomerContainsContentSuspense: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
   useCourseReviews: jest.fn(),
   usePassLearnerCsodParams: jest.fn(),
@@ -167,7 +167,7 @@ describe('<CourseHeader />', () => {
     });
     useCourseMetadata.mockReturnValue({ data: mockCourseMetadata });
     useCourseRedemptionEligibility.mockReturnValue({ data: { isPolicyRedemptionEnabled: false } });
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: {
         containsContentItems: true,
         catalogList: ['test-enterprise-catalog-uuid'],
@@ -258,7 +258,7 @@ describe('<CourseHeader />', () => {
   });
 
   test('does not renders course reviews section if course not part of catalog', () => {
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: {
         containsContentItems: false,
         catalogList: [],
@@ -297,7 +297,7 @@ describe('<CourseHeader />', () => {
   });
 
   test('renders not in catalog messaging', () => {
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: {
         containsContentItems: false,
         catalogList: [],

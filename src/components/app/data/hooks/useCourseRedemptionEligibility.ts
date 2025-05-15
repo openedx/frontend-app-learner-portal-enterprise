@@ -11,7 +11,7 @@ import useCourseRunKeyQueryParam from './useCourseRunKeyQueryParam';
 import useRedeemablePolicies from './useRedeemablePolicies';
 import useSubscriptions from './useSubscriptions';
 import useCouponCodes from './useCouponCodes';
-import useEnterpriseCustomerContainsContent from './useEnterpriseCustomerContainsContent';
+import { useEnterpriseCustomerContainsContent } from './useEnterpriseCustomerContainsContent';
 
 const getContentListPriceRange = ({ courseRuns }) => {
   const flatContentPrice = courseRuns.flatMap(run => run.listPrice?.usd).filter(x => !!x);

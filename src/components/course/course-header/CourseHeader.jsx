@@ -23,7 +23,7 @@ import {
   isArchived,
   useCourseMetadata,
   useEnterpriseCustomer,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useIsAssignmentsOnlyLearner,
 } from '../../app/data';
 import CourseImportantDates from './CourseImportantDates';
@@ -33,7 +33,7 @@ const CourseHeader = () => {
   const { courseKey } = useParams();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
-  const { data: { containsContentItems } } = useEnterpriseCustomerContainsContent([courseKey]);
+  const { data: { containsContentItems } } = useEnterpriseCustomerContainsContentSuspense([courseKey]);
   const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();
   const { shouldDisplayAssignmentsOnly } = useIsCourseAssigned();
   const isCourseArchived = courseMetadata.courseRuns.every((courseRun) => isArchived(courseRun));

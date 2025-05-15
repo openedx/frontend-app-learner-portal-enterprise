@@ -8,7 +8,7 @@ import {
   useCourseMetadata,
   useCourseRedemptionEligibility,
   useEnterpriseCustomer,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useEnterpriseOffers,
   useSubscriptions,
 } from '../../../app/data';
@@ -57,7 +57,7 @@ const useUserSubsidyApplicableToCourse = () => {
       containsContentItems,
       catalogList: catalogsWithCourse,
     },
-  } = useEnterpriseCustomerContainsContent([courseKey]);
+  } = useEnterpriseCustomerContainsContentSuspense([courseKey]);
   const {
     data: {
       enterpriseOffers,

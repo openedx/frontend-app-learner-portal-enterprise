@@ -16,7 +16,7 @@ import {
   useCourseMetadata,
   useCourseRedemptionEligibility,
   useEnterpriseCustomer,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
@@ -55,7 +55,7 @@ jest.mock('../../../app/data', () => ({
   useSubscriptions: jest.fn(),
   useRedeemablePolicies: jest.fn(),
   useCourseRedemptionEligibility: jest.fn(),
-  useEnterpriseCustomerContainsContent: jest.fn(),
+  useEnterpriseCustomerContainsContentSuspense: jest.fn(),
   useEnterpriseOffers: jest.fn(),
   useCouponCodes: jest.fn(),
   useBrowseAndRequest: jest.fn(),
@@ -130,7 +130,7 @@ describe('<DeprecatedCourseRunCard />', () => {
       },
     });
     useCourseRedemptionEligibility.mockReturnValue({ data: { listPrice: 100 } });
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: {
         containsContentItems: false,
         catalogList: [],

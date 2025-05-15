@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import Color from 'color';
 
-import { isDefinedAndNotNull, isDefined, getBrandColorsFromCSSVariables } from '../../../utils/common';
+import { isDefinedAndNotNull, isDefined, getBrandColorsFromCSSVariables } from '../../../../utils/common';
 
 const COLOR_LIGHTEN_DARKEN_MODIFIER = 0.2;
 
-export const useStylesForCustomBrandColors = (enterpriseCustomer) => {
+const useStylesForCustomBrandColors = (enterpriseCustomer) => {
   const enterpriseBrandColors = useMemo(
     () => {
       if (!isDefinedAndNotNull(enterpriseCustomer)) {
@@ -115,3 +115,5 @@ export const useStylesForCustomBrandColors = (enterpriseCustomer) => {
 
   return styles;
 };
+
+export default useStylesForCustomBrandColors;

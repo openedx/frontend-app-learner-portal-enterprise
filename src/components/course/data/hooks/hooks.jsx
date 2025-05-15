@@ -42,7 +42,7 @@ import {
   useCourseRedemptionEligibility,
   useEnterpriseCustomer,
   useRedeemablePolicies,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   LEARNER_CREDIT_SUBSIDY_TYPE,
 } from '../../../app/data';
 import { CourseContext } from '../../CourseContextProvider';
@@ -538,7 +538,7 @@ export function useCoursePrice() {
 export function useBrowseAndRequestCatalogsApplicableToCourse() {
   const { courseKey } = useParams();
   const catalogsForSubsidyRequests = useCatalogsForSubsidyRequests();
-  const { data: { catalogList: catalogsContainingCourse } } = useEnterpriseCustomerContainsContent([courseKey]);
+  const { data: { catalogList: catalogsContainingCourse } } = useEnterpriseCustomerContainsContentSuspense([courseKey]);
   const catalogsApplicableToCourse = useMemo(() => {
     const subsidyRequestCatalogIntersection = new Set(
       catalogsForSubsidyRequests.filter(catalog => catalogsContainingCourse.includes(catalog)),

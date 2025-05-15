@@ -14,7 +14,7 @@ import {
   useCourseMetadata,
   useCourseRedemptionEligibility,
   useEnterpriseCustomer,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
@@ -43,7 +43,7 @@ jest.mock('../../../../app/data', () => ({
   useRedeemablePolicies: jest.fn(),
   useCourseRedemptionEligibility: jest.fn(),
   useSubscriptions: jest.fn(),
-  useEnterpriseCustomerContainsContent: jest.fn(),
+  useEnterpriseCustomerContainsContentSuspense: jest.fn(),
   useEnterpriseOffers: jest.fn(),
   useCouponCodes: jest.fn(),
   getSubsidyToApplyForCourse: jest.fn(),
@@ -110,7 +110,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
         subscriptionPlan: undefined,
       },
     });
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: {
         containsContentItems: false,
         catalogList: [],
@@ -249,7 +249,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       },
     });
 
-    useEnterpriseCustomerContainsContent.mockReturnValueOnce({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValueOnce({
       data: {
         catalogList: ['test-catalog-uuid'],
         containsContentItems: true,
@@ -360,7 +360,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
     findCouponCodeForCourse.mockReturnValueOnce(mockCouponCode);
     useCouponCodes.mockReturnValueOnce({ data: { couponCodeAssignments: [mockCouponCode] } });
-    useEnterpriseCustomerContainsContent.mockReturnValueOnce({ data: { catalogList: [mockCatalogUUID] } });
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValueOnce({ data: { catalogList: [mockCatalogUUID] } });
     useCourseRedemptionEligibility.mockReturnValue({
       data: {
         isPolicyRedemptionEnabled: false,

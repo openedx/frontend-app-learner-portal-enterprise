@@ -39,7 +39,7 @@ import {
   useCatalogsForSubsidyRequests,
   useCourseMetadata,
   useEnterpriseCustomer,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useRedeemablePolicies,
 } from '../../../app/data';
 import { CourseContext } from '../../CourseContextProvider';
@@ -51,7 +51,7 @@ jest.mock('../../../app/data', () => ({
   useCourseMetadata: jest.fn(),
   useCourseRedemptionEligibility: jest.fn(),
   useSubscriptions: jest.fn(),
-  useEnterpriseCustomerContainsContent: jest.fn(),
+  useEnterpriseCustomerContainsContentSuspense: jest.fn(),
   useEnterpriseOffers: jest.fn(),
   useCouponCodes: jest.fn(),
   useBrowseAndRequest: jest.fn(),
@@ -1209,7 +1209,7 @@ describe('useBrowseAndRequestCatalogsApplicableToCourse', () => {
     jest.clearAllMocks();
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
     useCatalogsForSubsidyRequests.mockReturnValue(['test-catalog']);
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: { catalogList: ['test-catalog'] },
     });
   });
@@ -1227,7 +1227,7 @@ describe('useBrowseAndRequestCatalogsApplicableToCourse', () => {
   });
   it('filters sets effectively', () => {
     useCatalogsForSubsidyRequests.mockReturnValue(['test-catalog', 'test-catalog', 'test-catalog1']);
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: { catalogList: ['test-catalog', 'test-catalog1', 'test-catalog2'] },
     });
 

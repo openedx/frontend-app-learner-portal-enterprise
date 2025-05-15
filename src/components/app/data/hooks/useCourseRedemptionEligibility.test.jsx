@@ -23,7 +23,9 @@ import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useCourseMetadata');
 jest.mock('./useLateEnrollmentBufferDays');
-jest.mock('./useEnterpriseCustomerContainsContent');
+jest.mock('./useEnterpriseCustomerContainsContent', () => ({
+  useEnterpriseCustomerContainsContent: jest.fn(),
+}));
 jest.mock('./useCourseRunKeyQueryParam');
 jest.mock('./useRedeemablePolicies');
 jest.mock('./useSubscriptions');

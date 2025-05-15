@@ -5,7 +5,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { isSystemMaintenanceAlertOpen, useEnterpriseCustomer } from './data';
-import { useStylesForCustomBrandColors } from '../layout/data/hooks';
+import { useBrandStylesInjection } from '../layout/data';
 import NotFoundPage from '../NotFoundPage';
 import { SiteHeader } from '../site-header';
 import { EnterpriseBanner } from '../enterprise-banner';
@@ -21,7 +21,8 @@ const Layout = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const licenseActivationRouteMatch = useMatch('/:enterpriseSlug/licenses/:activationKey/activate');
 
-  const brandStyles = useStylesForCustomBrandColors(enterpriseCustomer);
+  // Inject brand styles based on the enterprise customer's branding configuration
+  useBrandStylesInjection();
 
   // Authenticated user is NOT linked to an enterprise customer.
   if (!enterpriseCustomer) {
@@ -43,12 +44,7 @@ const Layout = () => {
 
   return (
     <EnterprisePage>
-      <Helmet titleTemplate={TITLE_TEMPLATE} defaultTitle={DEFAULT_TITLE}>
-        <html lang="en" />
-        {brandStyles?.map(({ key, styles }) => (
-          <style key={key} type="text/css">{styles}</style>
-        ))}
-      </Helmet>
+      <Helmet titleTemplate={TITLE_TEMPLATE} defaultTitle={DEFAULT_TITLE} />
       {isSystemMaintenanceAlertOpen(config) && (
         <SystemWideWarningBanner>
           {config.MAINTENANCE_ALERT_MESSAGE}

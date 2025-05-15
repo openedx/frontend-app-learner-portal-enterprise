@@ -61,6 +61,7 @@ import { findCourseStatusKey } from '../../../../../utils/common';
  *     subsidyForCourse: undefined,
  *     courseRunPrice: undefined,
  *     hasUpgradeAndConfirm: false,
+ *     isPending: false,
  * }
  */
 export const useCourseUpgradeData = ({
@@ -76,10 +77,16 @@ export const useCourseUpgradeData = ({
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   // Metadata required to determine if the course run is contained in the customer's content catalog(s)
-  const { data: customerContainsContent } = useEnterpriseCustomerContainsContent([courseRunKey]);
+  const {
+    data: customerContainsContent,
+    isPending: isCustomerContainsContentPending,
+  } = useEnterpriseCustomerContainsContent([courseRunKey]);
 
   // Metadata required to allow upgrade via applicable learner credit subsidy
-  const { data: learnerCreditMetadata } = useCanUpgradeWithLearnerCredit(courseRunKey);
+  const {
+    data: learnerCreditMetadata,
+    isPending: isLearnerCreditMetadataPending,
+  } = useCanUpgradeWithLearnerCredit(courseRunKey);
 
   // Metadata required to allow upgrade via applicable subscription license
   const { data: subscriptionLicense } = useSubscriptions({
@@ -106,7 +113,10 @@ export const useCourseUpgradeData = ({
   });
 
   // If coupon codes are eligible, retrieve the course run's product SKU metadata from API
-  const { data: courseRunDetails } = useCourseRunMetadata(courseRunKey, {
+  const {
+    data: courseRunDetails,
+    isPending: isCourseRunDetailsPending,
+  } = useCourseRunMetadata(courseRunKey, {
     select: (data) => ({
       ...data,
       sku: findHighestLevelSeatSku(data.seats),
@@ -124,12 +134,17 @@ export const useCourseUpgradeData = ({
     userEnrollments: enterpriseCourseEnrollmentsMetadata.enterpriseCourseEnrollments,
   });
 
+  const hasPendingQueries = (
+    isCustomerContainsContentPending || isLearnerCreditMetadataPending || isCourseRunDetailsPending
+  );
+
   return useMemo(() => {
     const defaultReturn = {
       subsidyForCourse: null,
       courseRunPrice: null,
       hasUpgradeAndConfirm: false,
       redeem: null,
+      isPending: hasPendingQueries,
     };
 
     // Return early if the user is unable to upgrade to their course mode OR the content
@@ -225,6 +240,7 @@ export const useCourseUpgradeData = ({
     learnerCreditMetadata,
     location,
     redeemLearnerCredit,
+    hasPendingQueries,
   ]);
 };
 

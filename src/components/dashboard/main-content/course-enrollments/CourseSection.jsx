@@ -1,8 +1,7 @@
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { Bubble, Collapsible, Skeleton } from '@openedx/paragon';
-import { v4 as uuidv4 } from 'uuid';
+import { Bubble, Collapsible } from '@openedx/paragon';
 
 import {
   AssignedCourseCard,
@@ -17,7 +16,6 @@ import {
 import { COURSE_STATUSES } from '../../../../constants';
 import { COURSE_SECTION_TITLES } from '../../data/constants';
 import { COURSE_MODES_MAP, isEnrollmentUpgradeable, useEnterpriseCustomer } from '../../../app/data';
-import DelayedFallbackContainer from '../../../DelayedFallback/DelayedFallbackContainer';
 
 const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.upcoming]: UpcomingCourseCard,
@@ -115,21 +113,6 @@ const CourseSection = ({
       ? CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus][inProgressCourseRunCardVariant]
       : CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
 
-    if (inProgressCourseRunCardVariant === 'upgradeable') {
-      return (
-        <Suspense
-          key={courseRun.courseRunId}
-          fallback={(
-            <DelayedFallbackContainer className="dashboard-course-card border-bottom py-3 mb-2">
-              <div className="sr-only">Loading...</div>
-              <Skeleton key={uuidv4()} height={200} />
-            </DelayedFallbackContainer>
-          )}
-        >
-          <Component {...getCourseRunProps(courseRun)} />
-        </Suspense>
-      );
-    }
     return (
       <Component
         {...getCourseRunProps(courseRun)}

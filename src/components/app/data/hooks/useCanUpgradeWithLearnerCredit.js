@@ -1,4 +1,4 @@
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { queryCanUpgradeWithLearnerCredit } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -12,7 +12,7 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
 export default function useCanUpgradeWithLearnerCredit(courseRunKey, options = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { select } = options;
-  return useSuspenseQuery(
+  return useQuery(
     queryOptions({
       ...queryCanUpgradeWithLearnerCredit(enterpriseCustomer.uuid, courseRunKey),
       select: (data) => {

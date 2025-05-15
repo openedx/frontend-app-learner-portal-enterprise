@@ -209,6 +209,7 @@ export const UpgradeableInProgressCourseCard = (props) => {
     subsidyForCourse,
     hasUpgradeAndConfirm,
     courseRunPrice,
+    isPending,
   } = useCourseUpgradeData({
     courseRunKey: courseRunId,
     enrollBy,
@@ -271,6 +272,7 @@ export const UpgradeableInProgressCourseCard = (props) => {
       linkToCourse={coursewareOrUpgradeLink}
       renderButtons={renderButtons}
       renderCourseUpgradePrice={renderCourseUpgradePrice}
+      isLoading={isPending}
     />
   );
 };
