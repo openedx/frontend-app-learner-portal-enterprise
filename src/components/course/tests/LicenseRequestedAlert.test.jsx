@@ -15,7 +15,7 @@ import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/d
 import {
   useBrowseAndRequest,
   useEnterpriseCustomer,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useSubscriptions,
 } from '../../app/data';
 import { renderWithRouterProvider } from '../../../utils/tests';
@@ -26,7 +26,7 @@ jest.mock('universal-cookie');
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
-  useEnterpriseCustomerContainsContent: jest.fn(),
+  useEnterpriseCustomerContainsContentSuspense: jest.fn(),
   useSubscriptions: jest.fn(),
   useBrowseAndRequest: jest.fn(),
 }));
@@ -53,7 +53,7 @@ describe('<LicenseRequestedAlert />', () => {
     jest.clearAllMocks();
     useParams.mockReturnValue({ courseKey: 'edX+DemoX' });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: {
         containsContentItems: false,
         catalogList: [],
@@ -84,7 +84,7 @@ describe('<LicenseRequestedAlert />', () => {
         },
       },
     });
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: {
         catalogList: [mockCatalogUUID],
       },
@@ -131,7 +131,7 @@ describe('<LicenseRequestedAlert />', () => {
         },
       },
     });
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: {
         catalogList: [mockCatalogUUID],
       },

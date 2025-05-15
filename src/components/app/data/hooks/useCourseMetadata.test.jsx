@@ -9,13 +9,15 @@ import { fetchCourseMetadata } from '../services';
 import useLateEnrollmentBufferDays from './useLateEnrollmentBufferDays';
 import useCourseMetadata from './useCourseMetadata';
 import useRedeemablePolicies from './useRedeemablePolicies';
-import useEnterpriseCustomerContainsContent from './useEnterpriseCustomerContainsContent';
+import { useEnterpriseCustomerContainsContent } from './useEnterpriseCustomerContainsContent';
 import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('./useLateEnrollmentBufferDays');
 jest.mock('./useRedeemablePolicies');
-jest.mock('./useEnterpriseCustomerContainsContent');
+jest.mock('./useEnterpriseCustomerContainsContent', () => ({
+  useEnterpriseCustomerContainsContent: jest.fn(),
+}));
 
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),

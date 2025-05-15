@@ -8,7 +8,7 @@ import { authenticatedUserFactory } from '../../../app/data/services/data/__fact
 import {
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useUserEntitlements,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
@@ -33,7 +33,7 @@ jest.mock('@edx/frontend-platform', () => ({
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useCourseMetadata: jest.fn(),
-  useEnterpriseCustomerContainsContent: jest.fn(),
+  useEnterpriseCustomerContainsContentSuspense: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
   useUserEntitlements: jest.fn(),
 }));
@@ -81,7 +81,7 @@ describe('<CourseRunCardStatus />', () => {
       missingUserSubsidyReason: undefined,
     });
     useCourseMetadata.mockReturnValue({ data: { availableCourseRuns: [mockCourseRunKey] } });
-    useEnterpriseCustomerContainsContent.mockReturnValue({ data: { catalogList: [] } });
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({ data: { catalogList: [] } });
     useEnterpriseCourseEnrollments.mockReturnValue({ data: { enterpriseCourseEnrollments: {} } });
     useUserEntitlements.mockReturnValue({ data: {} });
     getConfig.mockReturnValue({

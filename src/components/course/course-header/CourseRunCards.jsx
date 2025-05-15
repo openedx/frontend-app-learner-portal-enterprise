@@ -9,7 +9,7 @@ import {
   LEARNER_CREDIT_SUBSIDY_TYPE,
   useCourseMetadata,
   useEnterpriseCourseEnrollments,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useUserEntitlements,
 } from '../../app/data';
 
@@ -25,7 +25,7 @@ const CourseRunCards = () => {
     missingUserSubsidyReason,
   } = useUserSubsidyApplicableToCourse();
   const { data: courseMetadata } = useCourseMetadata();
-  const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
+  const { data: { catalogList } } = useEnterpriseCustomerContainsContentSuspense([courseKey]);
   const { data: { enterpriseCourseEnrollments } } = useEnterpriseCourseEnrollments();
   const { data: userEntitlements } = useUserEntitlements();
   // The DEPRECATED CourseRunCard should be used when the applicable subsidy is NOT Learner Credit.

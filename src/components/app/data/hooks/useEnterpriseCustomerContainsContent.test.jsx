@@ -6,7 +6,7 @@ import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryClient } from '../../../../utils/tests';
 import { fetchEnterpriseCustomerContainsContent } from '../services';
-import useEnterpriseCustomerContainsContent from './useEnterpriseCustomerContainsContent';
+import { useEnterpriseCustomerContainsContentSuspense } from './useEnterpriseCustomerContainsContent';
 
 jest.mock('./useEnterpriseCustomer');
 jest.mock('../services', () => ({
@@ -19,7 +19,7 @@ const mockEnterpriseCustomerContainsContent = {
   catalogList: [],
 };
 
-describe('useEnterpriseCustomerContainsContent', () => {
+describe('useEnterpriseCustomerContainsContentSuspense', () => {
   const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient()}>
       <Suspense fallback={<div>Loading...</div>}>
@@ -34,7 +34,7 @@ describe('useEnterpriseCustomerContainsContent', () => {
   });
   it('should handle resolved value correctly', async () => {
     const { result } = renderHook(
-      () => useEnterpriseCustomerContainsContent(),
+      () => useEnterpriseCustomerContainsContentSuspense(),
       { wrapper: Wrapper },
     );
     await waitFor(() => {

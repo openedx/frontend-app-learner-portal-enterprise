@@ -13,7 +13,7 @@ import {
   useCourseRedemptionEligibility,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useEnterpriseOffers,
   useSubscriptions,
 } from '../../../app/data';
@@ -26,7 +26,7 @@ jest.mock('../../../app/data', () => ({
   useCourseMetadata: jest.fn(),
   useSubscriptions: jest.fn(),
   useEnterpriseOffers: jest.fn(),
-  useEnterpriseCustomerContainsContent: jest.fn(),
+  useEnterpriseCustomerContainsContentSuspense: jest.fn(),
   useCouponCodes: jest.fn(),
   useCourseRedemptionEligibility: jest.fn(),
   useEnterpriseCourseEnrollments: jest.fn(),
@@ -99,7 +99,7 @@ describe('<CourseRunCard />', () => {
         subscriptionPlan: undefined,
       },
     });
-    useEnterpriseCustomerContainsContent.mockReturnValue({
+    useEnterpriseCustomerContainsContentSuspense.mockReturnValue({
       data: {
         containsContentItems: false,
         catalogList: [],

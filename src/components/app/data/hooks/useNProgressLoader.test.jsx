@@ -2,6 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import nprogress from 'accessible-nprogress';
 import { useFetchers, useNavigation } from 'react-router-dom';
+import { useIsFetching } from '@tanstack/react-query';
 
 import useNProgressLoader from './useNProgressLoader';
 import { authenticatedUserFactory } from '../services/data/__factories__';
@@ -15,6 +16,11 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigation: jest.fn(),
   useFetchers: jest.fn(),
+}));
+
+jest.mock('@tanstack/react-query', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
+  useIsFetching: jest.fn(),
 }));
 
 const mockAuthenticatedUser = authenticatedUserFactory();
@@ -37,6 +43,7 @@ describe('useNProgressLoader', () => {
     jest.clearAllMocks();
     useNavigation.mockReturnValue({ state: 'idle' });
     useFetchers.mockReturnValue([]);
+    useIsFetching.mockReturnValue(0);
   });
 
   it('should start nprogress, but not call done with unhydrated authenticated user', async () => {
@@ -84,6 +91,25 @@ describe('useNProgressLoader', () => {
       </AppContext.Provider>
     );
     const { result } = renderHook(() => useNProgressLoader(), { wrapper: Wrapper });
+
+    await waitFor(() => {
+      expect(nprogress.start).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(nprogress.done).not.toHaveBeenCalled();
+    });
+
+    expect(result.current).toBe(true);
+  });
+
+  it('should start nprogress, but not call done with pending queries', async () => {
+    useIsFetching.mockReturnValue(1);
+    const Wrapper = ({ children }) => (
+      <AppContext.Provider value={appContextValueWithHydratedUser}>
+        {children}
+      </AppContext.Provider>
+    );
+    const { result } = renderHook(() => useNProgressLoader({ handleQueryFetching: true }), { wrapper: Wrapper });
 
     await waitFor(() => {
       expect(nprogress.start).toHaveBeenCalledTimes(1);

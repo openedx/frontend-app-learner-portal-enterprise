@@ -11,7 +11,7 @@ export { default as useCourseRecommendations } from './useCourseRecommendations'
 export { default as useCatalogsForSubsidyRequests } from './useCatalogsForSubsidyRequests';
 export { default as useEnterpriseFeatures } from './useEnterpriseFeatures';
 export { default as useDefaultSearchFilters } from './useDefaultSearchFilters';
-export { default as useEnterpriseCustomerContainsContent } from './useEnterpriseCustomerContainsContent';
+export { useEnterpriseCustomerContainsContent, useEnterpriseCustomerContainsContentSuspense } from './useEnterpriseCustomerContainsContent';
 export { default as useCourseRedemptionEligibility } from './useCourseRedemptionEligibility';
 export { default as useSearchCatalogs } from './useSearchCatalogs';
 export { default as useSubscriptions } from './useSubscriptions';
@@ -41,7 +41,7 @@ export { default as useAcademies } from './useAcademies';
 export { default as useAcademyDetails } from './useAcademyDetails';
 export { default as usePassLearnerCsodParams } from './usePassLearnerCsodParams';
 export { default as useCanUpgradeWithLearnerCredit } from './useCanUpgradeWithLearnerCredit';
-export { default as useCourseRunMetadata } from './useCourseRunMetadata';
+export { useCourseRunMetadata, useCourseRunMetadataSuspense } from './useCourseRunMetadata';
 export { default as useVideoDetails } from './useVideoDetails';
 export { default as useVideoCourseMetadata } from './useVideoCourseMetadata';
 export { default as useVideoCourseReviews } from './useVideoCourseReviews';

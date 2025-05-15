@@ -10,7 +10,7 @@ import {
 } from './data/constants';
 import {
   useBrowseAndRequest,
-  useEnterpriseCustomerContainsContent,
+  useEnterpriseCustomerContainsContentSuspense,
   useSubscriptions,
 } from '../app/data';
 
@@ -20,7 +20,7 @@ import {
  */
 const LicenseRequestedAlert = () => {
   const { courseKey } = useParams();
-  const { data: { catalogList } } = useEnterpriseCustomerContainsContent([courseKey]);
+  const { data: { catalogList } } = useEnterpriseCustomerContainsContentSuspense([courseKey]);
   const cookies = new Cookies();
   const previouslyDismissed = cookies.get(LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME);
   const [isAlertOpen, setIsAlertOpen] = useState(!previouslyDismissed);

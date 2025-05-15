@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { matchPath, Outlet, RouteObject } from 'react-router-dom';
 import { PageWrap } from '@edx/frontend-platform/react';
@@ -7,6 +8,7 @@ import Root from './components/app/Root';
 import Layout from './components/app/Layout';
 import { makeRootLoader } from './components/app/routes/loaders';
 import NotFoundPage from './components/NotFoundPage';
+import RouterFallback from './components/app/routes/RouterFallback';
 
 /**
  * Returns the route loader function if a queryClient is available; otherwise, returns null.
@@ -255,7 +257,9 @@ export function getRoutes(queryClient?: QueryClient) {
       path: '/',
       element: (
         <PageWrap>
-          <Root />
+          <Suspense fallback={<RouterFallback loaderOptions={{ handleQueryFetching: true }} />}>
+            <Root />
+          </Suspense>
         </PageWrap>
       ),
       children: rootChildRoutes,
