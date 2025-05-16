@@ -6,6 +6,7 @@ import {
   queryAcademiesList,
   queryBrowseAndRequestConfiguration,
   queryCanRedeem,
+  queryContentHighlightsConfiguration,
   queryContentHighlightSets,
   queryCouponCodeRequests,
   queryCouponCodes,
@@ -407,6 +408,17 @@ export async function safeEnsureQueryDataAcademiesList({
     queryClient,
     query: queryAcademiesList(enterpriseCustomer.uuid),
     fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataContentHighlightsConfiguration({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
+    fallbackData: null,
   });
 }
 

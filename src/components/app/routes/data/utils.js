@@ -11,7 +11,7 @@ import {
   resolveBFFQuery,
   safeEnsureQueryDataAcademiesList,
   safeEnsureQueryDataBrowseAndRequestConfiguration,
-  safeEnsureQueryDataContentHighlightSets,
+  safeEnsureQueryDataContentHighlightsConfiguration,
   safeEnsureQueryDataCouponCodeRequests,
   safeEnsureQueryDataCouponCodes,
   safeEnsureQueryDataEnterpriseOffers,
@@ -138,7 +138,7 @@ export async function ensureEnterpriseAppData({
       authenticatedUser: { email: userEmail },
     }),
     // Content Highlights
-    safeEnsureQueryDataContentHighlightSets({
+    safeEnsureQueryDataContentHighlightsConfiguration({
       queryClient,
       enterpriseCustomer,
     }),
