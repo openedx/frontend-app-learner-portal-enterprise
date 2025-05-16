@@ -11,6 +11,7 @@ import { useDashboardTabs } from './data';
 import { SESSION_STORAGE_KEY_LICENSE_ACTIVATION_MESSAGE, useEnterpriseCustomer, useSubscriptions } from '../app/data';
 import BudgetExpiryNotification from '../budget-expiry-notification';
 import CustomSubscriptionExpirationModal from '../custom-expired-subscription-modal';
+import BrowseAndRequestAlert from '../course/BrowseAndRequestAlert';
 
 const DashboardPage = () => {
   const intl = useIntl();
@@ -79,6 +80,7 @@ const DashboardPage = () => {
           description="Alert message shown to a learner on enterprise dashboard courses tab."
         />
       </Alert>
+      <BrowseAndRequestAlert />
       <Tabs
         activeKey={activeTab}
         onSelect={onSelectHandler}
