@@ -3,20 +3,29 @@ import { Configure, Index } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { NUM_RESULTS_PROGRAM, CONTENT_TYPE_PROGRAM, PROGRAM_TITLE } from './constants';
+import { NUM_RESULTS_PROGRAM, PROGRAM_TITLE } from './constants';
 import { SEARCH_INDEX_IDS } from '../../constants';
 import SearchResults from './SearchResults';
 import SearchProgramCard from './SearchProgramCard';
 
+/**
+ * Renders the program-specific Algolia search results.
+ *
+ * @param {{ filter: string }} props
+ * @param {string} props.filter - A preconstructed Algolia filter string that includes the
+ * `content_type:program` clause. This filter ensures only program results are returned.
+ *
+ * @example
+ * <SearchProgram filter="content_type:program AND level:advanced" />
+ */
 const SearchProgram = ({ filter }) => {
-  const defaultFilter = `content_type:${CONTENT_TYPE_PROGRAM} AND ${filter}`;
   const config = getConfig();
   const intl = useIntl();
   return (
     <Index indexName={config.ALGOLIA_INDEX_NAME} indexId={SEARCH_INDEX_IDS.PROGRAMS}>
       <Configure
         hitsPerPage={NUM_RESULTS_PROGRAM}
-        filters={defaultFilter}
+        filters={filter}
         clickAnalytics
       />
       <SearchResults

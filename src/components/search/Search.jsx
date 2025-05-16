@@ -24,6 +24,7 @@ import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import {
   useAlgoliaSearch,
   useCanOnlyViewHighlights,
+  useContentTypeFilter,
   useDefaultSearchFilters,
   useEnterpriseCustomer,
   useEnterpriseOffers,
@@ -61,7 +62,15 @@ const Search = () => {
   const navigate = useNavigate();
 
   const { refinements } = useContext(SearchContext);
+  const { content_type: contentType } = refinements;
   const filters = useDefaultSearchFilters();
+  const {
+    courseFilter,
+    programFilter,
+    pathwayFilter,
+    videoFilter,
+    contentTypeFilter,
+  } = useContentTypeFilter({ filter: filters, contentType: contentType?.[0] });
 
   const {
     searchIndex,
@@ -115,7 +124,7 @@ const Search = () => {
     description: 'Title for the enterprise search page header.',
   });
 
-  // If learner only has content assignments available, show the assignments-only empty state.
+  // If the learner only has content assignments available, show the assignments-only empty state.
   if (isAssignmentOnlyLearner) {
     return (
       <>
@@ -125,7 +134,6 @@ const Search = () => {
     );
   }
 
-  const { content_type: contentType } = refinements;
   const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
   if (!searchClient) {
@@ -161,7 +169,7 @@ const Search = () => {
         {contentType?.length > 0 && (
           <Configure
             hitsPerPage={NUM_RESULTS_PER_PAGE}
-            filters={`content_type:${contentType[0]} AND ${filters}`}
+            filters={contentTypeFilter}
             clickAnalytics
           />
         )}
@@ -189,26 +197,31 @@ const Search = () => {
         )}
 
         {/* No content type refinement  */}
-        {(contentType === undefined || contentType.length === 0) && (
-          <Stack className="my-5" gap={5}>
-            {shouldShowVideosBanner && <VideoBanner />}
-            {!hasRefinements && <ContentHighlights />}
-            {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <SearchAcademy />}
-            {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
-            {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
-            {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} />}
-            {enableVideos && (
-              <SearchVideo
-                filter={filters}
-                showVideosBanner={showVideosBanner}
-                hideVideosBanner={hideVideosBanner}
-              />
-            )}
-          </Stack>
-        )}
-        {/* render a single contentType if the refinement
-            exist and is either a course, program or learnerpathway */}
-        {contentType?.length > 0 && <ContentTypeSearchResultsContainer contentType={contentType[0]} />}
+        {!contentType?.length
+          ? (
+            <Stack className="my-5" gap={5}>
+              {shouldShowVideosBanner && <VideoBanner />}
+              {!hasRefinements && <ContentHighlights />}
+              {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies
+              && <SearchAcademy />}
+              {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false)
+              && <SearchPathway filter={pathwayFilter} />}
+              {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false)
+              && <SearchProgram filter={programFilter} />}
+              {canOnlyViewHighlightSets === false
+              && <SearchCourse filter={courseFilter} />}
+              {enableVideos && (
+                <SearchVideo
+                  filter={videoFilter}
+                  showVideosBanner={showVideosBanner}
+                  hideVideosBanner={hideVideosBanner}
+                />
+              )}
+            </Stack>
+          )
+        /* render a single contentType if the refinement
+            exists and is either a course, program or learnerpathway */
+          : <ContentTypeSearchResultsContainer contentType={contentType[0]} />}
       </InstantSearch>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
     </>

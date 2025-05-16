@@ -1,5 +1,5 @@
 import {
-  useContext, useMemo, useState, useEffect,
+  useContext, useEffect, useMemo, useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
@@ -10,11 +10,13 @@ import { CardGrid } from '@openedx/paragon';
 import { SkillsContext } from './SkillsContextProvider';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
-import { useDefaultSearchFilters } from '../app/data';
+import { useContentTypeFilter, useDefaultSearchFilters } from '../app/data';
 
 const SearchPathways = ({ index }) => {
   const filters = useDefaultSearchFilters();
-
+  const {
+    pathwayFilter,
+  } = useContentTypeFilter({ filter: filters });
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);
   const [pathways, setPathways] = useState([]);
@@ -39,7 +41,7 @@ const SearchPathways = ({ index }) => {
       async function fetchPathways() {
         setIsLoading(true);
         const { hits, nbHits } = await index.search('', {
-          filters: `content_type:learnerpathway AND ${filters}`, // eslint-disable-line object-shorthand
+          filters: pathwayFilter, // eslint-disable-line object-shorthand
           facetFilters: [
             skillsFacetFilter,
           ],
@@ -55,7 +57,7 @@ const SearchPathways = ({ index }) => {
       }
       fetchPathways();
     },
-    [filters, index, selectedJob, skills, skillsFacetFilter],
+    [filters, index, pathwayFilter, selectedJob, skills, skillsFacetFilter],
   );
 
   if (hitCount === 0) {

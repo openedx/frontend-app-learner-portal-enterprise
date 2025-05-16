@@ -1,6 +1,4 @@
-import {
-  useMemo, useState, useEffect,
-} from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,12 +7,15 @@ import { CardGrid } from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import SearchCourseCard from '../search/SearchCourseCard';
 
-import { useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
+import { useContentTypeFilter, useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
 
 const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const filters = useDefaultSearchFilters();
+  const {
+    courseFilter,
+  } = useContentTypeFilter({ filter: filters });
 
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState([]);
@@ -35,7 +36,7 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
       async function fetchCourses() {
         setIsLoading(true);
         const { hits, nbHits } = await index.search('', {
-          filters: `content_type:course AND ${filters}`,
+          filters: courseFilter,
           facetFilters: [
             skillsFacetFilter,
           ],
@@ -54,7 +55,7 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
       }
       fetchCourses();
     },
-    [filters, index, skillsFacetFilter],
+    [courseFilter, index, skillsFacetFilter],
   );
   if (hitCount === 0) {
     return null;

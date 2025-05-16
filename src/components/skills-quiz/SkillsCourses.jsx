@@ -13,7 +13,9 @@ import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { sortSkillsCoursesWithCourseCount } from './data/utils';
 import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from './constants';
 import CourseCard from './CourseCard';
-import { useAlgoliaSearch, useDefaultSearchFilters, useEnterpriseCustomer } from '../app/data';
+import {
+  useAlgoliaSearch, useContentTypeFilter, useDefaultSearchFilters, useEnterpriseCustomer,
+} from '../app/data';
 import { AlgoliaFilterBuilder } from '../AlgoliaFilterBuilder';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 
@@ -136,11 +138,13 @@ const SkillsCourses = () => {
   const { searchIndex, searchClient } = useAlgoliaSearch();
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
   const filters = useDefaultSearchFilters();
+  const {
+    courseFilter,
+  } = useContentTypeFilter({ filter: filters });
   const searchFilters = useMemo(() => new AlgoliaFilterBuilder()
-    .and('content_type', 'course')
-    .andRaw(filters)
+    .andRaw(courseFilter)
     .or('skill_names', allSkills, { stringify: true })
-    .build(), [filters, allSkills]);
+    .build(), [courseFilter, allSkills]);
 
   return (
     <InstantSearch indexName={searchIndex.indexName} searchClient={searchClient}>
