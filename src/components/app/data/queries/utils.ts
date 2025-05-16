@@ -146,8 +146,7 @@ export async function safeEnsureQueryData<TData = unknown>({
   fallbackData,
 }: SafeEnsureQueryDataArgs<TData>) {
   try {
-    const data = await queryClient.ensureQueryData<TData>(query);
-    return data;
+    return await queryClient.ensureQueryData<TData>(query);
   } catch (err) {
     const shouldLogErrorResult = typeof shouldLogError === 'function'
       ? shouldLogError(err as Error)
@@ -288,6 +287,7 @@ export async function safeEnsureQueryDataBrowseAndRequestConfiguration({
     queryClient,
     query: queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
     shouldLogError: ignoreQueryResponseError404,
+    fallbackData: null,
   });
 }
 

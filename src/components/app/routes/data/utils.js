@@ -7,21 +7,19 @@ import { logError } from '@edx/frontend-platform/logging';
 import {
   activateOrAutoApplySubscriptionLicense,
   addLicenseToSubscriptionLicensesByStatus,
-  getBaseSubscriptionsData,
-  queryAcademiesList,
-  queryBrowseAndRequestConfiguration,
-  queryContentHighlightsConfiguration,
-  queryCouponCodeRequests,
-  queryCouponCodes,
-  queryEnterpriseLearnerOffers,
-  queryLicenseRequests,
-  queryRedeemablePolicies,
   querySubscriptions,
   resolveBFFQuery,
-  safeEnsureQueryData,
+  safeEnsureQueryDataAcademiesList,
+  safeEnsureQueryDataBrowseAndRequestConfiguration,
+  safeEnsureQueryDataContentHighlightSets,
+  safeEnsureQueryDataCouponCodeRequests,
+  safeEnsureQueryDataCouponCodes,
+  safeEnsureQueryDataEnterpriseOffers,
+  safeEnsureQueryDataLicenseRequests,
+  safeEnsureQueryDataRedeemablePolicies,
+  safeEnsureQueryDataSubscriptions,
   updateUserActiveEnterprise,
 } from '../../data';
-import { getErrorResponseStatusCode } from '../../../../utils/common';
 
 /**
  * Ensures all enterprise-related app data is loaded.
@@ -45,13 +43,11 @@ export async function ensureEnterpriseAppData({
   const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
   const enterpriseAppDataQueries = [];
   if (!matchedBFFQuery) {
-    const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
     enterpriseAppDataQueries.push(
       // Enterprise Customer User Subsidies
-      safeEnsureQueryData({
+      safeEnsureQueryDataSubscriptions({
         queryClient,
-        query: subscriptionsQuery,
-        fallbackData: getBaseSubscriptionsData().baseSubscriptionsData,
+        enterpriseCustomer,
       })
         .then(async (subscriptionsData) => {
           // Auto-activate the user's subscription license, if applicable.
@@ -93,6 +89,7 @@ export async function ensureEnterpriseAppData({
             }
 
             // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
+            const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
             queryClient.setQueryData(subscriptionsQuery.queryKey, (oldData) => ({
               ...oldData,
               subscriptionLicensesByStatus: updatedLicensesByStatus,
@@ -108,88 +105,47 @@ export async function ensureEnterpriseAppData({
   }
   enterpriseAppDataQueries.push(...[
     // Redeemable Learner Credit Policies
-    safeEnsureQueryData({
+    safeEnsureQueryDataRedeemablePolicies({
       queryClient,
-      query: queryRedeemablePolicies({
-        enterpriseUuid: enterpriseCustomer.uuid,
-        lmsUserId: userId,
-      }),
-      fallbackData: {
-        redeemablePolicies: [],
-        expiredPolicies: [],
-        unexpiredPolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          allocatedAssignments: [],
-          hasAllocatedAssignments: false,
-          acceptedAssignments: [],
-          hasAcceptedAssignments: false,
-          canceledAssignments: [],
-          hasCanceledAssignments: false,
-          expiredAssignments: [],
-          hasExpiredAssignments: false,
-          erroredAssignments: [],
-          hasErroredAssignments: false,
-          assignmentsForDisplay: [],
-          hasAssignmentsForDisplay: false,
-          reversedAssignments: [],
-          hasReversedAssignments: false,
-        },
-      },
+      enterpriseCustomer,
+      authenticatedUser: { userId },
     }),
     // Enterprise Coupon Codes
-    safeEnsureQueryData({
+    safeEnsureQueryDataCouponCodes({
       queryClient,
-      query: queryCouponCodes(enterpriseCustomer.uuid),
-      fallbackData: {
-        couponsOverview: [],
-        couponCodeAssignments: [],
-        couponCodeRedemptionCount: 0,
-      },
+      enterpriseCustomer,
     }),
     // Enterprise Learner Offers
-    safeEnsureQueryData({
+    safeEnsureQueryDataEnterpriseOffers({
       queryClient,
-      query: queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
-      fallbackData: {
-        enterpriseOffers: [],
-        currentEnterpriseOffers: [],
-        canEnrollWithEnterpriseOffers: false,
-        hasCurrentEnterpriseOffers: false,
-        hasLowEnterpriseOffersBalance: false,
-        hasNoEnterpriseOffersBalance: false,
-      },
+      enterpriseCustomer,
     }),
     // Browse and Request Configuration
-    safeEnsureQueryData({
+    safeEnsureQueryDataBrowseAndRequestConfiguration({
       queryClient,
-      query: queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
-      shouldLogError: (error) => getErrorResponseStatusCode(error) !== 404,
+      enterpriseCustomer,
     }),
     // License Requests
-    safeEnsureQueryData({
+    safeEnsureQueryDataLicenseRequests({
       queryClient,
-      query: queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
-      fallbackData: [],
+      enterpriseCustomer,
+      authenticatedUser: { email: userEmail },
     }),
     // Coupon Code Requests
-    safeEnsureQueryData({
+    safeEnsureQueryDataCouponCodeRequests({
       queryClient,
-      query: queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
-      fallbackData: [],
+      enterpriseCustomer,
+      authenticatedUser: { email: userEmail },
     }),
     // Content Highlights
-    safeEnsureQueryData({
+    safeEnsureQueryDataContentHighlightSets({
       queryClient,
-      query: queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
-      fallbackData: null,
+      enterpriseCustomer,
     }),
     // Academies List
-    safeEnsureQueryData({
+    safeEnsureQueryDataAcademiesList({
       queryClient,
-      query: queryAcademiesList(enterpriseCustomer.uuid),
-      fallbackData: [],
+      enterpriseCustomer,
     }),
   ]);
 
