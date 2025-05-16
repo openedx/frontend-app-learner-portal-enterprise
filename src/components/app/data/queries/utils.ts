@@ -6,6 +6,7 @@ import {
   queryAcademiesList,
   queryBrowseAndRequestConfiguration,
   queryCanRedeem,
+  queryContentHighlightsConfiguration,
   queryContentHighlightSets,
   queryCouponCodeRequests,
   queryCouponCodes,
@@ -146,8 +147,7 @@ export async function safeEnsureQueryData<TData = unknown>({
   fallbackData,
 }: SafeEnsureQueryDataArgs<TData>) {
   try {
-    const data = await queryClient.ensureQueryData<TData>(query);
-    return data;
+    return await queryClient.ensureQueryData<TData>(query);
   } catch (err) {
     const shouldLogErrorResult = typeof shouldLogError === 'function'
       ? shouldLogError(err as Error)
@@ -288,6 +288,7 @@ export async function safeEnsureQueryDataBrowseAndRequestConfiguration({
     queryClient,
     query: queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
     shouldLogError: ignoreQueryResponseError404,
+    fallbackData: null,
   });
 }
 
@@ -407,6 +408,17 @@ export async function safeEnsureQueryDataAcademiesList({
     queryClient,
     query: queryAcademiesList(enterpriseCustomer.uuid),
     fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataContentHighlightsConfiguration({
+  queryClient,
+  enterpriseCustomer,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
+    fallbackData: null,
   });
 }
 
