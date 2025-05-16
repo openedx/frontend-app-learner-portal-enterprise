@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catalog-search';
 import { SearchContext, SHOW_ALL_NAME } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
+import { logInfo } from '@edx/frontend-platform/logging';
 import useDefaultSearchFilters from './useDefaultSearchFilters';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
@@ -141,18 +142,23 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ ...refinements, dispatch: mockDispatch }) },
     );
+
     if (searchCatalogs.length === 0 || isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
       if (enableVideoCatalog) {
         expect(result.current).toEqual('');
+        expect(logInfo).toHaveBeenCalledTimes(1);
       } else {
         expect(result.current).toEqual(baseExpectedVideoOutput);
+        expect(logInfo).not.toHaveBeenCalled();
       }
     }
     if ((!showAllRefinements && searchCatalogs.length > 0) && !isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
       if (enableVideoCatalog) {
         expect(result.current).toEqual(baseExpectedCatalogOutput);
+        expect(logInfo).not.toHaveBeenCalled();
       } else {
         expect(result.current).toEqual(`${baseExpectedCatalogOutput } AND ${ baseExpectedVideoOutput}`);
+        expect(logInfo).not.toHaveBeenCalled();
       }
     }
   });
