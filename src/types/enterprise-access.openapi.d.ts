@@ -1748,6 +1748,7 @@ export interface components {
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
       enterprise_course_enrollments: components["schemas"]["EnterpriseCourseEnrollment"][];
       all_enrollments_by_status: components["schemas"]["LearnerEnrollmentsByStatus"];
+      has_bnr_enabled_policy: boolean;
     };
     /** @description Serializer for subscription license status. */
     LearnerEnrollmentsByStatus: {

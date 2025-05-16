@@ -129,6 +129,7 @@ Promise<EnterpriseLearnerData> {
     enterpriseFeatures,
     staffEnterpriseCustomer,
     shouldUpdateActiveEnterpriseCustomerUser: false,
+    hasBnrEnabledPolicy: false,
   };
 }
 

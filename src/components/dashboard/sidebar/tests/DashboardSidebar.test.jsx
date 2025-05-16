@@ -27,6 +27,7 @@ import {
   useCouponCodes,
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
+  useEnterpriseLearner,
   useEnterpriseOffers,
   useHasAvailableSubsidiesOrRequests,
   useIsAssignmentsOnlyLearner,
@@ -55,6 +56,7 @@ jest.mock('../../../app/data', () => ({
   useIsAssignmentsOnlyLearner: jest.fn(),
   useHasAvailableSubsidiesOrRequests: jest.fn(),
   useAcademies: jest.fn(),
+  useEnterpriseLearner: jest.fn(),
 }));
 
 const mockEnterpriseOffer = {
@@ -135,6 +137,17 @@ describe('<DashboardSidebar />', () => {
       useMockHasAvailableSubsidyOrRequests(mockUseActiveSubsidyOrRequestsData),
     );
     useAcademies.mockReturnValue({ data: academiesFactory(3) });
+    useEnterpriseLearner.mockReturnValue({
+      data: {
+        enterpriseCustomer: mockEnterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers: [
+          {
+            active: true,
+            enterpriseCustomer: mockEnterpriseCustomer,
+          },
+        ],
+      },
+    });
   });
 
   test('Coupon codes summary card is displayed when coupon codes are available', () => {

@@ -10,7 +10,7 @@ import {
   LEARNER_CREDIT_SUMMARY_CARD_TITLE,
 } from '../data/constants';
 import { BUDGET_STATUSES } from '../../data';
-import { useEnterpriseCustomer } from '../../../app/data';
+import { useEnterpriseCustomer, useEnterpriseLearner } from '../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 const TEST_UPCOMING_EXPIRATION_DATE = dayjs().add(10, 'days').toISOString();
@@ -26,6 +26,7 @@ const mockActiveStatusMetadata = {
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useEnterpriseLearner: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -43,6 +44,17 @@ describe('<LearnerCreditSummaryCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseLearner.mockReturnValue({
+      data: {
+        enterpriseCustomer: mockEnterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers: [
+          {
+            active: true,
+            enterpriseCustomer: mockEnterpriseCustomer,
+          },
+        ],
+      },
+    });
   });
   it('should render searchCoursesCta', () => {
     render(
@@ -83,6 +95,29 @@ describe('<LearnerCreditSummaryCard />', () => {
       />,
     );
     expect(screen.getByText(summaryText)).toBeInTheDocument();
+  });
+
+  it('should render the bnr description when hasBnrEnabledPolicy is true', () => {
+    useEnterpriseLearner.mockReturnValue({
+      data: {
+        enterpriseCustomer: mockEnterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers: [
+          {
+            active: true,
+            enterpriseCustomer: mockEnterpriseCustomer,
+          },
+        ],
+        hasBnrEnabledPolicy: true,
+      },
+    });
+    render(
+      <LearnerCreditSummaryCardWrapper
+        expirationDate={TEST_UPCOMING_EXPIRATION_DATE}
+        statusMetadata={mockActiveStatusMetadata}
+        assignmentOnlyLearner={false} // Set to false to ensure bnr description takes precedence
+      />,
+    );
+    expect(screen.getByText("Browse your organization's catalog and request course enrollments with no out of pocket cost.")).toBeInTheDocument();
   });
 
   it.each([{
