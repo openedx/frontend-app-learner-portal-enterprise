@@ -92,6 +92,7 @@ export async function getEnterpriseLearnerQueryData({
     enterpriseFeatures: {},
     staffEnterpriseCustomer: null,
     shouldUpdateActiveEnterpriseCustomerUser: false,
+    hasBnrEnabledPolicy: false, // Added missing property
   };
 
   const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
@@ -107,6 +108,7 @@ export async function getEnterpriseLearnerQueryData({
       staffEnterpriseCustomer: bffResponse.staffEnterpriseCustomer || null,
       enterpriseFeatures: bffResponse.enterpriseFeatures || {},
       shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser,
+      hasBnrEnabledPolicy: (bffResponse as any).hasBnrEnabledPolicy || false, // Added missing property
     };
   } else {
     // Otherwise, handle legacy direct query

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Badge, Card, Stack } from '@openedx/paragon';
 import dayjs from 'dayjs';
 import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useEnterpriseCustomer, useEnterpriseLearner } from '../../app/data';
 import { BUDGET_STATUSES } from '../data/constants';
 import { i18nFormatTimestamp } from '../../../utils/common';
 
@@ -82,6 +82,7 @@ const LearnerCreditSummaryCard = ({
   const intl = useIntl();
   const { status, badgeVariant } = statusMetadata;
   const { data: { disableExpiryMessagingForLearnerCredit } } = useEnterpriseCustomer();
+  const { data: { hasBnrEnabledPolicy } } = useEnterpriseLearner();
   const isBudgetExpired = dayjs(expirationDate).isBefore(dayjs()) && status === BUDGET_STATUSES.expired;
 
   const cardBadge = getStatusBadge({
@@ -117,7 +118,7 @@ const LearnerCreditSummaryCard = ({
       />
       <Card.Section>
         <p data-testid="learner-credit-summary-text">
-          {assignmentOnlyLearner ? (
+          {!hasBnrEnabledPolicy && assignmentOnlyLearner ? (
             <FormattedMessage
               id="enterprise.dashboard.sidebar.learner.credit.card.assignment.only.description"
               defaultMessage="Your organization will assign courses to learners. Please contact your administrator if you are interested in taking a course."

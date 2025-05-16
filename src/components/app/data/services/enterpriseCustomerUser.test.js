@@ -166,6 +166,7 @@ describe('fetchEnterpriseLearnerData', () => {
         .filter((ecu) => ecu.enterpriseCustomer),
       staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : null,
       shouldUpdateActiveEnterpriseCustomerUser: false,
+      hasBnrEnabledPolicy: false,
     });
   });
 });

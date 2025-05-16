@@ -4983,6 +4983,8 @@ components:
             $ref: '#/components/schemas/EnterpriseCourseEnrollment'
         all_enrollments_by_status:
           $ref: '#/components/schemas/LearnerEnrollmentsByStatus'
+        has_bnr_enabled_policy:
+          type: boolean
       required:
         - all_enrollments_by_status
         - catalog_uuids_to_catalog_query_uuids
