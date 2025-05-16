@@ -18,6 +18,8 @@ jest.mock('../course-cards', () => ({
   SavedForLaterCourseCard: () => '<SavedForLaterCourseCard />',
   RequestedCourseCard: () => '<RequestedCourseCard />',
   AssignedCourseCard: () => '<AssignedCourseCard />',
+  ApprovedCourseCard: () => '<ApprovedCourseCard />',
+  LCRequestedCourseCard: () => '<LCRequestedCourseCard />',
 }));
 
 jest.mock('../../../../app/data', () => ({
@@ -32,6 +34,8 @@ const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.savedForLater]: '<SavedForLaterCourseCard />',
   [COURSE_STATUSES.requested]: '<RequestedCourseCard />',
   [COURSE_STATUSES.assigned]: '<AssignedCourseCard />',
+  [COURSE_STATUSES.approved]: '<ApprovedCourseCard />',
+  [COURSE_STATUSES.lcRequested]: '<LCRequestedCourseCard />',
 };
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();

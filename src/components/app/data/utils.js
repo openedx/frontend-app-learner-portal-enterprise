@@ -466,6 +466,34 @@ export const transformLearnerContentAssignment = (learnerContentAssignment, ente
   };
 };
 
+export const transformLearnerCreditRequest = (learnerCreditRequest, enterpriseSlug) => {
+  if (!learnerCreditRequest) {
+    return null;
+  }
+
+  const {
+    uuid,
+    courseTitle,
+    courseId,
+    coursePartners,
+    startDate,
+  } = learnerCreditRequest;
+
+  const orgName = coursePartners?.[0]?.name || null;
+  const state = learnerCreditRequest.state === 'requested' ? 'lc_requested' : learnerCreditRequest.state;
+
+  return {
+    uuid,
+    title: courseTitle,
+    courseRunId: courseId,
+    linkToCourse: `/${enterpriseSlug}/course/${courseId}`,
+    orgName,
+    courseRunStatus: state,
+    startDate: startDate || null,
+    isLearnerCreditRequest: true,
+  };
+};
+
 /**
  * Transforms a learner assignment into a shape consistent with course
  * enrollments, including additional fields specific to learner content

@@ -8,6 +8,10 @@ export const COURSE_STATUSES = {
   requested: 'requested',
   // Not a real course status, represents a course assignment.
   assigned: 'assigned',
+  approved: 'approved',
+  // Learner Credit request status. It is used to differentiate between learner credit requests
+  // and subs / coupon requests.
+  lcRequested: 'lc_requested',
 };
 
 export const COURSE_PACING = {

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 
 import { queryEnterpriseCourseEnrollments } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -8,6 +8,7 @@ import {
   groupCourseEnrollmentsByStatus,
   transformCourseEnrollment,
   transformLearnerContentAssignment,
+  transformLearnerCreditRequest,
   transformSubsidyRequest,
 } from '../utils';
 import { COURSE_STATUSES } from '../../../../constants';
@@ -17,13 +18,22 @@ export const transformAllEnrollmentsByStatus = ({
   enrollmentsByStatus,
   requests,
   contentAssignments,
+  learnerCreditRequests,
 }) => {
   const allEnrollmentsByStatus = { ...enrollmentsByStatus };
   const licenseRequests = requests.subscriptionLicenses || [];
   const couponCodeRequests = requests.couponCodes || [];
   const subsidyRequests = [].concat(licenseRequests).concat(couponCodeRequests);
+
+  const assignmentsForDisplay = contentAssignments?.assignmentsForDisplay || [];
+  const assignmentsWithRequests = contentAssignments || {};
+  assignmentsWithRequests.assignmentsForDisplay = [
+    ...learnerCreditRequests,
+    ...assignmentsForDisplay,
+  ];
+
   allEnrollmentsByStatus[COURSE_STATUSES.requested] = subsidyRequests;
-  allEnrollmentsByStatus[COURSE_STATUSES.assigned] = contentAssignments || [];
+  allEnrollmentsByStatus[COURSE_STATUSES.assigned] = assignmentsWithRequests || [];
   return allEnrollmentsByStatus;
 };
 
@@ -121,35 +131,54 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
     },
   });
 
-  const { data: contentAssignments } = useRedeemablePolicies({
-    select: (data) => {
-      const { learnerContentAssignments } = data;
-      const transformedAssignments = {};
-      Object.entries(learnerContentAssignments).forEach(([key, value]) => {
-        if (!Array.isArray(value)) {
-          return;
-        }
-        transformedAssignments[key] = value.map((item) => transformLearnerContentAssignment(
-          item,
-          enterpriseCustomer.slug,
-        ));
-      });
-      if (selectContentAssignment) {
-        return selectContentAssignment({
-          original: data,
-          transformed: transformedAssignments,
-        });
+  /* We kept the learner credit requests in the same place as the learner content assignments
+   * because they are both used in the same place in the UI (Pending Enrollents Section). The
+   * api `credits_available` returns both of them in the same response. We tried to utilize the
+   * existing rendering flow of the learner content assignments. Therefore, we are transforming
+   * the learner credit requests to match assignments' structure.
+  */
+  const selectRedeemablePoliciesCallback = useCallback((data) => {
+    const { learnerContentAssignments, learnerRequests } = data;
+    const transformedAssignments = {};
+    Object.entries(learnerContentAssignments).forEach(([key, value]) => {
+      if (!Array.isArray(value)) {
+        return;
       }
-      return transformedAssignments;
-    },
+
+      transformedAssignments[key] = value.map((item) => transformLearnerContentAssignment(
+        item,
+        enterpriseCustomer.slug,
+      ));
+    });
+
+    let finalAssignments = transformedAssignments;
+    if (selectContentAssignment) {
+      finalAssignments = selectContentAssignment({
+        original: data,
+        transformed: transformedAssignments,
+      });
+    }
+
+    const transformedRequests = learnerRequests?.map(
+      (request) => transformLearnerCreditRequest(request, enterpriseCustomer.slug),
+    ) || [];
+    return { assignments: finalAssignments, transformedRequests };
+  }, [enterpriseCustomer.slug, selectContentAssignment]);
+
+  const { data: redeemableData } = useRedeemablePolicies({
+    select: selectRedeemablePoliciesCallback,
   });
+
+  const contentAssignments = redeemableData?.assignments;
+  const learnerCreditRequests = redeemableData?.transformedRequests;
 
   // TODO: Talk about how we don't have access to weeksToComplete on the dashboard page.
   const allEnrollmentsByStatus = useMemo(() => transformAllEnrollmentsByStatus({
-    enrollmentsByStatus: enterpriseCourseEnrollments.enrollmentsByStatus,
+    enrollmentsByStatus: enterpriseCourseEnrollments?.enrollmentsByStatus,
     requests,
     contentAssignments,
-  }), [contentAssignments, enterpriseCourseEnrollments.enrollmentsByStatus, requests]);
+    learnerCreditRequests,
+  }), [contentAssignments, enterpriseCourseEnrollments.enrollmentsByStatus, requests, learnerCreditRequests]);
 
   return useMemo(() => ({
     data: {
@@ -157,11 +186,13 @@ export default function useEnterpriseCourseEnrollments(queryOptions = {}) {
       enterpriseCourseEnrollments: enterpriseCourseEnrollments.enrollments,
       contentAssignments,
       requests,
+      learnerCreditRequests,
     },
   }), [
     allEnrollmentsByStatus,
     enterpriseCourseEnrollments.enrollments,
     contentAssignments,
     requests,
+    learnerCreditRequests,
   ]);
 }

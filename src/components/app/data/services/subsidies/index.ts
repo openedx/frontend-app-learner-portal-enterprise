@@ -71,11 +71,13 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
     redeemablePolicies?.flatMap(item => item.learnerContentAssignments || []),
   );
   const { expiredPolicies, unexpiredPolicies } = filterPoliciesByExpirationAndActive(redeemablePolicies);
+  const learnerRequests = redeemablePolicies?.flatMap(item => item.learnerRequests || []);
   return {
     redeemablePolicies,
     learnerContentAssignments,
     expiredPolicies,
     unexpiredPolicies,
+    learnerRequests,
   };
 }
 

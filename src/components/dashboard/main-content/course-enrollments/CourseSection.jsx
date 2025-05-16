@@ -11,6 +11,8 @@ import {
   RequestedCourseCard,
   SavedForLaterCourseCard,
   UpcomingCourseCard,
+  ApprovedCourseCard,
+  LCRequestedCourseCard,
 } from './course-cards';
 
 import { COURSE_STATUSES } from '../../../../constants';
@@ -27,6 +29,8 @@ const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.savedForLater]: SavedForLaterCourseCard,
   [COURSE_STATUSES.requested]: RequestedCourseCard,
   [COURSE_STATUSES.assigned]: AssignedCourseCard,
+  [COURSE_STATUSES.approved]: ApprovedCourseCard,
+  [COURSE_STATUSES.lcRequested]: LCRequestedCourseCard,
 };
 
 const CourseSection = ({
