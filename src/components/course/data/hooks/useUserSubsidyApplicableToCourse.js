@@ -71,6 +71,7 @@ const useUserSubsidyApplicableToCourse = () => {
     redeemableSubsidyAccessPolicy = null,
     availableCourseRuns: availableCourseRunsForLearnerCredit = [],
     missingSubsidyAccessPolicyReason = null,
+    missingSubsidyAccessPolicyDisplayReason = null,
   } = courseRedemptionEligibilityResult.data || {};
   const {
     data: {
@@ -117,19 +118,20 @@ const useUserSubsidyApplicableToCourse = () => {
       subscriptionLicense,
       containsContentItems,
       missingSubsidyAccessPolicyReason,
+      missingSubsidyAccessPolicyDisplayReason,
       enterpriseOffers,
     });
   }, [
     userSubsidyApplicableToCourse,
     missingSubsidyAccessPolicyReason,
-    fallbackAdminUsers,
-    contactEmail,
+    fallbackAdminUsers, contactEmail,
     catalogsWithCourse,
     couponCodeAssignments,
     couponsOverview,
     customerAgreement,
     subscriptionLicense,
     containsContentItems,
+    missingSubsidyAccessPolicyDisplayReason,
     enterpriseOffers,
   ]);
 

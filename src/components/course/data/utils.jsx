@@ -649,6 +649,7 @@ export const getMissingApplicableSubsidyReason = ({
   subscriptionLicense,
   containsContentItems,
   missingSubsidyAccessPolicyReason,
+  missingSubsidyAccessPolicyDisplayReason,
   enterpriseOffers,
 }) => {
   // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
@@ -698,9 +699,9 @@ export const getMissingApplicableSubsidyReason = ({
       reasonType = couponCodesDisabledEnrollmentReasonType;
       break;
 
-    case !!missingSubsidyAccessPolicyReason:
+    case !!missingSubsidyAccessPolicyReason && !!missingSubsidyAccessPolicyDisplayReason:
       reasonType = missingSubsidyAccessPolicyReason.reason;
-      userMessage = missingSubsidyAccessPolicyReason.userMessage || null;
+      userMessage = missingSubsidyAccessPolicyDisplayReason;
       break;
 
     case !!enterpriseOffersDisabledEnrollmentReasonType:
