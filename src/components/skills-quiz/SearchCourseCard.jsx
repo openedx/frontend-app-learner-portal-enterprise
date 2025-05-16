@@ -43,7 +43,7 @@ const SearchCourseCard = ({ index }) => {
       async function fetchCourses() {
         setIsLoading(true);
         const { hits, nbHits } = await index.search('', {
-          filters: courseFilter, // eslint-disable-line object-shorthand
+          filters: courseFilter,
           facetFilters: [
             skillsFacetFilter,
           ],
