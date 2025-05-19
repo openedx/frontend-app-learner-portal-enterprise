@@ -8,24 +8,23 @@ import SearchResults from '../SearchResults';
 import SearchCourseCard from '../SearchCourseCard';
 import SearchProgramCard from '../SearchProgramCard';
 import {
-  NUM_RESULTS_PROGRAM,
-  NUM_RESULTS_COURSE,
-  COURSE_TITLE,
-  PROGRAM_TITLE,
   CONTENT_TYPE_COURSE,
+  CONTENT_TYPE_PATHWAY,
   CONTENT_TYPE_PROGRAM,
-  PATHWAY_TITLE, CONTENT_TYPE_PATHWAY, NUM_RESULTS_PATHWAY,
   CONTENT_TYPE_VIDEO,
-  VIDEO_TITLE,
+  COURSE_TITLE,
+  NUM_RESULTS_COURSE,
+  NUM_RESULTS_PATHWAY,
+  NUM_RESULTS_PROGRAM,
   NUM_RESULTS_VIDEO,
+  PATHWAY_TITLE,
+  PROGRAM_TITLE,
+  VIDEO_TITLE,
 } from '../constants';
 import { TEST_IMAGE_URL } from './constants';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
-import {
-  queryClient,
-  renderWithRouter,
-} from '../../../utils/tests';
+import { queryClient, renderWithRouter } from '../../../utils/tests';
 import SearchPathwayCard from '../../pathway/SearchPathwayCard';
 import { getNoResultsMessage, getSearchErrorMessage } from '../../utils/search';
 import { useEnterpriseCustomer } from '../../app/data';
@@ -42,7 +41,7 @@ jest.mock('../../app/data', () => ({
   useContentHighlightsConfiguration: jest.fn(() => ({ data: {} })),
   useCanOnlyViewHighlights: jest.fn(() => ({ data: {} })),
   useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
-  useDefaultSearchFilters: jest.fn().mockReturnValue([]),
+  useDefaultSearchFilters: jest.fn().mockReturnValue(null),
 }));
 
 jest.mock('../../../config', () => ({
