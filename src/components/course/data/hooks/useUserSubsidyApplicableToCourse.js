@@ -124,7 +124,8 @@ const useUserSubsidyApplicableToCourse = () => {
   }, [
     userSubsidyApplicableToCourse,
     missingSubsidyAccessPolicyReason,
-    fallbackAdminUsers, contactEmail,
+    fallbackAdminUsers,
+    contactEmail,
     catalogsWithCourse,
     couponCodeAssignments,
     couponsOverview,
