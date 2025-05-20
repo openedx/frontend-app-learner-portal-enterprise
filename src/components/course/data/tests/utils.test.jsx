@@ -1017,7 +1017,6 @@ describe('getMissingApplicableSubsidyReason', () => {
         reason: DISABLED_ENROLL_REASON_TYPES.MISSING_SUBSIDY_ACCESS_POLICY,
         userMessage: 'Custom user message.',
       },
-      missingSubsidyAccessPolicyDisplayReason: 'Custom user message.',
     };
     const result = getMissingApplicableSubsidyReason(mockData);
     expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.MISSING_SUBSIDY_ACCESS_POLICY);

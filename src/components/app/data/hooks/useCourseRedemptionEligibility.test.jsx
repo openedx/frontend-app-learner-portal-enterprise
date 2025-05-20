@@ -145,7 +145,6 @@ describe('useCourseRedemptionEligibility', () => {
             availableCourseRuns: [mockCourseRun],
             redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
             missingSubsidyAccessPolicyReason: undefined,
-            missingSubsidyAccessPolicyDisplayReason: null,
             hasSuccessfulRedemption: false,
             listPrice: [1],
           },
@@ -249,7 +248,7 @@ describe('useCourseRedemptionEligibility', () => {
       {
         ...mockCanRedeemData[0],
         contentKey: mockCourseRunKey,
-        displayReason: 'Display reason text 1',
+        displayReason: { userMessage: 'Display reason text 1' },
         reasons: [{
           userMessage: 'Display reason text 1',
         },
@@ -262,7 +261,7 @@ describe('useCourseRedemptionEligibility', () => {
     fetchCanRedeem.mockResolvedValue(canRedeemData);
     const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
     await waitFor(() => {
-      expect(result.current.data.missingSubsidyAccessPolicyDisplayReason).toEqual('Display reason text 1');
+      expect(result.current.data.missingSubsidyAccessPolicyReason).toEqual({ userMessage: 'Display reason text 1' });
     });
   });
 
@@ -278,7 +277,7 @@ describe('useCourseRedemptionEligibility', () => {
     fetchCanRedeem.mockResolvedValue(canRedeemData);
     const { result } = renderHook(() => useCourseRedemptionEligibility(), { wrapper: Wrapper });
     await waitFor(() => {
-      expect(result.current.data.missingSubsidyAccessPolicyDisplayReason).toEqual(null);
+      expect(result.current.data.missingSubsidyAccessPolicyReason).toEqual(null);
     });
   });
 
