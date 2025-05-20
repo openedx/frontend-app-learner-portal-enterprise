@@ -144,7 +144,7 @@ describe('useCourseRedemptionEligibility', () => {
             ],
             availableCourseRuns: [mockCourseRun],
             redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
-            missingSubsidyAccessPolicyReason: undefined,
+            missingSubsidyAccessPolicyReason: null,
             hasSuccessfulRedemption: false,
             listPrice: [1],
           },
