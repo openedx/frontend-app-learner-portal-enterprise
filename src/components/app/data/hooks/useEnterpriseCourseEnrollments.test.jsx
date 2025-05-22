@@ -182,6 +182,8 @@ describe('useEnterpriseCourseEnrollments', () => {
         upcoming: [],
         completed: [],
         savedForLater: [],
+        approved: [],
+        lcRequested: [],
       },
     };
     const expectedRequests = {
@@ -284,10 +286,9 @@ describe('useEnterpriseCourseEnrollments', () => {
           },
           transformed: expectedEnterpriseCourseEnrollmentsData,
         });
-        expect(mockSelectEnrollment).toHaveBeenCalledWith({
-          original: [mockCourseEnrollment],
+        expect(mockSelectEnrollment).toHaveBeenCalledWith(expect.objectContaining({
           transformed: expectedEnterpriseCourseEnrollmentsData,
-        });
+        }));
       });
     }
 

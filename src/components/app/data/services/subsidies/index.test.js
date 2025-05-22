@@ -120,6 +120,7 @@ describe('fetchRedeemablePolicies', () => {
         hasExpiredAssignments: false,
         hasReversedAssignments: false,
       },
+      learnerRequests: [],
     };
     expect(result).toEqual(expectedRedeemablePolicies);
   });

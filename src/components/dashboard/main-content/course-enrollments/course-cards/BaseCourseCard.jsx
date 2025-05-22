@@ -56,6 +56,11 @@ const messages = defineMessages({
     defaultMessage: 'Assigned',
     description: 'The label for the status badge for courses that are assigned',
   },
+  statusBadgeLabelApproved: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.status_badge_label.approved',
+    defaultMessage: 'Approved',
+    description: 'The label for the status badge for course requests that are approved',
+  },
   emailSettings: {
     id: 'enterprise.learner_portal.dashboard.enrollments.course.email_settings',
     defaultMessage: 'Email settings <s>for {courseTitle}</s>',
@@ -70,6 +75,11 @@ const messages = defineMessages({
     id: 'enterprise.learner_portal.dashboard.enrollments.course.requested.help_text',
     defaultMessage: 'Please allow 5-10 business days for review. If approved, you will receive an email to get started.',
     description: 'Help text for requested courses',
+  },
+  lcRequestedCourseHelpText: {
+    id: 'enterprise.learner_portal.dashboard.enrollments.course.lcRequested.help_text',
+    defaultMessage: 'Please allow 5-10 business days for review. If approved by your edX administrator, you will be able to enroll.',
+    description: 'Help text for learner credit requested courses',
   },
   enrollByDateWarning: {
     id: 'enterprise.learner_portal.dashboard.enrollments.course.enroll_by_date_warning',
@@ -114,6 +124,14 @@ const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.assigned]: {
     variant: 'info',
     children: <FormattedMessage {...messages.statusBadgeLabelAssigned} />,
+  },
+  [COURSE_STATUSES.approved]: {
+    variant: 'info',
+    children: <FormattedMessage {...messages.statusBadgeLabelApproved} />,
+  },
+  [COURSE_STATUSES.lcRequested]: {
+    variant: 'light',
+    children: <FormattedMessage {...messages.statusBadgeLabelRequested} />,
   },
 };
 
@@ -364,12 +382,20 @@ const BaseCourseCard = ({
   };
 
   const renderAdditionalInfoOutline = () => {
-    if (type !== COURSE_STATUSES.requested) {
-      return null;
+    let message = null;
+    switch (type) {
+      case COURSE_STATUSES.requested:
+        message = messages.requestedCourseHelpText;
+        break;
+      case COURSE_STATUSES.lcRequested:
+        message = messages.lcRequestedCourseHelpText;
+        break;
+      default:
+        return null;
     }
     return (
       <div className="small">
-        <FormattedMessage {...messages.requestedCourseHelpText} />
+        <FormattedMessage {...message} />
       </div>
     );
   };

@@ -6,6 +6,7 @@ import {
   groupCourseEnrollmentsByStatus,
   transformCourseEnrollment,
   transformSubsidyRequest,
+  transformLearnerCreditRequest,
 } from '../../../../../app/data';
 import { sortAssignmentsByAssignmentStatus } from '../utils';
 import { COURSE_STATUSES } from '../../../../../../constants';
@@ -103,6 +104,8 @@ describe('groupCourseEnrollmentsByStatus', () => {
   const upcomingCourseEnrollment = { courseRunStatus: COURSE_STATUSES.upcoming };
   const completedCourseEnrollment = { courseRunStatus: COURSE_STATUSES.completed };
   const savedForLaterCourseEnrollment = { courseRunStatus: COURSE_STATUSES.savedForLater };
+  const approvedCourseRequest = { courseRunStatus: COURSE_STATUSES.approved };
+  const lcRequestedCourseRequest = { courseRunStatus: COURSE_STATUSES.lcRequested };
 
   it('should group course enrollments by their status', () => {
     const courseEnrollmentsByStatus = groupCourseEnrollmentsByStatus([
@@ -110,6 +113,8 @@ describe('groupCourseEnrollmentsByStatus', () => {
       completedCourseEnrollment,
       upcomingCourseEnrollment,
       inProgressCourseEnrollment,
+      approvedCourseRequest,
+      lcRequestedCourseRequest,
     ]);
     expect(courseEnrollmentsByStatus).toEqual(
       {
@@ -117,6 +122,8 @@ describe('groupCourseEnrollmentsByStatus', () => {
         upcoming: [upcomingCourseEnrollment],
         completed: [completedCourseEnrollment],
         savedForLater: [savedForLaterCourseEnrollment],
+        approved: [approvedCourseRequest],
+        lcRequested: [lcRequestedCourseRequest],
       },
     );
   });
@@ -132,6 +139,8 @@ describe('groupCourseEnrollmentsByStatus', () => {
         upcoming: [],
         completed: [],
         savedForLater: [],
+        approved: [],
+        lcRequested: [],
       },
     );
   });
@@ -174,5 +183,113 @@ describe('sortAssignmentsByAssignmentStatus', () => {
     ]);
 
     expect(sortedAssignments).toEqual(expectedSortedAssignments);
+  });
+});
+describe('transformLearnerCreditRequest', () => {
+  it('should transform a learner credit request', () => {
+    const slug = 'test-enterprise';
+    const learnerCreditRequest = {
+      uuid: 'test-uuid',
+      courseTitle: 'Test Course',
+      courseId: 'course-v1:edX+Test101+2023',
+      coursePartners: [{ name: 'edX' }],
+      state: 'requested',
+      startDate: '2023-08-01T00:00:00Z',
+    };
+
+    const expectedTransformedRequest = {
+      uuid: 'test-uuid',
+      title: 'Test Course',
+      courseRunId: 'course-v1:edX+Test101+2023',
+      linkToCourse: `/${slug}/course/course-v1:edX+Test101+2023`,
+      orgName: 'edX',
+      courseRunStatus: 'lc_requested',
+      startDate: '2023-08-01T00:00:00Z',
+      isLearnerCreditRequest: true,
+    };
+
+    const transformedRequest = transformLearnerCreditRequest(learnerCreditRequest, slug);
+    expect(transformedRequest).toEqual(expectedTransformedRequest);
+  });
+
+  it('should transform a learner credit request with a different state', () => {
+    const slug = 'test-enterprise';
+    const learnerCreditRequest = {
+      uuid: 'test-uuid',
+      courseTitle: 'Test Course',
+      courseId: 'course-v1:edX+Test101+2023',
+      coursePartners: [{ name: 'edX' }],
+      state: 'approved',
+      startDate: '2023-08-01T00:00:00Z',
+    };
+
+    const expectedTransformedRequest = {
+      uuid: 'test-uuid',
+      title: 'Test Course',
+      courseRunId: 'course-v1:edX+Test101+2023',
+      linkToCourse: `/${slug}/course/course-v1:edX+Test101+2023`,
+      orgName: 'edX',
+      courseRunStatus: 'approved',
+      startDate: '2023-08-01T00:00:00Z',
+      isLearnerCreditRequest: true,
+    };
+
+    const transformedRequest = transformLearnerCreditRequest(learnerCreditRequest, slug);
+    expect(transformedRequest).toEqual(expectedTransformedRequest);
+  });
+
+  it('should handle missing course partners', () => {
+    const slug = 'test-enterprise';
+    const learnerCreditRequest = {
+      uuid: 'test-uuid',
+      courseTitle: 'Test Course',
+      courseId: 'course-v1:edX+Test101+2023',
+      state: 'requested',
+      startDate: '2023-08-01T00:00:00Z',
+    };
+
+    const expectedTransformedRequest = {
+      uuid: 'test-uuid',
+      title: 'Test Course',
+      courseRunId: 'course-v1:edX+Test101+2023',
+      linkToCourse: `/${slug}/course/course-v1:edX+Test101+2023`,
+      orgName: null,
+      courseRunStatus: 'lc_requested',
+      startDate: '2023-08-01T00:00:00Z',
+      isLearnerCreditRequest: true,
+    };
+
+    const transformedRequest = transformLearnerCreditRequest(learnerCreditRequest, slug);
+    expect(transformedRequest).toEqual(expectedTransformedRequest);
+  });
+
+  it('should handle missing start date', () => {
+    const slug = 'test-enterprise';
+    const learnerCreditRequest = {
+      uuid: 'test-uuid',
+      courseTitle: 'Test Course',
+      courseId: 'course-v1:edX+Test101+2023',
+      coursePartners: [{ name: 'edX' }],
+      state: 'requested',
+    };
+
+    const expectedTransformedRequest = {
+      uuid: 'test-uuid',
+      title: 'Test Course',
+      courseRunId: 'course-v1:edX+Test101+2023',
+      linkToCourse: `/${slug}/course/course-v1:edX+Test101+2023`,
+      orgName: 'edX',
+      courseRunStatus: 'lc_requested',
+      startDate: null,
+      isLearnerCreditRequest: true,
+    };
+
+    const transformedRequest = transformLearnerCreditRequest(learnerCreditRequest, slug);
+    expect(transformedRequest).toEqual(expectedTransformedRequest);
+  });
+
+  it('should return null if learnerCreditRequest is not provided', () => {
+    const transformedRequest = transformLearnerCreditRequest(null, 'test-enterprise');
+    expect(transformedRequest).toBeNull();
   });
 });

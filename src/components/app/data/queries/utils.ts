@@ -210,6 +210,7 @@ export async function safeEnsureQueryDataRedeemablePolicies({ queryClient, authe
         reversedAssignments: [],
         hasReversedAssignments: false,
       },
+      learnerRequests: [],
     },
   });
 }
