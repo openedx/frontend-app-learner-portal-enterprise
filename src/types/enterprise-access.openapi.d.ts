@@ -1002,6 +1002,7 @@ export interface components {
       enable_slug_login: boolean;
       disable_search: boolean;
       show_integration_warning: boolean;
+      enable_learner_credit_message_box: boolean;
     };
     /** @description Serializer for enterprise customer integration. */
     EnterpriseCustomerActiveIntegration: {
