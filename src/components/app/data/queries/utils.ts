@@ -93,6 +93,7 @@ export async function getEnterpriseLearnerQueryData({
     enterpriseFeatures: {},
     staffEnterpriseCustomer: null,
     shouldUpdateActiveEnterpriseCustomerUser: false,
+    hasBnrEnabledPolicy: false,
   };
 
   const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
@@ -108,6 +109,7 @@ export async function getEnterpriseLearnerQueryData({
       staffEnterpriseCustomer: bffResponse.staffEnterpriseCustomer || null,
       enterpriseFeatures: bffResponse.enterpriseFeatures || {},
       shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser,
+      hasBnrEnabledPolicy: (bffResponse as any).hasBnrEnabledPolicy || false,
     };
   } else {
     // Otherwise, handle legacy direct query

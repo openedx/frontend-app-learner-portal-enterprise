@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Badge, Card, Stack } from '@openedx/paragon';
 import dayjs from 'dayjs';
 import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useEnterpriseCustomer, useEnterpriseLearner } from '../../app/data';
 import { BUDGET_STATUSES } from '../data/constants';
 import { i18nFormatTimestamp } from '../../../utils/common';
 
@@ -74,6 +74,34 @@ const getStatusBadge = ({
   );
 };
 
+const getCreditSummaryMessage = (hasBnrEnabledPolicy, assignmentOnlyLearner) => {
+  if (hasBnrEnabledPolicy) {
+    return (
+      <FormattedMessage
+        id="enterprise.dashboard.sidebar.learner.credit.card.bnr.description"
+        defaultMessage="Browse your organization's catalog and request course enrollments with no out of pocket cost. "
+        description="Description for the learner credit summary card on the enterprise dashboard sidebar when BNR is enabled."
+      />
+    );
+  }
+  if (assignmentOnlyLearner) {
+    return (
+      <FormattedMessage
+        id="enterprise.dashboard.sidebar.learner.credit.card.assignment.only.description"
+        defaultMessage="Your organization will assign courses to learners. Please contact your administrator if you are interested in taking a course."
+        description="Description for the learner credit summary card on the enterprise dashboard sidebar when learner has assignment."
+      />
+    );
+  }
+  return (
+    <FormattedMessage
+      id="enterprise.dashboard.sidebar.learner.credit.card.description"
+      defaultMessage="Apply your organization's learner credit balance to enroll into courses with no out of pocket cost."
+      description="Description for the learner credit summary card on the enterprise dashboard sidebar when learner has no assignment."
+    />
+  );
+};
+
 const LearnerCreditSummaryCard = ({
   expirationDate,
   statusMetadata,
@@ -82,6 +110,7 @@ const LearnerCreditSummaryCard = ({
   const intl = useIntl();
   const { status, badgeVariant } = statusMetadata;
   const { data: { disableExpiryMessagingForLearnerCredit } } = useEnterpriseCustomer();
+  const { data: { hasBnrEnabledPolicy } } = useEnterpriseLearner();
   const isBudgetExpired = dayjs(expirationDate).isBefore(dayjs()) && status === BUDGET_STATUSES.expired;
 
   const cardBadge = getStatusBadge({
@@ -117,19 +146,7 @@ const LearnerCreditSummaryCard = ({
       />
       <Card.Section>
         <p data-testid="learner-credit-summary-text">
-          {assignmentOnlyLearner ? (
-            <FormattedMessage
-              id="enterprise.dashboard.sidebar.learner.credit.card.assignment.only.description"
-              defaultMessage="Your organization will assign courses to learners. Please contact your administrator if you are interested in taking a course."
-              description="Description for the learner credit summary card on the enterprise dashboard sidebar when learner has assignment."
-            />
-          ) : (
-            <FormattedMessage
-              id="enterprise.dashboard.sidebar.learner.credit.card.description"
-              defaultMessage="Apply your organization's learner credit balance to enroll into courses with no out of pocket cost."
-              description="Description for the learner credit summary card on the enterprise dashboard sidebar when learner has no assignment."
-            />
-          )}
+          {getCreditSummaryMessage(hasBnrEnabledPolicy, assignmentOnlyLearner)}
         </p>
 
         {!disableExpiryMessagingForLearnerCredit && (

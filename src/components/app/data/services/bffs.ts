@@ -48,6 +48,7 @@ export const learnerDashboardBFFResponse: DashboardBFFResponse = {
     completed: [],
     savedForLater: [],
   },
+  hasBnrEnabledPolicy: false,
 };
 
 export const learnerSearchBFFResponse: SearchBFFResponse = {

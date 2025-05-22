@@ -35,6 +35,7 @@ export default function useEnterpriseLearner<TData = EnterpriseLearnerData>(
           shouldUpdateActiveEnterpriseCustomerUser: data.shouldUpdateActiveEnterpriseCustomerUser,
           allLinkedEnterpriseCustomerUsers: data.allLinkedEnterpriseCustomerUsers as EnterpriseCustomerUser[],
           enterpriseFeatures: data.enterpriseFeatures as EnterpriseFeatures,
+          hasBnrEnabledPolicy: data.hasBnrEnabledPolicy as boolean,
         };
 
         // If custom `select` function is provided in `queryOptions`, call it with original and transformed data.

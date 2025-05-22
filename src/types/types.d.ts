@@ -149,6 +149,7 @@ declare global {
     staffEnterpriseCustomer: EnterpriseCustomer | null;
     enterpriseFeatures: EnterpriseFeatures;
     shouldUpdateActiveEnterpriseCustomerUser: boolean;
+    hasBnrEnabledPolicy: boolean;
   };
 
   type SecuredAlgoliaApiData = {
