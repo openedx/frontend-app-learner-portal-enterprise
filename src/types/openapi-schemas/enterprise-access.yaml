@@ -1447,12 +1447,14 @@ paths:
             nullable: true
             enum:
               - coupon
+              - learner_credit
               - license
           description: |-
             Which type of subsidy is used to grant access.
 
             * `license` - License Subsidy
             * `coupon` - Coupon Subsidy
+            * `learner_credit` - Learner Credit Subsidy
       tags:
         - Subsidy Request Configuration
       responses:
@@ -1545,6 +1547,124 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubsidyRequestCustomerConfiguration'
+          description: ''
+  /api/v1/learner-credit-requests/:
+    get:
+      operationId: api_v1_learner_credit_requests_list
+      description: Viewset for learner credit requests.
+      summary: List learner credit requests.
+      parameters:
+        - in: query
+          name: course_id
+          schema:
+            type: string
+        - in: query
+          name: enterprise_customer_uuid
+          schema:
+            type: string
+            format: uuid
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+        - in: query
+          name: user__email
+          schema:
+            type: string
+        - in: query
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+      tags:
+        - Learner Credit Requests
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLearnerCreditRequestList'
+          description: ''
+    post:
+      operationId: api_v1_learner_credit_requests_create
+      description: Create a learner credit request.
+      summary: Create a learner credit request.
+      tags:
+        - Learner Credit Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/{uuid}/:
+    get:
+      operationId: api_v1_learner_credit_requests_retrieve
+      description: Viewset for learner credit requests.
+      summary: Retrieve a learner credit request.
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: A UUID string identifying this learner credit request.
+          required: true
+      tags:
+        - Learner Credit Requests
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/overview/:
+    get:
+      operationId: api_v1_learner_credit_requests_overview_retrieve
+      description: Returns an overview of subsidy requests count by state.
+      summary: Learner credit request overview.
+      tags:
+        - Learner Credit Requests
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
           description: ''
   /api/v1/license-requests/:
     get:
@@ -3140,6 +3260,37 @@ components:
         - net_days_until_expiration
         - subscription_for_auto_applied_licenses
         - uuid
+    CustomerAgreementRequest:
+      type: object
+      description: Customer Agreement serializer for provisioning requests.
+      properties:
+        default_catalog_uuid:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional, default catalog uuid to be used for the customer agreement
+    CustomerAgreementResponse:
+      type: object
+      description: Customer Agreement serializer for provisioning responses.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        enterprise_customer_uuid:
+          type: string
+          format: uuid
+        default_catalog_uuid:
+          type: string
+          format: uuid
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionPlanResponse'
+      required:
+        - default_catalog_uuid
+        - enterprise_customer_uuid
+        - subscriptions
+        - uuid
     EnrollmentDueDate:
       type: object
       description: Serializer for enrollment due date.
@@ -3405,6 +3556,8 @@ components:
           type: boolean
         show_integration_warning:
           type: boolean
+        enable_learner_credit_message_box:
+          type: boolean
       required:
         - active
         - branding_configuration
@@ -3421,6 +3574,7 @@ components:
         - enable_executive_education_2U_fulfillment
         - enable_generation_of_api_credentials
         - enable_integrated_customer_learner_portal_search
+        - enable_learner_credit_message_box
         - enable_learner_portal
         - enable_learner_portal_offers
         - enable_learner_portal_sidebar_message
@@ -4922,6 +5076,84 @@ components:
         - state
         - transaction_uuid
         - uuid
+    LearnerCreditRequest:
+      type: object
+      description: Serializer for the `LearnerCreditRequest` model.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        user:
+          type: integer
+          writeOnly: true
+        lms_user_id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        course_id:
+          type: string
+          nullable: true
+          maxLength: 128
+        course_title:
+          type: string
+          readOnly: true
+          nullable: true
+        course_partners:
+          readOnly: true
+        enterprise_customer_uuid:
+          type: string
+          format: uuid
+        state:
+          allOf:
+            - $ref: '#/components/schemas/State7b6Enum'
+          readOnly: true
+          default: requested
+        reviewed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        reviewer_lms_user_id:
+          type: integer
+          readOnly: true
+          nullable: true
+        decline_reason:
+          type: string
+          nullable: true
+          maxLength: 255
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        learner_credit_request_config:
+          type: string
+          format: uuid
+          nullable: true
+        assignment:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - course_partners
+        - course_title
+        - created
+        - email
+        - enterprise_customer_uuid
+        - lms_user_id
+        - modified
+        - reviewed_at
+        - reviewer_lms_user_id
+        - state
+        - user
+        - uuid
     LearnerDashboardRequest:
       type: object
       description: Serializer for the learner dashboard request.
@@ -4990,6 +5222,7 @@ components:
         - catalog_uuids_to_catalog_query_uuids
         - enterprise_course_enrollments
         - enterprise_customer_user_subsidies
+        - has_bnr_enabled_policy
         - should_update_active_enterprise_customer_user
     LearnerEnrollmentsByStatus:
       type: object
@@ -5390,6 +5623,39 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LearnerContentAssignmentResponse'
+    PaginatedLearnerCreditRequestList:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The total number of items across all pages
+          example: 123
+        page_count:
+          type: integer
+          description: The total number of pages
+          example: 3
+        page_size:
+          type: integer
+          description: The number of items per page
+          example: 50
+        current_page:
+          type: integer
+          description: The current page number
+          example: 1
+        next:
+          type: string
+          description: Link to the next page of results
+          nullable: true
+          format: uri
+        previous:
+          type: string
+          description: Link to the previous page of results
+          nullable: true
+          format: uri
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LearnerCreditRequest'
     PaginatedLicenseRequestList:
       type: object
       properties:
@@ -5651,6 +5917,7 @@ components:
 
             * `license` - License Subsidy
             * `coupon` - Coupon Subsidy
+            * `learner_credit` - Learner Credit Subsidy
           oneOf:
             - $ref: '#/components/schemas/SubsidyTypeEnum'
             - $ref: '#/components/schemas/BlankEnum'
@@ -5701,10 +5968,18 @@ components:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCatalogRequest'
           description: Object describing the requested Enterprise Catalog.
+        customer_agreement:
+          allOf:
+            - $ref: '#/components/schemas/CustomerAgreementRequest'
+          description: Object describing the requested Customer Agreement.
+        subscription_plan:
+          $ref: '#/components/schemas/SubscriptionPlanRequest'
       required:
+        - customer_agreement
         - enterprise_catalog
         - enterprise_customer
         - pending_admins
+        - subscription_plan
     ProvisioningResponse:
       type: object
       description: Response serializer for provisioning create view.
@@ -5715,10 +5990,16 @@ components:
           $ref: '#/components/schemas/AdminObjectResponse'
         enterprise_catalog:
           $ref: '#/components/schemas/EnterpriseCatalogResponse'
+        customer_agreement:
+          $ref: '#/components/schemas/CustomerAgreementResponse'
+        subscription_plan:
+          $ref: '#/components/schemas/SubscriptionPlanResponse'
       required:
         - customer_admins
+        - customer_agreement
         - enterprise_catalog
         - enterprise_customer
+        - subscription_plan
     State7b6Enum:
       enum:
         - requested
@@ -5849,6 +6130,75 @@ components:
         - is_active
         - is_current
         - should_auto_apply_licenses
+        - start_date
+        - title
+        - uuid
+    SubscriptionPlanRequest:
+      type: object
+      description: Subscription Plan serializer for provisioning requests.
+      properties:
+        title:
+          type: string
+        salesforce_opportunity_line_item:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        expiration_date:
+          type: string
+          format: date-time
+        product_id:
+          type: integer
+        desired_num_licenses:
+          type: integer
+        enterprise_catalog_uuid:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - desired_num_licenses
+        - expiration_date
+        - product_id
+        - salesforce_opportunity_line_item
+        - start_date
+        - title
+    SubscriptionPlanResponse:
+      type: object
+      description: Subscription Plan serializer for provisioning responses.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        title:
+          type: string
+        salesforce_opportunity_line_item:
+          type: string
+        created:
+          type: string
+          format: date-time
+        start_date:
+          type: string
+          format: date-time
+        expiration_date:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+        is_current:
+          type: boolean
+        plan_type:
+          type: string
+        enterprise_catalog_uuid:
+          type: string
+          format: uuid
+      required:
+        - created
+        - enterprise_catalog_uuid
+        - expiration_date
+        - is_active
+        - is_current
+        - plan_type
+        - salesforce_opportunity_line_item
         - start_date
         - title
         - uuid
@@ -6126,9 +6476,17 @@ components:
           description: >-
             List of reasons why each of the enterprise's subsidy access policies
             are not redeemable, grouped by reason
+        display_reason:
+          allOf:
+            - $ref: '#/components/schemas/SubsidyAccessPolicyCanRedeemReasonResponse'
+          nullable: true
+          description: >-
+            A single, user-facing object of the most salient reason for
+            non-redeemability.
       required:
         - can_redeem
         - content_key
+        - display_reason
         - has_successful_redemption
         - list_price
         - reasons
@@ -6205,6 +6563,11 @@ components:
           items:
             $ref: >-
               #/components/schemas/LearnerContentAssignmentWithLearnerAcknowledgedResponse
+          readOnly: true
+        learner_requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/LearnerCreditRequest'
           readOnly: true
         group_associations:
           type: string
@@ -6318,6 +6681,7 @@ components:
         - group_associations
         - is_late_redemption_allowed
         - learner_content_assignments
+        - learner_requests
         - policy_redemption_url
         - policy_type
         - remaining_balance
@@ -6768,6 +7132,7 @@ components:
 
             * `license` - License Subsidy
             * `coupon` - Coupon Subsidy
+            * `learner_credit` - Learner Credit Subsidy
           oneOf:
             - $ref: '#/components/schemas/SubsidyTypeEnum'
             - $ref: '#/components/schemas/BlankEnum'
@@ -6783,10 +7148,12 @@ components:
       enum:
         - license
         - coupon
+        - learner_credit
       type: string
       description: |-
         * `license` - License Subsidy
         * `coupon` - Coupon Subsidy
+        * `learner_credit` - Learner Credit Subsidy
     Warning:
       type: object
       description: |-
