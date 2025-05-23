@@ -269,6 +269,32 @@ export interface paths {
      */
     patch: operations["api_v1_customer_configurations_partial_update"];
   };
+  "/api/v1/learner-credit-requests/": {
+    /**
+     * List learner credit requests.
+     * @description Viewset for learner credit requests.
+     */
+    get: operations["api_v1_learner_credit_requests_list"];
+    /**
+     * Create a learner credit request.
+     * @description Create a learner credit request.
+     */
+    post: operations["api_v1_learner_credit_requests_create"];
+  };
+  "/api/v1/learner-credit-requests/{uuid}/": {
+    /**
+     * Retrieve a learner credit request.
+     * @description Viewset for learner credit requests.
+     */
+    get: operations["api_v1_learner_credit_requests_retrieve"];
+  };
+  "/api/v1/learner-credit-requests/overview/": {
+    /**
+     * Learner credit request overview.
+     * @description Returns an overview of subsidy requests count by state.
+     */
+    get: operations["api_v1_learner_credit_requests_overview_retrieve"];
+  };
   "/api/v1/license-requests/": {
     /**
      * License request list.
@@ -888,6 +914,24 @@ export interface components {
       modal_header_text_v2?: string | null;
       url_for_button_in_modal_v2?: string | null;
     };
+    /** @description Customer Agreement serializer for provisioning requests. */
+    CustomerAgreementRequest: {
+      /**
+       * Format: uuid
+       * @description Optional, default catalog uuid to be used for the customer agreement
+       */
+      default_catalog_uuid?: string | null;
+    };
+    /** @description Customer Agreement serializer for provisioning responses. */
+    CustomerAgreementResponse: {
+      /** Format: uuid */
+      uuid: string;
+      /** Format: uuid */
+      enterprise_customer_uuid: string;
+      /** Format: uuid */
+      default_catalog_uuid: string;
+      subscriptions: components["schemas"]["SubscriptionPlanResponse"][];
+    };
     /** @description Serializer for enrollment due date. */
     EnrollmentDueDate: {
       name: string;
@@ -1002,6 +1046,7 @@ export interface components {
       enable_slug_login: boolean;
       disable_search: boolean;
       show_integration_warning: boolean;
+      enable_learner_credit_message_box: boolean;
     };
     /** @description Serializer for enterprise customer integration. */
     EnterpriseCustomerActiveIntegration: {
@@ -1718,6 +1763,34 @@ export interface components {
       content_metadata: components["schemas"]["ContentMetadataForAssignment"];
       learner_acknowledged: string;
     };
+    /** @description Serializer for the `LearnerCreditRequest` model. */
+    LearnerCreditRequest: {
+      /** Format: uuid */
+      uuid: string;
+      user: number;
+      lms_user_id: number;
+      /** Format: email */
+      email: string;
+      course_id?: string | null;
+      course_title: string | null;
+      course_partners: unknown;
+      /** Format: uuid */
+      enterprise_customer_uuid: string;
+      /** @default requested */
+      state: components["schemas"]["State7b6Enum"];
+      /** Format: date-time */
+      reviewed_at: string | null;
+      reviewer_lms_user_id: number | null;
+      decline_reason?: string | null;
+      /** Format: date-time */
+      created: string;
+      /** Format: date-time */
+      modified: string;
+      /** Format: uuid */
+      learner_credit_request_config?: string | null;
+      /** Format: uuid */
+      assignment?: string | null;
+    };
     /** @description Serializer for the learner dashboard request. */
     LearnerDashboardRequest: {
       /**
@@ -2006,6 +2079,39 @@ export interface components {
       previous?: string | null;
       results?: components["schemas"]["LearnerContentAssignmentResponse"][];
     };
+    PaginatedLearnerCreditRequestList: {
+      /**
+       * @description The total number of items across all pages
+       * @example 123
+       */
+      count?: number;
+      /**
+       * @description The total number of pages
+       * @example 3
+       */
+      page_count?: number;
+      /**
+       * @description The number of items per page
+       * @example 50
+       */
+      page_size?: number;
+      /**
+       * @description The current page number
+       * @example 1
+       */
+      current_page?: number;
+      /**
+       * Format: uri
+       * @description Link to the next page of results
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @description Link to the previous page of results
+       */
+      previous?: string | null;
+      results?: components["schemas"]["LearnerCreditRequest"][];
+    };
     PaginatedLicenseRequestList: {
       /**
        * @description The total number of items across all pages
@@ -2198,6 +2304,7 @@ export interface components {
        *
        * * `license` - License Subsidy
        * * `coupon` - Coupon Subsidy
+       * * `learner_credit` - Learner Credit Subsidy
        */
       subsidy_type?: components["schemas"]["SubsidyTypeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"] | null;
       changed_by_lms_user_id?: number | null;
@@ -2225,12 +2332,17 @@ export interface components {
       pending_admins: components["schemas"]["PendingCustomerAdminRequest"][];
       /** @description Object describing the requested Enterprise Catalog. */
       enterprise_catalog: components["schemas"]["EnterpriseCatalogRequest"];
+      /** @description Object describing the requested Customer Agreement. */
+      customer_agreement: components["schemas"]["CustomerAgreementRequest"];
+      subscription_plan: components["schemas"]["SubscriptionPlanRequest"];
     };
     /** @description Response serializer for provisioning create view. */
     ProvisioningResponse: {
       enterprise_customer: components["schemas"]["EnterpriseCustomerResponse"];
       customer_admins: components["schemas"]["AdminObjectResponse"];
       enterprise_catalog: components["schemas"]["EnterpriseCatalogResponse"];
+      customer_agreement: components["schemas"]["CustomerAgreementResponse"];
+      subscription_plan: components["schemas"]["SubscriptionPlanResponse"];
     };
     /**
      * @description * `requested` - Requested
@@ -2293,6 +2405,37 @@ export interface components {
       days_until_expiration: number;
       days_until_expiration_including_renewals: number;
       should_auto_apply_licenses: boolean | null;
+    };
+    /** @description Subscription Plan serializer for provisioning requests. */
+    SubscriptionPlanRequest: {
+      title: string;
+      salesforce_opportunity_line_item: string;
+      /** Format: date-time */
+      start_date: string;
+      /** Format: date-time */
+      expiration_date: string;
+      product_id: number;
+      desired_num_licenses: number;
+      /** Format: uuid */
+      enterprise_catalog_uuid?: string | null;
+    };
+    /** @description Subscription Plan serializer for provisioning responses. */
+    SubscriptionPlanResponse: {
+      /** Format: uuid */
+      uuid: string;
+      title: string;
+      salesforce_opportunity_line_item: string;
+      /** Format: date-time */
+      created: string;
+      /** Format: date-time */
+      start_date: string;
+      /** Format: date-time */
+      expiration_date: string;
+      is_active: boolean;
+      is_current: boolean;
+      plan_type: string;
+      /** Format: uuid */
+      enterprise_catalog_uuid: string;
     };
     /** @description Serializer for subscriptions subsidies. */
     Subscriptions: {
@@ -2422,6 +2565,8 @@ export interface components {
       can_redeem: boolean;
       /** @description List of reasons why each of the enterprise's subsidy access policies are not redeemable, grouped by reason */
       reasons: components["schemas"]["SubsidyAccessPolicyCanRedeemReasonResponse"][];
+      /** @description A single, user-facing object of the most salient reason for non-redeemability. */
+      display_reason: components["schemas"]["SubsidyAccessPolicyCanRedeemReasonResponse"] | null;
     };
     /**
      * @description Response serializer used to document the structure of a "reason" a content key is not redeemable, used by the
@@ -2462,6 +2607,7 @@ export interface components {
        */
       subsidy_expiration_date: string;
       learner_content_assignments: readonly components["schemas"]["LearnerContentAssignmentWithLearnerAcknowledgedResponse"][];
+      learner_requests: readonly components["schemas"]["LearnerCreditRequest"][];
       group_associations: string;
       /** @description The type of this policy (e.g. the name of an access policy proxy model). */
       policy_type: string;
@@ -2761,6 +2907,7 @@ export interface components {
        *
        * * `license` - License Subsidy
        * * `coupon` - Coupon Subsidy
+       * * `learner_credit` - Learner Credit Subsidy
        */
       subsidy_type?: components["schemas"]["SubsidyTypeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"] | null;
       changed_by_lms_user_id: number | null;
@@ -2768,9 +2915,10 @@ export interface components {
     /**
      * @description * `license` - License Subsidy
      * * `coupon` - Coupon Subsidy
+     * * `learner_credit` - Learner Credit Subsidy
      * @enum {string}
      */
-    SubsidyTypeEnum: "license" | "coupon";
+    SubsidyTypeEnum: "license" | "coupon" | "learner_credit";
     /**
      * @description Base Serializer for BFF messages.
      *
@@ -3683,8 +3831,9 @@ export interface operations {
          *
          * * `license` - License Subsidy
          * * `coupon` - Coupon Subsidy
+         * * `learner_credit` - Learner Credit Subsidy
          */
-        subsidy_type?: "coupon" | "license" | null;
+        subsidy_type?: "coupon" | "learner_credit" | "license" | null;
       };
     };
     responses: {
@@ -3756,6 +3905,87 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["SubsidyRequestCustomerConfiguration"];
+        };
+      };
+    };
+  };
+  /**
+   * List learner credit requests.
+   * @description Viewset for learner credit requests.
+   */
+  api_v1_learner_credit_requests_list: {
+    parameters: {
+      query?: {
+        course_id?: string;
+        enterprise_customer_uuid?: string;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description Number of results to return per page. */
+        page_size?: number;
+        /** @description A search term. */
+        search?: string;
+        user__email?: string;
+        uuid?: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["PaginatedLearnerCreditRequestList"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a learner credit request.
+   * @description Create a learner credit request.
+   */
+  api_v1_learner_credit_requests_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequest"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * Retrieve a learner credit request.
+   * @description Viewset for learner credit requests.
+   */
+  api_v1_learner_credit_requests_retrieve: {
+    parameters: {
+      path: {
+        /** @description A UUID string identifying this learner credit request. */
+        uuid: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * Learner credit request overview.
+   * @description Returns an overview of subsidy requests count by state.
+   */
+  api_v1_learner_credit_requests_overview_retrieve: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
         };
       };
     };
