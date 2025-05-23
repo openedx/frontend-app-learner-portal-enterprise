@@ -700,7 +700,7 @@ export const getMissingApplicableSubsidyReason = ({
 
     case !!missingSubsidyAccessPolicyReason:
       reasonType = missingSubsidyAccessPolicyReason.reason;
-      userMessage = missingSubsidyAccessPolicyReason.userMessage || null;
+      userMessage = missingSubsidyAccessPolicyReason.userMessage;
       break;
 
     case !!enterpriseOffersDisabledEnrollmentReasonType:
