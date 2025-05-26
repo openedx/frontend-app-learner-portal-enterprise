@@ -62,6 +62,15 @@ export async function fetchCanRedeem(enterpriseId, courseRunKeys) {
   return camelCaseObject(response.data);
 }
 
+export async function fetchCanRequest(enterpriseId, courseKey) {
+  const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/enterprise-customer/${enterpriseId}/can-request/`;
+  const queryParams = new URLSearchParams();
+  queryParams.append('content_key', courseKey);
+  const urlWithParams = `${url}?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(urlWithParams);
+  return camelCaseObject(response.data);
+}
+
 export async function fetchCourseReviews(courseKey) {
   const url = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/course_review/${courseKey}/`;
   const response = await getAuthenticatedHttpClient().get(url);

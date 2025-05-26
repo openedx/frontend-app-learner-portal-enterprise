@@ -139,6 +139,14 @@ export function queryCanRedeem(
     ._ctx.canRedeem(courseRunKeys);
 }
 
+export function queryCanRequest(enterpriseUuid: string, courseKey: string, courseRunKey: string) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course(courseKey)
+    ._ctx.canRequest(courseRunKey);
+}
+
 export function queryCanUpgradeWithLearnerCredit(enterpriseUuid: string, courseRunKey: string) {
   return queries
     .enterprise
