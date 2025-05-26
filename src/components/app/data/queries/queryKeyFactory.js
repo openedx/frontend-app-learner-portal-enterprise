@@ -100,9 +100,9 @@ const enterprise = createQueryKeys('enterprise', {
             queryKey: [searchCatalogs],
             queryFn: ({ queryKey }) => fetchCourseRecommendations(queryKey[2], queryKey[4], searchCatalogs),
           }),
-          canRequest: (courseRunKey) => ({
-            queryKey: [courseRunKey],
-            queryFn: ({ queryKey }) => fetchCanRequest(queryKey[2], courseRunKey),
+          canRequest: () => ({
+            queryKey: [courseKey],
+            queryFn: ({ queryKey }) => fetchCanRequest(queryKey[2], courseKey),
           }),
         },
       }),

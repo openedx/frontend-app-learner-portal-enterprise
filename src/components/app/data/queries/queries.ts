@@ -139,12 +139,12 @@ export function queryCanRedeem(
     ._ctx.canRedeem(courseRunKeys);
 }
 
-export function queryCanRequest(enterpriseUuid: string, courseKey: string, courseRunKey: string) {
+export function queryCanRequest(enterpriseUuid: string, courseKey: string) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.course(courseKey)
-    ._ctx.canRequest(courseRunKey);
+    ._ctx.canRequest();
 }
 
 export function queryCanUpgradeWithLearnerCredit(enterpriseUuid: string, courseRunKey: string) {
