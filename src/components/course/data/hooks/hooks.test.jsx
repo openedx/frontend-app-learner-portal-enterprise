@@ -11,6 +11,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
   useBrowseAndRequestCatalogsApplicableToCourse,
+  useCanUserRequestSubsidyForCourse,
   useCourseEnrollmentUrl,
   useCoursePacingType,
   useCoursePartners,
@@ -36,6 +37,7 @@ import {
   COUPON_CODE_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
   useBrowseAndRequest,
+  useBrowseAndRequestConfiguration,
   useCatalogsForSubsidyRequests,
   useCourseMetadata,
   useEnterpriseCustomer,
@@ -43,6 +45,7 @@ import {
   useRedeemablePolicies,
 } from '../../../app/data';
 import { CourseContext } from '../../CourseContextProvider';
+import useCourseRequest from './useCourseRequest';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
@@ -57,7 +60,10 @@ jest.mock('../../../app/data', () => ({
   useBrowseAndRequest: jest.fn(),
   useCatalogsForSubsidyRequests: jest.fn(),
   getSubsidyToApplyForCourse: jest.fn(),
+  useBrowseAndRequestConfiguration: jest.fn(),
 }));
+
+jest.mock('./useCourseRequest', () => jest.fn());
 
 const oldGlobalLocation = global.location;
 
@@ -1236,5 +1242,39 @@ describe('useBrowseAndRequestCatalogsApplicableToCourse', () => {
       { wrapper: Wrapper },
     );
     expect(result.current).toEqual(['test-catalog', 'test-catalog1']);
+  });
+});
+
+describe('useCanUserRequestSubsidyForCourse', () => {
+  const Wrapper = ({ children }) => (
+    <AppContext.Provider value={mockAuthenticatedUser}>
+      {children}
+    </AppContext.Provider>
+  );
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useCourseRequest.mockReturnValue({ data: { canRequest: false } });
+    useBrowseAndRequestConfiguration.mockReturnValue({ data: undefined });
+    useUserSubsidyApplicableToCourse.mockReturnValue({
+      userSubsidyApplicableToCourse: undefined,
+    });
+  });
+
+  it('returns true when canRequestLC is true', () => {
+    useCourseRequest.mockReturnValue({ data: { canRequest: true } });
+
+    const { result } = renderHook(() => useCanUserRequestSubsidyForCourse(), { wrapper: Wrapper });
+
+    expect(result.current).toBe(true);
+  });
+
+  it('returns false when canRequestLC is false and no browse and request configuration', () => {
+    useCourseRequest.mockReturnValue({ data: { canRequest: false } });
+    useBrowseAndRequestConfiguration.mockReturnValue({ data: undefined });
+
+    const { result } = renderHook(() => useCanUserRequestSubsidyForCourse(), { wrapper: Wrapper });
+
+    expect(result.current).toBe(false);
   });
 });
