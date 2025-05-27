@@ -49,6 +49,7 @@ import { CourseContext } from '../../CourseContextProvider';
 import { POLICY_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import useUserSubsidyApplicableToCourse from './useUserSubsidyApplicableToCourse';
 import useCourseListPrice from './useCourseListPrice';
+import useCourseRequest from './useCourseRequest';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -549,9 +550,16 @@ export function useBrowseAndRequestCatalogsApplicableToCourse() {
 }
 
 export function useCanUserRequestSubsidyForCourse() {
+  const { data: canRequestLC } = useCourseRequest();
+
   const { data: browseAndRequestConfiguration } = useBrowseAndRequestConfiguration();
   const subsidyRequestCatalogsApplicableToCourse = useBrowseAndRequestCatalogsApplicableToCourse();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+
+  if (canRequestLC?.canRequest) {
+    return true;
+  }
+
   return canUserRequestSubsidyForCourse({
     subsidyRequestConfiguration: browseAndRequestConfiguration,
     subsidyRequestCatalogsApplicableToCourse,

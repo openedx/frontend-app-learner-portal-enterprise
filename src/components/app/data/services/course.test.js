@@ -2,7 +2,9 @@ import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-import { fetchCanRedeem, fetchCourseMetadata, fetchCourseRunMetadata } from './course';
+import {
+  fetchCanRedeem, fetchCanRequest, fetchCourseMetadata, fetchCourseRunMetadata,
+} from './course';
 import { findHighestLevelEntitlementSku, getActiveCourseRun } from '../utils';
 import { COURSE_MODES_MAP } from '../constants';
 import { ENTERPRISE_RESTRICTION_TYPE } from '../../../../constants';
@@ -125,5 +127,31 @@ describe('fetchCanRedeem', () => {
     axiosMock.onGet(CAN_REDEEM_URL).reply(200, canRedeemData);
     const result = await fetchCanRedeem(mockEnterpriseId, [mockCourseKey, mockCourseKeyTwo]);
     expect(result).toEqual(canRedeemData);
+  });
+});
+
+describe('fetchCanRequest', () => {
+  const queryParams = new URLSearchParams();
+  queryParams.append('content_key', mockCourseKey);
+  const CAN_REQUEST_URL = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/enterprise-customer/${mockEnterpriseId}/can-request/?${queryParams.toString()}`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('returns can-request response', async () => {
+    const canRequestData = { canRequest: true };
+    axiosMock.onGet(CAN_REQUEST_URL).reply(200, canRequestData);
+    const result = await fetchCanRequest(mockEnterpriseId, mockCourseKey);
+    expect(result).toEqual(canRequestData);
+  });
+
+  it('makes correct API call with proper parameters', async () => {
+    const canRequestData = { canRequest: false };
+    axiosMock.onGet(CAN_REQUEST_URL).reply(200, canRequestData);
+    await fetchCanRequest(mockEnterpriseId, mockCourseKey);
+    expect(axiosMock.history.get.length).toBe(1);
+    expect(axiosMock.history.get[0].url).toBe(CAN_REQUEST_URL);
   });
 });

@@ -6,6 +6,7 @@ import {
   fetchAcademiesDetail,
   fetchBrowseAndRequestConfiguration,
   fetchCanRedeem,
+  fetchCanRequest,
   fetchContentHighlights,
   fetchCouponCodeRequests,
   fetchCouponCodes,
@@ -98,6 +99,10 @@ const enterprise = createQueryKeys('enterprise', {
           recommendations: (searchCatalogs) => ({
             queryKey: [searchCatalogs],
             queryFn: ({ queryKey }) => fetchCourseRecommendations(queryKey[2], queryKey[4], searchCatalogs),
+          }),
+          canRequest: () => ({
+            queryKey: [courseKey],
+            queryFn: ({ queryKey }) => fetchCanRequest(queryKey[2], courseKey),
           }),
         },
       }),
