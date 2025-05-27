@@ -104,7 +104,7 @@ Promise<EnterpriseLearnerData> {
   // linked), but the authenticated user is staff, attempt to retrieve enterprise
   // customer metadata from the `/enterprise-customer` LMS API.
   let staffEnterpriseCustomer: EnterpriseCustomer | null = null;
-  if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
+  if (getAuthenticatedUser()?.administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
     const staffEnterpriseCustomerResult = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
     if (staffEnterpriseCustomerResult?.enableLearnerPortal) {
       staffEnterpriseCustomer = transformEnterpriseCustomer(staffEnterpriseCustomerResult);
