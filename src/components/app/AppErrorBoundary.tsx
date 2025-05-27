@@ -190,7 +190,7 @@ const AppErrorBoundary = ({
             styling="basic"
             className="small"
             title={intl.formatMessage(messages.viewErrorDetails)}
-            defaultOpen={authenticatedUser.administrator}
+            defaultOpen={authenticatedUser?.administrator}
           >
             <pre>{errorMessageForDisplay}</pre>
             {errorStackForDisplay && <pre>{errorStackForDisplay}</pre>}
