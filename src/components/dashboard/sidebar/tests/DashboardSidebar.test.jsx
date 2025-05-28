@@ -236,6 +236,9 @@ describe('<DashboardSidebar />', () => {
     useHasAvailableSubsidiesOrRequests.mockReturnValue(useMockHasAvailableSubsidyOrRequests({
       mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
     }));
+    useEnterpriseCustomer.mockReturnValue({
+      data: { ...mockEnterpriseCustomer, enableLearnerCreditMessageBox: true },
+    });
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
   });
@@ -261,6 +264,9 @@ describe('<DashboardSidebar />', () => {
       mockHasActivatedCurrentLicenseOrLicenseRequest: true,
       mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
     }));
+    useEnterpriseCustomer.mockReturnValue({
+      data: { ...mockEnterpriseCustomer, enableLearnerCreditMessageBox: true },
+    });
     renderWithRouter(<DashboardSidebarWithContext />);
 
     expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
@@ -284,6 +290,9 @@ describe('<DashboardSidebar />', () => {
       mockHasAssignedCodesOrCodeRequests: true,
       mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
     }));
+    useEnterpriseCustomer.mockReturnValue({
+      data: { ...mockEnterpriseCustomer, enableLearnerCreditMessageBox: true },
+    });
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).not.toBeInTheDocument();
@@ -305,10 +314,33 @@ describe('<DashboardSidebar />', () => {
       mockHasAvailableLearnerCreditPolicies: true,
       mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
     }));
+    useEnterpriseCustomer.mockReturnValue({
+      data: { ...mockEnterpriseCustomer, enableLearnerCreditMessageBox: true },
+    });
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.queryByText(LEARNER_CREDIT_SUMMARY_CARD_TITLE)).toBeInTheDocument();
   });
+  test('LearnerCreditSummaryCard is not rendered when hasApplicableLearnerCredit is false', () => {
+    useEnterpriseOffers.mockReturnValue({
+      data: {
+        enterpriseOffers: [],
+        canEnrollWithEnterpriseOffers: true,
+      },
+    });
+    useHasAvailableSubsidiesOrRequests.mockReturnValue({
+      hasAvailableLearnerCreditPolicies: false,
+      hasAssignedCodesOrCodeRequests: false,
+      learnerCreditSummaryCardData: { expirationDate: dayjs().add(10, 'days').toISOString() },
+      hasActivatedCurrentLicenseOrLicenseRequest: false,
+      hasAvailableSubsidyOrRequests: true,
+    });
+    useEnterpriseCustomer.mockReturnValue({
+      data: { ...mockEnterpriseCustomer, enableLearnerCreditMessageBox: false },
+    });
 
+    renderWithRouter(<DashboardSidebarWithContext />);
+    expect(screen.queryByText(LEARNER_CREDIT_SUMMARY_CARD_TITLE)).not.toBeInTheDocument();
+  });
   test('Only learner credit summary card is displayed when enterprise has both learner credit and offers', () => {
     const policyExpirationDate = '2030-01-01 12:00:00Z';
     const offerEndDate = '2027-10-25';
@@ -335,6 +367,9 @@ describe('<DashboardSidebar />', () => {
       mockHasAvailableLearnerCreditPolicies: true,
       mockLearnerCreditSummaryCardData: { expirationDate: policyExpirationDate },
     }));
+    useEnterpriseCustomer.mockReturnValue({
+      data: { ...mockEnterpriseCustomer, enableLearnerCreditMessageBox: true },
+    });
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText('2030', { exact: false })).toBeInTheDocument();
     expect(screen.queryByText('2027', { exact: false })).toBeFalsy();
@@ -368,6 +403,9 @@ describe('<DashboardSidebar />', () => {
       mockHasAvailableLearnerCreditPolicies: true,
       mockLearnerCreditSummaryCardData: { expirationDate: dayjs().add(70, 'days').toISOString() },
     }));
+    useEnterpriseCustomer.mockReturnValue({
+      data: { ...mockEnterpriseCustomer, enableLearnerCreditMessageBox: true },
+    });
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.getByText(LEARNER_CREDIT_ASSIGNMENT_ONLY_SUMMARY)).toBeInTheDocument();
   });
@@ -608,6 +646,7 @@ describe('<DashboardSidebar />', () => {
     useEnterpriseCustomer.mockReturnValue({
       data: enterpriseCustomerFactory({
         disable_expiry_messaging_for_learner_credit: disableExpiryMessagingForLearnerCredit,
+        enableLearnerCreditMessageBox: true,
       }),
     });
     useSubscriptions.mockReturnValue({

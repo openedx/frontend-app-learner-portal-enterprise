@@ -89,9 +89,10 @@ const SubsidiesSummary = ({
     hasActivatedCurrentLicenseOrLicenseRequest,
     learnerCreditSummaryCardData,
   } = useHasAvailableSubsidiesOrRequests();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const hasApplicableLearnerCredit = (
     enterpriseOffersData.canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies
-  ) && !!learnerCreditSummaryCardData?.expirationDate;
+  ) && !!learnerCreditSummaryCardData?.expirationDate && enterpriseCustomer?.enableLearnerCreditMessageBox;
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const { isPlanApproachingExpiry } = useExpirationMetadata(
     learnerCreditSummaryCardData?.expirationDate,
@@ -120,7 +121,13 @@ const SubsidiesSummary = ({
 
   return (
     <Card
-      className={classNames('mb-5', { 'col-8 border-0 shadow-none': programProgressPage })}
+      className={
+        classNames({
+          'mb-5': hasApplicableLearnerCredit,
+          'mb-0': !hasApplicableLearnerCredit,
+          'col-8 border-0 shadow-none': programProgressPage,
+        })
+      }
     >
       <div className={className} data-testid="subsidies-summary">
         {hasActivatedCurrentLicenseOrLicenseRequest && (
