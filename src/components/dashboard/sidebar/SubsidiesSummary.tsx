@@ -121,7 +121,13 @@ const SubsidiesSummary = ({
 
   return (
     <Card
-      className={classNames(`mb-${hasApplicableLearnerCredit ? '5' : '0'}`, { 'col-8 border-0 shadow-none': programProgressPage })}
+      className={
+        classNames({
+          'mb-5': hasApplicableLearnerCredit,
+          'mb-0': !hasApplicableLearnerCredit,
+          'col-8 border-0 shadow-none': programProgressPage,
+        })
+      }
     >
       <div className={className} data-testid="subsidies-summary">
         {hasActivatedCurrentLicenseOrLicenseRequest && (

@@ -320,7 +320,7 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(<DashboardSidebarWithContext />);
     expect(screen.queryByText(LEARNER_CREDIT_SUMMARY_CARD_TITLE)).toBeInTheDocument();
   });
-  test('LearnerCreditSummaryCard is not when hasApplicableLearnerCredit is false', () => {
+  test('LearnerCreditSummaryCard is not rendered when hasApplicableLearnerCredit is false', () => {
     useEnterpriseOffers.mockReturnValue({
       data: {
         enterpriseOffers: [],
