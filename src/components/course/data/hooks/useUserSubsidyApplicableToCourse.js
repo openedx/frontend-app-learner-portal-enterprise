@@ -7,6 +7,7 @@ import {
   useCouponCodes,
   useCourseMetadata,
   useCourseRedemptionEligibility,
+  useCourseCanRequestEligibility,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContentSuspense,
   useEnterpriseOffers,
@@ -80,6 +81,11 @@ const useUserSubsidyApplicableToCourse = () => {
   } = useCouponCodes();
   const { data: courseMetadata } = useCourseMetadata();
 
+  // --- Fetch can_request state for Learner Credit ---
+  // This is used to determine if the user can request Learner Credit for the course and returns:
+  // { can_request, reason, requestable_subsidy_access_policy, request_state } TODO: implement request_state
+  const { data: canRequestData, isPending: isCanRequestPending } = useCourseCanRequestEligibility();
+
   const isSubscriptionLicenseApplicable = determineSubscriptionLicenseApplicable(
     subscriptionLicense,
     catalogsWithCourse,
@@ -142,11 +148,31 @@ const useUserSubsidyApplicableToCourse = () => {
     );
   }
 
+  // --- Learner Credit B&R ---
+  const canRequestLearnerCredit = !!canRequestData?.canRequest;
+  const learnerCreditRequestState = canRequestData?.requestState || null;
+  const learnerCreditRequestablePolicy = canRequestData?.requestableSubsidyAccessPolicy || null;
+  const learnerCreditRequestReason = canRequestData?.reason || null;
+
   return useMemo(() => ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
-    isPending: isPending || false,
-  }), [userSubsidyApplicableToCourse, missingUserSubsidyReason, isPending]);
+    isPending: isPending || isCanRequestPending || false,
+    // Learner Credit B&R fields:
+    canRequestLearnerCredit,
+    learnerCreditRequestState,
+    learnerCreditRequestablePolicy,
+    learnerCreditRequestReason,
+  }), [
+    userSubsidyApplicableToCourse,
+    missingUserSubsidyReason,
+    isPending,
+    isCanRequestPending,
+    canRequestLearnerCredit,
+    learnerCreditRequestState,
+    learnerCreditRequestablePolicy,
+    learnerCreditRequestReason,
+  ]);
 };
 
 export default useUserSubsidyApplicableToCourse;

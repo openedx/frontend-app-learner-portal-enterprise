@@ -9,7 +9,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { useBrowseAndRequestCatalogsApplicableToCourse, useUserHasSubsidyRequestForCourse, useUserSubsidyApplicableToCourse } from './data/hooks';
 import { findUserEnrollmentForCourseRun } from './data/utils';
 import { ToastsContext } from '../Toasts';
-import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
+import { postLicenseRequest, postCouponCodeRequest, postLearnerCreditRequest } from '../enterprise-subsidy-requests/data/service';
 import { SUBSIDY_TYPE } from '../../constants';
 import {
   queryRequestsContextQueryKey,
@@ -40,6 +40,9 @@ const SubsidyRequestButton = () => {
   const {
     userSubsidyApplicableToCourse,
     isPending: isPendingUserSubsidyApplicableToCourse,
+    canRequestLearnerCredit,
+    learnerCreditRequestState,
+    learnerCreditRequestablePolicy,
   } = useUserSubsidyApplicableToCourse();
   const { data: courseMetadata } = useCourseMetadata();
   const { data: { enterpriseCourseEnrollments: userEnrollments } } = useEnterpriseCourseEnrollments();
@@ -83,13 +86,27 @@ const SubsidyRequestButton = () => {
    *    - user has no subsidy for course
    */
   const hasSubsidyRequestsEnabled = !!browseAndRequestConfiguration?.subsidyRequestsEnabled;
-  const showSubsidyRequestButton = hasSubsidyRequestsEnabled && (
-    userHasSubsidyRequest || (
-      subsidyRequestCatalogsApplicableToCourse.length > 0 && !isUserEnrolled && !userSubsidyApplicableToCourse
+  const showSubsidyRequestButton = hasSubsidyRequestsEnabled
+    && (userHasSubsidyRequest
+    || (
+      subsidyRequestCatalogsApplicableToCourse.length > 0
+      && !isUserEnrolled
+      && !userSubsidyApplicableToCourse
     )
-  );
+    );
 
-  if (!showSubsidyRequestButton) {
+  // Learner Credit B&R
+  const showLearnerCreditRequestButton = !userSubsidyApplicableToCourse
+    && !isUserEnrolled
+    && canRequestLearnerCredit
+    && learnerCreditRequestablePolicy;
+
+  // Awaiting approval state (for both types)
+  const isAwaitingApproval = learnerCreditRequestState === 'REQUESTED'
+    || learnerCreditRequestState === 'PENDING'
+    || userHasSubsidyRequest; // for legacy B&R
+
+  if (!showSubsidyRequestButton && !showLearnerCreditRequestButton && !isAwaitingApproval) {
     return null;
   }
 
@@ -103,7 +120,7 @@ const SubsidyRequestButton = () => {
     if (loadingRequest) {
       return 'pending';
     }
-    if (userHasSubsidyRequest) {
+    if (userHasSubsidyRequest || isAwaitingApproval) {
       return 'requested';
     }
     return 'request';
@@ -112,7 +129,17 @@ const SubsidyRequestButton = () => {
   const handleRequestButtonClick = async () => {
     setLoadingRequest(true);
     try {
-      await requestSubsidy(courseMetadata.key);
+      if (showLearnerCreditRequestButton) {
+        // Learner Credit B&R: create a LearnerCreditRequest
+        await postLearnerCreditRequest(
+          enterpriseCustomer.uuid,
+          learnerCreditRequestablePolicy.uuid,
+          courseMetadata.key,
+        );
+      } else {
+        // Existing logic for legacy subsidy types
+        await requestSubsidy(courseMetadata.key);
+      }
       setLoadingRequest(false);
       addToast(
         intl.formatMessage({
