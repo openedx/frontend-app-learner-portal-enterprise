@@ -477,6 +477,7 @@ export const transformLearnerCreditRequest = (learnerCreditRequest, enterpriseSl
     courseId,
     coursePartners,
     startDate,
+    assignment,
   } = learnerCreditRequest;
 
   const orgName = coursePartners?.[0]?.name || null;
@@ -491,6 +492,7 @@ export const transformLearnerCreditRequest = (learnerCreditRequest, enterpriseSl
     courseRunStatus: state,
     startDate: startDate || null,
     isLearnerCreditRequest: true,
+    associatedAssignment: assignment,
   };
 };
 
