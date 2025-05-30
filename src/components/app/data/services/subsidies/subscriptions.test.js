@@ -161,6 +161,7 @@ describe('fetchSubscriptions', () => {
       enterprise_customer_uuid: mockEnterpriseId,
       include_revoked: true,
       current_plans_only: false,
+      page_size: 100,
     });
     const SUBSCRIPTIONS_URL = `${APP_CONFIG.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
     axiosMock.onGet(SUBSCRIPTIONS_URL).reply(200, mockResponse);
@@ -223,6 +224,7 @@ describe('fetchSubscriptions', () => {
       enterprise_customer_uuid: mockEnterpriseId,
       include_revoked: true,
       current_plans_only: false,
+      page_size: 100,
     });
     const SUBSCRIPTIONS_URL = `${APP_CONFIG.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
     axiosMock.onGet(SUBSCRIPTIONS_URL).reply(200, mockResponse);
