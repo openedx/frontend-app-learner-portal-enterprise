@@ -13,6 +13,7 @@ export { default as useEnterpriseFeatures } from './useEnterpriseFeatures';
 export { default as useDefaultSearchFilters } from './useDefaultSearchFilters';
 export { useEnterpriseCustomerContainsContent, useEnterpriseCustomerContainsContentSuspense } from './useEnterpriseCustomerContainsContent';
 export { default as useCourseRedemptionEligibility } from './useCourseRedemptionEligibility';
+export { default as useCourseCanRequestEligibility } from './useCourseCanRequestEligibility';
 export { default as useSearchCatalogs } from './useSearchCatalogs';
 export { default as useSubscriptions } from './useSubscriptions';
 export { default as useCouponCodes } from './useCouponCodes';
