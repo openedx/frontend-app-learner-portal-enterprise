@@ -323,4 +323,74 @@ describe('useEnterpriseCourseEnrollments', () => {
       expect(result.current.data.contentAssignments).toEqual(expectedContentAssignmentData);
     });
   });
+
+  it('should filter assignments when learner credit request has associatedAssignment matching assignment uuid', async () => {
+    const assignmentUuid = 'test-assignment-uuid-123';
+    const mockAssignmentWithAssociation = {
+      uuid: assignmentUuid,
+      state: 'allocated',
+      earliestPossibleExpiration: {
+        date: dayjs().add(25, 'days').toISOString(),
+      },
+      contentKey: 'edX+DemoX',
+      contentTitle: 'Test Content Title',
+      contentMetadata: {
+        startDate: dayjs().add(25, 'days').toISOString(),
+        endDate: dayjs().add(65, 'days').toISOString(),
+        mode: 'test-mode',
+        partners: [{ name: 'edx' }],
+      },
+      assignmentConfiguration: 'test-configuration',
+      learnerAcknowledged: true,
+      isAssignedCourseRun: false,
+    };
+
+    const mockLearnerCreditRequestWithAssociation = {
+      uuid: 'test-request-uuid',
+      assignment: assignmentUuid,
+      state: 'approved',
+      courseId: 'edX+DemoX',
+      courseTitle: 'Test Request Title',
+    };
+
+    const mockRedeemablePoliciesWithAssociation = {
+      redeemablePolicies: expectedTransformedPolicies,
+      learnerContentAssignments: {
+        acceptedAssignments: [],
+        allocatedAssignments: [mockAssignmentWithAssociation],
+        assignments: [mockAssignmentWithAssociation],
+        assignmentsForDisplay: [mockAssignmentWithAssociation],
+        canceledAssignments: [],
+        erroredAssignments: [],
+        expiredAssignments: [],
+        hasAcceptedAssignments: false,
+        hasAllocatedAssignments: true,
+        hasAssignments: true,
+        hasAssignmentsForDisplay: true,
+        hasCanceledAssignments: false,
+        hasErroredAssignments: false,
+        hasExpiredAssignments: false,
+      },
+      learnerRequests: [mockLearnerCreditRequestWithAssociation],
+    };
+
+    fetchRedeemablePolicies.mockResolvedValue(mockRedeemablePoliciesWithAssociation);
+
+    const { result } = renderHook(
+      () => useEnterpriseCourseEnrollments(),
+      { wrapper: Wrapper },
+    );
+
+    await waitFor(() => {
+      // The assignment should be filtered out because request.associatedAssignment === assignment.uuid
+      // Only the learner credit request should remain in assignmentsForDisplay
+      expect(result.current.data.contentAssignments.assignmentsForDisplay).toHaveLength(1);
+      expect(result.current.data.contentAssignments.assignmentsForDisplay[0]).toEqual(
+        expect.objectContaining({
+          uuid: 'test-request-uuid',
+          associatedAssignment: assignmentUuid,
+        }),
+      );
+    });
+  });
 });

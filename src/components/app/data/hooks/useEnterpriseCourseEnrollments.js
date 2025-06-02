@@ -27,9 +27,20 @@ export const transformAllEnrollmentsByStatus = ({
 
   const assignmentsForDisplay = contentAssignments?.assignmentsForDisplay || [];
   const assignmentsWithRequests = contentAssignments || {};
+
+  // The following filter is needed due to following reasons:
+  // 1. Sometimes duplicate requests gets added while selecting different enterprises.
+  // 2. When a request is approved, it creates an assignment as well. So, we need to filter out the assignment
+  // and only show the approved request.
+  const filteredAssignmentsForDisplay = assignmentsForDisplay.filter(
+    assignment => !learnerCreditRequests.some(
+      request => request.uuid === assignment.uuid || request.associatedAssignment === assignment.uuid,
+    ),
+  );
+
   assignmentsWithRequests.assignmentsForDisplay = [
     ...learnerCreditRequests,
-    ...assignmentsForDisplay,
+    ...filteredAssignmentsForDisplay,
   ];
 
   allEnrollmentsByStatus[COURSE_STATUSES.requested] = subsidyRequests;
