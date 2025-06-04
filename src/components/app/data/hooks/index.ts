@@ -28,6 +28,7 @@ export {
   default as useBrowseAndRequest,
   useBrowseAndRequestConfiguration,
   useCouponCodeRequests,
+  useLearnerCreditRequests,
   useSubscriptionLicenseRequests,
 } from './useBrowseAndRequest';
 export { default as useIsAssignmentsOnlyLearner } from './useIsAssignmentsOnlyLearner';
