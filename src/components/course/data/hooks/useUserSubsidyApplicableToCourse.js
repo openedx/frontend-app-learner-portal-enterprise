@@ -81,9 +81,11 @@ const useUserSubsidyApplicableToCourse = () => {
   } = useCouponCodes();
   const { data: courseMetadata } = useCourseMetadata();
 
-  // --- Fetch can_request state for Learner Credit ---
-  // This is used to determine if the user can request Learner Credit for the course and returns:
-  // { can_request, reason, requestable_subsidy_access_policy, request_state } TODO: implement request_state
+  /**
+ * --- Fetch can_request state for Learner Credit ---
+ * This is used to determine if the user can request Learner Credit for the course and returns:
+ * { can_request, reason, requestable_subsidy_access_policy }
+ */
   const { data: canRequestData, isPending: isCanRequestPending } = useCourseCanRequestEligibility();
 
   const isSubscriptionLicenseApplicable = determineSubscriptionLicenseApplicable(
