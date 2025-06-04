@@ -425,7 +425,7 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
       requests: {
         subscriptionLicenses: subscriptionLicenseRequests,
         couponCodes: couponCodeRequests,
-        learnerCreditRequests: learnerCreditRequests,
+        learnerCreditRequests,
       },
     },
   } = useBrowseAndRequest();
@@ -448,9 +448,8 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
 
   // Check LCR requests (always, since LCR is not tied to legacy config)
   const hasLCRRequest = learnerCreditRequests.some(
-    req =>
-      (!courseKey || req.courseId === courseKey) &&
-      ['requested', 'approved', 'errored'].includes(req.state)
+    req => (!courseKey || req.courseId === courseKey)
+      && ['requested', 'approved', 'errored'].includes(req.state),
   );
 
   return hasLCRRequest;

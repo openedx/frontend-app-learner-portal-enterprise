@@ -46,7 +46,6 @@ const SubsidyRequestButton = () => {
   const { data: courseMetadata } = useCourseMetadata();
   const { data: { enterpriseCourseEnrollments: userEnrollments } } = useEnterpriseCourseEnrollments();
   const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseMetadata.key);
-  console.log("userHasSubsidyRequest",userHasSubsidyRequest);
   const subsidyRequestCatalogsApplicableToCourse = useBrowseAndRequestCatalogsApplicableToCourse();
 
   /**
