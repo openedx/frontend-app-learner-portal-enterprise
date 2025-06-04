@@ -2048,6 +2048,49 @@ paths:
                   $ref: >-
                     #/components/schemas/SubsidyAccessPolicyCanRedeemElementResponse
           description: ''
+  /api/v1/policy-redemption/enterprise-customer/{enterprise_customer_uuid}/can-request/:
+    get:
+      operationId: api_v1_policy_redemption_enterprise_customer_can_request_list
+      description: |-
+        Check if a learner can request access to content. The flow is:
+        1. Find BnR enabled policies first
+        2. Check if content key exists in those policies
+        3. Check for existing pending request by this learner
+      summary: Can request.
+      parameters:
+        - in: query
+          name: content_key
+          schema:
+            type: string
+            minLength: 1
+          description: Content key about which requestability will be queried.
+          required: true
+        - in: path
+          name: enterprise_customer_uuid
+          schema:
+            type: string
+            format: uuid
+            description: The owning Enterprise Customer's UUID.  Cannot be blank or null.
+          required: true
+        - in: query
+          name: lms_user_id
+          schema:
+            type: integer
+          description: >-
+            The user identifier for which requestability will be queried (only
+            applicable to staff users).
+      tags:
+        - Subsidy Access Policy Redemption
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: >-
+                    #/components/schemas/SubsidyAccessPolicyCanRequestElementResponse
+          description: ''
   /api/v1/provisioning:
     post:
       operationId: api_v1_provisioning_create
@@ -6524,6 +6567,34 @@ components:
         - policy_uuids
         - reason
         - user_message
+    SubsidyAccessPolicyCanRequestElementResponse:
+      type: object
+      description: >-
+        Response serializer representing a single element of the response list
+        for the can_request endpoint.
+      properties:
+        content_key:
+          type: string
+          description: Requested content_key to which the rest of this element pertains.
+        reason:
+          type: string
+          nullable: true
+          description: >-
+            Reason code (in camel_case) for why user can't request access to
+            this content.
+        can_request:
+          type: boolean
+          description: True if the learner can request this content.
+        requestable_subsidy_access_policy:
+          allOf:
+            - $ref: '#/components/schemas/SubsidyAccessPolicyRedeemableResponse'
+          description: >-
+            One subsidy access policy selected from potentially multiple
+            redeemable policies for the requested content_key and lms_user_id.
+      required:
+        - can_request
+        - content_key
+        - requestable_subsidy_access_policy
     SubsidyAccessPolicyCreditsAvailableResponse:
       type: object
       description: >-
@@ -6978,11 +7049,15 @@ components:
           type: string
           format: date-time
           readOnly: true
+        bnr_enabled:
+          type: string
+          readOnly: true
       required:
         - access_method
         - active
         - aggregates
         - assignment_configuration
+        - bnr_enabled
         - catalog_uuid
         - created
         - description

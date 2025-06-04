@@ -409,6 +409,16 @@ export interface paths {
      */
     get: operations["api_v1_policy_redemption_enterprise_customer_can_redeem_list"];
   };
+  "/api/v1/policy-redemption/enterprise-customer/{enterprise_customer_uuid}/can-request/": {
+    /**
+     * Can request.
+     * @description Check if a learner can request access to content. The flow is:
+     * 1. Find BnR enabled policies first
+     * 2. Check if content key exists in those policies
+     * 3. Check for existing pending request by this learner
+     */
+    get: operations["api_v1_policy_redemption_enterprise_customer_can_request_list"];
+  };
   "/api/v1/provisioning": {
     /**
      * Create a new provisioning request.
@@ -2583,6 +2593,17 @@ export interface components {
         [key: string]: unknown;
       };
     };
+    /** @description Response serializer representing a single element of the response list for the can_request endpoint. */
+    SubsidyAccessPolicyCanRequestElementResponse: {
+      /** @description Requested content_key to which the rest of this element pertains. */
+      content_key: string;
+      /** @description Reason code (in camel_case) for why user can't request access to this content. */
+      reason?: string | null;
+      /** @description True if the learner can request this content. */
+      can_request: boolean;
+      /** @description One subsidy access policy selected from potentially multiple redeemable policies for the requested content_key and lms_user_id. */
+      requestable_subsidy_access_policy: components["schemas"]["SubsidyAccessPolicyRedeemableResponse"];
+    };
     /**
      * @description Response serializer to represent redeemable policies with additional information about remaining balance.
      *
@@ -2837,6 +2858,7 @@ export interface components {
       is_late_redemption_allowed: string;
       /** Format: date-time */
       created: string;
+      bnr_enabled: string;
     };
     /**
      * @description Request Serializer for PUT or PATCH requests to update a subsidy access policy.
@@ -4250,6 +4272,33 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["SubsidyAccessPolicyCanRedeemElementResponse"][];
+        };
+      };
+    };
+  };
+  /**
+   * Can request.
+   * @description Check if a learner can request access to content. The flow is:
+   * 1. Find BnR enabled policies first
+   * 2. Check if content key exists in those policies
+   * 3. Check for existing pending request by this learner
+   */
+  api_v1_policy_redemption_enterprise_customer_can_request_list: {
+    parameters: {
+      query: {
+        /** @description Content key about which requestability will be queried. */
+        content_key: string;
+        /** @description The user identifier for which requestability will be queried (only applicable to staff users). */
+        lms_user_id?: number;
+      };
+      path: {
+        enterprise_customer_uuid: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["SubsidyAccessPolicyCanRequestElementResponse"][];
         };
       };
     };
