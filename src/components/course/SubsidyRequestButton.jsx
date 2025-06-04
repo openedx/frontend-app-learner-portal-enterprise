@@ -99,7 +99,7 @@ const SubsidyRequestButton = () => {
   && learnerCreditRequestablePolicy
   && !userHasSubsidyRequest;
 
-  if (!showSubsidyRequestButton && !showLearnerCreditRequestButton) {
+  if (!showSubsidyRequestButton && !showLearnerCreditRequestButton && !userHasSubsidyRequest) {
     return null;
   }
 

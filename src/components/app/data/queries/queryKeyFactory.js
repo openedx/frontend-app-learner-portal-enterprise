@@ -156,7 +156,7 @@ const enterprise = createQueryKeys('enterprise', {
                   // queryCouponCodeRequests
                   couponCodeRequests: {
                     queryKey: null,
-                    queryFn: ({ queryKey }) => fetchCouponCodeRequests(queryKey[2], queryKey[5], queryKey[7]),
+                    queryFn: ({ queryKey }) => fetchCouponCodeRequests(queryKey[2], queryKey[6], queryKey[7]),
                   },
                   // queryLearnerCreditRequests
                   learnerCreditRequests: {
