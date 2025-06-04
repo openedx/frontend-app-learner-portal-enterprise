@@ -92,11 +92,12 @@ const SubsidyRequestButton = () => {
   );
 
   // Learner Credit B&R
-  const showLearnerCreditRequestButton = !userSubsidyApplicableToCourse
-    && !isUserEnrolled
-    && canRequestLearnerCredit
-    && learnerCreditRequestablePolicy
-    && !userHasSubsidyRequest;
+  const showLearnerCreditRequestButton = !showSubsidyRequestButton
+  && !userSubsidyApplicableToCourse
+  && !isUserEnrolled
+  && canRequestLearnerCredit
+  && learnerCreditRequestablePolicy
+  && !userHasSubsidyRequest;
 
   if (!showSubsidyRequestButton && !showLearnerCreditRequestButton) {
     return null;
