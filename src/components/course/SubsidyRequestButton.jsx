@@ -41,12 +41,12 @@ const SubsidyRequestButton = () => {
     userSubsidyApplicableToCourse,
     isPending: isPendingUserSubsidyApplicableToCourse,
     canRequestLearnerCredit,
-    learnerCreditRequestState,
     learnerCreditRequestablePolicy,
   } = useUserSubsidyApplicableToCourse();
   const { data: courseMetadata } = useCourseMetadata();
   const { data: { enterpriseCourseEnrollments: userEnrollments } } = useEnterpriseCourseEnrollments();
   const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseMetadata.key);
+  console.log("userHasSubsidyRequest",userHasSubsidyRequest);
   const subsidyRequestCatalogsApplicableToCourse = useBrowseAndRequestCatalogsApplicableToCourse();
 
   /**
@@ -86,27 +86,20 @@ const SubsidyRequestButton = () => {
    *    - user has no subsidy for course
    */
   const hasSubsidyRequestsEnabled = !!browseAndRequestConfiguration?.subsidyRequestsEnabled;
-  const showSubsidyRequestButton = hasSubsidyRequestsEnabled
-    && (userHasSubsidyRequest
-    || (
-      subsidyRequestCatalogsApplicableToCourse.length > 0
-      && !isUserEnrolled
-      && !userSubsidyApplicableToCourse
+  const showSubsidyRequestButton = hasSubsidyRequestsEnabled && (
+    userHasSubsidyRequest || (
+      subsidyRequestCatalogsApplicableToCourse.length > 0 && !isUserEnrolled && !userSubsidyApplicableToCourse
     )
-    );
+  );
 
   // Learner Credit B&R
   const showLearnerCreditRequestButton = !userSubsidyApplicableToCourse
     && !isUserEnrolled
     && canRequestLearnerCredit
-    && learnerCreditRequestablePolicy;
+    && learnerCreditRequestablePolicy
+    && !userHasSubsidyRequest;
 
-  // Awaiting approval state (for both types)
-  const isAwaitingApproval = learnerCreditRequestState === 'REQUESTED'
-    || learnerCreditRequestState === 'PENDING'
-    || userHasSubsidyRequest; // for legacy B&R
-
-  if (!showSubsidyRequestButton && !showLearnerCreditRequestButton && !isAwaitingApproval) {
+  if (!showSubsidyRequestButton && !showLearnerCreditRequestButton) {
     return null;
   }
 
@@ -120,7 +113,7 @@ const SubsidyRequestButton = () => {
     if (loadingRequest) {
       return 'pending';
     }
-    if (userHasSubsidyRequest || isAwaitingApproval) {
+    if (userHasSubsidyRequest) {
       return 'requested';
     }
     return 'request';

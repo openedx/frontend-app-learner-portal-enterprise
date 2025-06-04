@@ -425,25 +425,35 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
       requests: {
         subscriptionLicenses: subscriptionLicenseRequests,
         couponCodes: couponCodeRequests,
+        learnerCreditRequests: learnerCreditRequests,
       },
     },
   } = useBrowseAndRequest();
-  if (!browseAndRequestConfiguration?.subsidyRequestsEnabled) {
-    return false;
-  }
-  switch (browseAndRequestConfiguration.subsidyType) {
-    case SUBSIDY_TYPE.LICENSE: {
-      return subscriptionLicenseRequests.length > 0;
+
+  if (browseAndRequestConfiguration?.subsidyRequestsEnabled) {
+    switch (browseAndRequestConfiguration.subsidyType) {
+      case SUBSIDY_TYPE.LICENSE: {
+        return subscriptionLicenseRequests.length > 0;
+      }
+      case SUBSIDY_TYPE.COUPON: {
+        const foundCouponRequest = couponCodeRequests.find(
+          request => (!courseKey || request.courseId === courseKey),
+        );
+        return !!foundCouponRequest;
+      }
+      default:
+        break;
     }
-    case SUBSIDY_TYPE.COUPON: {
-      const foundCouponRequest = couponCodeRequests.find(
-        request => (!courseKey || request.courseId === courseKey),
-      );
-      return !!foundCouponRequest;
-    }
-    default:
-      return false;
   }
+
+  // Check LCR requests (always, since LCR is not tied to legacy config)
+  const hasLCRRequest = learnerCreditRequests.some(
+    req =>
+      (!courseKey || req.courseId === courseKey) &&
+      ['requested', 'approved', 'errored'].includes(req.state)
+  );
+
+  return hasLCRRequest;
 }
 
 /**

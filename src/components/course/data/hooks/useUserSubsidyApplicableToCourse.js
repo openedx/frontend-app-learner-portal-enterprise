@@ -150,7 +150,6 @@ const useUserSubsidyApplicableToCourse = () => {
 
   // --- Learner Credit B&R ---
   const canRequestLearnerCredit = !!canRequestData?.canRequest;
-  const learnerCreditRequestState = canRequestData?.requestState || null;
   const learnerCreditRequestablePolicy = canRequestData?.requestableSubsidyAccessPolicy || null;
   const learnerCreditRequestReason = canRequestData?.reason || null;
 
@@ -160,7 +159,6 @@ const useUserSubsidyApplicableToCourse = () => {
     isPending: isPending || isCanRequestPending || false,
     // Learner Credit B&R fields:
     canRequestLearnerCredit,
-    learnerCreditRequestState,
     learnerCreditRequestablePolicy,
     learnerCreditRequestReason,
   }), [
@@ -169,7 +167,6 @@ const useUserSubsidyApplicableToCourse = () => {
     isPending,
     isCanRequestPending,
     canRequestLearnerCredit,
-    learnerCreditRequestState,
     learnerCreditRequestablePolicy,
     learnerCreditRequestReason,
   ]);
