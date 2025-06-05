@@ -1078,3 +1078,42 @@ export function determineSubscriptionLicenseApplicable(subscriptionLicense, cata
     && catalogsWithCourse.includes(subscriptionLicense?.subscriptionPlan.enterpriseCatalogUuid)
   );
 }
+
+/**
+ * Returns the price of the course.
+ * @param {Object} courseMetadata
+ * @returns {number}
+ */
+export function getCoursePrice(courseMetadata) {
+  if (!courseMetadata) {
+    return null;
+  }
+
+  // 1. Check for current course run with fixed price USD
+  const courseRuns = courseMetadata.courseRuns || [];
+  const currentCourseRun = courseRuns.find(
+    (run) => run.availability === 'Current',
+  );
+
+  if (
+    currentCourseRun
+    && (currentCourseRun.fixedPriceUsd
+      || currentCourseRun.firstEnrollablePaidSeatPrice)
+  ) {
+    return parseFloat(
+      currentCourseRun.fixedPriceUsd
+      || currentCourseRun.firstEnrollablePaidSeatPrice
+    );
+  }
+
+  // 2. Check for exec ed 2U course entitlements
+  const entitlements = courseMetadata.entitlements || [];
+  for (const entitlement of entitlements) {
+    if (entitlement.price && entitlement.mode === 'paid-executive-education') {
+      return parseFloat(entitlement.price);
+    }
+  }
+
+  // 3. Return default normalized price
+  return 0;
+}
