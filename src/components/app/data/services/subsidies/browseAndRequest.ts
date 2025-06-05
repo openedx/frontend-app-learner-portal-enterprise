@@ -79,7 +79,7 @@ export async function fetchCouponCodeRequests(
 export async function fetchLearnerCreditRequests(
   enterpriseUUID,
   userEmail,
-  state = SUBSIDY_REQUEST_STATE.REQUESTED,
+  state?: SUBSIDY_REQUEST_STATE,
 ) {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,

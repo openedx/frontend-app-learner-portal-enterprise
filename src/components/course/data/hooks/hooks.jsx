@@ -449,7 +449,7 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
   // Check LCR requests (always, since LCR is not tied to legacy config)
   const hasLCRRequest = learnerCreditRequests.some(
     req => (!courseKey || req.courseId === courseKey)
-      && ['requested', 'approved', 'errored'].includes(req.state),
+      && ['requested', 'approved', 'errored', 'accepted'].includes(req.state),
   );
 
   return hasLCRRequest;
