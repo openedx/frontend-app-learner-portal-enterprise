@@ -252,6 +252,7 @@ export async function fetchSubscriptions(enterpriseUUID) {
     enterprise_customer_uuid: enterpriseUUID,
     include_revoked: true,
     current_plans_only: false,
+    page_size: 100,
   });
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
   /**
