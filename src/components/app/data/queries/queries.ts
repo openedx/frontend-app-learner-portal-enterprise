@@ -245,7 +245,7 @@ export function queryCouponCodeRequests(
 export function queryLearnerCreditRequests(
   enterpriseUuid: string,
   userEmail: string,
-  state: SubsidyRequestState = SUBSIDY_REQUEST_STATE.REQUESTED,
+  state?: SubsidyRequestState,
 ) {
   return queries
     .enterprise

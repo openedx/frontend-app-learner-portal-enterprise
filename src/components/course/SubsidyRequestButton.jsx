@@ -91,7 +91,14 @@ const SubsidyRequestButton = () => {
     )
   );
 
-  // Learner Credit B&R
+  /**
+   * Show LCR request button if:
+   *  - legacy B&R request button is NOT shown
+   *  - user is not enrolled
+   *  - user has no applicable subsidy
+   *  - user can request LCR (and policy is available)
+   *  - user has no ['requested', 'approved', 'errored', 'accepted'] subsidy request
+   */
   const showLearnerCreditRequestButton = !showSubsidyRequestButton
   && !userSubsidyApplicableToCourse
   && !isUserEnrolled
@@ -129,7 +136,7 @@ const SubsidyRequestButton = () => {
           learnerCreditRequestablePolicy.uuid,
           courseMetadata.key,
         );
-      } else {
+      } else if (showSubsidyRequestButton) {
         // Existing logic for legacy subsidy types
         await requestSubsidy(courseMetadata.key);
       }
