@@ -6,6 +6,7 @@ import {
   queryBrowseAndRequestConfiguration,
   queryCouponCodeRequests,
   queryLicenseRequests,
+  queryLearnerCreditRequests,
 } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 
@@ -17,14 +18,21 @@ type CouponCodesQueryOptions<TData = unknown, TSelectData = TData> = {
   select?: (data: TData) => TSelectData;
 };
 
+type LearnerCreditRequestsQueryOptions<TData = unknown, TSelectData = TData> = {
+  select?: (data: TData) => TSelectData;
+};
+
 type UseBrowseAndRequestQueryOptions<
   TDataCodes = CouponCodeRequest[],
   TSelectDataCodes = TDataCodes,
   TDataSubscriptions = LicenseRequest[],
   TSelectDataSubscriptions = TDataSubscriptions,
+  TDataLCR = LearnerCreditRequest[],
+  TSelectDataLCR = TDataLCR,
 > = {
   subscriptionLicensesQueryOptions?: SubscriptionsQueryOptions<TDataSubscriptions, TSelectDataSubscriptions>;
   couponCodesQueryOptions?: CouponCodesQueryOptions<TDataCodes, TSelectDataCodes>;
+  learnerCreditRequestsQueryOptions?: LearnerCreditRequestsQueryOptions<TDataLCR, TSelectDataLCR>;
 };
 
 /**
@@ -87,6 +95,29 @@ export function useCouponCodeRequests<TData = CouponCodeRequest[], TSelectData =
 }
 
 /**
+ * Retrieves the learner credit requests.
+ * @returns The query results for the learner credit requests.
+ */
+export function useLearnerCreditRequests<TData = LearnerCreditRequest[], TSelectData = TData>(
+  options: LearnerCreditRequestsQueryOptions<TData, TSelectData> = {},
+) {
+  const { authenticatedUser }: AppContextValue = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
+  const { select } = options;
+  return useSuspenseQuery(
+    queryOptions({
+      ...queryLearnerCreditRequests(enterpriseCustomer.uuid, authenticatedUser.email),
+      select: (data) => {
+        if (select) {
+          return select(data as TData);
+        }
+        return data;
+      },
+    }),
+  );
+}
+
+/**
  * Retrieves all data related to BnR.
  */
 export default function useBrowseAndRequest<
@@ -94,20 +125,26 @@ export default function useBrowseAndRequest<
   TSelectDataCodes = TDataCodes,
   TDataSubscriptions = LicenseRequest[],
   TSelectDataSubscriptions = TDataSubscriptions,
+  TDataLCR = LearnerCreditRequest[],
+  TSelectDataLCR = TDataLCR,
 >(
   options: UseBrowseAndRequestQueryOptions<
   TDataCodes,
   TSelectDataCodes,
   TDataSubscriptions,
-  TSelectDataSubscriptions> = {},
+  TSelectDataSubscriptions,
+  TDataLCR,
+  TSelectDataLCR> = {},
 ) {
   const {
     subscriptionLicensesQueryOptions,
     couponCodesQueryOptions,
+    learnerCreditRequestsQueryOptions,
   } = options;
   const { data: configuration } = useBrowseAndRequestConfiguration();
   const { data: subscriptionLicenses } = useSubscriptionLicenseRequests(subscriptionLicensesQueryOptions);
   const { data: couponCodes } = useCouponCodeRequests(couponCodesQueryOptions);
+  const { data: learnerCreditRequests } = useLearnerCreditRequests(learnerCreditRequestsQueryOptions);
 
   return useMemo(
     () => ({
@@ -116,9 +153,10 @@ export default function useBrowseAndRequest<
         requests: {
           subscriptionLicenses,
           couponCodes,
+          learnerCreditRequests,
         },
       },
     }),
-    [configuration, subscriptionLicenses, couponCodes],
+    [configuration, subscriptionLicenses, couponCodes, learnerCreditRequests],
   );
 }

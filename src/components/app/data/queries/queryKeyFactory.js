@@ -33,6 +33,7 @@ import {
   fetchProgramDetails,
   fetchRedeemablePolicies,
   fetchSubscriptions,
+  fetchLearnerCreditRequests,
   fetchUserEntitlements,
   fetchVideoDetail,
 } from '../services';
@@ -156,6 +157,11 @@ const enterprise = createQueryKeys('enterprise', {
                   couponCodeRequests: {
                     queryKey: null,
                     queryFn: ({ queryKey }) => fetchCouponCodeRequests(queryKey[2], queryKey[6], queryKey[7]),
+                  },
+                  // queryLearnerCreditRequests
+                  learnerCreditRequests: {
+                    queryKey: null,
+                    queryFn: ({ queryKey }) => fetchLearnerCreditRequests(queryKey[2], queryKey[6], queryKey[7]),
                   },
                 },
               }),

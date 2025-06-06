@@ -9,7 +9,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { useBrowseAndRequestCatalogsApplicableToCourse, useUserHasSubsidyRequestForCourse, useUserSubsidyApplicableToCourse } from './data/hooks';
 import { findUserEnrollmentForCourseRun } from './data/utils';
 import { ToastsContext } from '../Toasts';
-import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
+import { postLicenseRequest, postCouponCodeRequest, postLearnerCreditRequest } from '../enterprise-subsidy-requests/data/service';
 import { SUBSIDY_TYPE } from '../../constants';
 import {
   queryRequestsContextQueryKey,
@@ -40,6 +40,8 @@ const SubsidyRequestButton = () => {
   const {
     userSubsidyApplicableToCourse,
     isPending: isPendingUserSubsidyApplicableToCourse,
+    canRequestLearnerCredit,
+    learnerCreditRequestablePolicy,
   } = useUserSubsidyApplicableToCourse();
   const { data: courseMetadata } = useCourseMetadata();
   const { data: { enterpriseCourseEnrollments: userEnrollments } } = useEnterpriseCourseEnrollments();
@@ -89,7 +91,22 @@ const SubsidyRequestButton = () => {
     )
   );
 
-  if (!showSubsidyRequestButton) {
+  /**
+   * Show LCR request button if:
+   *  - legacy B&R request button is NOT shown
+   *  - user is not enrolled
+   *  - user has no applicable subsidy
+   *  - user can request LCR (and policy is available)
+   *  - user has no ['requested', 'approved', 'errored', 'accepted'] subsidy request
+   */
+  const showLearnerCreditRequestButton = !showSubsidyRequestButton
+  && !userSubsidyApplicableToCourse
+  && !isUserEnrolled
+  && canRequestLearnerCredit
+  && learnerCreditRequestablePolicy
+  && !userHasSubsidyRequest;
+
+  if (!showSubsidyRequestButton && !showLearnerCreditRequestButton && !userHasSubsidyRequest) {
     return null;
   }
 
@@ -112,7 +129,17 @@ const SubsidyRequestButton = () => {
   const handleRequestButtonClick = async () => {
     setLoadingRequest(true);
     try {
-      await requestSubsidy(courseMetadata.key);
+      if (showLearnerCreditRequestButton) {
+        // Learner Credit B&R: create a LearnerCreditRequest
+        await postLearnerCreditRequest(
+          enterpriseCustomer.uuid,
+          learnerCreditRequestablePolicy.uuid,
+          courseMetadata.key,
+        );
+      } else if (showSubsidyRequestButton) {
+        // Existing logic for legacy subsidy types
+        await requestSubsidy(courseMetadata.key);
+      }
       setLoadingRequest(false);
       addToast(
         intl.formatMessage({

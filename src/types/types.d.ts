@@ -209,6 +209,11 @@ declare global {
   type CouponCodeRequestRaw = enterpriseAccessOpenApi.components['schemas']['CouponCodeRequest'];
   type CouponCodeRequest = CamelCasedPropertiesDeep<CouponCodeRequestRaw>;
 
+  type LearnerCreditRequestsResponseRaw = enterpriseAccessOpenApi.components['schemas']['PaginatedLearnerCreditRequestList'];
+  type LearnerCreditRequestsResponse = CamelCasedPropertiesDeep<LearnerCreditRequestsResponseRaw>;
+  type LearnerCreditRequestRaw = enterpriseAccessOpenApi.components['schemas']['LearnerCreditRequest'];
+  type LearnerCreditRequest = CamelCasedPropertiesDeep<LearnerCreditRequestRaw>;
+
   // BFFs
 
   type BFFRequestOptions = { enterpriseSlug: string; };

@@ -68,3 +68,27 @@ export async function fetchCouponCodeRequests(
   const { results } = await fetchPaginatedData<CouponCodeRequestRaw>(url);
   return results;
 }
+
+/**
+ * Fetches learner credit requests for the given enterprise and user.
+ * @param {*} enterpriseUUID
+ * @param {*} userEmail
+ * @param {*} state
+ * @returns
+ */
+export async function fetchLearnerCreditRequests(
+  enterpriseUUID,
+  userEmail,
+  state?: SubsidyRequestState,
+) {
+  const queryParams = new URLSearchParams({
+    enterprise_customer_uuid: enterpriseUUID,
+    user__email: userEmail,
+  });
+  if (state) {
+    queryParams.append('state', state);
+  }
+  const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/learner-credit-requests/?${queryParams.toString()}`;
+  const { results } = await fetchPaginatedData<LearnerCreditRequestRaw>(url);
+  return results;
+}
