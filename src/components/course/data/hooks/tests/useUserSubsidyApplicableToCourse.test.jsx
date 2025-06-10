@@ -13,6 +13,7 @@ import {
   useCouponCodes,
   useCourseMetadata,
   useCourseRedemptionEligibility,
+  useCourseCanRequestEligibility,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContentSuspense,
   useEnterpriseOffers,
@@ -42,6 +43,7 @@ jest.mock('../../../../app/data', () => ({
   useCourseMetadata: jest.fn(),
   useRedeemablePolicies: jest.fn(),
   useCourseRedemptionEligibility: jest.fn(),
+  useCourseCanRequestEligibility: jest.fn(),
   useSubscriptions: jest.fn(),
   useEnterpriseCustomerContainsContentSuspense: jest.fn(),
   useEnterpriseOffers: jest.fn(),
@@ -103,6 +105,14 @@ describe('useUserSubsidyApplicableToCourse', () => {
       },
     });
     useCourseRedemptionEligibility.mockReturnValue({ data: {} });
+    useCourseCanRequestEligibility.mockReturnValue({
+      data: {
+        canRequest: false,
+        requestableSubsidyAccessPolicy: null,
+        reason: null,
+      },
+      isPending: false,
+    });
     useSubscriptions.mockReturnValue({
       data: {
         customerAgreement: undefined,
@@ -135,6 +145,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: undefined,
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
   });
 
@@ -150,6 +163,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
       }),
       missingUserSubsidyReason: undefined,
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
   });
 
@@ -170,6 +186,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
         actions: null,
       },
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
   });
 
@@ -210,6 +229,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
         actions: expectedAction,
       },
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
   });
 
@@ -226,6 +248,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: expectedTransformedMissingUserSubsidyReason,
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
   });
 
@@ -289,6 +314,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
       }),
       missingUserSubsidyReason: undefined,
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
   });
 
@@ -323,6 +351,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
         actions: expect.any(Object),
       },
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
   });
 
@@ -342,6 +373,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
         actions: expect.any(Object),
       },
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
   });
 
@@ -390,6 +424,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
       }),
       missingUserSubsidyReason: undefined,
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
   });
 
@@ -416,6 +453,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
       }),
       missingUserSubsidyReason: undefined,
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
   });
 
@@ -437,6 +477,66 @@ describe('useUserSubsidyApplicableToCourse', () => {
         actions: null,
       },
       isPending: false,
+      canRequestLearnerCredit: false,
+      learnerCreditRequestablePolicy: null,
+      learnerCreditRequestReason: null,
     });
+  });
+
+  it('handles canRequestData for learner credit', () => {
+    useCourseCanRequestEligibility.mockReturnValueOnce({
+      data: {
+        canRequest: true,
+        reason: null,
+        requestableSubsidyAccessPolicy: {
+          uuid: 'test-access-policy-uuid',
+          policyRedemptionUrl: 'http://localhost:18270/api/v1/policy-redemption/54d2b522-35e7-47c7-a310-060c63b777ea/redeem/',
+          isLateRedemptionAllowed: false,
+          policyType: 'PerLearnerSpendCreditAccessPolicy',
+          enterpriseCustomerUuid: mockEnterpriseCustomer.uuid,
+          displayName: 'Per learner spend',
+          description: '',
+          active: true,
+          retired: false,
+          retiredAt: null,
+          catalogUuid: 'test-catalog-uuid',
+          subsidyUuid: 'test-subsidy-uuid',
+          accessMethod: 'direct',
+          spendLimit: 1000000,
+          lateRedemptionAllowedUntil: null,
+          perLearnerEnrollmentLimit: null,
+          perLearnerSpendLimit: 100000,
+          learnerCreditRequestConfig: 'test-learnerCreditRequestConfig-uuid',
+          assignmentConfiguration: null,
+        },
+      },
+      isPending: false,
+    });
+
+    const { result } = renderHook(() => useUserSubsidyApplicableToCourse());
+
+    expect(result.current.canRequestLearnerCredit).toBe(true);
+    expect(result.current.learnerCreditRequestablePolicy).toEqual({
+      uuid: 'test-access-policy-uuid',
+      policyRedemptionUrl: 'http://localhost:18270/api/v1/policy-redemption/54d2b522-35e7-47c7-a310-060c63b777ea/redeem/',
+      isLateRedemptionAllowed: false,
+      policyType: 'PerLearnerSpendCreditAccessPolicy',
+      enterpriseCustomerUuid: mockEnterpriseCustomer.uuid,
+      displayName: 'Per learner spend',
+      description: '',
+      active: true,
+      retired: false,
+      retiredAt: null,
+      catalogUuid: 'test-catalog-uuid',
+      subsidyUuid: 'test-subsidy-uuid',
+      accessMethod: 'direct',
+      spendLimit: 1000000,
+      lateRedemptionAllowedUntil: null,
+      perLearnerEnrollmentLimit: null,
+      perLearnerSpendLimit: 100000,
+      learnerCreditRequestConfig: 'test-learnerCreditRequestConfig-uuid',
+      assignmentConfiguration: null,
+    });
+    expect(result.current.learnerCreditRequestReason).toBe(null);
   });
 });

@@ -2,7 +2,9 @@ import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-import { fetchBrowseAndRequestConfiguration, fetchCouponCodeRequests, fetchLicenseRequests } from '.';
+import {
+  fetchBrowseAndRequestConfiguration, fetchCouponCodeRequests, fetchLicenseRequests, fetchLearnerCreditRequests,
+} from '.';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../../constants';
 
@@ -67,5 +69,21 @@ describe('fetchCouponCodeRequests', () => {
     axiosMock.onGet(COUPON_CODE_REQUESTS_URL).reply(200, mockCouponCodeRequests);
     const result = await fetchCouponCodeRequests(mockEnterpriseId, mockUserEmail);
     expect(result).toEqual(mockCouponCodeRequests.results);
+  });
+});
+
+describe('fetchLearnerCreditRequests', () => {
+  it('returns learner credit requests', async () => {
+    const mockLearnerCreditRequests = {
+      results: [{ id: 123 }],
+    };
+    const queryParams = new URLSearchParams({
+      enterprise_customer_uuid: mockEnterpriseId,
+      user__email: mockUserEmail,
+    });
+    const LEARNER_CREDIT_REQUESTS_URL = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/learner-credit-requests/?${queryParams.toString()}`;
+    axiosMock.onGet(LEARNER_CREDIT_REQUESTS_URL).reply(200, mockLearnerCreditRequests);
+    const result = await fetchLearnerCreditRequests(mockEnterpriseId, mockUserEmail);
+    expect(result).toEqual(mockLearnerCreditRequests.results);
   });
 });
