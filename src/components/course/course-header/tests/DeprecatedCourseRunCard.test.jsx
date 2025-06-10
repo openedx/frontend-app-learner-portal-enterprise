@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { renderWithRouter } from '../../../../utils/tests';
 import { COURSE_PACING_MAP } from '../../data/constants';
@@ -86,26 +87,29 @@ const generateCourseRun = ({
   weeksToComplete: COURSE_WEEKS_TO_COMPLETE,
 });
 
+const queryClient = new QueryClient();
+
 const renderCard = ({
   courseRun,
   userEntitlements = [],
   courseEntitlements = [],
   userEnrollments = [],
 }) => {
-  // need to use router, to render component such as react-router's <Link>
   renderWithRouter(
-    <IntlProvider locale="en">
-      <AppContext.Provider value={INITIAL_APP_STATE}>
-        <CourseRunCardDeprecated
-          catalogList={['foo']}
-          userEntitlements={userEntitlements}
-          userEnrollments={userEnrollments}
-          courseRun={courseRun}
-          courseKey={COURSE_ID}
-          courseEntitlements={courseEntitlements}
-        />
-      </AppContext.Provider>,
-    </IntlProvider>,
+    <QueryClientProvider client={queryClient}>
+      <IntlProvider locale="en">
+        <AppContext.Provider value={INITIAL_APP_STATE}>
+          <CourseRunCardDeprecated
+            catalogList={['foo']}
+            userEntitlements={userEntitlements}
+            userEnrollments={userEnrollments}
+            courseRun={courseRun}
+            courseKey={COURSE_ID}
+            courseEntitlements={courseEntitlements}
+          />
+        </AppContext.Provider>
+      </IntlProvider>
+    </QueryClientProvider>,
   );
 };
 
@@ -154,6 +158,7 @@ describe('<DeprecatedCourseRunCard />', () => {
         requests: {
           subscriptionLicenses: [],
           couponCodes: [],
+          learnerCreditRequests: [],
         },
       },
     });
