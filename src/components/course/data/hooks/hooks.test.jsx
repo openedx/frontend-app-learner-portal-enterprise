@@ -284,6 +284,7 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         requests: {
           subscriptionLicenses: [],
           couponCodes: [],
+          learnerCreditRequests: [],
         },
       },
     });
@@ -308,6 +309,7 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         requests: {
           subscriptionLicenses: [{ uuid: 'test-license-uuid' }],
           couponCodes: [],
+          learnerCreditRequests: [],
         },
       },
     });
@@ -326,6 +328,7 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         requests: {
           subscriptionLicenses: [],
           couponCodes: ['test-coupon'],
+          learnerCreditRequests: [],
         },
       },
     });
@@ -344,6 +347,7 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         requests: {
           subscriptionLicenses: [],
           couponCodes: [],
+          learnerCreditRequests: [],
         },
       },
     });
@@ -362,12 +366,65 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         requests: {
           subscriptionLicenses: [],
           couponCodes: [],
+          learnerCreditRequests: [],
         },
       },
     });
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper: Wrapper });
 
     expect(result.current).toBe(false);
+  });
+
+  it('returns true if there is a learner credit request in a valid state', () => {
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: undefined,
+        requests: {
+          subscriptionLicenses: [],
+          couponCodes: [],
+          learnerCreditRequests: [
+            { courseId: 'foo', state: 'requested' },
+            { courseId: 'bar', state: 'approved' },
+          ],
+        },
+      },
+    });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('foo'), { wrapper: Wrapper });
+    expect(result.current).toBe(true);
+  });
+
+  it('returns false if learner credit requests are present but not in a valid state', () => {
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: undefined,
+        requests: {
+          subscriptionLicenses: [],
+          couponCodes: [],
+          learnerCreditRequests: [
+            { courseId: 'foo', state: 'declined' },
+          ],
+        },
+      },
+    });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('foo'), { wrapper: Wrapper });
+    expect(result.current).toBe(false);
+  });
+
+  it('returns true if there is a learner credit request for any course in a valid state and no courseKey is passed', () => {
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        configuration: undefined,
+        requests: {
+          subscriptionLicenses: [],
+          couponCodes: [],
+          learnerCreditRequests: [
+            { courseId: 'foo', state: 'requested' },
+          ],
+        },
+      },
+    });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper: Wrapper });
+    expect(result.current).toBe(true);
   });
 });
 
