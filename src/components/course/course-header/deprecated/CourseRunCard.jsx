@@ -28,6 +28,7 @@ import {
   COURSE_AVAILABILITY_MAP,
   isArchived,
   useEnterpriseCustomer,
+  useBrowseAndRequestConfiguration,
   useSubscriptions,
 } from '../../../app/data';
 
@@ -83,7 +84,11 @@ const CourseRunCard = ({
   const { data: { subscriptionLicense } } = useSubscriptions();
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
 
-  const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
+  const browseAndRequestConfiguration = useBrowseAndRequestConfiguration();
+  const userHasAnySubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
+  const userHasSubsidyRequestForCourse = browseAndRequestConfiguration?.subsidyRequestsEnabled
+    ? userHasAnySubsidyRequestForCourse
+    : false;
 
   const sku = useMemo(
     () => findHighestLevelSku({ seats, courseEntitlements }),
