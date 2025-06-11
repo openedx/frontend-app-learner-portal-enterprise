@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom'; 
+import { useParams } from 'react-router-dom';
 import useCourseCanRequestEligibility from './useCourseCanRequestEligibility';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import { queryCanRequest } from '../queries';
@@ -35,7 +35,7 @@ describe('useCourseCanRequestEligibility', () => {
   it('calls useEnterpriseCustomer and useParams', () => {
     renderHook(() => useCourseCanRequestEligibility());
     expect(useEnterpriseCustomer).toHaveBeenCalled();
-    expect(require('react-router-dom').useParams).toHaveBeenCalled();
+    expect(useParams).toHaveBeenCalled();
   });
 
   it('calls queryCanRequest with correct params', () => {
