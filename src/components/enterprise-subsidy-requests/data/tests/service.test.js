@@ -6,6 +6,7 @@ import { mergeConfig } from '@edx/frontend-platform/config';
 import {
   postLicenseRequest,
   postCouponCodeRequest,
+  postLearnerCreditRequest,
 } from '../service';
 
 jest.mock('@edx/frontend-platform/auth');
@@ -18,6 +19,7 @@ axios.post = jest.fn();
 const enterpriseAccessBaseUrl = `${process.env.ENTERPRISE_ACCESS_BASE_URL}`;
 const mockEnterpriseUUID = 'test-enterprise-id';
 const mockCourseId = 'test-course-id';
+const mockPolicyUUID = 'test-policy-uuid';
 
 describe('postCouponCodeRequest', () => {
   beforeEach(() => {
@@ -54,5 +56,25 @@ describe('postLicenseRequest', () => {
     };
     expect(axios.post).toHaveBeenCalledTimes(1);
     expect(axios.post).toHaveBeenCalledWith(`${enterpriseAccessBaseUrl}/api/v1/license-requests/`, options);
+  });
+});
+
+describe('postLearnerCreditRequest', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mergeConfig({
+      ENTERPRISE_ACCESS_BASE_URL: enterpriseAccessBaseUrl,
+    });
+  });
+
+  it('posts learner credit request for the given enterprise, policy, and course', () => {
+    postLearnerCreditRequest(mockEnterpriseUUID, mockPolicyUUID, mockCourseId);
+    const options = {
+      enterprise_customer_uuid: mockEnterpriseUUID,
+      policy_uuid: mockPolicyUUID,
+      course_id: mockCourseId,
+    };
+    expect(axios.post).toHaveBeenCalledTimes(1);
+    expect(axios.post).toHaveBeenCalledWith(`${enterpriseAccessBaseUrl}/api/v1/learner-credit-requests/`, options);
   });
 });
