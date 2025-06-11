@@ -25,6 +25,7 @@ jest.mock('../services', () => ({
   fetchLicenseRequests: jest.fn().mockResolvedValue(null),
   fetchCouponCodeRequests: jest.fn().mockResolvedValue(null),
   fetchRedeemablePolicies: jest.fn().mockResolvedValue(null),
+  fetchLearnerCreditRequests: jest.fn().mockResolvedValue([]),
 }));
 jest.mock('./useBFF');
 
