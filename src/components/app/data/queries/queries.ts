@@ -242,6 +242,20 @@ export function queryCouponCodeRequests(
     ._ctx.couponCodeRequests;
 }
 
+export function queryLearnerCreditRequests(
+  enterpriseUuid: string,
+  userEmail: string,
+  state?: SubsidyRequestState,
+) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.browseAndRequest
+    ._ctx.requests(userEmail, state)
+    ._ctx.learnerCreditRequests;
+}
+
 export function queryLearnerProgramProgressData(programUUID: string) {
   return queries
     .content
