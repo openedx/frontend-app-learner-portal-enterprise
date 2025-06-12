@@ -91,6 +91,7 @@ export async function getEnterpriseLearnerQueryData({
     activeEnterpriseCustomer: null,
     allLinkedEnterpriseCustomerUsers: [],
     enterpriseFeatures: {},
+    enterpriseFeaturesByCustomer: {},
     staffEnterpriseCustomer: null,
     shouldUpdateActiveEnterpriseCustomerUser: false,
     hasBnrEnabledPolicy: false,
@@ -108,6 +109,8 @@ export async function getEnterpriseLearnerQueryData({
       allLinkedEnterpriseCustomerUsers: bffResponse.allLinkedEnterpriseCustomerUsers || [],
       staffEnterpriseCustomer: bffResponse.staffEnterpriseCustomer || null,
       enterpriseFeatures: bffResponse.enterpriseFeatures || {},
+      // @ts-expect-error
+      enterpriseFeaturesByCustomer: bffResponse.enterpriseFeaturesByCustomer || {},
       shouldUpdateActiveEnterpriseCustomerUser: bffResponse.shouldUpdateActiveEnterpriseCustomerUser,
       hasBnrEnabledPolicy: (bffResponse as any).hasBnrEnabledPolicy || false,
     };

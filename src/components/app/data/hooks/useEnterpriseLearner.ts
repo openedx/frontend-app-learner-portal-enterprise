@@ -35,6 +35,7 @@ export default function useEnterpriseLearner<TData = EnterpriseLearnerData>(
           shouldUpdateActiveEnterpriseCustomerUser: data.shouldUpdateActiveEnterpriseCustomerUser,
           allLinkedEnterpriseCustomerUsers: data.allLinkedEnterpriseCustomerUsers as EnterpriseCustomerUser[],
           enterpriseFeatures: data.enterpriseFeatures as EnterpriseFeatures,
+          enterpriseFeaturesByCustomer: data.enterpriseFeaturesByCustomer as EnterpriseFeaturesByCustomer,
           hasBnrEnabledPolicy: data.hasBnrEnabledPolicy as boolean,
         };
 
