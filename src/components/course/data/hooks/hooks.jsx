@@ -425,6 +425,7 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
       requests: {
         subscriptionLicenses: subscriptionLicenseRequests,
         couponCodes: couponCodeRequests,
+        // learnerCreditRequests, // Not used directly here to preserve original behavior
       },
     },
   } = useBrowseAndRequest();
@@ -444,6 +445,33 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
     default:
       return false;
   }
+}
+
+/**
+ * Returns `true` if user has an existing Learner Credit Request for the course
+ * in a relevant state.
+ *
+ * @param {string} courseKey - The key of the course.
+ * @returns {boolean}
+ */
+export function useUserHasLearnerCreditRequestForCourse(courseKey) {
+  const {
+    data: {
+      requests: { learnerCreditRequests },
+    },
+  } = useBrowseAndRequest();
+
+  const LCR_EXISTING_REQUEST_STATES = ['requested', 'approved', 'errored', 'accepted'];
+
+  if (
+    learnerCreditRequests?.some(
+      (request) => request.courseId === courseKey
+        && LCR_EXISTING_REQUEST_STATES.includes(request.state),
+    )
+  ) {
+    return true;
+  }
+  return false;
 }
 
 /**
