@@ -20,6 +20,7 @@ import {
   useEnterpriseOffers,
   useRedeemablePolicies,
   useSubscriptions,
+  useCourseCanRequestEligibility,
 } from '../../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 import { useCanUserRequestSubsidyForCourse } from '../../data/hooks';
@@ -59,6 +60,7 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseOffers: jest.fn(),
   useCouponCodes: jest.fn(),
   useBrowseAndRequest: jest.fn(),
+  useCourseCanRequestEligibility: jest.fn(),
 }));
 jest.mock('../../data/hooks', () => ({
   ...jest.requireActual('../../data/hooks'),
@@ -154,8 +156,13 @@ describe('<DeprecatedCourseRunCard />', () => {
         requests: {
           subscriptionLicenses: [],
           couponCodes: [],
+          learnerCreditRequests: [],
         },
       },
+    });
+    useCourseCanRequestEligibility.mockReturnValue({
+      data: {},
+      isPending: false,
     });
   });
 
