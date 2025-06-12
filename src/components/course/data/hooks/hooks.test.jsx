@@ -24,6 +24,7 @@ import {
   useOptimizelyEnrollmentClickHandler,
   useTrackSearchConversionClickHandler,
   useUserHasSubsidyRequestForCourse,
+  useUserHasLearnerCreditRequestForCourse,
 } from '.';
 import useUserSubsidyApplicableToCourse from './useUserSubsidyApplicableToCourse';
 import {
@@ -367,6 +368,112 @@ describe('useUserHasSubsidyRequestForCourse', () => {
     });
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper: Wrapper });
 
+    expect(result.current).toBe(false);
+  });
+});
+
+describe('useUserHasLearnerCreditRequestForCourse', () => {
+  const mockCourseKey = 'course-v1:edX+DemoX+Demo_Course';
+  const LCR_EXISTING_REQUEST_STATES = ['requested', 'approved', 'errored', 'accepted'];
+
+  const Wrapper = ({ children }) => (
+    <AppContext.Provider value={mockAuthenticatedUser}>
+      {children}
+    </AppContext.Provider>
+  );
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default mock for useBrowseAndRequest, can be overridden in specific tests
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        requests: {
+          learnerCreditRequests: [],
+        },
+      },
+    });
+  });
+
+  it('should return false if learnerCreditRequests is undefined', () => {
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        requests: {
+          learnerCreditRequests: undefined,
+        },
+      },
+    });
+    const { result } = renderHook(() => useUserHasLearnerCreditRequestForCourse(mockCourseKey), { wrapper: Wrapper });
+    expect(result.current).toBe(false);
+  });
+
+  it('should return false if learnerCreditRequests is an empty array', () => {
+    const { result } = renderHook(() => useUserHasLearnerCreditRequestForCourse(mockCourseKey), { wrapper: Wrapper });
+    expect(result.current).toBe(false);
+  });
+
+  it('should return false if no request matches the courseKey', () => {
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        requests: {
+          learnerCreditRequests: [{ courseId: 'other-course', state: 'requested' }],
+        },
+      },
+    });
+    const { result } = renderHook(() => useUserHasLearnerCreditRequestForCourse(mockCourseKey), { wrapper: Wrapper });
+    expect(result.current).toBe(false);
+  });
+
+  it('should return false if a matching courseKey exists but state is not in LCR_EXISTING_REQUEST_STATES', () => {
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        requests: {
+          learnerCreditRequests: [{ courseId: mockCourseKey, state: 'pending_approval' }], // Assuming 'pending_approval' is not a relevant state
+        },
+      },
+    });
+    const { result } = renderHook(() => useUserHasLearnerCreditRequestForCourse(mockCourseKey), { wrapper: Wrapper });
+    expect(result.current).toBe(false);
+  });
+
+  LCR_EXISTING_REQUEST_STATES.forEach((state) => {
+    it(`should return true if a matching courseKey exists and state is '${state}'`, () => {
+      useBrowseAndRequest.mockReturnValue({
+        data: {
+          requests: {
+            learnerCreditRequests: [{ courseId: mockCourseKey, state }],
+          },
+        },
+      });
+      const { result } = renderHook(() => useUserHasLearnerCreditRequestForCourse(mockCourseKey), { wrapper: Wrapper });
+      expect(result.current).toBe(true);
+    });
+  });
+
+  it('should return true if multiple requests exist and one matches courseKey and a relevant state', () => {
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        requests: {
+          learnerCreditRequests: [
+            { courseId: 'other-course', state: 'requested' },
+            { courseId: mockCourseKey, state: 'approved' },
+            { courseId: 'another-course', state: 'errored' },
+          ],
+        },
+      },
+    });
+    const { result } = renderHook(() => useUserHasLearnerCreditRequestForCourse(mockCourseKey), { wrapper: Wrapper });
+    expect(result.current).toBe(true);
+  });
+
+  it('should return false if courseKey is undefined', () => {
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        requests: {
+          learnerCreditRequests: [{ courseId: mockCourseKey, state: 'requested' }],
+        },
+      },
+    });
+    const { result } = renderHook(() => useUserHasLearnerCreditRequestForCourse(undefined), { wrapper: Wrapper });
     expect(result.current).toBe(false);
   });
 });
