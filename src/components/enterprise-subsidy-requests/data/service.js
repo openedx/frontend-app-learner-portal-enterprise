@@ -21,11 +21,17 @@ export function postLicenseRequest(enterpriseUUID, courseID) {
   return getAuthenticatedHttpClient().post(url, options);
 }
 
-export function postLearnerCreditRequest(enterpriseUUID, policyUUID, courseKey) {
+export function postLearnerCreditRequest(
+  enterpriseUUID,
+  policyUUID,
+  courseKey,
+  coursePrice,
+) {
   const options = {
     enterprise_customer_uuid: enterpriseUUID,
     policy_uuid: policyUUID,
     course_id: courseKey,
+    course_price: coursePrice,
   };
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/learner-credit-requests/`;

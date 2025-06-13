@@ -23,6 +23,7 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
 } from '../app/data';
+import { getCoursePrice } from '../app/data/utils';
 
 const props = {
   labels: {
@@ -148,10 +149,12 @@ const SubsidyRequestButton = () => {
     try {
       if (showLearnerCreditRequestButton) {
         // Learner Credit B&R: create a LearnerCreditRequest
+        const coursePrice = getCoursePrice(courseMetadata);
         await postLearnerCreditRequest(
           enterpriseCustomer.uuid,
           learnerCreditRequestablePolicy.uuid,
           courseMetadata.key,
+          coursePrice,
         );
       } else if (showSubsidyRequestButton && !userHasSubsidyRequest) {
         // Existing logic for legacy subsidy types

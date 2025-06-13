@@ -4,6 +4,7 @@ import {
   getProgramIcon,
   isCourseRunEnrollable,
 } from '../utils';
+import { getCoursePrice } from '../../../app/data/utils';
 
 import { PROGRAM_TYPE_MAP } from '../../../program/data/constants';
 import MicroMastersProgramDetailsSvgIcon from '../../../../assets/icons/micromasters-program-details.svg';
@@ -154,5 +155,92 @@ describe('isCourseRunEnrollable', () => {
   it('returns true for course enrollable', () => {
     const isRunEnrollable = isCourseRunEnrollable(camelCaseObject(enrollableCourseRun));
     expect(isRunEnrollable).toEqual(true);
+  });
+});
+
+describe('getCoursePrice', () => {
+  it('returns null if courseMetadata is null or undefined', () => {
+    expect(getCoursePrice(null)).toBeNull();
+    expect(getCoursePrice(undefined)).toBeNull();
+  });
+
+  it('returns price from current course run with fixedPriceUsd', () => {
+    const courseMetadata = {
+      courseRuns: [
+        {
+          availability: 'Current',
+          fixedPriceUsd: '99.99',
+        },
+        {
+          availability: 'Upcoming',
+          fixedPriceUsd: '149.99',
+        },
+      ],
+    };
+    expect(getCoursePrice(courseMetadata)).toBe(99.99);
+  });
+
+  it('returns price from current course run with firstEnrollablePaidSeatPrice when fixedPriceUsd is not available', () => {
+    const courseMetadata = {
+      courseRuns: [
+        {
+          availability: 'Current',
+          firstEnrollablePaidSeatPrice: '79.99',
+        },
+      ],
+    };
+    expect(getCoursePrice(courseMetadata)).toBe(79.99);
+  });
+
+  it('returns price from exec ed entitlement when no current course run price is available', () => {
+    const courseMetadata = {
+      courseRuns: [
+        {
+          availability: 'Upcoming',
+          fixedPriceUsd: '99.99',
+        },
+      ],
+      entitlements: [
+        {
+          price: '99.99',
+          mode: 'paid-executive-education',
+        },
+        {
+          price: '199.99',
+          mode: 'verified',
+        },
+      ],
+    };
+    expect(getCoursePrice(courseMetadata)).toBe(99.99);
+  });
+
+  it('returns 0 as default when no price is found', () => {
+    const courseMetadata = {
+      courseRuns: [
+        {
+          availability: 'Upcoming',
+        },
+      ],
+      entitlements: [
+        {
+          price: '199.99',
+          mode: 'verified',
+        },
+      ],
+    };
+    expect(getCoursePrice(courseMetadata)).toBe(0);
+  });
+
+  it('returns 0 when courseRuns and entitlements are empty arrays', () => {
+    const courseMetadata = {
+      courseRuns: [],
+      entitlements: [],
+    };
+    expect(getCoursePrice(courseMetadata)).toBe(0);
+  });
+
+  it('returns 0 when courseRuns and entitlements are undefined', () => {
+    const courseMetadata = {};
+    expect(getCoursePrice(courseMetadata)).toBe(0);
   });
 });
