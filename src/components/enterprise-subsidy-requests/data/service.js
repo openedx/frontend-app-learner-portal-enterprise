@@ -25,7 +25,7 @@ export function postLearnerCreditRequest(
   enterpriseUUID,
   policyUUID,
   courseKey,
-  coursePrice
+  coursePrice,
 ) {
   const options = {
     enterprise_customer_uuid: enterpriseUUID,

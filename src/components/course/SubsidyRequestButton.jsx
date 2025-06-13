@@ -24,6 +24,7 @@ import {
   useEnterpriseCustomer,
 } from '../app/data';
 import { getCoursePrice } from '../app/data/utils';
+
 const props = {
   labels: {
     loadingApplicableSubsidy: 'Please wait...',

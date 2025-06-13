@@ -5,6 +5,7 @@ import {
   isCourseRunEnrollable,
 } from '../utils';
 import { getCoursePrice } from '../../../app/data/utils';
+
 import { PROGRAM_TYPE_MAP } from '../../../program/data/constants';
 import MicroMastersProgramDetailsSvgIcon from '../../../../assets/icons/micromasters-program-details.svg';
 import ProfCertProgramDetailsSvgIcon from '../../../../assets/icons/professional-certificate-program-details.svg';

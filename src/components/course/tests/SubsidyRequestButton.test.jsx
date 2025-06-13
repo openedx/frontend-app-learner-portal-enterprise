@@ -50,6 +50,7 @@ jest.mock('../data/hooks', () => ({
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockCourseKey = 'edx+101';
 const mockCourseRunKey = `${mockCourseKey}+v1`;
+const mockCoursePrice = 0;
 
 const mockAddToast = jest.fn();
 const initialToastsState = {
@@ -299,6 +300,7 @@ describe('<SubsidyRequestButton />', () => {
           mockEnterpriseCustomer.uuid,
           MOCK_POLICY_UUID,
           mockCourseKey,
+          mockCoursePrice,
         );
         expect(mockAddToast).toHaveBeenCalledWith('Request for course submitted');
         expect(mockInvalidateQueries).toHaveBeenCalledTimes(1);
