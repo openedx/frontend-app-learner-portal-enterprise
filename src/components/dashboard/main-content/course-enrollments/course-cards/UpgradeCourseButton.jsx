@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { Button, OverlayTrigger, Tooltip } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
-import { useEnterpriseCustomer, useCouponCodes } from '../../../../app/data';
-import { useCourseUpgradeData } from '../data';
+import { useCouponCodes, useEnterpriseCustomer } from '../../../../app/data';
 import EnrollModal from '../../../../course/EnrollModal';
+import { useCourseUpgradeData } from '../data';
 
 const messages = defineMessages({
   overlayTextCoveredByOrganization: {
