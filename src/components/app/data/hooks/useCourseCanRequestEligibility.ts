@@ -11,5 +11,7 @@ export default function useCourseCanRequestEligibility() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer<EnterpriseCustomer>();
   const { courseKey } = useParams();
 
-  return useQuery(queryCanRequest(enterpriseCustomer.uuid, courseKey!));
+  return useQuery({
+    ...queryCanRequest(enterpriseCustomer.uuid, courseKey!),
+  });
 }

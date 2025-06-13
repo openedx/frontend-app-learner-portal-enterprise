@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -216,6 +216,8 @@ export const UpgradeableInProgressCourseCard = (props) => {
     mode,
   });
 
+  const [pending, setPending] = useState(isPending);
+
   const isExecutiveEducation = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
 
   const coursewareOrUpgradeLink = subsidyForCourse?.subsidyType === LICENSE_SUBSIDY_TYPE
@@ -266,13 +268,19 @@ export const UpgradeableInProgressCourseCard = (props) => {
     );
   };
 
+  useEffect(() => {
+    if (!isPending) {
+      setPending(false);
+    }
+  }, [isPending]);
+
   return (
     <BaseInProgressCourseCard
       {...props}
       linkToCourse={coursewareOrUpgradeLink}
       renderButtons={renderButtons}
       renderCourseUpgradePrice={renderCourseUpgradePrice}
-      isLoading={isPending}
+      isLoading={pending}
     />
   );
 };
