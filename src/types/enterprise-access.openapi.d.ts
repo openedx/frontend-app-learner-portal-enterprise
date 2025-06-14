@@ -589,6 +589,12 @@ export interface components {
     /** @enum {unknown} */
     BlankEnum: "";
     /**
+     * @description * `13` - Subscription - Trial Catalog
+     * * `10` - Subscription
+     * @enum {integer}
+     */
+    CatalogQueryIdEnum: 13 | 10;
+    /**
      * @description Serializer to help return additional content metadata for assignments.  These fields should
      * map more or less 1-1 to the fields in content metadata dicts returned from the
      * enterprise-catalog `get_content_metadata` response payload.
@@ -953,8 +959,19 @@ export interface components {
     EnterpriseCatalogRequest: {
       /** @description The name of the Enterprise Catalog. */
       title: string;
-      /** @description The id of the related Catalog Query. */
-      catalog_query_id: number;
+      /**
+       * @description The id of the related Catalog Query.
+       *
+       * * `13` - Subscription - Trial Catalog
+       * * `10` - Subscription
+       * @default [
+       *   [
+       *     13,
+       *     "Subscription - Trial Catalog"
+       *   ]
+       * ]
+       */
+      catalog_query_id?: components["schemas"]["CatalogQueryIdEnum"];
     };
     /** @description Catalog object serializer for provisioning responses. */
     EnterpriseCatalogResponse: {
@@ -1800,6 +1817,8 @@ export interface components {
       learner_credit_request_config?: string | null;
       /** Format: uuid */
       assignment?: string | null;
+      /** @description Cost of the content in USD Cents. */
+      course_price?: number | null;
     };
     /** @description Serializer for the learner dashboard request. */
     LearnerDashboardRequest: {
@@ -2334,6 +2353,12 @@ export interface components {
      * @enum {string}
      */
     PolicyTypeEnum: "PerLearnerEnrollmentCreditAccessPolicy" | "PerLearnerSpendCreditAccessPolicy" | "AssignedLearnerCreditAccessPolicy";
+    /**
+     * @description * `1` - B2B Paid
+     * * `3` - Trial
+     * @enum {integer}
+     */
+    ProductIdEnum: 1 | 3;
     /** @description Request serializer for provisioning create view. */
     ProvisioningRequest: {
       /** @description Object describing the requested Enterprise Customer. */
@@ -2341,9 +2366,9 @@ export interface components {
       /** @description List of objects containing requested customer admin email addresses. */
       pending_admins: components["schemas"]["PendingCustomerAdminRequest"][];
       /** @description Object describing the requested Enterprise Catalog. */
-      enterprise_catalog: components["schemas"]["EnterpriseCatalogRequest"];
+      enterprise_catalog?: components["schemas"]["EnterpriseCatalogRequest"] | null;
       /** @description Object describing the requested Customer Agreement. */
-      customer_agreement: components["schemas"]["CustomerAgreementRequest"];
+      customer_agreement?: components["schemas"]["CustomerAgreementRequest"] | null;
       subscription_plan: components["schemas"]["SubscriptionPlanRequest"];
     };
     /** @description Response serializer for provisioning create view. */
@@ -2418,15 +2443,33 @@ export interface components {
     };
     /** @description Subscription Plan serializer for provisioning requests. */
     SubscriptionPlanRequest: {
+      /** @description The title of the subscription plan. */
       title: string;
+      /** @description The Salesforce Opportunity Line Item id associated with this subscription plan. */
       salesforce_opportunity_line_item: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description The date and time at which the subscription plan becomes usable.
+       */
       start_date: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description The date and time at which the subscription plan becomes unusable.
+       */
       expiration_date: string;
-      product_id: number;
+      /**
+       * @description The internal edX Enterprise Subscription Product record.
+       *
+       * * `1` - B2B Paid
+       * * `3` - Trial
+       */
+      product_id: components["schemas"]["ProductIdEnum"];
+      /** @description The number of licenses to create for this plan. */
       desired_num_licenses: number;
-      /** Format: uuid */
+      /**
+       * Format: uuid
+       * @description Optional. The enterprise catalog uuid associated with this subscription plan.
+       */
       enterprise_catalog_uuid?: string | null;
     };
     /** @description Subscription Plan serializer for provisioning responses. */
