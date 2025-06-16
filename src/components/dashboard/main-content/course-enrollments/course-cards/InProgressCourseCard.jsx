@@ -13,7 +13,7 @@ import Notification from './Notification';
 
 import UpgradeCourseButton from './UpgradeCourseButton';
 import { EXECUTIVE_EDUCATION_COURSE_MODES, LICENSE_SUBSIDY_TYPE, useEnterpriseCustomer } from '../../../../app/data';
-import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus } from '../data';
+import { useCourseUpgradeData, useUpdateCourseEnrollmentStatus, useUpgradeCourseButton } from '../data';
 import { COURSE_STATUSES } from '../../../../../constants';
 import CourseEnrollmentsContext from '../CourseEnrollmentsContext';
 
@@ -206,14 +206,25 @@ export const UpgradeableInProgressCourseCard = (props) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const {
+    confirmationButtonState,
+    setConfirmationButtonState,
+    handleRedeem,
+    handleRedemptionSuccess,
+    handleRedemptionError,
+  } = useUpgradeCourseButton();
+  const {
     subsidyForCourse,
     hasUpgradeAndConfirm,
     courseRunPrice,
     isPending,
+    redeem,
   } = useCourseUpgradeData({
     courseRunKey: courseRunId,
     enrollBy,
     mode,
+    onRedeem: handleRedeem,
+    onRedeemSuccess: handleRedemptionSuccess,
+    onRedeemError: handleRedemptionError,
   });
 
   const isExecutiveEducation = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
@@ -229,8 +240,11 @@ export const UpgradeableInProgressCourseCard = (props) => {
           variant={isExecutiveEducation ? 'inverse-brand' : 'brand'}
           title={title}
           courseRunKey={courseRunId}
-          mode={mode}
-          enrollBy={enrollBy}
+          courseRunPrice={courseRunPrice}
+          subsidyForCourse={subsidyForCourse}
+          redeem={redeem}
+          confirmationButtonState={confirmationButtonState}
+          onConfirmModalClose={() => setConfirmationButtonState('default')}
         />
       )}
       <ContinueLearningButton
