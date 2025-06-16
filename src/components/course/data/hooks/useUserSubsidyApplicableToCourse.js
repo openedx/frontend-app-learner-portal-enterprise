@@ -5,9 +5,9 @@ import {
   findCouponCodeForCourse,
   getSubsidyToApplyForCourse,
   useCouponCodes,
+  useCourseCanRequestEligibility,
   useCourseMetadata,
   useCourseRedemptionEligibility,
-  useCourseCanRequestEligibility,
   useEnterpriseCustomer,
   useEnterpriseCustomerContainsContentSuspense,
   useEnterpriseOffers,
@@ -46,6 +46,7 @@ const useUserSubsidyApplicableToCourse = () => {
   } = useEnterpriseCustomer({
     select: resolvedTransformedEnterpriseCustomerData,
   });
+  const { data: canRequestData, isPending: pendingRequest, isLoading: loadingError } = useCourseCanRequestEligibility();
   const { data: courseListPrice } = useCourseListPrice();
   const {
     data: {
@@ -86,7 +87,6 @@ const useUserSubsidyApplicableToCourse = () => {
  * This is used to determine if the user can request Learner Credit for the course and returns:
  * { can_request, reason, requestable_subsidy_access_policy }
  */
-  const { data: canRequestData, isPending: isCanRequestPending } = useCourseCanRequestEligibility();
 
   const isSubscriptionLicenseApplicable = determineSubscriptionLicenseApplicable(
     subscriptionLicense,
@@ -149,6 +149,10 @@ const useUserSubsidyApplicableToCourse = () => {
       userSubsidyApplicableToCourse?.availableCourseRuns || onlyUnrestrictedCourseRuns
     );
   }
+  let localPending = true;
+  if (!(isPending && pendingRequest)) {
+    localPending = false;
+  }
 
   // --- Learner Credit B&R ---
   const canRequestLearnerCredit = !!canRequestData?.canRequest;
@@ -158,7 +162,7 @@ const useUserSubsidyApplicableToCourse = () => {
   return useMemo(() => ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
-    isPending: isPending || isCanRequestPending || false,
+    isPending: localPending,
     // Learner Credit B&R fields:
     canRequestLearnerCredit,
     learnerCreditRequestablePolicy,
@@ -167,7 +171,6 @@ const useUserSubsidyApplicableToCourse = () => {
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
     isPending,
-    isCanRequestPending,
     canRequestLearnerCredit,
     learnerCreditRequestablePolicy,
     learnerCreditRequestReason,
