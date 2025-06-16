@@ -164,7 +164,7 @@ describe('getCoursePrice', () => {
     expect(getCoursePrice(undefined)).toBeNull();
   });
 
-  it('returns price from current course run with fixedPriceUsd', () => {
+  it('returns price in cents from current course run with fixedPriceUsd', () => {
     const courseMetadata = {
       courseRuns: [
         {
@@ -177,10 +177,10 @@ describe('getCoursePrice', () => {
         },
       ],
     };
-    expect(getCoursePrice(courseMetadata)).toBe(99.99);
+    expect(getCoursePrice(courseMetadata)).toBe(9999);
   });
 
-  it('returns price from current course run with firstEnrollablePaidSeatPrice when fixedPriceUsd is not available', () => {
+  it('returns price in cents from current course run with firstEnrollablePaidSeatPrice when fixedPriceUsd is not available', () => {
     const courseMetadata = {
       courseRuns: [
         {
@@ -189,10 +189,10 @@ describe('getCoursePrice', () => {
         },
       ],
     };
-    expect(getCoursePrice(courseMetadata)).toBe(79.99);
+    expect(getCoursePrice(courseMetadata)).toBe(7999);
   });
 
-  it('returns price from exec ed entitlement when no current course run price is available', () => {
+  it('returns price in cents from exec ed entitlement when no current course run price is available', () => {
     const courseMetadata = {
       courseRuns: [
         {
@@ -211,10 +211,10 @@ describe('getCoursePrice', () => {
         },
       ],
     };
-    expect(getCoursePrice(courseMetadata)).toBe(99.99);
+    expect(getCoursePrice(courseMetadata)).toBe(9999);
   });
 
-  it('returns 0 as default when no price is found', () => {
+  it('returns price in cents from first entitlement when no exec ed entitlement exists', () => {
     const courseMetadata = {
       courseRuns: [
         {
@@ -228,7 +228,7 @@ describe('getCoursePrice', () => {
         },
       ],
     };
-    expect(getCoursePrice(courseMetadata)).toBe(0);
+    expect(getCoursePrice(courseMetadata)).toBe(19999);
   });
 
   it('returns 0 when courseRuns and entitlements are empty arrays', () => {

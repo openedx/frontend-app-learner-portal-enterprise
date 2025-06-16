@@ -1100,20 +1100,24 @@ export function getCoursePrice(courseMetadata) {
     && (currentCourseRun.fixedPriceUsd
       || currentCourseRun.firstEnrollablePaidSeatPrice)
   ) {
-    return parseFloat(
+    const priceInUSD = parseFloat(
       currentCourseRun.fixedPriceUsd
       || currentCourseRun.firstEnrollablePaidSeatPrice,
     );
+    return Math.round(priceInUSD * 100);
   }
 
   // 2. Check for exec ed 2U course entitlements
   const entitlements = courseMetadata.entitlements || [];
   for (const entitlement of entitlements) {
     if (entitlement.price && entitlement.mode === 'paid-executive-education') {
-      return parseFloat(entitlement.price);
+      return Math.round(parseFloat(entitlement.price) * 100);
     }
   }
-
-  // 3. Return default normalized price
+  // 3. Check for first entitlement price
+  if (entitlements?.length) {
+    return Math.round(parseFloat(entitlements[0].price) * 100);
+  }
+  // 4. Return default normalized price in cents
   return 0;
 }
