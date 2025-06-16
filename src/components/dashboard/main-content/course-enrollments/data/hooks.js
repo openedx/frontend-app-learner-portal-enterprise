@@ -137,13 +137,9 @@ export const useCourseUpgradeData = ({
     userEnrollments: enterpriseCourseEnrollmentsMetadata.enterpriseCourseEnrollments,
   });
 
-  const hasPendingQueries = useMemo(() => (
+  const hasPendingQueries = (
     isCustomerContainsContentPending || isLearnerCreditMetadataPending || isCourseRunDetailsPending
-  ), [
-    isCustomerContainsContentPending,
-    isLearnerCreditMetadataPending,
-    isCourseRunDetailsPending,
-  ]);
+  );
 
   return useMemo(() => {
     const defaultReturn = {
