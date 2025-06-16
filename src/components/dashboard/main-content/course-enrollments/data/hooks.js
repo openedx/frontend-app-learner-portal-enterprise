@@ -5,7 +5,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
-import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
+import {
+  sendEnterpriseTrackEvent,
+  sendEnterpriseTrackEventWithDelay,
+} from '@edx/frontend-enterprise-utils';
 
 import { useLocation } from 'react-router-dom';
 import * as service from './service';
@@ -134,9 +137,13 @@ export const useCourseUpgradeData = ({
     userEnrollments: enterpriseCourseEnrollmentsMetadata.enterpriseCourseEnrollments,
   });
 
-  const hasPendingQueries = (
+  const hasPendingQueries = useMemo(() => (
     isCustomerContainsContentPending || isLearnerCreditMetadataPending || isCourseRunDetailsPending
-  );
+  ), [
+    isCustomerContainsContentPending,
+    isLearnerCreditMetadataPending,
+    isCourseRunDetailsPending,
+  ]);
 
   return useMemo(() => {
     const defaultReturn = {
@@ -243,6 +250,43 @@ export const useCourseUpgradeData = ({
     hasPendingQueries,
   ]);
 };
+
+/**
+ * Custom hook for handling the upgrade course button logic.
+ */
+export function useUpgradeCourseButton() {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const [confirmationButtonState, setConfirmationButtonState] = useState('default');
+
+  const handleRedeem = () => {
+    setConfirmationButtonState('pending');
+    sendEnterpriseTrackEvent(
+      enterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.course.upgrade_button.confirmed',
+    );
+  };
+
+  const handleRedemptionSuccess = async (transaction) => {
+    if (transaction?.state !== 'committed') {
+      return;
+    }
+    setConfirmationButtonState('complete');
+    const { coursewareUrl } = transaction;
+    global.location.assign(coursewareUrl);
+  };
+
+  const handleRedemptionError = () => {
+    setConfirmationButtonState('error');
+  };
+
+  return {
+    confirmationButtonState,
+    setConfirmationButtonState,
+    handleRedeem,
+    handleRedemptionSuccess,
+    handleRedemptionError,
+  };
+}
 
 export function useAcknowledgeContentAssignments({
   enterpriseId,

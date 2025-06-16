@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, OverlayTrigger, Tooltip } from '@openedx/paragon';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { useEnterpriseCustomer, useCouponCodes } from '../../../../app/data';
-import { useCourseUpgradeData } from '../data';
 import EnrollModal from '../../../../course/EnrollModal';
 
 const messages = defineMessages({
@@ -64,52 +63,20 @@ OverlayTriggerWrapper.propTypes = {
  */
 const UpgradeCourseButton = ({
   className,
-  title,
   variant,
+  title,
   courseRunKey,
-  mode,
-  enrollBy,
+  courseRunPrice,
+  subsidyForCourse,
+  redeem,
+  confirmationButtonState,
+  onConfirmModalClose,
 }) => {
   const intl = useIntl();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [confirmationButtonState, setConfirmationButtonState] = useState('default');
 
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: { couponCodeRedemptionCount } } = useCouponCodes();
-
-  const handleRedeem = () => {
-    setConfirmationButtonState('pending');
-    sendEnterpriseTrackEvent(
-      enterpriseCustomer.uuid,
-      'edx.ui.enterprise.learner_portal.dashboard.course.upgrade_button.confirmed',
-    );
-  };
-
-  const handleRedemptionSuccess = async (transaction) => {
-    if (transaction?.state !== 'committed') {
-      return;
-    }
-    setConfirmationButtonState('complete');
-    const { coursewareUrl } = transaction;
-    global.location.assign(coursewareUrl);
-  };
-
-  const handleRedemptionError = () => {
-    setConfirmationButtonState('error');
-  };
-
-  const {
-    subsidyForCourse,
-    courseRunPrice,
-    redeem,
-  } = useCourseUpgradeData({
-    courseRunKey,
-    mode,
-    enrollBy,
-    onRedeem: handleRedeem,
-    onRedeemSuccess: handleRedemptionSuccess,
-    onRedeemError: handleRedemptionError,
-  });
 
   const handleClick = () => {
     setIsModalOpen(true);
@@ -128,7 +95,7 @@ const UpgradeCourseButton = ({
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    setConfirmationButtonState('default');
+    onConfirmModalClose();
   };
 
   return (
@@ -170,14 +137,19 @@ UpgradeCourseButton.propTypes = {
   variant: PropTypes.string,
   title: PropTypes.string.isRequired,
   courseRunKey: PropTypes.string.isRequired,
-  mode: PropTypes.string.isRequired,
-  enrollBy: PropTypes.string,
+  courseRunPrice: PropTypes.number,
+  subsidyForCourse: PropTypes.shape({
+    subsidyType: PropTypes.string,
+    redemptionUrl: PropTypes.string,
+  }),
+  redeem: PropTypes.func,
+  confirmationButtonState: PropTypes.string,
+  onConfirmModalClose: PropTypes.func,
 };
 
 UpgradeCourseButton.defaultProps = {
   className: undefined,
   variant: 'outline-primary',
-  enrollBy: undefined,
 };
 
 export default UpgradeCourseButton;

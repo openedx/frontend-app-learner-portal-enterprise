@@ -163,7 +163,7 @@ describe('<InProgressCourseCard />', () => {
     });
     renderWithRouter(<InProgressCourseCardWrapper Component={UpgradeableInProgressCourseCard} {...baseProps} />);
 
-    const useCourseUpgradeDataArgs = useCourseUpgradeData.mock.calls[1][0];
+    const useCourseUpgradeDataArgs = useCourseUpgradeData.mock.calls[0][0];
     expect(useCourseUpgradeDataArgs).toEqual(
       expect.objectContaining({
         onRedeem: expect.any(Function),
