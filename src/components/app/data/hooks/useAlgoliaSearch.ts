@@ -3,11 +3,13 @@ import { useEffect, useMemo } from 'react';
 import algoliasearch from 'algoliasearch';
 import { logError } from '@edx/frontend-platform/logging';
 import { SearchClient, SearchIndex } from 'algoliasearch/lite';
-import { UseSuspenseQueryResult } from '@tanstack/react-query';
+import { useQueryClient, UseSuspenseQueryResult } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import { useLocation, useParams } from 'react-router-dom';
 import { useSuspenseBFF } from './useBFF';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useEnterpriseFeatures from './useEnterpriseFeatures';
-import { queryDefaultEmptyFallback } from '../queries';
+import { queryDefaultEmptyFallback, resolveBFFQuery } from '../queries';
 
 type AlgoliaFeatureFlags = {
   isCatalogQueryFiltersEnabled: boolean;
@@ -20,6 +22,7 @@ interface ExtractAlgoliaArgs extends AlgoliaFeatureFlags {
 
 interface SecuredAlgoliaApiMetadata extends AlgoliaFeatureFlags {
   securedAlgoliaMetadata: SecuredAlgoliaApiData;
+  algoliaCacheInvalidator: () => void,
 }
 
 type Algolia = {
@@ -31,6 +34,28 @@ interface AlgoliaWithCatalogFilters extends Algolia {
   shouldUseSecuredAlgoliaApiKey: boolean;
   catalogUuidsToCatalogQueryUuids: SecuredAlgoliaApiData['catalogUuidsToCatalogQueryUuids'];
 }
+
+const algoliaQueryCacheEpsilon = 30; // seconds
+
+const checkValidUntil = (validUntil: Date, thresholdSeconds: number) => {
+  if (!validUntil) { return false; }
+  const unixNow = dayjs().unix();
+  const unixValidUntil = dayjs(validUntil).unix();
+  const secondsRemaining = unixValidUntil - unixNow;
+  console.log({ secondsRemaining, unixValidUntil, unixNow });
+  return secondsRemaining < thresholdSeconds;
+};
+
+export const algoliaQueryCacheValidator = (
+  validUntil: Date,
+  thresholdSeconds: number,
+  invalidateQueries: () => void,
+): void => {
+  if (checkValidUntil(validUntil, thresholdSeconds)) {
+    console.log('invalidating');
+    invalidateQueries();
+  }
+};
 
 /**
  * Extracts secured Algolia metadata from backend data based on feature and index support flags.
@@ -57,11 +82,16 @@ const extractAlgolia = ({
     return {
       securedAlgoliaApiKey: data.securedAlgoliaApiKey,
       catalogUuidsToCatalogQueryUuids: data.catalogUuidsToCatalogQueryUuids,
+      algolia: data.algolia,
     };
   }
   return {
     securedAlgoliaApiKey: null,
     catalogUuidsToCatalogQueryUuids: {},
+    algolia: {
+      securedAlgoliaApiKey: null,
+      validUntil: null,
+    },
   };
 };
 
@@ -86,11 +116,15 @@ const extractAlgolia = ({
  */
 const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiMetadata => {
   const config: AlgoliaConfiguration = getConfig();
+  const queryClient = useQueryClient();
+  const location = useLocation();
+  const { enterpriseSlug } = useParams();
   const unsupportedSecuredAlgoliaIndices = [config.ALGOLIA_INDEX_NAME_JOBS];
   const enterpriseCustomerResult = useEnterpriseCustomer();
   const enterpriseCustomer = enterpriseCustomerResult.data as EnterpriseCustomer;
   const enterpriseFeaturesResult = useEnterpriseFeatures();
   const enterpriseFeatures = enterpriseFeaturesResult.data as EnterpriseFeatures;
+  const matchedBFFQuery = resolveBFFQuery(location.pathname);
   // Enable catalog filters only if the waffle flag is enabled and Algolia app id is defined
   const isCatalogQueryFiltersEnabled = !!(
     enterpriseFeatures?.catalogQuerySearchFiltersEnabled && config.ALGOLIA_APP_ID
@@ -99,7 +133,6 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
   // Supported indices should use the secured API key; unsupported indexes
   // (e.g., public jobs index) will default to the fallback key.
   const isIndexSupported = indexName ? !unsupportedSecuredAlgoliaIndices.includes(indexName) : true;
-
   // Common helper between the BFF call and its empty fallback function
   const queryOptions = {
     select: (data: SecuredAlgoliaApiData | null) => extractAlgolia({
@@ -122,10 +155,30 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
     },
   }) as UseSuspenseQueryResult<SecuredAlgoliaApiData>;
 
+  let invalidateQuery = () => {};
+  if (matchedBFFQuery) {
+    invalidateQuery = () => queryClient.invalidateQueries({
+      queryKey: matchedBFFQuery(<BFFRequestOptions>{
+        enterpriseSlug,
+      }).queryKey,
+    });
+  }
+
+  useEffect(() => {
+    algoliaQueryCacheValidator(
+      securedAlgoliaMetadata.algolia.validUntil as Date,
+      algoliaQueryCacheEpsilon,
+      invalidateQuery,
+    );
+  }, [securedAlgoliaMetadata.algolia.validUntil]);
+
+  // console.log(dayjs(securedAlgoliaMetadata.algolia.validUntil).unix(), dayjs().unix());
+
   useEffect(() => {
     if (isCatalogQueryFiltersEnabled
       && isIndexSupported
-      && !securedAlgoliaMetadata?.securedAlgoliaApiKey) {
+      && !securedAlgoliaMetadata?.securedAlgoliaApiKey
+      && !securedAlgoliaMetadata.algolia?.securedAlgoliaApiKey) {
       logError(
         `Secured Algolia API key is missing, or no applicable
           for enterprise_customer_uuid: ${enterpriseCustomer.uuid}.
@@ -148,8 +201,14 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
     securedAlgoliaMetadata: securedAlgoliaMetadata || {
       securedAlgoliaApiKey: null,
       catalogUuidsToCatalogQueryUuids: {},
+      algolia: {},
     },
     isIndexSupported,
+    algoliaCacheInvalidator: () => algoliaQueryCacheValidator(
+      securedAlgoliaMetadata.algolia.validUntil as Date,
+      algoliaQueryCacheEpsilon,
+      invalidateQuery,
+    ),
   };
 };
 
@@ -177,6 +236,7 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
     securedAlgoliaMetadata,
     isCatalogQueryFiltersEnabled,
     isIndexSupported,
+    algoliaCacheInvalidator,
   } = useSecuredAlgoliaMetadata(indexName);
 
   // Update instantiate search client with or without a secured
@@ -185,7 +245,7 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
     const shouldUseSecuredAlgoliaApiKey = (
       isCatalogQueryFiltersEnabled
       && isIndexSupported
-      && !!securedAlgoliaMetadata.securedAlgoliaApiKey
+      && !!securedAlgoliaMetadata.algolia.securedAlgoliaApiKey
     );
 
     // Based on the waffle flag and supported indexes, we will use the secured algolia
@@ -195,7 +255,7 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
     // display the <SearchUnavailableAlert /> if no search client is returned or the upstream secured
     // algolia api call fails from the BFF.
     const algoliaSearchApiKey = shouldUseSecuredAlgoliaApiKey
-      ? securedAlgoliaMetadata.securedAlgoliaApiKey!
+      ? securedAlgoliaMetadata.algolia.securedAlgoliaApiKey!
       : config.ALGOLIA_SEARCH_API_KEY;
 
     if (!algoliaSearchApiKey || !config.ALGOLIA_APP_ID || !config.ALGOLIA_INDEX_NAME) {
@@ -204,6 +264,7 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
         searchIndex: null,
         shouldUseSecuredAlgoliaApiKey,
         catalogUuidsToCatalogQueryUuids: {},
+        algoliaCacheInvalidator: () => {},
       };
     }
     const searchClient: SearchClient = algoliasearch(
@@ -216,6 +277,7 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
       searchIndex,
       shouldUseSecuredAlgoliaApiKey,
       catalogUuidsToCatalogQueryUuids: securedAlgoliaMetadata.catalogUuidsToCatalogQueryUuids,
+      algoliaCacheInvalidator,
     };
   }, [
     config.ALGOLIA_APP_ID,
@@ -225,7 +287,8 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
     isCatalogQueryFiltersEnabled,
     isIndexSupported,
     securedAlgoliaMetadata.catalogUuidsToCatalogQueryUuids,
-    securedAlgoliaMetadata.securedAlgoliaApiKey,
+    securedAlgoliaMetadata.algolia,
+    algoliaCacheInvalidator,
   ]);
 };
 
