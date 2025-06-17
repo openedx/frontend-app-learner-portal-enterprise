@@ -152,3 +152,8 @@ export function useSuspenseBFF<TData = unknown>({
     }),
   );
 }
+
+export {
+  useMatchedBFFQuery,
+  useQueryKey,
+};

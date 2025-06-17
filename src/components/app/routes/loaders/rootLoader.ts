@@ -1,11 +1,12 @@
 import { getConfig } from '@edx/frontend-platform/config';
-import { getEnterpriseLearnerQueryData, queryNotices } from '../../data';
+import { getEnterpriseLearnerQueryData, queryNotices, resolveBFFQuery } from '../../data';
 import {
   ensureActiveEnterpriseCustomerUser,
   ensureAuthenticatedUser,
   ensureEnterpriseAppData,
   redirectToRemoveTrailingSlash,
 } from '../data';
+import { algoliaQueryCacheValidator } from '../../data/hooks/useAlgoliaSearch';
 
 /**
  * Root loader for the enterprise learner portal.
@@ -37,6 +38,23 @@ const makeRootLoader: MakeRouteLoaderFunctionWithQueryClient = function makeRoot
       enterpriseSlug,
       authenticatedUser,
     });
+
+    const validateAlgoliaValidUntil = async (hasBFFData, requestUrl) => {
+      if (!hasBFFData) { /* empty */ }
+      const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
+      if (matchedBFFQuery) {
+        const bffResponse = await queryClient.ensureQueryData<BFFResponse>(
+          matchedBFFQuery({ enterpriseSlug: enterpriseSlug! }),
+        );
+        const { algolia } = bffResponse;
+        console.log('loader alg', algolia);
+        const invalidateQuery = () => queryClient.invalidateQueries({
+          queryKey: matchedBFFQuery({ enterpriseSlug: enterpriseSlug! }).queryKey,
+        });
+        algoliaQueryCacheValidator(algolia.validUntil, 30, invalidateQuery);
+      }
+    };
+    await validateAlgoliaValidUntil(isBFFData, requestUrl);
 
     // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
     if (!enterpriseLearnerData.enterpriseCustomer && !enterpriseLearnerData.activeEnterpriseCustomer) {
