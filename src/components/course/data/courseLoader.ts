@@ -16,6 +16,7 @@ import {
   queryCourseMetadata,
   safeEnsureQueryDataBrowseAndRequestConfiguration,
   safeEnsureQueryDataCanRedeem,
+  safeEnsureQueryDataCanRequest,
   safeEnsureQueryDataCouponCodeRequests,
   safeEnsureQueryDataCouponCodes,
   safeEnsureQueryDataCourseRecommendations,
@@ -65,6 +66,13 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
     if (!enterpriseCustomer) {
       return null;
     }
+
+    await safeEnsureQueryDataCanRequest({
+      queryClient,
+      enterpriseCustomer,
+      courseKey,
+    });
+
     const prerequisiteQueries = await Promise.all([
       safeEnsureQueryDataCustomerContainsContent({
         queryClient,
