@@ -4,7 +4,6 @@ import algoliasearch from 'algoliasearch';
 import { logError } from '@edx/frontend-platform/logging';
 import { SearchClient, SearchIndex } from 'algoliasearch/lite';
 import { useQueryClient, UseSuspenseQueryResult } from '@tanstack/react-query';
-import dayjs from 'dayjs';
 import { useLocation, useParams } from 'react-router-dom';
 import { useSuspenseBFF } from './useBFF';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
@@ -34,28 +33,6 @@ interface AlgoliaWithCatalogFilters extends Algolia {
   shouldUseSecuredAlgoliaApiKey: boolean;
   catalogUuidsToCatalogQueryUuids: SecuredAlgoliaApiData['catalogUuidsToCatalogQueryUuids'];
 }
-
-const algoliaQueryCacheEpsilon = 30; // seconds
-
-const checkValidUntil = (validUntil: Date, thresholdSeconds: number) => {
-  if (!validUntil) { return false; }
-  const unixNow = dayjs().unix();
-  const unixValidUntil = dayjs(validUntil).unix();
-  const secondsRemaining = unixValidUntil - unixNow;
-  console.log({ secondsRemaining, unixValidUntil, unixNow });
-  return secondsRemaining < thresholdSeconds;
-};
-
-export const algoliaQueryCacheValidator = (
-  validUntil: Date,
-  thresholdSeconds: number,
-  invalidateQueries: () => void,
-): void => {
-  if (checkValidUntil(validUntil, thresholdSeconds)) {
-    console.log('invalidating');
-    invalidateQueries();
-  }
-};
 
 /**
  * Extracts secured Algolia metadata from backend data based on feature and index support flags.
@@ -155,25 +132,6 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
     },
   }) as UseSuspenseQueryResult<SecuredAlgoliaApiData>;
 
-  let invalidateQuery = () => {};
-  if (matchedBFFQuery) {
-    invalidateQuery = () => queryClient.invalidateQueries({
-      queryKey: matchedBFFQuery(<BFFRequestOptions>{
-        enterpriseSlug,
-      }).queryKey,
-    });
-  }
-
-  useEffect(() => {
-    algoliaQueryCacheValidator(
-      securedAlgoliaMetadata.algolia.validUntil as Date,
-      algoliaQueryCacheEpsilon,
-      invalidateQuery,
-    );
-  }, [securedAlgoliaMetadata.algolia.validUntil]);
-
-  // console.log(dayjs(securedAlgoliaMetadata.algolia.validUntil).unix(), dayjs().unix());
-
   useEffect(() => {
     if (isCatalogQueryFiltersEnabled
       && isIndexSupported
@@ -204,11 +162,6 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
       algolia: {},
     },
     isIndexSupported,
-    algoliaCacheInvalidator: () => algoliaQueryCacheValidator(
-      securedAlgoliaMetadata.algolia.validUntil as Date,
-      algoliaQueryCacheEpsilon,
-      invalidateQuery,
-    ),
   };
 };
 
@@ -236,7 +189,6 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
     securedAlgoliaMetadata,
     isCatalogQueryFiltersEnabled,
     isIndexSupported,
-    algoliaCacheInvalidator,
   } = useSecuredAlgoliaMetadata(indexName);
 
   // Update instantiate search client with or without a secured
@@ -264,7 +216,6 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
         searchIndex: null,
         shouldUseSecuredAlgoliaApiKey,
         catalogUuidsToCatalogQueryUuids: {},
-        algoliaCacheInvalidator: () => {},
       };
     }
     const searchClient: SearchClient = algoliasearch(
@@ -277,7 +228,6 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
       searchIndex,
       shouldUseSecuredAlgoliaApiKey,
       catalogUuidsToCatalogQueryUuids: securedAlgoliaMetadata.catalogUuidsToCatalogQueryUuids,
-      algoliaCacheInvalidator,
     };
   }, [
     config.ALGOLIA_APP_ID,
@@ -288,7 +238,6 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
     isIndexSupported,
     securedAlgoliaMetadata.catalogUuidsToCatalogQueryUuids,
     securedAlgoliaMetadata.algolia,
-    algoliaCacheInvalidator,
   ]);
 };
 

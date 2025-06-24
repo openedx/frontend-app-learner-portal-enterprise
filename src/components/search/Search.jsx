@@ -75,7 +75,6 @@ const Search = () => {
   const {
     searchIndex,
     searchClient,
-    algoliaCacheInvalidator,
   } = useAlgoliaSearch();
 
   // Flag to toggle highlights visibility

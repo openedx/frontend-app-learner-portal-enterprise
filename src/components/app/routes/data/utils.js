@@ -4,9 +4,11 @@ import { fetchAuthenticatedUser, getLoginRedirectUrl } from '@edx/frontend-platf
 import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 import { logError } from '@edx/frontend-platform/logging';
+import dayjs from 'dayjs';
 import {
   activateOrAutoApplySubscriptionLicense,
   addLicenseToSubscriptionLicensesByStatus,
+  ALGOLIA_QUERY_CACHE_EPSILON,
   querySubscriptions,
   resolveBFFQuery,
   safeEnsureQueryDataAcademiesList,
@@ -380,3 +382,40 @@ export async function ensureActiveEnterpriseCustomerUser({
     allLinkedEnterpriseCustomerUsers,
   };
 }
+
+const checkValidUntil = (validUntil, thresholdSeconds) => {
+  if (!validUntil) { return false; }
+  const unixNow = dayjs().unix();
+  const unixValidUntil = dayjs(validUntil).unix();
+  const secondsRemaining = unixValidUntil - unixNow;
+  return secondsRemaining < thresholdSeconds;
+};
+
+export const algoliaQueryCacheValidator = (
+  validUntil,
+  thresholdSeconds,
+  invalidateQueries,
+) => {
+  if (checkValidUntil(validUntil, thresholdSeconds)) {
+    invalidateQueries();
+  }
+};
+
+export const validateAlgoliaValidUntil = async ({
+  queryClient, isBFFData: hasBFFData, requestUrl, enterpriseSlug,
+}) => {
+  if (!hasBFFData) { return; }
+  const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
+  if (matchedBFFQuery) {
+    const bffResponse = await queryClient.ensureQueryData(
+      matchedBFFQuery({ enterpriseSlug }),
+    );
+    const { algolia } = bffResponse;
+    const invalidateQuery = () => queryClient.invalidateQueries({
+      queryKey: matchedBFFQuery({ enterpriseSlug }).queryKey,
+    });
+    if (algolia.validUntil) {
+      algoliaQueryCacheValidator(algolia?.validUntil, ALGOLIA_QUERY_CACHE_EPSILON, invalidateQuery);
+    }
+  }
+};

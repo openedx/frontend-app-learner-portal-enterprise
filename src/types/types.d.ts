@@ -154,7 +154,7 @@ declare global {
 
   type AlgoliaData = {
     securedAlgoliaApiKey: string | null;
-    validUntil: Date | null;
+    validUntil?: string | null;
   };
 
   type SecuredAlgoliaApiData = {
