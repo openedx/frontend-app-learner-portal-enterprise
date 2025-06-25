@@ -67,12 +67,6 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
       return null;
     }
 
-    await safeEnsureQueryDataCanRequest({
-      queryClient,
-      enterpriseCustomer,
-      courseKey,
-    });
-
     const prerequisiteQueries = await Promise.all([
       safeEnsureQueryDataCustomerContainsContent({
         queryClient,
@@ -118,6 +112,11 @@ const makeCourseLoader: MakeRouteLoaderFunctionWithQueryClient = function makeCo
       safeEnsureQueryDataBrowseAndRequestConfiguration({
         queryClient,
         enterpriseCustomer,
+      }),
+      safeEnsureQueryDataCanRequest({
+        queryClient,
+        enterpriseCustomer,
+        courseKey,
       }),
     ]);
 
