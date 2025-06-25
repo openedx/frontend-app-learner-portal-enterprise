@@ -3,12 +3,11 @@ import { useEffect, useMemo } from 'react';
 import algoliasearch from 'algoliasearch';
 import { logError } from '@edx/frontend-platform/logging';
 import { SearchClient, SearchIndex } from 'algoliasearch/lite';
-import { useQueryClient, UseSuspenseQueryResult } from '@tanstack/react-query';
-import { useLocation, useParams } from 'react-router-dom';
+import { UseSuspenseQueryResult } from '@tanstack/react-query';
 import { useSuspenseBFF } from './useBFF';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useEnterpriseFeatures from './useEnterpriseFeatures';
-import { queryDefaultEmptyFallback, resolveBFFQuery } from '../queries';
+import { queryDefaultEmptyFallback } from '../queries';
 
 type AlgoliaFeatureFlags = {
   isCatalogQueryFiltersEnabled: boolean;
@@ -21,7 +20,6 @@ interface ExtractAlgoliaArgs extends AlgoliaFeatureFlags {
 
 interface SecuredAlgoliaApiMetadata extends AlgoliaFeatureFlags {
   securedAlgoliaMetadata: SecuredAlgoliaApiData;
-  algoliaCacheInvalidator: () => void,
 }
 
 type Algolia = {
@@ -93,15 +91,11 @@ const extractAlgolia = ({
  */
 const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiMetadata => {
   const config: AlgoliaConfiguration = getConfig();
-  const queryClient = useQueryClient();
-  const location = useLocation();
-  const { enterpriseSlug } = useParams();
   const unsupportedSecuredAlgoliaIndices = [config.ALGOLIA_INDEX_NAME_JOBS];
   const enterpriseCustomerResult = useEnterpriseCustomer();
   const enterpriseCustomer = enterpriseCustomerResult.data as EnterpriseCustomer;
   const enterpriseFeaturesResult = useEnterpriseFeatures();
   const enterpriseFeatures = enterpriseFeaturesResult.data as EnterpriseFeatures;
-  const matchedBFFQuery = resolveBFFQuery(location.pathname);
   // Enable catalog filters only if the waffle flag is enabled and Algolia app id is defined
   const isCatalogQueryFiltersEnabled = !!(
     enterpriseFeatures?.catalogQuerySearchFiltersEnabled && config.ALGOLIA_APP_ID

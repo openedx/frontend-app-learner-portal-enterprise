@@ -39,10 +39,6 @@ const makeRootLoader: MakeRouteLoaderFunctionWithQueryClient = function makeRoot
       authenticatedUser,
     });
 
-    await validateAlgoliaValidUntil({
-      queryClient, isBFFData, requestUrl, enterpriseSlug,
-    });
-
     // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
     if (!enterpriseLearnerData.enterpriseCustomer && !enterpriseLearnerData.activeEnterpriseCustomer) {
       return null;
@@ -73,6 +69,10 @@ const makeRootLoader: MakeRouteLoaderFunctionWithQueryClient = function makeRoot
       userEmail,
       queryClient,
       requestUrl,
+    });
+
+    await validateAlgoliaValidUntil({
+      queryClient, isBFFData, requestUrl, enterpriseSlug,
     });
 
     // Redirect to the same URL without a trailing slash, if applicable.
