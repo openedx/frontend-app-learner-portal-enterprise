@@ -152,9 +152,14 @@ declare global {
     hasBnrEnabledPolicy: boolean;
   };
 
-  type SecuredAlgoliaApiData = {
+  type AlgoliaData = {
     securedAlgoliaApiKey: string | null;
+    validUntil?: string | null;
+  };
+
+  type SecuredAlgoliaApiData = {
     catalogUuidsToCatalogQueryUuids: Record<string, string>;
+    algolia: AlgoliaData,
   };
 
   type EnterpriseCourseEnrollmentRaw = enterpriseAccessOpenApi.components['schemas']['EnterpriseCourseEnrollment'];

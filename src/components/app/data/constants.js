@@ -93,3 +93,5 @@ export const getBaseSubscriptionsData = () => {
     baseSubscriptionsData,
   };
 };
+
+export const ALGOLIA_QUERY_CACHE_EPSILON = 60; // 1 minute

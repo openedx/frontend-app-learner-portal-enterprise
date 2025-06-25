@@ -177,6 +177,13 @@ export interface paths {
      */
     post: operations["api_v1_assignment_configurations_acknowledge_assignments_create"];
   };
+  "/api/v1/bffs/health/ping/": {
+    /**
+     * Health Check Ping
+     * @description Simple ping endpoint to check if the BFF service is running and responsive.
+     */
+    get: operations["ping_health_check"];
+  };
   "/api/v1/bffs/learner/academy/": {
     /**
      * Academy route
@@ -287,6 +294,13 @@ export interface paths {
      * @description Viewset for learner credit requests.
      */
     get: operations["api_v1_learner_credit_requests_retrieve"];
+  };
+  "/api/v1/learner-credit-requests/decline/": {
+    /**
+     * Decline a learner credit request.
+     * @description Action of declining a Learner Credit Subsidy Request
+     */
+    post: operations["api_v1_learner_credit_requests_decline_create"];
   };
   "/api/v1/learner-credit-requests/overview/": {
     /**
@@ -588,6 +602,12 @@ export interface components {
     };
     /** @enum {unknown} */
     BlankEnum: "";
+    /**
+     * @description * `13` - Subscription - Trial Catalog
+     * * `10` - Subscription
+     * @enum {integer}
+     */
+    CatalogQueryIdEnum: 13 | 10;
     /**
      * @description Serializer to help return additional content metadata for assignments.  These fields should
      * map more or less 1-1 to the fields in content metadata dicts returned from the
@@ -953,8 +973,19 @@ export interface components {
     EnterpriseCatalogRequest: {
       /** @description The name of the Enterprise Catalog. */
       title: string;
-      /** @description The id of the related Catalog Query. */
-      catalog_query_id: number;
+      /**
+       * @description The id of the related Catalog Query.
+       *
+       * * `13` - Subscription - Trial Catalog
+       * * `10` - Subscription
+       * @default [
+       *   [
+       *     13,
+       *     "Subscription - Trial Catalog"
+       *   ]
+       * ]
+       */
+      catalog_query_id?: components["schemas"]["CatalogQueryIdEnum"];
     };
     /** @description Catalog object serializer for provisioning responses. */
     EnterpriseCatalogResponse: {
@@ -983,7 +1014,6 @@ export interface components {
       is_revoked: boolean;
       /** Format: uri */
       link_to_course: string;
-      /** Format: uri */
       link_to_certificate: string | null;
       micromasters_title: string | null;
       mode: string;
@@ -1452,6 +1482,8 @@ export interface components {
     };
     /** @description Serializer for the learner academy detail response. */
     LearnerAcademyResponse: {
+      errors?: components["schemas"]["Error"][];
+      warnings?: components["schemas"]["Warning"][];
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
@@ -1462,8 +1494,7 @@ export interface components {
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
-      errors?: components["schemas"]["Error"][];
-      warnings?: components["schemas"]["Warning"][];
+      algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
       enterprise_features?: {
         [key: string]: unknown;
       };
@@ -1800,6 +1831,27 @@ export interface components {
       learner_credit_request_config?: string | null;
       /** Format: uuid */
       assignment?: string | null;
+      /** @description Cost of the content in USD Cents. */
+      course_price?: number | null;
+      latest_action: string;
+    };
+    /** @description Serializer for declining a learner credit request. */
+    LearnerCreditRequestDecline: {
+      /**
+       * Format: uuid
+       * @description UUID of the learner credit request to decline
+       */
+      subsidy_request_uuid: string;
+      /**
+       * @description Whether to send decline notification email to the learner
+       * @default false
+       */
+      send_notification?: boolean;
+      /**
+       * @description Whether to unlink the user from the enterprise organization
+       * @default false
+       */
+      disassociate_from_org?: boolean;
     };
     /** @description Serializer for the learner dashboard request. */
     LearnerDashboardRequest: {
@@ -1813,6 +1865,8 @@ export interface components {
     };
     /** @description Serializer for the learner dashboard response. */
     LearnerDashboardResponse: {
+      errors?: components["schemas"]["Error"][];
+      warnings?: components["schemas"]["Warning"][];
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
@@ -1823,8 +1877,7 @@ export interface components {
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
-      errors?: components["schemas"]["Error"][];
-      warnings?: components["schemas"]["Warning"][];
+      algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
       enterprise_features?: {
         [key: string]: unknown;
       };
@@ -1852,6 +1905,8 @@ export interface components {
     };
     /** @description Serializer for the learner search response. */
     LearnerSearchResponse: {
+      errors?: components["schemas"]["Error"][];
+      warnings?: components["schemas"]["Warning"][];
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
@@ -1862,8 +1917,7 @@ export interface components {
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
-      errors?: components["schemas"]["Error"][];
-      warnings?: components["schemas"]["Warning"][];
+      algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
       enterprise_features?: {
         [key: string]: unknown;
       };
@@ -1881,6 +1935,8 @@ export interface components {
     };
     /** @description Serializer for the learner skills quiz response. */
     LearnerSkillsQuizResponse: {
+      errors?: components["schemas"]["Error"][];
+      warnings?: components["schemas"]["Warning"][];
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
@@ -1891,8 +1947,7 @@ export interface components {
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
-      errors?: components["schemas"]["Error"][];
-      warnings?: components["schemas"]["Warning"][];
+      algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
       enterprise_features?: {
         [key: string]: unknown;
       };
@@ -2334,6 +2389,12 @@ export interface components {
      * @enum {string}
      */
     PolicyTypeEnum: "PerLearnerEnrollmentCreditAccessPolicy" | "PerLearnerSpendCreditAccessPolicy" | "AssignedLearnerCreditAccessPolicy";
+    /**
+     * @description * `1` - B2B Paid
+     * * `3` - Trial
+     * @enum {integer}
+     */
+    ProductIdEnum: 1 | 3;
     /** @description Request serializer for provisioning create view. */
     ProvisioningRequest: {
       /** @description Object describing the requested Enterprise Customer. */
@@ -2341,9 +2402,9 @@ export interface components {
       /** @description List of objects containing requested customer admin email addresses. */
       pending_admins: components["schemas"]["PendingCustomerAdminRequest"][];
       /** @description Object describing the requested Enterprise Catalog. */
-      enterprise_catalog: components["schemas"]["EnterpriseCatalogRequest"];
+      enterprise_catalog?: components["schemas"]["EnterpriseCatalogRequest"] | null;
       /** @description Object describing the requested Customer Agreement. */
-      customer_agreement: components["schemas"]["CustomerAgreementRequest"];
+      customer_agreement?: components["schemas"]["CustomerAgreementRequest"] | null;
       subscription_plan: components["schemas"]["SubscriptionPlanRequest"];
     };
     /** @description Response serializer for provisioning create view. */
@@ -2353,6 +2414,12 @@ export interface components {
       enterprise_catalog: components["schemas"]["EnterpriseCatalogResponse"];
       customer_agreement: components["schemas"]["CustomerAgreementResponse"];
       subscription_plan: components["schemas"]["SubscriptionPlanResponse"];
+    };
+    /** @description Serializer for the secured algolia key */
+    SecuredAlgoliaMetadata: {
+      secured_algolia_api_key?: string | null;
+      /** Format: date-time */
+      valid_until?: string | null;
     };
     /**
      * @description * `requested` - Requested
@@ -2418,15 +2485,33 @@ export interface components {
     };
     /** @description Subscription Plan serializer for provisioning requests. */
     SubscriptionPlanRequest: {
+      /** @description The title of the subscription plan. */
       title: string;
+      /** @description The Salesforce Opportunity Line Item id associated with this subscription plan. */
       salesforce_opportunity_line_item: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description The date and time at which the subscription plan becomes usable.
+       */
       start_date: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description The date and time at which the subscription plan becomes unusable.
+       */
       expiration_date: string;
-      product_id: number;
+      /**
+       * @description The internal edX Enterprise Subscription Product record.
+       *
+       * * `1` - B2B Paid
+       * * `3` - Trial
+       */
+      product_id: components["schemas"]["ProductIdEnum"];
+      /** @description The number of licenses to create for this plan. */
       desired_num_licenses: number;
-      /** Format: uuid */
+      /**
+       * Format: uuid
+       * @description Optional. The enterprise catalog uuid associated with this subscription plan.
+       */
       enterprise_catalog_uuid?: string | null;
     };
     /** @description Subscription Plan serializer for provisioning responses. */
@@ -2859,6 +2944,8 @@ export interface components {
       /** Format: date-time */
       created: string;
       bnr_enabled: string;
+      total_spend_limits_for_subsidy: string;
+      total_deposits_for_subsidy: string;
     };
     /**
      * @description Request Serializer for PUT or PATCH requests to update a subsidy access policy.
@@ -3597,6 +3684,25 @@ export interface operations {
     };
   };
   /**
+   * Health Check Ping
+   * @description Simple ping endpoint to check if the BFF service is running and responsive.
+   */
+  ping_health_check: {
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            message?: string;
+            /** Format: date-time */
+            timestamp?: string;
+            status?: string;
+            service?: string;
+          };
+        };
+      };
+    };
+  };
+  /**
    * Academy route
    * @description Retrieves, transforms, and processes data for the learner academy route.
    */
@@ -3989,6 +4095,26 @@ export interface operations {
       path: {
         /** @description A UUID string identifying this learner credit request. */
         uuid: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * Decline a learner credit request.
+   * @description Action of declining a Learner Credit Subsidy Request
+   */
+  api_v1_learner_credit_requests_decline_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestDecline"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestDecline"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestDecline"];
       };
     };
     responses: {

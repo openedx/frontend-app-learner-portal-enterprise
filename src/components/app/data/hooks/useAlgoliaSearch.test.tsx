@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { renderHook, waitFor } from '@testing-library/react';
 import { getConfig } from '@edx/frontend-platform';
+import dayjs from 'dayjs';
 import { enterpriseCustomerFactory } from '../services/data/__factories__';
 import { generateTestPermutations, queryClient } from '../../../../utils/tests';
 import {
@@ -46,12 +47,18 @@ const mockEnterpriseFeatures = {
 };
 const mockCatalogUuidsToCatalogQueryUuids = Array.from({ length: 3 }, () => [uuidv4(), uuidv4()]);
 const mockEmptyBaseAlgoliaData = {
-  securedAlgoliaApiKey: null,
+  algolia: {
+    securedAlgoliaApiKey: null,
+    validUntil: null,
+  },
   catalogUuidsToCatalogQueryUuids: {},
 };
 const mockBaseAlgoliaData = {
-  securedAlgoliaApiKey: 'test-algolia-api-key',
   catalogUuidsToCatalogQueryUuids: Object.fromEntries(mockCatalogUuidsToCatalogQueryUuids),
+  algolia: {
+    securedAlgoliaApiKey: 'test-algolia-api-key',
+    validUntil: dayjs().add(1, 'hour'),
+  },
 };
 const mockBaseBFFData = {
   ...mockBaseAlgoliaData,
