@@ -47,11 +47,13 @@ const mockEnterpriseFeatures = {
 };
 const mockCatalogUuidsToCatalogQueryUuids = Array.from({ length: 3 }, () => [uuidv4(), uuidv4()]);
 const mockEmptyBaseAlgoliaData = {
-  securedAlgoliaApiKey: null,
+  algolia: {
+    securedAlgoliaApiKey: null,
+    validUntil: null,
+  },
   catalogUuidsToCatalogQueryUuids: {},
 };
 const mockBaseAlgoliaData = {
-  securedAlgoliaApiKey: 'test-algolia-api-key',
   catalogUuidsToCatalogQueryUuids: Object.fromEntries(mockCatalogUuidsToCatalogQueryUuids),
   algolia: {
     securedAlgoliaApiKey: 'test-algolia-api-key',

@@ -129,7 +129,6 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
   useEffect(() => {
     if (isCatalogQueryFiltersEnabled
       && isIndexSupported
-      && !securedAlgoliaMetadata?.securedAlgoliaApiKey
       && !securedAlgoliaMetadata.algolia?.securedAlgoliaApiKey) {
       logError(
         `Secured Algolia API key is missing, or no applicable
@@ -151,7 +150,6 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
   return {
     isCatalogQueryFiltersEnabled,
     securedAlgoliaMetadata: securedAlgoliaMetadata || {
-      securedAlgoliaApiKey: null,
       catalogUuidsToCatalogQueryUuids: {},
       algolia: {},
     },

@@ -383,7 +383,7 @@ export async function ensureActiveEnterpriseCustomerUser({
   };
 }
 
-const checkValidUntil = (validUntil, thresholdSeconds) => {
+export const checkValidUntil = (validUntil, thresholdSeconds) => {
   if (!validUntil) { return false; }
   const unixNow = dayjs().unix();
   const unixValidUntil = dayjs(validUntil).unix();
@@ -415,7 +415,7 @@ export const validateAlgoliaValidUntil = async ({
       queryKey: matchedBFFQuery({ enterpriseSlug }).queryKey,
     });
     if (algolia.validUntil) {
-      algoliaQueryCacheValidator(algolia?.validUntil, ALGOLIA_QUERY_CACHE_EPSILON, invalidateQuery);
+      algoliaQueryCacheValidator(algolia.validUntil, ALGOLIA_QUERY_CACHE_EPSILON, invalidateQuery);
     }
   }
 };

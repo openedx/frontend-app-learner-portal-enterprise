@@ -1,11 +1,13 @@
 import { waitFor } from '@testing-library/react';
+import dayjs from 'dayjs';
 import {
+  ALGOLIA_QUERY_CACHE_EPSILON,
   queryEnterpriseLearnerDashboardBFF,
   resolveBFFQuery,
   transformEnterpriseCustomer,
   updateUserActiveEnterprise,
 } from '../../data';
-import { ensureActiveEnterpriseCustomerUser } from './utils';
+import { algoliaQueryCacheValidator, checkValidUntil, ensureActiveEnterpriseCustomerUser } from './utils';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../data/services/data/__factories__';
 import { generateTestPermutations } from '../../../../utils/tests';
 
@@ -222,5 +224,79 @@ describe('ensureActiveEnterpriseCustomerUser', () => {
     expect(allLinkedEnterpriseCustomerUsers).toEqual(
       updatedEnterpriseCustomerMetadata.expectedAllLinkedEnterpriseCustomers,
     );
+  });
+});
+
+describe('checkValidUntil', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  it('returns false if no validUntil is provided', () => {
+    expect(
+      checkValidUntil(null, ALGOLIA_QUERY_CACHE_EPSILON),
+    ).toEqual(false);
+  });
+  it.each([
+    {
+      validUntilOffset: 25,
+      expectedValue: true,
+    },
+    {
+      validUntilOffset: 75,
+      expectedValue: false,
+    },
+    {
+      validUntilOffset: -30,
+      expectedValue: true,
+    },
+  ])('returns expectedValue if validUntil is greater or less then the epsilon threshold (%s)', ({
+    validUntilOffset,
+    expectedValue,
+  }) => {
+    const validUntil = dayjs().add(validUntilOffset, 'second');
+    expect(
+      checkValidUntil(validUntil, ALGOLIA_QUERY_CACHE_EPSILON),
+    ).toEqual(expectedValue);
+  });
+});
+
+describe('algoliaQueryCacheValidator', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  it('does not call with null validUntil', () => {
+    const mockInvalidateQueries = jest.fn();
+    algoliaQueryCacheValidator(
+      null,
+      ALGOLIA_QUERY_CACHE_EPSILON,
+      mockInvalidateQueries,
+    );
+    expect(mockInvalidateQueries).toHaveBeenCalledTimes(0);
+  });
+  it.each([
+    {
+      validUntilOffset: 25,
+      timesCalled: 1,
+    },
+    {
+      validUntilOffset: 75,
+      timesCalled: 0,
+    },
+    {
+      validUntilOffset: -30,
+      timesCalled: 1,
+    },
+  ])('calls expected function when checkValidUntil resolves (%s)', ({
+    validUntilOffset,
+    timesCalled,
+  }) => {
+    const mockInvalidateQueries = jest.fn();
+    const validUntil = dayjs().add(validUntilOffset, 'second');
+    algoliaQueryCacheValidator(
+      validUntil,
+      ALGOLIA_QUERY_CACHE_EPSILON,
+      mockInvalidateQueries,
+    );
+    expect(mockInvalidateQueries).toHaveBeenCalledTimes(timesCalled);
   });
 });
