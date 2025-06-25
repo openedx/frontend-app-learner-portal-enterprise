@@ -6,6 +6,7 @@ import {
   queryAcademiesList,
   queryBrowseAndRequestConfiguration,
   queryCanRedeem,
+  queryCanRequest,
   queryContentHighlightsConfiguration,
   queryContentHighlightSets,
   queryCouponCodeRequests,
@@ -306,6 +307,23 @@ export async function safeEnsureQueryDataCanRedeem({
     query: queryCanRedeem(enterpriseCustomer.uuid, courseMetadata.key, courseRunKeysForRedemption),
     shouldLogError: ignoreQueryResponseError404,
     fallbackData: [],
+  });
+}
+
+export async function safeEnsureQueryDataCanRequest({
+  queryClient,
+  enterpriseCustomer,
+  courseKey,
+}) {
+  return safeEnsureQueryData({
+    queryClient,
+    query: queryCanRequest(enterpriseCustomer.uuid, courseKey),
+    shouldLogError: ignoreQueryResponseError404,
+    fallbackData: {
+      canRequest: false,
+      requestableSubsidyAccessPolicy: null,
+      reason: null,
+    },
   });
 }
 

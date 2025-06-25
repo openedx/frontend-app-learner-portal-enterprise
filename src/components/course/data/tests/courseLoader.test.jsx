@@ -8,6 +8,7 @@ import {
   extractEnterpriseCustomer,
   queryBrowseAndRequestConfiguration,
   queryCanRedeem,
+  queryCanRequest,
   queryCouponCodeRequests,
   queryCouponCodes,
   queryCourseMetadata,
@@ -312,6 +313,16 @@ describe('courseLoader', () => {
       samePartnerRecommendations: [],
     });
 
+    when(mockQueryClient.ensureQueryData).calledWith(
+      expect.objectContaining({
+        queryKey: queryCanRequest(mockEnterpriseCustomer.uuid, mockCourseKey).queryKey,
+      }),
+    ).mockResolvedValue({
+      canRequest: false,
+      requestableSubsidyAccessPolicy: null,
+      reason: null,
+    });
+
     renderWithRouterProvider({
       path: '/:enterpriseSlug/course/:courseKey',
       element: <div>hello world</div>,
@@ -335,12 +346,12 @@ describe('courseLoader', () => {
     let expectedQueryCount;
     if (hasCourseMetadata) {
       if (isAssignmentOnlyLearner && !hasAssignmentForCourse) {
-        expectedQueryCount = 13;
-      } else {
         expectedQueryCount = 14;
+      } else {
+        expectedQueryCount = 15;
       }
     } else {
-      expectedQueryCount = 13;
+      expectedQueryCount = 14;
     }
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(expectedQueryCount);
 
@@ -432,6 +443,14 @@ describe('courseLoader', () => {
         }),
       );
     }
+
+    // Course can request query
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: queryCanRequest(mockEnterpriseCustomer.uuid, mockCourseKey).queryKey,
+        queryFn: expect.any(Function),
+      }),
+    );
 
     // Course enrollments query
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
