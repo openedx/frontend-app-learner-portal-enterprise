@@ -158,7 +158,6 @@ declare global {
   };
 
   type SecuredAlgoliaApiData = {
-    securedAlgoliaApiKey: string | null;
     catalogUuidsToCatalogQueryUuids: Record<string, string>;
     algolia: AlgoliaData,
   };

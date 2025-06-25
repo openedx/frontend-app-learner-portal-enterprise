@@ -55,13 +55,11 @@ const extractAlgolia = ({
 }: ExtractAlgoliaArgs): SecuredAlgoliaApiData => {
   if (isCatalogQueryFiltersEnabled && isIndexSupported && data) {
     return {
-      securedAlgoliaApiKey: data.securedAlgoliaApiKey,
       catalogUuidsToCatalogQueryUuids: data.catalogUuidsToCatalogQueryUuids,
       algolia: data.algolia,
     };
   }
   return {
-    securedAlgoliaApiKey: null,
     catalogUuidsToCatalogQueryUuids: {},
     algolia: {
       securedAlgoliaApiKey: null,
