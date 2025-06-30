@@ -1085,6 +1085,37 @@ paths:
           description: ''
         '403':
           description: No response body
+  /api/v1/bffs/health/ping/:
+    get:
+      operationId: ping_health_check
+      description: >-
+        Simple ping endpoint to check if the BFF service is running and
+        responsive.
+      summary: Health Check Ping
+      tags:
+        - Health Check
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                  service:
+                    type: string
+                example:
+                  message: pong
+                  timestamp: '2025-06-11T15:31:27Z'
+                  status: healthy
+                  service: enterprise-access-bff
+          description: ''
   /api/v1/bffs/learner/academy/:
     post:
       operationId: api_v1_bffs_learner_academy_create
@@ -1645,6 +1676,32 @@ paths:
           required: true
       tags:
         - Learner Credit Requests
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/decline/:
+    post:
+      operationId: api_v1_learner_credit_requests_decline_create
+      description: Action of declining a Learner Credit Subsidy Request
+      summary: Decline a learner credit request.
+      tags:
+        - Learner Credit Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestDecline'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestDecline'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestDecline'
+        required: true
       responses:
         '200':
           content:
@@ -2601,6 +2658,14 @@ components:
     BlankEnum:
       enum:
         - ''
+    CatalogQueryIdEnum:
+      enum:
+        - 13
+        - 10
+      type: integer
+      description: |-
+        * `13` - Subscription - Trial Catalog
+        * `10` - Subscription
     ContentMetadataForAssignment:
       type: object
       description: >-
@@ -3357,10 +3422,17 @@ components:
           type: string
           description: The name of the Enterprise Catalog.
         catalog_query_id:
-          type: integer
-          description: The id of the related Catalog Query.
+          allOf:
+            - $ref: '#/components/schemas/CatalogQueryIdEnum'
+          default:
+            - - 13
+              - Subscription - Trial Catalog
+          description: |-
+            The id of the related Catalog Query.
+
+            * `13` - Subscription - Trial Catalog
+            * `10` - Subscription
       required:
-        - catalog_query_id
         - title
     EnterpriseCatalogResponse:
       type: object
@@ -3417,7 +3489,6 @@ components:
           format: uri
         link_to_certificate:
           type: string
-          format: uri
           nullable: true
         micromasters_title:
           type: string
@@ -4413,6 +4484,14 @@ components:
       type: object
       description: Serializer for the learner academy detail response.
       properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Warning'
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -4440,14 +4519,10 @@ components:
             type: string
             format: uuid
           description: Mapping of catalog UUIDs to catalog query UUIDs.
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/Warning'
+        algolia:
+          allOf:
+            - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
+          nullable: true
         enterprise_features:
           type: object
           additionalProperties: {}
@@ -5184,12 +5259,20 @@ components:
           type: string
           format: uuid
           nullable: true
+        course_price:
+          type: integer
+          nullable: true
+          description: Cost of the content in USD Cents.
+        latest_action:
+          type: string
+          readOnly: true
       required:
         - course_partners
         - course_title
         - created
         - email
         - enterprise_customer_uuid
+        - latest_action
         - lms_user_id
         - modified
         - reviewed_at
@@ -5197,6 +5280,24 @@ components:
         - state
         - user
         - uuid
+    LearnerCreditRequestDecline:
+      type: object
+      description: Serializer for declining a learner credit request.
+      properties:
+        subsidy_request_uuid:
+          type: string
+          format: uuid
+          description: UUID of the learner credit request to decline
+        send_notification:
+          type: boolean
+          default: false
+          description: Whether to send decline notification email to the learner
+        disassociate_from_org:
+          type: boolean
+          default: false
+          description: Whether to unlink the user from the enterprise organization
+      required:
+        - subsidy_request_uuid
     LearnerDashboardRequest:
       type: object
       description: Serializer for the learner dashboard request.
@@ -5212,6 +5313,14 @@ components:
       type: object
       description: Serializer for the learner dashboard response.
       properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Warning'
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -5239,14 +5348,10 @@ components:
             type: string
             format: uuid
           description: Mapping of catalog UUIDs to catalog query UUIDs.
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/Warning'
+        algolia:
+          allOf:
+            - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
+          nullable: true
         enterprise_features:
           type: object
           additionalProperties: {}
@@ -5302,6 +5407,14 @@ components:
       type: object
       description: Serializer for the learner search response.
       properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Warning'
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -5329,14 +5442,10 @@ components:
             type: string
             format: uuid
           description: Mapping of catalog UUIDs to catalog query UUIDs.
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/Warning'
+        algolia:
+          allOf:
+            - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
+          nullable: true
         enterprise_features:
           type: object
           additionalProperties: {}
@@ -5361,6 +5470,14 @@ components:
       type: object
       description: Serializer for the learner skills quiz response.
       properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Warning'
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -5388,14 +5505,10 @@ components:
             type: string
             format: uuid
           description: Mapping of catalog UUIDs to catalog query UUIDs.
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/Warning'
+        algolia:
+          allOf:
+            - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
+          nullable: true
         enterprise_features:
           type: object
           additionalProperties: {}
@@ -5994,6 +6107,14 @@ components:
 
         * `AssignedLearnerCreditAccessPolicy` -
         AssignedLearnerCreditAccessPolicy
+    ProductIdEnum:
+      enum:
+        - 1
+        - 3
+      type: integer
+      description: |-
+        * `1` - B2B Paid
+        * `3` - Trial
     ProvisioningRequest:
       type: object
       description: Request serializer for provisioning create view.
@@ -6010,16 +6131,16 @@ components:
         enterprise_catalog:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCatalogRequest'
+          nullable: true
           description: Object describing the requested Enterprise Catalog.
         customer_agreement:
           allOf:
             - $ref: '#/components/schemas/CustomerAgreementRequest'
+          nullable: true
           description: Object describing the requested Customer Agreement.
         subscription_plan:
           $ref: '#/components/schemas/SubscriptionPlanRequest'
       required:
-        - customer_agreement
-        - enterprise_catalog
         - enterprise_customer
         - pending_admins
         - subscription_plan
@@ -6043,6 +6164,17 @@ components:
         - enterprise_catalog
         - enterprise_customer
         - subscription_plan
+    SecuredAlgoliaMetadata:
+      type: object
+      description: Serializer for the secured algolia key
+      properties:
+        secured_algolia_api_key:
+          type: string
+          nullable: true
+        valid_until:
+          type: string
+          format: date-time
+          nullable: true
     State7b6Enum:
       enum:
         - requested
@@ -6182,22 +6314,38 @@ components:
       properties:
         title:
           type: string
+          description: The title of the subscription plan.
         salesforce_opportunity_line_item:
           type: string
+          description: >-
+            The Salesforce Opportunity Line Item id associated with this
+            subscription plan.
         start_date:
           type: string
           format: date-time
+          description: The date and time at which the subscription plan becomes usable.
         expiration_date:
           type: string
           format: date-time
+          description: The date and time at which the subscription plan becomes unusable.
         product_id:
-          type: integer
+          allOf:
+            - $ref: '#/components/schemas/ProductIdEnum'
+          description: |-
+            The internal edX Enterprise Subscription Product record.
+
+            * `1` - B2B Paid
+            * `3` - Trial
         desired_num_licenses:
           type: integer
+          description: The number of licenses to create for this plan.
         enterprise_catalog_uuid:
           type: string
           format: uuid
           nullable: true
+          description: >-
+            Optional. The enterprise catalog uuid associated with this
+            subscription plan.
       required:
         - desired_num_licenses
         - expiration_date
@@ -7052,6 +7200,12 @@ components:
         bnr_enabled:
           type: string
           readOnly: true
+        total_spend_limits_for_subsidy:
+          type: string
+          readOnly: true
+        total_deposits_for_subsidy:
+          type: string
+          readOnly: true
       required:
         - access_method
         - active
@@ -7076,6 +7230,8 @@ components:
         - subsidy_active_datetime
         - subsidy_expiration_datetime
         - subsidy_uuid
+        - total_deposits_for_subsidy
+        - total_spend_limits_for_subsidy
         - uuid
     SubsidyAccessPolicyUpdateRequest:
       type: object
