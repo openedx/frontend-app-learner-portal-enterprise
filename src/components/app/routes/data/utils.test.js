@@ -3,11 +3,17 @@ import dayjs from 'dayjs';
 import {
   ALGOLIA_QUERY_CACHE_EPSILON,
   queryEnterpriseLearnerDashboardBFF,
+  queryEnterpriseLearnerSearchBFF,
   resolveBFFQuery,
   transformEnterpriseCustomer,
   updateUserActiveEnterprise,
 } from '../../data';
-import { algoliaQueryCacheValidator, checkValidUntil, ensureActiveEnterpriseCustomerUser } from './utils';
+import {
+  algoliaQueryCacheValidator,
+  checkValidUntil,
+  ensureActiveEnterpriseCustomerUser,
+  validateAlgoliaValidUntil,
+} from './utils';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../data/services/data/__factories__';
 import { generateTestPermutations } from '../../../../utils/tests';
 
@@ -298,5 +304,58 @@ describe('algoliaQueryCacheValidator', () => {
       mockInvalidateQueries,
     );
     expect(mockInvalidateQueries).toHaveBeenCalledTimes(timesCalled);
+  });
+});
+
+describe('validateAlgoliaValidUntil', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    resolveBFFQuery.mockReturnValue(queryEnterpriseLearnerSearchBFF);
+  });
+  it.each(generateTestPermutations(
+    {
+      isBFFData: [true, false],
+      validUntil: [
+        dayjs().add(1, 'hour').toISOString(),
+        null,
+        dayjs().subtract(1, 'hour').toISOString(),
+      ],
+    },
+  ))('validate invalidation behavior (%s)', async ({
+    isBFFData,
+    validUntil,
+  }) => {
+    const mockQueryClient = {
+      ensureQueryData: jest.fn().mockResolvedValue(),
+      getQueryData: jest.fn().mockResolvedValue({
+        algolia: {
+          validUntil,
+        },
+      }),
+      setQueryData: jest.fn(),
+      invalidateQueries: jest.fn(),
+    };
+    await validateAlgoliaValidUntil({
+      queryClient: mockQueryClient,
+      requestUrl: {
+        pathname: '/testSlug/search',
+      },
+      isBFFData,
+      enterpriseSlug: 'testSlug',
+    });
+    if (!isBFFData) {
+      expect(mockQueryClient.getQueryData).not.toHaveBeenCalled();
+    } else if (validUntil) {
+      expect(mockQueryClient.getQueryData).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        if (checkValidUntil(validUntil, ALGOLIA_QUERY_CACHE_EPSILON)) {
+          expect(mockQueryClient.invalidateQueries).toHaveBeenCalledTimes(1);
+        } else {
+          expect(mockQueryClient.invalidateQueries).not.toHaveBeenCalled();
+        }
+      });
+    } else {
+      expect(mockQueryClient.invalidateQueries).not.toHaveBeenCalled();
+    }
   });
 });
