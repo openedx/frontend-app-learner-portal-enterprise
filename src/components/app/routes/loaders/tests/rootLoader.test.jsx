@@ -384,7 +384,7 @@ describe('rootLoader', () => {
           expectedQueryCount = 2;
         }
       } else if (isMatchedBFFRoute) {
-        expectedQueryCount = 10;
+        expectedQueryCount = 9;
       }
       expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(expectedQueryCount);
     });
