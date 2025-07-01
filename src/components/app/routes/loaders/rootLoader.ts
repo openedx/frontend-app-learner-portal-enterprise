@@ -5,6 +5,7 @@ import {
   ensureAuthenticatedUser,
   ensureEnterpriseAppData,
   redirectToRemoveTrailingSlash,
+  validateAlgoliaValidUntil,
 } from '../data';
 
 /**
@@ -68,6 +69,10 @@ const makeRootLoader: MakeRouteLoaderFunctionWithQueryClient = function makeRoot
       userEmail,
       queryClient,
       requestUrl,
+    });
+
+    await validateAlgoliaValidUntil({
+      queryClient, isBFFData, requestUrl, enterpriseSlug,
     });
 
     // Redirect to the same URL without a trailing slash, if applicable.

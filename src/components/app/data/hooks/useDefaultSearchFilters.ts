@@ -128,7 +128,7 @@ export default function useDefaultSearchFilters(): string {
           `No filter was generated from useDefaultSearchFilters:
           enterpriseCustomerUuid: ${enterpriseCustomer.uuid},
           searchCatalogs: ${searchCatalogs},
-          catalogUuidsToCatalogQueryUuids: ${catalogUuidsToCatalogQueryUuids},
+          catalogUuidsToCatalogQueryUuids: ${JSON.stringify(catalogUuidsToCatalogQueryUuids)},
           showAllRefinement: ${showAllRefinement}`,
         );
       }

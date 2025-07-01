@@ -55,13 +55,16 @@ const extractAlgolia = ({
 }: ExtractAlgoliaArgs): SecuredAlgoliaApiData => {
   if (isCatalogQueryFiltersEnabled && isIndexSupported && data) {
     return {
-      securedAlgoliaApiKey: data.securedAlgoliaApiKey,
       catalogUuidsToCatalogQueryUuids: data.catalogUuidsToCatalogQueryUuids,
+      algolia: data.algolia,
     };
   }
   return {
-    securedAlgoliaApiKey: null,
     catalogUuidsToCatalogQueryUuids: {},
+    algolia: {
+      securedAlgoliaApiKey: null,
+      validUntil: null,
+    },
   };
 };
 
@@ -99,7 +102,6 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
   // Supported indices should use the secured API key; unsupported indexes
   // (e.g., public jobs index) will default to the fallback key.
   const isIndexSupported = indexName ? !unsupportedSecuredAlgoliaIndices.includes(indexName) : true;
-
   // Common helper between the BFF call and its empty fallback function
   const queryOptions = {
     select: (data: SecuredAlgoliaApiData | null) => extractAlgolia({
@@ -125,7 +127,7 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
   useEffect(() => {
     if (isCatalogQueryFiltersEnabled
       && isIndexSupported
-      && !securedAlgoliaMetadata?.securedAlgoliaApiKey) {
+      && !securedAlgoliaMetadata.algolia?.securedAlgoliaApiKey) {
       logError(
         `Secured Algolia API key is missing, or no applicable
           for enterprise_customer_uuid: ${enterpriseCustomer.uuid}.
@@ -146,8 +148,8 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
   return {
     isCatalogQueryFiltersEnabled,
     securedAlgoliaMetadata: securedAlgoliaMetadata || {
-      securedAlgoliaApiKey: null,
       catalogUuidsToCatalogQueryUuids: {},
+      algolia: {},
     },
     isIndexSupported,
   };
@@ -185,7 +187,7 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
     const shouldUseSecuredAlgoliaApiKey = (
       isCatalogQueryFiltersEnabled
       && isIndexSupported
-      && !!securedAlgoliaMetadata.securedAlgoliaApiKey
+      && !!securedAlgoliaMetadata.algolia.securedAlgoliaApiKey
     );
 
     // Based on the waffle flag and supported indexes, we will use the secured algolia
@@ -195,7 +197,7 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
     // display the <SearchUnavailableAlert /> if no search client is returned or the upstream secured
     // algolia api call fails from the BFF.
     const algoliaSearchApiKey = shouldUseSecuredAlgoliaApiKey
-      ? securedAlgoliaMetadata.securedAlgoliaApiKey!
+      ? securedAlgoliaMetadata.algolia.securedAlgoliaApiKey!
       : config.ALGOLIA_SEARCH_API_KEY;
 
     if (!algoliaSearchApiKey || !config.ALGOLIA_APP_ID || !config.ALGOLIA_INDEX_NAME) {
@@ -225,7 +227,7 @@ const useAlgoliaSearch = (indexName: string | null = null): AlgoliaWithCatalogFi
     isCatalogQueryFiltersEnabled,
     isIndexSupported,
     securedAlgoliaMetadata.catalogUuidsToCatalogQueryUuids,
-    securedAlgoliaMetadata.securedAlgoliaApiKey,
+    securedAlgoliaMetadata.algolia,
   ]);
 };
 
