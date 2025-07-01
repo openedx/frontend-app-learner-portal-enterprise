@@ -391,13 +391,13 @@ export const checkValidUntil = (validUntil, thresholdSeconds) => {
   return secondsRemaining < thresholdSeconds;
 };
 
-export const algoliaQueryCacheValidator = (
+export const algoliaQueryCacheValidator = async (
   validUntil,
   thresholdSeconds,
   invalidateQueries,
 ) => {
   if (checkValidUntil(validUntil, thresholdSeconds)) {
-    invalidateQueries();
+    await invalidateQueries();
   }
 };
 
@@ -407,15 +407,16 @@ export const validateAlgoliaValidUntil = async ({
   if (!hasBFFData) { return; }
   const matchedBFFQuery = resolveBFFQuery(requestUrl.pathname);
   if (matchedBFFQuery) {
-    const bffResponse = await queryClient.ensureQueryData(
-      matchedBFFQuery({ enterpriseSlug }),
+    const bffResponse = await queryClient.getQueryData(
+      matchedBFFQuery({ enterpriseSlug }).queryKey,
     );
+    if (!bffResponse) { return; }
     const { algolia } = bffResponse;
     const invalidateQuery = () => queryClient.invalidateQueries({
       queryKey: matchedBFFQuery({ enterpriseSlug }).queryKey,
     });
     if (algolia.validUntil) {
-      algoliaQueryCacheValidator(algolia.validUntil, ALGOLIA_QUERY_CACHE_EPSILON, invalidateQuery);
+      await algoliaQueryCacheValidator(algolia.validUntil, ALGOLIA_QUERY_CACHE_EPSILON, invalidateQuery);
     }
   }
 };
