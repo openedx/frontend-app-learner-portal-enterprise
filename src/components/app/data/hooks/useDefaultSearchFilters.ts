@@ -16,41 +16,9 @@ type CommonQueryArgs = {
   searchCatalogs: string[];
 };
 
-interface QueryByCatalogArgs extends CommonQueryArgs {
-  enterpriseCustomer: EnterpriseCustomer;
-}
-
 interface QueryByCatalogQueryArgs extends CommonQueryArgs {
   catalogUuidsToCatalogQueryUuids: Record<string, string>;
 }
-
-/**
- * Constructs a filter string scoped to either all enterprise catalogs or a specific subset,
- * depending on whether `showAllRefinement` is enabled or the search catalog list is empty.
- *
- * This function is expected to be DEPRECATED and therefore removed once the secured algolia
- * api key waffle flag (catalogQuerySearchFiltersEnabled) has been enabled for all customers
- *
- * @param searchCatalogs - Catalog UUIDs to refine the search by
- * @param enterpriseCustomer - The current enterprise customer context
- * @param showAllRefinement - Whether to bypass catalog filters and show all
- * @returns A composed Algolia filter string
- */
-const queryByCatalog = ({
-  searchCatalogs,
-  enterpriseCustomer,
-  showAllRefinement,
-}: QueryByCatalogArgs) => {
-  const builder = new AlgoliaFilterBuilder();
-
-  if (showAllRefinement || searchCatalogs.length === 0) {
-    builder.filterByEnterpriseCustomerUuid(enterpriseCustomer.uuid);
-  } else {
-    builder.filterByCatalogUuids(searchCatalogs);
-  }
-
-  return builder.excludeVideoContentIfFeatureDisabled().build();
-};
 
 /**
  * Constructs a filter string based on resolved `enterprise_catalog_query_uuids`
@@ -101,11 +69,11 @@ export default function useDefaultSearchFilters(): string {
     }
   }, [dispatch, searchCatalogs, showAllRefinement]);
 
-  return useMemo(
+  return <string>useMemo(
     () => {
       // If there is a catalog uuid to catalog query uuid mapping, use the secured algolia
       // api key compatible filter query
-      let filter: string | null;
+      let filter: string | null = '';
       if (shouldUseSecuredAlgoliaApiKey) {
         filter = queryByCatalogQuery({
           searchCatalogs,
@@ -113,17 +81,6 @@ export default function useDefaultSearchFilters(): string {
           showAllRefinement,
         });
       } else {
-        // Uses the legacy Algolia filter if there is no catalog uuid to catalog query uuid mapping
-        // Once the waffle flag (catalogQuerySearchFiltersEnabled) has been enabled to allow all users
-        // to use the secured algolia api key this fallback should no longer exist and should be removed.
-        filter = queryByCatalog({
-          enterpriseCustomer,
-          searchCatalogs,
-          showAllRefinement,
-        });
-      }
-
-      if (!filter) {
         logInfo(
           `No filter was generated from useDefaultSearchFilters:
           enterpriseCustomerUuid: ${enterpriseCustomer.uuid},

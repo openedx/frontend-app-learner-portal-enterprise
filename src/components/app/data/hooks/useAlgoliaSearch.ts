@@ -6,7 +6,6 @@ import { SearchClient, SearchIndex } from 'algoliasearch/lite';
 import { UseSuspenseQueryResult } from '@tanstack/react-query';
 import { useSuspenseBFF } from './useBFF';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
-import useEnterpriseFeatures from './useEnterpriseFeatures';
 import { queryDefaultEmptyFallback } from '../queries';
 
 type AlgoliaFeatureFlags = {
@@ -92,12 +91,8 @@ const useSecuredAlgoliaMetadata = (indexName: string | null): SecuredAlgoliaApiM
   const unsupportedSecuredAlgoliaIndices = [config.ALGOLIA_INDEX_NAME_JOBS];
   const enterpriseCustomerResult = useEnterpriseCustomer();
   const enterpriseCustomer = enterpriseCustomerResult.data as EnterpriseCustomer;
-  const enterpriseFeaturesResult = useEnterpriseFeatures();
-  const enterpriseFeatures = enterpriseFeaturesResult.data as EnterpriseFeatures;
-  // Enable catalog filters only if the waffle flag is enabled and Algolia app id is defined
-  const isCatalogQueryFiltersEnabled = !!(
-    enterpriseFeatures?.catalogQuerySearchFiltersEnabled && config.ALGOLIA_APP_ID
-  );
+  // Enable catalog filters only if the Algolia app id is defined
+  const isCatalogQueryFiltersEnabled = !!config.ALGOLIA_APP_ID;
   // An index is "supported" if it contains customer-specific data.
   // Supported indices should use the secured API key; unsupported indexes
   // (e.g., public jobs index) will default to the fallback key.

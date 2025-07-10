@@ -136,7 +136,6 @@ declare global {
 
   type EnterpriseFeatures = {
     enterpriseLearnerBffEnabled?: boolean;
-    catalogQuerySearchFiltersEnabled?: boolean;
   };
 
   type EnterpriseCustomerUserRaw = enterpriseAccessOpenApi.components['schemas']['EnterpriseCustomerUser'];

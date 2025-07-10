@@ -1,5 +1,4 @@
 import { renderHook } from '@testing-library/react';
-import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catalog-search';
 import { SearchContext, SHOW_ALL_NAME } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logInfo } from '@edx/frontend-platform/logging';
@@ -58,7 +57,7 @@ describe('useDefaultSearchFilters', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useSearchCatalogs.mockReturnValue([]);
-    useAlgoliaSearch.mockReturnValue({ catalogUuidsToCatalogQueryUuids: {}, shouldUseSecuredAlgoliaApiKey: false });
+    useAlgoliaSearch.mockReturnValue({ catalogUuidsToCatalogQueryUuids: {}, shouldUseSecuredAlgoliaApiKey: true });
   });
 
   it('should set SHOW_ALL_NAME to 1 if searchCatalogs.length === 0', () => {
@@ -69,7 +68,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND NOT content_type:video`);
+    expect(result.current).toEqual('NOT content_type:video');
     expect(mockDispatch).toHaveBeenCalled();
   });
 
@@ -79,20 +78,28 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND NOT content_type:video`);
+    expect(result.current).toEqual('NOT content_type:video');
   });
 
   // TODO: Fix this test
   it('should return aggregated catalog string if searchCatalogs.length > 0', () => {
     const mockDispatch = jest.fn();
+    const catalogUuidsToCatalogQueryUuids = {
+      'test-catalog-uuid-1': 'test-catalog-query-uuid-1',
+      'test-catalog-uuid-2': 'test-catalog-query-uuid-2',
+    };
     useSearchCatalogs.mockReturnValue(mockSearchCatalogs);
+    useAlgoliaSearch.mockReturnValue({
+      catalogUuidsToCatalogQueryUuids,
+      shouldUseSecuredAlgoliaApiKey: true,
+    });
     const {
       result,
     } = renderHook(
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`(${frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs)}) AND NOT content_type:video`);
+    expect(result.current).toEqual('(enterprise_catalog_query_uuids:test-catalog-query-uuid-1 OR enterprise_catalog_query_uuids:test-catalog-query-uuid-2) AND NOT content_type:video');
   });
 
   it('should return aggregated catalog string if searchCatalogs.length === 0', () => {
@@ -101,7 +108,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid} AND NOT content_type:video`);
+    expect(result.current).toEqual('NOT content_type:video');
   });
 
   it.each(
@@ -146,7 +153,6 @@ describe('useDefaultSearchFilters', () => {
     if (searchCatalogs.length === 0 || isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
       if (enableVideoCatalog) {
         expect(result.current).toEqual('');
-        expect(logInfo).toHaveBeenCalledTimes(1);
       } else {
         expect(result.current).toEqual(baseExpectedVideoOutput);
         expect(logInfo).not.toHaveBeenCalled();
@@ -157,9 +163,26 @@ describe('useDefaultSearchFilters', () => {
         expect(result.current).toEqual(baseExpectedCatalogOutput);
         expect(logInfo).not.toHaveBeenCalled();
       } else {
-        expect(result.current).toEqual(`${baseExpectedCatalogOutput } AND ${ baseExpectedVideoOutput}`);
+        expect(result.current).toEqual(`${baseExpectedCatalogOutput } AND ${baseExpectedVideoOutput}`);
         expect(logInfo).not.toHaveBeenCalled();
       }
     }
+  });
+  it('calls logInfo if shouldUseSecuredAlgoliaApiKey is false', () => {
+    const mockDispatch = jest.fn();
+    useSearchCatalogs.mockReturnValue([]);
+    useAlgoliaSearch.mockReturnValue({
+      catalogUuidsToCatalogQueryUuids: {
+        'test-catalog-uuid-1': 'test-catalog-query-uuid-1',
+        'test-catalog-uuid-2': 'test-catalog-query-uuid-2',
+      },
+      shouldUseSecuredAlgoliaApiKey: false,
+    });
+    const { result } = renderHook(
+      () => useDefaultSearchFilters(),
+      { wrapper: SearchWrapper({ ...emptyRefinements, dispatch: mockDispatch }) },
+    );
+    expect(result.current).toEqual('');
+    expect(logInfo).toHaveBeenCalledTimes(1);
   });
 });
