@@ -42,9 +42,7 @@ const mockedUseEnterpriseCustomer = useEnterpriseCustomer as jest.Mock;
 const mockedUseEnterpriseFeatures = useEnterpriseFeatures as jest.Mock;
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
-const mockEnterpriseFeatures = {
-  catalogQuerySearchFiltersEnabled: true,
-};
+
 const mockCatalogUuidsToCatalogQueryUuids = Array.from({ length: 3 }, () => [uuidv4(), uuidv4()]);
 const mockEmptyBaseAlgoliaData = {
   algolia: {
@@ -151,9 +149,6 @@ describe('useAlgoliaSearch', () => {
     mockedUseEnterpriseCustomer.mockReturnValue({
       data: mockEnterpriseCustomer,
     });
-    mockedUseEnterpriseFeatures.mockReturnValue({
-      data: mockEnterpriseFeatures,
-    });
     (fetchEnterpriseLearnerDashboard as jest.Mock).mockResolvedValue(mockBaseBFFData);
     (fetchEnterpriseLearnerSearch as jest.Mock).mockResolvedValue(mockBFFSearchData);
     (fetchEnterpriseLearnerAcademy as jest.Mock).mockResolvedValue(mockBFFAcademyData);
@@ -169,7 +164,7 @@ describe('useAlgoliaSearch', () => {
         APP_CONFIG.ALGOLIA_INDEX_NAME,
         APP_CONFIG.ALGOLIA_INDEX_NAME_JOBS,
       ],
-      isCatalogQueryFiltersEnabled: [false, true],
+      isCatalogQueryFiltersEnabled: [true],
     }),
     // BFF Enabled Routes
     ...generateTestPermutations({
@@ -184,7 +179,7 @@ describe('useAlgoliaSearch', () => {
         APP_CONFIG.ALGOLIA_INDEX_NAME,
         APP_CONFIG.ALGOLIA_INDEX_NAME_JOBS,
       ],
-      isCatalogQueryFiltersEnabled: [false, true],
+      isCatalogQueryFiltersEnabled: [true],
     }),
   ])('should handle resolved value correctly for based on route (%s)', async ({
     isMatchedBFFRoute,
