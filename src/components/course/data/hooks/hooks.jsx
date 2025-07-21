@@ -449,24 +449,23 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
 
 /**
  * Returns `true` if user has an existing Learner Credit Request for the course
- * in a relevant state.
+ * in any of the provided states.
  *
  * @param {string} courseKey - The key of the course.
+ * @param {string[]} states - Array of states to check for (e.g. ['requested', 'errored']).
  * @returns {boolean}
  */
-export function useUserHasLearnerCreditRequestForCourse(courseKey) {
+export function useUserHasLearnerCreditRequestForCourse(courseKey, states = ['requested', 'approved', 'errored', 'accepted']) {
   const {
     data: {
       requests: { learnerCreditRequests },
     },
   } = useBrowseAndRequest();
 
-  const LCR_EXISTING_REQUEST_STATES = ['requested', 'approved', 'errored', 'accepted'];
-
   if (
     learnerCreditRequests?.some(
       (request) => request.courseId === courseKey
-        && LCR_EXISTING_REQUEST_STATES.includes(request.state),
+        && states.includes(request.state),
     )
   ) {
     return true;

@@ -38,3 +38,5 @@ export const MOCK_LEARNER_CREDIT_SUBSIDY = {
 };
 
 export const MOCK_COURSEWARE_URL = 'https://edx.org';
+
+export const MOCK_COURSE = { key: 'mock-course-key', title: 'Mock Course' };
