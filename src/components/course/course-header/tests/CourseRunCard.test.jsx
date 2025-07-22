@@ -17,7 +17,12 @@ import {
   useEnterpriseOffers,
   useSubscriptions,
 } from '../../../app/data';
-import { useCanUserRequestSubsidyForCourse, useUserSubsidyApplicableToCourse } from '../../data';
+import {
+  useCanUserRequestSubsidyForCourse,
+  useUserSubsidyApplicableToCourse,
+  useUserHasSubsidyRequestForCourse,
+  useUserHasLearnerCreditRequestForCourse,
+} from '../../data';
 import { renderWithRouterProvider } from '../../../../utils/tests';
 
 jest.mock('../../../app/data', () => ({
@@ -37,6 +42,8 @@ jest.mock('../../data', () => ({
   useCanUserRequestSubsidyForCourse: jest.fn(),
   useUserSubsidyApplicableToCourse: jest.fn(),
   useCourseListPrice: jest.fn(),
+  useUserHasSubsidyRequestForCourse: jest.fn(),
+  useUserHasLearnerCreditRequestForCourse: jest.fn(),
 }));
 
 jest.mock('../../data/utils', () => ({
@@ -125,6 +132,8 @@ describe('<CourseRunCard />', () => {
       missingUserSubsidyReason: undefined,
     });
     useCanUserRequestSubsidyForCourse.mockReturnValue(false);
+    useUserHasSubsidyRequestForCourse.mockReturnValue(false);
+    useUserHasLearnerCreditRequestForCourse.mockReturnValue(false);
   });
 
   test('renders', () => {

@@ -7,13 +7,18 @@ import useCourseRunCardAction from '../useCourseRunCardAction';
 import StatefulEnroll from '../../../../../stateful-enroll';
 import { NavigateToCourseware } from '../../../course-run-actions';
 import {
+  MOCK_COURSE,
   MOCK_COURSE_RUN_KEY,
   MOCK_COURSE_RUN_URL,
   MOCK_ENROLLMENT_VERIFIED,
   MOCK_ENROLLMENT_AUDIT,
   MOCK_REDEEMABLE_SUBSIDY,
 } from './constants';
-import { useUserSubsidyApplicableToCourse } from '../../../../data';
+import {
+  useUserSubsidyApplicableToCourse,
+  useUserHasSubsidyRequestForCourse,
+  useUserHasLearnerCreditRequestForCourse,
+} from '../../../../data';
 
 jest.mock('../../../../../stateful-enroll', () => jest.fn(() => <div data-testid="stateful-enroll" />));
 jest.mock('../../../RedemptionStatusText', () => jest.fn(() => <div data-testid="redemption-status-text" />));
@@ -31,6 +36,8 @@ jest.mock('../useRedemptionStatus', () => jest.fn(() => mockRedemptionActions));
 jest.mock('../../../../data', () => ({
   ...jest.requireActual('../../../../data'),
   useUserSubsidyApplicableToCourse: jest.fn(),
+  useUserHasSubsidyRequestForCourse: jest.fn(),
+  useUserHasLearnerCreditRequestForCourse: jest.fn(),
 }));
 
 const wrapper = ({ children }) => (
@@ -56,6 +63,26 @@ describe('useCourseRunCardAction', () => {
       userSubsidyApplicableToCourse: undefined,
       isPending: false,
     });
+    useUserHasSubsidyRequestForCourse.mockReturnValue(false);
+    useUserHasLearnerCreditRequestForCourse.mockReturnValue(false);
+  });
+
+  it('returns null if user has a pending subsidy request', () => {
+    useUserHasSubsidyRequestForCourse.mockReturnValue(true);
+    const { result } = renderUseCourseRunCardActionHook({
+      isUserEnrolled: false,
+      course: MOCK_COURSE,
+    });
+    expect(result.current).toBeNull();
+  });
+
+  it('returns null if user has a pending learner credit request', () => {
+    useUserHasLearnerCreditRequestForCourse.mockReturnValue(true);
+    const { result } = renderUseCourseRunCardActionHook({
+      isUserEnrolled: false,
+      course: MOCK_COURSE,
+    });
+    expect(result.current).toBeNull();
   });
 
   it('returns disabled enroll button if user is not yet enrolled and does not have a subsidy access policy', () => {
@@ -65,6 +92,7 @@ describe('useCourseRunCardAction', () => {
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
+      course: MOCK_COURSE,
     });
 
     // expected disabled button exists
@@ -81,6 +109,7 @@ describe('useCourseRunCardAction', () => {
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: '/enterprise-slug/executive-education-2u',
       contentKey: MOCK_COURSE_RUN_KEY,
+      course: MOCK_COURSE,
     });
 
     expect(getByTestId('to-executive-education-2u')).toBeInTheDocument();
@@ -96,6 +125,7 @@ describe('useCourseRunCardAction', () => {
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
+      course: MOCK_COURSE,
     });
 
     // expected components exists
@@ -120,6 +150,7 @@ describe('useCourseRunCardAction', () => {
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
+      course: MOCK_COURSE,
     });
 
     // expected components exists
@@ -146,6 +177,7 @@ describe('useCourseRunCardAction', () => {
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
+      course: MOCK_COURSE,
     });
 
     // expected components exists
@@ -178,6 +210,7 @@ describe('useCourseRunCardAction', () => {
       courseRunUrl: MOCK_COURSE_RUN_URL,
       externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
+      course: MOCK_COURSE,
     });
 
     // expected components exists
@@ -201,6 +234,7 @@ describe('useCourseRunCardAction', () => {
     const { result } = renderUseCourseRunCardActionHook({
       isUserEnrolled: false,
       userCanRequestSubsidyForCourse: true,
+      course: MOCK_COURSE,
     });
     expect(result.current).toBeNull();
   });

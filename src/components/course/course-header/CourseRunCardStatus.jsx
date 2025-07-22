@@ -27,13 +27,20 @@ const CourseRunCardStatus = ({
   missingUserSubsidyReason,
   isUserEnrolled,
   userCanRequestSubsidyForCourse,
+  userHasLearnerCreditRequest,
+  userHasSubsidyRequestForCourse,
 }) => {
   const { data: { customerAgreement } } = useSubscriptions();
   const missingUserSubsidyReasonType = missingUserSubsidyReason?.reason;
   const missingUserSubsidyReasonUserMessage = missingUserSubsidyReason?.userMessage;
   const missingUserSubsidyReasonActions = missingUserSubsidyReason?.actions;
   const hasValidReason = !!(missingUserSubsidyReasonType && missingUserSubsidyReasonUserMessage);
-  if (isUserEnrolled || !hasValidReason || userCanRequestSubsidyForCourse) {
+  if (isUserEnrolled
+    || !hasValidReason
+    || userCanRequestSubsidyForCourse
+    || userHasLearnerCreditRequest
+    || userHasSubsidyRequestForCourse
+  ) {
     return null;
   }
   return (
@@ -66,12 +73,16 @@ CourseRunCardStatus.propTypes = {
     actions: PropTypes.node,
   }),
   userCanRequestSubsidyForCourse: PropTypes.bool,
+  userHasLearnerCreditRequest: PropTypes.bool,
+  userHasSubsidyRequestForCourse: PropTypes.bool,
 };
 
 CourseRunCardStatus.defaultProps = {
   isUserEnrolled: false,
   missingUserSubsidyReason: undefined,
   userCanRequestSubsidyForCourse: false,
+  userHasLearnerCreditRequest: false,
+  userHasSubsidyRequestForCourse: false,
 };
 
 export default CourseRunCardStatus;

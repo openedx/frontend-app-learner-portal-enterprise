@@ -6,7 +6,12 @@ import { findUserEnrollmentForCourseRun } from '../data/utils';
 import { useCourseRunCardData } from './data';
 import CourseRunCardStatus from './CourseRunCardStatus';
 import { useCourseMetadata, useEnterpriseCourseEnrollments } from '../../app/data';
-import { useCanUserRequestSubsidyForCourse, useUserSubsidyApplicableToCourse } from '../data';
+import {
+  useCanUserRequestSubsidyForCourse,
+  useUserSubsidyApplicableToCourse,
+  useUserHasLearnerCreditRequestForCourse,
+  useUserHasSubsidyRequestForCourse,
+} from '../data';
 
 /**
  * React component that displays information about the course run and provides a CTA to allow the learner
@@ -19,6 +24,8 @@ const CourseRunCard = ({ courseRun }) => {
     missingUserSubsidyReason,
   } = useUserSubsidyApplicableToCourse();
   const userCanRequestSubsidyForCourse = useCanUserRequestSubsidyForCourse();
+  const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseMetadata.key);
+  const userHasLearnerCreditRequest = useUserHasLearnerCreditRequestForCourse(courseMetadata.key, ['requested']);
 
   const userEnrollmentForCourseRun = findUserEnrollmentForCourseRun({
     userEnrollments: enterpriseCourseEnrollments,
@@ -54,6 +61,8 @@ const CourseRunCard = ({ courseRun }) => {
         isUserEnrolled={!!userEnrollmentForCourseRun}
         missingUserSubsidyReason={missingUserSubsidyReason}
         userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
+        userHasLearnerCreditRequest={userHasLearnerCreditRequest}
+        userHasSubsidyRequestForCourse={userHasSubsidyRequestForCourse}
       />
     </Card>
   );

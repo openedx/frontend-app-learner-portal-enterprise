@@ -8,7 +8,12 @@ import RedemptionStatusText from '../../RedemptionStatusText';
 import useRedemptionStatus from './useRedemptionStatus';
 import { ToastsContext } from '../../../../Toasts';
 import { COURSE_MODES_MAP } from '../../../../app/data';
-import { EVENT_NAMES, useUserSubsidyApplicableToCourse } from '../../../data';
+import {
+  EVENT_NAMES,
+  useUserSubsidyApplicableToCourse,
+  useUserHasLearnerCreditRequestForCourse,
+  useUserHasSubsidyRequestForCourse,
+} from '../../../data';
 
 /**
  * Checks whether the user's existing enrollment should be upgraded based on its mode and whether
@@ -49,6 +54,8 @@ const useCourseRunCardAction = ({
   course,
 }) => {
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
+  const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(course.key);
+  const userHasLearnerCreditRequest = useUserHasLearnerCreditRequestForCourse(course.key, ['requested']);
   const {
     redemptionStatus,
     handleRedeemClick,
@@ -88,7 +95,10 @@ const useCourseRunCardAction = ({
     );
   }
 
-  if (userCanRequestSubsidyForCourse && !userSubsidyApplicableToCourse) {
+  if (
+    (userCanRequestSubsidyForCourse && !userSubsidyApplicableToCourse)
+    || userHasLearnerCreditRequest || userHasSubsidyRequestForCourse
+  ) {
     // User can request a subsidy for the course, but is not enrolled so
     // hide the "Enroll" CTA in favor of the "Request enrollment" CTA below
     // the course run cards.
