@@ -21,6 +21,7 @@ import {
   useCanUserRequestSubsidyForCourse,
   useCourseEnrollmentUrl,
   useUserHasSubsidyRequestForCourse,
+  useUserHasLearnerCreditRequestForCourse,
   useUserSubsidyApplicableToCourse,
 } from '../../data/hooks';
 import { determineEnrollmentType } from '../../enrollment/utils';
@@ -84,6 +85,7 @@ const CourseRunCard = ({
   const { userSubsidyApplicableToCourse } = useUserSubsidyApplicableToCourse();
 
   const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
+  const userHasLearnerCreditRequest = useUserHasLearnerCreditRequestForCourse(courseKey, ['requested']);
 
   const sku = useMemo(
     () => findHighestLevelSku({ seats, courseEntitlements }),
@@ -104,6 +106,7 @@ const CourseRunCard = ({
   const enrollmentType = determineEnrollmentType({
     subsidyData: { userSubsidyApplicableToCourse },
     userHasSubsidyRequestForCourse,
+    userHasLearnerCreditRequest,
     isUserEnrolled,
     isEnrollable,
     isCourseStarted,
