@@ -22,6 +22,7 @@ describe('determineEnrollmentType', () => {
     isCourseStarted: true,
     subsidyData: { userSubsidyApplicableToCourse: null },
     userHasSubsidyRequestForCourse: false,
+    userHasLearnerCreditRequest: false,
   };
 
   test('resolves user-enrolled, course-started to "to courseware page" type', () => {
@@ -92,6 +93,20 @@ describe('determineEnrollmentType', () => {
       userCanRequestSubsidyForCourse: true,
     };
     expect(determineEnrollmentType(args)).toBe(HIDE_BUTTON);
+  });
+
+  test('prioritizes direct subsidy over a requestable one', () => {
+    const args = {
+      ...baseArgs,
+      subsidyData: {
+        ...baseArgs.subsidyData,
+        userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
+      },
+      userCanRequestSubsidyForCourse: true,
+      userHasSubsidyRequestForCourse: false,
+      userHasLearnerCreditRequest: false,
+    };
+    expect(determineEnrollmentType(args)).toBe(TO_DATASHARING_CONSENT);
   });
 
   test.each([
