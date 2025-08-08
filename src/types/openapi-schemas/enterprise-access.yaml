@@ -1612,6 +1612,11 @@ paths:
           description: Number of results to return per page.
           schema:
             type: integer
+        - in: query
+          name: policy_uuid
+          schema:
+            type: string
+            format: uuid
         - name: search
           required: false
           in: query
@@ -1683,6 +1688,58 @@ paths:
               schema:
                 $ref: '#/components/schemas/LearnerCreditRequest'
           description: ''
+  /api/v1/learner-credit-requests/approve/:
+    post:
+      operationId: api_v1_learner_credit_requests_approve_create
+      description: Approve a learner credit request.
+      summary: Approve a learner credit request.
+      tags:
+        - Learner Credit Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestApproveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestApproveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestApproveRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/cancel/:
+    post:
+      operationId: api_v1_learner_credit_requests_cancel_create
+      description: Cancel a learner credit request.
+      summary: Learner credit request cancel endpoint.
+      tags:
+        - Learner Credit Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestCancel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestCancel'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestCancel'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequestCancel'
+          description: ''
   /api/v1/learner-credit-requests/decline/:
     post:
       operationId: api_v1_learner_credit_requests_decline_create
@@ -1716,6 +1773,33 @@ paths:
       summary: Learner credit request overview.
       tags:
         - Learner Credit Requests
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/remind/:
+    post:
+      operationId: api_v1_learner_credit_requests_remind_create
+      description: >-
+        Remind a Learner that their LearnerCreditRequest is Approved and waiting
+        for their action.
+      tags:
+        - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+        required: true
       responses:
         '200':
           content:
@@ -4510,9 +4594,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -5280,6 +5361,43 @@ components:
         - state
         - user
         - uuid
+    LearnerCreditRequestApproveRequest:
+      type: object
+      description: >-
+        Request Serializer to validate subsidy-request ``approve`` endpoint POST
+        data.
+
+
+        For view: LearnerCreditRequestViewSet.approve
+      properties:
+        policy_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the policy to which the request belongs.
+        enterprise_customer_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the Enterprise Customer.
+        learner_credit_request_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the LearnerCreditRequest to be approved.
+      required:
+        - enterprise_customer_uuid
+        - learner_credit_request_uuid
+        - policy_uuid
+    LearnerCreditRequestCancel:
+      type: object
+      description: |-
+        Request serializer to validate cancel endpoint query params.
+
+        For view: LearnerCreditRequestViewSet.cancel
+      properties:
+        request_uuid:
+          type: string
+          format: uuid
+      required:
+        - request_uuid
     LearnerCreditRequestDecline:
       type: object
       description: Serializer for declining a learner credit request.
@@ -5339,9 +5457,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -5433,9 +5548,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -5496,9 +5608,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -6438,15 +6547,17 @@ components:
           readOnly: true
           description: >-
             Total amount allocated for policies of type
-            AssignedLearnerCreditAccessPolicy (0 otherwise), in positive USD
-            cents.
+            AssignedLearnerCreditAccessPolicy or
+            {PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in positive
+            USD cents.
         amount_allocated_usd:
           type: number
           format: double
           readOnly: true
           description: >-
             ('Total amount allocated for policies of type
-            AssignedLearnerCreditAccessPolicy (0 otherwise), in USD.',)
+            AssignedLearnerCreditAccessPolicy or ',
+            '{PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in USD.')
         spend_available_usd_cents:
           type: integer
           readOnly: true
