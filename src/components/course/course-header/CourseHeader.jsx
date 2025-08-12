@@ -120,7 +120,7 @@ const CourseHeader = () => {
             {containsContentItems && (
               <>
                 <CourseRunCards />
-                <SubsidyRequestButton />
+                {!isCourseArchived && <SubsidyRequestButton />}
               </>
             )}
           </Col>
