@@ -369,6 +369,30 @@ describe('<CourseHeader />', () => {
     expect(screen.getByText('This course is archived.')).toBeInTheDocument();
   });
 
+  test('renders SubsidyRequestButton for non-archived courses', () => {
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/course/:courseKey',
+      element: <CourseHeaderWrapper />,
+    }, {
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockCourseMetadata.key}`],
+    });
+
+    expect(screen.getByText('SubsidyRequestButton')).toBeInTheDocument();
+  });
+
+  test('does not render SubsidyRequestButton for archived courses', () => {
+    useCourseMetadata.mockReturnValue({ data: mockArchivedCourseMetadata });
+
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/course/:courseKey',
+      element: <CourseHeaderWrapper />,
+    }, {
+      initialEntries: [`/${mockEnterpriseCustomer.slug}/course/${mockArchivedCourseMetadata.key}`],
+    });
+
+    expect(screen.queryByText('SubsidyRequestButton')).not.toBeInTheDocument();
+  });
+
   test('renders view course materials button if previously enrolled', () => {
     useCourseMetadata.mockReturnValue({ data: mockArchivedCourseMetadata });
     useEnterpriseCourseEnrollments.mockReturnValue({
