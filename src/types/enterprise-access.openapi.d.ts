@@ -295,6 +295,20 @@ export interface paths {
      */
     get: operations["api_v1_learner_credit_requests_retrieve"];
   };
+  "/api/v1/learner-credit-requests/approve/": {
+    /**
+     * Approve a learner credit request.
+     * @description Approve a learner credit request.
+     */
+    post: operations["api_v1_learner_credit_requests_approve_create"];
+  };
+  "/api/v1/learner-credit-requests/cancel/": {
+    /**
+     * Learner credit request cancel endpoint.
+     * @description Cancel a learner credit request.
+     */
+    post: operations["api_v1_learner_credit_requests_cancel_create"];
+  };
   "/api/v1/learner-credit-requests/decline/": {
     /**
      * Decline a learner credit request.
@@ -308,6 +322,10 @@ export interface paths {
      * @description Returns an overview of subsidy requests count by state.
      */
     get: operations["api_v1_learner_credit_requests_overview_retrieve"];
+  };
+  "/api/v1/learner-credit-requests/remind/": {
+    /** @description Remind a Learner that their LearnerCreditRequest is Approved and waiting for their action. */
+    post: operations["api_v1_learner_credit_requests_remind_create"];
   };
   "/api/v1/license-requests/": {
     /**
@@ -1489,7 +1507,6 @@ export interface components {
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
@@ -1835,6 +1852,37 @@ export interface components {
       course_price?: number | null;
       latest_action: string;
     };
+    /**
+     * @description Request Serializer to validate subsidy-request ``approve`` endpoint POST data.
+     *
+     * For view: LearnerCreditRequestViewSet.approve
+     */
+    LearnerCreditRequestApproveRequest: {
+      /**
+       * Format: uuid
+       * @description The UUID of the policy to which the request belongs.
+       */
+      policy_uuid: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the Enterprise Customer.
+       */
+      enterprise_customer_uuid: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the LearnerCreditRequest to be approved.
+       */
+      learner_credit_request_uuid: string;
+    };
+    /**
+     * @description Request serializer to validate cancel endpoint query params.
+     *
+     * For view: LearnerCreditRequestViewSet.cancel
+     */
+    LearnerCreditRequestCancel: {
+      /** Format: uuid */
+      request_uuid: string;
+    };
     /** @description Serializer for declining a learner credit request. */
     LearnerCreditRequestDecline: {
       /**
@@ -1872,7 +1920,6 @@ export interface components {
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
@@ -1912,7 +1959,6 @@ export interface components {
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
@@ -1942,7 +1988,6 @@ export interface components {
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
@@ -2551,11 +2596,11 @@ export interface components {
        * @description Total Amount redeemed for policy, in USD.
        */
       amount_redeemed_usd: number;
-      /** @description Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy (0 otherwise), in positive USD cents. */
+      /** @description Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy or {PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in positive USD cents. */
       amount_allocated_usd_cents: number;
       /**
        * Format: double
-       * @description ('Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy (0 otherwise), in USD.',)
+       * @description ('Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy or ', '{PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in USD.')
        */
       amount_allocated_usd: number;
       /** @description Total Amount of available spend for policy, in positive USD cents. */
@@ -4046,12 +4091,17 @@ export interface operations {
       query?: {
         course_id?: string;
         enterprise_customer_uuid?: string;
+        /** @description Choose from the following valid action statuses: requested, pending, approved, declined, error, accepted, cancelled, expired, reversed, reminded */
+        latest_action_status?: string;
+        /** @description Choose from the following valid action statuses: requested, pending, approved, declined, error, accepted, cancelled, expired, reversed, reminded */
+        latest_action_status__in?: string[];
         /** @description Which field to use when ordering the results. */
         ordering?: string;
         /** @description A page number within the paginated result set. */
         page?: number;
         /** @description Number of results to return per page. */
         page_size?: number;
+        policy_uuid?: string;
         /** @description A search term. */
         search?: string;
         user__email?: string;
@@ -4106,6 +4156,46 @@ export interface operations {
     };
   };
   /**
+   * Approve a learner credit request.
+   * @description Approve a learner credit request.
+   */
+  api_v1_learner_credit_requests_approve_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestApproveRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestApproveRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestApproveRequest"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * Learner credit request cancel endpoint.
+   * @description Cancel a learner credit request.
+   */
+  api_v1_learner_credit_requests_cancel_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestCancel"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestCancel"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestCancel"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequestCancel"];
+        };
+      };
+    };
+  };
+  /**
    * Decline a learner credit request.
    * @description Action of declining a Learner Credit Subsidy Request
    */
@@ -4130,6 +4220,23 @@ export interface operations {
    * @description Returns an overview of subsidy requests count by state.
    */
   api_v1_learner_credit_requests_overview_retrieve: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /** @description Remind a Learner that their LearnerCreditRequest is Approved and waiting for their action. */
+  api_v1_learner_credit_requests_remind_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequest"];
+      };
+    };
     responses: {
       200: {
         content: {
