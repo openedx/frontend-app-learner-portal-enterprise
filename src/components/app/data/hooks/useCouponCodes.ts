@@ -18,6 +18,7 @@ export default function useCouponCodes<TData = CouponCodes, TSelectData = TData>
   return useSuspenseQuery(
     queryOptions({
       ...queryCouponCodes(enterpriseCustomer.uuid),
+      retry: false,
       select: (data) => {
         if (select) {
           return select(data as TData);

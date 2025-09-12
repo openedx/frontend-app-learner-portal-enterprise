@@ -7,6 +7,7 @@ export default function useEnterpriseOffers() {
   return useSuspenseQuery(
     queryOptions({
       ...queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
+      retry: false,
     }),
   );
 }

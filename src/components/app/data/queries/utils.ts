@@ -130,6 +130,7 @@ type SafeEnsureQueryDataArgs<TData = unknown> = {
   query: {
     queryKey: QueryKey;
     queryFn: QueryFunction<TData>;
+    retry?: boolean | number;
   };
   shouldLogError?: boolean | ((err: Error) => boolean);
   fallbackData?: TData;
@@ -222,7 +223,10 @@ export async function safeEnsureQueryDataCouponCodes({
 }) {
   return safeEnsureQueryData({
     queryClient,
-    query: queryCouponCodes(enterpriseCustomer.uuid),
+    query: {
+      ...queryCouponCodes(enterpriseCustomer.uuid),
+      retry: false,
+    },
     fallbackData: {
       couponsOverview: [],
       couponCodeAssignments: [],
@@ -248,7 +252,10 @@ export async function safeEnsureQueryDataEnterpriseOffers({
 }) {
   return safeEnsureQueryData({
     queryClient,
-    query: queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
+    query: {
+      ...queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
+      retry: false,
+    },
     fallbackData: {
       enterpriseOffers: [],
       currentEnterpriseOffers: [],
@@ -279,7 +286,10 @@ export async function safeEnsureQueryDataCouponCodeRequests({
 }) {
   return safeEnsureQueryData({
     queryClient,
-    query: queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email),
+    query: {
+      ...queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email),
+      retry: false,
+    },
     fallbackData: [],
   });
 }

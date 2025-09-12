@@ -84,6 +84,7 @@ export function useCouponCodeRequests<TData = CouponCodeRequest[], TSelectData =
   return useSuspenseQuery(
     queryOptions({
       ...queryCouponCodeRequests(enterpriseCustomer.uuid, authenticatedUser.email),
+      retry: false,
       select: (data) => {
         if (select) {
           return select(data as TData);
