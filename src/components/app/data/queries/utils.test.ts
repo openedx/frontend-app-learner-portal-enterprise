@@ -7,6 +7,7 @@ jest.mock('./queries', () => ({
   queryEnterpriseLearnerOffers: jest.fn(),
 }));
 
+// eslint-disable-next-line max-len
 const mockQueryEnterpriseLearnerOffers = queryEnterpriseLearnerOffers as jest.MockedFunction<typeof queryEnterpriseLearnerOffers>;
 
 describe('safeEnsureQueryDataEnterpriseOffers', () => {
@@ -33,6 +34,7 @@ describe('safeEnsureQueryDataEnterpriseOffers', () => {
 
     // Setup default mock return values
     mockQueryEnterpriseLearnerOffers.mockReturnValue({
+      // @ts-ignore
       queryKey: ['enterprise', 'test-enterprise-uuid', 'subsidies', 'enterpriseOffers'],
       queryFn: jest.fn(),
     });
@@ -99,6 +101,7 @@ describe('safeEnsureQueryDataEnterpriseOffers', () => {
     const differentEnterpriseCustomer = { uuid: 'different-uuid' };
 
     mockQueryEnterpriseLearnerOffers.mockReturnValue({
+      // @ts-ignore
       queryKey: ['enterprise', 'different-uuid', 'subsidies', 'enterpriseOffers'],
       queryFn: jest.fn(),
     });
@@ -147,7 +150,7 @@ describe('safeEnsureQueryDataEnterpriseOffers', () => {
         hasCurrentEnterpriseOffers: false,
         hasLowEnterpriseOffersBalance: false,
         hasNoEnterpriseOffersBalance: false,
-      }
+      },
     );
   });
 });
