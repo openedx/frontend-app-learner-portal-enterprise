@@ -14,17 +14,15 @@ jest.mock('../services', () => ({
   fetchEnterpriseOffers: jest.fn().mockResolvedValue(null),
 }));
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
-const mockEnterpriseOffers = [{
-  discount_value: 100,
-  end_datetime: '2023-01-06T00:00:00Z',
-  enterprise_catalog_uuid: 'uuid',
-  id: 1,
-  max_discount: 200,
-  remaining_balance: 200,
-  start_datetime: '2022-06-09T00:00:00Z',
-  usage_type: 'Percentage',
-  is_current: true,
-}];
+
+const mockDeprecatedReturn = {
+  enterpriseOffers: [],
+  currentEnterpriseOffers: [],
+  canEnrollWithEnterpriseOffers: false,
+  hasCurrentEnterpriseOffers: false,
+  hasLowEnterpriseOffersBalance: false,
+  hasNoEnterpriseOffersBalance: true,
+};
 
 describe('useEnterpriseOffers', () => {
   const Wrapper = ({ children }) => (
@@ -37,14 +35,14 @@ describe('useEnterpriseOffers', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    fetchEnterpriseOffers.mockResolvedValue(mockEnterpriseOffers);
+    fetchEnterpriseOffers.mockResolvedValue(mockDeprecatedReturn);
   });
-  it('should handle resolved value correctly', async () => {
+  it('should handle resolved value correctly related to deprecation', async () => {
     const { result } = renderHook(() => useEnterpriseOffers(), { wrapper: Wrapper });
     await waitFor(() => {
       expect(result.current).toEqual(
         expect.objectContaining({
-          data: mockEnterpriseOffers,
+          data: mockDeprecatedReturn,
           isPending: false,
           isFetching: false,
         }),

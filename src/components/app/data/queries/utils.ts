@@ -253,7 +253,18 @@ export async function safeEnsureQueryDataEnterpriseOffers({
   return safeEnsureQueryData({
     queryClient,
     query: {
-      ...queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
+      queryKey: queryEnterpriseLearnerOffers(enterpriseCustomer.uuid).queryKey,
+      queryFn: () => (
+        {
+          enterpriseOffers: [],
+          currentEnterpriseOffers: [],
+          // Note: We are hard coding to false since offers are now deprecated as of 09/15/2025, HU
+          canEnrollWithEnterpriseOffers: false,
+          hasCurrentEnterpriseOffers: false,
+          hasLowEnterpriseOffersBalance: false,
+          hasNoEnterpriseOffersBalance: true,
+        }
+      ),
       retry: false,
     },
     fallbackData: {
