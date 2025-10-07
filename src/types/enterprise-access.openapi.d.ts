@@ -295,6 +295,20 @@ export interface paths {
      */
     get: operations["api_v1_learner_credit_requests_retrieve"];
   };
+  "/api/v1/learner-credit-requests/approve/": {
+    /**
+     * Approve a learner credit request.
+     * @description Approve a learner credit request.
+     */
+    post: operations["api_v1_learner_credit_requests_approve_create"];
+  };
+  "/api/v1/learner-credit-requests/cancel/": {
+    /**
+     * Learner credit request cancel endpoint.
+     * @description Cancel a learner credit request.
+     */
+    post: operations["api_v1_learner_credit_requests_cancel_create"];
+  };
   "/api/v1/learner-credit-requests/decline/": {
     /**
      * Decline a learner credit request.
@@ -308,6 +322,10 @@ export interface paths {
      * @description Returns an overview of subsidy requests count by state.
      */
     get: operations["api_v1_learner_credit_requests_overview_retrieve"];
+  };
+  "/api/v1/learner-credit-requests/remind/": {
+    /** @description Remind a Learner that their LearnerCreditRequest is Approved and waiting for their action. */
+    post: operations["api_v1_learner_credit_requests_remind_create"];
   };
   "/api/v1/license-requests/": {
     /**
@@ -1484,20 +1502,19 @@ export interface components {
     LearnerAcademyResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
     };
     /** @description A read-only Serializer for responding to requests for ``LearnerContentAssignmentAction`` records. */
@@ -1834,6 +1851,39 @@ export interface components {
       /** @description Cost of the content in USD Cents. */
       course_price?: number | null;
       latest_action: string;
+      /** @description Computed state based on action status and error conditions. Returns 'waiting' for approved/reminded actions without errors, 'failed' for actions with error_reason, or the actual status otherwise */
+      learner_request_state: string;
+    };
+    /**
+     * @description Request Serializer to validate subsidy-request ``approve`` endpoint POST data.
+     *
+     * For view: LearnerCreditRequestViewSet.approve
+     */
+    LearnerCreditRequestApproveRequest: {
+      /**
+       * Format: uuid
+       * @description The UUID of the policy to which the request belongs.
+       */
+      policy_uuid: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the Enterprise Customer.
+       */
+      enterprise_customer_uuid: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the LearnerCreditRequest to be approved.
+       */
+      learner_credit_request_uuid: string;
+    };
+    /**
+     * @description Request serializer to validate cancel endpoint query params.
+     *
+     * For view: LearnerCreditRequestViewSet.cancel
+     */
+    LearnerCreditRequestCancel: {
+      /** Format: uuid */
+      request_uuid: string;
     };
     /** @description Serializer for declining a learner credit request. */
     LearnerCreditRequestDecline: {
@@ -1867,20 +1917,19 @@ export interface components {
     LearnerDashboardResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
       enterprise_course_enrollments: components["schemas"]["EnterpriseCourseEnrollment"][];
       all_enrollments_by_status: components["schemas"]["LearnerEnrollmentsByStatus"];
@@ -1907,20 +1956,19 @@ export interface components {
     LearnerSearchResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
     };
     /** @description Serializer for the learner skills quiz request. */
@@ -1937,20 +1985,19 @@ export interface components {
     LearnerSkillsQuizResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
     };
     /**
@@ -2392,9 +2439,11 @@ export interface components {
     /**
      * @description * `1` - B2B Paid
      * * `3` - Trial
+     * * `6` - Self-service Trial
+     * * `7` - Self-service Paid
      * @enum {integer}
      */
-    ProductIdEnum: 1 | 3;
+    ProductIdEnum: 1 | 3 | 6 | 7;
     /** @description Request serializer for provisioning create view. */
     ProvisioningRequest: {
       /** @description Object describing the requested Enterprise Customer. */
@@ -2504,6 +2553,8 @@ export interface components {
        *
        * * `1` - B2B Paid
        * * `3` - Trial
+       * * `6` - Self-service Trial
+       * * `7` - Self-service Paid
        */
       product_id: components["schemas"]["ProductIdEnum"];
       /** @description The number of licenses to create for this plan. */
@@ -2551,11 +2602,11 @@ export interface components {
        * @description Total Amount redeemed for policy, in USD.
        */
       amount_redeemed_usd: number;
-      /** @description Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy (0 otherwise), in positive USD cents. */
+      /** @description Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy or {PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in positive USD cents. */
       amount_allocated_usd_cents: number;
       /**
        * Format: double
-       * @description ('Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy (0 otherwise), in USD.',)
+       * @description ('Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy or ', '{PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in USD.')
        */
       amount_allocated_usd: number;
       /** @description Total Amount of available spend for policy, in positive USD cents. */
@@ -4046,12 +4097,21 @@ export interface operations {
       query?: {
         course_id?: string;
         enterprise_customer_uuid?: string;
+        /** @description Choose from the following valid action statuses: requested, pending, approved, declined, error, accepted, cancelled, expired, reversed, reminded */
+        latest_action_status?: string;
+        /** @description Choose from the following valid action statuses: requested, pending, approved, declined, error, accepted, cancelled, expired, reversed, reminded */
+        latest_action_status__in?: string[];
+        /** @description Choose from the following valid learner request states: requested, pending, approved, declined, accepted, cancelled, expired, reversed, reminded, waiting, failed */
+        learner_request_state?: string;
+        /** @description Choose from the following valid learner request states: requested, pending, approved, declined, accepted, cancelled, expired, reversed, reminded, waiting, failed */
+        learner_request_state__in?: string[];
         /** @description Which field to use when ordering the results. */
         ordering?: string;
         /** @description A page number within the paginated result set. */
         page?: number;
         /** @description Number of results to return per page. */
         page_size?: number;
+        policy_uuid?: string;
         /** @description A search term. */
         search?: string;
         user__email?: string;
@@ -4106,6 +4166,46 @@ export interface operations {
     };
   };
   /**
+   * Approve a learner credit request.
+   * @description Approve a learner credit request.
+   */
+  api_v1_learner_credit_requests_approve_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestApproveRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestApproveRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestApproveRequest"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * Learner credit request cancel endpoint.
+   * @description Cancel a learner credit request.
+   */
+  api_v1_learner_credit_requests_cancel_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestCancel"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestCancel"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestCancel"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequestCancel"];
+        };
+      };
+    };
+  };
+  /**
    * Decline a learner credit request.
    * @description Action of declining a Learner Credit Subsidy Request
    */
@@ -4130,6 +4230,23 @@ export interface operations {
    * @description Returns an overview of subsidy requests count by state.
    */
   api_v1_learner_credit_requests_overview_retrieve: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /** @description Remind a Learner that their LearnerCreditRequest is Approved and waiting for their action. */
+  api_v1_learner_credit_requests_remind_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequest"];
+      };
+    };
     responses: {
       200: {
         content: {
