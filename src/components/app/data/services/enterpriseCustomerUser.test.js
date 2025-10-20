@@ -253,7 +253,7 @@ describe('fetchInProgressPathways', () => {
   });
 
   it('pass learner csod params', async () => {
-    const SAVE_CSOD_LEARNER_PARAMS_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/integrated_channels/api/v1/cornerstone/save-learner-information`;
+    const SAVE_CSOD_LEARNER_PARAMS_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/channel_integrattions/api/v1/cornerstone/save-learner-information`;
     const data = {
       userGuid: '11115def-de43-40b7-a831-213d1128c215',
       sessionToken: 'kpp7t4d',
