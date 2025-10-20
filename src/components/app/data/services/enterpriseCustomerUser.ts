@@ -181,7 +181,7 @@ export async function fetchInProgressPathways() {
  * @returns {Promise} - A promise that resolves when the parameters are updated.
  */
 export async function updateUserCsodParams({ data }) {
-  const url = `${getConfig().LMS_BASE_URL}/integrated_channels/api/v1/cornerstone/save-learner-information`;
+  const url = `${getConfig().LMS_BASE_URL}/channel_integrattions/api/v1/cornerstone/save-learner-information`;
   return getAuthenticatedHttpClient().post(url, data);
 }
 
