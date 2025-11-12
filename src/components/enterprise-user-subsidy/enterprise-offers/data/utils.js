@@ -1,4 +1,4 @@
-import isNil from 'lodash.isnil';
+import { isNil } from 'lodash-es';
 
 import {
   ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO,
