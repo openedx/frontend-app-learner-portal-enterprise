@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 import { v4 as uuidv4 } from 'uuid';
-import camelCase from 'lodash.camelcase';
+import { camelCase } from 'lodash-es';
 import CourseSection from './CourseSection';
 import CourseAssignmentAlert from './CourseAssignmentAlert';
 import { features } from '../../../../config';

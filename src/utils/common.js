@@ -1,6 +1,6 @@
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import memoize from 'lodash.memoize';
+import { memoize } from 'lodash-es';
 import { COURSE_STATUSES } from '../constants';
 import dayjs from './dayjs';
 

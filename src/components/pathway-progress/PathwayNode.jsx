@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Badge, Card } from '@openedx/paragon';
 import { useParams } from 'react-router-dom';
-import capitalize from 'lodash.capitalize';
+import { capitalize } from 'lodash-es';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import { CONTENT_TYPES, IN_PROGRESS } from './constants';
