@@ -5,7 +5,7 @@ import {
   Alert, Card, CheckboxControl, Col, Form, Hyperlink, MailtoLink, Row, StatefulButton,
 } from '@openedx/paragon';
 import { Form as FormikForm, Formik } from 'formik';
-import isNil from 'lodash.isnil';
+import { isNil } from 'lodash-es';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';

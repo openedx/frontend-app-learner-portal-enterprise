@@ -1,7 +1,7 @@
 import { ensureConfig, getConfig } from '@edx/frontend-platform';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { Button, Hyperlink, MailtoLink } from '@openedx/paragon';
-import isNil from 'lodash.isnil';
+import { isNil } from 'lodash-es';
 import { logError } from '@edx/frontend-platform/logging';
 import dayjs from '../../../utils/dayjs';
 

@@ -35,4 +35,6 @@ config.plugins = config.plugins.map((plugin) => {
   return plugin;
 });
 
+config.module.rules[0].exclude = /node_modules\/(?!(lodash-es|@(open)?edx))/
+
 module.exports = config;

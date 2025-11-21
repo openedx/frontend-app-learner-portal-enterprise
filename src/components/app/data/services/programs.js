@@ -1,7 +1,7 @@
 import { getConfig } from '@edx/frontend-platform/config';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import _cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from 'lodash-es';
 import { fetchEnterpriseCustomerContainsContent } from './content';
 import { getAvailableCourseRuns } from '../utils';
 
@@ -38,7 +38,7 @@ export async function fetchProgramDetails(enterpriseUuid, programUuid) {
   if (!programDetails) {
     return null;
   }
-  const programDetailsCopy = _cloneDeep(programDetails);
+  const programDetailsCopy = cloneDeep(programDetails);
   const { courses } = programDetailsCopy;
   // Retrieve course keys
   const courseKeys = courses.map(({ key }) => key);
