@@ -1594,6 +1594,46 @@ paths:
           schema:
             type: string
             format: uuid
+        - in: query
+          name: latest_action_status
+          schema:
+            type: string
+          description: >-
+            Choose from the following valid action statuses: requested, pending,
+            approved, declined, error, accepted, cancelled, expired, reversed,
+            reminded
+        - in: query
+          name: latest_action_status__in
+          schema:
+            type: array
+            items:
+              type: string
+          description: >-
+            Choose from the following valid action statuses: requested, pending,
+            approved, declined, error, accepted, cancelled, expired, reversed,
+            reminded
+          explode: false
+          style: form
+        - in: query
+          name: learner_request_state
+          schema:
+            type: string
+          description: >-
+            Choose from the following valid learner request states: requested,
+            pending, approved, declined, accepted, cancelled, expired, reversed,
+            reminded, waiting, failed
+        - in: query
+          name: learner_request_state__in
+          schema:
+            type: array
+            items:
+              type: string
+          description: >-
+            Choose from the following valid learner request states: requested,
+            pending, approved, declined, accepted, cancelled, expired, reversed,
+            reminded, waiting, failed
+          explode: false
+          style: form
         - name: ordering
           required: false
           in: query
@@ -1612,6 +1652,11 @@ paths:
           description: Number of results to return per page.
           schema:
             type: integer
+        - in: query
+          name: policy_uuid
+          schema:
+            type: string
+            format: uuid
         - name: search
           required: false
           in: query
@@ -1683,6 +1728,99 @@ paths:
               schema:
                 $ref: '#/components/schemas/LearnerCreditRequest'
           description: ''
+  /api/v1/learner-credit-requests/approve/:
+    post:
+      operationId: api_v1_learner_credit_requests_approve_create
+      description: >-
+        Approve a list of learner credit requests against a single policy.
+
+
+        - On success, returns a `200 OK` with a list of the approved request
+        objects.
+
+        - If any of the specified requests fail to be approved, returns a
+          `422 Unprocessable Entity`. The successful approvals will still be committed.
+      summary: Approve a learner credit request.
+      tags:
+        - Learner Credit Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestApproveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestApproveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestApproveRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/approve-all/:
+    post:
+      operationId: api_v1_learner_credit_requests_approve_all_create
+      description: |-
+        Approve all filtered learner credit requests against a single policy.
+
+        - On success, returns a `202 Accepted` status, indicating that the
+          bulk approval process has been initiated.
+        - If no approvable requests are found for the given policy and filters,
+          returns a `404 Not Found`.
+        - If any requests fail during the bulk approval, returns a
+          `422 Unprocessable Entity` to indicate a partial failure.
+      tags:
+        - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/cancel/:
+    post:
+      operationId: api_v1_learner_credit_requests_cancel_create
+      description: Cancel a learner credit request.
+      summary: Learner credit request cancel endpoint.
+      tags:
+        - Learner Credit Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestCancel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestCancel'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestCancel'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequestCancel'
+          description: ''
   /api/v1/learner-credit-requests/decline/:
     post:
       operationId: api_v1_learner_credit_requests_decline_create
@@ -1716,6 +1854,33 @@ paths:
       summary: Learner credit request overview.
       tags:
         - Learner Credit Requests
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/remind/:
+    post:
+      operationId: api_v1_learner_credit_requests_remind_create
+      description: >-
+        Remind a Learner that their LearnerCreditRequest is Approved and waiting
+        for their action.
+      tags:
+        - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+        required: true
       responses:
         '200':
           content:
@@ -2180,6 +2345,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProvisioningResponse'
           description: ''
+  /api/v1/provisioning/subscription-plan-oli-update:
+    post:
+      operationId: api_v1_provisioning_subscription_plan_oli_update_create
+      description: Update a subscription plan with Salesforce OLI.
+      summary: Update a SubscriptionPlan with Salesforce Opportunity Line Item.
+      tags:
+        - Provisioning
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlanOLIUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlanOLIUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlanOLIUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPlanOLIUpdateResponse'
+          description: ''
   /api/v1/subsidy-access-policies/:
     get:
       operationId: api_v1_subsidy_access_policies_list
@@ -2492,7 +2683,7 @@ components:
         * `direct` - Direct
         * `request` - Request
         * `assigned` - Assigned
-    ActionType5a0Enum:
+    ActionType3e8Enum:
       enum:
         - learner_linked
         - notified
@@ -2767,7 +2958,6 @@ components:
         - CO
         - KM
         - CG
-        - CD
         - CK
         - CR
         - CI
@@ -2776,6 +2966,7 @@ components:
         - CW
         - CY
         - CZ
+        - CD
         - DK
         - DJ
         - DM
@@ -2814,7 +3005,6 @@ components:
         - GY
         - HT
         - HM
-        - VA
         - HN
         - HK
         - HU
@@ -2956,6 +3146,7 @@ components:
         - UY
         - UZ
         - VU
+        - VA
         - VE
         - VN
         - VG
@@ -2983,7 +3174,7 @@ components:
         * `AU` - Australia
         * `AT` - Austria
         * `AZ` - Azerbaijan
-        * `BS` - Bahamas
+        * `BS` - Bahamas (The)
         * `BH` - Bahrain
         * `BD` - Bangladesh
         * `BB` - Barbados
@@ -3018,7 +3209,6 @@ components:
         * `CO` - Colombia
         * `KM` - Comoros
         * `CG` - Congo
-        * `CD` - Congo (the Democratic Republic of the)
         * `CK` - Cook Islands
         * `CR` - Costa Rica
         * `CI` - Côte d'Ivoire
@@ -3027,6 +3217,7 @@ components:
         * `CW` - Curaçao
         * `CY` - Cyprus
         * `CZ` - Czechia
+        * `CD` - Democratic Republic of the Congo
         * `DK` - Denmark
         * `DJ` - Djibouti
         * `DM` - Dominica
@@ -3065,7 +3256,6 @@ components:
         * `GY` - Guyana
         * `HT` - Haiti
         * `HM` - Heard Island and McDonald Islands
-        * `VA` - Holy See
         * `HN` - Honduras
         * `HK` - Hong Kong
         * `HU` - Hungary
@@ -3136,7 +3326,7 @@ components:
         * `OM` - Oman
         * `PK` - Pakistan
         * `PW` - Palau
-        * `PS` - Palestine, State of
+        * `PS` - Palestine
         * `PA` - Panama
         * `PG` - Papua New Guinea
         * `PY` - Paraguay
@@ -3152,7 +3342,7 @@ components:
         * `RU` - Russia
         * `RW` - Rwanda
         * `BL` - Saint Barthélemy
-        * `SH` - Saint Helena, Ascension and Tristan da Cunha
+        * `SH` - Saint Helena
         * `KN` - Saint Kitts and Nevis
         * `LC` - Saint Lucia
         * `MF` - Saint Martin (French part)
@@ -3173,7 +3363,7 @@ components:
         * `SB` - Solomon Islands
         * `SO` - Somalia
         * `ZA` - South Africa
-        * `GS` - South Georgia and the South Sandwich Islands
+        * `GS` - South Georgia
         * `KR` - South Korea
         * `SS` - South Sudan
         * `ES` - Spain
@@ -3207,6 +3397,7 @@ components:
         * `UY` - Uruguay
         * `UZ` - Uzbekistan
         * `VU` - Vanuatu
+        * `VA` - Vatican City
         * `VE` - Venezuela
         * `VN` - Vietnam
         * `VG` - Virgin Islands (British)
@@ -3247,7 +3438,7 @@ components:
           format: uuid
         state:
           allOf:
-            - $ref: '#/components/schemas/State7b6Enum'
+            - $ref: '#/components/schemas/StateB44Enum'
           readOnly: true
         reviewed_at:
           type: string
@@ -3835,7 +4026,7 @@ components:
 
             * `AZ` - Azerbaijan
 
-            * `BS` - Bahamas
+            * `BS` - Bahamas (The)
 
             * `BH` - Bahrain
 
@@ -3905,8 +4096,6 @@ components:
 
             * `CG` - Congo
 
-            * `CD` - Congo (the Democratic Republic of the)
-
             * `CK` - Cook Islands
 
             * `CR` - Costa Rica
@@ -3922,6 +4111,8 @@ components:
             * `CY` - Cyprus
 
             * `CZ` - Czechia
+
+            * `CD` - Democratic Republic of the Congo
 
             * `DK` - Denmark
 
@@ -3998,8 +4189,6 @@ components:
             * `HT` - Haiti
 
             * `HM` - Heard Island and McDonald Islands
-
-            * `VA` - Holy See
 
             * `HN` - Honduras
 
@@ -4141,7 +4330,7 @@ components:
 
             * `PW` - Palau
 
-            * `PS` - Palestine, State of
+            * `PS` - Palestine
 
             * `PA` - Panama
 
@@ -4173,7 +4362,7 @@ components:
 
             * `BL` - Saint Barthélemy
 
-            * `SH` - Saint Helena, Ascension and Tristan da Cunha
+            * `SH` - Saint Helena
 
             * `KN` - Saint Kitts and Nevis
 
@@ -4215,7 +4404,7 @@ components:
 
             * `ZA` - South Africa
 
-            * `GS` - South Georgia and the South Sandwich Islands
+            * `GS` - South Georgia
 
             * `KR` - South Korea
 
@@ -4282,6 +4471,8 @@ components:
             * `UZ` - Uzbekistan
 
             * `VU` - Vanuatu
+
+            * `VA` - Vatican City
 
             * `VE` - Venezuela
 
@@ -4492,6 +4683,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Warning'
+        enterprise_features:
+          type: object
+          additionalProperties: {}
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -4510,9 +4704,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -4523,9 +4714,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
           nullable: true
-        enterprise_features:
-          type: object
-          additionalProperties: {}
         enterprise_customer_user_subsidies:
           $ref: '#/components/schemas/EnterpriseCustomerUserSubsidies'
       required:
@@ -4552,7 +4740,7 @@ components:
           readOnly: true
         action_type:
           allOf:
-            - $ref: '#/components/schemas/ActionType5a0Enum'
+            - $ref: '#/components/schemas/ActionType3e8Enum'
           readOnly: true
           description: >-
             The type of action take on the related assignment record.
@@ -4625,7 +4813,7 @@ components:
           readOnly: true
         action_type:
           allOf:
-            - $ref: '#/components/schemas/ActionType5a0Enum'
+            - $ref: '#/components/schemas/ActionType3e8Enum'
           readOnly: true
           description: >-
             The type of action take on the related assignment record.
@@ -4764,7 +4952,7 @@ components:
           description: Cost of the content in USD Cents.
         state:
           allOf:
-            - $ref: '#/components/schemas/StateBedEnum'
+            - $ref: '#/components/schemas/StateE0aEnum'
           readOnly: true
           description: >-
             The current state of the LearnerContentAssignment. One of:
@@ -5015,7 +5203,7 @@ components:
           description: Cost of the content in USD Cents.
         state:
           allOf:
-            - $ref: '#/components/schemas/StateBedEnum'
+            - $ref: '#/components/schemas/StateE0aEnum'
           readOnly: true
           description: >-
             The current state of the LearnerContentAssignment. One of:
@@ -5130,7 +5318,7 @@ components:
           description: Cost of the content in USD Cents.
         state:
           allOf:
-            - $ref: '#/components/schemas/StateBedEnum'
+            - $ref: '#/components/schemas/StateE0aEnum'
           readOnly: true
           description: >-
             The current state of the LearnerContentAssignment. One of:
@@ -5227,7 +5415,7 @@ components:
           format: uuid
         state:
           allOf:
-            - $ref: '#/components/schemas/State7b6Enum'
+            - $ref: '#/components/schemas/StateB44Enum'
           readOnly: true
           default: requested
         reviewed_at:
@@ -5266,6 +5454,13 @@ components:
         latest_action:
           type: string
           readOnly: true
+        learner_request_state:
+          type: string
+          readOnly: true
+          description: >-
+            Computed state based on action status and error conditions. Returns
+            'waiting' for approved/reminded actions without errors, 'failed' for
+            actions with error_reason, or the actual status otherwise
       required:
         - course_partners
         - course_title
@@ -5273,6 +5468,7 @@ components:
         - email
         - enterprise_customer_uuid
         - latest_action
+        - learner_request_state
         - lms_user_id
         - modified
         - reviewed_at
@@ -5280,6 +5476,40 @@ components:
         - state
         - user
         - uuid
+    LearnerCreditRequestApproveRequest:
+      type: object
+      description: >-
+        Request Serializer to validate subsidy-request ``approve`` endpoint POST
+        data.
+
+
+        For view: LearnerCreditRequestViewSet.approve
+      properties:
+        learner_credit_request_uuids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: A list of LearnerCreditRequest UUIDs to be approved.
+        policy_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the SubsidyAccessPolicy to use for this approval.
+      required:
+        - learner_credit_request_uuids
+        - policy_uuid
+    LearnerCreditRequestCancel:
+      type: object
+      description: |-
+        Request serializer to validate cancel endpoint query params.
+
+        For view: LearnerCreditRequestViewSet.cancel
+      properties:
+        request_uuid:
+          type: string
+          format: uuid
+      required:
+        - request_uuid
     LearnerCreditRequestDecline:
       type: object
       description: Serializer for declining a learner credit request.
@@ -5321,6 +5551,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Warning'
+        enterprise_features:
+          type: object
+          additionalProperties: {}
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -5339,9 +5572,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -5352,9 +5582,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
           nullable: true
-        enterprise_features:
-          type: object
-          additionalProperties: {}
         enterprise_customer_user_subsidies:
           $ref: '#/components/schemas/EnterpriseCustomerUserSubsidies'
         enterprise_course_enrollments:
@@ -5415,6 +5642,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Warning'
+        enterprise_features:
+          type: object
+          additionalProperties: {}
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -5433,9 +5663,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -5446,9 +5673,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
           nullable: true
-        enterprise_features:
-          type: object
-          additionalProperties: {}
         enterprise_customer_user_subsidies:
           $ref: '#/components/schemas/EnterpriseCustomerUserSubsidies'
       required:
@@ -5478,6 +5702,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Warning'
+        enterprise_features:
+          type: object
+          additionalProperties: {}
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -5496,9 +5723,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -5509,9 +5733,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
           nullable: true
-        enterprise_features:
-          type: object
-          additionalProperties: {}
         enterprise_customer_user_subsidies:
           $ref: '#/components/schemas/EnterpriseCustomerUserSubsidies'
       required:
@@ -5567,7 +5788,7 @@ components:
           format: uuid
         state:
           allOf:
-            - $ref: '#/components/schemas/State7b6Enum'
+            - $ref: '#/components/schemas/StateB44Enum'
           readOnly: true
         reviewed_at:
           type: string
@@ -6111,10 +6332,14 @@ components:
       enum:
         - 1
         - 3
+        - 6
+        - 7
       type: integer
       description: |-
         * `1` - B2B Paid
         * `3` - Trial
+        * `6` - Self-service Trial
+        * `7` - Self-service Paid
     ProvisioningRequest:
       type: object
       description: Request serializer for provisioning create view.
@@ -6138,12 +6363,15 @@ components:
             - $ref: '#/components/schemas/CustomerAgreementRequest'
           nullable: true
           description: Object describing the requested Customer Agreement.
-        subscription_plan:
+        trial_subscription_plan:
+          $ref: '#/components/schemas/SubscriptionPlanRequest'
+        first_paid_subscription_plan:
           $ref: '#/components/schemas/SubscriptionPlanRequest'
       required:
         - enterprise_customer
+        - first_paid_subscription_plan
         - pending_admins
-        - subscription_plan
+        - trial_subscription_plan
     ProvisioningResponse:
       type: object
       description: Response serializer for provisioning create view.
@@ -6156,14 +6384,20 @@ components:
           $ref: '#/components/schemas/EnterpriseCatalogResponse'
         customer_agreement:
           $ref: '#/components/schemas/CustomerAgreementResponse'
-        subscription_plan:
+        trial_subscription_plan:
           $ref: '#/components/schemas/SubscriptionPlanResponse'
+        first_paid_subscription_plan:
+          $ref: '#/components/schemas/SubscriptionPlanResponse'
+        subscription_plan_renewal:
+          $ref: '#/components/schemas/SubscriptionPlanRenewalResponse'
       required:
         - customer_admins
         - customer_agreement
         - enterprise_catalog
         - enterprise_customer
-        - subscription_plan
+        - first_paid_subscription_plan
+        - subscription_plan_renewal
+        - trial_subscription_plan
     SecuredAlgoliaMetadata:
       type: object
       description: Serializer for the secured algolia key
@@ -6175,7 +6409,7 @@ components:
           type: string
           format: date-time
           nullable: true
-    State7b6Enum:
+    StateB44Enum:
       enum:
         - requested
         - pending
@@ -6197,7 +6431,7 @@ components:
         * `cancelled` - Cancelled
         * `expired` - Expired
         * `reversed` - Reversed
-    StateBedEnum:
+    StateE0aEnum:
       enum:
         - allocated
         - accepted
@@ -6308,6 +6542,94 @@ components:
         - start_date
         - title
         - uuid
+    SubscriptionPlanOLIUpdate:
+      type: object
+      description: Request serializer for updating a SubscriptionPlan's Salesforce OLI.
+      properties:
+        checkout_intent_id:
+          type: integer
+          nullable: true
+          description: >-
+            The integer ID of the CheckoutIntent associated with this
+            subscription.
+        checkout_intent_uuid:
+          type: string
+          format: uuid
+          nullable: true
+          description: The UUID of the CheckoutIntent associated with this subscription.
+        salesforce_opportunity_line_item:
+          type: string
+          description: >-
+            The Salesforce Opportunity Line Item ID to associate with the
+            subscription plan.
+        is_trial:
+          type: boolean
+          default: false
+          description: Whether this OLI is for the trial plan (True) or paid plan (False).
+      required:
+        - salesforce_opportunity_line_item
+    SubscriptionPlanOLIUpdateResponse:
+      type: object
+      description: Response serializer for SubscriptionPlan OLI update.
+      properties:
+        success:
+          type: boolean
+          description: Whether the update was successful
+        subscription_plan_uuid:
+          type: string
+          format: uuid
+          description: >-
+            The UUID identifier of the future plan (which receives the updated
+            OLI value)
+        salesforce_opportunity_line_item:
+          type: string
+          description: >-
+            The Salesforce Opportunity Line Item ID to associate with the
+            subscription plan.
+        checkout_intent_uuid:
+          type: string
+          format: uuid
+          nullable: true
+          description: The UUID of the CheckoutIntent associated with this subscription.
+        checkout_intent_id:
+          type: integer
+          nullable: true
+          description: >-
+            The integer ID of the CheckoutIntent associated with this
+            subscription.
+      required:
+        - salesforce_opportunity_line_item
+        - subscription_plan_uuid
+        - success
+    SubscriptionPlanRenewalResponse:
+      type: object
+      description: Subscription Plan Renewal serializer for provisioning responses.
+      properties:
+        id:
+          type: integer
+        prior_subscription_plan:
+          type: string
+          format: uuid
+        renewed_subscription_plan:
+          type: string
+          format: uuid
+        number_of_licenses:
+          type: integer
+        effective_date:
+          type: string
+          format: date-time
+        renewed_expiration_date:
+          type: string
+          format: date-time
+        salesforce_opportunity_line_item:
+          type: string
+      required:
+        - effective_date
+        - id
+        - number_of_licenses
+        - prior_subscription_plan
+        - renewed_expiration_date
+        - renewed_subscription_plan
     SubscriptionPlanRequest:
       type: object
       description: Subscription Plan serializer for provisioning requests.
@@ -6317,6 +6639,7 @@ components:
           description: The title of the subscription plan.
         salesforce_opportunity_line_item:
           type: string
+          nullable: true
           description: >-
             The Salesforce Opportunity Line Item id associated with this
             subscription plan.
@@ -6336,6 +6659,8 @@ components:
 
             * `1` - B2B Paid
             * `3` - Trial
+            * `6` - Self-service Trial
+            * `7` - Self-service Paid
         desired_num_licenses:
           type: integer
           description: The number of licenses to create for this plan.
@@ -6347,11 +6672,7 @@ components:
             Optional. The enterprise catalog uuid associated with this
             subscription plan.
       required:
-        - desired_num_licenses
-        - expiration_date
-        - product_id
         - salesforce_opportunity_line_item
-        - start_date
         - title
     SubscriptionPlanResponse:
       type: object
@@ -6382,6 +6703,8 @@ components:
         enterprise_catalog_uuid:
           type: string
           format: uuid
+        product:
+          type: integer
       required:
         - created
         - enterprise_catalog_uuid
@@ -6389,6 +6712,7 @@ components:
         - is_active
         - is_current
         - plan_type
+        - product
         - salesforce_opportunity_line_item
         - start_date
         - title
@@ -6438,15 +6762,17 @@ components:
           readOnly: true
           description: >-
             Total amount allocated for policies of type
-            AssignedLearnerCreditAccessPolicy (0 otherwise), in positive USD
-            cents.
+            AssignedLearnerCreditAccessPolicy or
+            {PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in positive
+            USD cents.
         amount_allocated_usd:
           type: number
           format: double
           readOnly: true
           description: >-
             ('Total amount allocated for policies of type
-            AssignedLearnerCreditAccessPolicy (0 otherwise), in USD.',)
+            AssignedLearnerCreditAccessPolicy or ',
+            '{PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in USD.')
         spend_available_usd_cents:
           type: integer
           readOnly: true
