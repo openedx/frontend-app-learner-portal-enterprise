@@ -1,5 +1,7 @@
 import { useContext } from 'react';
 import { Dropdown } from '@openedx/paragon';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
+import goalMessages from './goalMessages';
 import {
   DROPDOWN_OPTION_CHANGE_CAREERS, DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, DROPDOWN_OPTION_GET_PROMOTED,
   DROPDOWN_OPTION_OTHER, GOAL_DROPDOWN_DEFAULT_OPTION,
@@ -16,6 +18,14 @@ const GoalDropdown = () => {
   const goalDropdownOptions = [GOAL_DROPDOWN_DEFAULT_OPTION, DROPDOWN_OPTION_CHANGE_CAREERS,
     DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, DROPDOWN_OPTION_OTHER];
 
+  const optionToMessageKey = {
+    [GOAL_DROPDOWN_DEFAULT_OPTION]: 'selectGoal',
+    [DROPDOWN_OPTION_CHANGE_CAREERS]: 'changeCareers',
+    [DROPDOWN_OPTION_GET_PROMOTED]: 'getPromoted',
+    [DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE]: 'improveCurrentRole',
+    [DROPDOWN_OPTION_OTHER]: 'other',
+  };
+
   return (
     <Dropdown>
       <Dropdown.Toggle
@@ -23,12 +33,12 @@ const GoalDropdown = () => {
         id="skills-quiz-goal-dropdown-toggle"
         data-testid="skills-quiz-goal-dropdown-toggle"
       >
-        {goal}
+        <FormattedMessage {...goalMessages[optionToMessageKey[goal]]} />
       </Dropdown.Toggle>
       <Dropdown.Menu>
         {goalDropdownOptions?.map(option => (
           <Dropdown.Item key={option} as="label" onClick={() => selectGoal(option)}>
-            {option}
+            <FormattedMessage {...goalMessages[optionToMessageKey[option]]} />
           </Dropdown.Item>
         ))}
       </Dropdown.Menu>

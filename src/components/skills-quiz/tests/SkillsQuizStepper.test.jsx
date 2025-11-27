@@ -225,7 +225,7 @@ describe('<SkillsQuizStepper />', () => {
       { route: '/test/skills-quiz/' },
     );
 
-    expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
+    expect(screen.getByTestId('skills-quiz-goal-dropdown-toggle')).toBeInTheDocument();
     expect(screen.queryByText(CURRENT_JOB_FACET.title)).toBeNull();
     expect(screen.queryByText(DESIRED_JOB_FACET.title)).toBeNull();
   });
