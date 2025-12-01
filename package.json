@@ -73,7 +73,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
     "jest-when": "^3.7.0",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "match-media-mock": "^0.1.1",
     "mockdate": "^3.0.5",
     "openapi-typescript": "^6.7.6",
