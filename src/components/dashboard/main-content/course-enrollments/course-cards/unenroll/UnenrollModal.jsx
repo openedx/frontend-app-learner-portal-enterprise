@@ -6,6 +6,7 @@ import {
 } from '@openedx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 
+import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
 import {
@@ -15,10 +16,43 @@ import {
   useIsBFFEnabled,
 } from '../../../../../app/data';
 
-const btnLabels = {
-  default: 'Unenroll',
-  pending: 'Unenrolling...',
-};
+export const messages = defineMessages({
+  unenrollModalUnenrollButton: {
+    id: 'enterprise.learner_portal.unenroll_modal.button.unenroll',
+    defaultMessage: 'Unenroll',
+    description: 'Text for the Unenroll button in the confirmation modal',
+  },
+  unenrollModalTitle: {
+    id: 'enterprise.learner_portal.unenroll_modal.title',
+    defaultMessage: 'Unenroll from course?',
+    description: 'Title text shown in the unenroll confirmation modal',
+  },
+  unenrollModalKeepLearningButton: {
+    id: 'enterprise.learner_portal.unenroll_modal.button.keep_learning',
+    defaultMessage: 'Keep learning',
+    description: 'Text for the Keep Learning button in the confirmation modal',
+  },
+  unenrollModalErrorMessage: {
+    id: 'enterprise.learner_portal.unenroll_modal.error_message',
+    defaultMessage: 'An error occurred while unenrolling from your course. Please try again.',
+    description: 'Error message shown when unenrollment fails',
+  },
+  unenrollModalWarningMessage: {
+    id: 'enterprise.learner_portal.unenroll_modal.warning_message',
+    defaultMessage: 'Progress that you\'ve made so far will not be saved.',
+    description: 'Warning message about losing progress when unenrolling',
+  },
+  unenrollModalPendingMessage: {
+    id: 'enterprise.learner_portal.unenroll_modal.pending_message',
+    defaultMessage: 'Unenrolling...',
+    description: 'Unenrolling message after confirming unenrollment',
+  },
+  unenrollSuccess: {
+    id: 'enterprise.unenroll.success',
+    defaultMessage: 'You have been unenrolled from the course.',
+    description: 'Toast message shown after successful course unenrollment',
+  },
+});
 
 const UnenrollModal = ({
   courseRunId,
@@ -38,6 +72,12 @@ const UnenrollModal = ({
     setBtnState('default');
     setError(null);
     onClose();
+  };
+  const intl = useIntl();
+
+  const btnLabels = {
+    default: intl.formatMessage(messages.unenrollModalUnenrollButton),
+    pending: intl.formatMessage(messages.unenrollModalPendingMessage),
   };
 
   const updateQueriesAfterUnenrollment = () => {
@@ -87,13 +127,15 @@ const UnenrollModal = ({
       return;
     }
     updateQueriesAfterUnenrollment();
-    addToast('You have been unenrolled from the course.');
+    addToast(
+      intl.formatMessage(messages.unenrollSuccess),
+    );
     onSuccess();
   };
 
   return (
     <AlertModal
-      title="Unenroll from course?"
+      title={intl.formatMessage(messages.unenrollModalTitle)}
       isOpen={isOpen}
       onClose={handleClose}
       footerNode={(
@@ -102,7 +144,7 @@ const UnenrollModal = ({
             variant="tertiary"
             onClick={handleClose}
           >
-            Keep learning
+            <FormattedMessage {...messages.unenrollModalKeepLearningButton} />
           </Button>
           <StatefulButton
             variant="primary"
@@ -110,7 +152,7 @@ const UnenrollModal = ({
             state={btnState}
             onClick={handleUnenrollButtonClick}
           >
-            Unenroll
+            <FormattedMessage {...messages.unenrollModalUnenrollButton} />
           </StatefulButton>
         </ActionRow>
       )}
@@ -122,11 +164,11 @@ const UnenrollModal = ({
           show={!!error}
         >
           <p data-testid="unenroll-error-text">
-            An error occurred while unenrolling from your course. Please try again.
+            <FormattedMessage {...messages.unenrollModalErrorMessage} />
           </p>
         </Alert>
         <p>
-          Progress that you&apos;ve made so far will not be saved.
+          <FormattedMessage {...messages.unenrollModalWarningMessage} />
         </p>
       </>
     </AlertModal>
