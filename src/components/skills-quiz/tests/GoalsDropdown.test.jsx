@@ -1,14 +1,16 @@
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
-import { GOAL_DROPDOWN_DEFAULT_OPTION } from '../constants';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '../../../utils/tests';
 import GoalDropdown from '../GoalDropdown';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 
 const GoalDropdownWrapper = () => (
-  <SkillsContextProvider>
-    <GoalDropdown />
-  </SkillsContextProvider>
+  <IntlProvider locale="en">
+    <SkillsContextProvider>
+      <GoalDropdown />
+    </SkillsContextProvider>
+  </IntlProvider>
 );
 
 const mockLocation = {
@@ -33,6 +35,6 @@ describe('<GoalDropdown />', () => {
       <GoalDropdownWrapper />,
       { route: '/test/skills-quiz/' },
     );
-    expect(screen.getByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeTruthy();
+    expect(screen.getByTestId('skills-quiz-goal-dropdown-toggle')).toBeInTheDocument();
   });
 });

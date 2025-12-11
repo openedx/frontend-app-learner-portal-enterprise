@@ -10,7 +10,6 @@ import {
   CURRENT_JOB_FACET,
   DESIRED_JOB_FACET,
   DROPDOWN_OPTION_GET_PROMOTED,
-  GOAL_DROPDOWN_DEFAULT_OPTION,
   INDUSTRY_FACET,
 } from '../constants';
 import SkillsQuizStepper from '../SkillsQuizStepper';
@@ -67,7 +66,7 @@ describe('<SearchFilters />', () => {
       </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
-    const goalDropdownDefaultOption = screen.getByText(GOAL_DROPDOWN_DEFAULT_OPTION);
+    const goalDropdownDefaultOption = screen.getByTestId('skills-quiz-goal-dropdown-toggle');
     expect(goalDropdownDefaultOption).toBeInTheDocument();
     await user.click(goalDropdownDefaultOption);
     await user.click(screen.getByText(DROPDOWN_OPTION_GET_PROMOTED));
