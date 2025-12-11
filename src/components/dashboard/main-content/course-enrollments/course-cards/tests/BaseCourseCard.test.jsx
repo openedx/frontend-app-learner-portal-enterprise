@@ -111,7 +111,11 @@ describe('<BaseCourseCard />', () => {
 
     it('handles unenroll modal close/cancel', async () => {
       const user = userEvent.setup();
-      await user.click(screen.getByRole('button', { name: 'Keep learning' }));
+
+      // Option 1: Use case-insensitive regex
+      const cancelButton = screen.getByRole('button', { name: /keep learning/i });
+      await user.click(cancelButton);
+
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       });
