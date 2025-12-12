@@ -295,6 +295,37 @@ export interface paths {
      */
     get: operations["api_v1_learner_credit_requests_retrieve"];
   };
+  "/api/v1/learner-credit-requests/approve/": {
+    /**
+     * Approve a learner credit request.
+     * @description Approve a list of learner credit requests against a single policy.
+     *
+     * - On success, returns a `200 OK` with a list of the approved request objects.
+     * - If any of the specified requests fail to be approved, returns a
+     *   `422 Unprocessable Entity`. The successful approvals will still be committed.
+     */
+    post: operations["api_v1_learner_credit_requests_approve_create"];
+  };
+  "/api/v1/learner-credit-requests/approve-all/": {
+    /**
+     * @description Approve all filtered learner credit requests against a single policy.
+     *
+     * - On success, returns a `202 Accepted` status, indicating that the
+     *   bulk approval process has been initiated.
+     * - If no approvable requests are found for the given policy and filters,
+     *   returns a `404 Not Found`.
+     * - If any requests fail during the bulk approval, returns a
+     *   `422 Unprocessable Entity` to indicate a partial failure.
+     */
+    post: operations["api_v1_learner_credit_requests_approve_all_create"];
+  };
+  "/api/v1/learner-credit-requests/cancel/": {
+    /**
+     * Learner credit request cancel endpoint.
+     * @description Cancel a learner credit request.
+     */
+    post: operations["api_v1_learner_credit_requests_cancel_create"];
+  };
   "/api/v1/learner-credit-requests/decline/": {
     /**
      * Decline a learner credit request.
@@ -308,6 +339,10 @@ export interface paths {
      * @description Returns an overview of subsidy requests count by state.
      */
     get: operations["api_v1_learner_credit_requests_overview_retrieve"];
+  };
+  "/api/v1/learner-credit-requests/remind/": {
+    /** @description Remind a Learner that their LearnerCreditRequest is Approved and waiting for their action. */
+    post: operations["api_v1_learner_credit_requests_remind_create"];
   };
   "/api/v1/license-requests/": {
     /**
@@ -440,6 +475,13 @@ export interface paths {
      */
     post: operations["api_v1_provisioning_create"];
   };
+  "/api/v1/provisioning/subscription-plan-oli-update": {
+    /**
+     * Update a SubscriptionPlan with Salesforce Opportunity Line Item.
+     * @description Update a subscription plan with Salesforce OLI.
+     */
+    post: operations["api_v1_provisioning_subscription_plan_oli_update_create"];
+  };
   "/api/v1/subsidy-access-policies/": {
     /**
      * List subsidy access policies for an enterprise customer.
@@ -528,7 +570,7 @@ export interface components {
      * * `reversed` - Transaction for this assignment has been reversed
      * @enum {string}
      */
-    ActionType5a0Enum: "learner_linked" | "notified" | "reminded" | "redeemed" | "cancelled" | "cancelled_acknowledged" | "expired" | "expired_acknowledged" | "reversed";
+    ActionType3e8Enum: "learner_linked" | "notified" | "reminded" | "redeemed" | "cancelled" | "cancelled_acknowledged" | "expired" | "expired_acknowledged" | "reversed";
     /** @description Serializer for structuring the admin learner profile response. */
     AdminLearnerProfileResponse: {
       subscriptions?: string;
@@ -652,7 +694,7 @@ export interface components {
      * * `AU` - Australia
      * * `AT` - Austria
      * * `AZ` - Azerbaijan
-     * * `BS` - Bahamas
+     * * `BS` - Bahamas (The)
      * * `BH` - Bahrain
      * * `BD` - Bangladesh
      * * `BB` - Barbados
@@ -687,7 +729,6 @@ export interface components {
      * * `CO` - Colombia
      * * `KM` - Comoros
      * * `CG` - Congo
-     * * `CD` - Congo (the Democratic Republic of the)
      * * `CK` - Cook Islands
      * * `CR` - Costa Rica
      * * `CI` - Côte d'Ivoire
@@ -696,6 +737,7 @@ export interface components {
      * * `CW` - Curaçao
      * * `CY` - Cyprus
      * * `CZ` - Czechia
+     * * `CD` - Democratic Republic of the Congo
      * * `DK` - Denmark
      * * `DJ` - Djibouti
      * * `DM` - Dominica
@@ -734,7 +776,6 @@ export interface components {
      * * `GY` - Guyana
      * * `HT` - Haiti
      * * `HM` - Heard Island and McDonald Islands
-     * * `VA` - Holy See
      * * `HN` - Honduras
      * * `HK` - Hong Kong
      * * `HU` - Hungary
@@ -805,7 +846,7 @@ export interface components {
      * * `OM` - Oman
      * * `PK` - Pakistan
      * * `PW` - Palau
-     * * `PS` - Palestine, State of
+     * * `PS` - Palestine
      * * `PA` - Panama
      * * `PG` - Papua New Guinea
      * * `PY` - Paraguay
@@ -821,7 +862,7 @@ export interface components {
      * * `RU` - Russia
      * * `RW` - Rwanda
      * * `BL` - Saint Barthélemy
-     * * `SH` - Saint Helena, Ascension and Tristan da Cunha
+     * * `SH` - Saint Helena
      * * `KN` - Saint Kitts and Nevis
      * * `LC` - Saint Lucia
      * * `MF` - Saint Martin (French part)
@@ -842,7 +883,7 @@ export interface components {
      * * `SB` - Solomon Islands
      * * `SO` - Somalia
      * * `ZA` - South Africa
-     * * `GS` - South Georgia and the South Sandwich Islands
+     * * `GS` - South Georgia
      * * `KR` - South Korea
      * * `SS` - South Sudan
      * * `ES` - Spain
@@ -876,6 +917,7 @@ export interface components {
      * * `UY` - Uruguay
      * * `UZ` - Uzbekistan
      * * `VU` - Vanuatu
+     * * `VA` - Vatican City
      * * `VE` - Venezuela
      * * `VN` - Vietnam
      * * `VG` - Virgin Islands (British)
@@ -887,7 +929,7 @@ export interface components {
      * * `ZW` - Zimbabwe
      * @enum {string}
      */
-    CountryEnum: "AF" | "AX" | "AL" | "DZ" | "AS" | "AD" | "AO" | "AI" | "AQ" | "AG" | "AR" | "AM" | "AW" | "AU" | "AT" | "AZ" | "BS" | "BH" | "BD" | "BB" | "BY" | "BE" | "BZ" | "BJ" | "BM" | "BT" | "BO" | "BQ" | "BA" | "BW" | "BV" | "BR" | "IO" | "BN" | "BG" | "BF" | "BI" | "CV" | "KH" | "CM" | "CA" | "KY" | "CF" | "TD" | "CL" | "CN" | "CX" | "CC" | "CO" | "KM" | "CG" | "CD" | "CK" | "CR" | "CI" | "HR" | "CU" | "CW" | "CY" | "CZ" | "DK" | "DJ" | "DM" | "DO" | "EC" | "EG" | "SV" | "GQ" | "ER" | "EE" | "SZ" | "ET" | "FK" | "FO" | "FJ" | "FI" | "FR" | "GF" | "PF" | "TF" | "GA" | "GM" | "GE" | "DE" | "GH" | "GI" | "GR" | "GL" | "GD" | "GP" | "GU" | "GT" | "GG" | "GN" | "GW" | "GY" | "HT" | "HM" | "VA" | "HN" | "HK" | "HU" | "IS" | "IN" | "ID" | "IR" | "IQ" | "IE" | "IM" | "IL" | "IT" | "JM" | "JP" | "JE" | "JO" | "KZ" | "KE" | "KI" | "KW" | "KG" | "LA" | "LV" | "LB" | "LS" | "LR" | "LY" | "LI" | "LT" | "LU" | "MO" | "MG" | "MW" | "MY" | "MV" | "ML" | "MT" | "MH" | "MQ" | "MR" | "MU" | "YT" | "MX" | "FM" | "MD" | "MC" | "MN" | "ME" | "MS" | "MA" | "MZ" | "MM" | "NA" | "NR" | "NP" | "NL" | "NC" | "NZ" | "NI" | "NE" | "NG" | "NU" | "NF" | "KP" | "MK" | "MP" | "NO" | "OM" | "PK" | "PW" | "PS" | "PA" | "PG" | "PY" | "PE" | "PH" | "PN" | "PL" | "PT" | "PR" | "QA" | "RE" | "RO" | "RU" | "RW" | "BL" | "SH" | "KN" | "LC" | "MF" | "PM" | "VC" | "WS" | "SM" | "ST" | "SA" | "SN" | "RS" | "SC" | "SL" | "SG" | "SX" | "SK" | "SI" | "SB" | "SO" | "ZA" | "GS" | "KR" | "SS" | "ES" | "LK" | "SD" | "SR" | "SJ" | "SE" | "CH" | "SY" | "TW" | "TJ" | "TZ" | "TH" | "TL" | "TG" | "TK" | "TO" | "TT" | "TN" | "TR" | "TM" | "TC" | "TV" | "UG" | "UA" | "AE" | "GB" | "UM" | "US" | "UY" | "UZ" | "VU" | "VE" | "VN" | "VG" | "VI" | "WF" | "EH" | "YE" | "ZM" | "ZW";
+    CountryEnum: "AF" | "AX" | "AL" | "DZ" | "AS" | "AD" | "AO" | "AI" | "AQ" | "AG" | "AR" | "AM" | "AW" | "AU" | "AT" | "AZ" | "BS" | "BH" | "BD" | "BB" | "BY" | "BE" | "BZ" | "BJ" | "BM" | "BT" | "BO" | "BQ" | "BA" | "BW" | "BV" | "BR" | "IO" | "BN" | "BG" | "BF" | "BI" | "CV" | "KH" | "CM" | "CA" | "KY" | "CF" | "TD" | "CL" | "CN" | "CX" | "CC" | "CO" | "KM" | "CG" | "CK" | "CR" | "CI" | "HR" | "CU" | "CW" | "CY" | "CZ" | "CD" | "DK" | "DJ" | "DM" | "DO" | "EC" | "EG" | "SV" | "GQ" | "ER" | "EE" | "SZ" | "ET" | "FK" | "FO" | "FJ" | "FI" | "FR" | "GF" | "PF" | "TF" | "GA" | "GM" | "GE" | "DE" | "GH" | "GI" | "GR" | "GL" | "GD" | "GP" | "GU" | "GT" | "GG" | "GN" | "GW" | "GY" | "HT" | "HM" | "HN" | "HK" | "HU" | "IS" | "IN" | "ID" | "IR" | "IQ" | "IE" | "IM" | "IL" | "IT" | "JM" | "JP" | "JE" | "JO" | "KZ" | "KE" | "KI" | "KW" | "KG" | "LA" | "LV" | "LB" | "LS" | "LR" | "LY" | "LI" | "LT" | "LU" | "MO" | "MG" | "MW" | "MY" | "MV" | "ML" | "MT" | "MH" | "MQ" | "MR" | "MU" | "YT" | "MX" | "FM" | "MD" | "MC" | "MN" | "ME" | "MS" | "MA" | "MZ" | "MM" | "NA" | "NR" | "NP" | "NL" | "NC" | "NZ" | "NI" | "NE" | "NG" | "NU" | "NF" | "KP" | "MK" | "MP" | "NO" | "OM" | "PK" | "PW" | "PS" | "PA" | "PG" | "PY" | "PE" | "PH" | "PN" | "PL" | "PT" | "PR" | "QA" | "RE" | "RO" | "RU" | "RW" | "BL" | "SH" | "KN" | "LC" | "MF" | "PM" | "VC" | "WS" | "SM" | "ST" | "SA" | "SN" | "RS" | "SC" | "SL" | "SG" | "SX" | "SK" | "SI" | "SB" | "SO" | "ZA" | "GS" | "KR" | "SS" | "ES" | "LK" | "SD" | "SR" | "SJ" | "SE" | "CH" | "SY" | "TW" | "TJ" | "TZ" | "TH" | "TL" | "TG" | "TK" | "TO" | "TT" | "TN" | "TR" | "TM" | "TC" | "TV" | "UG" | "UA" | "AE" | "GB" | "UM" | "US" | "UY" | "UZ" | "VU" | "VA" | "VE" | "VN" | "VG" | "VI" | "WF" | "EH" | "YE" | "ZM" | "ZW";
     /** @description Serializer for the `CouponCodeRequest` model. */
     CouponCodeRequest: {
       /** Format: uuid */
@@ -901,7 +943,7 @@ export interface components {
       course_partners: unknown;
       /** Format: uuid */
       enterprise_customer_uuid: string;
-      state: components["schemas"]["State7b6Enum"];
+      state: components["schemas"]["StateB44Enum"];
       /** Format: date-time */
       reviewed_at: string | null;
       reviewer_lms_user_id: number | null;
@@ -1145,7 +1187,7 @@ export interface components {
        * * `AU` - Australia
        * * `AT` - Austria
        * * `AZ` - Azerbaijan
-       * * `BS` - Bahamas
+       * * `BS` - Bahamas (The)
        * * `BH` - Bahrain
        * * `BD` - Bangladesh
        * * `BB` - Barbados
@@ -1180,7 +1222,6 @@ export interface components {
        * * `CO` - Colombia
        * * `KM` - Comoros
        * * `CG` - Congo
-       * * `CD` - Congo (the Democratic Republic of the)
        * * `CK` - Cook Islands
        * * `CR` - Costa Rica
        * * `CI` - Côte d'Ivoire
@@ -1189,6 +1230,7 @@ export interface components {
        * * `CW` - Curaçao
        * * `CY` - Cyprus
        * * `CZ` - Czechia
+       * * `CD` - Democratic Republic of the Congo
        * * `DK` - Denmark
        * * `DJ` - Djibouti
        * * `DM` - Dominica
@@ -1227,7 +1269,6 @@ export interface components {
        * * `GY` - Guyana
        * * `HT` - Haiti
        * * `HM` - Heard Island and McDonald Islands
-       * * `VA` - Holy See
        * * `HN` - Honduras
        * * `HK` - Hong Kong
        * * `HU` - Hungary
@@ -1298,7 +1339,7 @@ export interface components {
        * * `OM` - Oman
        * * `PK` - Pakistan
        * * `PW` - Palau
-       * * `PS` - Palestine, State of
+       * * `PS` - Palestine
        * * `PA` - Panama
        * * `PG` - Papua New Guinea
        * * `PY` - Paraguay
@@ -1314,7 +1355,7 @@ export interface components {
        * * `RU` - Russia
        * * `RW` - Rwanda
        * * `BL` - Saint Barthélemy
-       * * `SH` - Saint Helena, Ascension and Tristan da Cunha
+       * * `SH` - Saint Helena
        * * `KN` - Saint Kitts and Nevis
        * * `LC` - Saint Lucia
        * * `MF` - Saint Martin (French part)
@@ -1335,7 +1376,7 @@ export interface components {
        * * `SB` - Solomon Islands
        * * `SO` - Somalia
        * * `ZA` - South Africa
-       * * `GS` - South Georgia and the South Sandwich Islands
+       * * `GS` - South Georgia
        * * `KR` - South Korea
        * * `SS` - South Sudan
        * * `ES` - Spain
@@ -1369,6 +1410,7 @@ export interface components {
        * * `UY` - Uruguay
        * * `UZ` - Uzbekistan
        * * `VU` - Vanuatu
+       * * `VA` - Vatican City
        * * `VE` - Venezuela
        * * `VN` - Vietnam
        * * `VG` - Virgin Islands (British)
@@ -1484,20 +1526,19 @@ export interface components {
     LearnerAcademyResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
     };
     /** @description A read-only Serializer for responding to requests for ``LearnerContentAssignmentAction`` records. */
@@ -1521,7 +1562,7 @@ export interface components {
        * * `expired_acknowledged` - Learner assignment expiration acknowledged by learner
        * * `reversed` - Transaction for this assignment has been reversed
        */
-      action_type: components["schemas"]["ActionType5a0Enum"];
+      action_type: components["schemas"]["ActionType3e8Enum"];
       /**
        * Format: date-time
        * @description The time at which the action was successfully completed.
@@ -1560,7 +1601,7 @@ export interface components {
        * * `expired_acknowledged` - Learner assignment expiration acknowledged by learner
        * * `reversed` - Transaction for this assignment has been reversed
        */
-      action_type: components["schemas"]["ActionType5a0Enum"];
+      action_type: components["schemas"]["ActionType3e8Enum"];
       /**
        * Format: date-time
        * @description The time at which the action was successfully completed.
@@ -1622,7 +1663,7 @@ export interface components {
        * * `expired` - Expired
        * * `reversed` - Reversed
        */
-      state: components["schemas"]["StateBedEnum"];
+      state: components["schemas"]["StateE0aEnum"];
       /**
        * Format: uuid
        * @description A reference to the ledger transaction associated with the subsidy supporting this assignment.  Likely null if state != accepted.
@@ -1743,7 +1784,7 @@ export interface components {
        * * `expired` - Expired
        * * `reversed` - Reversed
        */
-      state: components["schemas"]["StateBedEnum"];
+      state: components["schemas"]["StateE0aEnum"];
       /**
        * Format: uuid
        * @description A reference to the ledger transaction associated with the subsidy supporting this assignment.  Likely null if state != accepted.
@@ -1790,7 +1831,7 @@ export interface components {
        * * `expired` - Expired
        * * `reversed` - Reversed
        */
-      state: components["schemas"]["StateBedEnum"];
+      state: components["schemas"]["StateE0aEnum"];
       /**
        * Format: uuid
        * @description A reference to the ledger transaction associated with the subsidy supporting this assignment.  Likely null if state != accepted.
@@ -1818,7 +1859,7 @@ export interface components {
       /** Format: uuid */
       enterprise_customer_uuid: string;
       /** @default requested */
-      state: components["schemas"]["State7b6Enum"];
+      state: components["schemas"]["StateB44Enum"];
       /** Format: date-time */
       reviewed_at: string | null;
       reviewer_lms_user_id: number | null;
@@ -1834,6 +1875,31 @@ export interface components {
       /** @description Cost of the content in USD Cents. */
       course_price?: number | null;
       latest_action: string;
+      /** @description Computed state based on action status and error conditions. Returns 'waiting' for approved/reminded actions without errors, 'failed' for actions with error_reason, or the actual status otherwise */
+      learner_request_state: string;
+    };
+    /**
+     * @description Request Serializer to validate subsidy-request ``approve`` endpoint POST data.
+     *
+     * For view: LearnerCreditRequestViewSet.approve
+     */
+    LearnerCreditRequestApproveRequest: {
+      /** @description A list of LearnerCreditRequest UUIDs to be approved. */
+      learner_credit_request_uuids: string[];
+      /**
+       * Format: uuid
+       * @description The UUID of the SubsidyAccessPolicy to use for this approval.
+       */
+      policy_uuid: string;
+    };
+    /**
+     * @description Request serializer to validate cancel endpoint query params.
+     *
+     * For view: LearnerCreditRequestViewSet.cancel
+     */
+    LearnerCreditRequestCancel: {
+      /** Format: uuid */
+      request_uuid: string;
     };
     /** @description Serializer for declining a learner credit request. */
     LearnerCreditRequestDecline: {
@@ -1867,20 +1933,19 @@ export interface components {
     LearnerDashboardResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
       enterprise_course_enrollments: components["schemas"]["EnterpriseCourseEnrollment"][];
       all_enrollments_by_status: components["schemas"]["LearnerEnrollmentsByStatus"];
@@ -1907,20 +1972,19 @@ export interface components {
     LearnerSearchResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
     };
     /** @description Serializer for the learner skills quiz request. */
@@ -1937,20 +2001,19 @@ export interface components {
     LearnerSkillsQuizResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
     };
     /**
@@ -1974,7 +2037,7 @@ export interface components {
       course_partners: unknown;
       /** Format: uuid */
       enterprise_customer_uuid: string;
-      state: components["schemas"]["State7b6Enum"];
+      state: components["schemas"]["StateB44Enum"];
       /** Format: date-time */
       reviewed_at: string | null;
       reviewer_lms_user_id: number | null;
@@ -2392,9 +2455,11 @@ export interface components {
     /**
      * @description * `1` - B2B Paid
      * * `3` - Trial
+     * * `6` - Self-service Trial
+     * * `7` - Self-service Paid
      * @enum {integer}
      */
-    ProductIdEnum: 1 | 3;
+    ProductIdEnum: 1 | 3 | 6 | 7;
     /** @description Request serializer for provisioning create view. */
     ProvisioningRequest: {
       /** @description Object describing the requested Enterprise Customer. */
@@ -2405,7 +2470,8 @@ export interface components {
       enterprise_catalog?: components["schemas"]["EnterpriseCatalogRequest"] | null;
       /** @description Object describing the requested Customer Agreement. */
       customer_agreement?: components["schemas"]["CustomerAgreementRequest"] | null;
-      subscription_plan: components["schemas"]["SubscriptionPlanRequest"];
+      trial_subscription_plan: components["schemas"]["SubscriptionPlanRequest"];
+      first_paid_subscription_plan: components["schemas"]["SubscriptionPlanRequest"];
     };
     /** @description Response serializer for provisioning create view. */
     ProvisioningResponse: {
@@ -2413,7 +2479,9 @@ export interface components {
       customer_admins: components["schemas"]["AdminObjectResponse"];
       enterprise_catalog: components["schemas"]["EnterpriseCatalogResponse"];
       customer_agreement: components["schemas"]["CustomerAgreementResponse"];
-      subscription_plan: components["schemas"]["SubscriptionPlanResponse"];
+      trial_subscription_plan: components["schemas"]["SubscriptionPlanResponse"];
+      first_paid_subscription_plan: components["schemas"]["SubscriptionPlanResponse"];
+      subscription_plan_renewal: components["schemas"]["SubscriptionPlanRenewalResponse"];
     };
     /** @description Serializer for the secured algolia key */
     SecuredAlgoliaMetadata: {
@@ -2433,7 +2501,7 @@ export interface components {
      * * `reversed` - Reversed
      * @enum {string}
      */
-    State7b6Enum: "requested" | "pending" | "approved" | "declined" | "error" | "accepted" | "cancelled" | "expired" | "reversed";
+    StateB44Enum: "requested" | "pending" | "approved" | "declined" | "error" | "accepted" | "cancelled" | "expired" | "reversed";
     /**
      * @description * `allocated` - Allocated
      * * `accepted` - Accepted
@@ -2443,7 +2511,7 @@ export interface components {
      * * `reversed` - Reversed
      * @enum {string}
      */
-    StateBedEnum: "allocated" | "accepted" | "cancelled" | "errored" | "expired" | "reversed";
+    StateE0aEnum: "allocated" | "accepted" | "cancelled" | "errored" | "expired" | "reversed";
     /** @description Serializer for subscription license. */
     SubscriptionLicense: {
       /** Format: uuid */
@@ -2483,31 +2551,83 @@ export interface components {
       days_until_expiration_including_renewals: number;
       should_auto_apply_licenses: boolean | null;
     };
+    /** @description Request serializer for updating a SubscriptionPlan's Salesforce OLI. */
+    SubscriptionPlanOLIUpdate: {
+      /** @description The integer ID of the CheckoutIntent associated with this subscription. */
+      checkout_intent_id?: number | null;
+      /**
+       * Format: uuid
+       * @description The UUID of the CheckoutIntent associated with this subscription.
+       */
+      checkout_intent_uuid?: string | null;
+      /** @description The Salesforce Opportunity Line Item ID to associate with the subscription plan. */
+      salesforce_opportunity_line_item: string;
+      /**
+       * @description Whether this OLI is for the trial plan (True) or paid plan (False).
+       * @default false
+       */
+      is_trial?: boolean;
+    };
+    /** @description Response serializer for SubscriptionPlan OLI update. */
+    SubscriptionPlanOLIUpdateResponse: {
+      /** @description Whether the update was successful */
+      success: boolean;
+      /**
+       * Format: uuid
+       * @description The UUID identifier of the future plan (which receives the updated OLI value)
+       */
+      subscription_plan_uuid: string;
+      /** @description The Salesforce Opportunity Line Item ID to associate with the subscription plan. */
+      salesforce_opportunity_line_item: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the CheckoutIntent associated with this subscription.
+       */
+      checkout_intent_uuid?: string | null;
+      /** @description The integer ID of the CheckoutIntent associated with this subscription. */
+      checkout_intent_id?: number | null;
+    };
+    /** @description Subscription Plan Renewal serializer for provisioning responses. */
+    SubscriptionPlanRenewalResponse: {
+      id: number;
+      /** Format: uuid */
+      prior_subscription_plan: string;
+      /** Format: uuid */
+      renewed_subscription_plan: string;
+      number_of_licenses: number;
+      /** Format: date-time */
+      effective_date: string;
+      /** Format: date-time */
+      renewed_expiration_date: string;
+      salesforce_opportunity_line_item?: string;
+    };
     /** @description Subscription Plan serializer for provisioning requests. */
     SubscriptionPlanRequest: {
       /** @description The title of the subscription plan. */
       title: string;
       /** @description The Salesforce Opportunity Line Item id associated with this subscription plan. */
-      salesforce_opportunity_line_item: string;
+      salesforce_opportunity_line_item: string | null;
       /**
        * Format: date-time
        * @description The date and time at which the subscription plan becomes usable.
        */
-      start_date: string;
+      start_date?: string;
       /**
        * Format: date-time
        * @description The date and time at which the subscription plan becomes unusable.
        */
-      expiration_date: string;
+      expiration_date?: string;
       /**
        * @description The internal edX Enterprise Subscription Product record.
        *
        * * `1` - B2B Paid
        * * `3` - Trial
+       * * `6` - Self-service Trial
+       * * `7` - Self-service Paid
        */
-      product_id: components["schemas"]["ProductIdEnum"];
+      product_id?: components["schemas"]["ProductIdEnum"];
       /** @description The number of licenses to create for this plan. */
-      desired_num_licenses: number;
+      desired_num_licenses?: number;
       /**
        * Format: uuid
        * @description Optional. The enterprise catalog uuid associated with this subscription plan.
@@ -2531,6 +2651,7 @@ export interface components {
       plan_type: string;
       /** Format: uuid */
       enterprise_catalog_uuid: string;
+      product: number;
     };
     /** @description Serializer for subscriptions subsidies. */
     Subscriptions: {
@@ -2551,11 +2672,11 @@ export interface components {
        * @description Total Amount redeemed for policy, in USD.
        */
       amount_redeemed_usd: number;
-      /** @description Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy (0 otherwise), in positive USD cents. */
+      /** @description Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy or {PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in positive USD cents. */
       amount_allocated_usd_cents: number;
       /**
        * Format: double
-       * @description ('Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy (0 otherwise), in USD.',)
+       * @description ('Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy or ', '{PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in USD.')
        */
       amount_allocated_usd: number;
       /** @description Total Amount of available spend for policy, in positive USD cents. */
@@ -4046,12 +4167,21 @@ export interface operations {
       query?: {
         course_id?: string;
         enterprise_customer_uuid?: string;
+        /** @description Choose from the following valid action statuses: requested, pending, approved, declined, error, accepted, cancelled, expired, reversed, reminded */
+        latest_action_status?: string;
+        /** @description Choose from the following valid action statuses: requested, pending, approved, declined, error, accepted, cancelled, expired, reversed, reminded */
+        latest_action_status__in?: string[];
+        /** @description Choose from the following valid learner request states: requested, pending, approved, declined, accepted, cancelled, expired, reversed, reminded, waiting, failed */
+        learner_request_state?: string;
+        /** @description Choose from the following valid learner request states: requested, pending, approved, declined, accepted, cancelled, expired, reversed, reminded, waiting, failed */
+        learner_request_state__in?: string[];
         /** @description Which field to use when ordering the results. */
         ordering?: string;
         /** @description A page number within the paginated result set. */
         page?: number;
         /** @description Number of results to return per page. */
         page_size?: number;
+        policy_uuid?: string;
         /** @description A search term. */
         search?: string;
         user__email?: string;
@@ -4106,6 +4236,76 @@ export interface operations {
     };
   };
   /**
+   * Approve a learner credit request.
+   * @description Approve a list of learner credit requests against a single policy.
+   *
+   * - On success, returns a `200 OK` with a list of the approved request objects.
+   * - If any of the specified requests fail to be approved, returns a
+   *   `422 Unprocessable Entity`. The successful approvals will still be committed.
+   */
+  api_v1_learner_credit_requests_approve_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestApproveRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestApproveRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestApproveRequest"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * @description Approve all filtered learner credit requests against a single policy.
+   *
+   * - On success, returns a `202 Accepted` status, indicating that the
+   *   bulk approval process has been initiated.
+   * - If no approvable requests are found for the given policy and filters,
+   *   returns a `404 Not Found`.
+   * - If any requests fail during the bulk approval, returns a
+   *   `422 Unprocessable Entity` to indicate a partial failure.
+   */
+  api_v1_learner_credit_requests_approve_all_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequest"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * Learner credit request cancel endpoint.
+   * @description Cancel a learner credit request.
+   */
+  api_v1_learner_credit_requests_cancel_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestCancel"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestCancel"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestCancel"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequestCancel"];
+        };
+      };
+    };
+  };
+  /**
    * Decline a learner credit request.
    * @description Action of declining a Learner Credit Subsidy Request
    */
@@ -4130,6 +4330,23 @@ export interface operations {
    * @description Returns an overview of subsidy requests count by state.
    */
   api_v1_learner_credit_requests_overview_retrieve: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /** @description Remind a Learner that their LearnerCreditRequest is Approved and waiting for their action. */
+  api_v1_learner_credit_requests_remind_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequest"];
+      };
+    };
     responses: {
       200: {
         content: {
@@ -4270,6 +4487,8 @@ export interface operations {
   api_v1_policy_allocation_allocate_create: {
     parameters: {
       query: {
+        /** @description The id of the Admin LMS user record. This may be null at time of creation. */
+        admin_lms_user_id?: number | null;
         /** @description Course content_key to which these learners are assigned. */
         content_key: string;
         /** @description The price, in USD cents, of this content at the time of allocation. Must be >= 0. */
@@ -4455,6 +4674,26 @@ export interface operations {
     };
   };
   /**
+   * Update a SubscriptionPlan with Salesforce Opportunity Line Item.
+   * @description Update a subscription plan with Salesforce OLI.
+   */
+  api_v1_provisioning_subscription_plan_oli_update_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SubscriptionPlanOLIUpdate"];
+        "application/x-www-form-urlencoded": components["schemas"]["SubscriptionPlanOLIUpdate"];
+        "multipart/form-data": components["schemas"]["SubscriptionPlanOLIUpdate"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["SubscriptionPlanOLIUpdateResponse"];
+        };
+      };
+    };
+  };
+  /**
    * List subsidy access policies for an enterprise customer.
    * @description Lists `SubsidyAccessPolicy` records, filtered by the
    * given query parameters.
@@ -4629,6 +4868,8 @@ export interface operations {
   api_v1_subsidy_access_policies_group_members_retrieve: {
     parameters: {
       query: {
+        /** @description The id of the Admin LMS user record. This may be null at time of creation. */
+        admin_lms_user_id?: number | null;
         /** @description Course content_key to which these learners are assigned. */
         content_key: string;
         /** @description The price, in USD cents, of this content at the time of allocation. Must be >= 0. */
