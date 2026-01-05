@@ -11,7 +11,6 @@ import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
 
 import { COURSE_SECTION_TITLES } from '../../../data';
 import CourseEnrollments from '../CourseEnrollments';
-import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
 import {
   ASSIGNMENT_TYPES,
@@ -31,9 +30,6 @@ import {
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
 import { COURSE_STATUSES } from '../../../../../constants';
 import CourseEnrollmentsContext from '../CourseEnrollmentsContext';
-import {
-  MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
-} from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 
 jest.mock('@edx/frontend-enterprise-utils');
 
@@ -81,6 +77,9 @@ const cancelledAssignedCourseRun = createCourseEnrollmentWithStatus({
   status: COURSE_STATUSES.assigned,
   isCancelledAssignment: true,
 });
+
+const MARK_SAVED_FOR_LATER_DEFAULT_LABEL = 'Save course for later';
+const MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL = 'Move course to "In Progress"';
 
 const transformedLicenseRequest = {
   created: '2017-02-05T05:00:00Z',
