@@ -28,11 +28,13 @@ const ACADEMY_MOCK_DATA = {
     {
       id: 111,
       title: 'wowwww',
+      titleEn: 'wowwww_en',
       description: 'description 111',
     },
     {
       id: 222,
       title: 'boooo',
+      titleEn: 'boooo_en',
       description: 'description 222',
     },
   ],
@@ -152,6 +154,21 @@ describe('<AcademyDetailPage />', () => {
         expect(screen.queryByText(messages.alertTextOptionNetwork.defaultMessage)).not.toBeInTheDocument();
         expect(screen.queryByText(messages.alertTextOptionSupport.defaultMessage)).not.toBeInTheDocument();
       }
+    });
+  });
+
+  it('filters courses by tag using titleEn', async () => {
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    const tagButton = await screen.findByText('wowwww');
+    tagButton.click();
+
+    await waitFor(() => {
+      expect(mockSearchFn).toHaveBeenCalledWith('', expect.objectContaining({
+        facetFilters: expect.arrayContaining([
+          'academy_tags:wowwww_en',
+        ]),
+      }));
     });
   });
 });
