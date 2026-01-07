@@ -169,7 +169,7 @@ const AcademyContentCard = ({
             data-testid="academy-tag"
             key={tag.id}
             variant="light"
-            onClick={() => setSelectedTag(tag.title)}
+            onClick={() => setSelectedTag(tag.titleEn)}
           >
             {tag.title}
           </Button>
