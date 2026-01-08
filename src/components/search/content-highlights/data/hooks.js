@@ -1,3 +1,4 @@
+import { useIntl } from '@edx/frontend-platform/i18n';
 import {
   getHighlightedContentCardVariant,
   getFormattedContentType,
@@ -9,6 +10,7 @@ export const useHighlightedContentCardData = ({
   enterpriseSlug,
   highlightedContent,
 }) => {
+  const intl = useIntl();
   const cardData = {};
 
   if (!highlightedContent) {
@@ -32,7 +34,7 @@ export const useHighlightedContentCardData = ({
     contentType,
     enterpriseSlug,
   });
-  cardData.contentType = getFormattedContentType(contentType);
+  cardData.contentType = getFormattedContentType(contentType, intl);
   cardData.title = title;
   cardData.cardImageUrl = cardImageUrl;
   cardData.authoringOrganizations = getAuthoringOrganizations(authoringOrganizations);

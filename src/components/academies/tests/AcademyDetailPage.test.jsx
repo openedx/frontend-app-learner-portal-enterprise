@@ -12,6 +12,11 @@ import { useAcademyDetails, useAlgoliaSearch, useEnterpriseCustomer } from '../.
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 import { messages } from '../../search-unavailable-alert/SearchUnavailableAlert';
 
+jest.mock('@edx/frontend-platform/i18n', () => ({
+  ...jest.requireActual('@edx/frontend-platform/i18n'),
+  getLocale: () => 'es-419',
+}));
+
 // config
 const APP_CONFIG = {
   ENTERPRISE_CATALOG_API_BASE_URL: 'http://localhost:18160',

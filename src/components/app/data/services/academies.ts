@@ -3,21 +3,8 @@ import { CamelCasedPropertiesDeep } from 'type-fest';
 import { getConfig } from '@edx/frontend-platform/config';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getLocale } from '@edx/frontend-platform/i18n';
 import { fetchPaginatedData } from './utils';
-
-// Supported languages for academy translations
-const SUPPORTED_LANGUAGES = ['en', 'es'] as const;
-
-/**
- * Get the current locale, falling back to English if unsupported
- * @returns A supported language code ('en' or 'es')
- */
-const getSupportedLocale = (): string => {
-  const currentLocale = getLocale();
-  const baseLocale = currentLocale.split('-')[0].toLowerCase();
-  return SUPPORTED_LANGUAGES.includes(baseLocale as any) ? baseLocale : 'en';
-};
+import { getSupportedLocale } from '../utils';
 
 type AcademyRaw = {
   uuid: string;

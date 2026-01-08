@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { logError } from '@edx/frontend-platform/logging';
+import { getLocale } from '@edx/frontend-platform/i18n';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import {
@@ -81,7 +82,7 @@ export const hasAutoAppliedLearnerCreditPolicies = (redeemableLearnerCreditPolic
 
 export const hasAllocatedOrAcceptedAssignments = (redeemableLearnerCreditPolicies) => (
   redeemableLearnerCreditPolicies.learnerContentAssignments.hasAllocatedAssignments
-    || redeemableLearnerCreditPolicies.learnerContentAssignments.hasAcceptedAssignments
+  || redeemableLearnerCreditPolicies.learnerContentAssignments.hasAcceptedAssignments
 );
 
 /**
@@ -798,6 +799,7 @@ export const filterPoliciesByExpirationAndActive = (policies) => {
  *  - Learner Credit
  *  - Offers
  *
+ *
  * @param applicableSubscriptionLicense
  * @param applicableCouponCode
  * @param applicableEnterpriseOffer
@@ -1121,3 +1123,15 @@ export function getCoursePrice(courseMetadata) {
   // 4. Return default normalized price in cents
   return 0;
 }
+
+export const SUPPORTED_LANGUAGES = ['en', 'es'];
+
+/**
+ * Get the current locale, falling back to English if unsupported
+ * @returns {string} A supported language code ('en' or 'es')
+ */
+export const getSupportedLocale = () => {
+  const currentLocale = getLocale();
+  const baseLocale = currentLocale.split('-')[0].toLowerCase();
+  return SUPPORTED_LANGUAGES.includes(baseLocale) ? baseLocale : 'en';
+};

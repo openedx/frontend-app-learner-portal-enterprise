@@ -8,6 +8,7 @@ import {
   LEARNING_TYPE_COURSE,
   LEARNING_TYPE_EXECUTIVE_EDUCATION,
 } from '@edx/frontend-enterprise-catalog-search/data/constants';
+import { getSupportedLocale } from '../app/data/utils';
 import SearchCourseCard from '../search/SearchCourseCard';
 import { useAlgoliaSearch, useEnterpriseCustomer } from '../app/data';
 import { SearchUnavailableAlert } from '../search-unavailable-alert';
@@ -36,13 +37,16 @@ const AcademyContentCard = ({
     () => {
       async function fetchCourses() {
         setIsAlgoliaLoading(true);
+        const currentLocale = getSupportedLocale();
         const searchFacetFilters = selectedTag ? [
           ['content_type:course'],
           `academy_uuids:${academyUUID}`,
           `academy_tags:${selectedTag}`,
+          `metadata_language:${currentLocale}`,
         ] : [
           ['content_type:course'],
           `academy_uuids:${academyUUID}`,
+          `metadata_language:${currentLocale}`,
         ];
         if (!shouldUseSecuredAlgoliaApiKey) {
           searchFacetFilters.push(`enterprise_customer_uuids:${enterpriseCustomer.uuid}`);

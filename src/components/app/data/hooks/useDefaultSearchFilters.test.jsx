@@ -14,6 +14,10 @@ import { isObjEmpty } from '../utils';
 jest.mock('./useEnterpriseCustomer', () => jest.fn());
 jest.mock('./useSearchCatalogs', () => jest.fn());
 jest.mock('./useAlgoliaSearch', () => jest.fn());
+jest.mock('../utils', () => ({
+  ...jest.requireActual('../utils'),
+  getSupportedLocale: jest.fn().mockReturnValue('en'),
+}));
 jest.mock('../../../../config', () => ({
   ...jest.requireActual('../../../../config'),
   features: {
@@ -68,7 +72,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual('NOT content_type:video');
+    expect(result.current).toEqual('NOT content_type:video AND metadata_language:en');
     expect(mockDispatch).toHaveBeenCalled();
   });
 
@@ -78,7 +82,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual('NOT content_type:video');
+    expect(result.current).toEqual('NOT content_type:video AND metadata_language:en');
   });
 
   // TODO: Fix this test
@@ -99,7 +103,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual('(enterprise_catalog_query_uuids:test-catalog-query-uuid-1 OR enterprise_catalog_query_uuids:test-catalog-query-uuid-2) AND NOT content_type:video');
+    expect(result.current).toEqual('(enterprise_catalog_query_uuids:test-catalog-query-uuid-1 OR enterprise_catalog_query_uuids:test-catalog-query-uuid-2) AND NOT content_type:video AND metadata_language:en');
   });
 
   it('should return aggregated catalog string if searchCatalogs.length === 0', () => {
@@ -108,7 +112,7 @@ describe('useDefaultSearchFilters', () => {
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
-    expect(result.current).toEqual('NOT content_type:video');
+    expect(result.current).toEqual('NOT content_type:video AND metadata_language:en');
   });
 
   it.each(
@@ -152,18 +156,18 @@ describe('useDefaultSearchFilters', () => {
 
     if (searchCatalogs.length === 0 || isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
       if (enableVideoCatalog) {
-        expect(result.current).toEqual('');
+        expect(result.current).toEqual('metadata_language:en');
       } else {
-        expect(result.current).toEqual(baseExpectedVideoOutput);
+        expect(result.current).toEqual(`${baseExpectedVideoOutput} AND metadata_language:en`);
         expect(logInfo).not.toHaveBeenCalled();
       }
     }
     if ((!showAllRefinements && searchCatalogs.length > 0) && !isObjEmpty(catalogUuidsToCatalogQueryUuids)) {
       if (enableVideoCatalog) {
-        expect(result.current).toEqual(baseExpectedCatalogOutput);
+        expect(result.current).toEqual(`${baseExpectedCatalogOutput} AND metadata_language:en`);
         expect(logInfo).not.toHaveBeenCalled();
       } else {
-        expect(result.current).toEqual(`${baseExpectedCatalogOutput } AND ${baseExpectedVideoOutput}`);
+        expect(result.current).toEqual(`${baseExpectedCatalogOutput} AND ${baseExpectedVideoOutput} AND metadata_language:en`);
         expect(logInfo).not.toHaveBeenCalled();
       }
     }

@@ -3,6 +3,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { MAX_HIGHLIGHT_SETS } from '../constants';
 import { fetchPaginatedData } from './utils';
+import { getSupportedLocale } from '../utils';
 
 /**
  * Content Highlights Configuration
@@ -33,9 +34,11 @@ type ContentHighlightRaw = {
  * @returns
  */
 export async function fetchContentHighlights(enterpriseUUID: string, options = {}) {
+  const currentLocale = getSupportedLocale();
   const queryParams = new URLSearchParams({
     enterprise_customer: enterpriseUUID,
     page_size: MAX_HIGHLIGHT_SETS.toString(),
+    lang: currentLocale,
     ...options,
   });
   const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/highlight-sets/?${queryParams.toString()}`;
