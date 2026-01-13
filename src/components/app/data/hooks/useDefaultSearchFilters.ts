@@ -4,6 +4,7 @@ import { logInfo } from '@edx/frontend-platform/logging';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 import useSearchCatalogs from './useSearchCatalogs';
 import useAlgoliaSearch from './useAlgoliaSearch';
+import { getSupportedLocale } from '../utils';
 import { AlgoliaFilterBuilder } from '../../../AlgoliaFilterBuilder';
 
 interface SearchContextValue {
@@ -75,11 +76,14 @@ export default function useDefaultSearchFilters(): string {
       // api key compatible filter query
       let filter: string | null = '';
       if (shouldUseSecuredAlgoliaApiKey) {
-        filter = queryByCatalogQuery({
-          searchCatalogs,
-          catalogUuidsToCatalogQueryUuids,
-          showAllRefinement,
-        });
+        filter = new AlgoliaFilterBuilder()
+          .andRaw(queryByCatalogQuery({
+            searchCatalogs,
+            catalogUuidsToCatalogQueryUuids,
+            showAllRefinement,
+          }))
+          .filterByMetadataLanguage(getSupportedLocale())
+          .build();
       } else {
         logInfo(
           `No filter was generated from useDefaultSearchFilters:

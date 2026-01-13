@@ -22,6 +22,11 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(() => ({ FEATURE_CONTENT_HIGHLIGHTS: true })),
 }));
+jest.mock('@edx/frontend-platform/i18n', () => ({
+  useIntl: jest.fn(() => ({
+    formatMessage: jest.fn((msg) => msg.defaultMessage),
+  })),
+}));
 
 describe('useHighlightedContentCardData', () => {
   it('should return an empty object if highlightedContent is not provided', () => {
@@ -45,7 +50,12 @@ describe('useHighlightedContentCardData', () => {
       contentType: highlightedContent.contentType,
       enterpriseSlug: 'test-slug',
     });
-    expect(getFormattedContentType).toHaveBeenCalledWith(highlightedContent.contentType);
+    expect(getFormattedContentType).toHaveBeenCalledWith(
+      highlightedContent.contentType,
+      expect.objectContaining({
+        formatMessage: expect.any(Function),
+      }),
+    );
     expect(getAuthoringOrganizations).toHaveBeenCalledWith(highlightedContent.authoringOrganizations);
     expect(result.current).toEqual({
       aggregationKey: highlightedContent.aggregationKey,

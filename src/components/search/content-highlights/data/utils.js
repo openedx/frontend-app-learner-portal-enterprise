@@ -1,12 +1,28 @@
+import { defineMessages } from '@edx/frontend-platform/i18n';
+
+const messages = defineMessages({
+  course: {
+    id: 'enterprise.search.contentHighlights.contentType.course',
+    defaultMessage: 'Course',
+    description: 'Label for course content type in content highlights.',
+  },
+  program: {
+    id: 'enterprise.search.contentHighlights.contentType.program',
+    defaultMessage: 'Program',
+    description: 'Label for program content type in content highlights.',
+  },
+  learnerpathway: {
+    id: 'enterprise.search.contentHighlights.contentType.learnerpathway',
+    defaultMessage: 'Pathway',
+    description: 'Label for learner pathway content type in content highlights.',
+  },
+});
+
 export const getHighlightedContentCardVariant = contentType => (contentType === 'course' ? 'light' : 'dark');
 
-export const getFormattedContentType = (contentType) => {
-  const formattedContentTypes = {
-    course: 'Course',
-    program: 'Program',
-    learnerpathway: 'Pathway',
-  };
-  return formattedContentTypes[contentType];
+export const getFormattedContentType = (contentType, intl) => {
+  const message = messages[contentType];
+  return message ? intl.formatMessage(message) : contentType;
 };
 
 export const getAuthoringOrganizations = (authoringOrganizations) => {

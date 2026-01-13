@@ -189,6 +189,19 @@ export default class AlgoliaFilterBuilder {
   }
 
   /**
+   * Adds a filter for the metadata language.
+   *
+   * @param locale - The locale code to filter by (e.g. 'en', 'es').
+   * @returns The current AlgoliaFilterBuilder instance for chaining.
+   */
+  filterByMetadataLanguage(locale: string) {
+    if (locale) {
+      this.and('metadata_language', locale);
+    }
+    return this;
+  }
+
+  /**
    * Builds and returns the final Algolia-compatible filter string.
    *
    * @returns A complete filter expression with `AND`-joined clauses.

@@ -22,6 +22,11 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedHttpClient: jest.fn(),
 }));
 
+jest.mock('@edx/frontend-platform/i18n', () => ({
+  ...jest.requireActual('@edx/frontend-platform/i18n'),
+  getLocale: () => 'es-419',
+}));
+
 describe('fetchEnterpriseCuration', () => {
   const queryParams = new URLSearchParams({
     enterprise_customer: mockEnterpriseId,
@@ -56,6 +61,7 @@ describe('fetchContentHighlights', () => {
   const queryParams = new URLSearchParams({
     enterprise_customer: mockEnterpriseId,
     page_size: MAX_HIGHLIGHT_SETS,
+    lang: 'es',
   });
   const HIGHLIGHT_SETS_URL = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/highlight-sets/?${queryParams.toString()}`;
 

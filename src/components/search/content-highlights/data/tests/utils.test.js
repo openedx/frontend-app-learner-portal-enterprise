@@ -6,6 +6,13 @@ import {
   getContentPageUrl,
 } from '../utils';
 
+jest.mock('@edx/frontend-platform/i18n', () => ({
+  useIntl: jest.fn(() => ({
+    formatMessage: jest.fn((msg) => msg.defaultMessage),
+  })),
+  defineMessages: jest.fn((msgs) => msgs),
+}));
+
 describe('utils', () => {
   it('should return a set of content types given an array of contentHighlights', () => {
     const contentHighlights = [
@@ -80,11 +87,35 @@ describe('utils', () => {
     expect(getHighlightsContentTypeSet(contentHighlights)).toEqual(contentTypeSet);
   });
   it('should return the correct formatted content type', () => {
+    const mockIntl = {
+      formatMessage: jest.fn(({ defaultMessage }) => defaultMessage),
+    };
+
     const contentTypes = ['course', 'program', 'learnerpathway'];
     const formattedContentTypes = ['Course', 'Program', 'Pathway'];
+
     for (let i = 0; i < contentTypes.length; i++) {
-      expect(getFormattedContentType(contentTypes[i])).toEqual(formattedContentTypes[i]);
+      expect(
+        getFormattedContentType(contentTypes[i], mockIntl),
+      ).toEqual(formattedContentTypes[i]);
     }
+  });
+  it('returns formatted content types using intl.formatMessage', () => {
+    const mockIntl = {
+      formatMessage: jest.fn(({ defaultMessage }) => defaultMessage),
+    };
+
+    const cases = [
+      ['course', 'Course'],
+      ['program', 'Program'],
+      ['learnerpathway', 'Pathway'],
+    ];
+
+    cases.forEach(([contentType, expected]) => {
+      expect(getFormattedContentType(contentType, mockIntl)).toBe(expected);
+    });
+
+    expect(mockIntl.formatMessage).toHaveBeenCalledTimes(cases.length);
   });
   it('should return formatted authoring organization data', () => {
     const multipleAuthoringOrganizations = [

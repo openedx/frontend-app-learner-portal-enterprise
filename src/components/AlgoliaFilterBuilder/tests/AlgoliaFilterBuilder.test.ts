@@ -97,4 +97,18 @@ describe('AlgoliaFilterBuilder', () => {
       }
     },
   );
+
+  it('filters by metadata language if locale is provided', () => {
+    const result = new AlgoliaFilterBuilder()
+      .filterByMetadataLanguage('es')
+      .build();
+    expect(result).toBe('metadata_language:es');
+  });
+
+  it('skips metadata language filter if locale is empty', () => {
+    const result = new AlgoliaFilterBuilder()
+      .filterByMetadataLanguage('')
+      .build();
+    expect(result).toBe('');
+  });
 });
