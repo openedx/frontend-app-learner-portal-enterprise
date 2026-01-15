@@ -4,7 +4,7 @@ import {
 } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import dayjs from '../../utils/dayjs';
 
 import { SUBSCRIPTION_DAYS_REMAINING_EXCEPTIONAL, SUBSCRIPTION_DAYS_REMAINING_SEVERE } from '../../config/constants';
@@ -14,8 +14,69 @@ import { useEnterpriseCustomer, useSubscriptions } from '../app/data';
 import { EXPIRED_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY, EXPIRING_SUBSCRIPTION_MODAL_LOCALSTORAGE_KEY } from './data';
 
 export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
-export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
-export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your subscription is expiring';
+
+const messages = defineMessages({
+  expiredBodyText1: {
+    id: 'learner.portal.subscription.expired.modal.body.text1',
+    defaultMessage: "Your organization's access to your subscription has expired. You will only have audit access to the courses you were enrolled in with your subscription (courses from vouchers will still be fully accessible).",
+    description: 'Main notification text in the expired modal',
+  },
+  expiredBodyText2: {
+    id: 'learner.portal.subscription.expired.modal.body.text2',
+    defaultMessage: 'You can also <link>download your completed certificates</link>.',
+    description: 'Text about downloading certificates in the expired modal',
+  },
+  expiredBodyText3: {
+    id: 'learner.portal.subscription.expired.modal.body.text3',
+    defaultMessage: 'If you think this is an error or need help, {contactLink}.',
+    description: 'Contact info text in the expired modal',
+  },
+  expiredTitle: {
+    id: 'learner.portal.subscription.expired.modal.title',
+    defaultMessage: 'Your subscription has expired',
+    description: 'Title for the subscription expired modal',
+  },
+  okButton: {
+    id: 'learner.portal.subscription.expiration.modal.ok.button',
+    defaultMessage: 'OK',
+    description: 'Text for the OK button',
+  },
+  contactManager: {
+    id: 'learner.portal.subscription.expiration.modal.contact.manager',
+    defaultMessage: 'contact your learning manager',
+    description: 'Text for the contact manager link',
+  },
+  expiringBodyText1: {
+    id: 'learner.portal.subscription.expiring.modal.body.text1',
+    defaultMessage: "Your organization's access to your current subscription is expiring in {timeRemaining} After it expires you will only have audit access to your courses.",
+    description: 'Main notification text in the expiring modal',
+  },
+  expiringBodyText2: {
+    id: 'learner.portal.subscription.expiring.modal.body.text2',
+    defaultMessage: 'If you are currently taking courses, plan your learning accordingly. You should also take this time to <link>download your completed certificates</link>.',
+    description: 'Text about planning learning in the expiring modal',
+  },
+  expiringBodyText3: {
+    id: 'learner.portal.subscription.expiring.modal.body.text3',
+    defaultMessage: 'If you think this is an error or need help, {contactLink}.',
+    description: 'Contact info text in the expiring modal',
+  },
+  expiringDate: {
+    id: 'learner.portal.subscription.expiring.modal.date',
+    defaultMessage: 'Access expires on {date}.',
+    description: 'Text showing when the subscription expires',
+  },
+  expiringTitle: {
+    id: 'learner.portal.subscription.expiring.modal.title',
+    defaultMessage: 'Your subscription is expiring',
+    description: 'Title for the subscription expiring modal',
+  },
+  expiredDate: {
+    id: 'learner.portal.subscription.expired.modal.date',
+    defaultMessage: 'Access expired on {date}.',
+    description: 'Text showing when the subscription expired',
+  },
+});
 
 // TODO: Still requires internationalization refactor
 const SubscriptionExpirationModal = () => {
@@ -40,7 +101,7 @@ const SubscriptionExpirationModal = () => {
   } = subscriptionPlan;
 
   const renderContactText = () => {
-    const contactText = 'contact your learning manager';
+    const contactText = intl.formatMessage(messages.contactManager);
     const email = getContactEmail(enterpriseCustomer);
     if (email) {
       return (
@@ -52,9 +113,9 @@ const SubscriptionExpirationModal = () => {
     return contactText;
   };
 
-  const renderCertificateText = () => (
+  const certificateLink = (chunks) => (
     <a href={`${config.ACCOUNT_PROFILE_URL}/u/${username}`} className="font-weight-bold">
-      download your completed certificates
+      {chunks}
     </a>
   );
 
@@ -98,13 +159,15 @@ const SubscriptionExpirationModal = () => {
     }
     return (
       <AlertModal
-        title={SUBSCRIPTION_EXPIRED_MODAL_TITLE}
+        title={intl.formatMessage(messages.expiredTitle)}
         className={`${MODAL_DIALOG_CLASS_NAME} expired`}
         isOpen={isOpen}
         data-testid="expired-modal"
         footerNode={(
           <ActionRow>
-            <Button variant="primary" onClick={handleSubscriptionExpiredModalDismissal} data-testid="subscription-expiration-button">OK</Button>
+            <Button variant="primary" onClick={handleSubscriptionExpiredModalDismissal} data-testid="subscription-expiration-button">
+              {intl.formatMessage(messages.okButton)}
+            </Button>
           </ActionRow>
         )}
         onClose={handleSubscriptionExpiredModalDismissal}
@@ -112,18 +175,27 @@ const SubscriptionExpirationModal = () => {
         hasCloseButton
       >
         <p>
-          Your organization&#39;s access to your subscription has expired. You will only have audit
-          access to the courses you were enrolled in with your subscription (courses from vouchers
-          will still be fully accessible).
+          <FormattedMessage {...messages.expiredBodyText1} />
         </p>
         <p>
-          You can also {renderCertificateText()}.
+          <FormattedMessage
+            {...messages.expiredBodyText2}
+            values={{ link: certificateLink }}
+          />
         </p>
         <p>
-          If you think this is an error or need help, {renderContactText()}.
+          <FormattedMessage
+            {...messages.expiredBodyText3}
+            values={{ contactLink: renderContactText() }}
+          />
         </p>
         <i>
-          Access expired on {dayjs(expirationDate).format('MMM D, YYYY')}.
+          <FormattedMessage
+            {...messages.expiredDate}
+            values={{
+              date: dayjs(expirationDate).format('MMM D, YYYY'),
+            }}
+          />
         </i>
       </AlertModal>
     );
@@ -160,14 +232,16 @@ const SubscriptionExpirationModal = () => {
 
   return (
     <AlertModal
-      title={SUBSCRIPTION_EXPIRING_MODAL_TITLE}
+      title={intl.formatMessage(messages.expiringTitle)}
       className={MODAL_DIALOG_CLASS_NAME}
       // Mark that the user has seen this range's expiration modal when they close it
       isOpen={isOpen}
       data-testid="expiration-modal"
       footerNode={(
         <ActionRow>
-          <Button variant="primary" onClick={handleSubscriptionExpiringModalDismissal} data-testid="subscription-expiration-button">OK</Button>
+          <Button variant="primary" onClick={handleSubscriptionExpiringModalDismissal} data-testid="subscription-expiration-button">
+            {intl.formatMessage(messages.okButton)}
+          </Button>
         </ActionRow>
       )}
       onClose={handleSubscriptionExpiringModalDismissal}
@@ -175,18 +249,30 @@ const SubscriptionExpirationModal = () => {
       hasCloseButton
     >
       <p>
-        Your organization&#39;s access to your current subscription is expiring in
-        {timeUntilExpiration()} After it expires you will only have audit access to your courses.
+        <FormattedMessage
+          {...messages.expiringBodyText1}
+          values={{ timeRemaining: timeUntilExpiration() }}
+        />
       </p>
       <p>
-        If you are currently taking courses, plan your learning accordingly. You should also take
-        this time to {renderCertificateText()}.
+        <FormattedMessage
+          {...messages.expiringBodyText2}
+          values={{ link: certificateLink }}
+        />
       </p>
       <p>
-        If you think this is an error or need help, {renderContactText()}.
+        <FormattedMessage
+          {...messages.expiringBodyText3}
+          values={{ contactLink: renderContactText() }}
+        />
       </p>
       <i>
-        Access expires on {i18nFormatTimestamp({ intl, timestamp: expirationDate })}.
+        <FormattedMessage
+          {...messages.expiringDate}
+          values={{
+            date: i18nFormatTimestamp({ intl, timestamp: expirationDate }),
+          }}
+        />
       </i>
     </AlertModal>
   );

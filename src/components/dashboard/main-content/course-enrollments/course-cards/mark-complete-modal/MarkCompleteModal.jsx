@@ -4,14 +4,35 @@ import {
   ActionRow, Button, StandardModal, StatefulButton,
 } from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform';
+import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
 import MarkCompleteModalContext from './MarkCompleteModalContext';
 import ModalBody from './ModalBody';
 import { updateCourseCompleteStatusRequest } from './data/service';
 import { useEnterpriseCustomer } from '../../../../../app/data';
 
-export const MARK_SAVED_FOR_LATER_DEFAULT_LABEL = 'Save course for later';
-export const MARK_SAVED_FOR_LATER_PENDING_LABEL = 'Saving course for later...';
+const messages = defineMessages({
+  modalTitle: {
+    id: 'learner.portal.mark.complete.modal.title',
+    defaultMessage: 'Save course for later',
+    description: 'Title for the save course for later modal',
+  },
+  cancelButton: {
+    id: 'learner.portal.mark.complete.modal.cancel.button',
+    defaultMessage: 'Cancel',
+    description: 'Text for the cancel button',
+  },
+  confirmButtonDefault: {
+    id: 'learner.portal.mark.complete.modal.confirm.button.default',
+    defaultMessage: 'Save course for later',
+    description: 'Default text for the confirm button',
+  },
+  confirmButtonPending: {
+    id: 'learner.portal.mark.complete.modal.confirm.button.pending',
+    defaultMessage: 'Saving course for later...',
+    description: 'Text for the confirm button while saving',
+  },
+});
 
 const initialState = {
   confirmButtonState: 'default',
@@ -27,6 +48,7 @@ const MarkCompleteModal = ({
   onSuccess,
   onClose,
 }) => {
+  const intl = useIntl();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [
     { confirmButtonState, confirmError, confirmSuccessful },
@@ -76,17 +98,19 @@ const MarkCompleteModal = ({
   return (
     <MarkCompleteModalContext.Provider value={contextValue}>
       <StandardModal
-        title="Save course for later"
+        title={intl.formatMessage(messages.modalTitle)}
         isOpen={isOpen && !confirmSuccessful}
         onClose={handleModalOnClose}
         hasCloseButton
         footerNode={(
           <ActionRow>
-            <Button variant="tertiary" onClick={handleModalOnClose} data-testid="mark-complete-modal-cancel-btn">Cancel</Button>
+            <Button variant="tertiary" onClick={handleModalOnClose} data-testid="mark-complete-modal-cancel-btn">
+              <FormattedMessage {...messages.cancelButton} />
+            </Button>
             <StatefulButton
               labels={{
-                default: MARK_SAVED_FOR_LATER_DEFAULT_LABEL,
-                pending: MARK_SAVED_FOR_LATER_PENDING_LABEL,
+                default: intl.formatMessage(messages.confirmButtonDefault),
+                pending: intl.formatMessage(messages.confirmButtonPending),
               }}
               disabledStates={['pending']}
               className="confirm-mark-complete-btn btn-brand-primary"

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, CardGrid, Spinner } from '@openedx/paragon';
-import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
+import { defineMessages, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
@@ -12,6 +12,19 @@ import { getSupportedLocale } from '../app/data/utils';
 import SearchCourseCard from '../search/SearchCourseCard';
 import { useAlgoliaSearch, useEnterpriseCustomer } from '../app/data';
 import { SearchUnavailableAlert } from '../search-unavailable-alert';
+
+const messages = defineMessages({
+  showMore: {
+    id: 'academy.detail.page.show.more.selfpaced',
+    defaultMessage: 'Show more Self-paced courses ({contentLength}) >',
+    description: 'Show more button for self-paced courses section on academy detail page',
+  },
+  showLess: {
+    id: 'academy.detail.page.show.less.selfpaced',
+    defaultMessage: '< Show less Self-paced courses',
+    description: 'Show less button for self-paced courses section on academy detail page',
+  },
+});
 
 const AcademyContentCard = ({
   academyUUID, academyTitle, academyURL, tags,
@@ -87,30 +100,14 @@ const AcademyContentCard = ({
     ? ocmCourses
     : ocmCourses.slice(0, maxCoursesToShow);
 
-  const toggleButtonText = (showMoreBtnEnabled, contentType, title, contentLength) => {
-    let defaultMessage;
-
-    if (showMoreBtnEnabled) {
-      defaultMessage = title === 'Self-paced courses'
-        ? '< Show less {title}'
-        : '< Show less {title} courses';
-    } else {
-      defaultMessage = title === 'Self-paced courses'
-        ? 'Show more {title} ({contentLength}) >'
-        : 'Show more {title} courses ({contentLength}) >';
-    }
-
-    return intl.formatMessage({
-      id: 'academy.detail.page.show.more.toggle.button.text',
-      defaultMessage,
-      description: 'Text for the show more/show less toggle button on academy detail page.',
-    }, { title, contentLength });
-  };
+  const toggleButtonText = (showMoreBtnEnabled, contentLength) => intl.formatMessage(
+    showMoreBtnEnabled ? messages.showLess : messages.showMore,
+    { contentLength },
+  );
 
   const renderableContent = ({
     content,
     contentLength,
-    contentType,
     title,
     subtitle,
     additionalClass,
@@ -135,7 +132,7 @@ const AcademyContentCard = ({
               size="xl"
               onClick={() => setShowAllOcmCourses(prevState => !prevState)}
             >
-              { toggleButtonText(showAllOcmCourses, contentType, title, contentLength) }
+              { toggleButtonText(showAllOcmCourses, contentLength) }
             </Button>
           )}
         </div>
@@ -203,7 +200,6 @@ const AcademyContentCard = ({
             {renderableContent({
               content: visibleOcmCourses,
               contentLength: ocmCourses?.length,
-              contentType: LEARNING_TYPE_COURSE,
               title: intl.formatMessage({
                 id: 'academy.detail.page.self.paced.courses.section.title',
                 defaultMessage: 'Self-paced courses',

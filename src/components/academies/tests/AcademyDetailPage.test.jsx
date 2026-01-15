@@ -176,4 +176,324 @@ describe('<AcademyDetailPage />', () => {
       }));
     });
   });
+
+  it('clears tag filter when clear button is clicked', async () => {
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    // Click on a tag to filter
+    const tagButton = await screen.findByText('wowwww');
+    tagButton.click();
+
+    // Wait for clear filter button to appear
+    const clearButton = await screen.findByText('clear tag filter');
+    expect(clearButton).toBeInTheDocument();
+
+    // Click clear button
+    clearButton.click();
+
+    // Verify search is called without tag filter
+    await waitFor(() => {
+      expect(mockSearchFn).toHaveBeenCalledWith('', expect.objectContaining({
+        facetFilters: expect.not.arrayContaining([
+          expect.stringContaining('academy_tags:'),
+        ]),
+      }));
+    });
+  });
+
+  it('shows loading spinner while fetching courses', () => {
+    const mockSlowSearchFn = jest.fn(() => new Promise(() => {})); // Never resolves
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: mockSlowSearchFn },
+      searchIndex: { search: mockSlowSearchFn },
+      shouldUseSecuredAlgoliaApiKey: false,
+    });
+
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    expect(screen.getByText('loading')).toBeInTheDocument();
+  });
+
+  it('shows "Show more" button when there are more than 4 OCM courses', async () => {
+    const manyCoursesData = {
+      hits: Array.from({ length: 6 }, (_, i) => ({
+        aggregationKey: `course:MAX+CS50x-${i}`,
+        learningType: LEARNING_TYPE_COURSE,
+        cardImageUrl: `ocm-course-card-url-${i}`,
+        title: `OCM Course ${i}`,
+      })),
+      nbHits: 6,
+    };
+    mockSearchFn.mockResolvedValue(manyCoursesData);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: mockSearchFn },
+      searchIndex: { search: mockSearchFn },
+      shouldUseSecuredAlgoliaApiKey: false,
+    });
+
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    // Wait for courses to load
+    await screen.findByTestId('academy-ocm-courses-title');
+
+    // Should show "Show more" button
+    const showMoreButton = screen.getByRole('button', { name: /Show more Self-paced courses \(6\)/ });
+    expect(showMoreButton).toBeInTheDocument();
+
+    // Should only show 4 courses initially
+    const courseCards = screen.getAllByTestId('academy-course-card');
+    expect(courseCards.length).toBe(4);
+  });
+
+  it('expands to show all OCM courses when "Show more" is clicked', async () => {
+    const manyCoursesData = {
+      hits: Array.from({ length: 6 }, (_, i) => ({
+        aggregationKey: `course:MAX+CS50x-${i}`,
+        learningType: LEARNING_TYPE_COURSE,
+        cardImageUrl: `ocm-course-card-url-${i}`,
+        title: `OCM Course ${i}`,
+      })),
+      nbHits: 6,
+    };
+    mockSearchFn.mockResolvedValue(manyCoursesData);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: mockSearchFn },
+      searchIndex: { search: mockSearchFn },
+      shouldUseSecuredAlgoliaApiKey: false,
+    });
+
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    // Wait for courses to load
+    await screen.findByTestId('academy-ocm-courses-title');
+
+    // Click "Show more" button
+    const showMoreButton = screen.getByRole('button', { name: /Show more Self-paced courses \(6\)/ });
+    showMoreButton.click();
+
+    // Should now show all 6 courses
+    await waitFor(() => {
+      const courseCards = screen.getAllByTestId('academy-course-card');
+      expect(courseCards.length).toBe(6);
+    });
+
+    // Button text should change to "Show less"
+    const showLessButton = screen.getByRole('button', { name: /Show less Self-paced courses/ });
+    expect(showLessButton).toBeInTheDocument();
+  });
+
+  it('collapses courses when "Show less" is clicked', async () => {
+    const manyCoursesData = {
+      hits: Array.from({ length: 6 }, (_, i) => ({
+        aggregationKey: `course:MAX+CS50x-${i}`,
+        learningType: LEARNING_TYPE_COURSE,
+        cardImageUrl: `ocm-course-card-url-${i}`,
+        title: `OCM Course ${i}`,
+      })),
+      nbHits: 6,
+    };
+    mockSearchFn.mockResolvedValue(manyCoursesData);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: mockSearchFn },
+      searchIndex: { search: mockSearchFn },
+      shouldUseSecuredAlgoliaApiKey: false,
+    });
+
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    // Wait for courses to load
+    await screen.findByTestId('academy-ocm-courses-title');
+
+    // Click "Show more" button
+    const showMoreButton = screen.getByRole('button', { name: /Show more Self-paced courses \(6\)/ });
+    showMoreButton.click();
+
+    // Click "Show less" button
+    await waitFor(() => {
+      const showLessButton = screen.getByRole('button', { name: /Show less Self-paced courses/ });
+      showLessButton.click();
+    });
+
+    // Should show only 4 courses again
+    await waitFor(() => {
+      const courseCards = screen.getAllByTestId('academy-course-card');
+      expect(courseCards.length).toBe(4);
+    });
+  });
+
+  it('does not show "Show more" button when there are 4 or fewer OCM courses', async () => {
+    const fewCoursesData = {
+      hits: Array.from({ length: 3 }, (_, i) => ({
+        aggregationKey: `course:MAX+CS50x-${i}`,
+        learningType: LEARNING_TYPE_COURSE,
+        cardImageUrl: `ocm-course-card-url-${i}`,
+        title: `OCM Course ${i}`,
+      })),
+      nbHits: 3,
+    };
+    mockSearchFn.mockResolvedValue(fewCoursesData);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: mockSearchFn },
+      searchIndex: { search: mockSearchFn },
+      shouldUseSecuredAlgoliaApiKey: false,
+    });
+
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    // Wait for courses to load
+    await screen.findByTestId('academy-ocm-courses-title');
+
+    // Should not show "Show more" button
+    const showMoreButton = screen.queryByRole('button', { name: /Show more Self-paced courses/ });
+    expect(showMoreButton).not.toBeInTheDocument();
+
+    // Should show all 3 courses
+    const courseCards = screen.getAllByTestId('academy-course-card');
+    expect(courseCards.length).toBe(3);
+  });
+
+  it('does not render course section when no courses are found', async () => {
+    const noCoursesData = {
+      hits: [],
+      nbHits: 0,
+    };
+    mockSearchFn.mockResolvedValue(noCoursesData);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: mockSearchFn },
+      searchIndex: { search: mockSearchFn },
+      shouldUseSecuredAlgoliaApiKey: false,
+    });
+
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    // Wait for loading to finish
+    await waitFor(() => {
+      expect(screen.queryByText('loading')).not.toBeInTheDocument();
+    });
+
+    // Should not show OCM courses section
+    expect(screen.queryByTestId('academy-ocm-courses-title')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('academy-course-card')).not.toBeInTheDocument();
+  });
+
+  it('includes enterprise_customer_uuids in facet filters when not using secured API key', async () => {
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: mockSearchFn },
+      searchIndex: { search: mockSearchFn },
+      shouldUseSecuredAlgoliaApiKey: false,
+    });
+
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    await waitFor(() => {
+      expect(mockSearchFn).toHaveBeenCalledWith('', expect.objectContaining({
+        facetFilters: expect.arrayContaining([
+          `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`,
+        ]),
+      }));
+    });
+  });
+
+  it('excludes enterprise_customer_uuids from facet filters when using secured API key', async () => {
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: mockSearchFn },
+      searchIndex: { search: mockSearchFn },
+      shouldUseSecuredAlgoliaApiKey: true,
+    });
+
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    await waitFor(() => {
+      const lastCall = mockSearchFn.mock.calls[mockSearchFn.mock.calls.length - 1];
+      const { facetFilters } = lastCall[1];
+      expect(facetFilters).not.toContain(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
+    });
+  });
+
+  it('filters courses by metadata_language based on current locale', async () => {
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    await waitFor(() => {
+      expect(mockSearchFn).toHaveBeenCalledWith('', expect.objectContaining({
+        facetFilters: expect.arrayContaining([
+          'metadata_language:es',
+        ]),
+      }));
+    });
+  });
+
+  it('resets showAllOcmCourses when clearing tag filter', async () => {
+    const manyCoursesData = {
+      hits: Array.from({ length: 6 }, (_, i) => ({
+        aggregationKey: `course:MAX+CS50x-${i}`,
+        learningType: LEARNING_TYPE_COURSE,
+        cardImageUrl: `ocm-course-card-url-${i}`,
+        title: `OCM Course ${i}`,
+      })),
+      nbHits: 6,
+    };
+    mockSearchFn.mockResolvedValue(manyCoursesData);
+    useAlgoliaSearch.mockReturnValue({
+      searchClient: { search: mockSearchFn },
+      searchIndex: { search: mockSearchFn },
+      shouldUseSecuredAlgoliaApiKey: false,
+    });
+
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    // Wait for courses to load
+    await screen.findByTestId('academy-ocm-courses-title');
+
+    // Expand to show all courses
+    const showMoreButton = screen.getByRole('button', { name: /Show more Self-paced courses \(6\)/ });
+    showMoreButton.click();
+
+    await waitFor(() => {
+      const courseCards = screen.getAllByTestId('academy-course-card');
+      expect(courseCards.length).toBe(6);
+    });
+
+    // Select a tag
+    const tagButton = screen.getByText('wowwww');
+    tagButton.click();
+
+    // Clear the tag filter
+    const clearButton = await screen.findByText('clear tag filter');
+    clearButton.click();
+
+    // Should collapse back to showing only 4 courses
+    await waitFor(() => {
+      const courseCards = screen.getAllByTestId('academy-course-card');
+      expect(courseCards.length).toBe(4);
+    });
+  });
+
+  it('renders all academy tags as buttons', async () => {
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    const tagButtons = await screen.findAllByTestId('academy-tag');
+    expect(tagButtons).toHaveLength(2);
+    expect(tagButtons[0]).toHaveTextContent('wowwww');
+    expect(tagButtons[1]).toHaveTextContent('boooo');
+  });
+
+  it('applies correct facet filters with selected tag', async () => {
+    renderWithRouter(<AcademyDetailPageWrapper />);
+
+    // Select second tag
+    const secondTagButton = await screen.findByText('boooo');
+    secondTagButton.click();
+
+    await waitFor(() => {
+      expect(mockSearchFn).toHaveBeenCalledWith('', expect.objectContaining({
+        facetFilters: expect.arrayContaining([
+          ['content_type:course'],
+          `academy_uuids:${ACADEMY_UUID}`,
+          'academy_tags:boooo_en',
+          'metadata_language:es',
+          `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`,
+        ]),
+      }));
+    });
+  });
 });

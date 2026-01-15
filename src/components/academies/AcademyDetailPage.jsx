@@ -36,7 +36,13 @@ const AcademyDetailPage = () => {
           <Breadcrumb
             data-testid="academy-breadcrumb"
             links={[
-              { label: 'Find a Course', to: `/${enterpriseCustomer.slug}/search` },
+              {
+                label: <FormattedMessage
+                  id="academy.breadcrumb.find.course.link.label"
+                  defaultMessage="Find a Course"
+                />,
+                to: `/${enterpriseCustomer.slug}/search`,
+              },
             ]}
             linkAs={Link}
             activeLabel={academy.title}

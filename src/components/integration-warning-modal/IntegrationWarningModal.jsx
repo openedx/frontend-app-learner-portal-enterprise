@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
 import { Button, AlertModal } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
-import { MODAL_BUTTON_TEXT, MODAL_TITLE } from './data/constants';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import ModalBody from './ModalBody';
 
 const IntegrationWarningModal = ({
@@ -28,7 +28,13 @@ const IntegrationWarningModal = ({
 
   return (
     <AlertModal
-      title={MODAL_TITLE}
+      title={(
+        <FormattedMessage
+          id="learner.portal.integration.warning.modal.title"
+          defaultMessage="edX Dashboard"
+          description="Title for the integration warning modal"
+        />
+      )}
       isOpen={dismissed}
       onClose={handleModalOnClose}
       footerNode={(
@@ -36,7 +42,11 @@ const IntegrationWarningModal = ({
           variant="primary"
           onClick={handleButtonClick}
         >
-          {MODAL_BUTTON_TEXT}
+          <FormattedMessage
+            id="learner.portal.integration.warning.modal.button"
+            defaultMessage="OK"
+            description="Button text for dismissing the integration warning modal"
+          />
         </Button>
       )}
       isOverflowVisible={false}

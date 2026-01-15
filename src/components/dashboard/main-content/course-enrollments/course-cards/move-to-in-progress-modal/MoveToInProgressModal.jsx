@@ -4,14 +4,35 @@ import {
   ActionRow, Button, StandardModal, StatefulButton,
 } from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform';
+import { FormattedMessage, defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
 import MoveToInProgressModalContext from './MoveToInProgressModalContext';
 import ModalBody from './ModalBody';
 import { updateCourseCompleteStatusRequest } from '../mark-complete-modal/data/service';
 import { useEnterpriseCustomer } from '../../../../../app/data';
 
-export const MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL = 'Move course to "In Progress"';
-export const MARK_MOVE_TO_IN_PROGRESS_PENDING_LABEL = 'Moving course to "In Progress"...';
+const messages = defineMessages({
+  modalTitle: {
+    id: 'learner.portal.move.to.in.progress.modal.title',
+    defaultMessage: 'Move course to "In Progress"',
+    description: 'Title for the move course to in progress modal',
+  },
+  cancelButton: {
+    id: 'learner.portal.move.to.in.progress.modal.cancel.button',
+    defaultMessage: 'Cancel',
+    description: 'Text for the cancel button',
+  },
+  confirmButtonDefault: {
+    id: 'learner.portal.move.to.in.progress.modal.confirm.button.default',
+    defaultMessage: 'Move course to "In Progress"',
+    description: 'Default text for the confirm button',
+  },
+  confirmButtonPending: {
+    id: 'learner.portal.move.to.in.progress.modal.confirm.button.pending',
+    defaultMessage: 'Moving course to "In Progress"...',
+    description: 'Text for the confirm button while moving',
+  },
+});
 
 const initialState = {
   confirmButtonState: 'default',
@@ -27,6 +48,7 @@ const MoveToInProgressModal = ({
   onSuccess,
   onClose,
 }) => {
+  const intl = useIntl();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [
     { confirmButtonState, confirmError, confirmSuccessful },
@@ -70,16 +92,18 @@ const MoveToInProgressModal = ({
   return (
     <MoveToInProgressModalContext.Provider value={contextValue}>
       <StandardModal
-        title="Move course to &quot;In Progress&quot;"
+        title={intl.formatMessage(messages.modalTitle)}
         isOpen={isOpen && !confirmSuccessful}
         onClose={handleModalOnClose}
         footerNode={(
           <ActionRow>
-            <Button variant="tertiary" onClick={onClose}>Cancel</Button>
+            <Button variant="tertiary" onClick={onClose}>
+              <FormattedMessage {...messages.cancelButton} />
+            </Button>
             <StatefulButton
               labels={{
-                default: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
-                pending: MARK_MOVE_TO_IN_PROGRESS_PENDING_LABEL,
+                default: intl.formatMessage(messages.confirmButtonDefault),
+                pending: intl.formatMessage(messages.confirmButtonPending),
               }}
               disabledStates={['pending']}
               className="confirm-move-to-in-progress-btn btn-primary btn-brand-primary"

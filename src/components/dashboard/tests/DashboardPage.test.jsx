@@ -10,7 +10,6 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
-import { SUBSCRIPTION_EXPIRED_MODAL_TITLE, SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../SubscriptionExpirationModal';
 import { SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX } from '../../../config/constants';
 import { features } from '../../../config';
 import { queryClient, renderWithRouter } from '../../../utils/tests';
@@ -46,6 +45,8 @@ import {
   enterpriseCustomerFactory,
 } from '../../app/data/services/data/__factories__';
 
+const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
+const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your subscription is expiring';
 const dummyProgramData = {
   uuid: 'test-uuid',
   title: 'Test Program Title',

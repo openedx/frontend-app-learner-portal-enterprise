@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import EmailSettingsModal from '../EmailSettingsModal';
 import { updateEmailSettings } from '../data';
@@ -17,11 +18,13 @@ describe('<EmailSettingsModal />', () => {
 
   it('Save button is initially in default state and disabled', async () => {
     render(
-      <EmailSettingsModal
-        onClose={mockClose}
-        courseRunId={mockCourseRunId}
-        open
-      />,
+      <IntlProvider locale="en">
+        <EmailSettingsModal
+          onClose={mockClose}
+          courseRunId={mockCourseRunId}
+          open
+        />
+      </IntlProvider>,
     );
     const saveBtn = screen.getByRole('button', { name: 'Save' });
     expect(saveBtn).toHaveAttribute('aria-disabled', 'true');
@@ -31,11 +34,13 @@ describe('<EmailSettingsModal />', () => {
   it('Save button updates email settings, and handles modal close', async () => {
     const user = userEvent.setup();
     render(
-      <EmailSettingsModal
-        onClose={mockClose}
-        courseRunId={mockCourseRunId}
-        open
-      />,
+      <IntlProvider locale="en">
+        <EmailSettingsModal
+          onClose={mockClose}
+          courseRunId={mockCourseRunId}
+          open
+        />
+      </IntlProvider>,
     );
     const checkbox = screen.getByRole('checkbox');
     expect(checkbox).toBeInTheDocument();
@@ -57,11 +62,13 @@ describe('<EmailSettingsModal />', () => {
 
   it('Close button calls onClose before updating form', async () => {
     render(
-      <EmailSettingsModal
-        onClose={mockClose}
-        courseRunId={mockCourseRunId}
-        open
-      />,
+      <IntlProvider locale="en">
+        <EmailSettingsModal
+          onClose={mockClose}
+          courseRunId={mockCourseRunId}
+          open
+        />
+      </IntlProvider>,
     );
     const closeBtn = screen.getByTestId('email-setting-modal-close-btn');
     await userEvent.click(closeBtn);
@@ -71,11 +78,13 @@ describe('<EmailSettingsModal />', () => {
   it('Error alert is displayed when email settings update fails', async () => {
     updateEmailSettings.mockRejectedValueOnce(new Error('Failed to update email settings'));
     render(
-      <EmailSettingsModal
-        onClose={mockClose}
-        courseRunId={mockCourseRunId}
-        open
-      />,
+      <IntlProvider locale="en">
+        <EmailSettingsModal
+          onClose={mockClose}
+          courseRunId={mockCourseRunId}
+          open
+        />
+      </IntlProvider>,
     );
     const checkbox = screen.getByRole('checkbox');
     await userEvent.click(checkbox);
