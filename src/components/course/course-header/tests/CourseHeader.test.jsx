@@ -22,7 +22,7 @@ import {
 } from '../../../app/data';
 import { generateTestPermutations, renderWithRouterProvider } from '../../../../utils/tests';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
-import { useIsCourseAssigned } from '../../data';
+import { useIsCourseAssigned, useCourseFromAlgolia } from '../../data';
 
 jest.mock('../CourseRunCards', () => function CourseRunCards() {
   return <p>Cards</p>;
@@ -55,6 +55,7 @@ jest.mock('../../../app/data', () => ({
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
   useIsCourseAssigned: jest.fn(),
+  useCourseFromAlgolia: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
@@ -175,6 +176,7 @@ describe('<CourseHeader />', () => {
     });
     useIsAssignmentsOnlyLearner.mockReturnValue(false);
     useIsCourseAssigned.mockReturnValue(false);
+    useCourseFromAlgolia.mockReturnValue({ algoliaCourse: null, isLoading: false });
     useCourseReviews.mockReturnValue({ data: mockCourseReviews });
     useRedeemablePolicies.mockReturnValue({ data: mockBaseRedeemablePolicies });
   });

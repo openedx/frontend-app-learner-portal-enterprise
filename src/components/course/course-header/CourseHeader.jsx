@@ -11,7 +11,7 @@ import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollm
 import CourseRunCards from './CourseRunCards';
 
 import { formatProgramType, getDefaultProgram } from '../data/utils';
-import { useCoursePartners, useIsCourseAssigned } from '../data';
+import { useCoursePartners, useIsCourseAssigned, useCourseFromAlgolia } from '../data';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import SubsidyRequestButton from '../SubsidyRequestButton';
 import CourseReview from '../CourseReview';
@@ -33,6 +33,7 @@ const CourseHeader = () => {
   const { courseKey } = useParams();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: courseMetadata } = useCourseMetadata();
+  const { algoliaCourse } = useCourseFromAlgolia(courseKey);
   const { data: { containsContentItems } } = useEnterpriseCustomerContainsContentSuspense([courseKey]);
   const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();
   const { shouldDisplayAssignmentsOnly } = useIsCourseAssigned();
@@ -54,6 +55,9 @@ const CourseHeader = () => {
   if (location.state?.parentRoute) {
     routeLinks.push(location.state.parentRoute);
   }
+
+  // Use language-aware description from Algolia if available, otherwise fall back to Discovery API data
+  const displayDescription = algoliaCourse?.shortDescription || courseMetadata.shortDescription;
 
   return (
     <div className="course-header">
@@ -93,8 +97,8 @@ const CourseHeader = () => {
               className={classNames(
                 'd-flex align-items-center',
                 {
-                  'mb-4': !courseMetadata.shortDescription,
-                  'mb-2': courseMetadata.shortDescription,
+                  'mb-4': !displayDescription,
+                  'mb-2': displayDescription,
                 },
               )}
             >
@@ -109,11 +113,11 @@ const CourseHeader = () => {
                 </Badge>
               )}
             </div>
-            {courseMetadata.shortDescription && (
+            {displayDescription && (
               <div
                 className="lead font-weight-normal mb-4"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: courseMetadata.shortDescription }}
+                dangerouslySetInnerHTML={{ __html: displayDescription }}
               />
             )}
             <CourseSkills />
