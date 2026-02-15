@@ -138,6 +138,12 @@ declare global {
     enterpriseLearnerBffEnabled?: boolean;
   };
 
+  type EnterpriseFeaturesByCustomer = {
+    [key: string]: {
+      enterpriseLearnerBffConcurrentRequests?: boolean;
+    };
+  };
+
   type EnterpriseCustomerUserRaw = enterpriseAccessOpenApi.components['schemas']['EnterpriseCustomerUser'];
   type EnterpriseCustomerUser = CamelCasedPropertiesDeep<EnterpriseCustomerUserRaw>;
 
@@ -147,6 +153,7 @@ declare global {
     allLinkedEnterpriseCustomerUsers: EnterpriseCustomerUser[];
     staffEnterpriseCustomer: EnterpriseCustomer | null;
     enterpriseFeatures: EnterpriseFeatures;
+    enterpriseFeaturesByCustomer: EnterpriseFeaturesByCustomer;
     shouldUpdateActiveEnterpriseCustomerUser: boolean;
     hasBnrEnabledPolicy: boolean;
   };
