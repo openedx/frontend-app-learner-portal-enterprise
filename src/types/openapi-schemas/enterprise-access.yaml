@@ -1085,6 +1085,63 @@ paths:
           description: ''
         '403':
           description: No response body
+  /api/v1/bffs/checkout/context/:
+    post:
+      operationId: checkout_context
+      description: >-
+        Provides context information for the checkout flow, including pricing
+        options and, for authenticated users, associated enterprise customers.
+      summary: Get checkout context
+      tags:
+        - Checkout BFF
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutContextResponse'
+          description: Success response with checkout context data.
+  /api/v1/bffs/checkout/success/:
+    post:
+      operationId: checkout_success
+      description: Provides relevant data after checkout success
+      summary: Get checkout success data
+      tags:
+        - Checkout BFF
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutSuccessResponse'
+          description: ''
+  /api/v1/bffs/checkout/validation/:
+    post:
+      operationId: checkout_validate_fields
+      description: >-
+        Validates multiple checkout form fields and returns detailed validation
+        results
+      summary: Validate checkout form fields
+      tags:
+        - Checkout BFF
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutValidationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CheckoutValidationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CheckoutValidationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutValidationResponse'
+          description: ''
   /api/v1/bffs/health/ping/:
     get:
       operationId: ping_health_check
@@ -1268,6 +1325,502 @@ paths:
               schema:
                 $ref: '#/components/schemas/LearnerSkillsQuizResponse'
           description: Sample response for the learner skills quiz route.
+  /api/v1/checkout-intent/:
+    get:
+      operationId: list_checkout_intents
+      description: >-
+        Retrieve a list of CheckoutIntent records for the authenticated user.
+        This endpoint returns only the CheckoutIntent records that belong to the
+        currently authenticated user, unless the user is staff, in which case
+        **all** records are returned.
+      summary: List CheckoutIntents
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+      tags:
+        - Customer Billing
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCheckoutIntentReadOnlyList'
+              examples:
+                CreatedStateExample:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                      - uuid: 123e4567-e89b-12d3-a456-426614174000
+                        user: 1
+                        state: created
+                        stripe_checkout_session_id: cs_test_a1b2c3d4e5f6g7h8i9j0
+                        enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                        created: '2025-01-15T10:30:00.000Z'
+                        modified: '2025-01-15T10:30:00.000Z'
+                        error_message: null
+                        metadata: {}
+                  summary: CheckoutIntent in created state
+                  description: A newly created checkout intent awaiting payment
+                PaidStateExample:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                      - uuid: 123e4567-e89b-12d3-a456-426614174001
+                        user: 1
+                        state: paid
+                        stripe_checkout_session_id: cs_test_b2c3d4e5f6g7h8i9j0k1
+                        enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                        created: '2025-01-15T10:30:00.000Z'
+                        modified: '2025-01-15T10:35:00.000Z'
+                        error_message: null
+                        metadata:
+                          stripe_payment_intent: pi_1234567890
+                          stripe_customer: cus_1234567890
+                          amount_total: 50000
+                  summary: CheckoutIntent in paid state
+                  description: Payment confirmed, awaiting fulfillment
+                FulfilledStateExample:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                      - uuid: 123e4567-e89b-12d3-a456-426614174002
+                        user: 1
+                        state: fulfilled
+                        stripe_checkout_session_id: cs_test_c3d4e5f6g7h8i9j0k1l2
+                        enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                        created: '2025-01-15T10:30:00.000Z'
+                        modified: '2025-01-15T10:40:00.000Z'
+                        error_message: null
+                        metadata:
+                          stripe_payment_intent: pi_1234567890
+                          stripe_customer: cus_1234567890
+                          amount_total: 50000
+                          subscription_id: sub_1234567890
+                          provisioned_at: '2025-01-15T10:40:00.000Z'
+                  summary: CheckoutIntent in fulfilled state
+                  description: Successfully provisioned subscription
+                ErrorStateExample:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                      - uuid: 123e4567-e89b-12d3-a456-426614174003
+                        user: 1
+                        state: errored_backoffice
+                        stripe_checkout_session_id: cs_test_d4e5f6g7h8i9j0k1l2m3
+                        enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                        created: '2025-01-15T10:30:00.000Z'
+                        modified: '2025-01-15T10:35:00.000Z'
+                        error_message: Salesforce integration failed
+                        metadata:
+                          failure_reason: salesforce_api_error
+                          attempt_count: 1
+                  summary: CheckoutIntent in error state
+                  description: Failed during backoffice integration or provisioning
+          description: Successful response with paginated results
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationError'
+          description: Unauthorized - Authentication required
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionError'
+          description: Forbidden - User does not have permission
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+          description: Too Many Requests - Rate limit exceeded
+    post:
+      operationId: api_v1_checkout_intent_create
+      description: >-
+        ViewSet for CheckoutIntent model.
+
+
+        Provides list, retrieve, and partial_update actions for CheckoutIntent
+        records.
+
+        Users can only access their own CheckoutIntent records, unless the user
+        is staff,
+
+        in which case all records can be accessed.
+
+
+        This ViewSet intentionally does not utilize edx-rbac for permission
+        checking,
+
+        because most use cases involve requesting users who are not yet expected
+
+        to have been granted any enterprise roles. Instead, we manage
+        authorization
+
+        via the ``get_queryset()`` method.
+
+
+        Supports lookup by either 'id' (integer) or 'uuid' (UUID).
+      tags:
+        - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutIntentCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CheckoutIntentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CheckoutIntentCreateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutIntentCreateRequest'
+          description: ''
+  /api/v1/checkout-intent/{id}/:
+    get:
+      operationId: retrieve_checkout_intent
+      description: >
+        Retrieve a specific CheckoutIntent by either ID or UUID. This endpoint
+        is designed to support polling from the frontend to check the
+        fulfillment state after a successful Stripe checkout. Users can only
+        retrieve their own CheckoutIntent records. Supports lookup by either:
+
+        - Integer ID (e.g., `/api/v1/checkout-intents/123/`)
+
+        - UUID (e.g.,
+        `/api/v1/checkout-intents/550e8400-e29b-41d4-a716-446655440000/`)
+      summary: Retrieve CheckoutIntent
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      tags:
+        - Customer Billing
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutIntentReadOnly'
+              examples:
+                CreatedStateExample:
+                  value:
+                    uuid: 123e4567-e89b-12d3-a456-426614174000
+                    user: 1
+                    state: created
+                    stripe_checkout_session_id: cs_test_a1b2c3d4e5f6g7h8i9j0
+                    enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                    created: '2025-01-15T10:30:00.000Z'
+                    modified: '2025-01-15T10:30:00.000Z'
+                    error_message: null
+                    metadata: {}
+                  summary: CheckoutIntent in created state
+                  description: A newly created checkout intent awaiting payment
+                PaidStateExample:
+                  value:
+                    uuid: 123e4567-e89b-12d3-a456-426614174001
+                    user: 1
+                    state: paid
+                    stripe_checkout_session_id: cs_test_b2c3d4e5f6g7h8i9j0k1
+                    enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                    created: '2025-01-15T10:30:00.000Z'
+                    modified: '2025-01-15T10:35:00.000Z'
+                    error_message: null
+                    metadata:
+                      stripe_payment_intent: pi_1234567890
+                      stripe_customer: cus_1234567890
+                      amount_total: 50000
+                  summary: CheckoutIntent in paid state
+                  description: Payment confirmed, awaiting fulfillment
+                FulfilledStateExample:
+                  value:
+                    uuid: 123e4567-e89b-12d3-a456-426614174002
+                    user: 1
+                    state: fulfilled
+                    stripe_checkout_session_id: cs_test_c3d4e5f6g7h8i9j0k1l2
+                    enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                    created: '2025-01-15T10:30:00.000Z'
+                    modified: '2025-01-15T10:40:00.000Z'
+                    error_message: null
+                    metadata:
+                      stripe_payment_intent: pi_1234567890
+                      stripe_customer: cus_1234567890
+                      amount_total: 50000
+                      subscription_id: sub_1234567890
+                      provisioned_at: '2025-01-15T10:40:00.000Z'
+                  summary: CheckoutIntent in fulfilled state
+                  description: Successfully provisioned subscription
+                ErrorStateExample:
+                  value:
+                    uuid: 123e4567-e89b-12d3-a456-426614174003
+                    user: 1
+                    state: errored_backoffice
+                    stripe_checkout_session_id: cs_test_d4e5f6g7h8i9j0k1l2m3
+                    enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                    created: '2025-01-15T10:30:00.000Z'
+                    modified: '2025-01-15T10:35:00.000Z'
+                    error_message: Salesforce integration failed
+                    metadata:
+                      failure_reason: salesforce_api_error
+                      attempt_count: 1
+                  summary: CheckoutIntent in error state
+                  description: Failed during backoffice integration or provisioning
+          description: Successful response
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                InvalidStateTransition:
+                  value:
+                    state:
+                      - Invalid state transition from created to fulfilled
+                  summary: Invalid State Transition
+                InvalidStateValue:
+                  value:
+                    state:
+                      - 'Invalid state: completed'
+                  summary: Invalid State Value
+          description: Bad Request - Invalid state transition or invalid data
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationError'
+          description: Unauthorized - Authentication required
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionError'
+          description: Forbidden - User does not have permission
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+          description: Not Found - CheckoutIntent does not exist or belongs to another user
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+          description: Too Many Requests - Rate limit exceeded
+    patch:
+      operationId: update_checkout_intent
+      description: >+
+        Update the state of a CheckoutIntent. This endpoint is used to
+        transition the CheckoutIntent through its lifecycle states. Only valid
+        state transitions are allowed. Users can only update their own
+        CheckoutIntent records. Supports lookup by either:
+
+        - Integer ID (e.g., `/checkout-intents/123/`)
+
+        - UUID (e.g., `/checkout-intents/550e8400-e29b-41d4-a716-446655440000/`)
+
+
+        ## Allowed State Transitions
+
+        ```
+
+        created → paid
+
+        created → errored_stripe_checkout
+
+        paid → fulfilled
+
+        paid → errored_provisioning
+
+        errored_stripe_checkout → paid
+
+        errored_provisioning → paid
+
+        ```
+
+        ## Integration Points
+
+        - **Stripe Webhook**: Transitions from `created` to `paid` after
+        successful payment
+
+        - **Fulfillment**: Transitions from `paid` to `fulfilled` after
+        provisioning
+
+        - **Error Recovery**: Allows retry from error states back to `paid`
+
+      summary: Update CheckoutIntent State
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          description: ID or UUID of the CheckoutIntent to update
+          required: true
+      tags:
+        - Customer Billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCheckoutIntentUpdateRequest'
+            examples:
+              UpdateToPaidState:
+                value:
+                  state: paid
+                summary: Transition from created to paid
+                description: Updates state after successful payment
+              UpdateToErrorStateWithMessage:
+                value:
+                  state: errored_provisioning
+                  error_message: Provisioning workflow failed
+                summary: Transition to error state
+                description: Updates state to error with descriptive message
+              UpdateMetadata:
+                value:
+                  metadata:
+                    retry_count: 2
+                    last_error: timeout
+                    customer_note: Retry after card update
+                summary: Update metadata field
+                description: Add or update metadata without changing state
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCheckoutIntentUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCheckoutIntentUpdateRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutIntentReadOnly'
+              examples:
+                CreatedStateExample:
+                  value:
+                    uuid: 123e4567-e89b-12d3-a456-426614174000
+                    user: 1
+                    state: created
+                    stripe_checkout_session_id: cs_test_a1b2c3d4e5f6g7h8i9j0
+                    enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                    created: '2025-01-15T10:30:00.000Z'
+                    modified: '2025-01-15T10:30:00.000Z'
+                    error_message: null
+                    metadata: {}
+                  summary: CheckoutIntent in created state
+                  description: A newly created checkout intent awaiting payment
+                PaidStateExample:
+                  value:
+                    uuid: 123e4567-e89b-12d3-a456-426614174001
+                    user: 1
+                    state: paid
+                    stripe_checkout_session_id: cs_test_b2c3d4e5f6g7h8i9j0k1
+                    enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                    created: '2025-01-15T10:30:00.000Z'
+                    modified: '2025-01-15T10:35:00.000Z'
+                    error_message: null
+                    metadata:
+                      stripe_payment_intent: pi_1234567890
+                      stripe_customer: cus_1234567890
+                      amount_total: 50000
+                  summary: CheckoutIntent in paid state
+                  description: Payment confirmed, awaiting fulfillment
+                FulfilledStateExample:
+                  value:
+                    uuid: 123e4567-e89b-12d3-a456-426614174002
+                    user: 1
+                    state: fulfilled
+                    stripe_checkout_session_id: cs_test_c3d4e5f6g7h8i9j0k1l2
+                    enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                    created: '2025-01-15T10:30:00.000Z'
+                    modified: '2025-01-15T10:40:00.000Z'
+                    error_message: null
+                    metadata:
+                      stripe_payment_intent: pi_1234567890
+                      stripe_customer: cus_1234567890
+                      amount_total: 50000
+                      subscription_id: sub_1234567890
+                      provisioned_at: '2025-01-15T10:40:00.000Z'
+                  summary: CheckoutIntent in fulfilled state
+                  description: Successfully provisioned subscription
+                ErrorStateExample:
+                  value:
+                    uuid: 123e4567-e89b-12d3-a456-426614174003
+                    user: 1
+                    state: errored_backoffice
+                    stripe_checkout_session_id: cs_test_d4e5f6g7h8i9j0k1l2m3
+                    enterprise_customer_uuid: 987e6543-e21b-12d3-a456-426614174000
+                    created: '2025-01-15T10:30:00.000Z'
+                    modified: '2025-01-15T10:35:00.000Z'
+                    error_message: Salesforce integration failed
+                    metadata:
+                      failure_reason: salesforce_api_error
+                      attempt_count: 1
+                  summary: CheckoutIntent in error state
+                  description: Failed during backoffice integration or provisioning
+          description: Successfully updated
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                InvalidStateTransition:
+                  value:
+                    state:
+                      - Invalid state transition from created to fulfilled
+                  summary: Invalid State Transition
+                InvalidStateValue:
+                  value:
+                    state:
+                      - 'Invalid state: completed'
+                  summary: Invalid State Value
+          description: Bad Request - Invalid state transition or invalid data
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationError'
+          description: Unauthorized - Authentication required
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionError'
+          description: Forbidden - User does not have permission
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+          description: Not Found - CheckoutIntent does not exist or belongs to another user
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+          description: Too Many Requests - Rate limit exceeded
   /api/v1/coupon-code-requests/:
     get:
       operationId: api_v1_coupon_code_requests_list
@@ -1438,6 +1991,157 @@ paths:
               schema:
                 $ref: '#/components/schemas/CouponCodeRequest'
           description: ''
+  /api/v1/customer-billing/{id}/create-checkout-portal-session/:
+    get:
+      operationId: api_v1_customer_billing_create_checkout_portal_session_retrieve
+      description: >-
+        Create a new Customer Portal Session for the enterprise checkout MFE. 
+        Response dict contains "url" key
+
+        that should be attached to a button that the customer clicks.
+
+
+        Response structure defined here:
+        https://docs.stripe.com/api/customer_portal/sessions/create
+      summary: Create a new Customer Portal Session from the enterprise checkout MFE.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      tags:
+        - Customer Billing
+      responses:
+        '200':
+          description: No response body
+  /api/v1/customer-billing/create-checkout-session/:
+    post:
+      operationId: api_v1_customer_billing_create_checkout_session_create
+      description: >-
+        Create a new Stripe checkout session for a free trial and return it's
+        client_secret.
+
+
+        Notes:
+
+        * This endpoint is designed to be called AFTER logistration, but BEFORE
+        displaying a payment entry form.  A
+          Stripe "Checkout Session" object is a prerequisite to rendering the Stripe embedded component for payment
+          entry.
+        * The @permission_required() decorator has NOT been added. This endpoint
+        only requires an authenticated LMS
+          user, which is more permissive than our usual requirement for a user with an enterprise role.
+        * This endpoint is NOT idempotent and will create new checkout sessions
+        on each subsequent call.
+          TODO: introduce an idempotency key and a new model to hold pending requests.
+
+        Request/response structure:
+
+            POST /api/v1/customer-billing/create_checkout_session
+            >>> {
+            >>>     "admin_email": "dr@evil.inc",
+            >>>     "enterprise_slug": "my-sluggy"
+            >>>     "quantity": 7,
+            >>>     "stripe_price_id": "price_1MoBy5LkdIwHu7ixZhnattbh"
+            >>> }
+            HTTP 201 CREATED
+            >>> {
+            >>>     "checkout_session_client_secret": "cs_Hu7ixZhnattbh1MoBy5LkdIw"
+            >>> }
+            HTTP 422 UNPROCESSABLE ENTITY (only admin_email validation failed)
+            >>> {
+            >>>     "admin_email": {
+            >>>         "error_code": "not_registered",
+            >>>         "developer_message": "The provided email has not yet been registered."
+            >>>     }
+            >>> }
+            HTTP 422 UNPROCESSABLE ENTITY (only enterprise_slug validation failed)
+            >>> {
+            >>>     "enterprise_slug": {
+            >>>         "error_code": "existing_enterprise_customer_for_admin",
+            >>>         "developer_message": "Slug invalid: Admin belongs to existing customer..."
+            >>>     }
+            >>> }
+      summary: >-
+        Create a new checkout session given form data from a prospective
+        customer.
+      tags:
+        - Customer Billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerBillingCreateCheckoutSessionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomerBillingCreateCheckoutSessionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomerBillingCreateCheckoutSessionRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/CustomerBillingCreateCheckoutSessionSuccessResponse
+          description: ''
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/CustomerBillingCreateCheckoutSessionValidationFailedResponse
+          description: ''
+  /api/v1/customer-billing/create-enterprise-admin-portal-session/:
+    get:
+      operationId: api_v1_customer_billing_create_enterprise_admin_portal_session_retrieve
+      description: >-
+        Create a new Customer Portal Session for the Admin Portal MFE.  Response
+        dict contains "url" key
+
+        that should be attached to a button that the customer clicks.
+
+
+        Response structure defined here:
+        https://docs.stripe.com/api/customer_portal/sessions/create
+      summary: Create a new Customer Portal Session from the Admin portal MFE.
+      tags:
+        - Customer Billing
+      responses:
+        '200':
+          description: No response body
+  /api/v1/customer-billing/stripe-webhook/:
+    post:
+      operationId: api_v1_customer_billing_stripe_webhook_create
+      description: >-
+        Listen for events from Stripe, and take specific actions. Typically the
+        action is to send a confirmation email.
+
+
+        Authentication is performed via Stripe signature validation in
+        StripeWebhookAuthentication.
+
+
+        TODO:
+
+        * For a real production implementation we should implement event
+        de-duplication:
+          - https://docs.stripe.com/webhooks/process-undelivered-events
+          - This is a safeguard against the remote possibility that an event is sent twice. This could happen if the
+            network connection cuts out at the exact moment between successfully processing an event and responding with
+            HTTP 200, in which case Stripe will attempt to re-send the event since it does not know we successfully
+            received it.
+      summary: Listen for events from Stripe.
+      tags:
+        - Customer Billing
+      security:
+        - {}
+      responses:
+        '200':
+          description: No response body
   /api/v1/customer-configurations/:
     get:
       operationId: api_v1_customer_configurations_list
@@ -1594,6 +2298,46 @@ paths:
           schema:
             type: string
             format: uuid
+        - in: query
+          name: latest_action_status
+          schema:
+            type: string
+          description: >-
+            Choose from the following valid action statuses: requested, pending,
+            approved, declined, error, accepted, cancelled, expired, reversed,
+            reminded
+        - in: query
+          name: latest_action_status__in
+          schema:
+            type: array
+            items:
+              type: string
+          description: >-
+            Choose from the following valid action statuses: requested, pending,
+            approved, declined, error, accepted, cancelled, expired, reversed,
+            reminded
+          explode: false
+          style: form
+        - in: query
+          name: learner_request_state
+          schema:
+            type: string
+          description: >-
+            Choose from the following valid learner request states: requested,
+            pending, approved, declined, accepted, cancelled, expired, reversed,
+            reminded, waiting, failed
+        - in: query
+          name: learner_request_state__in
+          schema:
+            type: array
+            items:
+              type: string
+          description: >-
+            Choose from the following valid learner request states: requested,
+            pending, approved, declined, accepted, cancelled, expired, reversed,
+            reminded, waiting, failed
+          explode: false
+          style: form
         - name: ordering
           required: false
           in: query
@@ -1612,6 +2356,11 @@ paths:
           description: Number of results to return per page.
           schema:
             type: integer
+        - in: query
+          name: policy_uuid
+          schema:
+            type: string
+            format: uuid
         - name: search
           required: false
           in: query
@@ -1683,6 +2432,163 @@ paths:
               schema:
                 $ref: '#/components/schemas/LearnerCreditRequest'
           description: ''
+  /api/v1/learner-credit-requests/approve/:
+    post:
+      operationId: api_v1_learner_credit_requests_approve_create
+      description: >-
+        Approve a list of learner credit requests against a single policy.
+
+
+        - On success, returns a `200 OK` with a list of the approved request
+        objects.
+
+        - If any of the specified requests fail to be approved, returns a
+          `422 Unprocessable Entity`. The successful approvals will still be committed.
+      summary: Approve a learner credit request.
+      tags:
+        - Learner Credit Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestApproveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestApproveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestApproveRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/approve-all/:
+    post:
+      operationId: api_v1_learner_credit_requests_approve_all_create
+      description: |-
+        Approve all filtered learner credit requests against a single policy.
+
+        - On success, returns a `202 Accepted` status, indicating that the
+          bulk approval process has been initiated.
+        - If no approvable requests are found for the given policy and filters,
+          returns a `404 Not Found`.
+        - If any requests fail during the bulk approval, returns a
+          `422 Unprocessable Entity` to indicate a partial failure.
+      tags:
+        - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/bulk-approve/:
+    post:
+      operationId: api_v1_learner_credit_requests_bulk_approve_create
+      description: Bulk approve learner credit requests.
+      summary: Bulk approve learner credit requests.
+      tags:
+        - Learner Credit Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestBulkApproveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestBulkApproveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestBulkApproveRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/bulk-decline/:
+    post:
+      operationId: api_v1_learner_credit_requests_bulk_decline_create
+      description: |-
+        Bulk decline learner credit requests.
+
+        Request Payload:
+        {
+            "enterprise_customer_uuid": "<uuid>",
+            "subsidy_request_uuids": ["<uuid>", ...],  # Optional if decline_all is True
+            "decline_all": false,  # Optional, defaults to False
+            "policy_uuid": "<uuid>"
+        }
+
+        Returns:
+            Response with declined and failed request UUIDs.
+      summary: Bulk decline learner credit requests.
+      tags:
+        - Learner Credit Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestBulkDecline'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestBulkDecline'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestBulkDecline'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/cancel/:
+    post:
+      operationId: api_v1_learner_credit_requests_cancel_create
+      description: Cancel a learner credit request.
+      summary: Learner credit request cancel endpoint.
+      tags:
+        - Learner Credit Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestCancel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestCancel'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequestCancel'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequestCancel'
+          description: ''
   /api/v1/learner-credit-requests/decline/:
     post:
       operationId: api_v1_learner_credit_requests_decline_create
@@ -1716,6 +2622,72 @@ paths:
       summary: Learner credit request overview.
       tags:
         - Learner Credit Requests
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/remind/:
+    post:
+      operationId: api_v1_learner_credit_requests_remind_create
+      description: >-
+        Remind Learners that their LearnerCreditRequests are Approved and
+        waiting for their action.
+
+
+        Accepts a list of learner_credit_request_uuids to remind.
+
+        Returns 422 if any of the requests are not remindable.
+      tags:
+        - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerCreditRequest'
+          description: ''
+  /api/v1/learner-credit-requests/remind-all/:
+    post:
+      operationId: api_v1_learner_credit_requests_remind_all_create
+      description: >-
+        Remind all Learners with APPROVED LearnerCreditRequests for a given
+        policy.
+
+
+        Accepts a policy_uuid to filter requests by.
+
+        Returns 404 if no remindable requests are found.
+
+        Returns 422 if any requests are discovered to be non-remindable.
+      tags:
+        - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearnerCreditRequest'
+        required: true
       responses:
         '200':
           content:
@@ -1905,6 +2877,14 @@ paths:
       summary: Allocate assignments
       parameters:
         - in: query
+          name: admin_lms_user_id
+          schema:
+            type: integer
+            nullable: true
+          description: >-
+            The id of the Admin LMS user record. This may be null at time of
+            creation.
+        - in: query
           name: content_key
           schema:
             type: string
@@ -1938,6 +2918,12 @@ paths:
             format: uuid
             description: The uuid that uniquely identifies this policy record.
           required: true
+        - in: query
+          name: suppress_email
+          schema:
+            type: boolean
+            default: false
+          description: When true, suppress the automated learner assignment email.
       tags:
         - Subsidy Access Policy Allocation
       responses:
@@ -2179,6 +3165,95 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProvisioningResponse'
+          description: ''
+  /api/v1/provisioning/subscription-plan-oli-update:
+    post:
+      operationId: api_v1_provisioning_subscription_plan_oli_update_create
+      description: Update a subscription plan with Salesforce OLI.
+      summary: Update a SubscriptionPlan with Salesforce Opportunity Line Item.
+      tags:
+        - Provisioning
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlanOLIUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlanOLIUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPlanOLIUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPlanOLIUpdateResponse'
+          description: ''
+  /api/v1/stripe-event-summary/:
+    get:
+      operationId: api_v1_stripe_event_summary_list
+      description: >-
+        Lists ``StripeEventSummary`` records, filtered by given subscription
+        plan uuid.
+      summary: Retrieves stripe event summaries.
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+      tags:
+        - Stripe Event Summary
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStripeEventSummaryReadOnlyList'
+          description: ''
+        '403':
+          description: No response body
+  /api/v1/stripe-event-summary/first-invoice-upcoming-amount-due/:
+    get:
+      operationId: api_v1_stripe_event_summary_first_invoice_upcoming_amount_due_retrieve
+      description: >-
+        Deprecated first-invoice-upcoming-amount-due endpoint.
+
+
+        Temporary passthrough to aid with transitioning to
+        get-stripe-subscription-plan-info.
+      tags:
+        - api
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StripeEventSummaryReadOnly'
+          description: ''
+  /api/v1/stripe-event-summary/get-stripe-subscription-plan-info/:
+    get:
+      operationId: api_v1_stripe_event_summary_get_stripe_subscription_plan_info_retrieve
+      description: >-
+        Given a license-manager SubscriptionPlan uuid, returns information
+        needed for the
+
+        Subscription management page on admin portal, like the upcoming
+        subscription price
+
+        and if the subscription has been cancelled
+      tags:
+        - api
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StripeEventSummaryReadOnly'
           description: ''
   /api/v1/subsidy-access-policies/:
     get:
@@ -2424,6 +3499,14 @@ paths:
       summary: List group member data with aggregates.
       parameters:
         - in: query
+          name: admin_lms_user_id
+          schema:
+            type: integer
+            nullable: true
+          description: >-
+            The id of the Admin LMS user record. This may be null at time of
+            creation.
+        - in: query
           name: content_key
           schema:
             type: string
@@ -2450,6 +3533,12 @@ paths:
             Learner emails to whom LearnerContentAssignments should be
             allocated.
           required: true
+        - in: query
+          name: suppress_email
+          schema:
+            type: boolean
+            default: false
+          description: When true, suppress the automated learner assignment email.
         - in: path
           name: uuid
           schema:
@@ -2492,7 +3581,7 @@ components:
         * `direct` - Direct
         * `request` - Request
         * `assigned` - Assigned
-    ActionType5a0Enum:
+    ActionType3e8Enum:
       enum:
         - learner_linked
         - notified
@@ -2655,6 +3744,41 @@ components:
         active:
           type: boolean
           description: Whether this assignment configuration is active. Defaults to True.
+    AuthenticationError:
+      type: object
+      properties:
+        detail:
+          type: string
+          default: Authentication credentials were not provided.
+    BillingAddress:
+      type: object
+      description: Serializer for billing address information.
+      properties:
+        city:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        line1:
+          type: string
+          nullable: true
+        line2:
+          type: string
+          nullable: true
+        postal_code:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+      required:
+        - city
+        - country
+        - line1
+        - line2
+        - postal_code
+        - state
     BlankEnum:
       enum:
         - ''
@@ -2666,6 +3790,1512 @@ components:
       description: |-
         * `13` - Subscription - Trial Catalog
         * `10` - Subscription
+    CheckoutContextResponse:
+      type: object
+      description: Serializer for the checkout context response.
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Warning'
+        enterprise_features:
+          type: object
+          additionalProperties: {}
+        existing_customers_for_authenticated_user:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnterpriseCustomer'
+          description: >-
+            Enterprise customers associated with the authenticated user (empty
+            for unauthenticated users)
+        pricing:
+          allOf:
+            - $ref: '#/components/schemas/PricingData'
+          description: Available pricing options
+        field_constraints:
+          allOf:
+            - $ref: '#/components/schemas/FieldConstraints'
+          description: Constraints for form fields
+        checkout_intent:
+          allOf:
+            - $ref: '#/components/schemas/CheckoutIntentMinimalResponse'
+          nullable: true
+          description: The existing ``CheckoutIntent`` for the requesting user, if any
+      required:
+        - existing_customers_for_authenticated_user
+        - field_constraints
+        - pricing
+    CheckoutIntentCreateRequest:
+      type: object
+      description: A serializer intended for creating new CheckoutIntents.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 1000
+          minimum: 1
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: >-
+            Unique identifier for this record, can be used for cross-service
+            references
+        state:
+          allOf:
+            - $ref: '#/components/schemas/StateCfeEnum'
+          readOnly: true
+        enterprise_name:
+          type: string
+          nullable: true
+          description: Checkout intent enterprise customer name
+          maxLength: 255
+        enterprise_slug:
+          type: string
+          nullable: true
+          description: Checkout intent enterprise customer slug
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        enterprise_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          description: The uuid of the EnterpriseCustomer, once successfully provisioned
+        stripe_customer_id:
+          type: string
+          readOnly: true
+          nullable: true
+          description: The Stripe Customer identifier associated with this record
+        expires_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Checkout intent expiration timestamp
+        stripe_checkout_session_id:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Associated Stripe checkout session ID
+        country:
+          nullable: true
+          description: |-
+            The customer's country
+
+            * `AF` - Afghanistan
+            * `AX` - Åland Islands
+            * `AL` - Albania
+            * `DZ` - Algeria
+            * `AS` - American Samoa
+            * `AD` - Andorra
+            * `AO` - Angola
+            * `AI` - Anguilla
+            * `AQ` - Antarctica
+            * `AG` - Antigua and Barbuda
+            * `AR` - Argentina
+            * `AM` - Armenia
+            * `AW` - Aruba
+            * `AU` - Australia
+            * `AT` - Austria
+            * `AZ` - Azerbaijan
+            * `BS` - Bahamas (The)
+            * `BH` - Bahrain
+            * `BD` - Bangladesh
+            * `BB` - Barbados
+            * `BY` - Belarus
+            * `BE` - Belgium
+            * `BZ` - Belize
+            * `BJ` - Benin
+            * `BM` - Bermuda
+            * `BT` - Bhutan
+            * `BO` - Bolivia
+            * `BQ` - Bonaire, Sint Eustatius and Saba
+            * `BA` - Bosnia and Herzegovina
+            * `BW` - Botswana
+            * `BV` - Bouvet Island
+            * `BR` - Brazil
+            * `IO` - British Indian Ocean Territory
+            * `BN` - Brunei
+            * `BG` - Bulgaria
+            * `BF` - Burkina Faso
+            * `BI` - Burundi
+            * `CV` - Cabo Verde
+            * `KH` - Cambodia
+            * `CM` - Cameroon
+            * `CA` - Canada
+            * `KY` - Cayman Islands
+            * `CF` - Central African Republic
+            * `TD` - Chad
+            * `CL` - Chile
+            * `CN` - China
+            * `CX` - Christmas Island
+            * `CC` - Cocos (Keeling) Islands
+            * `CO` - Colombia
+            * `KM` - Comoros
+            * `CG` - Congo
+            * `CK` - Cook Islands
+            * `CR` - Costa Rica
+            * `CI` - Côte d'Ivoire
+            * `HR` - Croatia
+            * `CU` - Cuba
+            * `CW` - Curaçao
+            * `CY` - Cyprus
+            * `CZ` - Czechia
+            * `CD` - Democratic Republic of the Congo
+            * `DK` - Denmark
+            * `DJ` - Djibouti
+            * `DM` - Dominica
+            * `DO` - Dominican Republic
+            * `EC` - Ecuador
+            * `EG` - Egypt
+            * `SV` - El Salvador
+            * `GQ` - Equatorial Guinea
+            * `ER` - Eritrea
+            * `EE` - Estonia
+            * `SZ` - Eswatini
+            * `ET` - Ethiopia
+            * `FK` - Falkland Islands (Malvinas)
+            * `FO` - Faroe Islands
+            * `FJ` - Fiji
+            * `FI` - Finland
+            * `FR` - France
+            * `GF` - French Guiana
+            * `PF` - French Polynesia
+            * `TF` - French Southern Territories
+            * `GA` - Gabon
+            * `GM` - Gambia
+            * `GE` - Georgia
+            * `DE` - Germany
+            * `GH` - Ghana
+            * `GI` - Gibraltar
+            * `GR` - Greece
+            * `GL` - Greenland
+            * `GD` - Grenada
+            * `GP` - Guadeloupe
+            * `GU` - Guam
+            * `GT` - Guatemala
+            * `GG` - Guernsey
+            * `GN` - Guinea
+            * `GW` - Guinea-Bissau
+            * `GY` - Guyana
+            * `HT` - Haiti
+            * `HM` - Heard Island and McDonald Islands
+            * `HN` - Honduras
+            * `HK` - Hong Kong
+            * `HU` - Hungary
+            * `IS` - Iceland
+            * `IN` - India
+            * `ID` - Indonesia
+            * `IR` - Iran
+            * `IQ` - Iraq
+            * `IE` - Ireland
+            * `IM` - Isle of Man
+            * `IL` - Israel
+            * `IT` - Italy
+            * `JM` - Jamaica
+            * `JP` - Japan
+            * `JE` - Jersey
+            * `JO` - Jordan
+            * `KZ` - Kazakhstan
+            * `KE` - Kenya
+            * `KI` - Kiribati
+            * `KW` - Kuwait
+            * `KG` - Kyrgyzstan
+            * `LA` - Laos
+            * `LV` - Latvia
+            * `LB` - Lebanon
+            * `LS` - Lesotho
+            * `LR` - Liberia
+            * `LY` - Libya
+            * `LI` - Liechtenstein
+            * `LT` - Lithuania
+            * `LU` - Luxembourg
+            * `MO` - Macao
+            * `MG` - Madagascar
+            * `MW` - Malawi
+            * `MY` - Malaysia
+            * `MV` - Maldives
+            * `ML` - Mali
+            * `MT` - Malta
+            * `MH` - Marshall Islands
+            * `MQ` - Martinique
+            * `MR` - Mauritania
+            * `MU` - Mauritius
+            * `YT` - Mayotte
+            * `MX` - Mexico
+            * `FM` - Micronesia
+            * `MD` - Moldova
+            * `MC` - Monaco
+            * `MN` - Mongolia
+            * `ME` - Montenegro
+            * `MS` - Montserrat
+            * `MA` - Morocco
+            * `MZ` - Mozambique
+            * `MM` - Myanmar
+            * `NA` - Namibia
+            * `NR` - Nauru
+            * `NP` - Nepal
+            * `NL` - Netherlands
+            * `NC` - New Caledonia
+            * `NZ` - New Zealand
+            * `NI` - Nicaragua
+            * `NE` - Niger
+            * `NG` - Nigeria
+            * `NU` - Niue
+            * `NF` - Norfolk Island
+            * `KP` - North Korea
+            * `MK` - North Macedonia
+            * `MP` - Northern Mariana Islands
+            * `NO` - Norway
+            * `OM` - Oman
+            * `PK` - Pakistan
+            * `PW` - Palau
+            * `PS` - Palestine
+            * `PA` - Panama
+            * `PG` - Papua New Guinea
+            * `PY` - Paraguay
+            * `PE` - Peru
+            * `PH` - Philippines
+            * `PN` - Pitcairn
+            * `PL` - Poland
+            * `PT` - Portugal
+            * `PR` - Puerto Rico
+            * `QA` - Qatar
+            * `RE` - Réunion
+            * `RO` - Romania
+            * `RU` - Russia
+            * `RW` - Rwanda
+            * `BL` - Saint Barthélemy
+            * `SH` - Saint Helena
+            * `KN` - Saint Kitts and Nevis
+            * `LC` - Saint Lucia
+            * `MF` - Saint Martin (French part)
+            * `PM` - Saint Pierre and Miquelon
+            * `VC` - Saint Vincent and the Grenadines
+            * `WS` - Samoa
+            * `SM` - San Marino
+            * `ST` - Sao Tome and Principe
+            * `SA` - Saudi Arabia
+            * `SN` - Senegal
+            * `RS` - Serbia
+            * `SC` - Seychelles
+            * `SL` - Sierra Leone
+            * `SG` - Singapore
+            * `SX` - Sint Maarten (Dutch part)
+            * `SK` - Slovakia
+            * `SI` - Slovenia
+            * `SB` - Solomon Islands
+            * `SO` - Somalia
+            * `ZA` - South Africa
+            * `GS` - South Georgia
+            * `KR` - South Korea
+            * `SS` - South Sudan
+            * `ES` - Spain
+            * `LK` - Sri Lanka
+            * `SD` - Sudan
+            * `SR` - Suriname
+            * `SJ` - Svalbard and Jan Mayen
+            * `SE` - Sweden
+            * `CH` - Switzerland
+            * `SY` - Syria
+            * `TW` - Taiwan
+            * `TJ` - Tajikistan
+            * `TZ` - Tanzania
+            * `TH` - Thailand
+            * `TL` - Timor-Leste
+            * `TG` - Togo
+            * `TK` - Tokelau
+            * `TO` - Tonga
+            * `TT` - Trinidad and Tobago
+            * `TN` - Tunisia
+            * `TR` - Türkiye
+            * `TM` - Turkmenistan
+            * `TC` - Turks and Caicos Islands
+            * `TV` - Tuvalu
+            * `UG` - Uganda
+            * `UA` - Ukraine
+            * `AE` - United Arab Emirates
+            * `GB` - United Kingdom
+            * `UM` - United States Minor Outlying Islands
+            * `US` - United States of America
+            * `UY` - Uruguay
+            * `UZ` - Uzbekistan
+            * `VU` - Vanuatu
+            * `VA` - Vatican City
+            * `VE` - Venezuela
+            * `VN` - Vietnam
+            * `VG` - Virgin Islands (British)
+            * `VI` - Virgin Islands (U.S.)
+            * `WF` - Wallis and Futuna
+            * `EH` - Western Sahara
+            * `YE` - Yemen
+            * `ZM` - Zambia
+            * `ZW` - Zimbabwe
+          oneOf:
+            - $ref: '#/components/schemas/CountryEnum'
+            - $ref: '#/components/schemas/NullEnum'
+        last_checkout_error:
+          type: string
+          readOnly: true
+          nullable: true
+        last_provisioning_error:
+          type: string
+          readOnly: true
+          nullable: true
+        terms_metadata:
+          nullable: true
+          description: Metadata relating to the terms and conditions accepted by the user.
+        user:
+          type: integer
+          readOnly: true
+        workflow:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+      required:
+        - created
+        - enterprise_uuid
+        - expires_at
+        - id
+        - last_checkout_error
+        - last_provisioning_error
+        - modified
+        - quantity
+        - state
+        - stripe_checkout_session_id
+        - stripe_customer_id
+        - user
+        - uuid
+        - workflow
+    CheckoutIntentExpanded:
+      type: object
+      description: |-
+        Serializes checkout intent data, expanded to included related
+        stripe object data.
+      properties:
+        id:
+          type: integer
+          description: CheckoutIntent id
+        uuid:
+          type: string
+          format: uuid
+          description: CheckoutIntent uuid
+        state:
+          allOf:
+            - $ref: '#/components/schemas/State6f2Enum'
+          description: |-
+            The current state of this record
+
+            * `created` - created
+            * `paid` - paid
+            * `fulfilled` - fulfilled
+            * `errored_backoffice` - errored_backoffice
+            * `errored_fulfillment_stalled` - errored_fulfillment_stalled
+            * `errored_provisioning` - errored_provisioning
+            * `expired` - expired
+        enterprise_name:
+          type: string
+          description: The enterprise name associated with this record
+        enterprise_slug:
+          type: string
+          description: The enterprise slug associated with this record
+        enterprise_uuid:
+          type: string
+          format: uuid
+          nullable: true
+          description: The enterprise UUID associated with this record
+        quantity:
+          type: integer
+          description: The amount of licences created with this checkout intent
+        stripe_checkout_session_id:
+          type: string
+          nullable: true
+          description: The stripe checkout session id for this intent
+        stripe_customer_id:
+          type: string
+          nullable: true
+          description: The stripe checkout id for this intent
+        last_checkout_error:
+          type: string
+          nullable: true
+          description: The last checkout error related to this intent
+        last_provisioning_error:
+          type: string
+          nullable: true
+          description: The last provisioning error related to this intent
+        workflow_id:
+          type: string
+          nullable: true
+          description: The workflow id related to this intent
+        expires_at:
+          type: string
+          format: date-time
+          description: The expiration time of this intent
+        admin_portal_url:
+          type: string
+          nullable: true
+          description: The admin portal URL related to this intent
+        country:
+          nullable: true
+          description: |-
+            The customer country code
+
+            * `AF` - Afghanistan
+            * `AX` - Åland Islands
+            * `AL` - Albania
+            * `DZ` - Algeria
+            * `AS` - American Samoa
+            * `AD` - Andorra
+            * `AO` - Angola
+            * `AI` - Anguilla
+            * `AQ` - Antarctica
+            * `AG` - Antigua and Barbuda
+            * `AR` - Argentina
+            * `AM` - Armenia
+            * `AW` - Aruba
+            * `AU` - Australia
+            * `AT` - Austria
+            * `AZ` - Azerbaijan
+            * `BS` - Bahamas (The)
+            * `BH` - Bahrain
+            * `BD` - Bangladesh
+            * `BB` - Barbados
+            * `BY` - Belarus
+            * `BE` - Belgium
+            * `BZ` - Belize
+            * `BJ` - Benin
+            * `BM` - Bermuda
+            * `BT` - Bhutan
+            * `BO` - Bolivia
+            * `BQ` - Bonaire, Sint Eustatius and Saba
+            * `BA` - Bosnia and Herzegovina
+            * `BW` - Botswana
+            * `BV` - Bouvet Island
+            * `BR` - Brazil
+            * `IO` - British Indian Ocean Territory
+            * `BN` - Brunei
+            * `BG` - Bulgaria
+            * `BF` - Burkina Faso
+            * `BI` - Burundi
+            * `CV` - Cabo Verde
+            * `KH` - Cambodia
+            * `CM` - Cameroon
+            * `CA` - Canada
+            * `KY` - Cayman Islands
+            * `CF` - Central African Republic
+            * `TD` - Chad
+            * `CL` - Chile
+            * `CN` - China
+            * `CX` - Christmas Island
+            * `CC` - Cocos (Keeling) Islands
+            * `CO` - Colombia
+            * `KM` - Comoros
+            * `CG` - Congo
+            * `CK` - Cook Islands
+            * `CR` - Costa Rica
+            * `CI` - Côte d'Ivoire
+            * `HR` - Croatia
+            * `CU` - Cuba
+            * `CW` - Curaçao
+            * `CY` - Cyprus
+            * `CZ` - Czechia
+            * `CD` - Democratic Republic of the Congo
+            * `DK` - Denmark
+            * `DJ` - Djibouti
+            * `DM` - Dominica
+            * `DO` - Dominican Republic
+            * `EC` - Ecuador
+            * `EG` - Egypt
+            * `SV` - El Salvador
+            * `GQ` - Equatorial Guinea
+            * `ER` - Eritrea
+            * `EE` - Estonia
+            * `SZ` - Eswatini
+            * `ET` - Ethiopia
+            * `FK` - Falkland Islands (Malvinas)
+            * `FO` - Faroe Islands
+            * `FJ` - Fiji
+            * `FI` - Finland
+            * `FR` - France
+            * `GF` - French Guiana
+            * `PF` - French Polynesia
+            * `TF` - French Southern Territories
+            * `GA` - Gabon
+            * `GM` - Gambia
+            * `GE` - Georgia
+            * `DE` - Germany
+            * `GH` - Ghana
+            * `GI` - Gibraltar
+            * `GR` - Greece
+            * `GL` - Greenland
+            * `GD` - Grenada
+            * `GP` - Guadeloupe
+            * `GU` - Guam
+            * `GT` - Guatemala
+            * `GG` - Guernsey
+            * `GN` - Guinea
+            * `GW` - Guinea-Bissau
+            * `GY` - Guyana
+            * `HT` - Haiti
+            * `HM` - Heard Island and McDonald Islands
+            * `HN` - Honduras
+            * `HK` - Hong Kong
+            * `HU` - Hungary
+            * `IS` - Iceland
+            * `IN` - India
+            * `ID` - Indonesia
+            * `IR` - Iran
+            * `IQ` - Iraq
+            * `IE` - Ireland
+            * `IM` - Isle of Man
+            * `IL` - Israel
+            * `IT` - Italy
+            * `JM` - Jamaica
+            * `JP` - Japan
+            * `JE` - Jersey
+            * `JO` - Jordan
+            * `KZ` - Kazakhstan
+            * `KE` - Kenya
+            * `KI` - Kiribati
+            * `KW` - Kuwait
+            * `KG` - Kyrgyzstan
+            * `LA` - Laos
+            * `LV` - Latvia
+            * `LB` - Lebanon
+            * `LS` - Lesotho
+            * `LR` - Liberia
+            * `LY` - Libya
+            * `LI` - Liechtenstein
+            * `LT` - Lithuania
+            * `LU` - Luxembourg
+            * `MO` - Macao
+            * `MG` - Madagascar
+            * `MW` - Malawi
+            * `MY` - Malaysia
+            * `MV` - Maldives
+            * `ML` - Mali
+            * `MT` - Malta
+            * `MH` - Marshall Islands
+            * `MQ` - Martinique
+            * `MR` - Mauritania
+            * `MU` - Mauritius
+            * `YT` - Mayotte
+            * `MX` - Mexico
+            * `FM` - Micronesia
+            * `MD` - Moldova
+            * `MC` - Monaco
+            * `MN` - Mongolia
+            * `ME` - Montenegro
+            * `MS` - Montserrat
+            * `MA` - Morocco
+            * `MZ` - Mozambique
+            * `MM` - Myanmar
+            * `NA` - Namibia
+            * `NR` - Nauru
+            * `NP` - Nepal
+            * `NL` - Netherlands
+            * `NC` - New Caledonia
+            * `NZ` - New Zealand
+            * `NI` - Nicaragua
+            * `NE` - Niger
+            * `NG` - Nigeria
+            * `NU` - Niue
+            * `NF` - Norfolk Island
+            * `KP` - North Korea
+            * `MK` - North Macedonia
+            * `MP` - Northern Mariana Islands
+            * `NO` - Norway
+            * `OM` - Oman
+            * `PK` - Pakistan
+            * `PW` - Palau
+            * `PS` - Palestine
+            * `PA` - Panama
+            * `PG` - Papua New Guinea
+            * `PY` - Paraguay
+            * `PE` - Peru
+            * `PH` - Philippines
+            * `PN` - Pitcairn
+            * `PL` - Poland
+            * `PT` - Portugal
+            * `PR` - Puerto Rico
+            * `QA` - Qatar
+            * `RE` - Réunion
+            * `RO` - Romania
+            * `RU` - Russia
+            * `RW` - Rwanda
+            * `BL` - Saint Barthélemy
+            * `SH` - Saint Helena
+            * `KN` - Saint Kitts and Nevis
+            * `LC` - Saint Lucia
+            * `MF` - Saint Martin (French part)
+            * `PM` - Saint Pierre and Miquelon
+            * `VC` - Saint Vincent and the Grenadines
+            * `WS` - Samoa
+            * `SM` - San Marino
+            * `ST` - Sao Tome and Principe
+            * `SA` - Saudi Arabia
+            * `SN` - Senegal
+            * `RS` - Serbia
+            * `SC` - Seychelles
+            * `SL` - Sierra Leone
+            * `SG` - Singapore
+            * `SX` - Sint Maarten (Dutch part)
+            * `SK` - Slovakia
+            * `SI` - Slovenia
+            * `SB` - Solomon Islands
+            * `SO` - Somalia
+            * `ZA` - South Africa
+            * `GS` - South Georgia
+            * `KR` - South Korea
+            * `SS` - South Sudan
+            * `ES` - Spain
+            * `LK` - Sri Lanka
+            * `SD` - Sudan
+            * `SR` - Suriname
+            * `SJ` - Svalbard and Jan Mayen
+            * `SE` - Sweden
+            * `CH` - Switzerland
+            * `SY` - Syria
+            * `TW` - Taiwan
+            * `TJ` - Tajikistan
+            * `TZ` - Tanzania
+            * `TH` - Thailand
+            * `TL` - Timor-Leste
+            * `TG` - Togo
+            * `TK` - Tokelau
+            * `TO` - Tonga
+            * `TT` - Trinidad and Tobago
+            * `TN` - Tunisia
+            * `TR` - Türkiye
+            * `TM` - Turkmenistan
+            * `TC` - Turks and Caicos Islands
+            * `TV` - Tuvalu
+            * `UG` - Uganda
+            * `UA` - Ukraine
+            * `AE` - United Arab Emirates
+            * `GB` - United Kingdom
+            * `UM` - United States Minor Outlying Islands
+            * `US` - United States of America
+            * `UY` - Uruguay
+            * `UZ` - Uzbekistan
+            * `VU` - Vanuatu
+            * `VA` - Vatican City
+            * `VE` - Venezuela
+            * `VN` - Vietnam
+            * `VG` - Virgin Islands (British)
+            * `VI` - Virgin Islands (U.S.)
+            * `WF` - Wallis and Futuna
+            * `EH` - Western Sahara
+            * `YE` - Yemen
+            * `ZM` - Zambia
+            * `ZW` - Zimbabwe
+          oneOf:
+            - $ref: '#/components/schemas/CountryEnum'
+            - $ref: '#/components/schemas/NullEnum'
+        terms_metadata:
+          nullable: true
+          description: Metadata relating to the terms and conditions accepted by the user
+        first_billable_invoice:
+          allOf:
+            - $ref: '#/components/schemas/FirstBillableInvoice'
+          nullable: true
+      required:
+        - expires_at
+        - first_billable_invoice
+        - id
+        - state
+        - uuid
+    CheckoutIntentMinimalResponse:
+      type: object
+      description: >-
+        Minimal serializer to represent CheckoutIntent records in BFF response
+        payloads.
+      properties:
+        id:
+          type: integer
+          description: CheckoutIntent id
+        uuid:
+          type: string
+          format: uuid
+          description: CheckoutIntent uuid
+        state:
+          allOf:
+            - $ref: '#/components/schemas/State6f2Enum'
+          description: |-
+            The current state of this record
+
+            * `created` - created
+            * `paid` - paid
+            * `fulfilled` - fulfilled
+            * `errored_backoffice` - errored_backoffice
+            * `errored_fulfillment_stalled` - errored_fulfillment_stalled
+            * `errored_provisioning` - errored_provisioning
+            * `expired` - expired
+        enterprise_name:
+          type: string
+          description: The enterprise name associated with this record
+        enterprise_slug:
+          type: string
+          description: The enterprise slug associated with this record
+        enterprise_uuid:
+          type: string
+          format: uuid
+          nullable: true
+          description: The enterprise UUID associated with this record
+        quantity:
+          type: integer
+          description: The amount of licences created with this checkout intent
+        stripe_checkout_session_id:
+          type: string
+          nullable: true
+          description: The stripe checkout session id for this intent
+        stripe_customer_id:
+          type: string
+          nullable: true
+          description: The stripe checkout id for this intent
+        last_checkout_error:
+          type: string
+          nullable: true
+          description: The last checkout error related to this intent
+        last_provisioning_error:
+          type: string
+          nullable: true
+          description: The last provisioning error related to this intent
+        workflow_id:
+          type: string
+          nullable: true
+          description: The workflow id related to this intent
+        expires_at:
+          type: string
+          format: date-time
+          description: The expiration time of this intent
+        admin_portal_url:
+          type: string
+          nullable: true
+          description: The admin portal URL related to this intent
+        country:
+          nullable: true
+          description: |-
+            The customer country code
+
+            * `AF` - Afghanistan
+            * `AX` - Åland Islands
+            * `AL` - Albania
+            * `DZ` - Algeria
+            * `AS` - American Samoa
+            * `AD` - Andorra
+            * `AO` - Angola
+            * `AI` - Anguilla
+            * `AQ` - Antarctica
+            * `AG` - Antigua and Barbuda
+            * `AR` - Argentina
+            * `AM` - Armenia
+            * `AW` - Aruba
+            * `AU` - Australia
+            * `AT` - Austria
+            * `AZ` - Azerbaijan
+            * `BS` - Bahamas (The)
+            * `BH` - Bahrain
+            * `BD` - Bangladesh
+            * `BB` - Barbados
+            * `BY` - Belarus
+            * `BE` - Belgium
+            * `BZ` - Belize
+            * `BJ` - Benin
+            * `BM` - Bermuda
+            * `BT` - Bhutan
+            * `BO` - Bolivia
+            * `BQ` - Bonaire, Sint Eustatius and Saba
+            * `BA` - Bosnia and Herzegovina
+            * `BW` - Botswana
+            * `BV` - Bouvet Island
+            * `BR` - Brazil
+            * `IO` - British Indian Ocean Territory
+            * `BN` - Brunei
+            * `BG` - Bulgaria
+            * `BF` - Burkina Faso
+            * `BI` - Burundi
+            * `CV` - Cabo Verde
+            * `KH` - Cambodia
+            * `CM` - Cameroon
+            * `CA` - Canada
+            * `KY` - Cayman Islands
+            * `CF` - Central African Republic
+            * `TD` - Chad
+            * `CL` - Chile
+            * `CN` - China
+            * `CX` - Christmas Island
+            * `CC` - Cocos (Keeling) Islands
+            * `CO` - Colombia
+            * `KM` - Comoros
+            * `CG` - Congo
+            * `CK` - Cook Islands
+            * `CR` - Costa Rica
+            * `CI` - Côte d'Ivoire
+            * `HR` - Croatia
+            * `CU` - Cuba
+            * `CW` - Curaçao
+            * `CY` - Cyprus
+            * `CZ` - Czechia
+            * `CD` - Democratic Republic of the Congo
+            * `DK` - Denmark
+            * `DJ` - Djibouti
+            * `DM` - Dominica
+            * `DO` - Dominican Republic
+            * `EC` - Ecuador
+            * `EG` - Egypt
+            * `SV` - El Salvador
+            * `GQ` - Equatorial Guinea
+            * `ER` - Eritrea
+            * `EE` - Estonia
+            * `SZ` - Eswatini
+            * `ET` - Ethiopia
+            * `FK` - Falkland Islands (Malvinas)
+            * `FO` - Faroe Islands
+            * `FJ` - Fiji
+            * `FI` - Finland
+            * `FR` - France
+            * `GF` - French Guiana
+            * `PF` - French Polynesia
+            * `TF` - French Southern Territories
+            * `GA` - Gabon
+            * `GM` - Gambia
+            * `GE` - Georgia
+            * `DE` - Germany
+            * `GH` - Ghana
+            * `GI` - Gibraltar
+            * `GR` - Greece
+            * `GL` - Greenland
+            * `GD` - Grenada
+            * `GP` - Guadeloupe
+            * `GU` - Guam
+            * `GT` - Guatemala
+            * `GG` - Guernsey
+            * `GN` - Guinea
+            * `GW` - Guinea-Bissau
+            * `GY` - Guyana
+            * `HT` - Haiti
+            * `HM` - Heard Island and McDonald Islands
+            * `HN` - Honduras
+            * `HK` - Hong Kong
+            * `HU` - Hungary
+            * `IS` - Iceland
+            * `IN` - India
+            * `ID` - Indonesia
+            * `IR` - Iran
+            * `IQ` - Iraq
+            * `IE` - Ireland
+            * `IM` - Isle of Man
+            * `IL` - Israel
+            * `IT` - Italy
+            * `JM` - Jamaica
+            * `JP` - Japan
+            * `JE` - Jersey
+            * `JO` - Jordan
+            * `KZ` - Kazakhstan
+            * `KE` - Kenya
+            * `KI` - Kiribati
+            * `KW` - Kuwait
+            * `KG` - Kyrgyzstan
+            * `LA` - Laos
+            * `LV` - Latvia
+            * `LB` - Lebanon
+            * `LS` - Lesotho
+            * `LR` - Liberia
+            * `LY` - Libya
+            * `LI` - Liechtenstein
+            * `LT` - Lithuania
+            * `LU` - Luxembourg
+            * `MO` - Macao
+            * `MG` - Madagascar
+            * `MW` - Malawi
+            * `MY` - Malaysia
+            * `MV` - Maldives
+            * `ML` - Mali
+            * `MT` - Malta
+            * `MH` - Marshall Islands
+            * `MQ` - Martinique
+            * `MR` - Mauritania
+            * `MU` - Mauritius
+            * `YT` - Mayotte
+            * `MX` - Mexico
+            * `FM` - Micronesia
+            * `MD` - Moldova
+            * `MC` - Monaco
+            * `MN` - Mongolia
+            * `ME` - Montenegro
+            * `MS` - Montserrat
+            * `MA` - Morocco
+            * `MZ` - Mozambique
+            * `MM` - Myanmar
+            * `NA` - Namibia
+            * `NR` - Nauru
+            * `NP` - Nepal
+            * `NL` - Netherlands
+            * `NC` - New Caledonia
+            * `NZ` - New Zealand
+            * `NI` - Nicaragua
+            * `NE` - Niger
+            * `NG` - Nigeria
+            * `NU` - Niue
+            * `NF` - Norfolk Island
+            * `KP` - North Korea
+            * `MK` - North Macedonia
+            * `MP` - Northern Mariana Islands
+            * `NO` - Norway
+            * `OM` - Oman
+            * `PK` - Pakistan
+            * `PW` - Palau
+            * `PS` - Palestine
+            * `PA` - Panama
+            * `PG` - Papua New Guinea
+            * `PY` - Paraguay
+            * `PE` - Peru
+            * `PH` - Philippines
+            * `PN` - Pitcairn
+            * `PL` - Poland
+            * `PT` - Portugal
+            * `PR` - Puerto Rico
+            * `QA` - Qatar
+            * `RE` - Réunion
+            * `RO` - Romania
+            * `RU` - Russia
+            * `RW` - Rwanda
+            * `BL` - Saint Barthélemy
+            * `SH` - Saint Helena
+            * `KN` - Saint Kitts and Nevis
+            * `LC` - Saint Lucia
+            * `MF` - Saint Martin (French part)
+            * `PM` - Saint Pierre and Miquelon
+            * `VC` - Saint Vincent and the Grenadines
+            * `WS` - Samoa
+            * `SM` - San Marino
+            * `ST` - Sao Tome and Principe
+            * `SA` - Saudi Arabia
+            * `SN` - Senegal
+            * `RS` - Serbia
+            * `SC` - Seychelles
+            * `SL` - Sierra Leone
+            * `SG` - Singapore
+            * `SX` - Sint Maarten (Dutch part)
+            * `SK` - Slovakia
+            * `SI` - Slovenia
+            * `SB` - Solomon Islands
+            * `SO` - Somalia
+            * `ZA` - South Africa
+            * `GS` - South Georgia
+            * `KR` - South Korea
+            * `SS` - South Sudan
+            * `ES` - Spain
+            * `LK` - Sri Lanka
+            * `SD` - Sudan
+            * `SR` - Suriname
+            * `SJ` - Svalbard and Jan Mayen
+            * `SE` - Sweden
+            * `CH` - Switzerland
+            * `SY` - Syria
+            * `TW` - Taiwan
+            * `TJ` - Tajikistan
+            * `TZ` - Tanzania
+            * `TH` - Thailand
+            * `TL` - Timor-Leste
+            * `TG` - Togo
+            * `TK` - Tokelau
+            * `TO` - Tonga
+            * `TT` - Trinidad and Tobago
+            * `TN` - Tunisia
+            * `TR` - Türkiye
+            * `TM` - Turkmenistan
+            * `TC` - Turks and Caicos Islands
+            * `TV` - Tuvalu
+            * `UG` - Uganda
+            * `UA` - Ukraine
+            * `AE` - United Arab Emirates
+            * `GB` - United Kingdom
+            * `UM` - United States Minor Outlying Islands
+            * `US` - United States of America
+            * `UY` - Uruguay
+            * `UZ` - Uzbekistan
+            * `VU` - Vanuatu
+            * `VA` - Vatican City
+            * `VE` - Venezuela
+            * `VN` - Vietnam
+            * `VG` - Virgin Islands (British)
+            * `VI` - Virgin Islands (U.S.)
+            * `WF` - Wallis and Futuna
+            * `EH` - Western Sahara
+            * `YE` - Yemen
+            * `ZM` - Zambia
+            * `ZW` - Zimbabwe
+          oneOf:
+            - $ref: '#/components/schemas/CountryEnum'
+            - $ref: '#/components/schemas/NullEnum'
+        terms_metadata:
+          nullable: true
+          description: Metadata relating to the terms and conditions accepted by the user
+      required:
+        - expires_at
+        - id
+        - state
+        - uuid
+    CheckoutIntentReadOnly:
+      type: object
+      description: Serializer for reading and updating CheckoutIntent model instances.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        workflow:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: >-
+            Unique identifier for this record, can be used for cross-service
+            references
+        state:
+          allOf:
+            - $ref: '#/components/schemas/StateCfeEnum'
+          readOnly: true
+        enterprise_name:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Checkout intent enterprise customer name
+        enterprise_slug:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Checkout intent enterprise customer slug
+          pattern: ^[-a-zA-Z0-9_]+$
+        enterprise_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          description: The uuid of the EnterpriseCustomer, once successfully provisioned
+        stripe_customer_id:
+          type: string
+          readOnly: true
+          nullable: true
+          description: The Stripe Customer identifier associated with this record
+        expires_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Checkout intent expiration timestamp
+        stripe_checkout_session_id:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Associated Stripe checkout session ID
+        quantity:
+          type: integer
+          readOnly: true
+          description: How many licenses to create.
+        country:
+          readOnly: true
+          nullable: true
+          description: |-
+            The customer's country
+
+            * `AF` - Afghanistan
+            * `AX` - Åland Islands
+            * `AL` - Albania
+            * `DZ` - Algeria
+            * `AS` - American Samoa
+            * `AD` - Andorra
+            * `AO` - Angola
+            * `AI` - Anguilla
+            * `AQ` - Antarctica
+            * `AG` - Antigua and Barbuda
+            * `AR` - Argentina
+            * `AM` - Armenia
+            * `AW` - Aruba
+            * `AU` - Australia
+            * `AT` - Austria
+            * `AZ` - Azerbaijan
+            * `BS` - Bahamas (The)
+            * `BH` - Bahrain
+            * `BD` - Bangladesh
+            * `BB` - Barbados
+            * `BY` - Belarus
+            * `BE` - Belgium
+            * `BZ` - Belize
+            * `BJ` - Benin
+            * `BM` - Bermuda
+            * `BT` - Bhutan
+            * `BO` - Bolivia
+            * `BQ` - Bonaire, Sint Eustatius and Saba
+            * `BA` - Bosnia and Herzegovina
+            * `BW` - Botswana
+            * `BV` - Bouvet Island
+            * `BR` - Brazil
+            * `IO` - British Indian Ocean Territory
+            * `BN` - Brunei
+            * `BG` - Bulgaria
+            * `BF` - Burkina Faso
+            * `BI` - Burundi
+            * `CV` - Cabo Verde
+            * `KH` - Cambodia
+            * `CM` - Cameroon
+            * `CA` - Canada
+            * `KY` - Cayman Islands
+            * `CF` - Central African Republic
+            * `TD` - Chad
+            * `CL` - Chile
+            * `CN` - China
+            * `CX` - Christmas Island
+            * `CC` - Cocos (Keeling) Islands
+            * `CO` - Colombia
+            * `KM` - Comoros
+            * `CG` - Congo
+            * `CK` - Cook Islands
+            * `CR` - Costa Rica
+            * `CI` - Côte d'Ivoire
+            * `HR` - Croatia
+            * `CU` - Cuba
+            * `CW` - Curaçao
+            * `CY` - Cyprus
+            * `CZ` - Czechia
+            * `CD` - Democratic Republic of the Congo
+            * `DK` - Denmark
+            * `DJ` - Djibouti
+            * `DM` - Dominica
+            * `DO` - Dominican Republic
+            * `EC` - Ecuador
+            * `EG` - Egypt
+            * `SV` - El Salvador
+            * `GQ` - Equatorial Guinea
+            * `ER` - Eritrea
+            * `EE` - Estonia
+            * `SZ` - Eswatini
+            * `ET` - Ethiopia
+            * `FK` - Falkland Islands (Malvinas)
+            * `FO` - Faroe Islands
+            * `FJ` - Fiji
+            * `FI` - Finland
+            * `FR` - France
+            * `GF` - French Guiana
+            * `PF` - French Polynesia
+            * `TF` - French Southern Territories
+            * `GA` - Gabon
+            * `GM` - Gambia
+            * `GE` - Georgia
+            * `DE` - Germany
+            * `GH` - Ghana
+            * `GI` - Gibraltar
+            * `GR` - Greece
+            * `GL` - Greenland
+            * `GD` - Grenada
+            * `GP` - Guadeloupe
+            * `GU` - Guam
+            * `GT` - Guatemala
+            * `GG` - Guernsey
+            * `GN` - Guinea
+            * `GW` - Guinea-Bissau
+            * `GY` - Guyana
+            * `HT` - Haiti
+            * `HM` - Heard Island and McDonald Islands
+            * `HN` - Honduras
+            * `HK` - Hong Kong
+            * `HU` - Hungary
+            * `IS` - Iceland
+            * `IN` - India
+            * `ID` - Indonesia
+            * `IR` - Iran
+            * `IQ` - Iraq
+            * `IE` - Ireland
+            * `IM` - Isle of Man
+            * `IL` - Israel
+            * `IT` - Italy
+            * `JM` - Jamaica
+            * `JP` - Japan
+            * `JE` - Jersey
+            * `JO` - Jordan
+            * `KZ` - Kazakhstan
+            * `KE` - Kenya
+            * `KI` - Kiribati
+            * `KW` - Kuwait
+            * `KG` - Kyrgyzstan
+            * `LA` - Laos
+            * `LV` - Latvia
+            * `LB` - Lebanon
+            * `LS` - Lesotho
+            * `LR` - Liberia
+            * `LY` - Libya
+            * `LI` - Liechtenstein
+            * `LT` - Lithuania
+            * `LU` - Luxembourg
+            * `MO` - Macao
+            * `MG` - Madagascar
+            * `MW` - Malawi
+            * `MY` - Malaysia
+            * `MV` - Maldives
+            * `ML` - Mali
+            * `MT` - Malta
+            * `MH` - Marshall Islands
+            * `MQ` - Martinique
+            * `MR` - Mauritania
+            * `MU` - Mauritius
+            * `YT` - Mayotte
+            * `MX` - Mexico
+            * `FM` - Micronesia
+            * `MD` - Moldova
+            * `MC` - Monaco
+            * `MN` - Mongolia
+            * `ME` - Montenegro
+            * `MS` - Montserrat
+            * `MA` - Morocco
+            * `MZ` - Mozambique
+            * `MM` - Myanmar
+            * `NA` - Namibia
+            * `NR` - Nauru
+            * `NP` - Nepal
+            * `NL` - Netherlands
+            * `NC` - New Caledonia
+            * `NZ` - New Zealand
+            * `NI` - Nicaragua
+            * `NE` - Niger
+            * `NG` - Nigeria
+            * `NU` - Niue
+            * `NF` - Norfolk Island
+            * `KP` - North Korea
+            * `MK` - North Macedonia
+            * `MP` - Northern Mariana Islands
+            * `NO` - Norway
+            * `OM` - Oman
+            * `PK` - Pakistan
+            * `PW` - Palau
+            * `PS` - Palestine
+            * `PA` - Panama
+            * `PG` - Papua New Guinea
+            * `PY` - Paraguay
+            * `PE` - Peru
+            * `PH` - Philippines
+            * `PN` - Pitcairn
+            * `PL` - Poland
+            * `PT` - Portugal
+            * `PR` - Puerto Rico
+            * `QA` - Qatar
+            * `RE` - Réunion
+            * `RO` - Romania
+            * `RU` - Russia
+            * `RW` - Rwanda
+            * `BL` - Saint Barthélemy
+            * `SH` - Saint Helena
+            * `KN` - Saint Kitts and Nevis
+            * `LC` - Saint Lucia
+            * `MF` - Saint Martin (French part)
+            * `PM` - Saint Pierre and Miquelon
+            * `VC` - Saint Vincent and the Grenadines
+            * `WS` - Samoa
+            * `SM` - San Marino
+            * `ST` - Sao Tome and Principe
+            * `SA` - Saudi Arabia
+            * `SN` - Senegal
+            * `RS` - Serbia
+            * `SC` - Seychelles
+            * `SL` - Sierra Leone
+            * `SG` - Singapore
+            * `SX` - Sint Maarten (Dutch part)
+            * `SK` - Slovakia
+            * `SI` - Slovenia
+            * `SB` - Solomon Islands
+            * `SO` - Somalia
+            * `ZA` - South Africa
+            * `GS` - South Georgia
+            * `KR` - South Korea
+            * `SS` - South Sudan
+            * `ES` - Spain
+            * `LK` - Sri Lanka
+            * `SD` - Sudan
+            * `SR` - Suriname
+            * `SJ` - Svalbard and Jan Mayen
+            * `SE` - Sweden
+            * `CH` - Switzerland
+            * `SY` - Syria
+            * `TW` - Taiwan
+            * `TJ` - Tajikistan
+            * `TZ` - Tanzania
+            * `TH` - Thailand
+            * `TL` - Timor-Leste
+            * `TG` - Togo
+            * `TK` - Tokelau
+            * `TO` - Tonga
+            * `TT` - Trinidad and Tobago
+            * `TN` - Tunisia
+            * `TR` - Türkiye
+            * `TM` - Turkmenistan
+            * `TC` - Turks and Caicos Islands
+            * `TV` - Tuvalu
+            * `UG` - Uganda
+            * `UA` - Ukraine
+            * `AE` - United Arab Emirates
+            * `GB` - United Kingdom
+            * `UM` - United States Minor Outlying Islands
+            * `US` - United States of America
+            * `UY` - Uruguay
+            * `UZ` - Uzbekistan
+            * `VU` - Vanuatu
+            * `VA` - Vatican City
+            * `VE` - Venezuela
+            * `VN` - Vietnam
+            * `VG` - Virgin Islands (British)
+            * `VI` - Virgin Islands (U.S.)
+            * `WF` - Wallis and Futuna
+            * `EH` - Western Sahara
+            * `YE` - Yemen
+            * `ZM` - Zambia
+            * `ZW` - Zimbabwe
+          oneOf:
+            - $ref: '#/components/schemas/CountryEnum'
+            - $ref: '#/components/schemas/NullEnum'
+        last_checkout_error:
+          type: string
+          readOnly: true
+          nullable: true
+        last_provisioning_error:
+          type: string
+          readOnly: true
+          nullable: true
+        terms_metadata:
+          readOnly: true
+          nullable: true
+          description: Metadata relating to the terms and conditions accepted by the user.
+        user:
+          type: integer
+          readOnly: true
+      required:
+        - country
+        - created
+        - enterprise_name
+        - enterprise_slug
+        - enterprise_uuid
+        - expires_at
+        - id
+        - last_checkout_error
+        - last_provisioning_error
+        - modified
+        - quantity
+        - state
+        - stripe_checkout_session_id
+        - stripe_customer_id
+        - terms_metadata
+        - user
+        - uuid
+        - workflow
+    CheckoutSuccessResponse:
+      type: object
+      description: Complete serializer for checkout success intent.
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Warning'
+        enterprise_features:
+          type: object
+          additionalProperties: {}
+        existing_customers_for_authenticated_user:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnterpriseCustomer'
+          description: >-
+            Enterprise customers associated with the authenticated user (empty
+            for unauthenticated users)
+        pricing:
+          allOf:
+            - $ref: '#/components/schemas/PricingData'
+          description: Available pricing options
+        field_constraints:
+          allOf:
+            - $ref: '#/components/schemas/FieldConstraints'
+          description: Constraints for form fields
+        checkout_intent:
+          allOf:
+            - $ref: '#/components/schemas/CheckoutIntentExpanded'
+          nullable: true
+          description: >-
+            The existing ``CheckoutIntent`` for the requesting user, if any.
+            Includes expanded information from related Stripe records.
+      required:
+        - existing_customers_for_authenticated_user
+        - field_constraints
+        - pricing
+    CheckoutValidationRequest:
+      type: object
+      description: Request serializer for the checkout validation endpoint.
+      properties:
+        full_name:
+          type: string
+          description: User's full name
+        admin_email:
+          type: string
+          format: email
+          description: User's work email
+        company_name:
+          type: string
+          description: Company name
+        enterprise_slug:
+          type: string
+          description: Desired enterprise slug
+          pattern: ^[-a-zA-Z0-9_]+$
+        quantity:
+          type: integer
+          nullable: true
+          description: Number of licenses
+        stripe_price_id:
+          type: string
+          description: Stripe price ID
+    CheckoutValidationResponse:
+      type: object
+      description: Response serializer for the checkout validation endpoint.
+      properties:
+        validation_decisions:
+          type: object
+          additionalProperties:
+            allOf:
+              - $ref: '#/components/schemas/ValidationDecision'
+            nullable: true
+          description: Validation results for each field
+        user_authn:
+          allOf:
+            - $ref: '#/components/schemas/UserAuthInfo'
+          description: User authentication status information
+      required:
+        - user_authn
+        - validation_decisions
     ContentMetadataForAssignment:
       type: object
       description: >-
@@ -2767,7 +5397,6 @@ components:
         - CO
         - KM
         - CG
-        - CD
         - CK
         - CR
         - CI
@@ -2776,6 +5405,7 @@ components:
         - CW
         - CY
         - CZ
+        - CD
         - DK
         - DJ
         - DM
@@ -2814,7 +5444,6 @@ components:
         - GY
         - HT
         - HM
-        - VA
         - HN
         - HK
         - HU
@@ -2956,6 +5585,7 @@ components:
         - UY
         - UZ
         - VU
+        - VA
         - VE
         - VN
         - VG
@@ -2983,7 +5613,7 @@ components:
         * `AU` - Australia
         * `AT` - Austria
         * `AZ` - Azerbaijan
-        * `BS` - Bahamas
+        * `BS` - Bahamas (The)
         * `BH` - Bahrain
         * `BD` - Bangladesh
         * `BB` - Barbados
@@ -3018,7 +5648,6 @@ components:
         * `CO` - Colombia
         * `KM` - Comoros
         * `CG` - Congo
-        * `CD` - Congo (the Democratic Republic of the)
         * `CK` - Cook Islands
         * `CR` - Costa Rica
         * `CI` - Côte d'Ivoire
@@ -3027,6 +5656,7 @@ components:
         * `CW` - Curaçao
         * `CY` - Cyprus
         * `CZ` - Czechia
+        * `CD` - Democratic Republic of the Congo
         * `DK` - Denmark
         * `DJ` - Djibouti
         * `DM` - Dominica
@@ -3065,7 +5695,6 @@ components:
         * `GY` - Guyana
         * `HT` - Haiti
         * `HM` - Heard Island and McDonald Islands
-        * `VA` - Holy See
         * `HN` - Honduras
         * `HK` - Hong Kong
         * `HU` - Hungary
@@ -3136,7 +5765,7 @@ components:
         * `OM` - Oman
         * `PK` - Pakistan
         * `PW` - Palau
-        * `PS` - Palestine, State of
+        * `PS` - Palestine
         * `PA` - Panama
         * `PG` - Papua New Guinea
         * `PY` - Paraguay
@@ -3152,7 +5781,7 @@ components:
         * `RU` - Russia
         * `RW` - Rwanda
         * `BL` - Saint Barthélemy
-        * `SH` - Saint Helena, Ascension and Tristan da Cunha
+        * `SH` - Saint Helena
         * `KN` - Saint Kitts and Nevis
         * `LC` - Saint Lucia
         * `MF` - Saint Martin (French part)
@@ -3173,7 +5802,7 @@ components:
         * `SB` - Solomon Islands
         * `SO` - Somalia
         * `ZA` - South Africa
-        * `GS` - South Georgia and the South Sandwich Islands
+        * `GS` - South Georgia
         * `KR` - South Korea
         * `SS` - South Sudan
         * `ES` - Spain
@@ -3207,6 +5836,7 @@ components:
         * `UY` - Uruguay
         * `UZ` - Uzbekistan
         * `VU` - Vanuatu
+        * `VA` - Vatican City
         * `VE` - Venezuela
         * `VN` - Vietnam
         * `VG` - Virgin Islands (British)
@@ -3247,7 +5877,7 @@ components:
           format: uuid
         state:
           allOf:
-            - $ref: '#/components/schemas/State7b6Enum'
+            - $ref: '#/components/schemas/StateB44Enum'
           readOnly: true
         reviewed_at:
           type: string
@@ -3399,6 +6029,100 @@ components:
         - enterprise_customer_uuid
         - subscriptions
         - uuid
+    CustomerBillingCreateCheckoutSessionRequest:
+      type: object
+      description: >-
+        Request serializer for body of POST requests to
+        /api/v1/customer-billing/create-checkout-session
+      properties:
+        admin_email:
+          type: string
+          format: email
+          description: The email corresponding to a registered user to assign as admin.
+        enterprise_slug:
+          type: string
+          description: The unique slug proposed for the Enterprise Customer.
+          pattern: ^[-a-zA-Z0-9_]+$
+        company_name:
+          type: string
+          description: The unique name proposed for the Enterprise Customer.
+        quantity:
+          type: integer
+          minimum: 1
+          description: >-
+            Unit depends on the Stripe Price object. This could be count of
+            subscription licenses, but could also be USD of Learner Credit.
+        stripe_price_id:
+          type: string
+          description: The ID of the Stripe Price object representing the plan selection.
+      required:
+        - admin_email
+        - company_name
+        - enterprise_slug
+        - quantity
+        - stripe_price_id
+    CustomerBillingCreateCheckoutSessionSuccessResponse:
+      type: object
+      description: >-
+        Response serializer for response body from POST
+        /api/v1/customer-billing/create-checkout-session
+
+
+        Specifically for HTTP 201 CREATED responses.
+      properties:
+        checkout_session_client_secret:
+          type: string
+          description: >-
+            Secret identifier for the newly created Stripe checkout session.
+            Pass this to the frontend stripe component.
+      required:
+        - checkout_session_client_secret
+    CustomerBillingCreateCheckoutSessionValidationFailedResponse:
+      type: object
+      description: >-
+        Response serializer for response body from POST
+        /api/v1/customer-billing/create-checkout-session
+
+
+        Specifically for HTTP 422 UNPROCESSABLE ENTITY responses.
+      properties:
+        admin_email:
+          allOf:
+            - $ref: '#/components/schemas/FieldValidation'
+          description: >-
+            Validation results for admin_email if validation failed. Absent
+            otherwise.
+        enterprise_slug:
+          allOf:
+            - $ref: '#/components/schemas/FieldValidation'
+          description: >-
+            Validation results for enterprise_slug if validation failed. Absent
+            otherwise.
+        quantity:
+          allOf:
+            - $ref: '#/components/schemas/FieldValidation'
+          description: >-
+            Validation results for quantity if validation failed. Absent
+            otherwise.
+        stripe_price_id:
+          allOf:
+            - $ref: '#/components/schemas/FieldValidation'
+          description: >-
+            Validation results for stripe_price_id if validation failed. Absent
+            otherwise.
+        company_name:
+          allOf:
+            - $ref: '#/components/schemas/FieldValidation'
+          description: >-
+            Validation results for company_name if validation failed. Absent
+            otherwise.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnprocessableEntityError'
+          description: >-
+            Errors if ChekoutIntent creation failed for non-field-specific
+            reasons. Absent otherwise.
     EnrollmentDueDate:
       type: object
       description: Serializer for enrollment due date.
@@ -3424,9 +6148,7 @@ components:
         catalog_query_id:
           allOf:
             - $ref: '#/components/schemas/CatalogQueryIdEnum'
-          default:
-            - - 13
-              - Subscription - Trial Catalog
+          default: 13
           description: |-
             The id of the related Catalog Query.
 
@@ -3540,254 +6262,26 @@ components:
         - title
     EnterpriseCustomer:
       type: object
-      description: Serializer for enterprise customer.
+      description: Serializer for enterprise customer data in checkout context.
       properties:
-        uuid:
+        customer_uuid:
           type: string
-          format: uuid
-        slug:
+        customer_name:
           type: string
-        name:
+        customer_slug:
           type: string
-        active:
-          type: boolean
-        auth_org_id:
+        stripe_customer_id:
           type: string
-          nullable: true
-        site:
-          $ref: '#/components/schemas/EnterpriseCustomerSite'
-        branding_configuration:
-          $ref: '#/components/schemas/EnterpriseCustomerBrandingConfiguration'
-        identity_provider:
-          type: string
-          nullable: true
-        identity_providers:
-          type: array
-          items:
-            $ref: '#/components/schemas/EnterpriseCustomerIdentityProvider'
-        enable_data_sharing_consent:
+        is_self_service:
           type: boolean
-        enforce_data_sharing_consent:
-          type: string
-        disable_expiry_messaging_for_learner_credit:
-          type: boolean
-        enable_audit_enrollment:
-          type: boolean
-        replace_sensitive_sso_username:
-          type: boolean
-        enable_portal_code_management_screen:
-          type: boolean
-        sync_learner_profile_data:
-          type: boolean
-        enable_audit_data_reporting:
-          type: boolean
-        enable_learner_portal:
-          type: boolean
-        enable_learner_portal_offers:
-          type: boolean
-        enable_portal_learner_credit_management_screen:
-          type: boolean
-        enable_executive_education_2U_fulfillment:
-          type: boolean
-        enable_portal_reporting_config_screen:
-          type: boolean
-        enable_portal_saml_configuration_screen:
-          type: boolean
-        contact_email:
-          type: string
-          format: email
-          nullable: true
-        enable_portal_subscription_management_screen:
-          type: boolean
-        hide_course_original_price:
-          type: boolean
-        enable_analytics_screen:
-          type: boolean
-        enable_integrated_customer_learner_portal_search:
-          type: boolean
-        enable_generation_of_api_credentials:
-          type: boolean
-        enable_portal_lms_configurations_screen:
-          type: boolean
-        sender_alias:
-          type: string
-          nullable: true
-        enterprise_customer_catalogs:
-          type: array
-          items:
-            type: string
-            format: uuid
-        reply_to:
-          type: string
-          format: email
-          nullable: true
-        enterprise_notification_banner:
-          allOf:
-            - $ref: '#/components/schemas/EnterpriseCustomerNotificationBanner'
-          nullable: true
-        hide_labor_market_data:
-          type: boolean
-        modified:
-          type: string
-          format: date-time
-        enable_universal_link:
-          type: boolean
-        enable_browse_and_request:
-          type: boolean
-        admin_users:
-          type: array
-          items:
-            $ref: '#/components/schemas/EnterpriseCustomerAdminUser'
-        enable_learner_portal_sidebar_message:
-          type: boolean
-        learner_portal_sidebar_content:
-          type: string
-          nullable: true
-        enable_pathways:
-          type: boolean
-        enable_programs:
-          type: boolean
-        enable_demo_data_for_analytics_and_lpr:
-          type: boolean
-        enable_academies:
-          type: boolean
-        enable_one_academy:
-          type: boolean
-        active_integrations:
-          type: array
-          items:
-            $ref: '#/components/schemas/EnterpriseCustomerActiveIntegration'
-        show_videos_in_learner_portal_search_results:
-          type: boolean
-        default_language:
-          type: string
-          nullable: true
-        country:
-          type: string
-        enable_slug_login:
-          type: boolean
-        disable_search:
-          type: boolean
-        show_integration_warning:
-          type: boolean
-        enable_learner_credit_message_box:
-          type: boolean
-      required:
-        - active
-        - branding_configuration
-        - country
-        - disable_expiry_messaging_for_learner_credit
-        - disable_search
-        - enable_academies
-        - enable_analytics_screen
-        - enable_audit_data_reporting
-        - enable_audit_enrollment
-        - enable_browse_and_request
-        - enable_data_sharing_consent
-        - enable_demo_data_for_analytics_and_lpr
-        - enable_executive_education_2U_fulfillment
-        - enable_generation_of_api_credentials
-        - enable_integrated_customer_learner_portal_search
-        - enable_learner_credit_message_box
-        - enable_learner_portal
-        - enable_learner_portal_offers
-        - enable_learner_portal_sidebar_message
-        - enable_one_academy
-        - enable_pathways
-        - enable_portal_code_management_screen
-        - enable_portal_learner_credit_management_screen
-        - enable_portal_lms_configurations_screen
-        - enable_portal_reporting_config_screen
-        - enable_portal_saml_configuration_screen
-        - enable_portal_subscription_management_screen
-        - enable_programs
-        - enable_slug_login
-        - enable_universal_link
-        - enforce_data_sharing_consent
-        - hide_course_original_price
-        - hide_labor_market_data
-        - modified
-        - name
-        - replace_sensitive_sso_username
-        - show_integration_warning
-        - show_videos_in_learner_portal_search_results
-        - site
-        - slug
-        - sync_learner_profile_data
-        - uuid
-    EnterpriseCustomerActiveIntegration:
-      type: object
-      description: Serializer for enterprise customer integration.
-      properties:
-        channel_code:
-          type: string
-        created:
-          type: string
-          format: date-time
-        modified:
-          type: string
-          format: date-time
-        display_name:
-          type: string
-        active:
-          type: boolean
-      required:
-        - active
-        - channel_code
-        - created
-        - display_name
-        - modified
-    EnterpriseCustomerAdminUser:
-      type: object
-      description: Serializer for enterprise customer admin user.
-      properties:
-        email:
-          type: string
-          format: email
-          nullable: true
-        lms_user_id:
-          type: integer
-      required:
-        - lms_user_id
-    EnterpriseCustomerBrandingConfiguration:
-      type: object
-      description: Serializer for enterprise customer branding configuration.
-      properties:
-        logo:
-          type: string
-          format: uri
-          nullable: true
-        primary_color:
-          type: string
-        secondary_color:
-          type: string
-        tertiary_color:
+          default: false
+        admin_portal_url:
           type: string
       required:
-        - primary_color
-        - secondary_color
-        - tertiary_color
-    EnterpriseCustomerIdentityProvider:
-      type: object
-      description: Serializer for enterprise customer identity provider.
-      properties:
-        provider_id:
-          type: string
-        default_provider:
-          type: boolean
-      required:
-        - default_provider
-        - provider_id
-    EnterpriseCustomerNotificationBanner:
-      type: object
-      description: Serializer for enterprise customer notification banner.
-      properties:
-        title:
-          type: string
-          nullable: true
-        text:
-          type: string
-          nullable: true
+        - admin_portal_url
+        - customer_name
+        - customer_slug
+        - customer_uuid
     EnterpriseCustomerRequest:
       type: object
       description: Customer object serializer for provisioning requests.
@@ -3835,7 +6329,7 @@ components:
 
             * `AZ` - Azerbaijan
 
-            * `BS` - Bahamas
+            * `BS` - Bahamas (The)
 
             * `BH` - Bahrain
 
@@ -3905,8 +6399,6 @@ components:
 
             * `CG` - Congo
 
-            * `CD` - Congo (the Democratic Republic of the)
-
             * `CK` - Cook Islands
 
             * `CR` - Costa Rica
@@ -3922,6 +6414,8 @@ components:
             * `CY` - Cyprus
 
             * `CZ` - Czechia
+
+            * `CD` - Democratic Republic of the Congo
 
             * `DK` - Denmark
 
@@ -3998,8 +6492,6 @@ components:
             * `HT` - Haiti
 
             * `HM` - Heard Island and McDonald Islands
-
-            * `VA` - Holy See
 
             * `HN` - Honduras
 
@@ -4141,7 +6633,7 @@ components:
 
             * `PW` - Palau
 
-            * `PS` - Palestine, State of
+            * `PS` - Palestine
 
             * `PA` - Panama
 
@@ -4173,7 +6665,7 @@ components:
 
             * `BL` - Saint Barthélemy
 
-            * `SH` - Saint Helena, Ascension and Tristan da Cunha
+            * `SH` - Saint Helena
 
             * `KN` - Saint Kitts and Nevis
 
@@ -4215,7 +6707,7 @@ components:
 
             * `ZA` - South Africa
 
-            * `GS` - South Georgia and the South Sandwich Islands
+            * `GS` - South Georgia
 
             * `KR` - South Korea
 
@@ -4283,6 +6775,8 @@ components:
 
             * `VU` - Vanuatu
 
+            * `VA` - Vatican City
+
             * `VE` - Venezuela
 
             * `VN` - Vietnam
@@ -4326,17 +6820,6 @@ components:
         - name
         - slug
         - uuid
-    EnterpriseCustomerSite:
-      type: object
-      description: Serializer for enterprise customer site.
-      properties:
-        domain:
-          type: string
-        name:
-          type: string
-      required:
-        - domain
-        - name
     EnterpriseCustomerUser:
       type: object
       description: Serializer for all linked enterprise customer users
@@ -4392,6 +6875,115 @@ components:
           format: email
       required:
         - user_email
+    FieldConstraints:
+      type: object
+      description: >-
+        Serializer for field constraints in checkout context.
+
+
+        TODO: the field constraints should be expanded to more closely match the
+        mins/maxes within this code block:
+
+        https://github.com/edx/frontend-app-enterprise-checkout/blob/main/src/constants.ts#L13-L39
+      properties:
+        quantity:
+          allOf:
+            - $ref: '#/components/schemas/QuantityConstraint'
+          description: Constraints for license quantity
+        enterprise_slug:
+          allOf:
+            - $ref: '#/components/schemas/StringConstraint'
+          description: Constraints for enterprise slug
+        full_name:
+          allOf:
+            - $ref: '#/components/schemas/StringConstraint'
+          description: Constraints for enterprise user full name
+        admin_email:
+          allOf:
+            - $ref: '#/components/schemas/StringConstraint'
+          description: Constraints for admin email address
+        country:
+          allOf:
+            - $ref: '#/components/schemas/StringConstraint'
+          description: Constraints for enterprise country
+        company_name:
+          allOf:
+            - $ref: '#/components/schemas/StringConstraint'
+          description: Constraints for enterprise company name
+        embargoed_countries:
+          type: array
+          items:
+            type: string
+            maxLength: 2
+          description: Embargoed country codes
+      required:
+        - admin_email
+        - company_name
+        - country
+        - enterprise_slug
+        - full_name
+        - quantity
+    FieldValidation:
+      type: object
+      description: Common pattern for serialized field validation errors.
+      properties:
+        error_code:
+          type: string
+          description: Error code for validation failure.
+        developer_message:
+          type: string
+          description: >-
+            System message (not intended for user display) for validation
+            failure.
+      required:
+        - developer_message
+        - error_code
+    FirstBillableInvoice:
+      type: object
+      description: Serializer for first billable invoice information.
+      properties:
+        start_time:
+          type: string
+          format: date-time
+          nullable: true
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+        last4:
+          type: integer
+          nullable: true
+        card_brand:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+          nullable: true
+        unit_amount_decimal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        customer_phone:
+          type: string
+          nullable: true
+        customer_name:
+          type: string
+          nullable: true
+        billing_address:
+          allOf:
+            - $ref: '#/components/schemas/BillingAddress'
+          nullable: true
+      required:
+        - billing_address
+        - card_brand
+        - customer_name
+        - customer_phone
+        - end_time
+        - last4
+        - quantity
+        - start_time
+        - unit_amount_decimal
     GroupMemberWithAggregatesResponse:
       type: object
       description: >-
@@ -4492,6 +7084,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Warning'
+        enterprise_features:
+          type: object
+          additionalProperties: {}
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -4510,9 +7105,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -4523,9 +7115,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
           nullable: true
-        enterprise_features:
-          type: object
-          additionalProperties: {}
         enterprise_customer_user_subsidies:
           $ref: '#/components/schemas/EnterpriseCustomerUserSubsidies'
       required:
@@ -4552,7 +7141,7 @@ components:
           readOnly: true
         action_type:
           allOf:
-            - $ref: '#/components/schemas/ActionType5a0Enum'
+            - $ref: '#/components/schemas/ActionType3e8Enum'
           readOnly: true
           description: >-
             The type of action take on the related assignment record.
@@ -4625,7 +7214,7 @@ components:
           readOnly: true
         action_type:
           allOf:
-            - $ref: '#/components/schemas/ActionType5a0Enum'
+            - $ref: '#/components/schemas/ActionType3e8Enum'
           readOnly: true
           description: >-
             The type of action take on the related assignment record.
@@ -4764,7 +7353,7 @@ components:
           description: Cost of the content in USD Cents.
         state:
           allOf:
-            - $ref: '#/components/schemas/StateBedEnum'
+            - $ref: '#/components/schemas/StateE0aEnum'
           readOnly: true
           description: >-
             The current state of the LearnerContentAssignment. One of:
@@ -5015,7 +7604,7 @@ components:
           description: Cost of the content in USD Cents.
         state:
           allOf:
-            - $ref: '#/components/schemas/StateBedEnum'
+            - $ref: '#/components/schemas/StateE0aEnum'
           readOnly: true
           description: >-
             The current state of the LearnerContentAssignment. One of:
@@ -5130,7 +7719,7 @@ components:
           description: Cost of the content in USD Cents.
         state:
           allOf:
-            - $ref: '#/components/schemas/StateBedEnum'
+            - $ref: '#/components/schemas/StateE0aEnum'
           readOnly: true
           description: >-
             The current state of the LearnerContentAssignment. One of:
@@ -5227,7 +7816,7 @@ components:
           format: uuid
         state:
           allOf:
-            - $ref: '#/components/schemas/State7b6Enum'
+            - $ref: '#/components/schemas/StateB44Enum'
           readOnly: true
           default: requested
         reviewed_at:
@@ -5266,6 +7855,13 @@ components:
         latest_action:
           type: string
           readOnly: true
+        learner_request_state:
+          type: string
+          readOnly: true
+          description: >-
+            Computed state based on action status and error conditions. Returns
+            'waiting' for approved/reminded actions without errors, 'failed' for
+            actions with error_reason, or the actual status otherwise
       required:
         - course_partners
         - course_title
@@ -5273,6 +7869,7 @@ components:
         - email
         - enterprise_customer_uuid
         - latest_action
+        - learner_request_state
         - lms_user_id
         - modified
         - reviewed_at
@@ -5280,6 +7877,99 @@ components:
         - state
         - user
         - uuid
+    LearnerCreditRequestApproveRequest:
+      type: object
+      description: >-
+        Request Serializer to validate subsidy-request ``approve`` endpoint POST
+        data.
+
+
+        For view: LearnerCreditRequestViewSet.approve
+      properties:
+        learner_credit_request_uuids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: A list of LearnerCreditRequest UUIDs to be approved.
+        policy_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the SubsidyAccessPolicy to use for this approval.
+      required:
+        - learner_credit_request_uuids
+        - policy_uuid
+    LearnerCreditRequestBulkApproveRequest:
+      type: object
+      description: Serializer for bulk approving learner credit requests.
+      properties:
+        policy_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the subsidy access policy to use for approval.
+        enterprise_customer_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the enterprise customer.
+        approve_all:
+          type: boolean
+          default: false
+          description: If true, approve all pending requests for the enterprise customer.
+        subsidy_request_uuids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: List of subsidy request UUIDs to approve.
+      required:
+        - enterprise_customer_uuid
+        - policy_uuid
+    LearnerCreditRequestBulkDecline:
+      type: object
+      description: |-
+        Serializer for bulk declining learner credit requests.
+
+        Request Payload:
+        {
+            "enterprise_customer_uuid": "<uuid>",  # Required for permission checking
+            "subsidy_request_uuids": [],
+            "decline_all": false,
+            "policy_uuid": "<uuid>"
+        }
+      properties:
+        enterprise_customer_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the enterprise customer.
+        policy_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the subsidy access policy associated with the requests.
+        decline_all:
+          type: boolean
+          default: false
+          description: If true, decline all open requests associated with a budget.
+        subsidy_request_uuids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: List of learner credit request UUIDs to decline.
+      required:
+        - enterprise_customer_uuid
+        - policy_uuid
+    LearnerCreditRequestCancel:
+      type: object
+      description: |-
+        Request serializer to validate cancel endpoint query params.
+
+        For view: LearnerCreditRequestViewSet.cancel
+      properties:
+        request_uuid:
+          type: string
+          format: uuid
+      required:
+        - request_uuid
     LearnerCreditRequestDecline:
       type: object
       description: Serializer for declining a learner credit request.
@@ -5296,6 +7986,10 @@ components:
           type: boolean
           default: false
           description: Whether to unlink the user from the enterprise organization
+        decline_reason:
+          type: string
+          nullable: true
+          description: Reason for declining
       required:
         - subsidy_request_uuid
     LearnerDashboardRequest:
@@ -5321,6 +8015,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Warning'
+        enterprise_features:
+          type: object
+          additionalProperties: {}
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -5339,9 +8036,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -5352,9 +8046,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
           nullable: true
-        enterprise_features:
-          type: object
-          additionalProperties: {}
         enterprise_customer_user_subsidies:
           $ref: '#/components/schemas/EnterpriseCustomerUserSubsidies'
         enterprise_course_enrollments:
@@ -5415,6 +8106,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Warning'
+        enterprise_features:
+          type: object
+          additionalProperties: {}
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -5433,9 +8127,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -5446,9 +8137,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
           nullable: true
-        enterprise_features:
-          type: object
-          additionalProperties: {}
         enterprise_customer_user_subsidies:
           $ref: '#/components/schemas/EnterpriseCustomerUserSubsidies'
       required:
@@ -5478,6 +8166,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Warning'
+        enterprise_features:
+          type: object
+          additionalProperties: {}
         enterprise_customer:
           allOf:
             - $ref: '#/components/schemas/EnterpriseCustomer'
@@ -5496,9 +8187,6 @@ components:
           nullable: true
         should_update_active_enterprise_customer_user:
           type: boolean
-        secured_algolia_api_key:
-          type: string
-          nullable: true
         catalog_uuids_to_catalog_query_uuids:
           type: object
           additionalProperties:
@@ -5509,9 +8197,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SecuredAlgoliaMetadata'
           nullable: true
-        enterprise_features:
-          type: object
-          additionalProperties: {}
         enterprise_customer_user_subsidies:
           $ref: '#/components/schemas/EnterpriseCustomerUserSubsidies'
       required:
@@ -5567,7 +8252,7 @@ components:
           format: uuid
         state:
           allOf:
-            - $ref: '#/components/schemas/State7b6Enum'
+            - $ref: '#/components/schemas/StateB44Enum'
           readOnly: true
         reviewed_at:
           type: string
@@ -5631,6 +8316,12 @@ components:
       required:
         - usd
         - usd_cents
+    NotFoundError:
+      type: object
+      properties:
+        detail:
+          type: string
+          default: Not found.
     NullEnum:
       enum:
         - null
@@ -5667,6 +8358,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AssignmentConfigurationResponse'
+    PaginatedCheckoutIntentReadOnlyList:
+      type: object
+      required:
+        - count
+        - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CheckoutIntentReadOnly'
     PaginatedCouponCodeRequestList:
       type: object
       properties:
@@ -5845,6 +8559,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LicenseRequest'
+    PaginatedStripeEventSummaryReadOnlyList:
+      type: object
+      required:
+        - count
+        - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StripeEventSummaryReadOnly'
     PaginatedSubsidyAccessPolicyCreditsAvailableResponseList:
       type: object
       required:
@@ -5947,6 +8684,342 @@ components:
         active:
           type: boolean
           description: Whether this assignment configuration is active. Defaults to True.
+    PatchedCheckoutIntentUpdateRequest:
+      type: object
+      description: Write serializer for CheckoutIntent - used for PATCH operations.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: >-
+            Unique identifier for this record, can be used for cross-service
+            references
+        state:
+          $ref: '#/components/schemas/StateCfeEnum'
+        enterprise_name:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Checkout intent enterprise customer name
+        enterprise_slug:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Checkout intent enterprise customer slug
+          pattern: ^[-a-zA-Z0-9_]+$
+        enterprise_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          description: The uuid of the EnterpriseCustomer, once successfully provisioned
+        stripe_customer_id:
+          type: string
+          readOnly: true
+          nullable: true
+          description: The Stripe Customer identifier associated with this record
+        expires_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Checkout intent expiration timestamp
+        stripe_checkout_session_id:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Associated Stripe checkout session ID
+        quantity:
+          type: integer
+          readOnly: true
+          description: How many licenses to create.
+        country:
+          nullable: true
+          description: |-
+            The customer's country
+
+            * `AF` - Afghanistan
+            * `AX` - Åland Islands
+            * `AL` - Albania
+            * `DZ` - Algeria
+            * `AS` - American Samoa
+            * `AD` - Andorra
+            * `AO` - Angola
+            * `AI` - Anguilla
+            * `AQ` - Antarctica
+            * `AG` - Antigua and Barbuda
+            * `AR` - Argentina
+            * `AM` - Armenia
+            * `AW` - Aruba
+            * `AU` - Australia
+            * `AT` - Austria
+            * `AZ` - Azerbaijan
+            * `BS` - Bahamas (The)
+            * `BH` - Bahrain
+            * `BD` - Bangladesh
+            * `BB` - Barbados
+            * `BY` - Belarus
+            * `BE` - Belgium
+            * `BZ` - Belize
+            * `BJ` - Benin
+            * `BM` - Bermuda
+            * `BT` - Bhutan
+            * `BO` - Bolivia
+            * `BQ` - Bonaire, Sint Eustatius and Saba
+            * `BA` - Bosnia and Herzegovina
+            * `BW` - Botswana
+            * `BV` - Bouvet Island
+            * `BR` - Brazil
+            * `IO` - British Indian Ocean Territory
+            * `BN` - Brunei
+            * `BG` - Bulgaria
+            * `BF` - Burkina Faso
+            * `BI` - Burundi
+            * `CV` - Cabo Verde
+            * `KH` - Cambodia
+            * `CM` - Cameroon
+            * `CA` - Canada
+            * `KY` - Cayman Islands
+            * `CF` - Central African Republic
+            * `TD` - Chad
+            * `CL` - Chile
+            * `CN` - China
+            * `CX` - Christmas Island
+            * `CC` - Cocos (Keeling) Islands
+            * `CO` - Colombia
+            * `KM` - Comoros
+            * `CG` - Congo
+            * `CK` - Cook Islands
+            * `CR` - Costa Rica
+            * `CI` - Côte d'Ivoire
+            * `HR` - Croatia
+            * `CU` - Cuba
+            * `CW` - Curaçao
+            * `CY` - Cyprus
+            * `CZ` - Czechia
+            * `CD` - Democratic Republic of the Congo
+            * `DK` - Denmark
+            * `DJ` - Djibouti
+            * `DM` - Dominica
+            * `DO` - Dominican Republic
+            * `EC` - Ecuador
+            * `EG` - Egypt
+            * `SV` - El Salvador
+            * `GQ` - Equatorial Guinea
+            * `ER` - Eritrea
+            * `EE` - Estonia
+            * `SZ` - Eswatini
+            * `ET` - Ethiopia
+            * `FK` - Falkland Islands (Malvinas)
+            * `FO` - Faroe Islands
+            * `FJ` - Fiji
+            * `FI` - Finland
+            * `FR` - France
+            * `GF` - French Guiana
+            * `PF` - French Polynesia
+            * `TF` - French Southern Territories
+            * `GA` - Gabon
+            * `GM` - Gambia
+            * `GE` - Georgia
+            * `DE` - Germany
+            * `GH` - Ghana
+            * `GI` - Gibraltar
+            * `GR` - Greece
+            * `GL` - Greenland
+            * `GD` - Grenada
+            * `GP` - Guadeloupe
+            * `GU` - Guam
+            * `GT` - Guatemala
+            * `GG` - Guernsey
+            * `GN` - Guinea
+            * `GW` - Guinea-Bissau
+            * `GY` - Guyana
+            * `HT` - Haiti
+            * `HM` - Heard Island and McDonald Islands
+            * `HN` - Honduras
+            * `HK` - Hong Kong
+            * `HU` - Hungary
+            * `IS` - Iceland
+            * `IN` - India
+            * `ID` - Indonesia
+            * `IR` - Iran
+            * `IQ` - Iraq
+            * `IE` - Ireland
+            * `IM` - Isle of Man
+            * `IL` - Israel
+            * `IT` - Italy
+            * `JM` - Jamaica
+            * `JP` - Japan
+            * `JE` - Jersey
+            * `JO` - Jordan
+            * `KZ` - Kazakhstan
+            * `KE` - Kenya
+            * `KI` - Kiribati
+            * `KW` - Kuwait
+            * `KG` - Kyrgyzstan
+            * `LA` - Laos
+            * `LV` - Latvia
+            * `LB` - Lebanon
+            * `LS` - Lesotho
+            * `LR` - Liberia
+            * `LY` - Libya
+            * `LI` - Liechtenstein
+            * `LT` - Lithuania
+            * `LU` - Luxembourg
+            * `MO` - Macao
+            * `MG` - Madagascar
+            * `MW` - Malawi
+            * `MY` - Malaysia
+            * `MV` - Maldives
+            * `ML` - Mali
+            * `MT` - Malta
+            * `MH` - Marshall Islands
+            * `MQ` - Martinique
+            * `MR` - Mauritania
+            * `MU` - Mauritius
+            * `YT` - Mayotte
+            * `MX` - Mexico
+            * `FM` - Micronesia
+            * `MD` - Moldova
+            * `MC` - Monaco
+            * `MN` - Mongolia
+            * `ME` - Montenegro
+            * `MS` - Montserrat
+            * `MA` - Morocco
+            * `MZ` - Mozambique
+            * `MM` - Myanmar
+            * `NA` - Namibia
+            * `NR` - Nauru
+            * `NP` - Nepal
+            * `NL` - Netherlands
+            * `NC` - New Caledonia
+            * `NZ` - New Zealand
+            * `NI` - Nicaragua
+            * `NE` - Niger
+            * `NG` - Nigeria
+            * `NU` - Niue
+            * `NF` - Norfolk Island
+            * `KP` - North Korea
+            * `MK` - North Macedonia
+            * `MP` - Northern Mariana Islands
+            * `NO` - Norway
+            * `OM` - Oman
+            * `PK` - Pakistan
+            * `PW` - Palau
+            * `PS` - Palestine
+            * `PA` - Panama
+            * `PG` - Papua New Guinea
+            * `PY` - Paraguay
+            * `PE` - Peru
+            * `PH` - Philippines
+            * `PN` - Pitcairn
+            * `PL` - Poland
+            * `PT` - Portugal
+            * `PR` - Puerto Rico
+            * `QA` - Qatar
+            * `RE` - Réunion
+            * `RO` - Romania
+            * `RU` - Russia
+            * `RW` - Rwanda
+            * `BL` - Saint Barthélemy
+            * `SH` - Saint Helena
+            * `KN` - Saint Kitts and Nevis
+            * `LC` - Saint Lucia
+            * `MF` - Saint Martin (French part)
+            * `PM` - Saint Pierre and Miquelon
+            * `VC` - Saint Vincent and the Grenadines
+            * `WS` - Samoa
+            * `SM` - San Marino
+            * `ST` - Sao Tome and Principe
+            * `SA` - Saudi Arabia
+            * `SN` - Senegal
+            * `RS` - Serbia
+            * `SC` - Seychelles
+            * `SL` - Sierra Leone
+            * `SG` - Singapore
+            * `SX` - Sint Maarten (Dutch part)
+            * `SK` - Slovakia
+            * `SI` - Slovenia
+            * `SB` - Solomon Islands
+            * `SO` - Somalia
+            * `ZA` - South Africa
+            * `GS` - South Georgia
+            * `KR` - South Korea
+            * `SS` - South Sudan
+            * `ES` - Spain
+            * `LK` - Sri Lanka
+            * `SD` - Sudan
+            * `SR` - Suriname
+            * `SJ` - Svalbard and Jan Mayen
+            * `SE` - Sweden
+            * `CH` - Switzerland
+            * `SY` - Syria
+            * `TW` - Taiwan
+            * `TJ` - Tajikistan
+            * `TZ` - Tanzania
+            * `TH` - Thailand
+            * `TL` - Timor-Leste
+            * `TG` - Togo
+            * `TK` - Tokelau
+            * `TO` - Tonga
+            * `TT` - Trinidad and Tobago
+            * `TN` - Tunisia
+            * `TR` - Türkiye
+            * `TM` - Turkmenistan
+            * `TC` - Turks and Caicos Islands
+            * `TV` - Tuvalu
+            * `UG` - Uganda
+            * `UA` - Ukraine
+            * `AE` - United Arab Emirates
+            * `GB` - United Kingdom
+            * `UM` - United States Minor Outlying Islands
+            * `US` - United States of America
+            * `UY` - Uruguay
+            * `UZ` - Uzbekistan
+            * `VU` - Vanuatu
+            * `VA` - Vatican City
+            * `VE` - Venezuela
+            * `VN` - Vietnam
+            * `VG` - Virgin Islands (British)
+            * `VI` - Virgin Islands (U.S.)
+            * `WF` - Wallis and Futuna
+            * `EH` - Western Sahara
+            * `YE` - Yemen
+            * `ZM` - Zambia
+            * `ZW` - Zimbabwe
+          oneOf:
+            - $ref: '#/components/schemas/CountryEnum'
+            - $ref: '#/components/schemas/NullEnum'
+        last_checkout_error:
+          type: string
+          readOnly: true
+          nullable: true
+        last_provisioning_error:
+          type: string
+          readOnly: true
+          nullable: true
+        terms_metadata:
+          nullable: true
+          description: Metadata relating to the terms and conditions accepted by the user.
+        user:
+          type: integer
+          readOnly: true
+        workflow:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
     PatchedSubsidyAccessPolicyUpdateRequest:
       type: object
       description: >-
@@ -6092,6 +9165,12 @@ components:
           description: The email address of the requested admin.
       required:
         - user_email
+    PermissionError:
+      type: object
+      properties:
+        detail:
+          type: string
+          default: You do not have permission to perform this action.
     PolicyTypeEnum:
       enum:
         - PerLearnerEnrollmentCreditAccessPolicy
@@ -6107,14 +9186,69 @@ components:
 
         * `AssignedLearnerCreditAccessPolicy` -
         AssignedLearnerCreditAccessPolicy
+    Price:
+      type: object
+      description: Serializer for Stripe price objects in checkout context.
+      properties:
+        id:
+          type: string
+          description: Stripe Price ID
+        product:
+          type: string
+          description: Stripe Product ID
+        lookup_key:
+          type: string
+          description: Lookup key for this price
+        recurring:
+          type: object
+          additionalProperties: {}
+          description: Recurring billing configuration
+        currency:
+          type: string
+          description: Currency code (e.g. 'usd')
+        unit_amount:
+          type: integer
+          description: Price amount in cents
+        unit_amount_decimal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          description: Price amount as decimal
+      required:
+        - currency
+        - id
+        - lookup_key
+        - product
+        - recurring
+        - unit_amount
+        - unit_amount_decimal
+    PricingData:
+      type: object
+      description: Serializer for pricing data in checkout context.
+      properties:
+        default_by_lookup_key:
+          type: string
+          description: Lookup key for the default price option
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Price'
+          description: Available price options
+      required:
+        - default_by_lookup_key
+        - prices
     ProductIdEnum:
       enum:
         - 1
         - 3
+        - 6
+        - 7
       type: integer
       description: |-
         * `1` - B2B Paid
         * `3` - Trial
+        * `6` - Self-service Trial
+        * `7` - Self-service Paid
     ProvisioningRequest:
       type: object
       description: Request serializer for provisioning create view.
@@ -6138,12 +9272,15 @@ components:
             - $ref: '#/components/schemas/CustomerAgreementRequest'
           nullable: true
           description: Object describing the requested Customer Agreement.
-        subscription_plan:
+        trial_subscription_plan:
+          $ref: '#/components/schemas/SubscriptionPlanRequest'
+        first_paid_subscription_plan:
           $ref: '#/components/schemas/SubscriptionPlanRequest'
       required:
         - enterprise_customer
+        - first_paid_subscription_plan
         - pending_admins
-        - subscription_plan
+        - trial_subscription_plan
     ProvisioningResponse:
       type: object
       description: Response serializer for provisioning create view.
@@ -6156,14 +9293,39 @@ components:
           $ref: '#/components/schemas/EnterpriseCatalogResponse'
         customer_agreement:
           $ref: '#/components/schemas/CustomerAgreementResponse'
-        subscription_plan:
+        trial_subscription_plan:
           $ref: '#/components/schemas/SubscriptionPlanResponse'
+        first_paid_subscription_plan:
+          $ref: '#/components/schemas/SubscriptionPlanResponse'
+        subscription_plan_renewal:
+          $ref: '#/components/schemas/SubscriptionPlanRenewalResponse'
       required:
         - customer_admins
         - customer_agreement
         - enterprise_catalog
         - enterprise_customer
-        - subscription_plan
+        - first_paid_subscription_plan
+        - subscription_plan_renewal
+        - trial_subscription_plan
+    QuantityConstraint:
+      type: object
+      description: Serializer for quantity constraints.
+      properties:
+        min:
+          type: integer
+          description: Minimum allowed quantity
+        max:
+          type: integer
+          description: Maximum allowed quantity
+      required:
+        - max
+        - min
+    RateLimitError:
+      type: object
+      properties:
+        detail:
+          type: string
+          default: Request was throttled. Expected available in 30 seconds.
     SecuredAlgoliaMetadata:
       type: object
       description: Serializer for the secured algolia key
@@ -6175,7 +9337,25 @@ components:
           type: string
           format: date-time
           nullable: true
-    State7b6Enum:
+    State6f2Enum:
+      enum:
+        - created
+        - paid
+        - fulfilled
+        - errored_backoffice
+        - errored_fulfillment_stalled
+        - errored_provisioning
+        - expired
+      type: string
+      description: |-
+        * `created` - created
+        * `paid` - paid
+        * `fulfilled` - fulfilled
+        * `errored_backoffice` - errored_backoffice
+        * `errored_fulfillment_stalled` - errored_fulfillment_stalled
+        * `errored_provisioning` - errored_provisioning
+        * `expired` - expired
+    StateB44Enum:
       enum:
         - requested
         - pending
@@ -6197,7 +9377,35 @@ components:
         * `cancelled` - Cancelled
         * `expired` - Expired
         * `reversed` - Reversed
-    StateBedEnum:
+    StateCfeEnum:
+      enum:
+        - created
+        - paid
+        - fulfilled
+        - errored_backoffice
+        - errored_fulfillment_stalled
+        - errored_provisioning
+        - expired
+      type: string
+      description: >-
+        * `created` - Created
+
+        * `paid` - Paid
+
+        * `fulfilled` - Fulfilled
+
+        * `errored_backoffice` - Errored (Backoffice) - Salesforce integration
+        failed during checkout intent update
+
+        * `errored_fulfillment_stalled` - Errored (Fulfillment Stalled) -
+        Checkout intent stuck in paid state, fulfillment workflow may have
+        failed
+
+        * `errored_provisioning` - Errored (Provisioning) - Enterprise
+        provisioning workflow failed after payment
+
+        * `expired` - Expired
+    StateE0aEnum:
       enum:
         - allocated
         - accepted
@@ -6213,6 +9421,165 @@ components:
         * `errored` - Errored
         * `expired` - Expired
         * `reversed` - Reversed
+    StringConstraint:
+      type: object
+      description: Serializer for enterprise string constraints.
+      properties:
+        min_length:
+          type: integer
+          description: Minimum string length
+        max_length:
+          type: integer
+          description: Maximum string length
+        pattern:
+          type: string
+          description: 'Regex pattern for valid '
+      required:
+        - max_length
+        - min_length
+    StripeEventSummaryReadOnly:
+      type: object
+      description: Serializer for reading StripeEventSummary model instances.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        event_id:
+          type: string
+          readOnly: true
+          description: The unique Stripe event identifier
+        event_type:
+          type: string
+          readOnly: true
+          description: The Stripe event type
+        stripe_event_created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Timestamp when the Stripe event was created
+        subscription_plan_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          description: UUID of the Trial SubscriptionPlan from License Manager
+        currency:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Three-letter ISO currency code associated with the subscription.
+        stripe_object_type:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Type of the main Stripe object (invoice, subscription, etc.)
+        stripe_subscription_id:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Stripe subscription ID extracted from event data
+        stripe_invoice_id:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Stripe invoice ID extracted from event data
+        subscription_status:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Status of the Stripe subscription (active, canceled, etc.)
+        subscription_period_start:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Start date of the subscription period
+        subscription_period_end:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: End date of the subscription period
+        subscription_cancel_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Timestamp when the subscription is scheduled to be canceled
+        invoice_amount_paid:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: Amount paid on the invoice in cents
+        invoice_unit_amount:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: Unit amount from the primary invoice line item as integer cents
+        invoice_unit_amount_decimal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,12})?$
+          readOnly: true
+          nullable: true
+          description: Unit amount from the primary invoice line item in decimal cents
+        invoice_quantity:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: Quantity from the primary invoice line item
+        invoice_currency:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Currency of the invoice
+        upcoming_invoice_amount_due:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: Upcoming invoice amount due related to this event/subscription
+        stripe_event_data:
+          type: string
+          description: Reference to the original StripeEventData record
+          readOnly: true
+        checkout_intent:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: The related CheckoutIntent
+      required:
+        - checkout_intent
+        - created
+        - currency
+        - event_id
+        - event_type
+        - id
+        - invoice_amount_paid
+        - invoice_currency
+        - invoice_quantity
+        - invoice_unit_amount
+        - invoice_unit_amount_decimal
+        - modified
+        - stripe_event_created_at
+        - stripe_event_data
+        - stripe_invoice_id
+        - stripe_object_type
+        - stripe_subscription_id
+        - subscription_cancel_at
+        - subscription_period_end
+        - subscription_period_start
+        - subscription_plan_uuid
+        - subscription_status
+        - upcoming_invoice_amount_due
     SubscriptionLicense:
       type: object
       description: Serializer for subscription license.
@@ -6308,6 +9675,94 @@ components:
         - start_date
         - title
         - uuid
+    SubscriptionPlanOLIUpdate:
+      type: object
+      description: Request serializer for updating a SubscriptionPlan's Salesforce OLI.
+      properties:
+        checkout_intent_id:
+          type: integer
+          nullable: true
+          description: >-
+            The integer ID of the CheckoutIntent associated with this
+            subscription.
+        checkout_intent_uuid:
+          type: string
+          format: uuid
+          nullable: true
+          description: The UUID of the CheckoutIntent associated with this subscription.
+        salesforce_opportunity_line_item:
+          type: string
+          description: >-
+            The Salesforce Opportunity Line Item ID to associate with the
+            subscription plan.
+        is_trial:
+          type: boolean
+          default: false
+          description: Whether this OLI is for the trial plan (True) or paid plan (False).
+      required:
+        - salesforce_opportunity_line_item
+    SubscriptionPlanOLIUpdateResponse:
+      type: object
+      description: Response serializer for SubscriptionPlan OLI update.
+      properties:
+        success:
+          type: boolean
+          description: Whether the update was successful
+        subscription_plan_uuid:
+          type: string
+          format: uuid
+          description: >-
+            The UUID identifier of the future plan (which receives the updated
+            OLI value)
+        salesforce_opportunity_line_item:
+          type: string
+          description: >-
+            The Salesforce Opportunity Line Item ID to associate with the
+            subscription plan.
+        checkout_intent_uuid:
+          type: string
+          format: uuid
+          nullable: true
+          description: The UUID of the CheckoutIntent associated with this subscription.
+        checkout_intent_id:
+          type: integer
+          nullable: true
+          description: >-
+            The integer ID of the CheckoutIntent associated with this
+            subscription.
+      required:
+        - salesforce_opportunity_line_item
+        - subscription_plan_uuid
+        - success
+    SubscriptionPlanRenewalResponse:
+      type: object
+      description: Subscription Plan Renewal serializer for provisioning responses.
+      properties:
+        id:
+          type: integer
+        prior_subscription_plan:
+          type: string
+          format: uuid
+        renewed_subscription_plan:
+          type: string
+          format: uuid
+        number_of_licenses:
+          type: integer
+        effective_date:
+          type: string
+          format: date-time
+        renewed_expiration_date:
+          type: string
+          format: date-time
+        salesforce_opportunity_line_item:
+          type: string
+      required:
+        - effective_date
+        - id
+        - number_of_licenses
+        - prior_subscription_plan
+        - renewed_expiration_date
+        - renewed_subscription_plan
     SubscriptionPlanRequest:
       type: object
       description: Subscription Plan serializer for provisioning requests.
@@ -6317,6 +9772,7 @@ components:
           description: The title of the subscription plan.
         salesforce_opportunity_line_item:
           type: string
+          nullable: true
           description: >-
             The Salesforce Opportunity Line Item id associated with this
             subscription plan.
@@ -6336,6 +9792,8 @@ components:
 
             * `1` - B2B Paid
             * `3` - Trial
+            * `6` - Self-service Trial
+            * `7` - Self-service Paid
         desired_num_licenses:
           type: integer
           description: The number of licenses to create for this plan.
@@ -6347,11 +9805,7 @@ components:
             Optional. The enterprise catalog uuid associated with this
             subscription plan.
       required:
-        - desired_num_licenses
-        - expiration_date
-        - product_id
         - salesforce_opportunity_line_item
-        - start_date
         - title
     SubscriptionPlanResponse:
       type: object
@@ -6382,6 +9836,8 @@ components:
         enterprise_catalog_uuid:
           type: string
           format: uuid
+        product:
+          type: integer
       required:
         - created
         - enterprise_catalog_uuid
@@ -6389,6 +9845,7 @@ components:
         - is_active
         - is_current
         - plan_type
+        - product
         - salesforce_opportunity_line_item
         - start_date
         - title
@@ -6438,15 +9895,17 @@ components:
           readOnly: true
           description: >-
             Total amount allocated for policies of type
-            AssignedLearnerCreditAccessPolicy (0 otherwise), in positive USD
-            cents.
+            AssignedLearnerCreditAccessPolicy or
+            {PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in positive
+            USD cents.
         amount_allocated_usd:
           type: number
           format: double
           readOnly: true
           description: >-
             ('Total amount allocated for policies of type
-            AssignedLearnerCreditAccessPolicy (0 otherwise), in USD.',)
+            AssignedLearnerCreditAccessPolicy or ',
+            '{PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in USD.')
         spend_available_usd_cents:
           type: integer
           readOnly: true
@@ -7385,6 +10844,53 @@ components:
         * `license` - License Subsidy
         * `coupon` - Coupon Subsidy
         * `learner_credit` - Learner Credit Subsidy
+    UnprocessableEntityError:
+      type: object
+      description: Common pattern for serialized field validation errors.
+      properties:
+        error_code:
+          type: string
+          description: Error code for validation failure.
+        developer_message:
+          type: string
+          description: >-
+            System message (not intended for user display) for validation
+            failure.
+      required:
+        - developer_message
+        - error_code
+    UserAuthInfo:
+      type: object
+      description: Serializer for user authentication status info.
+      properties:
+        user_exists_for_email:
+          type: boolean
+          nullable: true
+          description: Whether a user exists for the provided email
+      required:
+        - user_exists_for_email
+    ValidationDecision:
+      type: object
+      description: Serializer for individual validation decisions.
+      properties:
+        error_code:
+          type: string
+          description: Error code for the validation failure
+        developer_message:
+          type: string
+          description: Technical message describing the validation failure
+      required:
+        - developer_message
+        - error_code
+    ValidationError:
+      type: object
+      properties:
+        state:
+          type: array
+          items:
+            type: string
+          default:
+            - Invalid state transition from created to fulfilled
     Warning:
       type: object
       description: |-
