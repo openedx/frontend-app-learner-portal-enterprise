@@ -177,6 +177,27 @@ export interface paths {
      */
     post: operations["api_v1_assignment_configurations_acknowledge_assignments_create"];
   };
+  "/api/v1/bffs/checkout/context/": {
+    /**
+     * Get checkout context
+     * @description Provides context information for the checkout flow, including pricing options and, for authenticated users, associated enterprise customers.
+     */
+    post: operations["checkout_context"];
+  };
+  "/api/v1/bffs/checkout/success/": {
+    /**
+     * Get checkout success data
+     * @description Provides relevant data after checkout success
+     */
+    post: operations["checkout_success"];
+  };
+  "/api/v1/bffs/checkout/validation/": {
+    /**
+     * Validate checkout form fields
+     * @description Validates multiple checkout form fields and returns detailed validation results
+     */
+    post: operations["checkout_validate_fields"];
+  };
   "/api/v1/bffs/health/ping/": {
     /**
      * Health Check Ping
@@ -211,6 +232,58 @@ export interface paths {
      * @description Retrieves, transforms, and processes data for the learner skills quiz route.
      */
     post: operations["api_v1_bffs_learner_skills_quiz_create"];
+  };
+  "/api/v1/checkout-intent/": {
+    /**
+     * List CheckoutIntents
+     * @description Retrieve a list of CheckoutIntent records for the authenticated user. This endpoint returns only the CheckoutIntent records that belong to the currently authenticated user, unless the user is staff, in which case **all** records are returned.
+     */
+    get: operations["list_checkout_intents"];
+    /**
+     * @description ViewSet for CheckoutIntent model.
+     *
+     * Provides list, retrieve, and partial_update actions for CheckoutIntent records.
+     * Users can only access their own CheckoutIntent records, unless the user is staff,
+     * in which case all records can be accessed.
+     *
+     * This ViewSet intentionally does not utilize edx-rbac for permission checking,
+     * because most use cases involve requesting users who are not yet expected
+     * to have been granted any enterprise roles. Instead, we manage authorization
+     * via the ``get_queryset()`` method.
+     *
+     * Supports lookup by either 'id' (integer) or 'uuid' (UUID).
+     */
+    post: operations["api_v1_checkout_intent_create"];
+  };
+  "/api/v1/checkout-intent/{id}/": {
+    /**
+     * Retrieve CheckoutIntent
+     * @description Retrieve a specific CheckoutIntent by either ID or UUID. This endpoint is designed to support polling from the frontend to check the fulfillment state after a successful Stripe checkout. Users can only retrieve their own CheckoutIntent records. Supports lookup by either:
+     * - Integer ID (e.g., `/api/v1/checkout-intents/123/`)
+     * - UUID (e.g., `/api/v1/checkout-intents/550e8400-e29b-41d4-a716-446655440000/`)
+     */
+    get: operations["retrieve_checkout_intent"];
+    /**
+     * Update CheckoutIntent State
+     * @description Update the state of a CheckoutIntent. This endpoint is used to transition the CheckoutIntent through its lifecycle states. Only valid state transitions are allowed. Users can only update their own CheckoutIntent records. Supports lookup by either:
+     * - Integer ID (e.g., `/checkout-intents/123/`)
+     * - UUID (e.g., `/checkout-intents/550e8400-e29b-41d4-a716-446655440000/`)
+     *
+     * ## Allowed State Transitions
+     * ```
+     * created → paid
+     * created → errored_stripe_checkout
+     * paid → fulfilled
+     * paid → errored_provisioning
+     * errored_stripe_checkout → paid
+     * errored_provisioning → paid
+     * ```
+     * ## Integration Points
+     * - **Stripe Webhook**: Transitions from `created` to `paid` after successful payment
+     * - **Fulfillment**: Transitions from `paid` to `fulfilled` after provisioning
+     * - **Error Recovery**: Allows retry from error states back to `paid`
+     */
+    patch: operations["update_checkout_intent"];
   };
   "/api/v1/coupon-code-requests/": {
     /**
@@ -251,6 +324,87 @@ export interface paths {
      * @description Returns an overview of subsidy requests count by state.
      */
     get: operations["api_v1_coupon_code_requests_overview_retrieve"];
+  };
+  "/api/v1/customer-billing/{id}/create-checkout-portal-session/": {
+    /**
+     * Create a new Customer Portal Session from the enterprise checkout MFE.
+     * @description Create a new Customer Portal Session for the enterprise checkout MFE.  Response dict contains "url" key
+     * that should be attached to a button that the customer clicks.
+     *
+     * Response structure defined here: https://docs.stripe.com/api/customer_portal/sessions/create
+     */
+    get: operations["api_v1_customer_billing_create_checkout_portal_session_retrieve"];
+  };
+  "/api/v1/customer-billing/create-checkout-session/": {
+    /**
+     * Create a new checkout session given form data from a prospective customer.
+     * @description Create a new Stripe checkout session for a free trial and return it's client_secret.
+     *
+     * Notes:
+     * * This endpoint is designed to be called AFTER logistration, but BEFORE displaying a payment entry form.  A
+     *   Stripe "Checkout Session" object is a prerequisite to rendering the Stripe embedded component for payment
+     *   entry.
+     * * The @permission_required() decorator has NOT been added. This endpoint only requires an authenticated LMS
+     *   user, which is more permissive than our usual requirement for a user with an enterprise role.
+     * * This endpoint is NOT idempotent and will create new checkout sessions on each subsequent call.
+     *   TODO: introduce an idempotency key and a new model to hold pending requests.
+     *
+     * Request/response structure:
+     *
+     *     POST /api/v1/customer-billing/create_checkout_session
+     *     >>> {
+     *     >>>     "admin_email": "dr@evil.inc",
+     *     >>>     "enterprise_slug": "my-sluggy"
+     *     >>>     "quantity": 7,
+     *     >>>     "stripe_price_id": "price_1MoBy5LkdIwHu7ixZhnattbh"
+     *     >>> }
+     *     HTTP 201 CREATED
+     *     >>> {
+     *     >>>     "checkout_session_client_secret": "cs_Hu7ixZhnattbh1MoBy5LkdIw"
+     *     >>> }
+     *     HTTP 422 UNPROCESSABLE ENTITY (only admin_email validation failed)
+     *     >>> {
+     *     >>>     "admin_email": {
+     *     >>>         "error_code": "not_registered",
+     *     >>>         "developer_message": "The provided email has not yet been registered."
+     *     >>>     }
+     *     >>> }
+     *     HTTP 422 UNPROCESSABLE ENTITY (only enterprise_slug validation failed)
+     *     >>> {
+     *     >>>     "enterprise_slug": {
+     *     >>>         "error_code": "existing_enterprise_customer_for_admin",
+     *     >>>         "developer_message": "Slug invalid: Admin belongs to existing customer..."
+     *     >>>     }
+     *     >>> }
+     */
+    post: operations["api_v1_customer_billing_create_checkout_session_create"];
+  };
+  "/api/v1/customer-billing/create-enterprise-admin-portal-session/": {
+    /**
+     * Create a new Customer Portal Session from the Admin portal MFE.
+     * @description Create a new Customer Portal Session for the Admin Portal MFE.  Response dict contains "url" key
+     * that should be attached to a button that the customer clicks.
+     *
+     * Response structure defined here: https://docs.stripe.com/api/customer_portal/sessions/create
+     */
+    get: operations["api_v1_customer_billing_create_enterprise_admin_portal_session_retrieve"];
+  };
+  "/api/v1/customer-billing/stripe-webhook/": {
+    /**
+     * Listen for events from Stripe.
+     * @description Listen for events from Stripe, and take specific actions. Typically the action is to send a confirmation email.
+     *
+     * Authentication is performed via Stripe signature validation in StripeWebhookAuthentication.
+     *
+     * TODO:
+     * * For a real production implementation we should implement event de-duplication:
+     *   - https://docs.stripe.com/webhooks/process-undelivered-events
+     *   - This is a safeguard against the remote possibility that an event is sent twice. This could happen if the
+     *     network connection cuts out at the exact moment between successfully processing an event and responding with
+     *     HTTP 200, in which case Stripe will attempt to re-send the event since it does not know we successfully
+     *     received it.
+     */
+    post: operations["api_v1_customer_billing_stripe_webhook_create"];
   };
   "/api/v1/customer-configurations/": {
     /**
@@ -295,6 +449,62 @@ export interface paths {
      */
     get: operations["api_v1_learner_credit_requests_retrieve"];
   };
+  "/api/v1/learner-credit-requests/approve/": {
+    /**
+     * Approve a learner credit request.
+     * @description Approve a list of learner credit requests against a single policy.
+     *
+     * - On success, returns a `200 OK` with a list of the approved request objects.
+     * - If any of the specified requests fail to be approved, returns a
+     *   `422 Unprocessable Entity`. The successful approvals will still be committed.
+     */
+    post: operations["api_v1_learner_credit_requests_approve_create"];
+  };
+  "/api/v1/learner-credit-requests/approve-all/": {
+    /**
+     * @description Approve all filtered learner credit requests against a single policy.
+     *
+     * - On success, returns a `202 Accepted` status, indicating that the
+     *   bulk approval process has been initiated.
+     * - If no approvable requests are found for the given policy and filters,
+     *   returns a `404 Not Found`.
+     * - If any requests fail during the bulk approval, returns a
+     *   `422 Unprocessable Entity` to indicate a partial failure.
+     */
+    post: operations["api_v1_learner_credit_requests_approve_all_create"];
+  };
+  "/api/v1/learner-credit-requests/bulk-approve/": {
+    /**
+     * Bulk approve learner credit requests.
+     * @description Bulk approve learner credit requests.
+     */
+    post: operations["api_v1_learner_credit_requests_bulk_approve_create"];
+  };
+  "/api/v1/learner-credit-requests/bulk-decline/": {
+    /**
+     * Bulk decline learner credit requests.
+     * @description Bulk decline learner credit requests.
+     *
+     * Request Payload:
+     * {
+     *     "enterprise_customer_uuid": "<uuid>",
+     *     "subsidy_request_uuids": ["<uuid>", ...],  # Optional if decline_all is True
+     *     "decline_all": false,  # Optional, defaults to False
+     *     "policy_uuid": "<uuid>"
+     * }
+     *
+     * Returns:
+     *     Response with declined and failed request UUIDs.
+     */
+    post: operations["api_v1_learner_credit_requests_bulk_decline_create"];
+  };
+  "/api/v1/learner-credit-requests/cancel/": {
+    /**
+     * Learner credit request cancel endpoint.
+     * @description Cancel a learner credit request.
+     */
+    post: operations["api_v1_learner_credit_requests_cancel_create"];
+  };
   "/api/v1/learner-credit-requests/decline/": {
     /**
      * Decline a learner credit request.
@@ -308,6 +518,25 @@ export interface paths {
      * @description Returns an overview of subsidy requests count by state.
      */
     get: operations["api_v1_learner_credit_requests_overview_retrieve"];
+  };
+  "/api/v1/learner-credit-requests/remind/": {
+    /**
+     * @description Remind Learners that their LearnerCreditRequests are Approved and waiting for their action.
+     *
+     * Accepts a list of learner_credit_request_uuids to remind.
+     * Returns 422 if any of the requests are not remindable.
+     */
+    post: operations["api_v1_learner_credit_requests_remind_create"];
+  };
+  "/api/v1/learner-credit-requests/remind-all/": {
+    /**
+     * @description Remind all Learners with APPROVED LearnerCreditRequests for a given policy.
+     *
+     * Accepts a policy_uuid to filter requests by.
+     * Returns 404 if no remindable requests are found.
+     * Returns 422 if any requests are discovered to be non-remindable.
+     */
+    post: operations["api_v1_learner_credit_requests_remind_all_create"];
   };
   "/api/v1/license-requests/": {
     /**
@@ -440,6 +669,36 @@ export interface paths {
      */
     post: operations["api_v1_provisioning_create"];
   };
+  "/api/v1/provisioning/subscription-plan-oli-update": {
+    /**
+     * Update a SubscriptionPlan with Salesforce Opportunity Line Item.
+     * @description Update a subscription plan with Salesforce OLI.
+     */
+    post: operations["api_v1_provisioning_subscription_plan_oli_update_create"];
+  };
+  "/api/v1/stripe-event-summary/": {
+    /**
+     * Retrieves stripe event summaries.
+     * @description Lists ``StripeEventSummary`` records, filtered by given subscription plan uuid.
+     */
+    get: operations["api_v1_stripe_event_summary_list"];
+  };
+  "/api/v1/stripe-event-summary/first-invoice-upcoming-amount-due/": {
+    /**
+     * @description Deprecated first-invoice-upcoming-amount-due endpoint.
+     *
+     * Temporary passthrough to aid with transitioning to get-stripe-subscription-plan-info.
+     */
+    get: operations["api_v1_stripe_event_summary_first_invoice_upcoming_amount_due_retrieve"];
+  };
+  "/api/v1/stripe-event-summary/get-stripe-subscription-plan-info/": {
+    /**
+     * @description Given a license-manager SubscriptionPlan uuid, returns information needed for the
+     * Subscription management page on admin portal, like the upcoming subscription price
+     * and if the subscription has been cancelled
+     */
+    get: operations["api_v1_stripe_event_summary_get_stripe_subscription_plan_info_retrieve"];
+  };
   "/api/v1/subsidy-access-policies/": {
     /**
      * List subsidy access policies for an enterprise customer.
@@ -528,7 +787,7 @@ export interface components {
      * * `reversed` - Transaction for this assignment has been reversed
      * @enum {string}
      */
-    ActionType5a0Enum: "learner_linked" | "notified" | "reminded" | "redeemed" | "cancelled" | "cancelled_acknowledged" | "expired" | "expired_acknowledged" | "reversed";
+    ActionType3e8Enum: "learner_linked" | "notified" | "reminded" | "redeemed" | "cancelled" | "cancelled_acknowledged" | "expired" | "expired_acknowledged" | "reversed";
     /** @description Serializer for structuring the admin learner profile response. */
     AdminLearnerProfileResponse: {
       subscriptions?: string;
@@ -600,6 +859,19 @@ export interface components {
       /** @description Whether this assignment configuration is active. Defaults to True. */
       active?: boolean;
     };
+    AuthenticationError: {
+      /** @default Authentication credentials were not provided. */
+      detail?: string;
+    };
+    /** @description Serializer for billing address information. */
+    BillingAddress: {
+      city: string | null;
+      country: string | null;
+      line1: string | null;
+      line2: string | null;
+      postal_code: string | null;
+      state: string | null;
+    };
     /** @enum {unknown} */
     BlankEnum: "";
     /**
@@ -608,526 +880,56 @@ export interface components {
      * @enum {integer}
      */
     CatalogQueryIdEnum: 13 | 10;
-    /**
-     * @description Serializer to help return additional content metadata for assignments.  These fields should
-     * map more or less 1-1 to the fields in content metadata dicts returned from the
-     * enterprise-catalog `get_content_metadata` response payload.
-     */
-    ContentMetadataForAssignment: {
-      /**
-       * Format: date-time
-       * @description The start date of the course
-       */
-      start_date: string;
-      /**
-       * Format: date-time
-       * @description The end date of the course
-       */
-      end_date: string;
-      /**
-       * Format: date-time
-       * @description The date by which the learner must accept/enroll
-       */
-      enroll_by_date: string;
-      /** @description The price, in USD, of this content */
-      content_price: number;
-      /** @description The type of course, something like "executive-education-2u" or "verified-audit" */
-      course_type: string | null;
-      partners: components["schemas"]["CoursePartner"];
+    /** @description Serializer for the checkout context response. */
+    CheckoutContextResponse: {
+      errors?: components["schemas"]["Error"][];
+      warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
+      /** @description Enterprise customers associated with the authenticated user (empty for unauthenticated users) */
+      existing_customers_for_authenticated_user: components["schemas"]["EnterpriseCustomer"][];
+      /** @description Available pricing options */
+      pricing: components["schemas"]["PricingData"];
+      /** @description Constraints for form fields */
+      field_constraints: components["schemas"]["FieldConstraints"];
+      /** @description The existing ``CheckoutIntent`` for the requesting user, if any */
+      checkout_intent?: components["schemas"]["CheckoutIntentMinimalResponse"] | null;
     };
-    /**
-     * @description * `AF` - Afghanistan
-     * * `AX` - Åland Islands
-     * * `AL` - Albania
-     * * `DZ` - Algeria
-     * * `AS` - American Samoa
-     * * `AD` - Andorra
-     * * `AO` - Angola
-     * * `AI` - Anguilla
-     * * `AQ` - Antarctica
-     * * `AG` - Antigua and Barbuda
-     * * `AR` - Argentina
-     * * `AM` - Armenia
-     * * `AW` - Aruba
-     * * `AU` - Australia
-     * * `AT` - Austria
-     * * `AZ` - Azerbaijan
-     * * `BS` - Bahamas
-     * * `BH` - Bahrain
-     * * `BD` - Bangladesh
-     * * `BB` - Barbados
-     * * `BY` - Belarus
-     * * `BE` - Belgium
-     * * `BZ` - Belize
-     * * `BJ` - Benin
-     * * `BM` - Bermuda
-     * * `BT` - Bhutan
-     * * `BO` - Bolivia
-     * * `BQ` - Bonaire, Sint Eustatius and Saba
-     * * `BA` - Bosnia and Herzegovina
-     * * `BW` - Botswana
-     * * `BV` - Bouvet Island
-     * * `BR` - Brazil
-     * * `IO` - British Indian Ocean Territory
-     * * `BN` - Brunei
-     * * `BG` - Bulgaria
-     * * `BF` - Burkina Faso
-     * * `BI` - Burundi
-     * * `CV` - Cabo Verde
-     * * `KH` - Cambodia
-     * * `CM` - Cameroon
-     * * `CA` - Canada
-     * * `KY` - Cayman Islands
-     * * `CF` - Central African Republic
-     * * `TD` - Chad
-     * * `CL` - Chile
-     * * `CN` - China
-     * * `CX` - Christmas Island
-     * * `CC` - Cocos (Keeling) Islands
-     * * `CO` - Colombia
-     * * `KM` - Comoros
-     * * `CG` - Congo
-     * * `CD` - Congo (the Democratic Republic of the)
-     * * `CK` - Cook Islands
-     * * `CR` - Costa Rica
-     * * `CI` - Côte d'Ivoire
-     * * `HR` - Croatia
-     * * `CU` - Cuba
-     * * `CW` - Curaçao
-     * * `CY` - Cyprus
-     * * `CZ` - Czechia
-     * * `DK` - Denmark
-     * * `DJ` - Djibouti
-     * * `DM` - Dominica
-     * * `DO` - Dominican Republic
-     * * `EC` - Ecuador
-     * * `EG` - Egypt
-     * * `SV` - El Salvador
-     * * `GQ` - Equatorial Guinea
-     * * `ER` - Eritrea
-     * * `EE` - Estonia
-     * * `SZ` - Eswatini
-     * * `ET` - Ethiopia
-     * * `FK` - Falkland Islands (Malvinas)
-     * * `FO` - Faroe Islands
-     * * `FJ` - Fiji
-     * * `FI` - Finland
-     * * `FR` - France
-     * * `GF` - French Guiana
-     * * `PF` - French Polynesia
-     * * `TF` - French Southern Territories
-     * * `GA` - Gabon
-     * * `GM` - Gambia
-     * * `GE` - Georgia
-     * * `DE` - Germany
-     * * `GH` - Ghana
-     * * `GI` - Gibraltar
-     * * `GR` - Greece
-     * * `GL` - Greenland
-     * * `GD` - Grenada
-     * * `GP` - Guadeloupe
-     * * `GU` - Guam
-     * * `GT` - Guatemala
-     * * `GG` - Guernsey
-     * * `GN` - Guinea
-     * * `GW` - Guinea-Bissau
-     * * `GY` - Guyana
-     * * `HT` - Haiti
-     * * `HM` - Heard Island and McDonald Islands
-     * * `VA` - Holy See
-     * * `HN` - Honduras
-     * * `HK` - Hong Kong
-     * * `HU` - Hungary
-     * * `IS` - Iceland
-     * * `IN` - India
-     * * `ID` - Indonesia
-     * * `IR` - Iran
-     * * `IQ` - Iraq
-     * * `IE` - Ireland
-     * * `IM` - Isle of Man
-     * * `IL` - Israel
-     * * `IT` - Italy
-     * * `JM` - Jamaica
-     * * `JP` - Japan
-     * * `JE` - Jersey
-     * * `JO` - Jordan
-     * * `KZ` - Kazakhstan
-     * * `KE` - Kenya
-     * * `KI` - Kiribati
-     * * `KW` - Kuwait
-     * * `KG` - Kyrgyzstan
-     * * `LA` - Laos
-     * * `LV` - Latvia
-     * * `LB` - Lebanon
-     * * `LS` - Lesotho
-     * * `LR` - Liberia
-     * * `LY` - Libya
-     * * `LI` - Liechtenstein
-     * * `LT` - Lithuania
-     * * `LU` - Luxembourg
-     * * `MO` - Macao
-     * * `MG` - Madagascar
-     * * `MW` - Malawi
-     * * `MY` - Malaysia
-     * * `MV` - Maldives
-     * * `ML` - Mali
-     * * `MT` - Malta
-     * * `MH` - Marshall Islands
-     * * `MQ` - Martinique
-     * * `MR` - Mauritania
-     * * `MU` - Mauritius
-     * * `YT` - Mayotte
-     * * `MX` - Mexico
-     * * `FM` - Micronesia
-     * * `MD` - Moldova
-     * * `MC` - Monaco
-     * * `MN` - Mongolia
-     * * `ME` - Montenegro
-     * * `MS` - Montserrat
-     * * `MA` - Morocco
-     * * `MZ` - Mozambique
-     * * `MM` - Myanmar
-     * * `NA` - Namibia
-     * * `NR` - Nauru
-     * * `NP` - Nepal
-     * * `NL` - Netherlands
-     * * `NC` - New Caledonia
-     * * `NZ` - New Zealand
-     * * `NI` - Nicaragua
-     * * `NE` - Niger
-     * * `NG` - Nigeria
-     * * `NU` - Niue
-     * * `NF` - Norfolk Island
-     * * `KP` - North Korea
-     * * `MK` - North Macedonia
-     * * `MP` - Northern Mariana Islands
-     * * `NO` - Norway
-     * * `OM` - Oman
-     * * `PK` - Pakistan
-     * * `PW` - Palau
-     * * `PS` - Palestine, State of
-     * * `PA` - Panama
-     * * `PG` - Papua New Guinea
-     * * `PY` - Paraguay
-     * * `PE` - Peru
-     * * `PH` - Philippines
-     * * `PN` - Pitcairn
-     * * `PL` - Poland
-     * * `PT` - Portugal
-     * * `PR` - Puerto Rico
-     * * `QA` - Qatar
-     * * `RE` - Réunion
-     * * `RO` - Romania
-     * * `RU` - Russia
-     * * `RW` - Rwanda
-     * * `BL` - Saint Barthélemy
-     * * `SH` - Saint Helena, Ascension and Tristan da Cunha
-     * * `KN` - Saint Kitts and Nevis
-     * * `LC` - Saint Lucia
-     * * `MF` - Saint Martin (French part)
-     * * `PM` - Saint Pierre and Miquelon
-     * * `VC` - Saint Vincent and the Grenadines
-     * * `WS` - Samoa
-     * * `SM` - San Marino
-     * * `ST` - Sao Tome and Principe
-     * * `SA` - Saudi Arabia
-     * * `SN` - Senegal
-     * * `RS` - Serbia
-     * * `SC` - Seychelles
-     * * `SL` - Sierra Leone
-     * * `SG` - Singapore
-     * * `SX` - Sint Maarten (Dutch part)
-     * * `SK` - Slovakia
-     * * `SI` - Slovenia
-     * * `SB` - Solomon Islands
-     * * `SO` - Somalia
-     * * `ZA` - South Africa
-     * * `GS` - South Georgia and the South Sandwich Islands
-     * * `KR` - South Korea
-     * * `SS` - South Sudan
-     * * `ES` - Spain
-     * * `LK` - Sri Lanka
-     * * `SD` - Sudan
-     * * `SR` - Suriname
-     * * `SJ` - Svalbard and Jan Mayen
-     * * `SE` - Sweden
-     * * `CH` - Switzerland
-     * * `SY` - Syria
-     * * `TW` - Taiwan
-     * * `TJ` - Tajikistan
-     * * `TZ` - Tanzania
-     * * `TH` - Thailand
-     * * `TL` - Timor-Leste
-     * * `TG` - Togo
-     * * `TK` - Tokelau
-     * * `TO` - Tonga
-     * * `TT` - Trinidad and Tobago
-     * * `TN` - Tunisia
-     * * `TR` - Türkiye
-     * * `TM` - Turkmenistan
-     * * `TC` - Turks and Caicos Islands
-     * * `TV` - Tuvalu
-     * * `UG` - Uganda
-     * * `UA` - Ukraine
-     * * `AE` - United Arab Emirates
-     * * `GB` - United Kingdom
-     * * `UM` - United States Minor Outlying Islands
-     * * `US` - United States of America
-     * * `UY` - Uruguay
-     * * `UZ` - Uzbekistan
-     * * `VU` - Vanuatu
-     * * `VE` - Venezuela
-     * * `VN` - Vietnam
-     * * `VG` - Virgin Islands (British)
-     * * `VI` - Virgin Islands (U.S.)
-     * * `WF` - Wallis and Futuna
-     * * `EH` - Western Sahara
-     * * `YE` - Yemen
-     * * `ZM` - Zambia
-     * * `ZW` - Zimbabwe
-     * @enum {string}
-     */
-    CountryEnum: "AF" | "AX" | "AL" | "DZ" | "AS" | "AD" | "AO" | "AI" | "AQ" | "AG" | "AR" | "AM" | "AW" | "AU" | "AT" | "AZ" | "BS" | "BH" | "BD" | "BB" | "BY" | "BE" | "BZ" | "BJ" | "BM" | "BT" | "BO" | "BQ" | "BA" | "BW" | "BV" | "BR" | "IO" | "BN" | "BG" | "BF" | "BI" | "CV" | "KH" | "CM" | "CA" | "KY" | "CF" | "TD" | "CL" | "CN" | "CX" | "CC" | "CO" | "KM" | "CG" | "CD" | "CK" | "CR" | "CI" | "HR" | "CU" | "CW" | "CY" | "CZ" | "DK" | "DJ" | "DM" | "DO" | "EC" | "EG" | "SV" | "GQ" | "ER" | "EE" | "SZ" | "ET" | "FK" | "FO" | "FJ" | "FI" | "FR" | "GF" | "PF" | "TF" | "GA" | "GM" | "GE" | "DE" | "GH" | "GI" | "GR" | "GL" | "GD" | "GP" | "GU" | "GT" | "GG" | "GN" | "GW" | "GY" | "HT" | "HM" | "VA" | "HN" | "HK" | "HU" | "IS" | "IN" | "ID" | "IR" | "IQ" | "IE" | "IM" | "IL" | "IT" | "JM" | "JP" | "JE" | "JO" | "KZ" | "KE" | "KI" | "KW" | "KG" | "LA" | "LV" | "LB" | "LS" | "LR" | "LY" | "LI" | "LT" | "LU" | "MO" | "MG" | "MW" | "MY" | "MV" | "ML" | "MT" | "MH" | "MQ" | "MR" | "MU" | "YT" | "MX" | "FM" | "MD" | "MC" | "MN" | "ME" | "MS" | "MA" | "MZ" | "MM" | "NA" | "NR" | "NP" | "NL" | "NC" | "NZ" | "NI" | "NE" | "NG" | "NU" | "NF" | "KP" | "MK" | "MP" | "NO" | "OM" | "PK" | "PW" | "PS" | "PA" | "PG" | "PY" | "PE" | "PH" | "PN" | "PL" | "PT" | "PR" | "QA" | "RE" | "RO" | "RU" | "RW" | "BL" | "SH" | "KN" | "LC" | "MF" | "PM" | "VC" | "WS" | "SM" | "ST" | "SA" | "SN" | "RS" | "SC" | "SL" | "SG" | "SX" | "SK" | "SI" | "SB" | "SO" | "ZA" | "GS" | "KR" | "SS" | "ES" | "LK" | "SD" | "SR" | "SJ" | "SE" | "CH" | "SY" | "TW" | "TJ" | "TZ" | "TH" | "TL" | "TG" | "TK" | "TO" | "TT" | "TN" | "TR" | "TM" | "TC" | "TV" | "UG" | "UA" | "AE" | "GB" | "UM" | "US" | "UY" | "UZ" | "VU" | "VE" | "VN" | "VG" | "VI" | "WF" | "EH" | "YE" | "ZM" | "ZW";
-    /** @description Serializer for the `CouponCodeRequest` model. */
-    CouponCodeRequest: {
-      /** Format: uuid */
-      uuid: string;
-      user: number;
-      lms_user_id: number;
-      /** Format: email */
-      email: string;
-      course_id: string;
-      course_title: string | null;
-      course_partners: unknown;
-      /** Format: uuid */
-      enterprise_customer_uuid: string;
-      state: components["schemas"]["State7b6Enum"];
-      /** Format: date-time */
-      reviewed_at: string | null;
-      reviewer_lms_user_id: number | null;
-      decline_reason?: string | null;
+    /** @description A serializer intended for creating new CheckoutIntents. */
+    CheckoutIntentCreateRequest: {
+      id: number;
+      quantity: number;
       /** Format: date-time */
       created: string;
       /** Format: date-time */
       modified: string;
-      coupon_id: number | null;
-      coupon_code: string | null;
-    };
-    /** @description Serialized partner ``name`` and ``logo_image_url`` for content_metadata of an assignment. */
-    CoursePartner: {
-      /** @description The partner name */
-      name: string;
-      /** @description The URL for the partner logo image */
-      logo_image_url: string;
-    };
-    /** @description Pending admin serializer for provisioning responses. */
-    CreatedCustomerAdminResponse: {
-      /** Format: email */
-      user_email: string;
-    };
-    /** @description Serializer for customer agreement. */
-    CustomerAgreement: {
-      /** Format: uuid */
-      uuid: string;
-      available_subscription_catalogs: string[];
-      /** Format: uuid */
-      default_enterprise_catalog_uuid: string | null;
-      net_days_until_expiration: number;
-      disable_expiration_notifications: boolean;
-      enable_auto_applied_subscriptions_with_universal_link: boolean;
-      /** Format: uuid */
-      subscription_for_auto_applied_licenses: string | null;
-      /** @default false */
-      has_custom_license_expiration_messaging_v2?: boolean | null;
-      button_label_in_modal_v2?: string | null;
-      expired_subscription_modal_messaging_v2?: string | null;
-      modal_header_text_v2?: string | null;
-      url_for_button_in_modal_v2?: string | null;
-    };
-    /** @description Customer Agreement serializer for provisioning requests. */
-    CustomerAgreementRequest: {
       /**
        * Format: uuid
-       * @description Optional, default catalog uuid to be used for the customer agreement
+       * @description Unique identifier for this record, can be used for cross-service references
        */
-      default_catalog_uuid?: string | null;
-    };
-    /** @description Customer Agreement serializer for provisioning responses. */
-    CustomerAgreementResponse: {
-      /** Format: uuid */
       uuid: string;
-      /** Format: uuid */
-      enterprise_customer_uuid: string;
-      /** Format: uuid */
-      default_catalog_uuid: string;
-      subscriptions: components["schemas"]["SubscriptionPlanResponse"][];
-    };
-    /** @description Serializer for enrollment due date. */
-    EnrollmentDueDate: {
-      name: string;
-      date: string;
-      /** Format: uri */
-      url: string;
-    };
-    /** @description Catalog object serializer for provisioning requests. */
-    EnterpriseCatalogRequest: {
-      /** @description The name of the Enterprise Catalog. */
-      title: string;
+      state: components["schemas"]["StateCfeEnum"];
+      /** @description Checkout intent enterprise customer name */
+      enterprise_name?: string | null;
+      /** @description Checkout intent enterprise customer slug */
+      enterprise_slug?: string | null;
       /**
-       * @description The id of the related Catalog Query.
-       *
-       * * `13` - Subscription - Trial Catalog
-       * * `10` - Subscription
-       * @default [
-       *   [
-       *     13,
-       *     "Subscription - Trial Catalog"
-       *   ]
-       * ]
+       * Format: uuid
+       * @description The uuid of the EnterpriseCustomer, once successfully provisioned
        */
-      catalog_query_id?: components["schemas"]["CatalogQueryIdEnum"];
-    };
-    /** @description Catalog object serializer for provisioning responses. */
-    EnterpriseCatalogResponse: {
-      /** Format: uuid */
-      uuid: string;
-      /** Format: uuid */
-      enterprise_customer_uuid: string;
-      title: string;
-      catalog_query_id: number;
-    };
-    /** @description Serializer for enterprise course enrollment. */
-    EnterpriseCourseEnrollment: {
-      can_unenroll: boolean;
-      course_run_id: string;
-      course_run_status: string;
-      course_key: string;
-      course_type: string;
-      /** Format: date-time */
-      created: string;
-      /** Format: date-time */
-      end_date: string | null;
-      /** Format: date-time */
-      enroll_by: string | null;
-      has_emails_enabled: boolean;
-      is_enrollment_active: boolean;
-      is_revoked: boolean;
-      /** Format: uri */
-      link_to_course: string;
-      link_to_certificate: string | null;
-      micromasters_title: string | null;
-      mode: string;
-      notifications: components["schemas"]["EnrollmentDueDate"][];
-      org_name: string;
-      pacing: string;
-      product_source: string;
-      /** Format: uri */
-      resume_course_run_url: string | null;
-      /** Format: date-time */
-      start_date: string | null;
-      title: string;
-    };
-    /** @description Serializer for enterprise customer. */
-    EnterpriseCustomer: {
-      /** Format: uuid */
-      uuid: string;
-      slug: string;
-      name: string;
-      active: boolean;
-      auth_org_id?: string | null;
-      site: components["schemas"]["EnterpriseCustomerSite"];
-      branding_configuration: components["schemas"]["EnterpriseCustomerBrandingConfiguration"];
-      identity_provider?: string | null;
-      identity_providers?: components["schemas"]["EnterpriseCustomerIdentityProvider"][];
-      enable_data_sharing_consent: boolean;
-      enforce_data_sharing_consent: string;
-      disable_expiry_messaging_for_learner_credit: boolean;
-      enable_audit_enrollment: boolean;
-      replace_sensitive_sso_username: boolean;
-      enable_portal_code_management_screen: boolean;
-      sync_learner_profile_data: boolean;
-      enable_audit_data_reporting: boolean;
-      enable_learner_portal: boolean;
-      enable_learner_portal_offers: boolean;
-      enable_portal_learner_credit_management_screen: boolean;
-      enable_executive_education_2U_fulfillment: boolean;
-      enable_portal_reporting_config_screen: boolean;
-      enable_portal_saml_configuration_screen: boolean;
-      /** Format: email */
-      contact_email?: string | null;
-      enable_portal_subscription_management_screen: boolean;
-      hide_course_original_price: boolean;
-      enable_analytics_screen: boolean;
-      enable_integrated_customer_learner_portal_search: boolean;
-      enable_generation_of_api_credentials: boolean;
-      enable_portal_lms_configurations_screen: boolean;
-      sender_alias?: string | null;
-      enterprise_customer_catalogs?: string[];
-      /** Format: email */
-      reply_to?: string | null;
-      enterprise_notification_banner?: components["schemas"]["EnterpriseCustomerNotificationBanner"] | null;
-      hide_labor_market_data: boolean;
-      /** Format: date-time */
-      modified: string;
-      enable_universal_link: boolean;
-      enable_browse_and_request: boolean;
-      admin_users?: components["schemas"]["EnterpriseCustomerAdminUser"][];
-      enable_learner_portal_sidebar_message: boolean;
-      learner_portal_sidebar_content?: string | null;
-      enable_pathways: boolean;
-      enable_programs: boolean;
-      enable_demo_data_for_analytics_and_lpr: boolean;
-      enable_academies: boolean;
-      enable_one_academy: boolean;
-      active_integrations?: components["schemas"]["EnterpriseCustomerActiveIntegration"][];
-      show_videos_in_learner_portal_search_results: boolean;
-      default_language?: string | null;
-      country: string;
-      enable_slug_login: boolean;
-      disable_search: boolean;
-      show_integration_warning: boolean;
-      enable_learner_credit_message_box: boolean;
-    };
-    /** @description Serializer for enterprise customer integration. */
-    EnterpriseCustomerActiveIntegration: {
-      channel_code: string;
-      /** Format: date-time */
-      created: string;
-      /** Format: date-time */
-      modified: string;
-      display_name: string;
-      active: boolean;
-    };
-    /** @description Serializer for enterprise customer admin user. */
-    EnterpriseCustomerAdminUser: {
-      /** Format: email */
-      email?: string | null;
-      lms_user_id: number;
-    };
-    /** @description Serializer for enterprise customer branding configuration. */
-    EnterpriseCustomerBrandingConfiguration: {
-      /** Format: uri */
-      logo?: string | null;
-      primary_color: string;
-      secondary_color: string;
-      tertiary_color: string;
-    };
-    /** @description Serializer for enterprise customer identity provider. */
-    EnterpriseCustomerIdentityProvider: {
-      provider_id: string;
-      default_provider: boolean;
-    };
-    /** @description Serializer for enterprise customer notification banner. */
-    EnterpriseCustomerNotificationBanner: {
-      title?: string | null;
-      text?: string | null;
-    };
-    /** @description Customer object serializer for provisioning requests. */
-    EnterpriseCustomerRequest: {
-      /** @description The unique name of the Enterprise Customer. */
-      name: string;
+      enterprise_uuid: string | null;
+      /** @description The Stripe Customer identifier associated with this record */
+      stripe_customer_id: string | null;
       /**
-       * @description The two letter ISO 3166-2 ISO code representing the customer country.
+       * Format: date-time
+       * @description Checkout intent expiration timestamp
+       */
+      expires_at: string;
+      /** @description Associated Stripe checkout session ID */
+      stripe_checkout_session_id: string | null;
+      /**
+       * @description The customer's country
        *
        * * `AF` - Afghanistan
        * * `AX` - Åland Islands
@@ -1145,7 +947,7 @@ export interface components {
        * * `AU` - Australia
        * * `AT` - Austria
        * * `AZ` - Azerbaijan
-       * * `BS` - Bahamas
+       * * `BS` - Bahamas (The)
        * * `BH` - Bahrain
        * * `BD` - Bangladesh
        * * `BB` - Barbados
@@ -1180,7 +982,6 @@ export interface components {
        * * `CO` - Colombia
        * * `KM` - Comoros
        * * `CG` - Congo
-       * * `CD` - Congo (the Democratic Republic of the)
        * * `CK` - Cook Islands
        * * `CR` - Costa Rica
        * * `CI` - Côte d'Ivoire
@@ -1189,6 +990,7 @@ export interface components {
        * * `CW` - Curaçao
        * * `CY` - Cyprus
        * * `CZ` - Czechia
+       * * `CD` - Democratic Republic of the Congo
        * * `DK` - Denmark
        * * `DJ` - Djibouti
        * * `DM` - Dominica
@@ -1227,7 +1029,6 @@ export interface components {
        * * `GY` - Guyana
        * * `HT` - Haiti
        * * `HM` - Heard Island and McDonald Islands
-       * * `VA` - Holy See
        * * `HN` - Honduras
        * * `HK` - Hong Kong
        * * `HU` - Hungary
@@ -1298,7 +1099,7 @@ export interface components {
        * * `OM` - Oman
        * * `PK` - Pakistan
        * * `PW` - Palau
-       * * `PS` - Palestine, State of
+       * * `PS` - Palestine
        * * `PA` - Panama
        * * `PG` - Papua New Guinea
        * * `PY` - Paraguay
@@ -1314,7 +1115,7 @@ export interface components {
        * * `RU` - Russia
        * * `RW` - Rwanda
        * * `BL` - Saint Barthélemy
-       * * `SH` - Saint Helena, Ascension and Tristan da Cunha
+       * * `SH` - Saint Helena
        * * `KN` - Saint Kitts and Nevis
        * * `LC` - Saint Lucia
        * * `MF` - Saint Martin (French part)
@@ -1335,7 +1136,7 @@ export interface components {
        * * `SB` - Solomon Islands
        * * `SO` - Somalia
        * * `ZA` - South Africa
-       * * `GS` - South Georgia and the South Sandwich Islands
+       * * `GS` - South Georgia
        * * `KR` - South Korea
        * * `SS` - South Sudan
        * * `ES` - Spain
@@ -1369,6 +1170,1695 @@ export interface components {
        * * `UY` - Uruguay
        * * `UZ` - Uzbekistan
        * * `VU` - Vanuatu
+       * * `VA` - Vatican City
+       * * `VE` - Venezuela
+       * * `VN` - Vietnam
+       * * `VG` - Virgin Islands (British)
+       * * `VI` - Virgin Islands (U.S.)
+       * * `WF` - Wallis and Futuna
+       * * `EH` - Western Sahara
+       * * `YE` - Yemen
+       * * `ZM` - Zambia
+       * * `ZW` - Zimbabwe
+       */
+      country?: components["schemas"]["CountryEnum"] | components["schemas"]["NullEnum"] | null;
+      last_checkout_error: string | null;
+      last_provisioning_error: string | null;
+      /** @description Metadata relating to the terms and conditions accepted by the user. */
+      terms_metadata?: unknown;
+      user: number;
+      /** Format: uuid */
+      workflow: string | null;
+    };
+    /**
+     * @description Serializes checkout intent data, expanded to included related
+     * stripe object data.
+     */
+    CheckoutIntentExpanded: {
+      /** @description CheckoutIntent id */
+      id: number;
+      /**
+       * Format: uuid
+       * @description CheckoutIntent uuid
+       */
+      uuid: string;
+      /**
+       * @description The current state of this record
+       *
+       * * `created` - created
+       * * `paid` - paid
+       * * `fulfilled` - fulfilled
+       * * `errored_backoffice` - errored_backoffice
+       * * `errored_fulfillment_stalled` - errored_fulfillment_stalled
+       * * `errored_provisioning` - errored_provisioning
+       * * `expired` - expired
+       */
+      state: components["schemas"]["State6f2Enum"];
+      /** @description The enterprise name associated with this record */
+      enterprise_name?: string;
+      /** @description The enterprise slug associated with this record */
+      enterprise_slug?: string;
+      /**
+       * Format: uuid
+       * @description The enterprise UUID associated with this record
+       */
+      enterprise_uuid?: string | null;
+      /** @description The amount of licences created with this checkout intent */
+      quantity?: number;
+      /** @description The stripe checkout session id for this intent */
+      stripe_checkout_session_id?: string | null;
+      /** @description The stripe checkout id for this intent */
+      stripe_customer_id?: string | null;
+      /** @description The last checkout error related to this intent */
+      last_checkout_error?: string | null;
+      /** @description The last provisioning error related to this intent */
+      last_provisioning_error?: string | null;
+      /** @description The workflow id related to this intent */
+      workflow_id?: string | null;
+      /**
+       * Format: date-time
+       * @description The expiration time of this intent
+       */
+      expires_at: string;
+      /** @description The admin portal URL related to this intent */
+      admin_portal_url?: string | null;
+      /**
+       * @description The customer country code
+       *
+       * * `AF` - Afghanistan
+       * * `AX` - Åland Islands
+       * * `AL` - Albania
+       * * `DZ` - Algeria
+       * * `AS` - American Samoa
+       * * `AD` - Andorra
+       * * `AO` - Angola
+       * * `AI` - Anguilla
+       * * `AQ` - Antarctica
+       * * `AG` - Antigua and Barbuda
+       * * `AR` - Argentina
+       * * `AM` - Armenia
+       * * `AW` - Aruba
+       * * `AU` - Australia
+       * * `AT` - Austria
+       * * `AZ` - Azerbaijan
+       * * `BS` - Bahamas (The)
+       * * `BH` - Bahrain
+       * * `BD` - Bangladesh
+       * * `BB` - Barbados
+       * * `BY` - Belarus
+       * * `BE` - Belgium
+       * * `BZ` - Belize
+       * * `BJ` - Benin
+       * * `BM` - Bermuda
+       * * `BT` - Bhutan
+       * * `BO` - Bolivia
+       * * `BQ` - Bonaire, Sint Eustatius and Saba
+       * * `BA` - Bosnia and Herzegovina
+       * * `BW` - Botswana
+       * * `BV` - Bouvet Island
+       * * `BR` - Brazil
+       * * `IO` - British Indian Ocean Territory
+       * * `BN` - Brunei
+       * * `BG` - Bulgaria
+       * * `BF` - Burkina Faso
+       * * `BI` - Burundi
+       * * `CV` - Cabo Verde
+       * * `KH` - Cambodia
+       * * `CM` - Cameroon
+       * * `CA` - Canada
+       * * `KY` - Cayman Islands
+       * * `CF` - Central African Republic
+       * * `TD` - Chad
+       * * `CL` - Chile
+       * * `CN` - China
+       * * `CX` - Christmas Island
+       * * `CC` - Cocos (Keeling) Islands
+       * * `CO` - Colombia
+       * * `KM` - Comoros
+       * * `CG` - Congo
+       * * `CK` - Cook Islands
+       * * `CR` - Costa Rica
+       * * `CI` - Côte d'Ivoire
+       * * `HR` - Croatia
+       * * `CU` - Cuba
+       * * `CW` - Curaçao
+       * * `CY` - Cyprus
+       * * `CZ` - Czechia
+       * * `CD` - Democratic Republic of the Congo
+       * * `DK` - Denmark
+       * * `DJ` - Djibouti
+       * * `DM` - Dominica
+       * * `DO` - Dominican Republic
+       * * `EC` - Ecuador
+       * * `EG` - Egypt
+       * * `SV` - El Salvador
+       * * `GQ` - Equatorial Guinea
+       * * `ER` - Eritrea
+       * * `EE` - Estonia
+       * * `SZ` - Eswatini
+       * * `ET` - Ethiopia
+       * * `FK` - Falkland Islands (Malvinas)
+       * * `FO` - Faroe Islands
+       * * `FJ` - Fiji
+       * * `FI` - Finland
+       * * `FR` - France
+       * * `GF` - French Guiana
+       * * `PF` - French Polynesia
+       * * `TF` - French Southern Territories
+       * * `GA` - Gabon
+       * * `GM` - Gambia
+       * * `GE` - Georgia
+       * * `DE` - Germany
+       * * `GH` - Ghana
+       * * `GI` - Gibraltar
+       * * `GR` - Greece
+       * * `GL` - Greenland
+       * * `GD` - Grenada
+       * * `GP` - Guadeloupe
+       * * `GU` - Guam
+       * * `GT` - Guatemala
+       * * `GG` - Guernsey
+       * * `GN` - Guinea
+       * * `GW` - Guinea-Bissau
+       * * `GY` - Guyana
+       * * `HT` - Haiti
+       * * `HM` - Heard Island and McDonald Islands
+       * * `HN` - Honduras
+       * * `HK` - Hong Kong
+       * * `HU` - Hungary
+       * * `IS` - Iceland
+       * * `IN` - India
+       * * `ID` - Indonesia
+       * * `IR` - Iran
+       * * `IQ` - Iraq
+       * * `IE` - Ireland
+       * * `IM` - Isle of Man
+       * * `IL` - Israel
+       * * `IT` - Italy
+       * * `JM` - Jamaica
+       * * `JP` - Japan
+       * * `JE` - Jersey
+       * * `JO` - Jordan
+       * * `KZ` - Kazakhstan
+       * * `KE` - Kenya
+       * * `KI` - Kiribati
+       * * `KW` - Kuwait
+       * * `KG` - Kyrgyzstan
+       * * `LA` - Laos
+       * * `LV` - Latvia
+       * * `LB` - Lebanon
+       * * `LS` - Lesotho
+       * * `LR` - Liberia
+       * * `LY` - Libya
+       * * `LI` - Liechtenstein
+       * * `LT` - Lithuania
+       * * `LU` - Luxembourg
+       * * `MO` - Macao
+       * * `MG` - Madagascar
+       * * `MW` - Malawi
+       * * `MY` - Malaysia
+       * * `MV` - Maldives
+       * * `ML` - Mali
+       * * `MT` - Malta
+       * * `MH` - Marshall Islands
+       * * `MQ` - Martinique
+       * * `MR` - Mauritania
+       * * `MU` - Mauritius
+       * * `YT` - Mayotte
+       * * `MX` - Mexico
+       * * `FM` - Micronesia
+       * * `MD` - Moldova
+       * * `MC` - Monaco
+       * * `MN` - Mongolia
+       * * `ME` - Montenegro
+       * * `MS` - Montserrat
+       * * `MA` - Morocco
+       * * `MZ` - Mozambique
+       * * `MM` - Myanmar
+       * * `NA` - Namibia
+       * * `NR` - Nauru
+       * * `NP` - Nepal
+       * * `NL` - Netherlands
+       * * `NC` - New Caledonia
+       * * `NZ` - New Zealand
+       * * `NI` - Nicaragua
+       * * `NE` - Niger
+       * * `NG` - Nigeria
+       * * `NU` - Niue
+       * * `NF` - Norfolk Island
+       * * `KP` - North Korea
+       * * `MK` - North Macedonia
+       * * `MP` - Northern Mariana Islands
+       * * `NO` - Norway
+       * * `OM` - Oman
+       * * `PK` - Pakistan
+       * * `PW` - Palau
+       * * `PS` - Palestine
+       * * `PA` - Panama
+       * * `PG` - Papua New Guinea
+       * * `PY` - Paraguay
+       * * `PE` - Peru
+       * * `PH` - Philippines
+       * * `PN` - Pitcairn
+       * * `PL` - Poland
+       * * `PT` - Portugal
+       * * `PR` - Puerto Rico
+       * * `QA` - Qatar
+       * * `RE` - Réunion
+       * * `RO` - Romania
+       * * `RU` - Russia
+       * * `RW` - Rwanda
+       * * `BL` - Saint Barthélemy
+       * * `SH` - Saint Helena
+       * * `KN` - Saint Kitts and Nevis
+       * * `LC` - Saint Lucia
+       * * `MF` - Saint Martin (French part)
+       * * `PM` - Saint Pierre and Miquelon
+       * * `VC` - Saint Vincent and the Grenadines
+       * * `WS` - Samoa
+       * * `SM` - San Marino
+       * * `ST` - Sao Tome and Principe
+       * * `SA` - Saudi Arabia
+       * * `SN` - Senegal
+       * * `RS` - Serbia
+       * * `SC` - Seychelles
+       * * `SL` - Sierra Leone
+       * * `SG` - Singapore
+       * * `SX` - Sint Maarten (Dutch part)
+       * * `SK` - Slovakia
+       * * `SI` - Slovenia
+       * * `SB` - Solomon Islands
+       * * `SO` - Somalia
+       * * `ZA` - South Africa
+       * * `GS` - South Georgia
+       * * `KR` - South Korea
+       * * `SS` - South Sudan
+       * * `ES` - Spain
+       * * `LK` - Sri Lanka
+       * * `SD` - Sudan
+       * * `SR` - Suriname
+       * * `SJ` - Svalbard and Jan Mayen
+       * * `SE` - Sweden
+       * * `CH` - Switzerland
+       * * `SY` - Syria
+       * * `TW` - Taiwan
+       * * `TJ` - Tajikistan
+       * * `TZ` - Tanzania
+       * * `TH` - Thailand
+       * * `TL` - Timor-Leste
+       * * `TG` - Togo
+       * * `TK` - Tokelau
+       * * `TO` - Tonga
+       * * `TT` - Trinidad and Tobago
+       * * `TN` - Tunisia
+       * * `TR` - Türkiye
+       * * `TM` - Turkmenistan
+       * * `TC` - Turks and Caicos Islands
+       * * `TV` - Tuvalu
+       * * `UG` - Uganda
+       * * `UA` - Ukraine
+       * * `AE` - United Arab Emirates
+       * * `GB` - United Kingdom
+       * * `UM` - United States Minor Outlying Islands
+       * * `US` - United States of America
+       * * `UY` - Uruguay
+       * * `UZ` - Uzbekistan
+       * * `VU` - Vanuatu
+       * * `VA` - Vatican City
+       * * `VE` - Venezuela
+       * * `VN` - Vietnam
+       * * `VG` - Virgin Islands (British)
+       * * `VI` - Virgin Islands (U.S.)
+       * * `WF` - Wallis and Futuna
+       * * `EH` - Western Sahara
+       * * `YE` - Yemen
+       * * `ZM` - Zambia
+       * * `ZW` - Zimbabwe
+       */
+      country?: components["schemas"]["CountryEnum"] | components["schemas"]["NullEnum"] | null;
+      /** @description Metadata relating to the terms and conditions accepted by the user */
+      terms_metadata?: unknown;
+      first_billable_invoice: components["schemas"]["FirstBillableInvoice"] | null;
+    };
+    /** @description Minimal serializer to represent CheckoutIntent records in BFF response payloads. */
+    CheckoutIntentMinimalResponse: {
+      /** @description CheckoutIntent id */
+      id: number;
+      /**
+       * Format: uuid
+       * @description CheckoutIntent uuid
+       */
+      uuid: string;
+      /**
+       * @description The current state of this record
+       *
+       * * `created` - created
+       * * `paid` - paid
+       * * `fulfilled` - fulfilled
+       * * `errored_backoffice` - errored_backoffice
+       * * `errored_fulfillment_stalled` - errored_fulfillment_stalled
+       * * `errored_provisioning` - errored_provisioning
+       * * `expired` - expired
+       */
+      state: components["schemas"]["State6f2Enum"];
+      /** @description The enterprise name associated with this record */
+      enterprise_name?: string;
+      /** @description The enterprise slug associated with this record */
+      enterprise_slug?: string;
+      /**
+       * Format: uuid
+       * @description The enterprise UUID associated with this record
+       */
+      enterprise_uuid?: string | null;
+      /** @description The amount of licences created with this checkout intent */
+      quantity?: number;
+      /** @description The stripe checkout session id for this intent */
+      stripe_checkout_session_id?: string | null;
+      /** @description The stripe checkout id for this intent */
+      stripe_customer_id?: string | null;
+      /** @description The last checkout error related to this intent */
+      last_checkout_error?: string | null;
+      /** @description The last provisioning error related to this intent */
+      last_provisioning_error?: string | null;
+      /** @description The workflow id related to this intent */
+      workflow_id?: string | null;
+      /**
+       * Format: date-time
+       * @description The expiration time of this intent
+       */
+      expires_at: string;
+      /** @description The admin portal URL related to this intent */
+      admin_portal_url?: string | null;
+      /**
+       * @description The customer country code
+       *
+       * * `AF` - Afghanistan
+       * * `AX` - Åland Islands
+       * * `AL` - Albania
+       * * `DZ` - Algeria
+       * * `AS` - American Samoa
+       * * `AD` - Andorra
+       * * `AO` - Angola
+       * * `AI` - Anguilla
+       * * `AQ` - Antarctica
+       * * `AG` - Antigua and Barbuda
+       * * `AR` - Argentina
+       * * `AM` - Armenia
+       * * `AW` - Aruba
+       * * `AU` - Australia
+       * * `AT` - Austria
+       * * `AZ` - Azerbaijan
+       * * `BS` - Bahamas (The)
+       * * `BH` - Bahrain
+       * * `BD` - Bangladesh
+       * * `BB` - Barbados
+       * * `BY` - Belarus
+       * * `BE` - Belgium
+       * * `BZ` - Belize
+       * * `BJ` - Benin
+       * * `BM` - Bermuda
+       * * `BT` - Bhutan
+       * * `BO` - Bolivia
+       * * `BQ` - Bonaire, Sint Eustatius and Saba
+       * * `BA` - Bosnia and Herzegovina
+       * * `BW` - Botswana
+       * * `BV` - Bouvet Island
+       * * `BR` - Brazil
+       * * `IO` - British Indian Ocean Territory
+       * * `BN` - Brunei
+       * * `BG` - Bulgaria
+       * * `BF` - Burkina Faso
+       * * `BI` - Burundi
+       * * `CV` - Cabo Verde
+       * * `KH` - Cambodia
+       * * `CM` - Cameroon
+       * * `CA` - Canada
+       * * `KY` - Cayman Islands
+       * * `CF` - Central African Republic
+       * * `TD` - Chad
+       * * `CL` - Chile
+       * * `CN` - China
+       * * `CX` - Christmas Island
+       * * `CC` - Cocos (Keeling) Islands
+       * * `CO` - Colombia
+       * * `KM` - Comoros
+       * * `CG` - Congo
+       * * `CK` - Cook Islands
+       * * `CR` - Costa Rica
+       * * `CI` - Côte d'Ivoire
+       * * `HR` - Croatia
+       * * `CU` - Cuba
+       * * `CW` - Curaçao
+       * * `CY` - Cyprus
+       * * `CZ` - Czechia
+       * * `CD` - Democratic Republic of the Congo
+       * * `DK` - Denmark
+       * * `DJ` - Djibouti
+       * * `DM` - Dominica
+       * * `DO` - Dominican Republic
+       * * `EC` - Ecuador
+       * * `EG` - Egypt
+       * * `SV` - El Salvador
+       * * `GQ` - Equatorial Guinea
+       * * `ER` - Eritrea
+       * * `EE` - Estonia
+       * * `SZ` - Eswatini
+       * * `ET` - Ethiopia
+       * * `FK` - Falkland Islands (Malvinas)
+       * * `FO` - Faroe Islands
+       * * `FJ` - Fiji
+       * * `FI` - Finland
+       * * `FR` - France
+       * * `GF` - French Guiana
+       * * `PF` - French Polynesia
+       * * `TF` - French Southern Territories
+       * * `GA` - Gabon
+       * * `GM` - Gambia
+       * * `GE` - Georgia
+       * * `DE` - Germany
+       * * `GH` - Ghana
+       * * `GI` - Gibraltar
+       * * `GR` - Greece
+       * * `GL` - Greenland
+       * * `GD` - Grenada
+       * * `GP` - Guadeloupe
+       * * `GU` - Guam
+       * * `GT` - Guatemala
+       * * `GG` - Guernsey
+       * * `GN` - Guinea
+       * * `GW` - Guinea-Bissau
+       * * `GY` - Guyana
+       * * `HT` - Haiti
+       * * `HM` - Heard Island and McDonald Islands
+       * * `HN` - Honduras
+       * * `HK` - Hong Kong
+       * * `HU` - Hungary
+       * * `IS` - Iceland
+       * * `IN` - India
+       * * `ID` - Indonesia
+       * * `IR` - Iran
+       * * `IQ` - Iraq
+       * * `IE` - Ireland
+       * * `IM` - Isle of Man
+       * * `IL` - Israel
+       * * `IT` - Italy
+       * * `JM` - Jamaica
+       * * `JP` - Japan
+       * * `JE` - Jersey
+       * * `JO` - Jordan
+       * * `KZ` - Kazakhstan
+       * * `KE` - Kenya
+       * * `KI` - Kiribati
+       * * `KW` - Kuwait
+       * * `KG` - Kyrgyzstan
+       * * `LA` - Laos
+       * * `LV` - Latvia
+       * * `LB` - Lebanon
+       * * `LS` - Lesotho
+       * * `LR` - Liberia
+       * * `LY` - Libya
+       * * `LI` - Liechtenstein
+       * * `LT` - Lithuania
+       * * `LU` - Luxembourg
+       * * `MO` - Macao
+       * * `MG` - Madagascar
+       * * `MW` - Malawi
+       * * `MY` - Malaysia
+       * * `MV` - Maldives
+       * * `ML` - Mali
+       * * `MT` - Malta
+       * * `MH` - Marshall Islands
+       * * `MQ` - Martinique
+       * * `MR` - Mauritania
+       * * `MU` - Mauritius
+       * * `YT` - Mayotte
+       * * `MX` - Mexico
+       * * `FM` - Micronesia
+       * * `MD` - Moldova
+       * * `MC` - Monaco
+       * * `MN` - Mongolia
+       * * `ME` - Montenegro
+       * * `MS` - Montserrat
+       * * `MA` - Morocco
+       * * `MZ` - Mozambique
+       * * `MM` - Myanmar
+       * * `NA` - Namibia
+       * * `NR` - Nauru
+       * * `NP` - Nepal
+       * * `NL` - Netherlands
+       * * `NC` - New Caledonia
+       * * `NZ` - New Zealand
+       * * `NI` - Nicaragua
+       * * `NE` - Niger
+       * * `NG` - Nigeria
+       * * `NU` - Niue
+       * * `NF` - Norfolk Island
+       * * `KP` - North Korea
+       * * `MK` - North Macedonia
+       * * `MP` - Northern Mariana Islands
+       * * `NO` - Norway
+       * * `OM` - Oman
+       * * `PK` - Pakistan
+       * * `PW` - Palau
+       * * `PS` - Palestine
+       * * `PA` - Panama
+       * * `PG` - Papua New Guinea
+       * * `PY` - Paraguay
+       * * `PE` - Peru
+       * * `PH` - Philippines
+       * * `PN` - Pitcairn
+       * * `PL` - Poland
+       * * `PT` - Portugal
+       * * `PR` - Puerto Rico
+       * * `QA` - Qatar
+       * * `RE` - Réunion
+       * * `RO` - Romania
+       * * `RU` - Russia
+       * * `RW` - Rwanda
+       * * `BL` - Saint Barthélemy
+       * * `SH` - Saint Helena
+       * * `KN` - Saint Kitts and Nevis
+       * * `LC` - Saint Lucia
+       * * `MF` - Saint Martin (French part)
+       * * `PM` - Saint Pierre and Miquelon
+       * * `VC` - Saint Vincent and the Grenadines
+       * * `WS` - Samoa
+       * * `SM` - San Marino
+       * * `ST` - Sao Tome and Principe
+       * * `SA` - Saudi Arabia
+       * * `SN` - Senegal
+       * * `RS` - Serbia
+       * * `SC` - Seychelles
+       * * `SL` - Sierra Leone
+       * * `SG` - Singapore
+       * * `SX` - Sint Maarten (Dutch part)
+       * * `SK` - Slovakia
+       * * `SI` - Slovenia
+       * * `SB` - Solomon Islands
+       * * `SO` - Somalia
+       * * `ZA` - South Africa
+       * * `GS` - South Georgia
+       * * `KR` - South Korea
+       * * `SS` - South Sudan
+       * * `ES` - Spain
+       * * `LK` - Sri Lanka
+       * * `SD` - Sudan
+       * * `SR` - Suriname
+       * * `SJ` - Svalbard and Jan Mayen
+       * * `SE` - Sweden
+       * * `CH` - Switzerland
+       * * `SY` - Syria
+       * * `TW` - Taiwan
+       * * `TJ` - Tajikistan
+       * * `TZ` - Tanzania
+       * * `TH` - Thailand
+       * * `TL` - Timor-Leste
+       * * `TG` - Togo
+       * * `TK` - Tokelau
+       * * `TO` - Tonga
+       * * `TT` - Trinidad and Tobago
+       * * `TN` - Tunisia
+       * * `TR` - Türkiye
+       * * `TM` - Turkmenistan
+       * * `TC` - Turks and Caicos Islands
+       * * `TV` - Tuvalu
+       * * `UG` - Uganda
+       * * `UA` - Ukraine
+       * * `AE` - United Arab Emirates
+       * * `GB` - United Kingdom
+       * * `UM` - United States Minor Outlying Islands
+       * * `US` - United States of America
+       * * `UY` - Uruguay
+       * * `UZ` - Uzbekistan
+       * * `VU` - Vanuatu
+       * * `VA` - Vatican City
+       * * `VE` - Venezuela
+       * * `VN` - Vietnam
+       * * `VG` - Virgin Islands (British)
+       * * `VI` - Virgin Islands (U.S.)
+       * * `WF` - Wallis and Futuna
+       * * `EH` - Western Sahara
+       * * `YE` - Yemen
+       * * `ZM` - Zambia
+       * * `ZW` - Zimbabwe
+       */
+      country?: components["schemas"]["CountryEnum"] | components["schemas"]["NullEnum"] | null;
+      /** @description Metadata relating to the terms and conditions accepted by the user */
+      terms_metadata?: unknown;
+    };
+    /** @description Serializer for reading and updating CheckoutIntent model instances. */
+    CheckoutIntentReadOnly: {
+      id: number;
+      /** Format: uuid */
+      workflow: string | null;
+      /** Format: date-time */
+      created: string;
+      /** Format: date-time */
+      modified: string;
+      /**
+       * Format: uuid
+       * @description Unique identifier for this record, can be used for cross-service references
+       */
+      uuid: string;
+      state: components["schemas"]["StateCfeEnum"];
+      /** @description Checkout intent enterprise customer name */
+      enterprise_name: string | null;
+      /** @description Checkout intent enterprise customer slug */
+      enterprise_slug: string | null;
+      /**
+       * Format: uuid
+       * @description The uuid of the EnterpriseCustomer, once successfully provisioned
+       */
+      enterprise_uuid: string | null;
+      /** @description The Stripe Customer identifier associated with this record */
+      stripe_customer_id: string | null;
+      /**
+       * Format: date-time
+       * @description Checkout intent expiration timestamp
+       */
+      expires_at: string;
+      /** @description Associated Stripe checkout session ID */
+      stripe_checkout_session_id: string | null;
+      /** @description How many licenses to create. */
+      quantity: number;
+      /**
+       * @description The customer's country
+       *
+       * * `AF` - Afghanistan
+       * * `AX` - Åland Islands
+       * * `AL` - Albania
+       * * `DZ` - Algeria
+       * * `AS` - American Samoa
+       * * `AD` - Andorra
+       * * `AO` - Angola
+       * * `AI` - Anguilla
+       * * `AQ` - Antarctica
+       * * `AG` - Antigua and Barbuda
+       * * `AR` - Argentina
+       * * `AM` - Armenia
+       * * `AW` - Aruba
+       * * `AU` - Australia
+       * * `AT` - Austria
+       * * `AZ` - Azerbaijan
+       * * `BS` - Bahamas (The)
+       * * `BH` - Bahrain
+       * * `BD` - Bangladesh
+       * * `BB` - Barbados
+       * * `BY` - Belarus
+       * * `BE` - Belgium
+       * * `BZ` - Belize
+       * * `BJ` - Benin
+       * * `BM` - Bermuda
+       * * `BT` - Bhutan
+       * * `BO` - Bolivia
+       * * `BQ` - Bonaire, Sint Eustatius and Saba
+       * * `BA` - Bosnia and Herzegovina
+       * * `BW` - Botswana
+       * * `BV` - Bouvet Island
+       * * `BR` - Brazil
+       * * `IO` - British Indian Ocean Territory
+       * * `BN` - Brunei
+       * * `BG` - Bulgaria
+       * * `BF` - Burkina Faso
+       * * `BI` - Burundi
+       * * `CV` - Cabo Verde
+       * * `KH` - Cambodia
+       * * `CM` - Cameroon
+       * * `CA` - Canada
+       * * `KY` - Cayman Islands
+       * * `CF` - Central African Republic
+       * * `TD` - Chad
+       * * `CL` - Chile
+       * * `CN` - China
+       * * `CX` - Christmas Island
+       * * `CC` - Cocos (Keeling) Islands
+       * * `CO` - Colombia
+       * * `KM` - Comoros
+       * * `CG` - Congo
+       * * `CK` - Cook Islands
+       * * `CR` - Costa Rica
+       * * `CI` - Côte d'Ivoire
+       * * `HR` - Croatia
+       * * `CU` - Cuba
+       * * `CW` - Curaçao
+       * * `CY` - Cyprus
+       * * `CZ` - Czechia
+       * * `CD` - Democratic Republic of the Congo
+       * * `DK` - Denmark
+       * * `DJ` - Djibouti
+       * * `DM` - Dominica
+       * * `DO` - Dominican Republic
+       * * `EC` - Ecuador
+       * * `EG` - Egypt
+       * * `SV` - El Salvador
+       * * `GQ` - Equatorial Guinea
+       * * `ER` - Eritrea
+       * * `EE` - Estonia
+       * * `SZ` - Eswatini
+       * * `ET` - Ethiopia
+       * * `FK` - Falkland Islands (Malvinas)
+       * * `FO` - Faroe Islands
+       * * `FJ` - Fiji
+       * * `FI` - Finland
+       * * `FR` - France
+       * * `GF` - French Guiana
+       * * `PF` - French Polynesia
+       * * `TF` - French Southern Territories
+       * * `GA` - Gabon
+       * * `GM` - Gambia
+       * * `GE` - Georgia
+       * * `DE` - Germany
+       * * `GH` - Ghana
+       * * `GI` - Gibraltar
+       * * `GR` - Greece
+       * * `GL` - Greenland
+       * * `GD` - Grenada
+       * * `GP` - Guadeloupe
+       * * `GU` - Guam
+       * * `GT` - Guatemala
+       * * `GG` - Guernsey
+       * * `GN` - Guinea
+       * * `GW` - Guinea-Bissau
+       * * `GY` - Guyana
+       * * `HT` - Haiti
+       * * `HM` - Heard Island and McDonald Islands
+       * * `HN` - Honduras
+       * * `HK` - Hong Kong
+       * * `HU` - Hungary
+       * * `IS` - Iceland
+       * * `IN` - India
+       * * `ID` - Indonesia
+       * * `IR` - Iran
+       * * `IQ` - Iraq
+       * * `IE` - Ireland
+       * * `IM` - Isle of Man
+       * * `IL` - Israel
+       * * `IT` - Italy
+       * * `JM` - Jamaica
+       * * `JP` - Japan
+       * * `JE` - Jersey
+       * * `JO` - Jordan
+       * * `KZ` - Kazakhstan
+       * * `KE` - Kenya
+       * * `KI` - Kiribati
+       * * `KW` - Kuwait
+       * * `KG` - Kyrgyzstan
+       * * `LA` - Laos
+       * * `LV` - Latvia
+       * * `LB` - Lebanon
+       * * `LS` - Lesotho
+       * * `LR` - Liberia
+       * * `LY` - Libya
+       * * `LI` - Liechtenstein
+       * * `LT` - Lithuania
+       * * `LU` - Luxembourg
+       * * `MO` - Macao
+       * * `MG` - Madagascar
+       * * `MW` - Malawi
+       * * `MY` - Malaysia
+       * * `MV` - Maldives
+       * * `ML` - Mali
+       * * `MT` - Malta
+       * * `MH` - Marshall Islands
+       * * `MQ` - Martinique
+       * * `MR` - Mauritania
+       * * `MU` - Mauritius
+       * * `YT` - Mayotte
+       * * `MX` - Mexico
+       * * `FM` - Micronesia
+       * * `MD` - Moldova
+       * * `MC` - Monaco
+       * * `MN` - Mongolia
+       * * `ME` - Montenegro
+       * * `MS` - Montserrat
+       * * `MA` - Morocco
+       * * `MZ` - Mozambique
+       * * `MM` - Myanmar
+       * * `NA` - Namibia
+       * * `NR` - Nauru
+       * * `NP` - Nepal
+       * * `NL` - Netherlands
+       * * `NC` - New Caledonia
+       * * `NZ` - New Zealand
+       * * `NI` - Nicaragua
+       * * `NE` - Niger
+       * * `NG` - Nigeria
+       * * `NU` - Niue
+       * * `NF` - Norfolk Island
+       * * `KP` - North Korea
+       * * `MK` - North Macedonia
+       * * `MP` - Northern Mariana Islands
+       * * `NO` - Norway
+       * * `OM` - Oman
+       * * `PK` - Pakistan
+       * * `PW` - Palau
+       * * `PS` - Palestine
+       * * `PA` - Panama
+       * * `PG` - Papua New Guinea
+       * * `PY` - Paraguay
+       * * `PE` - Peru
+       * * `PH` - Philippines
+       * * `PN` - Pitcairn
+       * * `PL` - Poland
+       * * `PT` - Portugal
+       * * `PR` - Puerto Rico
+       * * `QA` - Qatar
+       * * `RE` - Réunion
+       * * `RO` - Romania
+       * * `RU` - Russia
+       * * `RW` - Rwanda
+       * * `BL` - Saint Barthélemy
+       * * `SH` - Saint Helena
+       * * `KN` - Saint Kitts and Nevis
+       * * `LC` - Saint Lucia
+       * * `MF` - Saint Martin (French part)
+       * * `PM` - Saint Pierre and Miquelon
+       * * `VC` - Saint Vincent and the Grenadines
+       * * `WS` - Samoa
+       * * `SM` - San Marino
+       * * `ST` - Sao Tome and Principe
+       * * `SA` - Saudi Arabia
+       * * `SN` - Senegal
+       * * `RS` - Serbia
+       * * `SC` - Seychelles
+       * * `SL` - Sierra Leone
+       * * `SG` - Singapore
+       * * `SX` - Sint Maarten (Dutch part)
+       * * `SK` - Slovakia
+       * * `SI` - Slovenia
+       * * `SB` - Solomon Islands
+       * * `SO` - Somalia
+       * * `ZA` - South Africa
+       * * `GS` - South Georgia
+       * * `KR` - South Korea
+       * * `SS` - South Sudan
+       * * `ES` - Spain
+       * * `LK` - Sri Lanka
+       * * `SD` - Sudan
+       * * `SR` - Suriname
+       * * `SJ` - Svalbard and Jan Mayen
+       * * `SE` - Sweden
+       * * `CH` - Switzerland
+       * * `SY` - Syria
+       * * `TW` - Taiwan
+       * * `TJ` - Tajikistan
+       * * `TZ` - Tanzania
+       * * `TH` - Thailand
+       * * `TL` - Timor-Leste
+       * * `TG` - Togo
+       * * `TK` - Tokelau
+       * * `TO` - Tonga
+       * * `TT` - Trinidad and Tobago
+       * * `TN` - Tunisia
+       * * `TR` - Türkiye
+       * * `TM` - Turkmenistan
+       * * `TC` - Turks and Caicos Islands
+       * * `TV` - Tuvalu
+       * * `UG` - Uganda
+       * * `UA` - Ukraine
+       * * `AE` - United Arab Emirates
+       * * `GB` - United Kingdom
+       * * `UM` - United States Minor Outlying Islands
+       * * `US` - United States of America
+       * * `UY` - Uruguay
+       * * `UZ` - Uzbekistan
+       * * `VU` - Vanuatu
+       * * `VA` - Vatican City
+       * * `VE` - Venezuela
+       * * `VN` - Vietnam
+       * * `VG` - Virgin Islands (British)
+       * * `VI` - Virgin Islands (U.S.)
+       * * `WF` - Wallis and Futuna
+       * * `EH` - Western Sahara
+       * * `YE` - Yemen
+       * * `ZM` - Zambia
+       * * `ZW` - Zimbabwe
+       */
+      country: components["schemas"]["CountryEnum"] | components["schemas"]["NullEnum"] | null;
+      last_checkout_error: string | null;
+      last_provisioning_error: string | null;
+      /** @description Metadata relating to the terms and conditions accepted by the user. */
+      terms_metadata: unknown;
+      user: number;
+    };
+    /** @description Complete serializer for checkout success intent. */
+    CheckoutSuccessResponse: {
+      errors?: components["schemas"]["Error"][];
+      warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
+      /** @description Enterprise customers associated with the authenticated user (empty for unauthenticated users) */
+      existing_customers_for_authenticated_user: components["schemas"]["EnterpriseCustomer"][];
+      /** @description Available pricing options */
+      pricing: components["schemas"]["PricingData"];
+      /** @description Constraints for form fields */
+      field_constraints: components["schemas"]["FieldConstraints"];
+      /** @description The existing ``CheckoutIntent`` for the requesting user, if any. Includes expanded information from related Stripe records. */
+      checkout_intent?: components["schemas"]["CheckoutIntentExpanded"] | null;
+    };
+    /** @description Request serializer for the checkout validation endpoint. */
+    CheckoutValidationRequest: {
+      /** @description User's full name */
+      full_name?: string;
+      /**
+       * Format: email
+       * @description User's work email
+       */
+      admin_email?: string;
+      /** @description Company name */
+      company_name?: string;
+      /** @description Desired enterprise slug */
+      enterprise_slug?: string;
+      /** @description Number of licenses */
+      quantity?: number | null;
+      /** @description Stripe price ID */
+      stripe_price_id?: string;
+    };
+    /** @description Response serializer for the checkout validation endpoint. */
+    CheckoutValidationResponse: {
+      /** @description Validation results for each field */
+      validation_decisions: {
+        [key: string]: components["schemas"]["ValidationDecision"] | null;
+      };
+      /** @description User authentication status information */
+      user_authn: components["schemas"]["UserAuthInfo"];
+    };
+    /**
+     * @description Serializer to help return additional content metadata for assignments.  These fields should
+     * map more or less 1-1 to the fields in content metadata dicts returned from the
+     * enterprise-catalog `get_content_metadata` response payload.
+     */
+    ContentMetadataForAssignment: {
+      /**
+       * Format: date-time
+       * @description The start date of the course
+       */
+      start_date: string;
+      /**
+       * Format: date-time
+       * @description The end date of the course
+       */
+      end_date: string;
+      /**
+       * Format: date-time
+       * @description The date by which the learner must accept/enroll
+       */
+      enroll_by_date: string;
+      /** @description The price, in USD, of this content */
+      content_price: number;
+      /** @description The type of course, something like "executive-education-2u" or "verified-audit" */
+      course_type: string | null;
+      partners: components["schemas"]["CoursePartner"];
+    };
+    /**
+     * @description * `AF` - Afghanistan
+     * * `AX` - Åland Islands
+     * * `AL` - Albania
+     * * `DZ` - Algeria
+     * * `AS` - American Samoa
+     * * `AD` - Andorra
+     * * `AO` - Angola
+     * * `AI` - Anguilla
+     * * `AQ` - Antarctica
+     * * `AG` - Antigua and Barbuda
+     * * `AR` - Argentina
+     * * `AM` - Armenia
+     * * `AW` - Aruba
+     * * `AU` - Australia
+     * * `AT` - Austria
+     * * `AZ` - Azerbaijan
+     * * `BS` - Bahamas (The)
+     * * `BH` - Bahrain
+     * * `BD` - Bangladesh
+     * * `BB` - Barbados
+     * * `BY` - Belarus
+     * * `BE` - Belgium
+     * * `BZ` - Belize
+     * * `BJ` - Benin
+     * * `BM` - Bermuda
+     * * `BT` - Bhutan
+     * * `BO` - Bolivia
+     * * `BQ` - Bonaire, Sint Eustatius and Saba
+     * * `BA` - Bosnia and Herzegovina
+     * * `BW` - Botswana
+     * * `BV` - Bouvet Island
+     * * `BR` - Brazil
+     * * `IO` - British Indian Ocean Territory
+     * * `BN` - Brunei
+     * * `BG` - Bulgaria
+     * * `BF` - Burkina Faso
+     * * `BI` - Burundi
+     * * `CV` - Cabo Verde
+     * * `KH` - Cambodia
+     * * `CM` - Cameroon
+     * * `CA` - Canada
+     * * `KY` - Cayman Islands
+     * * `CF` - Central African Republic
+     * * `TD` - Chad
+     * * `CL` - Chile
+     * * `CN` - China
+     * * `CX` - Christmas Island
+     * * `CC` - Cocos (Keeling) Islands
+     * * `CO` - Colombia
+     * * `KM` - Comoros
+     * * `CG` - Congo
+     * * `CK` - Cook Islands
+     * * `CR` - Costa Rica
+     * * `CI` - Côte d'Ivoire
+     * * `HR` - Croatia
+     * * `CU` - Cuba
+     * * `CW` - Curaçao
+     * * `CY` - Cyprus
+     * * `CZ` - Czechia
+     * * `CD` - Democratic Republic of the Congo
+     * * `DK` - Denmark
+     * * `DJ` - Djibouti
+     * * `DM` - Dominica
+     * * `DO` - Dominican Republic
+     * * `EC` - Ecuador
+     * * `EG` - Egypt
+     * * `SV` - El Salvador
+     * * `GQ` - Equatorial Guinea
+     * * `ER` - Eritrea
+     * * `EE` - Estonia
+     * * `SZ` - Eswatini
+     * * `ET` - Ethiopia
+     * * `FK` - Falkland Islands (Malvinas)
+     * * `FO` - Faroe Islands
+     * * `FJ` - Fiji
+     * * `FI` - Finland
+     * * `FR` - France
+     * * `GF` - French Guiana
+     * * `PF` - French Polynesia
+     * * `TF` - French Southern Territories
+     * * `GA` - Gabon
+     * * `GM` - Gambia
+     * * `GE` - Georgia
+     * * `DE` - Germany
+     * * `GH` - Ghana
+     * * `GI` - Gibraltar
+     * * `GR` - Greece
+     * * `GL` - Greenland
+     * * `GD` - Grenada
+     * * `GP` - Guadeloupe
+     * * `GU` - Guam
+     * * `GT` - Guatemala
+     * * `GG` - Guernsey
+     * * `GN` - Guinea
+     * * `GW` - Guinea-Bissau
+     * * `GY` - Guyana
+     * * `HT` - Haiti
+     * * `HM` - Heard Island and McDonald Islands
+     * * `HN` - Honduras
+     * * `HK` - Hong Kong
+     * * `HU` - Hungary
+     * * `IS` - Iceland
+     * * `IN` - India
+     * * `ID` - Indonesia
+     * * `IR` - Iran
+     * * `IQ` - Iraq
+     * * `IE` - Ireland
+     * * `IM` - Isle of Man
+     * * `IL` - Israel
+     * * `IT` - Italy
+     * * `JM` - Jamaica
+     * * `JP` - Japan
+     * * `JE` - Jersey
+     * * `JO` - Jordan
+     * * `KZ` - Kazakhstan
+     * * `KE` - Kenya
+     * * `KI` - Kiribati
+     * * `KW` - Kuwait
+     * * `KG` - Kyrgyzstan
+     * * `LA` - Laos
+     * * `LV` - Latvia
+     * * `LB` - Lebanon
+     * * `LS` - Lesotho
+     * * `LR` - Liberia
+     * * `LY` - Libya
+     * * `LI` - Liechtenstein
+     * * `LT` - Lithuania
+     * * `LU` - Luxembourg
+     * * `MO` - Macao
+     * * `MG` - Madagascar
+     * * `MW` - Malawi
+     * * `MY` - Malaysia
+     * * `MV` - Maldives
+     * * `ML` - Mali
+     * * `MT` - Malta
+     * * `MH` - Marshall Islands
+     * * `MQ` - Martinique
+     * * `MR` - Mauritania
+     * * `MU` - Mauritius
+     * * `YT` - Mayotte
+     * * `MX` - Mexico
+     * * `FM` - Micronesia
+     * * `MD` - Moldova
+     * * `MC` - Monaco
+     * * `MN` - Mongolia
+     * * `ME` - Montenegro
+     * * `MS` - Montserrat
+     * * `MA` - Morocco
+     * * `MZ` - Mozambique
+     * * `MM` - Myanmar
+     * * `NA` - Namibia
+     * * `NR` - Nauru
+     * * `NP` - Nepal
+     * * `NL` - Netherlands
+     * * `NC` - New Caledonia
+     * * `NZ` - New Zealand
+     * * `NI` - Nicaragua
+     * * `NE` - Niger
+     * * `NG` - Nigeria
+     * * `NU` - Niue
+     * * `NF` - Norfolk Island
+     * * `KP` - North Korea
+     * * `MK` - North Macedonia
+     * * `MP` - Northern Mariana Islands
+     * * `NO` - Norway
+     * * `OM` - Oman
+     * * `PK` - Pakistan
+     * * `PW` - Palau
+     * * `PS` - Palestine
+     * * `PA` - Panama
+     * * `PG` - Papua New Guinea
+     * * `PY` - Paraguay
+     * * `PE` - Peru
+     * * `PH` - Philippines
+     * * `PN` - Pitcairn
+     * * `PL` - Poland
+     * * `PT` - Portugal
+     * * `PR` - Puerto Rico
+     * * `QA` - Qatar
+     * * `RE` - Réunion
+     * * `RO` - Romania
+     * * `RU` - Russia
+     * * `RW` - Rwanda
+     * * `BL` - Saint Barthélemy
+     * * `SH` - Saint Helena
+     * * `KN` - Saint Kitts and Nevis
+     * * `LC` - Saint Lucia
+     * * `MF` - Saint Martin (French part)
+     * * `PM` - Saint Pierre and Miquelon
+     * * `VC` - Saint Vincent and the Grenadines
+     * * `WS` - Samoa
+     * * `SM` - San Marino
+     * * `ST` - Sao Tome and Principe
+     * * `SA` - Saudi Arabia
+     * * `SN` - Senegal
+     * * `RS` - Serbia
+     * * `SC` - Seychelles
+     * * `SL` - Sierra Leone
+     * * `SG` - Singapore
+     * * `SX` - Sint Maarten (Dutch part)
+     * * `SK` - Slovakia
+     * * `SI` - Slovenia
+     * * `SB` - Solomon Islands
+     * * `SO` - Somalia
+     * * `ZA` - South Africa
+     * * `GS` - South Georgia
+     * * `KR` - South Korea
+     * * `SS` - South Sudan
+     * * `ES` - Spain
+     * * `LK` - Sri Lanka
+     * * `SD` - Sudan
+     * * `SR` - Suriname
+     * * `SJ` - Svalbard and Jan Mayen
+     * * `SE` - Sweden
+     * * `CH` - Switzerland
+     * * `SY` - Syria
+     * * `TW` - Taiwan
+     * * `TJ` - Tajikistan
+     * * `TZ` - Tanzania
+     * * `TH` - Thailand
+     * * `TL` - Timor-Leste
+     * * `TG` - Togo
+     * * `TK` - Tokelau
+     * * `TO` - Tonga
+     * * `TT` - Trinidad and Tobago
+     * * `TN` - Tunisia
+     * * `TR` - Türkiye
+     * * `TM` - Turkmenistan
+     * * `TC` - Turks and Caicos Islands
+     * * `TV` - Tuvalu
+     * * `UG` - Uganda
+     * * `UA` - Ukraine
+     * * `AE` - United Arab Emirates
+     * * `GB` - United Kingdom
+     * * `UM` - United States Minor Outlying Islands
+     * * `US` - United States of America
+     * * `UY` - Uruguay
+     * * `UZ` - Uzbekistan
+     * * `VU` - Vanuatu
+     * * `VA` - Vatican City
+     * * `VE` - Venezuela
+     * * `VN` - Vietnam
+     * * `VG` - Virgin Islands (British)
+     * * `VI` - Virgin Islands (U.S.)
+     * * `WF` - Wallis and Futuna
+     * * `EH` - Western Sahara
+     * * `YE` - Yemen
+     * * `ZM` - Zambia
+     * * `ZW` - Zimbabwe
+     * @enum {string}
+     */
+    CountryEnum: "AF" | "AX" | "AL" | "DZ" | "AS" | "AD" | "AO" | "AI" | "AQ" | "AG" | "AR" | "AM" | "AW" | "AU" | "AT" | "AZ" | "BS" | "BH" | "BD" | "BB" | "BY" | "BE" | "BZ" | "BJ" | "BM" | "BT" | "BO" | "BQ" | "BA" | "BW" | "BV" | "BR" | "IO" | "BN" | "BG" | "BF" | "BI" | "CV" | "KH" | "CM" | "CA" | "KY" | "CF" | "TD" | "CL" | "CN" | "CX" | "CC" | "CO" | "KM" | "CG" | "CK" | "CR" | "CI" | "HR" | "CU" | "CW" | "CY" | "CZ" | "CD" | "DK" | "DJ" | "DM" | "DO" | "EC" | "EG" | "SV" | "GQ" | "ER" | "EE" | "SZ" | "ET" | "FK" | "FO" | "FJ" | "FI" | "FR" | "GF" | "PF" | "TF" | "GA" | "GM" | "GE" | "DE" | "GH" | "GI" | "GR" | "GL" | "GD" | "GP" | "GU" | "GT" | "GG" | "GN" | "GW" | "GY" | "HT" | "HM" | "HN" | "HK" | "HU" | "IS" | "IN" | "ID" | "IR" | "IQ" | "IE" | "IM" | "IL" | "IT" | "JM" | "JP" | "JE" | "JO" | "KZ" | "KE" | "KI" | "KW" | "KG" | "LA" | "LV" | "LB" | "LS" | "LR" | "LY" | "LI" | "LT" | "LU" | "MO" | "MG" | "MW" | "MY" | "MV" | "ML" | "MT" | "MH" | "MQ" | "MR" | "MU" | "YT" | "MX" | "FM" | "MD" | "MC" | "MN" | "ME" | "MS" | "MA" | "MZ" | "MM" | "NA" | "NR" | "NP" | "NL" | "NC" | "NZ" | "NI" | "NE" | "NG" | "NU" | "NF" | "KP" | "MK" | "MP" | "NO" | "OM" | "PK" | "PW" | "PS" | "PA" | "PG" | "PY" | "PE" | "PH" | "PN" | "PL" | "PT" | "PR" | "QA" | "RE" | "RO" | "RU" | "RW" | "BL" | "SH" | "KN" | "LC" | "MF" | "PM" | "VC" | "WS" | "SM" | "ST" | "SA" | "SN" | "RS" | "SC" | "SL" | "SG" | "SX" | "SK" | "SI" | "SB" | "SO" | "ZA" | "GS" | "KR" | "SS" | "ES" | "LK" | "SD" | "SR" | "SJ" | "SE" | "CH" | "SY" | "TW" | "TJ" | "TZ" | "TH" | "TL" | "TG" | "TK" | "TO" | "TT" | "TN" | "TR" | "TM" | "TC" | "TV" | "UG" | "UA" | "AE" | "GB" | "UM" | "US" | "UY" | "UZ" | "VU" | "VA" | "VE" | "VN" | "VG" | "VI" | "WF" | "EH" | "YE" | "ZM" | "ZW";
+    /** @description Serializer for the `CouponCodeRequest` model. */
+    CouponCodeRequest: {
+      /** Format: uuid */
+      uuid: string;
+      user: number;
+      lms_user_id: number;
+      /** Format: email */
+      email: string;
+      course_id: string;
+      course_title: string | null;
+      course_partners: unknown;
+      /** Format: uuid */
+      enterprise_customer_uuid: string;
+      state: components["schemas"]["StateB44Enum"];
+      /** Format: date-time */
+      reviewed_at: string | null;
+      reviewer_lms_user_id: number | null;
+      decline_reason?: string | null;
+      /** Format: date-time */
+      created: string;
+      /** Format: date-time */
+      modified: string;
+      coupon_id: number | null;
+      coupon_code: string | null;
+    };
+    /** @description Serialized partner ``name`` and ``logo_image_url`` for content_metadata of an assignment. */
+    CoursePartner: {
+      /** @description The partner name */
+      name: string;
+      /** @description The URL for the partner logo image */
+      logo_image_url: string;
+    };
+    /** @description Pending admin serializer for provisioning responses. */
+    CreatedCustomerAdminResponse: {
+      /** Format: email */
+      user_email: string;
+    };
+    /** @description Serializer for customer agreement. */
+    CustomerAgreement: {
+      /** Format: uuid */
+      uuid: string;
+      available_subscription_catalogs: string[];
+      /** Format: uuid */
+      default_enterprise_catalog_uuid: string | null;
+      net_days_until_expiration: number;
+      disable_expiration_notifications: boolean;
+      enable_auto_applied_subscriptions_with_universal_link: boolean;
+      /** Format: uuid */
+      subscription_for_auto_applied_licenses: string | null;
+      /** @default false */
+      has_custom_license_expiration_messaging_v2?: boolean | null;
+      button_label_in_modal_v2?: string | null;
+      expired_subscription_modal_messaging_v2?: string | null;
+      modal_header_text_v2?: string | null;
+      url_for_button_in_modal_v2?: string | null;
+    };
+    /** @description Customer Agreement serializer for provisioning requests. */
+    CustomerAgreementRequest: {
+      /**
+       * Format: uuid
+       * @description Optional, default catalog uuid to be used for the customer agreement
+       */
+      default_catalog_uuid?: string | null;
+    };
+    /** @description Customer Agreement serializer for provisioning responses. */
+    CustomerAgreementResponse: {
+      /** Format: uuid */
+      uuid: string;
+      /** Format: uuid */
+      enterprise_customer_uuid: string;
+      /** Format: uuid */
+      default_catalog_uuid: string;
+      subscriptions: components["schemas"]["SubscriptionPlanResponse"][];
+    };
+    /** @description Request serializer for body of POST requests to /api/v1/customer-billing/create-checkout-session */
+    CustomerBillingCreateCheckoutSessionRequest: {
+      /**
+       * Format: email
+       * @description The email corresponding to a registered user to assign as admin.
+       */
+      admin_email: string;
+      /** @description The unique slug proposed for the Enterprise Customer. */
+      enterprise_slug: string;
+      /** @description The unique name proposed for the Enterprise Customer. */
+      company_name: string;
+      /** @description Unit depends on the Stripe Price object. This could be count of subscription licenses, but could also be USD of Learner Credit. */
+      quantity: number;
+      /** @description The ID of the Stripe Price object representing the plan selection. */
+      stripe_price_id: string;
+    };
+    /**
+     * @description Response serializer for response body from POST /api/v1/customer-billing/create-checkout-session
+     *
+     * Specifically for HTTP 201 CREATED responses.
+     */
+    CustomerBillingCreateCheckoutSessionSuccessResponse: {
+      /** @description Secret identifier for the newly created Stripe checkout session. Pass this to the frontend stripe component. */
+      checkout_session_client_secret: string;
+    };
+    /**
+     * @description Response serializer for response body from POST /api/v1/customer-billing/create-checkout-session
+     *
+     * Specifically for HTTP 422 UNPROCESSABLE ENTITY responses.
+     */
+    CustomerBillingCreateCheckoutSessionValidationFailedResponse: {
+      /** @description Validation results for admin_email if validation failed. Absent otherwise. */
+      admin_email?: components["schemas"]["FieldValidation"];
+      /** @description Validation results for enterprise_slug if validation failed. Absent otherwise. */
+      enterprise_slug?: components["schemas"]["FieldValidation"];
+      /** @description Validation results for quantity if validation failed. Absent otherwise. */
+      quantity?: components["schemas"]["FieldValidation"];
+      /** @description Validation results for stripe_price_id if validation failed. Absent otherwise. */
+      stripe_price_id?: components["schemas"]["FieldValidation"];
+      /** @description Validation results for company_name if validation failed. Absent otherwise. */
+      company_name?: components["schemas"]["FieldValidation"];
+      /** @description Errors if ChekoutIntent creation failed for non-field-specific reasons. Absent otherwise. */
+      errors?: components["schemas"]["UnprocessableEntityError"][];
+    };
+    /** @description Serializer for enrollment due date. */
+    EnrollmentDueDate: {
+      name: string;
+      date: string;
+      /** Format: uri */
+      url: string;
+    };
+    /** @description Catalog object serializer for provisioning requests. */
+    EnterpriseCatalogRequest: {
+      /** @description The name of the Enterprise Catalog. */
+      title: string;
+      /**
+       * @description The id of the related Catalog Query.
+       *
+       * * `13` - Subscription - Trial Catalog
+       * * `10` - Subscription
+       * @default 13
+       */
+      catalog_query_id?: components["schemas"]["CatalogQueryIdEnum"];
+    };
+    /** @description Catalog object serializer for provisioning responses. */
+    EnterpriseCatalogResponse: {
+      /** Format: uuid */
+      uuid: string;
+      /** Format: uuid */
+      enterprise_customer_uuid: string;
+      title: string;
+      catalog_query_id: number;
+    };
+    /** @description Serializer for enterprise course enrollment. */
+    EnterpriseCourseEnrollment: {
+      can_unenroll: boolean;
+      course_run_id: string;
+      course_run_status: string;
+      course_key: string;
+      course_type: string;
+      /** Format: date-time */
+      created: string;
+      /** Format: date-time */
+      end_date: string | null;
+      /** Format: date-time */
+      enroll_by: string | null;
+      has_emails_enabled: boolean;
+      is_enrollment_active: boolean;
+      is_revoked: boolean;
+      /** Format: uri */
+      link_to_course: string;
+      link_to_certificate: string | null;
+      micromasters_title: string | null;
+      mode: string;
+      notifications: components["schemas"]["EnrollmentDueDate"][];
+      org_name: string;
+      pacing: string;
+      product_source: string;
+      /** Format: uri */
+      resume_course_run_url: string | null;
+      /** Format: date-time */
+      start_date: string | null;
+      title: string;
+    };
+    /** @description Serializer for enterprise customer data in checkout context. */
+    EnterpriseCustomer: {
+      customer_uuid: string;
+      customer_name: string;
+      customer_slug: string;
+      stripe_customer_id?: string;
+      /** @default false */
+      is_self_service?: boolean;
+      admin_portal_url: string;
+    };
+    /** @description Customer object serializer for provisioning requests. */
+    EnterpriseCustomerRequest: {
+      /** @description The unique name of the Enterprise Customer. */
+      name: string;
+      /**
+       * @description The two letter ISO 3166-2 ISO code representing the customer country.
+       *
+       * * `AF` - Afghanistan
+       * * `AX` - Åland Islands
+       * * `AL` - Albania
+       * * `DZ` - Algeria
+       * * `AS` - American Samoa
+       * * `AD` - Andorra
+       * * `AO` - Angola
+       * * `AI` - Anguilla
+       * * `AQ` - Antarctica
+       * * `AG` - Antigua and Barbuda
+       * * `AR` - Argentina
+       * * `AM` - Armenia
+       * * `AW` - Aruba
+       * * `AU` - Australia
+       * * `AT` - Austria
+       * * `AZ` - Azerbaijan
+       * * `BS` - Bahamas (The)
+       * * `BH` - Bahrain
+       * * `BD` - Bangladesh
+       * * `BB` - Barbados
+       * * `BY` - Belarus
+       * * `BE` - Belgium
+       * * `BZ` - Belize
+       * * `BJ` - Benin
+       * * `BM` - Bermuda
+       * * `BT` - Bhutan
+       * * `BO` - Bolivia
+       * * `BQ` - Bonaire, Sint Eustatius and Saba
+       * * `BA` - Bosnia and Herzegovina
+       * * `BW` - Botswana
+       * * `BV` - Bouvet Island
+       * * `BR` - Brazil
+       * * `IO` - British Indian Ocean Territory
+       * * `BN` - Brunei
+       * * `BG` - Bulgaria
+       * * `BF` - Burkina Faso
+       * * `BI` - Burundi
+       * * `CV` - Cabo Verde
+       * * `KH` - Cambodia
+       * * `CM` - Cameroon
+       * * `CA` - Canada
+       * * `KY` - Cayman Islands
+       * * `CF` - Central African Republic
+       * * `TD` - Chad
+       * * `CL` - Chile
+       * * `CN` - China
+       * * `CX` - Christmas Island
+       * * `CC` - Cocos (Keeling) Islands
+       * * `CO` - Colombia
+       * * `KM` - Comoros
+       * * `CG` - Congo
+       * * `CK` - Cook Islands
+       * * `CR` - Costa Rica
+       * * `CI` - Côte d'Ivoire
+       * * `HR` - Croatia
+       * * `CU` - Cuba
+       * * `CW` - Curaçao
+       * * `CY` - Cyprus
+       * * `CZ` - Czechia
+       * * `CD` - Democratic Republic of the Congo
+       * * `DK` - Denmark
+       * * `DJ` - Djibouti
+       * * `DM` - Dominica
+       * * `DO` - Dominican Republic
+       * * `EC` - Ecuador
+       * * `EG` - Egypt
+       * * `SV` - El Salvador
+       * * `GQ` - Equatorial Guinea
+       * * `ER` - Eritrea
+       * * `EE` - Estonia
+       * * `SZ` - Eswatini
+       * * `ET` - Ethiopia
+       * * `FK` - Falkland Islands (Malvinas)
+       * * `FO` - Faroe Islands
+       * * `FJ` - Fiji
+       * * `FI` - Finland
+       * * `FR` - France
+       * * `GF` - French Guiana
+       * * `PF` - French Polynesia
+       * * `TF` - French Southern Territories
+       * * `GA` - Gabon
+       * * `GM` - Gambia
+       * * `GE` - Georgia
+       * * `DE` - Germany
+       * * `GH` - Ghana
+       * * `GI` - Gibraltar
+       * * `GR` - Greece
+       * * `GL` - Greenland
+       * * `GD` - Grenada
+       * * `GP` - Guadeloupe
+       * * `GU` - Guam
+       * * `GT` - Guatemala
+       * * `GG` - Guernsey
+       * * `GN` - Guinea
+       * * `GW` - Guinea-Bissau
+       * * `GY` - Guyana
+       * * `HT` - Haiti
+       * * `HM` - Heard Island and McDonald Islands
+       * * `HN` - Honduras
+       * * `HK` - Hong Kong
+       * * `HU` - Hungary
+       * * `IS` - Iceland
+       * * `IN` - India
+       * * `ID` - Indonesia
+       * * `IR` - Iran
+       * * `IQ` - Iraq
+       * * `IE` - Ireland
+       * * `IM` - Isle of Man
+       * * `IL` - Israel
+       * * `IT` - Italy
+       * * `JM` - Jamaica
+       * * `JP` - Japan
+       * * `JE` - Jersey
+       * * `JO` - Jordan
+       * * `KZ` - Kazakhstan
+       * * `KE` - Kenya
+       * * `KI` - Kiribati
+       * * `KW` - Kuwait
+       * * `KG` - Kyrgyzstan
+       * * `LA` - Laos
+       * * `LV` - Latvia
+       * * `LB` - Lebanon
+       * * `LS` - Lesotho
+       * * `LR` - Liberia
+       * * `LY` - Libya
+       * * `LI` - Liechtenstein
+       * * `LT` - Lithuania
+       * * `LU` - Luxembourg
+       * * `MO` - Macao
+       * * `MG` - Madagascar
+       * * `MW` - Malawi
+       * * `MY` - Malaysia
+       * * `MV` - Maldives
+       * * `ML` - Mali
+       * * `MT` - Malta
+       * * `MH` - Marshall Islands
+       * * `MQ` - Martinique
+       * * `MR` - Mauritania
+       * * `MU` - Mauritius
+       * * `YT` - Mayotte
+       * * `MX` - Mexico
+       * * `FM` - Micronesia
+       * * `MD` - Moldova
+       * * `MC` - Monaco
+       * * `MN` - Mongolia
+       * * `ME` - Montenegro
+       * * `MS` - Montserrat
+       * * `MA` - Morocco
+       * * `MZ` - Mozambique
+       * * `MM` - Myanmar
+       * * `NA` - Namibia
+       * * `NR` - Nauru
+       * * `NP` - Nepal
+       * * `NL` - Netherlands
+       * * `NC` - New Caledonia
+       * * `NZ` - New Zealand
+       * * `NI` - Nicaragua
+       * * `NE` - Niger
+       * * `NG` - Nigeria
+       * * `NU` - Niue
+       * * `NF` - Norfolk Island
+       * * `KP` - North Korea
+       * * `MK` - North Macedonia
+       * * `MP` - Northern Mariana Islands
+       * * `NO` - Norway
+       * * `OM` - Oman
+       * * `PK` - Pakistan
+       * * `PW` - Palau
+       * * `PS` - Palestine
+       * * `PA` - Panama
+       * * `PG` - Papua New Guinea
+       * * `PY` - Paraguay
+       * * `PE` - Peru
+       * * `PH` - Philippines
+       * * `PN` - Pitcairn
+       * * `PL` - Poland
+       * * `PT` - Portugal
+       * * `PR` - Puerto Rico
+       * * `QA` - Qatar
+       * * `RE` - Réunion
+       * * `RO` - Romania
+       * * `RU` - Russia
+       * * `RW` - Rwanda
+       * * `BL` - Saint Barthélemy
+       * * `SH` - Saint Helena
+       * * `KN` - Saint Kitts and Nevis
+       * * `LC` - Saint Lucia
+       * * `MF` - Saint Martin (French part)
+       * * `PM` - Saint Pierre and Miquelon
+       * * `VC` - Saint Vincent and the Grenadines
+       * * `WS` - Samoa
+       * * `SM` - San Marino
+       * * `ST` - Sao Tome and Principe
+       * * `SA` - Saudi Arabia
+       * * `SN` - Senegal
+       * * `RS` - Serbia
+       * * `SC` - Seychelles
+       * * `SL` - Sierra Leone
+       * * `SG` - Singapore
+       * * `SX` - Sint Maarten (Dutch part)
+       * * `SK` - Slovakia
+       * * `SI` - Slovenia
+       * * `SB` - Solomon Islands
+       * * `SO` - Somalia
+       * * `ZA` - South Africa
+       * * `GS` - South Georgia
+       * * `KR` - South Korea
+       * * `SS` - South Sudan
+       * * `ES` - Spain
+       * * `LK` - Sri Lanka
+       * * `SD` - Sudan
+       * * `SR` - Suriname
+       * * `SJ` - Svalbard and Jan Mayen
+       * * `SE` - Sweden
+       * * `CH` - Switzerland
+       * * `SY` - Syria
+       * * `TW` - Taiwan
+       * * `TJ` - Tajikistan
+       * * `TZ` - Tanzania
+       * * `TH` - Thailand
+       * * `TL` - Timor-Leste
+       * * `TG` - Togo
+       * * `TK` - Tokelau
+       * * `TO` - Tonga
+       * * `TT` - Trinidad and Tobago
+       * * `TN` - Tunisia
+       * * `TR` - Türkiye
+       * * `TM` - Turkmenistan
+       * * `TC` - Turks and Caicos Islands
+       * * `TV` - Tuvalu
+       * * `UG` - Uganda
+       * * `UA` - Ukraine
+       * * `AE` - United Arab Emirates
+       * * `GB` - United Kingdom
+       * * `UM` - United States Minor Outlying Islands
+       * * `US` - United States of America
+       * * `UY` - Uruguay
+       * * `UZ` - Uzbekistan
+       * * `VU` - Vanuatu
+       * * `VA` - Vatican City
        * * `VE` - Venezuela
        * * `VN` - Vietnam
        * * `VG` - Virgin Islands (British)
@@ -1390,11 +2880,6 @@ export interface components {
       name: string;
       country: components["schemas"]["CountryEnum"];
       slug: string;
-    };
-    /** @description Serializer for enterprise customer site. */
-    EnterpriseCustomerSite: {
-      domain: string;
-      name: string;
     };
     /** @description Serializer for all linked enterprise customer users */
     EnterpriseCustomerUser: {
@@ -1428,6 +2913,50 @@ export interface components {
     ExistingCustomerAdminResponse: {
       /** Format: email */
       user_email: string;
+    };
+    /**
+     * @description Serializer for field constraints in checkout context.
+     *
+     * TODO: the field constraints should be expanded to more closely match the mins/maxes within this code block:
+     * https://github.com/edx/frontend-app-enterprise-checkout/blob/main/src/constants.ts#L13-L39
+     */
+    FieldConstraints: {
+      /** @description Constraints for license quantity */
+      quantity: components["schemas"]["QuantityConstraint"];
+      /** @description Constraints for enterprise slug */
+      enterprise_slug: components["schemas"]["StringConstraint"];
+      /** @description Constraints for enterprise user full name */
+      full_name: components["schemas"]["StringConstraint"];
+      /** @description Constraints for admin email address */
+      admin_email: components["schemas"]["StringConstraint"];
+      /** @description Constraints for enterprise country */
+      country: components["schemas"]["StringConstraint"];
+      /** @description Constraints for enterprise company name */
+      company_name: components["schemas"]["StringConstraint"];
+      /** @description Embargoed country codes */
+      embargoed_countries?: string[];
+    };
+    /** @description Common pattern for serialized field validation errors. */
+    FieldValidation: {
+      /** @description Error code for validation failure. */
+      error_code: string;
+      /** @description System message (not intended for user display) for validation failure. */
+      developer_message: string;
+    };
+    /** @description Serializer for first billable invoice information. */
+    FirstBillableInvoice: {
+      /** Format: date-time */
+      start_time: string | null;
+      /** Format: date-time */
+      end_time: string | null;
+      last4: number | null;
+      card_brand: string | null;
+      quantity: number | null;
+      /** Format: decimal */
+      unit_amount_decimal: string | null;
+      customer_phone: string | null;
+      customer_name: string | null;
+      billing_address: components["schemas"]["BillingAddress"] | null;
     };
     /**
      * @description A read-only serializer for responding to requests to the ``get_group_member_data_with_aggregates`` endpoint.
@@ -1484,20 +3013,19 @@ export interface components {
     LearnerAcademyResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
     };
     /** @description A read-only Serializer for responding to requests for ``LearnerContentAssignmentAction`` records. */
@@ -1521,7 +3049,7 @@ export interface components {
        * * `expired_acknowledged` - Learner assignment expiration acknowledged by learner
        * * `reversed` - Transaction for this assignment has been reversed
        */
-      action_type: components["schemas"]["ActionType5a0Enum"];
+      action_type: components["schemas"]["ActionType3e8Enum"];
       /**
        * Format: date-time
        * @description The time at which the action was successfully completed.
@@ -1560,7 +3088,7 @@ export interface components {
        * * `expired_acknowledged` - Learner assignment expiration acknowledged by learner
        * * `reversed` - Transaction for this assignment has been reversed
        */
-      action_type: components["schemas"]["ActionType5a0Enum"];
+      action_type: components["schemas"]["ActionType3e8Enum"];
       /**
        * Format: date-time
        * @description The time at which the action was successfully completed.
@@ -1622,7 +3150,7 @@ export interface components {
        * * `expired` - Expired
        * * `reversed` - Reversed
        */
-      state: components["schemas"]["StateBedEnum"];
+      state: components["schemas"]["StateE0aEnum"];
       /**
        * Format: uuid
        * @description A reference to the ledger transaction associated with the subsidy supporting this assignment.  Likely null if state != accepted.
@@ -1743,7 +3271,7 @@ export interface components {
        * * `expired` - Expired
        * * `reversed` - Reversed
        */
-      state: components["schemas"]["StateBedEnum"];
+      state: components["schemas"]["StateE0aEnum"];
       /**
        * Format: uuid
        * @description A reference to the ledger transaction associated with the subsidy supporting this assignment.  Likely null if state != accepted.
@@ -1790,7 +3318,7 @@ export interface components {
        * * `expired` - Expired
        * * `reversed` - Reversed
        */
-      state: components["schemas"]["StateBedEnum"];
+      state: components["schemas"]["StateE0aEnum"];
       /**
        * Format: uuid
        * @description A reference to the ledger transaction associated with the subsidy supporting this assignment.  Likely null if state != accepted.
@@ -1818,7 +3346,7 @@ export interface components {
       /** Format: uuid */
       enterprise_customer_uuid: string;
       /** @default requested */
-      state: components["schemas"]["State7b6Enum"];
+      state: components["schemas"]["StateB44Enum"];
       /** Format: date-time */
       reviewed_at: string | null;
       reviewer_lms_user_id: number | null;
@@ -1834,6 +3362,81 @@ export interface components {
       /** @description Cost of the content in USD Cents. */
       course_price?: number | null;
       latest_action: string;
+      /** @description Computed state based on action status and error conditions. Returns 'waiting' for approved/reminded actions without errors, 'failed' for actions with error_reason, or the actual status otherwise */
+      learner_request_state: string;
+    };
+    /**
+     * @description Request Serializer to validate subsidy-request ``approve`` endpoint POST data.
+     *
+     * For view: LearnerCreditRequestViewSet.approve
+     */
+    LearnerCreditRequestApproveRequest: {
+      /** @description A list of LearnerCreditRequest UUIDs to be approved. */
+      learner_credit_request_uuids: string[];
+      /**
+       * Format: uuid
+       * @description The UUID of the SubsidyAccessPolicy to use for this approval.
+       */
+      policy_uuid: string;
+    };
+    /** @description Serializer for bulk approving learner credit requests. */
+    LearnerCreditRequestBulkApproveRequest: {
+      /**
+       * Format: uuid
+       * @description The UUID of the subsidy access policy to use for approval.
+       */
+      policy_uuid: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the enterprise customer.
+       */
+      enterprise_customer_uuid: string;
+      /**
+       * @description If true, approve all pending requests for the enterprise customer.
+       * @default false
+       */
+      approve_all?: boolean;
+      /** @description List of subsidy request UUIDs to approve. */
+      subsidy_request_uuids?: string[];
+    };
+    /**
+     * @description Serializer for bulk declining learner credit requests.
+     *
+     * Request Payload:
+     * {
+     *     "enterprise_customer_uuid": "<uuid>",  # Required for permission checking
+     *     "subsidy_request_uuids": [],
+     *     "decline_all": false,
+     *     "policy_uuid": "<uuid>"
+     * }
+     */
+    LearnerCreditRequestBulkDecline: {
+      /**
+       * Format: uuid
+       * @description The UUID of the enterprise customer.
+       */
+      enterprise_customer_uuid: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the subsidy access policy associated with the requests.
+       */
+      policy_uuid: string;
+      /**
+       * @description If true, decline all open requests associated with a budget.
+       * @default false
+       */
+      decline_all?: boolean;
+      /** @description List of learner credit request UUIDs to decline. */
+      subsidy_request_uuids?: string[];
+    };
+    /**
+     * @description Request serializer to validate cancel endpoint query params.
+     *
+     * For view: LearnerCreditRequestViewSet.cancel
+     */
+    LearnerCreditRequestCancel: {
+      /** Format: uuid */
+      request_uuid: string;
     };
     /** @description Serializer for declining a learner credit request. */
     LearnerCreditRequestDecline: {
@@ -1852,6 +3455,8 @@ export interface components {
        * @default false
        */
       disassociate_from_org?: boolean;
+      /** @description Reason for declining */
+      decline_reason?: string | null;
     };
     /** @description Serializer for the learner dashboard request. */
     LearnerDashboardRequest: {
@@ -1867,20 +3472,19 @@ export interface components {
     LearnerDashboardResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
       enterprise_course_enrollments: components["schemas"]["EnterpriseCourseEnrollment"][];
       all_enrollments_by_status: components["schemas"]["LearnerEnrollmentsByStatus"];
@@ -1907,20 +3511,19 @@ export interface components {
     LearnerSearchResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
     };
     /** @description Serializer for the learner skills quiz request. */
@@ -1937,20 +3540,19 @@ export interface components {
     LearnerSkillsQuizResponse: {
       errors?: components["schemas"]["Error"][];
       warnings?: components["schemas"]["Warning"][];
+      enterprise_features?: {
+        [key: string]: unknown;
+      };
       enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       all_linked_enterprise_customer_users?: components["schemas"]["EnterpriseCustomerUser"][];
       active_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       staff_enterprise_customer?: components["schemas"]["EnterpriseCustomer"] | null;
       should_update_active_enterprise_customer_user: boolean;
-      secured_algolia_api_key?: string | null;
       /** @description Mapping of catalog UUIDs to catalog query UUIDs. */
       catalog_uuids_to_catalog_query_uuids: {
         [key: string]: string;
       };
       algolia?: components["schemas"]["SecuredAlgoliaMetadata"] | null;
-      enterprise_features?: {
-        [key: string]: unknown;
-      };
       enterprise_customer_user_subsidies: components["schemas"]["EnterpriseCustomerUserSubsidies"];
     };
     /**
@@ -1974,7 +3576,7 @@ export interface components {
       course_partners: unknown;
       /** Format: uuid */
       enterprise_customer_uuid: string;
-      state: components["schemas"]["State7b6Enum"];
+      state: components["schemas"]["StateB44Enum"];
       /** Format: date-time */
       reviewed_at: string | null;
       reviewer_lms_user_id: number | null;
@@ -1997,6 +3599,10 @@ export interface components {
       usd: number;
       /** @description List price for content, in USD cents. */
       usd_cents: number;
+    };
+    NotFoundError: {
+      /** @default Not found. */
+      detail?: string;
     };
     /** @enum {unknown} */
     NullEnum: "";
@@ -2032,6 +3638,21 @@ export interface components {
        */
       previous?: string | null;
       results?: components["schemas"]["AssignmentConfigurationResponse"][];
+    };
+    PaginatedCheckoutIntentReadOnlyList: {
+      /** @example 123 */
+      count: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results: components["schemas"]["CheckoutIntentReadOnly"][];
     };
     PaginatedCouponCodeRequestList: {
       /**
@@ -2210,6 +3831,21 @@ export interface components {
       previous?: string | null;
       results?: components["schemas"]["LicenseRequest"][];
     };
+    PaginatedStripeEventSummaryReadOnlyList: {
+      /** @example 123 */
+      count: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results: components["schemas"]["StripeEventSummaryReadOnly"][];
+    };
     PaginatedSubsidyAccessPolicyCreditsAvailableResponseList: {
       /** @example 123 */
       count: number;
@@ -2300,6 +3936,301 @@ export interface components {
       /** @description Whether this assignment configuration is active. Defaults to True. */
       active?: boolean;
     };
+    /** @description Write serializer for CheckoutIntent - used for PATCH operations. */
+    PatchedCheckoutIntentUpdateRequest: {
+      id?: number;
+      /** Format: date-time */
+      created?: string;
+      /** Format: date-time */
+      modified?: string;
+      /**
+       * Format: uuid
+       * @description Unique identifier for this record, can be used for cross-service references
+       */
+      uuid?: string;
+      state?: components["schemas"]["StateCfeEnum"];
+      /** @description Checkout intent enterprise customer name */
+      enterprise_name?: string | null;
+      /** @description Checkout intent enterprise customer slug */
+      enterprise_slug?: string | null;
+      /**
+       * Format: uuid
+       * @description The uuid of the EnterpriseCustomer, once successfully provisioned
+       */
+      enterprise_uuid?: string | null;
+      /** @description The Stripe Customer identifier associated with this record */
+      stripe_customer_id?: string | null;
+      /**
+       * Format: date-time
+       * @description Checkout intent expiration timestamp
+       */
+      expires_at?: string;
+      /** @description Associated Stripe checkout session ID */
+      stripe_checkout_session_id?: string | null;
+      /** @description How many licenses to create. */
+      quantity?: number;
+      /**
+       * @description The customer's country
+       *
+       * * `AF` - Afghanistan
+       * * `AX` - Åland Islands
+       * * `AL` - Albania
+       * * `DZ` - Algeria
+       * * `AS` - American Samoa
+       * * `AD` - Andorra
+       * * `AO` - Angola
+       * * `AI` - Anguilla
+       * * `AQ` - Antarctica
+       * * `AG` - Antigua and Barbuda
+       * * `AR` - Argentina
+       * * `AM` - Armenia
+       * * `AW` - Aruba
+       * * `AU` - Australia
+       * * `AT` - Austria
+       * * `AZ` - Azerbaijan
+       * * `BS` - Bahamas (The)
+       * * `BH` - Bahrain
+       * * `BD` - Bangladesh
+       * * `BB` - Barbados
+       * * `BY` - Belarus
+       * * `BE` - Belgium
+       * * `BZ` - Belize
+       * * `BJ` - Benin
+       * * `BM` - Bermuda
+       * * `BT` - Bhutan
+       * * `BO` - Bolivia
+       * * `BQ` - Bonaire, Sint Eustatius and Saba
+       * * `BA` - Bosnia and Herzegovina
+       * * `BW` - Botswana
+       * * `BV` - Bouvet Island
+       * * `BR` - Brazil
+       * * `IO` - British Indian Ocean Territory
+       * * `BN` - Brunei
+       * * `BG` - Bulgaria
+       * * `BF` - Burkina Faso
+       * * `BI` - Burundi
+       * * `CV` - Cabo Verde
+       * * `KH` - Cambodia
+       * * `CM` - Cameroon
+       * * `CA` - Canada
+       * * `KY` - Cayman Islands
+       * * `CF` - Central African Republic
+       * * `TD` - Chad
+       * * `CL` - Chile
+       * * `CN` - China
+       * * `CX` - Christmas Island
+       * * `CC` - Cocos (Keeling) Islands
+       * * `CO` - Colombia
+       * * `KM` - Comoros
+       * * `CG` - Congo
+       * * `CK` - Cook Islands
+       * * `CR` - Costa Rica
+       * * `CI` - Côte d'Ivoire
+       * * `HR` - Croatia
+       * * `CU` - Cuba
+       * * `CW` - Curaçao
+       * * `CY` - Cyprus
+       * * `CZ` - Czechia
+       * * `CD` - Democratic Republic of the Congo
+       * * `DK` - Denmark
+       * * `DJ` - Djibouti
+       * * `DM` - Dominica
+       * * `DO` - Dominican Republic
+       * * `EC` - Ecuador
+       * * `EG` - Egypt
+       * * `SV` - El Salvador
+       * * `GQ` - Equatorial Guinea
+       * * `ER` - Eritrea
+       * * `EE` - Estonia
+       * * `SZ` - Eswatini
+       * * `ET` - Ethiopia
+       * * `FK` - Falkland Islands (Malvinas)
+       * * `FO` - Faroe Islands
+       * * `FJ` - Fiji
+       * * `FI` - Finland
+       * * `FR` - France
+       * * `GF` - French Guiana
+       * * `PF` - French Polynesia
+       * * `TF` - French Southern Territories
+       * * `GA` - Gabon
+       * * `GM` - Gambia
+       * * `GE` - Georgia
+       * * `DE` - Germany
+       * * `GH` - Ghana
+       * * `GI` - Gibraltar
+       * * `GR` - Greece
+       * * `GL` - Greenland
+       * * `GD` - Grenada
+       * * `GP` - Guadeloupe
+       * * `GU` - Guam
+       * * `GT` - Guatemala
+       * * `GG` - Guernsey
+       * * `GN` - Guinea
+       * * `GW` - Guinea-Bissau
+       * * `GY` - Guyana
+       * * `HT` - Haiti
+       * * `HM` - Heard Island and McDonald Islands
+       * * `HN` - Honduras
+       * * `HK` - Hong Kong
+       * * `HU` - Hungary
+       * * `IS` - Iceland
+       * * `IN` - India
+       * * `ID` - Indonesia
+       * * `IR` - Iran
+       * * `IQ` - Iraq
+       * * `IE` - Ireland
+       * * `IM` - Isle of Man
+       * * `IL` - Israel
+       * * `IT` - Italy
+       * * `JM` - Jamaica
+       * * `JP` - Japan
+       * * `JE` - Jersey
+       * * `JO` - Jordan
+       * * `KZ` - Kazakhstan
+       * * `KE` - Kenya
+       * * `KI` - Kiribati
+       * * `KW` - Kuwait
+       * * `KG` - Kyrgyzstan
+       * * `LA` - Laos
+       * * `LV` - Latvia
+       * * `LB` - Lebanon
+       * * `LS` - Lesotho
+       * * `LR` - Liberia
+       * * `LY` - Libya
+       * * `LI` - Liechtenstein
+       * * `LT` - Lithuania
+       * * `LU` - Luxembourg
+       * * `MO` - Macao
+       * * `MG` - Madagascar
+       * * `MW` - Malawi
+       * * `MY` - Malaysia
+       * * `MV` - Maldives
+       * * `ML` - Mali
+       * * `MT` - Malta
+       * * `MH` - Marshall Islands
+       * * `MQ` - Martinique
+       * * `MR` - Mauritania
+       * * `MU` - Mauritius
+       * * `YT` - Mayotte
+       * * `MX` - Mexico
+       * * `FM` - Micronesia
+       * * `MD` - Moldova
+       * * `MC` - Monaco
+       * * `MN` - Mongolia
+       * * `ME` - Montenegro
+       * * `MS` - Montserrat
+       * * `MA` - Morocco
+       * * `MZ` - Mozambique
+       * * `MM` - Myanmar
+       * * `NA` - Namibia
+       * * `NR` - Nauru
+       * * `NP` - Nepal
+       * * `NL` - Netherlands
+       * * `NC` - New Caledonia
+       * * `NZ` - New Zealand
+       * * `NI` - Nicaragua
+       * * `NE` - Niger
+       * * `NG` - Nigeria
+       * * `NU` - Niue
+       * * `NF` - Norfolk Island
+       * * `KP` - North Korea
+       * * `MK` - North Macedonia
+       * * `MP` - Northern Mariana Islands
+       * * `NO` - Norway
+       * * `OM` - Oman
+       * * `PK` - Pakistan
+       * * `PW` - Palau
+       * * `PS` - Palestine
+       * * `PA` - Panama
+       * * `PG` - Papua New Guinea
+       * * `PY` - Paraguay
+       * * `PE` - Peru
+       * * `PH` - Philippines
+       * * `PN` - Pitcairn
+       * * `PL` - Poland
+       * * `PT` - Portugal
+       * * `PR` - Puerto Rico
+       * * `QA` - Qatar
+       * * `RE` - Réunion
+       * * `RO` - Romania
+       * * `RU` - Russia
+       * * `RW` - Rwanda
+       * * `BL` - Saint Barthélemy
+       * * `SH` - Saint Helena
+       * * `KN` - Saint Kitts and Nevis
+       * * `LC` - Saint Lucia
+       * * `MF` - Saint Martin (French part)
+       * * `PM` - Saint Pierre and Miquelon
+       * * `VC` - Saint Vincent and the Grenadines
+       * * `WS` - Samoa
+       * * `SM` - San Marino
+       * * `ST` - Sao Tome and Principe
+       * * `SA` - Saudi Arabia
+       * * `SN` - Senegal
+       * * `RS` - Serbia
+       * * `SC` - Seychelles
+       * * `SL` - Sierra Leone
+       * * `SG` - Singapore
+       * * `SX` - Sint Maarten (Dutch part)
+       * * `SK` - Slovakia
+       * * `SI` - Slovenia
+       * * `SB` - Solomon Islands
+       * * `SO` - Somalia
+       * * `ZA` - South Africa
+       * * `GS` - South Georgia
+       * * `KR` - South Korea
+       * * `SS` - South Sudan
+       * * `ES` - Spain
+       * * `LK` - Sri Lanka
+       * * `SD` - Sudan
+       * * `SR` - Suriname
+       * * `SJ` - Svalbard and Jan Mayen
+       * * `SE` - Sweden
+       * * `CH` - Switzerland
+       * * `SY` - Syria
+       * * `TW` - Taiwan
+       * * `TJ` - Tajikistan
+       * * `TZ` - Tanzania
+       * * `TH` - Thailand
+       * * `TL` - Timor-Leste
+       * * `TG` - Togo
+       * * `TK` - Tokelau
+       * * `TO` - Tonga
+       * * `TT` - Trinidad and Tobago
+       * * `TN` - Tunisia
+       * * `TR` - Türkiye
+       * * `TM` - Turkmenistan
+       * * `TC` - Turks and Caicos Islands
+       * * `TV` - Tuvalu
+       * * `UG` - Uganda
+       * * `UA` - Ukraine
+       * * `AE` - United Arab Emirates
+       * * `GB` - United Kingdom
+       * * `UM` - United States Minor Outlying Islands
+       * * `US` - United States of America
+       * * `UY` - Uruguay
+       * * `UZ` - Uzbekistan
+       * * `VU` - Vanuatu
+       * * `VA` - Vatican City
+       * * `VE` - Venezuela
+       * * `VN` - Vietnam
+       * * `VG` - Virgin Islands (British)
+       * * `VI` - Virgin Islands (U.S.)
+       * * `WF` - Wallis and Futuna
+       * * `EH` - Western Sahara
+       * * `YE` - Yemen
+       * * `ZM` - Zambia
+       * * `ZW` - Zimbabwe
+       */
+      country?: components["schemas"]["CountryEnum"] | components["schemas"]["NullEnum"] | null;
+      last_checkout_error?: string | null;
+      last_provisioning_error?: string | null;
+      /** @description Metadata relating to the terms and conditions accepted by the user. */
+      terms_metadata?: unknown;
+      user?: number;
+      /** Format: uuid */
+      workflow?: string | null;
+    };
     /**
      * @description Request Serializer for PUT or PATCH requests to update a subsidy access policy.
      *
@@ -2382,6 +4313,10 @@ export interface components {
        */
       user_email: string;
     };
+    PermissionError: {
+      /** @default You do not have permission to perform this action. */
+      detail?: string;
+    };
     /**
      * @description * `PerLearnerEnrollmentCreditAccessPolicy` - PerLearnerEnrollmentCreditAccessPolicy
      * * `PerLearnerSpendCreditAccessPolicy` - PerLearnerSpendCreditAccessPolicy
@@ -2389,12 +4324,43 @@ export interface components {
      * @enum {string}
      */
     PolicyTypeEnum: "PerLearnerEnrollmentCreditAccessPolicy" | "PerLearnerSpendCreditAccessPolicy" | "AssignedLearnerCreditAccessPolicy";
+    /** @description Serializer for Stripe price objects in checkout context. */
+    Price: {
+      /** @description Stripe Price ID */
+      id: string;
+      /** @description Stripe Product ID */
+      product: string;
+      /** @description Lookup key for this price */
+      lookup_key: string;
+      /** @description Recurring billing configuration */
+      recurring: {
+        [key: string]: unknown;
+      };
+      /** @description Currency code (e.g. 'usd') */
+      currency: string;
+      /** @description Price amount in cents */
+      unit_amount: number;
+      /**
+       * Format: decimal
+       * @description Price amount as decimal
+       */
+      unit_amount_decimal: string;
+    };
+    /** @description Serializer for pricing data in checkout context. */
+    PricingData: {
+      /** @description Lookup key for the default price option */
+      default_by_lookup_key: string;
+      /** @description Available price options */
+      prices: components["schemas"]["Price"][];
+    };
     /**
      * @description * `1` - B2B Paid
      * * `3` - Trial
+     * * `6` - Self-service Trial
+     * * `7` - Self-service Paid
      * @enum {integer}
      */
-    ProductIdEnum: 1 | 3;
+    ProductIdEnum: 1 | 3 | 6 | 7;
     /** @description Request serializer for provisioning create view. */
     ProvisioningRequest: {
       /** @description Object describing the requested Enterprise Customer. */
@@ -2405,7 +4371,8 @@ export interface components {
       enterprise_catalog?: components["schemas"]["EnterpriseCatalogRequest"] | null;
       /** @description Object describing the requested Customer Agreement. */
       customer_agreement?: components["schemas"]["CustomerAgreementRequest"] | null;
-      subscription_plan: components["schemas"]["SubscriptionPlanRequest"];
+      trial_subscription_plan: components["schemas"]["SubscriptionPlanRequest"];
+      first_paid_subscription_plan: components["schemas"]["SubscriptionPlanRequest"];
     };
     /** @description Response serializer for provisioning create view. */
     ProvisioningResponse: {
@@ -2413,7 +4380,20 @@ export interface components {
       customer_admins: components["schemas"]["AdminObjectResponse"];
       enterprise_catalog: components["schemas"]["EnterpriseCatalogResponse"];
       customer_agreement: components["schemas"]["CustomerAgreementResponse"];
-      subscription_plan: components["schemas"]["SubscriptionPlanResponse"];
+      trial_subscription_plan: components["schemas"]["SubscriptionPlanResponse"];
+      first_paid_subscription_plan: components["schemas"]["SubscriptionPlanResponse"];
+      subscription_plan_renewal: components["schemas"]["SubscriptionPlanRenewalResponse"];
+    };
+    /** @description Serializer for quantity constraints. */
+    QuantityConstraint: {
+      /** @description Minimum allowed quantity */
+      min: number;
+      /** @description Maximum allowed quantity */
+      max: number;
+    };
+    RateLimitError: {
+      /** @default Request was throttled. Expected available in 30 seconds. */
+      detail?: string;
     };
     /** @description Serializer for the secured algolia key */
     SecuredAlgoliaMetadata: {
@@ -2421,6 +4401,17 @@ export interface components {
       /** Format: date-time */
       valid_until?: string | null;
     };
+    /**
+     * @description * `created` - created
+     * * `paid` - paid
+     * * `fulfilled` - fulfilled
+     * * `errored_backoffice` - errored_backoffice
+     * * `errored_fulfillment_stalled` - errored_fulfillment_stalled
+     * * `errored_provisioning` - errored_provisioning
+     * * `expired` - expired
+     * @enum {string}
+     */
+    State6f2Enum: "created" | "paid" | "fulfilled" | "errored_backoffice" | "errored_fulfillment_stalled" | "errored_provisioning" | "expired";
     /**
      * @description * `requested` - Requested
      * * `pending` - Pending
@@ -2433,7 +4424,18 @@ export interface components {
      * * `reversed` - Reversed
      * @enum {string}
      */
-    State7b6Enum: "requested" | "pending" | "approved" | "declined" | "error" | "accepted" | "cancelled" | "expired" | "reversed";
+    StateB44Enum: "requested" | "pending" | "approved" | "declined" | "error" | "accepted" | "cancelled" | "expired" | "reversed";
+    /**
+     * @description * `created` - Created
+     * * `paid` - Paid
+     * * `fulfilled` - Fulfilled
+     * * `errored_backoffice` - Errored (Backoffice) - Salesforce integration failed during checkout intent update
+     * * `errored_fulfillment_stalled` - Errored (Fulfillment Stalled) - Checkout intent stuck in paid state, fulfillment workflow may have failed
+     * * `errored_provisioning` - Errored (Provisioning) - Enterprise provisioning workflow failed after payment
+     * * `expired` - Expired
+     * @enum {string}
+     */
+    StateCfeEnum: "created" | "paid" | "fulfilled" | "errored_backoffice" | "errored_fulfillment_stalled" | "errored_provisioning" | "expired";
     /**
      * @description * `allocated` - Allocated
      * * `accepted` - Accepted
@@ -2443,7 +4445,82 @@ export interface components {
      * * `reversed` - Reversed
      * @enum {string}
      */
-    StateBedEnum: "allocated" | "accepted" | "cancelled" | "errored" | "expired" | "reversed";
+    StateE0aEnum: "allocated" | "accepted" | "cancelled" | "errored" | "expired" | "reversed";
+    /** @description Serializer for enterprise string constraints. */
+    StringConstraint: {
+      /** @description Minimum string length */
+      min_length: number;
+      /** @description Maximum string length */
+      max_length: number;
+      /** @description Regex pattern for valid */
+      pattern?: string;
+    };
+    /** @description Serializer for reading StripeEventSummary model instances. */
+    StripeEventSummaryReadOnly: {
+      id: number;
+      /** Format: date-time */
+      created: string;
+      /** Format: date-time */
+      modified: string;
+      /** @description The unique Stripe event identifier */
+      event_id: string;
+      /** @description The Stripe event type */
+      event_type: string;
+      /**
+       * Format: date-time
+       * @description Timestamp when the Stripe event was created
+       */
+      stripe_event_created_at: string | null;
+      /**
+       * Format: uuid
+       * @description UUID of the Trial SubscriptionPlan from License Manager
+       */
+      subscription_plan_uuid: string | null;
+      /** @description Three-letter ISO currency code associated with the subscription. */
+      currency: string | null;
+      /** @description Type of the main Stripe object (invoice, subscription, etc.) */
+      stripe_object_type: string | null;
+      /** @description Stripe subscription ID extracted from event data */
+      stripe_subscription_id: string | null;
+      /** @description Stripe invoice ID extracted from event data */
+      stripe_invoice_id: string | null;
+      /** @description Status of the Stripe subscription (active, canceled, etc.) */
+      subscription_status: string | null;
+      /**
+       * Format: date-time
+       * @description Start date of the subscription period
+       */
+      subscription_period_start: string | null;
+      /**
+       * Format: date-time
+       * @description End date of the subscription period
+       */
+      subscription_period_end: string | null;
+      /**
+       * Format: date-time
+       * @description Timestamp when the subscription is scheduled to be canceled
+       */
+      subscription_cancel_at: string | null;
+      /** @description Amount paid on the invoice in cents */
+      invoice_amount_paid: number | null;
+      /** @description Unit amount from the primary invoice line item as integer cents */
+      invoice_unit_amount: number | null;
+      /**
+       * Format: decimal
+       * @description Unit amount from the primary invoice line item in decimal cents
+       */
+      invoice_unit_amount_decimal: string | null;
+      /** @description Quantity from the primary invoice line item */
+      invoice_quantity: number | null;
+      /** @description Currency of the invoice */
+      invoice_currency: string | null;
+      /** @description Upcoming invoice amount due related to this event/subscription */
+      upcoming_invoice_amount_due: number | null;
+      /** @description Reference to the original StripeEventData record */
+      stripe_event_data: string;
+      /** @description The related CheckoutIntent */
+      checkout_intent: number | null;
+    };
     /** @description Serializer for subscription license. */
     SubscriptionLicense: {
       /** Format: uuid */
@@ -2483,31 +4560,83 @@ export interface components {
       days_until_expiration_including_renewals: number;
       should_auto_apply_licenses: boolean | null;
     };
+    /** @description Request serializer for updating a SubscriptionPlan's Salesforce OLI. */
+    SubscriptionPlanOLIUpdate: {
+      /** @description The integer ID of the CheckoutIntent associated with this subscription. */
+      checkout_intent_id?: number | null;
+      /**
+       * Format: uuid
+       * @description The UUID of the CheckoutIntent associated with this subscription.
+       */
+      checkout_intent_uuid?: string | null;
+      /** @description The Salesforce Opportunity Line Item ID to associate with the subscription plan. */
+      salesforce_opportunity_line_item: string;
+      /**
+       * @description Whether this OLI is for the trial plan (True) or paid plan (False).
+       * @default false
+       */
+      is_trial?: boolean;
+    };
+    /** @description Response serializer for SubscriptionPlan OLI update. */
+    SubscriptionPlanOLIUpdateResponse: {
+      /** @description Whether the update was successful */
+      success: boolean;
+      /**
+       * Format: uuid
+       * @description The UUID identifier of the future plan (which receives the updated OLI value)
+       */
+      subscription_plan_uuid: string;
+      /** @description The Salesforce Opportunity Line Item ID to associate with the subscription plan. */
+      salesforce_opportunity_line_item: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the CheckoutIntent associated with this subscription.
+       */
+      checkout_intent_uuid?: string | null;
+      /** @description The integer ID of the CheckoutIntent associated with this subscription. */
+      checkout_intent_id?: number | null;
+    };
+    /** @description Subscription Plan Renewal serializer for provisioning responses. */
+    SubscriptionPlanRenewalResponse: {
+      id: number;
+      /** Format: uuid */
+      prior_subscription_plan: string;
+      /** Format: uuid */
+      renewed_subscription_plan: string;
+      number_of_licenses: number;
+      /** Format: date-time */
+      effective_date: string;
+      /** Format: date-time */
+      renewed_expiration_date: string;
+      salesforce_opportunity_line_item?: string;
+    };
     /** @description Subscription Plan serializer for provisioning requests. */
     SubscriptionPlanRequest: {
       /** @description The title of the subscription plan. */
       title: string;
       /** @description The Salesforce Opportunity Line Item id associated with this subscription plan. */
-      salesforce_opportunity_line_item: string;
+      salesforce_opportunity_line_item: string | null;
       /**
        * Format: date-time
        * @description The date and time at which the subscription plan becomes usable.
        */
-      start_date: string;
+      start_date?: string;
       /**
        * Format: date-time
        * @description The date and time at which the subscription plan becomes unusable.
        */
-      expiration_date: string;
+      expiration_date?: string;
       /**
        * @description The internal edX Enterprise Subscription Product record.
        *
        * * `1` - B2B Paid
        * * `3` - Trial
+       * * `6` - Self-service Trial
+       * * `7` - Self-service Paid
        */
-      product_id: components["schemas"]["ProductIdEnum"];
+      product_id?: components["schemas"]["ProductIdEnum"];
       /** @description The number of licenses to create for this plan. */
-      desired_num_licenses: number;
+      desired_num_licenses?: number;
       /**
        * Format: uuid
        * @description Optional. The enterprise catalog uuid associated with this subscription plan.
@@ -2531,6 +4660,7 @@ export interface components {
       plan_type: string;
       /** Format: uuid */
       enterprise_catalog_uuid: string;
+      product: number;
     };
     /** @description Serializer for subscriptions subsidies. */
     Subscriptions: {
@@ -2551,11 +4681,11 @@ export interface components {
        * @description Total Amount redeemed for policy, in USD.
        */
       amount_redeemed_usd: number;
-      /** @description Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy (0 otherwise), in positive USD cents. */
+      /** @description Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy or {PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in positive USD cents. */
       amount_allocated_usd_cents: number;
       /**
        * Format: double
-       * @description ('Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy (0 otherwise), in USD.',)
+       * @description ('Total amount allocated for policies of type AssignedLearnerCreditAccessPolicy or ', '{PolicyTypes.PER_LEARNER_SPEND_CREDIT} (0 otherwise), in USD.')
        */
       amount_allocated_usd: number;
       /** @description Total Amount of available spend for policy, in positive USD cents. */
@@ -3028,6 +5158,33 @@ export interface components {
      * @enum {string}
      */
     SubsidyTypeEnum: "license" | "coupon" | "learner_credit";
+    /** @description Common pattern for serialized field validation errors. */
+    UnprocessableEntityError: {
+      /** @description Error code for validation failure. */
+      error_code: string;
+      /** @description System message (not intended for user display) for validation failure. */
+      developer_message: string;
+    };
+    /** @description Serializer for user authentication status info. */
+    UserAuthInfo: {
+      /** @description Whether a user exists for the provided email */
+      user_exists_for_email: boolean | null;
+    };
+    /** @description Serializer for individual validation decisions. */
+    ValidationDecision: {
+      /** @description Error code for the validation failure */
+      error_code: string;
+      /** @description Technical message describing the validation failure */
+      developer_message: string;
+    };
+    ValidationError: {
+      /**
+       * @default [
+       *   "Invalid state transition from created to fulfilled"
+       * ]
+       */
+      state?: string[];
+    };
     /**
      * @description Base Serializer for BFF messages.
      *
@@ -3684,6 +5841,53 @@ export interface operations {
     };
   };
   /**
+   * Get checkout context
+   * @description Provides context information for the checkout flow, including pricing options and, for authenticated users, associated enterprise customers.
+   */
+  checkout_context: {
+    responses: {
+      /** @description Success response with checkout context data. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["CheckoutContextResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get checkout success data
+   * @description Provides relevant data after checkout success
+   */
+  checkout_success: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["CheckoutSuccessResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Validate checkout form fields
+   * @description Validates multiple checkout form fields and returns detailed validation results
+   */
+  checkout_validate_fields: {
+    requestBody?: {
+      content: {
+        "application/json": components["schemas"]["CheckoutValidationRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["CheckoutValidationRequest"];
+        "multipart/form-data": components["schemas"]["CheckoutValidationRequest"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["CheckoutValidationResponse"];
+        };
+      };
+    };
+  };
+  /**
    * Health Check Ping
    * @description Simple ping endpoint to check if the BFF service is running and responsive.
    */
@@ -3819,6 +6023,198 @@ export interface operations {
     };
   };
   /**
+   * List CheckoutIntents
+   * @description Retrieve a list of CheckoutIntent records for the authenticated user. This endpoint returns only the CheckoutIntent records that belong to the currently authenticated user, unless the user is staff, in which case **all** records are returned.
+   */
+  list_checkout_intents: {
+    parameters: {
+      query?: {
+        /** @description A page number within the paginated result set. */
+        page?: number;
+      };
+    };
+    responses: {
+      /** @description Successful response with paginated results */
+      200: {
+        content: {
+          "application/json": components["schemas"]["PaginatedCheckoutIntentReadOnlyList"];
+        };
+      };
+      /** @description Unauthorized - Authentication required */
+      401: {
+        content: {
+          "application/json": components["schemas"]["AuthenticationError"];
+        };
+      };
+      /** @description Forbidden - User does not have permission */
+      403: {
+        content: {
+          "application/json": components["schemas"]["PermissionError"];
+        };
+      };
+      /** @description Too Many Requests - Rate limit exceeded */
+      429: {
+        content: {
+          "application/json": components["schemas"]["RateLimitError"];
+        };
+      };
+    };
+  };
+  /**
+   * @description ViewSet for CheckoutIntent model.
+   *
+   * Provides list, retrieve, and partial_update actions for CheckoutIntent records.
+   * Users can only access their own CheckoutIntent records, unless the user is staff,
+   * in which case all records can be accessed.
+   *
+   * This ViewSet intentionally does not utilize edx-rbac for permission checking,
+   * because most use cases involve requesting users who are not yet expected
+   * to have been granted any enterprise roles. Instead, we manage authorization
+   * via the ``get_queryset()`` method.
+   *
+   * Supports lookup by either 'id' (integer) or 'uuid' (UUID).
+   */
+  api_v1_checkout_intent_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CheckoutIntentCreateRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["CheckoutIntentCreateRequest"];
+        "multipart/form-data": components["schemas"]["CheckoutIntentCreateRequest"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["CheckoutIntentCreateRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * Retrieve CheckoutIntent
+   * @description Retrieve a specific CheckoutIntent by either ID or UUID. This endpoint is designed to support polling from the frontend to check the fulfillment state after a successful Stripe checkout. Users can only retrieve their own CheckoutIntent records. Supports lookup by either:
+   * - Integer ID (e.g., `/api/v1/checkout-intents/123/`)
+   * - UUID (e.g., `/api/v1/checkout-intents/550e8400-e29b-41d4-a716-446655440000/`)
+   */
+  retrieve_checkout_intent: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["CheckoutIntentReadOnly"];
+        };
+      };
+      /** @description Bad Request - Invalid state transition or invalid data */
+      400: {
+        content: {
+          "application/json": components["schemas"]["ValidationError"];
+        };
+      };
+      /** @description Unauthorized - Authentication required */
+      401: {
+        content: {
+          "application/json": components["schemas"]["AuthenticationError"];
+        };
+      };
+      /** @description Forbidden - User does not have permission */
+      403: {
+        content: {
+          "application/json": components["schemas"]["PermissionError"];
+        };
+      };
+      /** @description Not Found - CheckoutIntent does not exist or belongs to another user */
+      404: {
+        content: {
+          "application/json": components["schemas"]["NotFoundError"];
+        };
+      };
+      /** @description Too Many Requests - Rate limit exceeded */
+      429: {
+        content: {
+          "application/json": components["schemas"]["RateLimitError"];
+        };
+      };
+    };
+  };
+  /**
+   * Update CheckoutIntent State
+   * @description Update the state of a CheckoutIntent. This endpoint is used to transition the CheckoutIntent through its lifecycle states. Only valid state transitions are allowed. Users can only update their own CheckoutIntent records. Supports lookup by either:
+   * - Integer ID (e.g., `/checkout-intents/123/`)
+   * - UUID (e.g., `/checkout-intents/550e8400-e29b-41d4-a716-446655440000/`)
+   *
+   * ## Allowed State Transitions
+   * ```
+   * created → paid
+   * created → errored_stripe_checkout
+   * paid → fulfilled
+   * paid → errored_provisioning
+   * errored_stripe_checkout → paid
+   * errored_provisioning → paid
+   * ```
+   * ## Integration Points
+   * - **Stripe Webhook**: Transitions from `created` to `paid` after successful payment
+   * - **Fulfillment**: Transitions from `paid` to `fulfilled` after provisioning
+   * - **Error Recovery**: Allows retry from error states back to `paid`
+   */
+  update_checkout_intent: {
+    parameters: {
+      path: {
+        /** @description ID or UUID of the CheckoutIntent to update */
+        id: string;
+      };
+    };
+    requestBody?: {
+      content: {
+        "application/json": components["schemas"]["PatchedCheckoutIntentUpdateRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["PatchedCheckoutIntentUpdateRequest"];
+        "multipart/form-data": components["schemas"]["PatchedCheckoutIntentUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successfully updated */
+      200: {
+        content: {
+          "application/json": components["schemas"]["CheckoutIntentReadOnly"];
+        };
+      };
+      /** @description Bad Request - Invalid state transition or invalid data */
+      400: {
+        content: {
+          "application/json": components["schemas"]["ValidationError"];
+        };
+      };
+      /** @description Unauthorized - Authentication required */
+      401: {
+        content: {
+          "application/json": components["schemas"]["AuthenticationError"];
+        };
+      };
+      /** @description Forbidden - User does not have permission */
+      403: {
+        content: {
+          "application/json": components["schemas"]["PermissionError"];
+        };
+      };
+      /** @description Not Found - CheckoutIntent does not exist or belongs to another user */
+      404: {
+        content: {
+          "application/json": components["schemas"]["NotFoundError"];
+        };
+      };
+      /** @description Too Many Requests - Rate limit exceeded */
+      429: {
+        content: {
+          "application/json": components["schemas"]["RateLimitError"];
+        };
+      };
+    };
+  };
+  /**
    * Coupon Code request list.
    * @description Viewset for coupon code requests
    */
@@ -3940,6 +6336,125 @@ export interface operations {
     };
   };
   /**
+   * Create a new Customer Portal Session from the enterprise checkout MFE.
+   * @description Create a new Customer Portal Session for the enterprise checkout MFE.  Response dict contains "url" key
+   * that should be attached to a button that the customer clicks.
+   *
+   * Response structure defined here: https://docs.stripe.com/api/customer_portal/sessions/create
+   */
+  api_v1_customer_billing_create_checkout_portal_session_retrieve: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description No response body */
+      200: {
+        content: never;
+      };
+    };
+  };
+  /**
+   * Create a new checkout session given form data from a prospective customer.
+   * @description Create a new Stripe checkout session for a free trial and return it's client_secret.
+   *
+   * Notes:
+   * * This endpoint is designed to be called AFTER logistration, but BEFORE displaying a payment entry form.  A
+   *   Stripe "Checkout Session" object is a prerequisite to rendering the Stripe embedded component for payment
+   *   entry.
+   * * The @permission_required() decorator has NOT been added. This endpoint only requires an authenticated LMS
+   *   user, which is more permissive than our usual requirement for a user with an enterprise role.
+   * * This endpoint is NOT idempotent and will create new checkout sessions on each subsequent call.
+   *   TODO: introduce an idempotency key and a new model to hold pending requests.
+   *
+   * Request/response structure:
+   *
+   *     POST /api/v1/customer-billing/create_checkout_session
+   *     >>> {
+   *     >>>     "admin_email": "dr@evil.inc",
+   *     >>>     "enterprise_slug": "my-sluggy"
+   *     >>>     "quantity": 7,
+   *     >>>     "stripe_price_id": "price_1MoBy5LkdIwHu7ixZhnattbh"
+   *     >>> }
+   *     HTTP 201 CREATED
+   *     >>> {
+   *     >>>     "checkout_session_client_secret": "cs_Hu7ixZhnattbh1MoBy5LkdIw"
+   *     >>> }
+   *     HTTP 422 UNPROCESSABLE ENTITY (only admin_email validation failed)
+   *     >>> {
+   *     >>>     "admin_email": {
+   *     >>>         "error_code": "not_registered",
+   *     >>>         "developer_message": "The provided email has not yet been registered."
+   *     >>>     }
+   *     >>> }
+   *     HTTP 422 UNPROCESSABLE ENTITY (only enterprise_slug validation failed)
+   *     >>> {
+   *     >>>     "enterprise_slug": {
+   *     >>>         "error_code": "existing_enterprise_customer_for_admin",
+   *     >>>         "developer_message": "Slug invalid: Admin belongs to existing customer..."
+   *     >>>     }
+   *     >>> }
+   */
+  api_v1_customer_billing_create_checkout_session_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CustomerBillingCreateCheckoutSessionRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["CustomerBillingCreateCheckoutSessionRequest"];
+        "multipart/form-data": components["schemas"]["CustomerBillingCreateCheckoutSessionRequest"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["CustomerBillingCreateCheckoutSessionSuccessResponse"];
+        };
+      };
+      422: {
+        content: {
+          "application/json": components["schemas"]["CustomerBillingCreateCheckoutSessionValidationFailedResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new Customer Portal Session from the Admin portal MFE.
+   * @description Create a new Customer Portal Session for the Admin Portal MFE.  Response dict contains "url" key
+   * that should be attached to a button that the customer clicks.
+   *
+   * Response structure defined here: https://docs.stripe.com/api/customer_portal/sessions/create
+   */
+  api_v1_customer_billing_create_enterprise_admin_portal_session_retrieve: {
+    responses: {
+      /** @description No response body */
+      200: {
+        content: never;
+      };
+    };
+  };
+  /**
+   * Listen for events from Stripe.
+   * @description Listen for events from Stripe, and take specific actions. Typically the action is to send a confirmation email.
+   *
+   * Authentication is performed via Stripe signature validation in StripeWebhookAuthentication.
+   *
+   * TODO:
+   * * For a real production implementation we should implement event de-duplication:
+   *   - https://docs.stripe.com/webhooks/process-undelivered-events
+   *   - This is a safeguard against the remote possibility that an event is sent twice. This could happen if the
+   *     network connection cuts out at the exact moment between successfully processing an event and responding with
+   *     HTTP 200, in which case Stripe will attempt to re-send the event since it does not know we successfully
+   *     received it.
+   */
+  api_v1_customer_billing_stripe_webhook_create: {
+    responses: {
+      /** @description No response body */
+      200: {
+        content: never;
+      };
+    };
+  };
+  /**
    * List customer config.
    * @description Viewset for customer configurations.
    */
@@ -4046,12 +6561,21 @@ export interface operations {
       query?: {
         course_id?: string;
         enterprise_customer_uuid?: string;
+        /** @description Choose from the following valid action statuses: requested, pending, approved, declined, error, accepted, cancelled, expired, reversed, reminded */
+        latest_action_status?: string;
+        /** @description Choose from the following valid action statuses: requested, pending, approved, declined, error, accepted, cancelled, expired, reversed, reminded */
+        latest_action_status__in?: string[];
+        /** @description Choose from the following valid learner request states: requested, pending, approved, declined, accepted, cancelled, expired, reversed, reminded, waiting, failed */
+        learner_request_state?: string;
+        /** @description Choose from the following valid learner request states: requested, pending, approved, declined, accepted, cancelled, expired, reversed, reminded, waiting, failed */
+        learner_request_state__in?: string[];
         /** @description Which field to use when ordering the results. */
         ordering?: string;
         /** @description A page number within the paginated result set. */
         page?: number;
         /** @description Number of results to return per page. */
         page_size?: number;
+        policy_uuid?: string;
         /** @description A search term. */
         search?: string;
         user__email?: string;
@@ -4106,6 +6630,127 @@ export interface operations {
     };
   };
   /**
+   * Approve a learner credit request.
+   * @description Approve a list of learner credit requests against a single policy.
+   *
+   * - On success, returns a `200 OK` with a list of the approved request objects.
+   * - If any of the specified requests fail to be approved, returns a
+   *   `422 Unprocessable Entity`. The successful approvals will still be committed.
+   */
+  api_v1_learner_credit_requests_approve_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestApproveRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestApproveRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestApproveRequest"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * @description Approve all filtered learner credit requests against a single policy.
+   *
+   * - On success, returns a `202 Accepted` status, indicating that the
+   *   bulk approval process has been initiated.
+   * - If no approvable requests are found for the given policy and filters,
+   *   returns a `404 Not Found`.
+   * - If any requests fail during the bulk approval, returns a
+   *   `422 Unprocessable Entity` to indicate a partial failure.
+   */
+  api_v1_learner_credit_requests_approve_all_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequest"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * Bulk approve learner credit requests.
+   * @description Bulk approve learner credit requests.
+   */
+  api_v1_learner_credit_requests_bulk_approve_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestBulkApproveRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestBulkApproveRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestBulkApproveRequest"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * Bulk decline learner credit requests.
+   * @description Bulk decline learner credit requests.
+   *
+   * Request Payload:
+   * {
+   *     "enterprise_customer_uuid": "<uuid>",
+   *     "subsidy_request_uuids": ["<uuid>", ...],  # Optional if decline_all is True
+   *     "decline_all": false,  # Optional, defaults to False
+   *     "policy_uuid": "<uuid>"
+   * }
+   *
+   * Returns:
+   *     Response with declined and failed request UUIDs.
+   */
+  api_v1_learner_credit_requests_bulk_decline_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestBulkDecline"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestBulkDecline"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestBulkDecline"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * Learner credit request cancel endpoint.
+   * @description Cancel a learner credit request.
+   */
+  api_v1_learner_credit_requests_cancel_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequestCancel"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequestCancel"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequestCancel"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequestCancel"];
+        };
+      };
+    };
+  };
+  /**
    * Decline a learner credit request.
    * @description Action of declining a Learner Credit Subsidy Request
    */
@@ -4130,6 +6775,51 @@ export interface operations {
    * @description Returns an overview of subsidy requests count by state.
    */
   api_v1_learner_credit_requests_overview_retrieve: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * @description Remind Learners that their LearnerCreditRequests are Approved and waiting for their action.
+   *
+   * Accepts a list of learner_credit_request_uuids to remind.
+   * Returns 422 if any of the requests are not remindable.
+   */
+  api_v1_learner_credit_requests_remind_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequest"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["LearnerCreditRequest"];
+        };
+      };
+    };
+  };
+  /**
+   * @description Remind all Learners with APPROVED LearnerCreditRequests for a given policy.
+   *
+   * Accepts a policy_uuid to filter requests by.
+   * Returns 404 if no remindable requests are found.
+   * Returns 422 if any requests are discovered to be non-remindable.
+   */
+  api_v1_learner_credit_requests_remind_all_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LearnerCreditRequest"];
+        "application/x-www-form-urlencoded": components["schemas"]["LearnerCreditRequest"];
+        "multipart/form-data": components["schemas"]["LearnerCreditRequest"];
+      };
+    };
     responses: {
       200: {
         content: {
@@ -4270,12 +6960,16 @@ export interface operations {
   api_v1_policy_allocation_allocate_create: {
     parameters: {
       query: {
+        /** @description The id of the Admin LMS user record. This may be null at time of creation. */
+        admin_lms_user_id?: number | null;
         /** @description Course content_key to which these learners are assigned. */
         content_key: string;
         /** @description The price, in USD cents, of this content at the time of allocation. Must be >= 0. */
         content_price_cents: number;
         /** @description Learner emails to whom LearnerContentAssignments should be allocated. */
         learner_emails: string[];
+        /** @description When true, suppress the automated learner assignment email. */
+        suppress_email?: boolean;
       };
       path: {
         policy_uuid: string;
@@ -4455,6 +7149,77 @@ export interface operations {
     };
   };
   /**
+   * Update a SubscriptionPlan with Salesforce Opportunity Line Item.
+   * @description Update a subscription plan with Salesforce OLI.
+   */
+  api_v1_provisioning_subscription_plan_oli_update_create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SubscriptionPlanOLIUpdate"];
+        "application/x-www-form-urlencoded": components["schemas"]["SubscriptionPlanOLIUpdate"];
+        "multipart/form-data": components["schemas"]["SubscriptionPlanOLIUpdate"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["SubscriptionPlanOLIUpdateResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Retrieves stripe event summaries.
+   * @description Lists ``StripeEventSummary`` records, filtered by given subscription plan uuid.
+   */
+  api_v1_stripe_event_summary_list: {
+    parameters: {
+      query?: {
+        /** @description A page number within the paginated result set. */
+        page?: number;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["PaginatedStripeEventSummaryReadOnlyList"];
+        };
+      };
+      /** @description No response body */
+      403: {
+        content: never;
+      };
+    };
+  };
+  /**
+   * @description Deprecated first-invoice-upcoming-amount-due endpoint.
+   *
+   * Temporary passthrough to aid with transitioning to get-stripe-subscription-plan-info.
+   */
+  api_v1_stripe_event_summary_first_invoice_upcoming_amount_due_retrieve: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["StripeEventSummaryReadOnly"];
+        };
+      };
+    };
+  };
+  /**
+   * @description Given a license-manager SubscriptionPlan uuid, returns information needed for the
+   * Subscription management page on admin portal, like the upcoming subscription price
+   * and if the subscription has been cancelled
+   */
+  api_v1_stripe_event_summary_get_stripe_subscription_plan_info_retrieve: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["StripeEventSummaryReadOnly"];
+        };
+      };
+    };
+  };
+  /**
    * List subsidy access policies for an enterprise customer.
    * @description Lists `SubsidyAccessPolicy` records, filtered by the
    * given query parameters.
@@ -4629,12 +7394,16 @@ export interface operations {
   api_v1_subsidy_access_policies_group_members_retrieve: {
     parameters: {
       query: {
+        /** @description The id of the Admin LMS user record. This may be null at time of creation. */
+        admin_lms_user_id?: number | null;
         /** @description Course content_key to which these learners are assigned. */
         content_key: string;
         /** @description The price, in USD cents, of this content at the time of allocation. Must be >= 0. */
         content_price_cents: number;
         /** @description Learner emails to whom LearnerContentAssignments should be allocated. */
         learner_emails: string[];
+        /** @description When true, suppress the automated learner assignment email. */
+        suppress_email?: boolean;
       };
       path: {
         uuid: string;
