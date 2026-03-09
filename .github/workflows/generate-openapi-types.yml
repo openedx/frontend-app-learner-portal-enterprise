@@ -26,7 +26,7 @@ jobs:
 
       - name: Create Pull Request
         id: cpr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
             token: ${{ secrets.requirements_bot_github_token }}
             commit-message: 'chore: generate Open API types'
