@@ -63,7 +63,7 @@ const DashboardPage = () => {
           )
           : intl.formatMessage({
             id: 'enterprise.dashboard.welcome.message',
-            defaultMessage: 'Welcome!',
+            defaultMessage: 'Namaste!',
             description: 'Welcome message shown when user has no first name.',
           })}
       </h2>
