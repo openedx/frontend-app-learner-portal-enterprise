@@ -6,7 +6,7 @@ import { getLoggingService } from '@edx/frontend-platform/logging';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
-import { useEnterpriseCustomer, useIsBFFEnabled } from '../app/data';
+import { useEnterpriseCustomer, useEnterpriseLearner, useIsBFFEnabled } from '../app/data';
 
 /**
  * Custom hook to set custom attributes for logging service:
@@ -15,18 +15,25 @@ import { useEnterpriseCustomer, useIsBFFEnabled } from '../app/data';
  */
 function useLoggingCustomAttributes() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: enterpriseFeaturesByCustomer } = useEnterpriseLearner({
+    select: (data) => data.transformed.enterpriseFeaturesByCustomer,
+  });
   const isBFFEnabled = useIsBFFEnabled();
 
   useEffect(() => {
     if (isDefinedAndNotNull(enterpriseCustomer)) {
       pushUserCustomerAttributes(enterpriseCustomer);
 
+      const featuresForCustomer = enterpriseFeaturesByCustomer[enterpriseCustomer.uuid];
+      const isBFFConcurrencyEnabled = !!featuresForCustomer?.enterpriseLearnerBffConcurrentRequests;
+
       // Set custom attributes via logging service
       const loggingService = getLoggingService();
       loggingService.setCustomAttribute('enterprise_customer_uuid', enterpriseCustomer.uuid);
       loggingService.setCustomAttribute('is_bff_enabled', isBFFEnabled);
+      loggingService.setCustomAttribute('is_bff_concurrency_enabled', isBFFConcurrencyEnabled);
     }
-  }, [enterpriseCustomer, isBFFEnabled]);
+  }, [enterpriseCustomer, isBFFEnabled, enterpriseFeaturesByCustomer]);
 }
 
 const EnterprisePage = ({ children }) => {
