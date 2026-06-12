@@ -6,6 +6,30 @@ import { COURSE_TITLE, NUM_RESULTS_COURSE } from './constants';
 import { SEARCH_INDEX_IDS } from '../../constants';
 import SearchResults from './SearchResults';
 import SearchCourseCard from './SearchCourseCard';
+import { useEnterpriseFeatures } from '../app/data';
+import { isExperimentVariant } from '../../utils/optimizely';
+
+/**
+ * Resolves the Algolia index courses are searched against.
+ *
+ * Defaults to the relevance-sorted primary index. Switches to the recency-sorted
+ * ("newest courses first") replica only when BOTH gates pass: (1) the
+ * `search_default_sort_newest` enterprise waffle flag is enabled (kill-switch), and
+ * (2) the Optimizely "newest" experiment variant is active for this user (A/B bucketing).
+ * A configured replica name is also required, so the sort is a safe no-op until ops
+ * provisions `ALGOLIA_RECENTLY_PUBLISHED_REPLICA_INDEX_NAME`.
+ */
+const useCourseSearchIndexName = () => {
+  const config = getConfig();
+  const { data: enterpriseFeatures } = useEnterpriseFeatures();
+  const recentlyPublishedIndexName = config.ALGOLIA_RECENTLY_PUBLISHED_REPLICA_INDEX_NAME;
+  const newestSortEnabled = Boolean(
+    enterpriseFeatures?.searchDefaultSortNewestEnabled
+    && recentlyPublishedIndexName
+    && isExperimentVariant(config.EXPERIMENT_3_ID, config.EXPERIMENT_3_VARIANT_2_ID),
+  );
+  return newestSortEnabled ? recentlyPublishedIndexName : config.ALGOLIA_INDEX_NAME;
+};
 
 /**
  * Renders the course-specific Algolia search results.
@@ -18,10 +42,10 @@ import SearchCourseCard from './SearchCourseCard';
  * <SearchCourse filter="content_type:course AND level:beginner" />
  */
 const SearchCourse = ({ filter }) => {
-  const config = getConfig();
   const intl = useIntl();
+  const indexName = useCourseSearchIndexName();
   return (
-    <Index indexName={config.ALGOLIA_INDEX_NAME} indexId={SEARCH_INDEX_IDS.COURSE}>
+    <Index indexName={indexName} indexId={SEARCH_INDEX_IDS.COURSE}>
       <Configure
         hitsPerPage={NUM_RESULTS_COURSE}
         filters={filter}
