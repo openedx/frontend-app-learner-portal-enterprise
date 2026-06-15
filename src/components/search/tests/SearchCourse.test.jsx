@@ -35,7 +35,7 @@ jest.mock('../../../utils/optimizely', () => ({
 }));
 
 const PRIMARY_INDEX = 'enterprise_catalog';
-const RECENCY_REPLICA = 'enterprise_catalog_recently_published_desc';
+const RECENCY_REPLICA = 'enterprise_catalog_recently_released_desc';
 
 const renderSearchCourse = () => render(
   <IntlProvider locale="en">
@@ -48,7 +48,7 @@ describe('<SearchCourse>', () => {
     jest.clearAllMocks();
     getConfig.mockReturnValue({
       ALGOLIA_INDEX_NAME: PRIMARY_INDEX,
-      ALGOLIA_RECENTLY_PUBLISHED_REPLICA_INDEX_NAME: RECENCY_REPLICA,
+      ALGOLIA_RECENTLY_RELEASED_REPLICA_INDEX_NAME: RECENCY_REPLICA,
       EXPERIMENT_3_ID: 'exp-3-id',
       EXPERIMENT_3_VARIANT_2_ID: 'exp-3-newest-variant-id',
     });
@@ -79,7 +79,7 @@ describe('<SearchCourse>', () => {
   it('falls back to the primary index when no recency replica is configured', () => {
     getConfig.mockReturnValue({
       ALGOLIA_INDEX_NAME: PRIMARY_INDEX,
-      ALGOLIA_RECENTLY_PUBLISHED_REPLICA_INDEX_NAME: null,
+      ALGOLIA_RECENTLY_RELEASED_REPLICA_INDEX_NAME: null,
       EXPERIMENT_3_ID: 'exp-3-id',
       EXPERIMENT_3_VARIANT_2_ID: 'exp-3-newest-variant-id',
     });

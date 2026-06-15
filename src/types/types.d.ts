@@ -73,7 +73,7 @@ declare global {
     ALGOLIA_INDEX_NAME: string | null;
     ALGOLIA_INDEX_NAME_JOBS: string | null;
     ALGOLIA_REPLICA_INDEX_NAME: string | null;
-    ALGOLIA_RECENTLY_PUBLISHED_REPLICA_INDEX_NAME: string | null;
+    ALGOLIA_RECENTLY_RELEASED_REPLICA_INDEX_NAME: string | null;
   };
 
   type ServiceUrls = {

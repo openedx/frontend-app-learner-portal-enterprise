@@ -17,18 +17,18 @@ import { isExperimentVariant } from '../../utils/optimizely';
  * `search_default_sort_newest` enterprise waffle flag is enabled (kill-switch), and
  * (2) the Optimizely "newest" experiment variant is active for this user (A/B bucketing).
  * A configured replica name is also required, so the sort is a safe no-op until ops
- * provisions `ALGOLIA_RECENTLY_PUBLISHED_REPLICA_INDEX_NAME`.
+ * provisions `ALGOLIA_RECENTLY_RELEASED_REPLICA_INDEX_NAME`.
  */
 const useCourseSearchIndexName = () => {
   const config = getConfig();
   const { data: enterpriseFeatures } = useEnterpriseFeatures();
-  const recentlyPublishedIndexName = config.ALGOLIA_RECENTLY_PUBLISHED_REPLICA_INDEX_NAME;
+  const recentlyReleasedIndexName = config.ALGOLIA_RECENTLY_RELEASED_REPLICA_INDEX_NAME;
   const newestSortEnabled = Boolean(
     enterpriseFeatures?.searchDefaultSortNewestEnabled
-    && recentlyPublishedIndexName
+    && recentlyReleasedIndexName
     && isExperimentVariant(config.EXPERIMENT_3_ID, config.EXPERIMENT_3_VARIANT_2_ID),
   );
-  return newestSortEnabled ? recentlyPublishedIndexName : config.ALGOLIA_INDEX_NAME;
+  return newestSortEnabled ? recentlyReleasedIndexName : config.ALGOLIA_INDEX_NAME;
 };
 
 /**
