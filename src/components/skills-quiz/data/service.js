@@ -14,7 +14,7 @@ export async function postSkillsGoalsAndJobsUserSelected(goal, interestedJobsId,
 
 export function fetchCourseEnrollments() {
   const config = getConfig();
-  const url = `${config.LMS_BASE_URL}/api/enrollment/v1/enrollment`;
+  const url = `${config.LMS_BASE_URL}/api/enrollment/v2/enrollment/`;
   return getAuthenticatedHttpClient().get(url);
 }
 
