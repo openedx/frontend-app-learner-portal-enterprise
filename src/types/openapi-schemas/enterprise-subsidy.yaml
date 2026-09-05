@@ -370,6 +370,8 @@ paths:
           name: uuid
           schema:
             type: string
+            format: uuid
+          description: A UUID string identifying this Subsidy.
           required: true
       tags:
         - subsidy
@@ -1687,6 +1689,14 @@ components:
             is captured at the time the Transaction is created and may not be up
             to date.
           maxLength: 255
+        course_run_start_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: >-
+            The start date of the course run associated with this
+            Transaction.The start date is captured at the time the Transaction
+            is created and may not be up to date.
         quantity:
           type: integer
           maximum: 9223372036854776000
