@@ -73,6 +73,7 @@ declare global {
     ALGOLIA_INDEX_NAME: string | null;
     ALGOLIA_INDEX_NAME_JOBS: string | null;
     ALGOLIA_REPLICA_INDEX_NAME: string | null;
+    ALGOLIA_RECENTLY_RELEASED_REPLICA_INDEX_NAME: string | null;
   };
 
   type ServiceUrls = {
@@ -117,6 +118,8 @@ declare global {
   type OptimizelyConfiguration = {
     EXPERIMENT_2_ID: string | null;
     EXPERIMENT_2_VARIANT_2_ID: string | null;
+    EXPERIMENT_3_ID: string | null;
+    EXPERIMENT_3_VARIANT_2_ID: string | null;
   };
 
   interface Configuration extends
@@ -136,6 +139,7 @@ declare global {
 
   type EnterpriseFeatures = {
     enterpriseLearnerBffEnabled?: boolean;
+    searchDefaultSortNewestEnabled?: boolean;
   };
 
   type EnterpriseCustomerUserRaw = enterpriseAccessOpenApi.components['schemas']['EnterpriseCustomerUser'];
