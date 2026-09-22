@@ -44,7 +44,7 @@ describe('skills quiz service', () => {
 
   it('fetches course enrollments', async () => {
     const sampleResponse = { enrollments: ['course1', 'course2'] };
-    const url = `${APP_CONFIG.LMS_BASE_URL}/api/enrollment/v1/enrollment`;
+    const url = `${APP_CONFIG.LMS_BASE_URL}/api/enrollment/v2/enrollment/`;
     axiosMock.onGet(url).reply(200, sampleResponse);
     const response = await fetchCourseEnrollments();
     await waitFor(() => expect(response.data).toEqual(sampleResponse));
