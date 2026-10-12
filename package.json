@@ -58,7 +58,7 @@
   "devDependencies": {
     "@edx/browserslist-config": "^1.5.0",
     "@edx/typescript-config": "^1.1.0",
-    "@faker-js/faker": "^8.4.1",
+    "@faker-js/faker": "^10.5.0",
     "@openedx/frontend-build": "^14.6.0",
     "@tanstack/eslint-plugin-query": "^4.38.0",
     "@testing-library/dom": "^10.4.0",
