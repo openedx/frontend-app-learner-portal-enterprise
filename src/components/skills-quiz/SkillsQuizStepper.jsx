@@ -147,8 +147,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
     // the current enterprise customer.
     const fetchLearnerCourseEnrollments = async () => {
       try {
-        const response = await fetchCourseEnrollments();
-        const enrolledCourses = camelCaseObject(response.data);
+        const enrolledCourses = camelCaseObject(await fetchCourseEnrollments());
         const enrolledCourseIds = enrolledCourses.map(
           (course) => course.courseDetails.courseId,
         );
