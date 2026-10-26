@@ -42,12 +42,39 @@ describe('skills quiz service', () => {
     });
   });
 
-  it('fetches course enrollments', async () => {
-    const sampleResponse = { enrollments: ['course1', 'course2'] };
-    const url = `${APP_CONFIG.LMS_BASE_URL}/api/enrollment/v1/enrollment`;
-    axiosMock.onGet(url).reply(200, sampleResponse);
-    const response = await fetchCourseEnrollments();
-    await waitFor(() => expect(response.data).toEqual(sampleResponse));
+  describe('fetchCourseEnrollments', () => {
+    const firstPageUrl = `${APP_CONFIG.LMS_BASE_URL}/api/enrollment/v2/enrollment/?page_size=100`;
+    const secondPageUrl = `${APP_CONFIG.LMS_BASE_URL}/api/enrollment/v2/enrollment/?page=2&page_size=100`;
+    // One page of the paginated v2 enrollment list.
+    const enrollmentsPage = (courseIds, next = null) => ({
+      count: courseIds.length,
+      num_pages: next ? 2 : 1,
+      current_page: 1,
+      start: 0,
+      next,
+      previous: null,
+      results: courseIds.map((courseId) => ({ course_details: { course_id: courseId } })),
+    });
+
+    it('returns the enrollments of a single page', async () => {
+      axiosMock.onGet(firstPageUrl).reply(200, enrollmentsPage(['course1', 'course2']));
+      const enrollments = await fetchCourseEnrollments();
+      expect(enrollments).toEqual([
+        { course_details: { course_id: 'course1' } },
+        { course_details: { course_id: 'course2' } },
+      ]);
+    });
+
+    it('follows next until the last page', async () => {
+      axiosMock.onGet(firstPageUrl).reply(200, enrollmentsPage(['course1'], secondPageUrl));
+      axiosMock.onGet(secondPageUrl).reply(200, enrollmentsPage(['course2']));
+      const enrollments = await fetchCourseEnrollments();
+      expect(enrollments).toEqual([
+        { course_details: { course_id: 'course1' } },
+        { course_details: { course_id: 'course2' } },
+      ]);
+      expect(axiosMock.history.get.map(({ url }) => url)).toEqual([firstPageUrl, secondPageUrl]);
+    });
   });
 
   it('fetches job path description', async () => {

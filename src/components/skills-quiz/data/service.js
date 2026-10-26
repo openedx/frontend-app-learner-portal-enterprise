@@ -12,10 +12,23 @@ export async function postSkillsGoalsAndJobsUserSelected(goal, interestedJobsId,
   return getAuthenticatedHttpClient().post(url, options);
 }
 
+async function fetchEnrollmentPages(url) {
+  const { data } = await getAuthenticatedHttpClient().get(url);
+  if (!data.next) {
+    return data.results;
+  }
+  return [...data.results, ...await fetchEnrollmentPages(data.next)];
+}
+
+// Returns every enrollment of the current user. The v2 list is paginated, so
+// each page is read in turn until there is no next page.
+//
+// Unlike the v1 list, v2 also returns inactive enrollments. A course the
+// learner has unenrolled from therefore counts as enrolled here and is left
+// out of the Skills Quiz recommendations.
 export function fetchCourseEnrollments() {
   const config = getConfig();
-  const url = `${config.LMS_BASE_URL}/api/enrollment/v1/enrollment`;
-  return getAuthenticatedHttpClient().get(url);
+  return fetchEnrollmentPages(`${config.LMS_BASE_URL}/api/enrollment/v2/enrollment/?page_size=100`);
 }
 
 export async function fetchJobPathDescription(currentJobID, futureJobID) {
