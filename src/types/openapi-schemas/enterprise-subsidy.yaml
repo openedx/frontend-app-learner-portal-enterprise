@@ -954,6 +954,97 @@ paths:
                 additionalProperties: {}
                 description: Unspecified response body
           description: ''
+  /api/v2/subsidies/{subsidy_uuid}/admin/transactions/export/:
+    get:
+      operationId: api_v2_subsidies_admin_transactions_export_retrieve
+      description: Streams the spend report for ``subsidy_uuid`` as a CSV attachment.
+      parameters:
+        - in: query
+          name: end_date
+          schema:
+            type: string
+            format: date
+          description: Only include spend on/before this date, inclusive (UTC).
+        - in: query
+          name: enterprise_customer_uuid
+          schema:
+            type: string
+            format: uuid
+          description: >-
+            If given, the subsidy must belong to this enterprise customer
+            (otherwise 404).
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum:
+              - csv
+              - json
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: >-
+            Only include spend whose learner email or course title contains this
+            text.
+        - in: query
+          name: start_date
+          schema:
+            type: string
+            format: date
+          description: Only include spend on/after this date (UTC).
+        - in: query
+          name: subsidy_access_policy_uuid
+          schema:
+            type: string
+            format: uuid
+          description: Only include spend redeemed via this policy (budget).
+        - in: path
+          name: subsidy_uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
+      tags:
+        - transactions
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+          description: The spend report, as a UTF-8 CSV file attachment.
+        '400':
+          description: Invalid query parameters.
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+            text/csv:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+            text/csv:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
   /api/v2/subsidies/{subsidy_uuid}/transactions/:
     get:
       operationId: api_v2_subsidies_transactions_list
@@ -1687,6 +1778,14 @@ components:
             is captured at the time the Transaction is created and may not be up
             to date.
           maxLength: 255
+        course_run_start_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: >-
+            The start date of the course run associated with this
+            Transaction.The start date is captured at the time the Transaction
+            is created and may not be up to date.
         quantity:
           type: integer
           maximum: 9223372036854776000
