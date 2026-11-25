@@ -41,6 +41,8 @@ initialize({
         ALGOLIA_SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY || null,
         ALGOLIA_INDEX_NAME: process.env.ALGOLIA_INDEX_NAME || null,
         ALGOLIA_REPLICA_INDEX_NAME: process.env.ALGOLIA_REPLICA_INDEX_NAME || null,
+        ALGOLIA_RECENTLY_RELEASED_REPLICA_INDEX_NAME:
+          process.env.ALGOLIA_RECENTLY_RELEASED_REPLICA_INDEX_NAME || null,
         ALGOLIA_INDEX_NAME_JOBS: process.env.ALGOLIA_INDEX_NAME_JOBS || null,
         INTEGRATION_WARNING_DISMISSED_COOKIE_NAME: process.env.INTEGRATION_WARNING_DISMISSED_COOKIE_NAME || null,
         IS_MAINTENANCE_ALERT_ENABLED: process.env.IS_MAINTENANCE_ALERT_ENABLED || null,
@@ -61,6 +63,10 @@ initialize({
         ENTERPRISE_SUBSIDY_BASE_URL: process.env.ENTERPRISE_SUBSIDY_BASE_URL || null,
         EXPERIMENT_2_ID: process.env.EXPERIMENT_2_ID || null,
         EXPERIMENT_2_VARIANT_2_ID: process.env.EXPERIMENT_2_VARIANT_2_ID || null,
+        // Experiment 3: "newest courses first" default search sort, gated by the
+        // enterprise.search_default_sort_newest waffle flag. IDs come from the Optimizely dashboard.
+        EXPERIMENT_3_ID: process.env.EXPERIMENT_3_ID || null,
+        EXPERIMENT_3_VARIANT_2_ID: process.env.EXPERIMENT_3_VARIANT_2_ID || null,
         FEATURE_ENABLE_RESTRICTED_RUNS: process.env.FEATURE_ENABLE_RESTRICTED_RUNS || null,
       });
     },
