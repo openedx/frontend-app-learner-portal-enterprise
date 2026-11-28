@@ -227,6 +227,10 @@ export interface paths {
      */
     post: operations["api_v2_subsidies_admin_transactions_create"];
   };
+  "/api/v2/subsidies/{subsidy_uuid}/admin/transactions/export/": {
+    /** @description Streams the spend report for ``subsidy_uuid`` as a CSV attachment. */
+    get: operations["api_v2_subsidies_admin_transactions_export_retrieve"];
+  };
   "/api/v2/subsidies/{subsidy_uuid}/transactions/": {
     /**
      * @description Lists all transactions in the given ``subsidy_uuid`` with an ``lms_user_id``
@@ -291,7 +295,7 @@ export interface components {
       sales_contract_reference_provider: string;
       /** @description An optional idempotency key that a client may want to associate with the related Transaction instance to be created. */
       idempotency_key?: string;
-      /** @description Any additional metadata that a client may want to associate with the related Transaction instance to be created. */
+      /** @description Any additional metadata that a client may want to associate with the related Transaction instance to be created. Must be a JSON object. Keys that clash with ledger fields are rejected: content_key, content_title, course_run_start_date, deposit_uuid, idempotency_key, ledger, lms_user_email, lms_user_id, parent_content_key, quantity, sales_contract_reference_id, sales_contract_reference_provider, state, subsidy_access_policy_uuid. */
       metadata?: unknown;
     };
     /** @description Read-only serializer for responding with data about errors. */
@@ -315,18 +319,33 @@ export interface components {
       results: components["schemas"]["Subsidy"][];
     };
     PaginatedTransactionList: {
-      /** @example 123 */
-      count: number;
       /**
        * Format: uri
        * @example http://api.example.org/accounts/?page=4
        */
-      next?: string | null;
+      next: string | null;
       /**
        * Format: uri
        * @example http://api.example.org/accounts/?page=2
        */
-      previous?: string | null;
+      previous: string | null;
+      /** @example 123 */
+      count: number;
+      /**
+       * @description Number of pages the results are divided into.
+       * @example 13
+       */
+      num_pages: number;
+      /**
+       * @description Number of the page returned, starting at 1.
+       * @example 4
+       */
+      current_page: number;
+      /**
+       * @description Zero-based index of the first result on this page.
+       * @example 30
+       */
+      start: number;
       results: components["schemas"]["Transaction"][];
     };
     /** @description Serializer for updating a subsidy */
@@ -594,6 +613,11 @@ export interface components {
       parent_content_key?: string | null;
       /** @description The title of the content associated with this Transaction.The title is captured at the time the Transaction is created and may not be up to date. */
       content_title?: string | null;
+      /**
+       * Format: date-time
+       * @description The start date of the course run associated with this Transaction.The start date is captured at the time the Transaction is created and may not be up to date.
+       */
+      course_run_start_date?: string | null;
       /**
        * Format: int64
        * @description How many units (as defined in the associated Ledger instance) this Transaction represents.
@@ -1333,6 +1357,59 @@ export interface operations {
       429: {
         content: {
           "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /** @description Streams the spend report for ``subsidy_uuid`` as a CSV attachment. */
+  api_v2_subsidies_admin_transactions_export_retrieve: {
+    parameters: {
+      query?: {
+        /** @description Only include spend on/before this date, inclusive (UTC). */
+        end_date?: string;
+        /** @description If given, the subsidy must belong to this enterprise customer (otherwise 404). */
+        enterprise_customer_uuid?: string;
+        format?: "csv" | "json";
+        /** @description Only include spend whose learner email or course title contains this text. */
+        search?: string;
+        /** @description Only include spend on/after this date (UTC). */
+        start_date?: string;
+        /** @description Only include spend redeemed via this policy (budget). */
+        subsidy_access_policy_uuid?: string;
+      };
+      path: {
+        subsidy_uuid: string;
+      };
+    };
+    responses: {
+      /** @description The spend report, as a UTF-8 CSV file attachment. */
+      200: {
+        content: {
+          "text/csv": string;
+        };
+      };
+      /** @description Invalid query parameters. */
+      400: {
+        content: never;
+      };
+      403: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+          "text/csv": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+          "text/csv": {
             [key: string]: unknown;
           };
         };
